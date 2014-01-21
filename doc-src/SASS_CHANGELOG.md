@@ -176,6 +176,9 @@ There are a variety of functions for working with maps:
   second map takes precedence, making this a good way to modify values in a map
   as well.
 
+* The {Sass::Script::Functions#map_remove `map-remove($map, $key)` function}
+  returns a new map with a key removed.
+
 * The {Sass::Script::Functions#map_keys `map-keys($map)` function} returns all
   the keys in a map as a comma-separated list.
 

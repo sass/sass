@@ -1349,6 +1349,21 @@ WARNING
     end
   end
 
+  def test_map_remove
+    assert_equal("(foo: 1, baz: 3)",
+      perform("map-remove((foo: 1, bar: 2, baz: 3), bar)").to_sass)
+    assert_equal("()", perform("map-remove((), foo)").to_sass)
+
+    assert_warning(<<WARNING) do
+DEPRECATION WARNING: Passing lists of pairs to map-remove is deprecated and will
+be removed in future versions of Sass. Use Sass maps instead. For details, see
+http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
+WARNING
+      assert_equal("(foo: 1, baz: 3)",
+        perform("map-remove((foo 1, bar 2, baz 3), bar)").to_sass)
+    end
+  end
+
   def test_map_keys
     assert_equal("foo, bar",
       perform("map-keys((foo: 1, bar: 2))").to_sass)
