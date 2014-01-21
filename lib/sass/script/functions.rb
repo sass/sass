@@ -1376,7 +1376,7 @@ module Sass::Script
     declare :str_insert, [:string, :insert, :index]
 
     # Returns the index of the first occurance of `$substring` in `$string`. If
-    # there is no such occurance, returns 0.
+    # there is no such occurance, returns `null`.
     #
     # Note that unlike some languages, the first character in a Sass string is
     # number 1, the second number 2, and so forth.
@@ -1384,19 +1384,19 @@ module Sass::Script
     # @example
     #   str-index(abcd, a)  => 1
     #   str-index(abcd, ab) => 1
-    #   str-index(abcd, X)  => 0
+    #   str-index(abcd, X)  => null
     #   str-index(abcd, c)  => 3
     #
     # @overload str_index($string, $substring)
     # @param $string [Sass::Script::Value::String]
     # @param $substring [Sass::Script::Value::String]
-    # @return [Sass::Script::Value::Number]
+    # @return [Sass::Script::Value::Number, Sass::Script::Value::Null]
     # @raise [ArgumentError] if any parameter is the wrong type
     def str_index(string, substring)
       assert_type string, :String, :string
       assert_type substring, :String, :substring
-      index = string.value.index(substring.value) || -1
-      number(index + 1)
+      index = string.value.index(substring.value)
+      index ? number(index + 1) : null
     end
     declare :str_index, [:string, :substring]
 

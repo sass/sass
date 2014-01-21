@@ -904,7 +904,7 @@ class SassFunctionTest < Test::Unit::TestCase
   def test_str_index
     assert_equal('1', evaluate('str-index(abcd, a)'))
     assert_equal('1', evaluate('str-index(abcd, ab)'))
-    assert_equal('0', evaluate('str-index(abcd, X)'))
+    assert_equal(Sass::Script::Value::Null.new, perform('str-index(abcd, X)'))
     assert_equal('3', evaluate('str-index(abcd, c)'))
   end
 
