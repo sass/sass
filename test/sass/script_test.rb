@@ -570,27 +570,6 @@ SASS
     assert_equal "true", resolve("$ie or $undef", {}, env('ie' => Sass::Script::Value::Bool.new(true)))
   end
 
-  def test_selector
-    env = Sass::Environment.new
-    assert_equal "true", resolve("& == null", {}, env)
-
-    env.selector = selector('.foo.bar .baz.bang, .bip.bop')
-    assert_equal ".foo.bar .baz.bang, .bip.bop", resolve("&", {}, env)
-    assert_equal ".foo.bar .baz.bang", resolve("nth(&, 1)", {}, env)
-    assert_equal ".bip.bop", resolve("nth(&, 2)", {}, env)
-    assert_equal ".foo.bar", resolve("nth(nth(&, 1), 1)", {}, env)
-    assert_equal ".baz.bang", resolve("nth(nth(&, 1), 2)", {}, env)
-    assert_equal ".bip.bop", resolve("nth(nth(&, 2), 1)", {}, env)
-    assert_equal "string", resolve("type-of(nth(nth(&, 1), 1))", {}, env)
-
-    env.selector = selector('.foo > .bar')
-    assert_equal ".foo > .bar", resolve("&", {}, env)
-    assert_equal ".foo > .bar", resolve("nth(&, 1)", {}, env)
-    assert_equal ".foo", resolve("nth(nth(&, 1), 1)", {}, env)
-    assert_equal ">", resolve("nth(nth(&, 1), 2)", {}, env)
-    assert_equal ".bar", resolve("nth(nth(&, 1), 3)", {}, env)
-  end
-
   def test_setting_global_variable_locally_warns
     assert_warning(<<WARNING) {assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))}
 DEPRECATION WARNING on line 4 of test_setting_global_variable_locally_warns_inline.scss:

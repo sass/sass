@@ -105,10 +105,6 @@ class SassScriptConversionTest < Test::Unit::TestCase
     assert_renders "(foo: (bar, baz), bip: bop)"
   end
 
-  def test_selector
-    assert_renders "&"
-  end
-
   def self.test_precedence(outer, inner)
     op_outer = Sass::Script::Lexer::OPERATORS_REVERSE[outer]
     op_inner = Sass::Script::Lexer::OPERATORS_REVERSE[inner]

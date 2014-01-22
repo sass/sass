@@ -1092,37 +1092,6 @@ is compiled to:
     p {
       font: 12px/30px; }
 
-### `&` in SassScript {#parent-script}
-
-Just like when it's used [in selectors](#parent-selector), `&` in SassScript
-refers to the current parent selector. It's a comma-separated list of
-space-separated lists. For example:
-
-    .foo.bar .baz.bang, .bip.qux {
-      $selector: &;
-    }
-
-The value of `$selector` is now `((".foo.bar" ".baz.bang"), ".bip.qux")`. The
-compound selectors are quoted here to indicate that they're strings, but in
-reality they would be unquoted. Even if the parent selector doesn't contain a
-comma or a space, `&` will always have two levels of nesting, so it can be
-accessed consistently.
-
-The SassScript `&` may be used in selectors using `#{}` interpolation. Because
-it's often not possible for Sass to detect that you're using it, you need to
-explicitly tell Sass not to do the normal nesting for the selector using the
-[`@at-root` directive](#at-root). For example:
-
-    .badge {
-      @at-root #{&}-info { ... }
-      @at-root #{&}-header { ... }
-    }
-
-Produces:
-
-    .badge-info { ... }
-    .badge-header { ... }
-
 ### Variable Defaults: `!default`
 
 You can assign to variables if they aren't already assigned
