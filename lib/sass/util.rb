@@ -170,6 +170,19 @@ module Sass
       enum.inject([]) {|a, e| a << e << val}[0...-1]
     end
 
+    def slice_by(enum)
+      results = []
+      enum.each do |value|
+        key = yield(value)
+        if !results.empty? && results.last.first == key
+          results.last.last << value
+        else
+          results << [key, [value]]
+        end
+      end
+      results
+    end
+
     # Substitutes a sub-array of one array with another sub-array.
     #
     # @param ary [Array] The array in which to make the substitution
