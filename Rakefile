@@ -1,3 +1,5 @@
+require 'rubygems/package'
+
 # ----- Utility Functions -----
 
 def scope(path)
@@ -28,7 +30,7 @@ task :package => [:revision_file, :date_file, :submodules, :permissions] do
   version = get_version
   File.open(scope('VERSION'), 'w') {|f| f.puts(version)}
   load scope('sass.gemspec')
-  Gem::Builder.new(SASS_GEMSPEC).build
+  Gem::Package.build(SASS_GEMSPEC)
   sh %{git checkout VERSION}
 
   pkg = "#{SASS_GEMSPEC.name}-#{SASS_GEMSPEC.version}"
