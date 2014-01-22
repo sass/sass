@@ -2189,8 +2189,8 @@ For example:
     @mixin highlighted-background { background-color: #fc0; }
     @mixin header-text { font-size: 20px; }
 
-A mixin may not include itself, directly or indirectly. That is,
-mixin recursion is forbidden.
+Mixins may include themselves. This is different than the behavior of
+Sass versions prior to 3.3, where mixin recursion was forbidden.
 
 Mixins that only define descendent selectors can be safely mixed
 into the top most level of a document.

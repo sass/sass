@@ -469,89 +469,25 @@ SASS
     assert_hash_has(err.sass_backtrace[4], :filename => nil, :mixin => nil, :line => 1)
   end
 
-  def test_basic_mixin_loop_exception
-    render <<SASS
-@mixin foo
-  @include foo
-@include foo
+  def test_recursive_mixin
+    assert_equal <<CSS, render(<<SASS)
+.foo .bar .baz {
+  color: blue; }
+.foo .bar .qux {
+  color: red; }
+.foo .zap {
+  color: green; }
+CSS
+@mixin map-to-rule($map-or-color)
+  @if type-of($map-or-color) == map
+    @each $key, $value in $map-or-color
+      .\#{$key}
+        @include map-to-rule($value)
+  @else
+    color: $map-or-color
+
+@include map-to-rule((foo: (bar: (baz: blue, qux: red), zap: green)))
 SASS
-    assert(false, "Exception not raised")
-  rescue Sass::SyntaxError => err
-    assert_equal("An @include loop has been found: foo includes itself", err.message)
-    assert_hash_has(err.sass_backtrace[0], :mixin => "foo", :line => 2)
-  end
-
-  def test_double_mixin_loop_exception
-    render <<SASS
-@mixin foo
-  @include bar
-@mixin bar
-  @include foo
-@include foo
-SASS
-    assert(false, "Exception not raised")
-  rescue Sass::SyntaxError => err
-    assert_equal(<<MESSAGE.rstrip, err.message)
-An @include loop has been found:
-    foo includes bar
-    bar includes foo
-MESSAGE
-    assert_hash_has(err.sass_backtrace[0], :mixin => "bar", :line => 4)
-    assert_hash_has(err.sass_backtrace[1], :mixin => "foo", :line => 2)
-  end
-
-  def test_deep_mixin_loop_exception
-    render <<SASS
-@mixin foo
-  @include bar
-
-@mixin bar
-  @include baz
-
-@mixin baz
-  @include foo
-
-@include foo
-SASS
-    assert(false, "Exception not raised")
-  rescue Sass::SyntaxError => err
-    assert_equal(<<MESSAGE.rstrip, err.message)
-An @include loop has been found:
-    foo includes bar
-    bar includes baz
-    baz includes foo
-MESSAGE
-    assert_hash_has(err.sass_backtrace[0], :mixin => "baz", :line => 8)
-    assert_hash_has(err.sass_backtrace[1], :mixin => "bar", :line => 5)
-    assert_hash_has(err.sass_backtrace[2], :mixin => "foo", :line => 2)
-  end
-
-  def test_mixin_loop_with_content
-    render <<SASS
-=foo
-  @content
-=bar
-  +foo
-    +bar
-+bar
-SASS
-    assert(false, "Exception not raised")
-  rescue Sass::SyntaxError => err
-    assert_equal("An @include loop has been found: bar includes itself", err.message)
-    assert_hash_has(err.sass_backtrace[0], :mixin => "@content", :line => 5)
-  end
-
-  def test_basic_import_loop_exception
-    import = filename_for_test
-    importer = MockImporter.new
-    importer.add_import(import, "@import '#{import}'")
-
-    engine = Sass::Engine.new("@import '#{import}'", :filename => import,
-      :load_paths => [importer])
-
-    assert_raise_message(Sass::SyntaxError, <<ERR.rstrip) {engine.render}
-An @import loop has been found: #{import} imports itself
-ERR
   end
 
   def test_double_import_loop_exception
@@ -2589,24 +2525,6 @@ body
   @include respond-to(20px)
     background: blue
 SASS
-  end
-
-  def test_tricky_mixin_loop_exception
-    render <<SASS
-@mixin foo($a)
-  @if $a
-    @include foo(false)
-    @include foo(true)
-  @else
-    a: b
-
-a
-  @include foo(true)
-SASS
-    assert(false, "Exception not raised")
-  rescue Sass::SyntaxError => err
-    assert_equal("An @include loop has been found: foo includes itself", err.message)
-    assert_hash_has(err.sass_backtrace[0], :mixin => "foo", :line => 3)
   end
 
   def test_interpolated_comment_in_mixin

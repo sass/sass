@@ -289,6 +289,10 @@ maps instead.
   list based on `$list`, with the nth element changed to the value
   specified.
 
+* In order to make it easier for mixins to process maps, they may now
+  recursively call themselves and one another. It is no longer an
+  error to have a mixin `@include` loop.
+
 * Add "grey" and "transparent" as recognized SassScript colors. Thanks to [Rob
   Wierzbowski](https://github.com/robwierzbowski).
 

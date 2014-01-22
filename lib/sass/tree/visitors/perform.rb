@@ -315,12 +315,6 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
   # Runs a mixin.
   def visit_mixin(node)
-    include_loop = true
-    if @environment.stack.frames.any? {|f| f.is_mixin? && f.name == node.name}
-      handle_include_loop!(node)
-    end
-    include_loop = false
-
     @environment.stack.with_mixin(node.filename, node.line, node.name) do
       mixin = @environment.mixin(node.name)
       raise Sass::SyntaxError.new("Undefined mixin '#{node.name}'.") unless mixin
@@ -343,10 +337,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
       end
     end
   rescue Sass::SyntaxError => e
-    unless include_loop
-      e.modify_backtrace(:mixin => node.name, :line => node.line)
-      e.add_backtrace(:line => node.line)
-    end
+    e.modify_backtrace(:mixin => node.name, :line => node.line)
+    e.add_backtrace(:line => node.line)
     raise e
   end
 
@@ -514,31 +506,6 @@ WARNING
 
   def run_interp(text)
     run_interp_no_strip(text).strip
-  end
-
-  def handle_include_loop!(node)
-    msg = "An @include loop has been found:"
-    content_count = 0
-    mixins = @environment.stack.frames.select {|f| f.is_mixin?}.reverse!.map! {|f| f.name}
-    mixins = mixins.select do |name|
-      if name == '@content'
-        content_count += 1
-        false
-      elsif content_count > 0
-        content_count -= 1
-        false
-      else
-        true
-      end
-    end
-
-    return unless mixins.include?(node.name)
-    raise Sass::SyntaxError.new("#{msg} #{node.name} includes itself") if mixins.size == 1
-
-    msg << "\n" << Sass::Util.enum_cons(mixins.reverse + [node.name], 2).map do |m1, m2|
-      "    #{m1} includes #{m2}"
-    end.join("\n")
-    raise Sass::SyntaxError.new(msg)
   end
 
   def handle_import_loop!(node)
