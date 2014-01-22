@@ -367,7 +367,7 @@ ERR
       rendered << "\n" unless compressed
       rendered << "/*# sourceMappingURL="
       rendered << Sass::Util.escape_uri(sourcemap_uri)
-      rendered << " */"
+      rendered << " */\n"
       rendered = encode_and_set_charset(rendered)
       return rendered, sourcemap
     end
