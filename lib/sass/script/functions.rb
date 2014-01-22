@@ -743,7 +743,6 @@ module Sass::Script
     # @raise [ArgumentError] if `$color` isn't a color
     def hue(color)
       assert_type color, :Color, :color
-      assert_type color, :Color
       number(color.hue, "deg")
     end
     declare :hue, [:color]
@@ -1897,7 +1896,7 @@ module Sass::Script
     #   if the map doesn't contain the given key
     # @raise [ArgumentError] if `$map` is not a map
     def map_get(map, key)
-      assert_type map, :Map
+      assert_type map, :Map, :map
       to_h(map)[key] || null
     end
     declare :map_get, [:map, :key]
@@ -1920,11 +1919,11 @@ module Sass::Script
     # @return [Sass::Script::Value::Map]
     # @raise [ArgumentError] if either parameter is not a map
     def map_merge(map1, map2)
-      assert_type map1, :Map
-      assert_type map2, :Map
+      assert_type map1, :Map, :map1
+      assert_type map2, :Map, :map2
       map(to_h(map1).merge(to_h(map2)))
     end
-    declare :map_get, [:map1, :map2]
+    declare :map_merge, [:map1, :map2]
 
     # Returns a new map with a key removed.
     #
@@ -1937,7 +1936,7 @@ module Sass::Script
     # @return [Sass::Script::Value::Map]
     # @raise [ArgumentError] if `$map` is not a map
     def map_remove(map, key)
-      assert_type map, :Map
+      assert_type map, :Map, :map
       hash = to_h(map).dup
       hash.delete key
       map(hash)
@@ -1953,7 +1952,7 @@ module Sass::Script
     # @return [List] the list of keys, comma-separated
     # @raise [ArgumentError] if `$map` is not a map
     def map_keys(map)
-      assert_type map, :Map
+      assert_type map, :Map, :map
       list(to_h(map).keys, :comma)
     end
     declare :map_keys, [:map]
@@ -1969,7 +1968,7 @@ module Sass::Script
     # @return [List] the list of values, comma-separated
     # @raise [ArgumentError] if `$map` is not a map
     def map_values(map)
-      assert_type map, :Map
+      assert_type map, :Map, :map
       list(to_h(map).values, :comma)
     end
     declare :map_values, [:map]
@@ -1985,7 +1984,7 @@ module Sass::Script
     # @return [Sass::Script::Value::Bool]
     # @raise [ArgumentError] if `$map` is not a map
     def map_has_key(map, key)
-      assert_type map, :Map
+      assert_type map, :Map, :map
       bool(to_h(map).has_key?(key))
     end
     declare :map_has_key, [:map, :key]
@@ -2005,7 +2004,7 @@ module Sass::Script
     # @return [Sass::Script::Value::Map]
     # @raise [ArgumentError] if `$args` isn't a variable argument list
     def keywords(args)
-      assert_type args, :ArgList
+      assert_type args, :ArgList, :args
       map(Sass::Util.map_keys(args.keywords) {|k| Sass::Script::String.new(k)})
     end
     declare :keywords, [:args]
@@ -2118,7 +2117,7 @@ module Sass::Script
     # @return [Sass::Script::Bool] Whether the variable is defined in
     #   the current scope.
     def variable_exists(name)
-      assert_type name, :String
+      assert_type name, :String, :name
       bool(environment.caller.var(name.value))
     end
     declare :variable_exists, [:name]
@@ -2139,7 +2138,7 @@ module Sass::Script
     # @return [Sass::Script::Bool] Whether the variable is defined in
     #   the global scope.
     def global_variable_exists(name)
-      assert_type name, :String
+      assert_type name, :String, :name
       bool(environment.global_env.var(name.value))
     end
     declare :global_variable_exists, [:name]
@@ -2155,7 +2154,7 @@ module Sass::Script
     #   check.
     # @return [Sass::Script::Bool] Whether the function is defined.
     def function_exists(name)
-      assert_type name, :String
+      assert_type name, :String, :name
       exists = Sass::Script::Functions.callable?(name.value.tr("-", "_"))
       exists ||= environment.function(name.value)
       bool(exists)
@@ -2173,7 +2172,7 @@ module Sass::Script
     #   check.
     # @return [Sass::Script::Bool] Whether the mixin is defined.
     def mixin_exists(name)
-      assert_type name, :String
+      assert_type name, :String, :name
       bool(environment.mixin(name.value))
     end
     declare :mixin_exists, [:name]

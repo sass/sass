@@ -1312,7 +1312,9 @@ SCSS
     assert_equal "2", evaluate("map-get((foo: 1, bar: 2), bar)")
     assert_equal "null", perform("map-get((foo: 1, bar: 2), baz)").to_sass
     assert_equal "null", perform("map-get((), foo)").to_sass
+  end
 
+  def test_map_get_deprecation_warning
     assert_warning(<<WARNING) do
 DEPRECATION WARNING: Passing lists of pairs to map-get is deprecated and will
 be removed in future versions of Sass. Use Sass maps instead. For details, see
@@ -1322,6 +1324,10 @@ WARNING
     end
   end
 
+  def test_map_get_checks_type
+    assert_error_message("$map: 12 is not a map for `map-get'", "map-get(12, bar)")
+  end
+
   def test_map_merge
     assert_equal("(foo: 1, bar: 2, baz: 3)",
       perform("map-merge((foo: 1, bar: 2), (baz: 3))").to_sass)
@@ -1329,7 +1335,9 @@ WARNING
       perform("map-merge((), (foo: 1, bar: 2))").to_sass)
     assert_equal("(foo: 1, bar: 2)",
       perform("map-merge((foo: 1, bar: 2), ())").to_sass)
+  end
 
+  def test_map_merge_deprecation_warning
     assert_warning(<<WARNING) do
 DEPRECATION WARNING: Passing lists of pairs to map-merge is deprecated and will
 be removed in future versions of Sass. Use Sass maps instead. For details, see
@@ -1349,11 +1357,18 @@ WARNING
     end
   end
 
+  def test_map_merge_checks_type
+    assert_error_message("$map1: 12 is not a map for `map-merge'", "map-merge(12, (foo: 1))")
+    assert_error_message("$map2: 12 is not a map for `map-merge'", "map-merge((foo: 1), 12)")
+  end
+
   def test_map_remove
     assert_equal("(foo: 1, baz: 3)",
       perform("map-remove((foo: 1, bar: 2, baz: 3), bar)").to_sass)
     assert_equal("()", perform("map-remove((), foo)").to_sass)
+  end
 
+  def test_map_remove_deprecation_warning
     assert_warning(<<WARNING) do
 DEPRECATION WARNING: Passing lists of pairs to map-remove is deprecated and will
 be removed in future versions of Sass. Use Sass maps instead. For details, see
@@ -1364,11 +1379,17 @@ WARNING
     end
   end
 
+  def test_map_remove_checks_type
+    assert_error_message("$map: 12 is not a map for `map-remove'", "map-remove(12, foo)")
+  end
+
   def test_map_keys
     assert_equal("foo, bar",
       perform("map-keys((foo: 1, bar: 2))").to_sass)
     assert_equal("()", perform("map-keys(())").to_sass)
+  end
 
+  def test_map_keys_deprecation_warning
     assert_warning(<<WARNING) do
 DEPRECATION WARNING: Passing lists of pairs to map-keys is deprecated and will
 be removed in future versions of Sass. Use Sass maps instead. For details, see
@@ -1379,12 +1400,18 @@ WARNING
     end
   end
 
+  def test_map_keys_checks_type
+    assert_error_message("$map: 12 is not a map for `map-keys'", "map-keys(12)")
+  end
+
   def test_map_values
     assert_equal("1, 2", perform("map-values((foo: 1, bar: 2))").to_sass)
     assert_equal("1, 2, 2",
       perform("map-values((foo: 1, bar: 2, baz: 2))").to_sass)
     assert_equal("()", perform("map-values(())").to_sass)
+  end
 
+  def test_map_values_deprecation_warning
     assert_warning(<<WARNING) do
 DEPRECATION WARNING: Passing lists of pairs to map-values is deprecated and will
 be removed in future versions of Sass. Use Sass maps instead. For details, see
@@ -1394,11 +1421,17 @@ WARNING
     end
   end
 
+  def test_map_values_checks_type
+    assert_error_message("$map: 12 is not a map for `map-values'", "map-values(12)")
+  end
+
   def test_map_has_key
     assert_equal "true", evaluate("map-has-key((foo: 1, bar: 1), foo)")
     assert_equal "false", evaluate("map-has-key((foo: 1, bar: 1), baz)")
     assert_equal "false", evaluate("map-has-key((), foo)")
+  end
 
+  def test_map_has_key_deprecation_warning
     assert_warning(<<WARNING) do
 DEPRECATION WARNING: Passing lists of pairs to map-has-key is deprecated and will
 be removed in future versions of Sass. Use Sass maps instead. For details, see
@@ -1408,10 +1441,15 @@ WARNING
     end
   end
 
+  def test_map_has_key_checks_type
+    assert_error_message("$map: 12 is not a map for `map-has-key'", "map-has-key(12, foo)")
+  end
+
   def test_keywords
     # The actual functionality is tested in tests where real arglists are passed.
-    assert_error_message("12 is not a variable argument list for `keywords'", "keywords(12)")
-    assert_error_message("(1 2 3) is not a variable argument list for `keywords'", "keywords(1 2 3)")
+    assert_error_message("$args: 12 is not a variable argument list for `keywords'", "keywords(12)")
+    assert_error_message(
+      "$args: (1 2 3) is not a variable argument list for `keywords'", "keywords(1 2 3)")
   end
 
   def test_partial_list_of_pairs_doesnt_work_as_a_map
@@ -1510,6 +1548,10 @@ $global-var: has-value;
 SCSS
   end
 
+  def test_variable_exists_checks_type
+    assert_error_message("$name: 1 is not a string for `variable-exists'", "variable-exists(1)")
+  end
+
   def test_global_variable_exists
     assert_equal <<CSS, render(<<SCSS)
 .test {
@@ -1539,6 +1581,11 @@ $named: global-variable-exists($name: g);
 SCSS
   end
 
+  def test_global_variable_exists_checks_type
+    assert_error_message("$name: 1 is not a string for `global-variable-exists'",
+      "global-variable-exists(1)")
+  end
+
   def test_function_exists
     # built-ins
     assert_equal "true", evaluate("function-exists(lighten)")
@@ -1558,6 +1605,10 @@ CSS
 SCSS
   end
 
+  def test_function_exists_checks_type
+    assert_error_message("$name: 1 is not a string for `function-exists'", "function-exists(1)")
+  end
+
   def test_mixin_exists
     assert_equal "false", evaluate("mixin-exists(foo)")
     # with named argument
@@ -1575,11 +1626,8 @@ CSS
 SCSS
   end
 
-  def test_existence_functions_check_argument_type
-    assert_error_message("2px is not a string for `function-exists'", "function-exists(2px)")
-    assert_error_message("2px is not a string for `mixin-exists'", "mixin-exists(2px)")
-    assert_error_message("2px is not a string for `global-variable-exists'", "global-variable-exists(2px)")
-    assert_error_message("2px is not a string for `variable-exists'", "variable-exists(2px)")
+  def test_mixin_exists_checks_type
+    assert_error_message("$name: 1 is not a string for `mixin-exists'", "mixin-exists(1)")
   end
 
   def test_inspect
