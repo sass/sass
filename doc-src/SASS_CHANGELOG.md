@@ -399,6 +399,10 @@ of all directives, but will preserve any CSS rules.
   for example, `$color: blue !global` will always assign to the global
   `$color` variable.
 
+## 3.2.14 (Unreleased)
+
+* Don't crash when parsing a directive with no name in the indented syntax.
+
 ## 3.2.13
 
 * Numbers returned by user-defined functions now trigger division, just like
