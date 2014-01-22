@@ -22,6 +22,13 @@ module Sass
         found
       end
 
+      # @see Base#directories_to_watch
+      def directories_to_watch
+        # The current working directory was not watched in Sass 3.2,
+        # so we continue not to watch it while it's deprecated.
+        []
+      end
+
       # @see Sass::Importers::Base#to_s
       def to_s
         "#{@root} (DEPRECATED)"
