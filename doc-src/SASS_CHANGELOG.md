@@ -229,6 +229,12 @@ maps instead.
 
 ### Smaller Improvements
 
+* The parent selector, `&`, can be used with an identifier suffix. For
+  example, `&-suffix` and `&_suffix` are now legal. The suffix will be
+  added to the end of the parent selector, and will throw an error if
+  this isn't possible. `&` must still appear at the beginning of a
+  compound selector -- that is, `.foo-&` is still illegal.
+
 * [listen](http://github.com/guard/listen) is now a standard Gem dependency.
   It's no longer bundled with Sass.
 

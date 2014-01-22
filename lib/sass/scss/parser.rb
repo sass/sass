@@ -813,7 +813,7 @@ module Sass
 
       def parent_selector
         return unless tok(/&/)
-        Selector::Parent.new
+        Selector::Parent.new(interp_ident(NAME) || [])
       end
 
       def class_selector

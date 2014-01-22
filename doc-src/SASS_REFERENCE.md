@@ -493,6 +493,25 @@ is compiled to:
         #main a:hover {
           color: red; }
 
+`&` must appear at the beginning of a compound selector, but it can be
+followed by a suffix that will be added to the parent selector. For
+example:
+
+    #main {
+      color: black;
+      &-sidebar { border: 1px solid; }
+    }
+
+is compiled to:
+
+    #main {
+      color: black; }
+      #main-sidebar {
+        border: 1px solid; }
+
+If the parent selector can't have a suffix applied, Sass will throw an
+error.
+
 ### Nested Properties
 
 CSS has quite a few properties that are in "namespaces;"

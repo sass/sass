@@ -622,6 +622,33 @@ foo bar {
 SCSS
   end
 
+  def test_parent_selector_with_suffix
+    assert_equal <<CSS, render(<<SCSS)
+.foo-bar {
+  a: b; }
+.foo_bar {
+  c: d; }
+.foobar {
+  e: f; }
+.foo123 {
+  e: f; }
+
+:hover-suffix {
+  g: h; }
+CSS
+.foo {
+  &-bar {a: b}
+  &_bar {c: d}
+  &bar {e: f}
+  &123 {e: f}
+}
+
+:hover {
+  &-suffix {g: h}
+}
+SCSS
+  end
+
   def test_unknown_directive_bubbling
     assert_equal(<<CSS, render(<<SCSS, :style => :nested))
 @fblthp {
@@ -2985,6 +3012,48 @@ SCSS
 Invalid CSS: @else must come after @if
 MESSAGE
 @else {foo: bar}
+SCSS
+  end
+
+  def test_failed_parent_selector_with_suffix
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render(<<SCSS)}
+Invalid parent selector for "&-bar": "*"
+MESSAGE
+* {
+  &-bar {a: b}
+}
+SCSS
+
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render(<<SCSS)}
+Invalid parent selector for "&-bar": "[foo=bar]"
+MESSAGE
+[foo=bar] {
+  &-bar {a: b}
+}
+SCSS
+
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render(<<SCSS)}
+Invalid parent selector for "&-bar": "::nth-child(2n+1)"
+MESSAGE
+::nth-child(2n+1) {
+  &-bar {a: b}
+}
+SCSS
+
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render(<<SCSS)}
+Invalid parent selector for "&-bar": ":not(.foo)"
+MESSAGE
+:not(.foo) {
+  &-bar {a: b}
+}
+SCSS
+
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render(<<SCSS)}
+Invalid parent selector for "&-bar": ".foo +"
+MESSAGE
+.foo + {
+  &-bar {a: b}
+}
 SCSS
   end
 

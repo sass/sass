@@ -83,15 +83,41 @@ module Sass
       # @raise [Sass::SyntaxError] If a parent selector is invalid
       def resolve_parent_refs(super_seq)
         # Parent selector only appears as the first selector in the sequence
-        return [self] unless @members.first.is_a?(Parent)
+        return [self] unless (parent = @members.first).is_a?(Parent)
 
-        return super_seq.members if @members.size == 1
+        return super_seq.members if @members.size == 1 && parent.suffix.empty?
         unless super_seq.members.last.is_a?(SimpleSequence)
-          raise Sass::SyntaxError.new("Invalid parent selector: " + super_seq.to_a.join)
+          raise Sass::SyntaxError.new("Invalid parent selector for \"#{self}\": \"" +
+            super_seq.to_a.join + '"')
         end
 
-        super_seq.members[0...-1] +
-          [SimpleSequence.new(super_seq.members.last.members + @members[1..-1], subject?)]
+        parent_sub = super_seq.members.last.members
+        unless parent.suffix.empty?
+          parent_sub = parent_sub.dup
+          parent_sub[-1] = parent_sub.last.dup
+          case parent_sub.last
+          when Sass::Selector::Class, Sass::Selector::Id, Sass::Selector::Placeholder
+            parent_sub[-1] = parent_sub.last.class.new(parent_sub.last.name + parent.suffix)
+          when Sass::Selector::Element
+            parent_sub[-1] = parent_sub.last.class.new(
+              parent_sub.last.name + parent.suffix,
+              parent_sub.last.namespace)
+          when Sass::Selector::Pseudo
+            if parent_sub.last.arg
+              raise Sass::SyntaxError.new("Invalid parent selector for \"#{self}\": \"" +
+                super_seq.to_a.join + '"')
+            end
+            parent_sub[-1] = parent_sub.last.class.new(
+              parent_sub.last.type,
+              parent_sub.last.name + parent.suffix,
+              nil)
+          else
+            raise Sass::SyntaxError.new("Invalid parent selector for \"#{self}\": \"" +
+              super_seq.to_a.join + '"')
+          end
+        end
+
+        super_seq.members[0...-1] + [SimpleSequence.new(parent_sub + @members[1..-1], subject?)]
       end
 
       # Non-destrucively extends this selector with the extensions specified in a hash
