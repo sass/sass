@@ -202,6 +202,13 @@ class UtilTest < Test::Unit::TestCase
     assert_equal([1, 2, 3, 4], flatten([[[1], 2], [3], 4], 2))
   end
 
+  def test_flatten_vertically
+    assert_equal([1, 2, 3], flatten_vertically([1, 2, 3]))
+    assert_equal([1, 3, 5, 2, 4, 6], flatten_vertically([[1, 2], [3, 4], [5, 6]]))
+    assert_equal([1, 2, 4, 3, 5, 6], flatten_vertically([1, [2, 3], [4, 5, 6]]))
+    assert_equal([1, 4, 6, 2, 5, 3], flatten_vertically([[1, 2, 3], [4, 5], 6]))
+  end
+
   def test_set_hash
     assert(set_hash(Set[1, 2, 3]) == set_hash(Set[3, 2, 1]))
     assert(set_hash(Set[1, 2, 3]) == set_hash(Set[1, 2, 3]))

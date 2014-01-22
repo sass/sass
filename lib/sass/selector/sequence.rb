@@ -43,13 +43,13 @@ module Sass
       # by replacing them with the given parent selector,
       # handling commas appropriately.
       #
-      # @param super_seq [Sequence] The parent selector sequence
+      # @param super_cseq [CommaSequence] The parent selector
       # @param implicit_parent [Boolean] Whether the the parent
       #   selector should automatically be prepended to the resolved
       #   selector if it contains no parent refs.
-      # @return [Sequence] This selector, with parent references resolved
+      # @return [CommaSequence] This selector, with parent references resolved
       # @raise [Sass::SyntaxError] If a parent selector is invalid
-      def resolve_parent_refs(super_seq, implicit_parent)
+      def resolve_parent_refs(super_cseq, implicit_parent)
         members = @members.dup
         nl = (members.first == "\n" && members.shift)
         contains_parent_ref = members.any? do |seq_or_op|
@@ -64,11 +64,15 @@ module Sass
           members += old_members
         end
 
-        Sequence.new(
-          members.map do |seq_or_op|
-            next seq_or_op unless seq_or_op.is_a?(SimpleSequence)
-            seq_or_op.resolve_parent_refs(super_seq)
+        CommaSequence.new(Sass::Util.paths(members.map do |sseq_or_op|
+          next [sseq_or_op] unless sseq_or_op.is_a?(SimpleSequence)
+          sseq_or_op.resolve_parent_refs(super_cseq).members
+        end).map do |path|
+          Sequence.new(path.map do |seq_or_op|
+            next seq_or_op unless seq_or_op.is_a?(Sequence)
+            seq_or_op.members
           end.flatten)
+        end)
       end
 
       # Non-destructively extends this selector with the extensions specified in a hash

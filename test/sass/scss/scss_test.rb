@@ -2494,6 +2494,45 @@ CSS
 SCSS
   end
 
+  def test_at_root_beneath_comma_selector
+    assert_equal(<<CSS, render(<<SCSS))
+.baz {
+  a: b; }
+CSS
+.foo, .bar {
+  @at-root .baz {
+    a: b;
+  }
+}
+SCSS
+  end
+
+  def test_at_root_with_parent_ref
+    assert_equal(<<CSS, render(<<SCSS))
+.foo.bar {
+  a: b; }
+CSS
+.foo {
+  @at-root &.bar {
+    a: b;
+  }
+}
+SCSS
+  end
+
+  def test_at_root_beneath_comma_selector_with_parent_ref
+    assert_equal(<<CSS, render(<<SCSS))
+.foo.baz, .bar.baz {
+  a: b; }
+CSS
+.foo, .bar {
+  @at-root &.baz {
+    a: b;
+  }
+}
+SCSS
+  end
+
   ## @at-root (...)
 
   def test_at_root_without_media

@@ -852,6 +852,24 @@ MSG
       arr.inject([]) {|res, e| e.is_a?(Array) ? res.concat(flatten(e, n - 1)) : res << e}
     end
 
+    # Flattens the first level of nested arrays in `arrs`. Unlike
+    # `Array#flatten`, this orders the result by taking the first
+    # values from each array in order, then the second, and so on.
+    #
+    # @param arrs [Array] The array to flatten.
+    # @return [Array] The flattened array.
+    def flatten_vertically(arrs)
+      result = []
+      arrs = arrs.map {|sub| sub.is_a?(Array) ? sub.dup : Array(sub)}
+      until arrs.empty?
+        arrs.reject! do |arr|
+          result << arr.shift
+          arr.empty?
+        end
+      end
+      result
+    end
+
     # Returns the hash code for a set in a cross-version manner.
     # Aggravatingly, this is order-dependent in Ruby 1.8.6.
     #
