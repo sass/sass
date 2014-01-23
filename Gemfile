@@ -11,6 +11,8 @@ gem 'rubocop', '= 0.14.1' unless RUBY_VERSION =~ /^1\.8/
 
 if RUBY_VERSION =~ /^1\.8/
   gem 'listen', '~> 1.1.0'
+elsif RUBY_VERSION =~ /^1\.9\.[012]$/
+  gem 'listen', '>= 1.1.0', '< 2.0.0'
 else
   gem 'listen', '>= 1.1.0', '< 2.5.0'
 end
