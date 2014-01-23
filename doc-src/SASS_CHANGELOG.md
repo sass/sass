@@ -235,8 +235,11 @@ of all directives, but will preserve any CSS rules.
   this isn't possible. `&` must still appear at the beginning of a
   compound selector -- that is, `.foo-&` is still illegal.
 
-* [listen](http://github.com/guard/listen) versions through 2.4 are
-  now supported on platforms other than Ruby 1.8.7.
+* [listen](http://github.com/guard/listen) is no longer bundled with
+  Sass, nor is it a standard RubyGems dependency. Instead, it's
+  automatically installed along with Sass in order to ensure that the
+  user ends up with a version of Listen that works with their local
+  Ruby version.
 
 * Sass now has numerous functions for working with strings:
   \{Sass::Script::Functions#str_length `str-length`} will return the length of a
