@@ -112,7 +112,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
           args = splat.to_a
         end
       end
-      kwargs ||= Sass::Util.ordered_hash
+      kwargs ||= Sass::Util::NormalizedMap.new
       kwargs.update(performed_keywords)
 
       if kwarg_splat

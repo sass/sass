@@ -23,6 +23,15 @@ module Sass
         key.tr("-", "_")
       end
 
+      # Returns the version of `key` as it was stored before
+      # normalization. If `key` isn't in the map, returns it as it was
+      # passed in.
+      #
+      # @return [String]
+      def denormalize(key)
+        @key_strings[normalize(key)] || key
+      end
+
       # @private
       def []=(k, v)
         normalized = normalize(k)
@@ -93,6 +102,11 @@ module Sass
 
       def sort_by
         @map.sort_by {|k, v| yield k, v}
+      end
+
+      def update(map)
+        map = map.as_stored if map.is_a?(NormalizedMap)
+        map.each {|k, v| self[k] = v}
       end
 
       def method_missing(method, *args, &block)
