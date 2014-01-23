@@ -399,6 +399,11 @@ of all directives, but will preserve any CSS rules.
   for example, `$color: blue !global` will always assign to the global
   `$color` variable.
 
+* Two numbers separated by a hyphen with no whitespace will now be
+  parsed as a subtraction operation rather than two numbers in a list.
+  That is, `2px-1px` will parse the same as `2px - 1px` rather than
+  `2px -1px`.
+
 ## 3.2.14 (Unreleased)
 
 * Don't crash when parsing a directive with no name in the indented syntax.

@@ -671,6 +671,10 @@ SCSS
 
   # Regression Tests
 
+  def test_minus_without_whitespace
+    assert_equal "5px", resolve("15px-10px")
+  end
+
   def test_user_defined_function_forces_division
     assert_equal(<<CSS, render(<<SASS))
 a {

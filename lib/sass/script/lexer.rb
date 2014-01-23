@@ -90,7 +90,7 @@ module Sass
         :single_line_comment => SINGLE_LINE_COMMENT,
         :variable => /(\$)(#{IDENT})/,
         :ident => /(#{IDENT})(\()?/,
-        :number => /(-)?(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
+        :number => /(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
         :color => HEXCOLOR,
         :bool => /(true|false)\b/,
         :null => /null\b/,
@@ -292,9 +292,8 @@ module Sass
 
       def number
         return unless scan(REGULAR_EXPRESSIONS[:number])
-        value = @scanner[2] ? @scanner[2].to_f : @scanner[3].to_i
-        value = -value if @scanner[1]
-        script_number = Script::Value::Number.new(value, Array(@scanner[4]))
+        value = @scanner[1] ? @scanner[1].to_f : @scanner[2].to_i
+        script_number = Script::Value::Number.new(value, Array(@scanner[3]))
         [:number, script_number]
       end
 
