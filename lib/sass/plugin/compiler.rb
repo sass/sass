@@ -309,7 +309,7 @@ module Sass::Plugin
     private
 
     def create_listener(*args, &block)
-      require 'listen'
+      load_listen!
       Listen::Listener.new(*args, &block)
     end
 
@@ -327,6 +327,43 @@ module Sass::Plugin
         dedupped << new_directory
       end
       dedupped
+    end
+
+    def load_listen!
+      if defined?(gem)
+        begin
+          gem 'listen', '~> 1.1.0'
+          require 'listen'
+        rescue Gem::LoadError
+          dir = Sass::Util.scope("vendor/listen/lib")
+          $LOAD_PATH.unshift dir
+          begin
+            require 'listen'
+          rescue LoadError => e
+            e.message << "\n" <<
+              if File.exists?(scope(".git"))
+                'Run "git submodule update --init" to get the recommended version.'
+              else
+                'Run "gem install listen" to get it.'
+              end
+            raise e
+          end
+        end
+      else
+        begin
+          require 'listen'
+        rescue LoadError => e
+          dir = Sass::Util.scope("vendor/listen/lib")
+          if $LOAD_PATH.include?(dir)
+            raise e unless File.exists?(scope(".git"))
+            e.message << "\n" <<
+              'Run "git submodule update --init" to get the recommended version.'
+          else
+            $LOAD_PATH.unshift dir
+            retry
+          end
+        end
+      end
     end
 
     def update_stylesheet(filename, css, sourcemap)
