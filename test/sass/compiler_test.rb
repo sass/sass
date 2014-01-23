@@ -9,6 +9,7 @@ class CompilerTest < Test::Unit::TestCase
     attr_accessor :options
     attr_accessor :directories
     attr_reader :start_called
+    attr_reader :thread
 
     def initialize(*args, &on_filesystem_event)
       self.options = args.last.is_a?(Hash) ? args.pop : {}
@@ -39,8 +40,17 @@ class CompilerTest < Test::Unit::TestCase
       @run_during_start = run_during_start
     end
 
+    # used for Listen < 2.0
     def start!
       @run_during_start.call(self) if @run_during_start
+    end
+
+    # used for Listen >= 2.0
+    def start
+      @thread = Thread.new {@run_during_start.call(self) if @run_during_start}
+    end
+
+    def stop
     end
 
     def reset_events!

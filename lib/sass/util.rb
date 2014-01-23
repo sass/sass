@@ -500,6 +500,63 @@ module Sass
       version_geq(ActionPack::VERSION::STRING, version)
     end
 
+    # Returns whether this environment is using Listen
+    # version 2.0.0 or greater.
+    #
+    # @return [Boolean]
+    def listen_geq_2?
+      load_listen!
+      require 'listen/version'
+      version_geq(::Listen::VERSION, '2.0.0')
+    end
+
+    # Loads the listen library if it hasn't been loaded yet.
+    #
+    # This will load listen from RubyGems if possible, or failing that
+    # from the bundled copy.
+    def load_listen!
+      return if defined?(::Listen)
+
+      if defined?(gem)
+        begin
+          if ruby1_8?
+            gem 'listen', '~> 1.1.0'
+          else
+            gem 'listen', '>=1.1.0', '<2.5'
+          end
+          require 'listen'
+        rescue Gem::LoadError
+          dir = Sass::Util.scope("vendor/listen/lib")
+          $LOAD_PATH.unshift dir
+          begin
+            require 'listen'
+          rescue LoadError => e
+            e.message << "\n" <<
+              if File.exists?(scope(".git"))
+                'Run "git submodule update --init" to get the recommended version.'
+              else
+                'Run "gem install listen" to get it.'
+              end
+            raise e
+          end
+        end
+      else
+        begin
+          require 'listen'
+        rescue LoadError => e
+          dir = Sass::Util.scope("vendor/listen/lib")
+          if $LOAD_PATH.include?(dir)
+            raise e unless File.exists?(scope(".git"))
+            e.message << "\n" <<
+              'Run "git submodule update --init" to get the recommended version.'
+          else
+            $LOAD_PATH.unshift dir
+            retry
+          end
+        end
+      end
+    end
+
     # Returns an ActionView::Template* class.
     # In pre-3.0 versions of Rails, most of these classes
     # were of the form `ActionView::TemplateFoo`,
