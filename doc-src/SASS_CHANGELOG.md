@@ -7,6 +7,9 @@
 
 * Don't crash when parsing a directive with no name in the indented syntax.
 
+* Clean up file paths when importing to avoid errors for overlong path
+  names.
+
 ## 3.2.13
 
 * Numbers returned by user-defined functions now trigger division, just like
