@@ -18,7 +18,8 @@ module Sass::Script::Value
     # @param separator [String] See \{List#separator}.
     def initialize(value, keywords, separator)
       super(value, separator)
-      @keywords = keywords
+      # We don't want to store a normalized map in an arglist.
+      @keywords = keywords.to_hash
     end
 
     # The keyword arguments attached to this list.
