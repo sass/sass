@@ -409,6 +409,15 @@ of all directives, but will preserve any CSS rules.
 
 * `index()` returns `null` rather than `false` if a value isn't found in a list.
 
+* `mix()`'s arguments are now `$color1` and `$color2` rather than
+  `$color-1` and `$color-2`, in keeping with other functions.
+
+* `comparable()`'s arguments are now `$number1` and `$number2` rather than
+  `$number-1` and `$number-2`, in keeping with other functions.
+
+* `percentage()`, `round()`, `ceil()`, `floor()`, and `abs()` now
+  take arguments named '$number' instead of '$value'.
+
 ## 3.2.14 (Unreleased)
 
 * Don't crash when parsing a directive with no name in the indented syntax.
