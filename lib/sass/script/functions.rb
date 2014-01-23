@@ -1841,7 +1841,7 @@ module Sass::Script
     declare :zip, [], :var_args => true
 
     # Returns the position of a value within a list. If the value isn't found,
-    # returns false instead.
+    # returns `null` instead.
     #
     # Note that unlike some languages, the first item in a Sass list is number
     # 1, the second number 2, and so forth.
@@ -1850,20 +1850,16 @@ module Sass::Script
     #
     # @example
     #   index(1px solid red, solid) => 2
-    #   index(1px solid red, dashed) => false
+    #   index(1px solid red, dashed) => null
     #   index((width: 10px, height: 20px), (height, 20px)) => 2
     # @overload index($list, $value)
     # @param $list [Sass::Script::Value::Base]
     # @param $value [Sass::Script::Value::Base]
-    # @return [Sass::Script::Value::Number, Sass::Script::Value::Bool] The
-    #   1-based index of `$value` in `$list`, or `false`
+    # @return [Sass::Script::Value::Number, Sass::Script::Value::Null] The
+    #   1-based index of `$value` in `$list`, or `null`
     def index(list, value)
       index = list.to_a.index {|e| e.eq(value).to_bool}
-      if index
-        number(index + 1)
-      else
-        bool(false)
-      end
+      index ? number(index + 1) : null
     end
     declare :index, [:list, :value]
 

@@ -1174,16 +1174,17 @@ MSG
   end
 
   def test_index
+    null = Sass::Script::Value::Null.new
     assert_equal("1", evaluate("index(1px solid blue, 1px)"))
     assert_equal("2", evaluate("index(1px solid blue, solid)"))
     assert_equal("3", evaluate("index(1px solid blue, #00f)"))
     assert_equal("1", evaluate("index(1px, 1px)"))
-    assert_equal("false", evaluate("index(1px solid blue, 1em)"))
-    assert_equal("false", evaluate("index(1px solid blue, notfound)"))
-    assert_equal("false", evaluate("index(1px, #00f)"))
+    assert_equal(null, perform("index(1px solid blue, 1em)"))
+    assert_equal(null, perform("index(1px solid blue, notfound)"))
+    assert_equal(null, perform("index(1px, #00f)"))
 
     assert_equal("1", evaluate("index((foo: bar, bar: baz), (foo bar))"))
-    assert_equal("false", evaluate("index((foo: bar, bar: baz), (foo: bar))"))
+    assert_equal(null, perform("index((foo: bar, bar: baz), (foo: bar))"))
   end
 
   def test_list_separator

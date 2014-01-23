@@ -407,6 +407,8 @@ of all directives, but will preserve any CSS rules.
   That is, `2px-1px` will parse the same as `2px - 1px` rather than
   `2px -1px`.
 
+* `index()` returns `null` rather than `false` if a value isn't found in a list.
+
 ## 3.2.14 (Unreleased)
 
 * Don't crash when parsing a directive with no name in the indented syntax.
