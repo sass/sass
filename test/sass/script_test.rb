@@ -706,6 +706,13 @@ end
     assert_equal "teal\\+bang(12)", resolve("teal\\+bang(12)")
   end
 
+  def test_funcall_has_higher_precedence_than_true_false_null
+    assert_equal "teal(12)", resolve("teal(12)")
+    assert_equal "tealbang(12)", resolve("tealbang(12)")
+    assert_equal "teal-bang(12)", resolve("teal-bang(12)")
+    assert_equal "teal\\+bang(12)", resolve("teal\\+bang(12)")
+  end
+
   def test_interpolation_after_hash
     assert_equal "#2", resolve('"##{1 + 1}"')
   end

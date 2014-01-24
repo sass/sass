@@ -72,8 +72,7 @@ module Sass
 
       TOKEN_NAMES = Sass::Util.map_hash(OPERATORS_REVERSE) {|k, v| [k, v.inspect]}.merge(
           :const => "variable (e.g. $foo)",
-          :ident => "identifier (e.g. middle)",
-          :bool => "boolean (e.g. true, false)")
+          :ident => "identifier (e.g. middle)")
 
       # A list of operator strings ordered with longer names first
       # so that `>` and `<` don't clobber `>=` and `<=`.
@@ -92,8 +91,6 @@ module Sass
         :ident => /(#{IDENT})(\()?/,
         :number => /(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
         :color => HEXCOLOR,
-        :bool => /(true|false)\b/,
-        :null => /null\b/,
         :ident_op => /(#{Regexp.union(*IDENT_OP_NAMES.map do |s|
           Regexp.new(Regexp.escape(s) + "(?!#{NMCHAR}|\Z)")
         end)})/,
@@ -253,9 +250,9 @@ module Sass
           return string(interp_type, true)
         end
 
-        variable || string(:double, false) || string(:single, false) || number ||
-          color || bool || null || string(:uri, false) ||
-          raw(UNICODERANGE) || special_fun || special_val || ident_op || ident || op
+        variable || string(:double, false) || string(:single, false) || number || color ||
+          string(:uri, false) || raw(UNICODERANGE) || special_fun || special_val || ident_op ||
+          ident || op
       end
 
       def variable
@@ -305,19 +302,6 @@ Colors must have either three or six digits: '#{s}'
 MESSAGE
         script_color = Script::Value::Color.from_hex(s)
         [:color, script_color]
-      end
-
-      def bool
-        s = scan(REGULAR_EXPRESSIONS[:bool])
-        return unless s
-        script_bool = Script::Value::Bool.new(s == 'true')
-        [:bool, script_bool]
-      end
-
-      def null
-        return unless scan(REGULAR_EXPRESSIONS[:null])
-        script_null = Script::Value::Null.new
-        [:null, script_null]
       end
 
       def special_fun

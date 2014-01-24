@@ -425,6 +425,8 @@ of all directives, but will preserve any CSS rules.
 * Clean up file paths when importing to avoid errors for overlong path
   names.
 
+* Parse calls to functions named `true`, `false`, and `null` as function calls.
+
 ## 3.2.13
 
 * Numbers returned by user-defined functions now trigger division, just like
