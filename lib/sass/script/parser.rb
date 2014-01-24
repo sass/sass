@@ -321,9 +321,16 @@ RUBY
 
         name = @lexer.next
         if color = Color::COLOR_NAMES[name.value.downcase]
-          return node(Color.new(color))
+          node(Color.new(color))
+        elsif name.value == "true"
+          node(Script::Bool.new(true))
+        elsif name.value == "false"
+          node(Script::Bool.new(false))
+        elsif name.value == "null"
+          node(Script::Null.new)
+        else
+          node(Script::String.new(name.value, :identifier))
         end
-        node(Script::String.new(name.value, :identifier))
       end
 
       def funcall
@@ -453,7 +460,7 @@ RUBY
       end
 
       def literal
-        (t = try_tok(:color, :bool, :null)) && (return t.value)
+        (t = try_tok(:color)) && (return t.value)
       end
 
       # It would be possible to have unified #assert and #try methods,

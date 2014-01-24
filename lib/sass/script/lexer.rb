@@ -69,8 +69,7 @@ module Sass
 
       TOKEN_NAMES = Sass::Util.map_hash(OPERATORS_REVERSE) {|k, v| [k, v.inspect]}.merge({
           :const => "variable (e.g. $foo)",
-          :ident => "identifier (e.g. middle)",
-          :bool => "boolean (e.g. true, false)",
+          :ident => "identifier (e.g. middle)"
         })
 
       # A list of operator strings ordered with longer names first
@@ -90,8 +89,6 @@ module Sass
         :ident => /(#{IDENT})(\()?/,
         :number => /(-)?(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
         :color => HEXCOLOR,
-        :bool => /(true|false)\b/,
-        :null => /null\b/,
         :ident_op => %r{(#{Regexp.union(*IDENT_OP_NAMES.map{|s| Regexp.new(Regexp.escape(s) + "(?!#{NMCHAR}|\Z)")})})},
         :op => %r{(#{Regexp.union(*OP_NAMES)})},
       }
@@ -235,9 +232,9 @@ module Sass
           return string(interp_type, true)
         end
 
-        variable || string(:double, false) || string(:single, false) || number ||
-          color || bool || null || string(:uri, false) || raw(UNICODERANGE) ||
-          special_fun || special_val || ident_op || ident || op
+        variable || string(:double, false) || string(:single, false) || number || color ||
+          string(:uri, false) || raw(UNICODERANGE) || special_fun || special_val || ident_op ||
+          ident || op
       end
 
       def variable
@@ -285,16 +282,6 @@ MESSAGE
         value = s.scan(/^#(..?)(..?)(..?)$/).first.
           map {|num| num.ljust(2, num).to_i(16)}
         [:color, Script::Color.new(value)]
-      end
-
-      def bool
-        return unless s = scan(REGULAR_EXPRESSIONS[:bool])
-        [:bool, Script::Bool.new(s == 'true')]
-      end
-
-      def null
-        return unless scan(REGULAR_EXPRESSIONS[:null])
-        [:null, Script::Null.new]
       end
 
       def special_fun
