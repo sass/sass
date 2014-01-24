@@ -2002,7 +2002,7 @@ module Sass::Script
     # @raise [ArgumentError] if `$args` isn't a variable argument list
     def keywords(args)
       assert_type args, :ArgList, :args
-      map(Sass::Util.map_keys(args.keywords) {|k| Sass::Script::String.new(k)})
+      map(Sass::Util.map_keys(args.keywords.as_stored) {|k| Sass::Script::String.new(k)})
     end
     declare :keywords, [:args]
 
