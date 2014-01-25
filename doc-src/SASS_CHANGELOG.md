@@ -425,7 +425,7 @@ of all directives, but will preserve any CSS rules.
 * Some invalid selectors now generate errors where before they would
   be passed on to the generated CSS.
 
-## 3.2.14 (Unreleased)
+## 3.2.14
 
 * Don't crash when parsing a directive with no name in the indented syntax.
 
