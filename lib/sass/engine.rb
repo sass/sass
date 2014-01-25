@@ -30,6 +30,7 @@ require 'sass/tree/warn_node'
 require 'sass/tree/import_node'
 require 'sass/tree/charset_node'
 require 'sass/tree/at_root_node'
+require 'sass/tree/keyframes_block_node'
 require 'sass/tree/visitors/base'
 require 'sass/tree/visitors/perform'
 require 'sass/tree/visitors/cssize'
@@ -655,11 +656,11 @@ WARNING
           parse_mixin_include(line, root)
         end
       else
-        parse_property_or_rule(line)
+        parse_property_or_rule(parent, line)
       end
     end
 
-    def parse_property_or_rule(line)
+    def parse_property_or_rule(parent, line)
       scanner = Sass::Util::MultibyteStringScanner.new(line.text)
       hack_char = scanner.scan(/[:\*\.]|\#(?!\{)/)
       offset = line.offset
@@ -670,7 +671,11 @@ WARNING
 
       unless (res = parser.parse_interp_ident)
         parsed = parse_interp(line.text, line.offset)
-        return Tree::RuleNode.new(parsed, full_line_range(line))
+        if parent.is_a?(Tree::DirectiveNode) && parent.name == '@keyframes'
+          return Tree::KeyframesBlockNode.new(parsed)
+        else
+          return Tree::RuleNode.new(parsed, full_line_range(line))
+        end
       end
 
       ident_range = Sass::Source::Range.new(
@@ -704,7 +709,11 @@ WARNING
           ident_range.start_pos,
           Sass::Source::Position.new(@line, to_parser_offset(line.offset) + line.text.length),
           @options[:filename], @options[:importer])
-        rule = Tree::RuleNode.new(res + interp_parsed, selector_range)
+        if parent.is_a?(Tree::DirectiveNode) && parent.name == '@keyframes'
+          rule = Tree::KeyframesBlockNode.new(res + interp_parsed)
+        else
+          rule = Tree::RuleNode.new(res + interp_parsed, selector_range)
+        end
         rule << Tree::CommentNode.new([trailing], :silent) if trailing
         rule
       end

@@ -16,14 +16,17 @@ module Sass
       def use_css_import?; true; end
 
       def block_child(context)
+        old_block_context, @block_context = @block_context, context
         case context
-        when :ruleset
-          declaration
-        when :stylesheet
-          directive || ruleset
-        when :directive
-          directive || declaration_or_ruleset
+        when :stylesheet;      directive || ruleset
+        when :keyframes;       directive || keyframes_block
+        when :keyframes_block; directive || declaration
+        when :ruleset;         declaration
+        when :directive;       declaration_or_ruleset
+        else raise "[BUG] Unknown block_child context #{context.inspect}"
         end
+      ensure
+        @block_context = old_block_context
       end
 
       def nested_properties!(node, space)

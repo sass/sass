@@ -340,6 +340,10 @@ of all directives, but will preserve any CSS rules.
 * Allow modulo arithmetic for numbers with compatible units. Thanks to
   [Isaac Devine](http://www.devinesystems.co.nz).
 
+* There's new parser logic for `@keyframes` directives. This will
+  improve the formatting of these directives, as well as catch more
+  errors when using them.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * Sass will now throw an error when `@extend` is used to extend a selector
@@ -417,6 +421,9 @@ of all directives, but will preserve any CSS rules.
 
 * `percentage()`, `round()`, `ceil()`, `floor()`, and `abs()` now
   take arguments named '$number' instead of '$value'.
+
+* Some invalid selectors now generate errors where before they would
+  be passed on to the generated CSS.
 
 ## 3.2.14 (Unreleased)
 

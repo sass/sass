@@ -118,6 +118,11 @@ class Sass::Tree::Visitors::SetOptions < Sass::Tree::Visitors::Base
     yield
   end
 
+  def visit_keyframesblock(node)
+    node.value.each {|c| c.options = @options if c.is_a?(Sass::Script::Tree::Node)}
+    yield
+  end
+
   def visit_supports(node)
     node.condition.options = @options
     yield

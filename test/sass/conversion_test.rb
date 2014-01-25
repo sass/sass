@@ -1795,6 +1795,30 @@ SASS
 SCSS
   end
 
+  def test_keyframes
+    assert_renders(<<SASS, <<SCSS)
+@keyframes bounce
+  from
+    top: 100px
+  25%
+    top: 50px
+  to
+    top: 0px
+SASS
+@keyframes bounce {
+  from {
+    top: 100px;
+  }
+  25% {
+    top: 50px;
+  }
+  to {
+    top: 0px;
+  }
+}
+SCSS
+  end
+
   ## Regression Tests
 
   def test_list_in_args

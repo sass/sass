@@ -165,6 +165,7 @@ MSG
     "=simple\n  .simple\n    color: red\n+simple\n  color: blue" => ['Mixin "simple" does not accept a content block.', 4],
     "@import \"foo\" // bar" => "Invalid CSS after \"\"foo\" \": expected media query list, was \"// bar\"",
     "@at-root\n  a: b" => "Properties are only allowed within rules, directives, mixin includes, or other properties.",
+    "10%\n  a: b" => ["Invalid CSS after \"\": expected selector, was \"10%\"", 1],
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only properties may be nested beneath properties.", 3],
@@ -827,7 +828,7 @@ SASS
 
     assert_equal("@a {\n  #b {\n    a: b; }\n    #b #c {\n      d: e; } }\n",
                  render("@a\n  #b\n    :a b\n    #c\n      :d e"))
-    assert_equal("@a { #b { a: b; }\n  #b #c { d: e; } }\n",
+    assert_equal("@a { #b { a: b; } #b #c { d: e; } }\n",
                  render("@a\n  #b\n    :a b\n    #c\n      :d e", :style => :compact))
     assert_equal("@a {\n  #b {\n    a: b;\n  }\n  #b #c {\n    d: e;\n  }\n}\n",
                  render("@a\n  #b\n    :a b\n    #c\n      :d e", :style => :expanded))
@@ -851,13 +852,31 @@ SASS
   :g h
 END
     rendered = <<END
-@a { b: c;
-  #d { e: f; }
-  g: h; }
+@a { b: c; #d { e: f; } g: h; }
 END
     assert_equal(rendered, render(to_render, :style => :compact))
     
     assert_equal("@a{b:c;#d{e:f}g:h}\n", render(to_render, :style => :compressed))
+  end
+
+  def test_keyframes
+    assert_equal(<<CSS, render(<<SCSS))
+@keyframes bounce {
+  from {
+    top: 100px; }
+  50% {
+    top: 50px; }
+  to {
+    top: 0px; } }
+CSS
+@keyframes bounce
+  from
+    top: 100px
+  50%
+    top: 50px
+  to
+    top: 0px
+SCSS
   end
 
   def test_property_hacks

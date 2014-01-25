@@ -122,7 +122,7 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
 
   VALID_PROP_PARENTS = [Sass::Tree::RuleNode, Sass::Tree::PropNode,
                         Sass::Tree::MixinDefNode, Sass::Tree::DirectiveNode,
-                        Sass::Tree::MixinNode]
+                        Sass::Tree::MixinNode, Sass::Tree::KeyframesBlockNode]
   def invalid_prop_parent?(parent, child)
     unless is_any_of?(parent, VALID_PROP_PARENTS)
       "Properties are only allowed within rules, directives, mixin includes, or other properties." +
@@ -132,6 +132,25 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
 
   def invalid_return_parent?(parent, child)
     "@return may only be used within a function." unless parent.is_a?(Sass::Tree::FunctionNode)
+  end
+
+  VALID_KEYFRAMES_CHILDREN = CONTROL_NODES + [Sass::Tree::VariableNode,
+                                              Sass::Tree::CommentNode,
+                                              Sass::Tree::KeyframesBlockNode]
+  def invalid_directive_child?(parent, child)
+    return unless parent.name == '@keyframes'
+    unless is_any_of?(child, VALID_KEYFRAMES_CHILDREN)
+      'Only keyframes blocks (e.g. "15% { ... }") are allowed within @keyframes.'
+    end
+  end
+
+  VALID_KEYFRAMES_BLOCK_CHILDREN = CONTROL_NODES + [Sass::Tree::VariableNode,
+                                                    Sass::Tree::CommentNode,
+                                                    Sass::Tree::PropNode]
+  def invalid_keyframesblock_child?(parent, child)
+    unless is_any_of?(child, VALID_KEYFRAMES_BLOCK_CHILDREN)
+      "Only properties are allowed within @keyframes blocks."
+    end
   end
 
   private

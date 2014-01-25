@@ -663,6 +663,46 @@ CSS
 SCSS
   end
 
+  def test_keyframes_with_dynamic_values
+    assert_equal(<<CSS, render(<<SCSS))
+@keyframes bounce {
+  50% {
+    top: 50px; } }
+CSS
+@keyframes bounce {
+  \#{10% + 40%} {
+    top: 50px;
+  }
+}
+SCSS
+  end
+
+  def test_keyframes_with_control_directives
+    assert_equal(<<CSS, render(<<SCSS))
+@keyframes bounce {
+  10% {
+    top: 100px; }
+  to {
+    top: 50px; } }
+CSS
+@keyframes bounce {
+  @if true {
+    10% {top: 100px}
+  } @else {
+    20% {top: 50px}
+  }
+
+  to {
+    @if true {
+      top: 50px;
+    } @else {
+      top: 100px;
+    }
+  }
+}
+SCSS
+  end
+
   ## Namespace Properties
 
   def test_namespace_properties
@@ -1882,10 +1922,10 @@ SCSS
 
   def test_basic_selector_interpolation
     assert_equal <<CSS, render(<<SCSS)
-foo 3 baz {
+foo a12 baz {
   a: b; }
 CSS
-foo \#{1 + 2} baz {a: b}
+foo \#{a + 1 + 2} baz {a: b}
 SCSS
     assert_equal <<CSS, render(<<SCSS)
 foo.bar baz {
@@ -2848,6 +2888,28 @@ SCSS
 
   ## Errors
 
+  def test_no_extend_in_keyframes
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
+Only keyframes blocks (e.g. "15% { ... }") are allowed within @keyframes.
+MESSAGE
+@keyframes bounce {
+  @extend %foo;
+}
+SCSS
+  end
+
+  def test_no_extend_in_keyframes_rules
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
+Only properties are allowed within @keyframes blocks.
+MESSAGE
+@keyframes bounce {
+  top {
+    @extend %foo;
+  }
+}
+SCSS
+  end
+
   def test_nested_mixin_def_is_scoped
     render <<SCSS
 foo {
@@ -3314,7 +3376,7 @@ SCSS
 
   def test_if_error_line
     assert_raise_line(2) {render(<<SCSS)}
-@if true {foo: bar}
+@if true {a {foo: bar}}
 }
 SCSS
   end
