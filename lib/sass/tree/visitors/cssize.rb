@@ -73,17 +73,29 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
         node.children.unshift charset if charset
       end
 
-      imports = Sass::Util.extract!(node.children) do |c|
-        c.is_a?(Sass::Tree::DirectiveNode) && !c.is_a?(Sass::Tree::MediaNode) &&
-          c.resolved_value =~ /^@import /i
+      imports_to_move = []
+      import_limit = nil
+      i = -1
+      node.children.reject! do |n|
+        i += 1
+        if import_limit
+          next false unless n.is_a?(Sass::Tree::CssImportNode)
+          imports_to_move << n
+          next true
+        end
+
+        if !n.is_a?(Sass::Tree::CommentNode) &&
+            !n.is_a?(Sass::Tree::CharsetNode) &&
+            !n.is_a?(Sass::Tree::CssImportNode)
+          import_limit = i
+        end
+
+        false
       end
-      charset_and_index = Sass::Util.ruby1_8? &&
-        node.children.each_with_index.find {|c, _| c.is_a?(Sass::Tree::CharsetNode)}
-      if charset_and_index
-        index = charset_and_index.last
-        node.children = node.children[0..index] + imports + node.children[index+1..-1]
-      else
-        node.children = imports + node.children
+
+      if import_limit
+        node.children = node.children[0...import_limit] + imports_to_move +
+          node.children[import_limit..-1]
       end
     end
 

@@ -12,6 +12,8 @@
 
 * Parse calls to functions named `true`, `false`, and `null` as function calls.
 
+* Don't move CSS `@import`s to the top of the file unless it's necessary.
+
 ## 3.2.13
 
 * Numbers returned by user-defined functions now trigger division, just like
