@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.2.14 (Unreleased)
+## 3.2.14
 
 * Don't crash when parsing a directive with no name in the indented syntax.
 
