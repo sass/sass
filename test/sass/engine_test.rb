@@ -879,6 +879,26 @@ CSS
 SCSS
   end
 
+  def test_vendored_keyframes
+    assert_equal(<<CSS, render(<<SCSS))
+@-webkit-keyframes bounce {
+  from {
+    top: 100px; }
+  50% {
+    top: 50px; }
+  to {
+    top: 0px; } }
+CSS
+@-webkit-keyframes bounce
+  from
+    top: 100px
+  50%
+    top: 50px
+  to
+    top: 0px
+SCSS
+  end
+
   def test_property_hacks
     assert_equal(<<CSS, render(<<SASS))
 foo {
@@ -1045,7 +1065,6 @@ SASS
 @-webkit-keyframes warm {
   from {
     color: black; }
-
   to {
     color: red; } }
 CSS
