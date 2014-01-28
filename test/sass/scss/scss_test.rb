@@ -2936,11 +2936,33 @@ MESSAGE
 SCSS
   end
 
+  def test_no_extend_in_vendored_keyframes
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
+Only keyframes blocks (e.g. "15% { ... }") are allowed within @keyframes.
+MESSAGE
+@-webkit-keyframes bounce {
+  @extend %foo;
+}
+SCSS
+  end
+
   def test_no_extend_in_keyframes_rules
     assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
 Only properties are allowed within @keyframes blocks.
 MESSAGE
 @keyframes bounce {
+  top {
+    @extend %foo;
+  }
+}
+SCSS
+  end
+
+  def test_no_extend_in_vendored_keyframes_rules
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
+Only properties are allowed within @keyframes blocks.
+MESSAGE
+@-webkit-keyframes bounce {
   top {
     @extend %foo;
   }
