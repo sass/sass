@@ -677,6 +677,31 @@ CSS
 SCSS
   end
 
+  def test_vendor_keyframes_nested
+    assert_equal(<<CSS, render(<<SCSS, :style => :nested))
+@-webkit-keyframes bounce {
+  from {
+    top: 100px; }
+  50% {
+    top: 50px; }
+  to {
+    top: 0px; } }
+CSS
+@-webkit-keyframes bounce {
+  from {
+    top: 100px;
+  }
+  50% {
+    top: 50px;
+  }
+  to {
+    top: 0px;
+  }
+}
+SCSS
+  end
+
+
   def test_keyframes_compact
     assert_equal(<<CSS, render(<<SCSS, :style => :compact))
 @keyframes bounce { from { top: 100px; } 50% { top: 50px; } to { top: 0px; } }
