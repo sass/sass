@@ -1819,7 +1819,7 @@ SASS
 SCSS
   end
 
-  def test_vendored_keyframes
+  def test_vendor_keyframes
     assert_renders(<<SASS, <<SCSS)
 @-webkit-keyframes bounce
   from

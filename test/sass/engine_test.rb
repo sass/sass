@@ -879,7 +879,7 @@ CSS
 SCSS
   end
 
-  def test_vendored_keyframes
+  def test_vendor_keyframes
     assert_equal(<<CSS, render(<<SCSS))
 @-webkit-keyframes bounce {
   from {
