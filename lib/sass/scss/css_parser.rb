@@ -7,7 +7,6 @@ module Sass
     # parent references, nested selectors, and so forth.
     # It does support all the same CSS hacks as the SCSS parser, though.
     class CssParser < StaticParser
-
       private
 
       def placeholder_selector; nil; end

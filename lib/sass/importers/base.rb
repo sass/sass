@@ -21,7 +21,6 @@ module Sass
     #
     # @abstract
     class Base
-
       # Find a Sass file relative to another file.
       # Importers without a notion of "relative paths"
       # should just return nil here.

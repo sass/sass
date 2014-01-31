@@ -8,7 +8,6 @@ require 'sass/plugin/configuration'
 require 'sass/plugin/staleness_checker'
 
 module Sass::Plugin
-
   # The Compiler class handles compilation of multiple files and/or directories,
   # including checking which CSS files are out-of-date and need to be updated
   # and calling Sass to perform the compilation on those files.

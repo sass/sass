@@ -4,7 +4,6 @@ module Sass
     # so that we can load it independently in Rails 3,
     # where the full plugin stuff is lazy-loaded.
     module Configuration
-
       # Returns the default options for a {Sass::Plugin::Compiler}.
       #
       # @return [{Symbol => Object}]

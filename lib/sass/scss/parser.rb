@@ -5,7 +5,6 @@ module Sass
     # The parser for SCSS.
     # It parses a string of code into a tree of {Sass::Tree::Node}s.
     class Parser
-
       # Expose for the SASS parser.
       attr_accessor :offset
 

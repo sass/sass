@@ -1,7 +1,6 @@
 require 'sass/logger/log_level'
 
 class Sass::Logger::Base
-
   include Sass::Logger::LogLevel
 
   attr_accessor :log_level
@@ -28,5 +27,4 @@ class Sass::Logger::Base
   def _log(level, message)
     Kernel.warn(message)
   end
-
 end

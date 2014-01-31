@@ -4,7 +4,6 @@ module Sass
     # import a file. It is used to deprecate the current working
     # directory from the list of automatic sass load paths.
     class DeprecatedPath < Filesystem
-
       # @param root [String] The absolute, expanded path to the folder that is deprecated.
       def initialize(root)
         @specified_root = root

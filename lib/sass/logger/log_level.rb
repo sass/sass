@@ -1,7 +1,6 @@
 module Sass
   module Logger
     module LogLevel
-
       def self.included(base)
         base.extend(ClassMethods)
       end
@@ -41,7 +40,6 @@ module Sass
           RUBY
         end
       end
-
     end
   end
 end

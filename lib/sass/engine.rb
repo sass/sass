@@ -52,7 +52,6 @@ require 'sass/media'
 require 'sass/supports'
 
 module Sass
-
   # A Sass mixin or function.
   #
   # `name`: `String`

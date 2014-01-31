@@ -543,7 +543,6 @@ MSG
           [::Sass::Importers::DeprecatedPath.new(".")]
         end
       end
-
     end
 
     class Scss < Sass

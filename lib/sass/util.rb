@@ -669,7 +669,6 @@ module Sass
       (pairs_or_hash.is_a?(NormalizedMap) ? NormalizedMap : OrderedHash)[*flatten(pairs_or_hash, 1)]
     end
 
-
     # Checks that the encoding of a string is valid in Ruby 1.9
     # and cleans up potential encoding gotchas like the UTF-8 BOM.
     # If it's not, yields an error string describing the invalid character
@@ -1127,7 +1126,6 @@ MSG
 
     # rubocop:disable LineLength
 
-
     # Calculates the memoization table for the Least Common Subsequence algorithm.
     # Algorithm from [Wikipedia](http://en.wikipedia.org/wiki/Longest_common_subsequence_problem#Computing_the_length_of_the_LCS)
     def lcs_table(x, y)
@@ -1148,9 +1146,7 @@ MSG
       end
       c
     end
-
     # rubocop:disable ParameterLists, LineLength
-
 
     # Computes a single longest common subsequence for arrays x and y.
     # Algorithm from [Wikipedia](http://en.wikipedia.org/wiki/Longest_common_subsequence_problem#Reading_out_an_LCS)

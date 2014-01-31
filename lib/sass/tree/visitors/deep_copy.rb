@@ -1,6 +1,5 @@
 # A visitor for copying the full structure of a Sass tree.
 class Sass::Tree::Visitors::DeepCopy < Sass::Tree::Visitors::Base
-
   protected
 
   def visit(node)

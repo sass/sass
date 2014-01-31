@@ -44,7 +44,6 @@ module Sass::Script::Tree
       members.join(sep_str(nil))
     end
 
-
     # @see Node#deep_copy
     def deep_copy
       node = dup

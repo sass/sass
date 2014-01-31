@@ -6,7 +6,6 @@ module Sass
     # The default importer, used for any strings found in the load path.
     # Simply loads Sass files from the filesystem using the default logic.
     class Filesystem < Base
-
       attr_accessor :root
 
       # Creates a new filesystem importer that imports files relative to a given path.

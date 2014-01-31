@@ -166,7 +166,6 @@ module Sass::Tree
 
         Sass::Script::Value::String.new("(#{node.to_sass(opts)})")
       end
-
     end
   end
 end
