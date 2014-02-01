@@ -405,6 +405,24 @@ module Sass::Script
       @signatures[method_name].first
     end
 
+    # Sets the random seed used by Sass's internal random number generator.
+    #
+    # This can be used to ensure consistent random number sequences which
+    # allows for consistent results when testing, etc.
+    #
+    # @param seed [Integer]
+    # @return [Integer] The same seed.
+    def self.random_seed=(seed)
+      @random_number_generator = Random.new(seed)
+    end
+
+    # Get Sass's internal random number generator.
+    #
+    # @return [Random]
+    def self.random_number_generator
+      @random_number_generator ||= Random.new
+    end
+
     # The context in which methods in {Script::Functions} are evaluated.
     # That means that all instance methods of {EvaluationContext}
     # are available to use in functions.
@@ -2035,9 +2053,9 @@ module Sass::Script
     # @overload unique_id()
     # @return [Sass::Script::Value::String]
     def unique_id
-      Thread.current[:sass_last_unique_id] ||= rand(36**8)
+      Thread.current[:sass_last_unique_id] ||= generator.rand(36**8)
       # avoid the temptation of trying to guess the next unique value.
-      value = (Thread.current[:sass_last_unique_id] += (rand(10) + 1))
+      value = (Thread.current[:sass_last_unique_id] += (generator.rand(10) + 1))
       # the u makes this a legal identifier if it would otherwise start with a number.
       identifier("u" + value.to_s(36).rjust(8, '0'))
     end
@@ -2184,6 +2202,28 @@ module Sass::Script
     end
     declare :inspect, [:value]
 
+    # @overload random()
+    #   Return a decimal between 0 and 1, inclusive of 0, but not 1.
+    #   @return [Sass::Script::Number] A decimal value.
+    # @overload random($limit)
+    #   Return an integer between 1 and `$limit` inclusive.
+    #   @param $limit [Sass::Script::Value::Number] The maximum of the random integer to be returned, a positive integer.
+    #   @return [Sass::Script::Number] An integer.
+    #   @raise [ArgumentError] if the `$limit` is not 1 or greater
+    def random(limit = nil)
+      if limit
+        assert_integer limit, "limit"
+        if limit.value < 1
+          raise ArgumentError.new("Expected the limit to be 1 or greater")
+        end
+        number(1 + generator.rand(limit.value))
+      else
+        number(generator.rand)
+      end
+    end
+    declare :random, []
+    declare :random, [:limit]
+
     private
 
     # This method implements the pattern of transforming a numeric value into
@@ -2220,6 +2260,13 @@ be removed in future versions of Sass. Use Sass maps instead. For details, see
 http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
 WARNING
       obj.to_h
+    end
+
+    # Convenient access to Sass's internal random number generator.
+    #
+    # @return [Random]
+    def generator
+      Sass::Script::Functions.random_number_generator
     end
   end
 end
