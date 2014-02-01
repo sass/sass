@@ -20,7 +20,7 @@ module Sass::Script::Tree
 
     # The keyword arguments to the function.
     #
-    # @return [{String => Node}]
+    # @return [Sass::Util::NormalizedMap<Node>]
     attr_reader :keywords
 
     # The first splat argument for this function, if one exists.

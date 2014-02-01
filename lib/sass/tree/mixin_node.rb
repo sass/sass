@@ -16,7 +16,7 @@ module Sass::Tree
     attr_accessor :args
 
     # A hash from keyword argument names to values.
-    # @return [{String => Script::Tree::Node}]
+    # @return [Sass::Util::NormalizedMap<Script::Tree::Node>]
     attr_accessor :keywords
 
     # The first splat argument for this mixin, if one exists.
@@ -39,7 +39,7 @@ module Sass::Tree
     # @param args [Array<Script::Tree::Node>] See \{#args}
     # @param splat [Script::Tree::Node] See \{#splat}
     # @param kwarg_splat [Script::Tree::Node] See \{#kwarg_splat}
-    # @param keywords [{String => Script::Tree::Node}] See \{#keywords}
+    # @param keywords [Sass::Util::NormalizedMap<Script::Tree::Node>] See \{#keywords}
     def initialize(name, args, keywords, splat, kwarg_splat)
       @name = name
       @args = args

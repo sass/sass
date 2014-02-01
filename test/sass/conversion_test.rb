@@ -1032,6 +1032,19 @@ foo {
 SCSS
   end
 
+  def test_mixin_include_with_hyphen_conversion_keyword_arg
+    assert_renders <<SASS, <<SCSS
+foo
+  +foo-bar($a-b_c: val)
+  a: blip
+SASS
+foo {
+  @include foo-bar($a-b_c: val);
+  a: blip;
+}
+SCSS
+  end
+
   def test_argless_function_definition
     assert_renders <<SASS, <<SCSS
 @function foo()

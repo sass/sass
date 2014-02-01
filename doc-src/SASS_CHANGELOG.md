@@ -340,6 +340,9 @@ of all directives, but will preserve any CSS rules.
 * Allow modulo arithmetic for numbers with compatible units. Thanks to
   [Isaac Devine](http://www.devinesystems.co.nz).
 
+* Keyword arguments to mixins and functions that contain hyphens will have the
+  hyphens preserved when using `sass-convert`.
+
 * There's new parser logic for `@keyframes` directives. This will
   improve the formatting of these directives, as well as catch more
   errors when using them.

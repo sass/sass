@@ -211,7 +211,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
 
     unless node.args.empty? && node.keywords.empty? && node.splat.nil?
       args = node.args.map(&arg_to_sass)
-      keywords = Sass::Util.hash_to_a(node.keywords).
+      keywords = Sass::Util.hash_to_a(node.keywords.as_stored).
         map {|k, v| "$#{dasherize(k)}: #{arg_to_sass[v]}"}
 
       if node.splat
