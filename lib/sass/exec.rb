@@ -316,7 +316,7 @@ END
                         else
                           'Specify the default encoding for Sass files.'
                         end
-        opts.on('-E encoding', encoding_desc) do |encoding|
+        opts.on('-E', '--default-encoding ENCODING', encoding_desc) do |encoding|
           if ::Sass::Util.ruby1_8?
             $stderr.puts "Specifying the encoding is not supported in ruby 1.8."
             exit 1
@@ -535,15 +535,14 @@ MSG
       end
 
       def default_sass_path
-        if ENV['SASSPATH']
+        if ENV['SASS_PATH']
           # The select here prevents errors when the environment's
           # load paths specified do not exist.
-          ENV['SASSPATH'].split(File::PATH_SEPARATOR).select {|d| File.directory?(d)}
+          ENV['SASS_PATH'].split(File::PATH_SEPARATOR).select {|d| File.directory?(d)}
         else
           [::Sass::Importers::DeprecatedPath.new(".")]
         end
       end
-
     end
 
     class Scss < Sass

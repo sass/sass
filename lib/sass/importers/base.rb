@@ -15,13 +15,9 @@ module Sass
     # They should also implement the \{#find\_relative} method.
     #
     # Importers should be serializable via `Marshal.dump`.
-    # In addition to the standard `_dump` and `_load` methods,
-    # importers can define `_before_dump`, `_after_dump`, `_around_dump`,
-    # and `_after_load` methods as per {Sass::Util#dump} and {Sass::Util#load}.
     #
     # @abstract
     class Base
-
       # Find a Sass file relative to another file.
       # Importers without a notion of "relative paths"
       # should just return nil here.

@@ -164,6 +164,20 @@ CSS
     end
   end
 
+  def test_import_name_cleanup
+    File.delete(tempfile_loc('subdir/import_up1'))
+    check_for_updates!
+    File.open(tempfile_loc('subdir/import_up1')) do |file|
+      assert_equal(<<CSS.strip, file.read.split("\n")[0...5].join("\n"))
+/*
+Syntax error: File to import not found or unreadable: ../subdir/import_up3.scss.
+              Load path: #{template_loc}
+        on line 1 of #{template_loc 'subdir/import_up2'}
+        from line 1 of #{template_loc 'subdir/import_up1'}
+CSS
+    end
+  end
+
   def test_nonfull_exception_handling
     old_full_exception = Sass::Plugin.options[:full_exception]
     Sass::Plugin.options[:full_exception] = false

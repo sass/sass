@@ -27,9 +27,19 @@ module Sass
     # The function of this is to be replaced by the parent selector
     # in the nested hierarchy.
     class Parent < Simple
+      # The identifier following the `&`. Often empty.
+      #
+      # @return [Array<String, Sass::Script::Tree::Node>]
+      attr_reader :suffix
+
+      # @param name [Array<String, Sass::Script::Tree::Node>] See \{#suffix}
+      def initialize(suffix = [])
+        @suffix = suffix
+      end
+
       # @see Selector#to_a
       def to_a
-        ["&"]
+        ["&", *@suffix]
       end
 
       # Always raises an exception.

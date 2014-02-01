@@ -1,7 +1,6 @@
 module Sass::Script::Value
   # A SassScript object representing a boolean (true or false) value.
   class Bool < Base
-
     # The true value in SassScript.
     #
     # This is assigned before new is overridden below so that we use the default implementation.

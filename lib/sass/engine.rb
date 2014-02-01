@@ -30,6 +30,7 @@ require 'sass/tree/warn_node'
 require 'sass/tree/import_node'
 require 'sass/tree/charset_node'
 require 'sass/tree/at_root_node'
+require 'sass/tree/keyframes_block_node'
 require 'sass/tree/visitors/base'
 require 'sass/tree/visitors/perform'
 require 'sass/tree/visitors/cssize'
@@ -51,7 +52,6 @@ require 'sass/media'
 require 'sass/supports'
 
 module Sass
-
   # A Sass mixin or function.
   #
   # `name`: `String`
@@ -88,8 +88,6 @@ module Sass
   #     output = sass_engine.render
   #     puts output
   class Engine
-    include Sass::Util
-
     # A line of Sass code.
     #
     # `text`: `String`
@@ -369,13 +367,13 @@ ERR
       rendered << "\n" unless compressed
       rendered << "/*# sourceMappingURL="
       rendered << Sass::Util.escape_uri(sourcemap_uri)
-      rendered << " */"
+      rendered << " */\n"
       rendered = encode_and_set_charset(rendered)
       return rendered, sourcemap
     end
 
     def encode_and_set_charset(rendered)
-      return rendered if ruby1_8?
+      return rendered if Sass::Util.ruby1_8?
       begin
         # Try to convert the result to the original encoding,
         # but if that doesn't work fall back on UTF-8
@@ -431,7 +429,7 @@ ERR
     def check_encoding!
       return if @checked_encoding
       @checked_encoding = true
-      @template, @original_encoding = check_sass_encoding(@template) do |msg, line|
+      @template, @original_encoding = Sass::Util.check_sass_encoding(@template) do |msg, line|
         raise Sass::SyntaxError.new(msg, :line => line)
       end
     end
@@ -577,6 +575,8 @@ MSG
           if continued_comment &&
               child.line == continued_comment.line +
               continued_comment.lines + 1
+            continued_comment.value.last.sub!(/ \*\/\Z/, '')
+            child.value.first.gsub!(/\A\/\*/, ' *')
             continued_comment.value += ["\n"] + child.value
             next
           end
@@ -655,11 +655,11 @@ WARNING
           parse_mixin_include(line, root)
         end
       else
-        parse_property_or_rule(line)
+        parse_property_or_rule(parent, line)
       end
     end
 
-    def parse_property_or_rule(line)
+    def parse_property_or_rule(parent, line)
       scanner = Sass::Util::MultibyteStringScanner.new(line.text)
       hack_char = scanner.scan(/[:\*\.]|\#(?!\{)/)
       offset = line.offset
@@ -670,7 +670,11 @@ WARNING
 
       unless (res = parser.parse_interp_ident)
         parsed = parse_interp(line.text, line.offset)
-        return Tree::RuleNode.new(parsed, full_line_range(line))
+        if parent.is_a?(Tree::DirectiveNode) && parent.name == 'keyframes'
+          return Tree::KeyframesBlockNode.new(parsed)
+        else
+          return Tree::RuleNode.new(parsed, full_line_range(line))
+        end
       end
 
       ident_range = Sass::Source::Range.new(
@@ -704,7 +708,11 @@ WARNING
           ident_range.start_pos,
           Sass::Source::Position.new(@line, to_parser_offset(line.offset) + line.text.length),
           @options[:filename], @options[:importer])
-        rule = Tree::RuleNode.new(res + interp_parsed, selector_range)
+        if parent.is_a?(Tree::DirectiveNode) && parent.name == 'keyframes'
+          rule = Tree::KeyframesBlockNode.new(res + interp_parsed)
+        else
+          rule = Tree::RuleNode.new(res + interp_parsed, selector_range)
+        end
         rule << Tree::CommentNode.new([trailing], :silent) if trailing
         rule
       end
@@ -766,7 +774,7 @@ WARNING
           value = self.class.parse_interp(
             line.text, line.index, to_parser_offset(line.offset), :filename => @filename)
         end
-        value = with_extracted_values(value) do |str|
+        value = Sass::Util.with_extracted_values(value) do |str|
           str = str.gsub(/^#{line.comment_tab_str}/m, '')[2..-1] # get rid of // or /*
           format_comment_text(str, silent)
         end
@@ -791,6 +799,7 @@ WARNING
     #   rubocop:disable MethodLength
     def parse_directive(parent, line, root)
       directive, whitespace, value = line.text[1..-1].split(/(\s+)/, 2)
+      raise SyntaxError.new("Invalid directive: '@'.") unless directive
       offset = directive.size + whitespace.size + 1 if whitespace
 
       directive_name = directive.gsub('-', '_').to_sym
@@ -1129,12 +1138,12 @@ WARNING
         content.shift
       end
 
-      return silent ? "//" : "/* */" if content.empty?
+      return "/* */" if content.empty?
       content.last.gsub!(/ ?\*\/ *$/, '')
       content.map! {|l| l.gsub!(/^\*( ?)/, '\1') || (l.empty? ? "" : " ") + l}
       content.first.gsub!(/^ /, '') unless removed_first
       if silent
-        "//" + content.join("\n//")
+        "/*" + content.join("\n *") + " */"
       else
         # The #gsub fixes the case of a trailing */
         "/*" + content.join("\n *").gsub(/ \*\Z/, '') + " */"

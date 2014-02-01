@@ -175,13 +175,9 @@ module Sass::Script::Value
     # @param other [Number] The right-hand side of the operator
     # @return [Number] This number modulo the other
     # @raise [NoMethodError] if `other` is an invalid type
-    # @raise [Sass::UnitConversionError] if `other` has any units
+    # @raise [Sass::UnitConversionError] if `other` has incompatible units
     def mod(other)
       if other.is_a?(Number)
-        unless other.unitless?
-          raise Sass::UnitConversionError.new(
-            "Cannot modulo by a number with units: #{other.inspect}.")
-        end
         operate(other, :%)
       else
         raise NoMethodError.new(nil, :mod)
@@ -276,7 +272,14 @@ module Sass::Script::Value
     # @return [String] The representation
     def inspect(opts = {})
       value = self.class.round(self.value)
-      unitless? ? value.to_s : "#{value}#{unit_str}"
+      str = value.to_s
+
+      # Ruby will occasionally print in scientific notation if the number is
+      # small enough. That's technically valid CSS, but it's not well-supported
+      # and confusing.
+      str = ("%0.#{self.class.precision}f" % value).gsub(/0*$/, '') if str.include?('e')
+
+      unitless? ? str : "#{str}#{unit_str}"
     end
     alias_method :to_sass, :inspect
 
@@ -381,7 +384,7 @@ module Sass::Script::Value
       end
     end
 
-    OPERATIONS = [:+, :-, :<=, :<, :>, :>=]
+    OPERATIONS = [:+, :-, :<=, :<, :>, :>=, :%]
 
     def operate(other, operation)
       this = self

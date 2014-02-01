@@ -68,7 +68,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
       end
 
       if content.include?("\n")
-        content.gsub!(%r{\n( \*|//)}, "\n  ")
+        content.gsub!(/\n \*/, "\n  ")
         spaces = content.scan(/\n( *)/).map {|s| s.first.size}.min
         sep = node.type == :silent ? "\n//" : "\n *"
         if spaces >= 2
@@ -101,6 +101,10 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
     res.gsub!(/^@import \#\{(.*)\}([^}]*)$/, '@import \1\2')
     return res + "#{semi}\n" unless node.has_children
     res + yield + "\n"
+  end
+
+  def visit_keyframesblock(node)
+    "#{tab_str}#{interp_to_src(node.value).rstrip}#{yield}"
   end
 
   def visit_each(node)
@@ -207,7 +211,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
 
     unless node.args.empty? && node.keywords.empty? && node.splat.nil?
       args = node.args.map(&arg_to_sass)
-      keywords = Sass::Util.hash_to_a(node.keywords).
+      keywords = Sass::Util.hash_to_a(node.keywords.as_stored).
         map {|k, v| "$#{dasherize(k)}: #{arg_to_sass[v]}"}
 
       if node.splat

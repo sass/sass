@@ -31,7 +31,7 @@ module Sass::Script
   # \{#blue blue($color)}
   # : Gets the blue component of a color.
   #
-  # \{#mix mix($color-1, $color-2, \[$weight\])}
+  # \{#mix mix($color1, $color2, \[$weight\])}
   # : Mixes two colors together.
   #
   # ## HSL Functions
@@ -136,19 +136,19 @@ module Sass::Script
   #
   # ## Number Functions
   #
-  # \{#percentage percentage($value)}
+  # \{#percentage percentage($number)}
   # : Converts a unitless number to a percentage.
   #
-  # \{#round round($value)}
+  # \{#round round($number)}
   # : Rounds a number to the nearest whole number.
   #
-  # \{#ceil ceil($value)}
+  # \{#ceil ceil($number)}
   # : Rounds a number up to the next whole number.
   #
-  # \{#floor floor($value)}
+  # \{#floor floor($number)}
   # : Rounds a number down to the previous whole number.
   #
-  # \{#abs abs($value)}
+  # \{#abs abs($number)}
   # : Returns the absolute value of a number.
   #
   # \{#min min($numbers...)\}
@@ -189,6 +189,9 @@ module Sass::Script
   #
   # \{#map_merge map-merge($map1, $map2)}
   # : Merges two maps together into a new map.
+  #
+  # \{#map_remove map-remove($map, $key)}
+  # : Returns a new map with a key removed.
   #
   # \{#map_keys map-keys($map)}
   # : Returns a list of all keys in a map.
@@ -231,7 +234,7 @@ module Sass::Script
   # \{#unitless unitless($number)}
   # : Returns whether a number has units.
   #
-  # \{#comparable comparable($number-1, $number-2)}
+  # \{#comparable comparable($number1, $number2)}
   # : Returns whether two numbers can be added, subtracted, or compared.
   #
   # \{#call call($name, $args...)}
@@ -306,7 +309,7 @@ module Sass::Script
     #   delayed.
     # @attr var_args [Boolean] Whether the function takes a variable number of arguments.
     # @attr var_kwargs [Boolean] Whether the function takes an arbitrary set of keyword arguments.
-    Signature = Struct.new(:args, :delayed_args, :var_args, :var_kwargs)
+    Signature = Struct.new(:args, :delayed_args, :var_args, :var_kwargs, :deprecated)
 
     # Declare a Sass signature for a Ruby-defined function.
     # This includes the names of the arguments,
@@ -361,7 +364,8 @@ module Sass::Script
         args,
         delayed_args,
         options[:var_args],
-        options[:var_kwargs])
+        options[:var_kwargs],
+        options[:deprecated] && options[:deprecated].map {|a| a.to_s})
     end
 
     # Determine the correct signature for the number of arguments
@@ -758,7 +762,6 @@ module Sass::Script
     # @raise [ArgumentError] if `$color` isn't a color
     def hue(color)
       assert_type color, :Color, :color
-      assert_type color, :Color
       number(color.hue, "deg")
     end
     declare :hue, [:color]
@@ -1176,12 +1179,12 @@ module Sass::Script
     #   same time
     def change_color(color, kwargs)
       assert_type color, :Color, :color
-      with = Sass::Util.map_hash(%w[red green blue hue saturation lightness alpha]) do |name, max|
+      with = Sass::Util.to_hash(%w[red green blue hue saturation lightness alpha].map do |name|
         val = kwargs.delete(name)
         next unless val
         assert_type val, :Number, name
         [name.to_sym, val.value]
-      end
+      end)
 
       unless kwargs.empty?
         name, val = kwargs.to_a.first
@@ -1205,18 +1208,18 @@ module Sass::Script
     #   mix(#f00, #00f) => #7f007f
     #   mix(#f00, #00f, 25%) => #3f00bf
     #   mix(rgba(255, 0, 0, 0.5), #00f) => rgba(63, 0, 191, 0.75)
-    # @overload mix($color-1, $color-2, $weight: 50%)
-    # @param $color-1 [Sass::Script::Value::Color]
-    # @param $color-2 [Sass::Script::Value::Color]
+    # @overload mix($color1, $color2, $weight: 50%)
+    # @param $color1 [Sass::Script::Value::Color]
+    # @param $color2 [Sass::Script::Value::Color]
     # @param $weight [Sass::Script::Value::Number] The relative weight of each
     #   color. Closer to `0%` gives more weight to `$color`, closer to `100%`
     #   gives more weight to `$color2`
     # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if `$weight` is out of bounds or any parameter is
     #   the wrong type
-    def mix(color_1, color_2, weight = number(50))
-      assert_type color_1, :Color, :color_1
-      assert_type color_2, :Color, :color_2
+    def mix(color1, color2, weight = number(50))
+      assert_type color1, :Color, :color1
+      assert_type color2, :Color, :color2
       assert_type weight, :Number, :weight
 
       Sass::Util.check_range("Weight", 0..100, weight, '%')
@@ -1226,11 +1229,11 @@ module Sass::Script
       # to perform the weighted average of the two RGB values.
       #
       # It works by first normalizing both parameters to be within [-1, 1],
-      # where 1 indicates "only use color_1", -1 indicates "only use color_2", and
+      # where 1 indicates "only use color1", -1 indicates "only use color2", and
       # all values in between indicated a proportionately weighted average.
       #
       # Once we have the normalized variables w and a, we apply the formula
-      # (w + a)/(1 + w*a) to get the combined weight (in [-1, 1]) of color_1.
+      # (w + a)/(1 + w*a) to get the combined weight (in [-1, 1]) of color1.
       # This formula has two especially nice properties:
       #
       #   * When either w or a are -1 or 1, the combined weight is also that number
@@ -1238,21 +1241,21 @@ module Sass::Script
       #
       #   * When a is 0, the combined weight is w, and vice versa.
       #
-      # Finally, the weight of color_1 is renormalized to be within [0, 1]
-      # and the weight of color_2 is given by 1 minus the weight of color_1.
+      # Finally, the weight of color1 is renormalized to be within [0, 1]
+      # and the weight of color2 is given by 1 minus the weight of color1.
       p = (weight.value / 100.0).to_f
       w = p * 2 - 1
-      a = color_1.alpha - color_2.alpha
+      a = color1.alpha - color2.alpha
 
       w1 = ((w * a == -1 ? w : (w + a) / (1 + w * a)) + 1) / 2.0
       w2 = 1 - w1
 
-      rgba = color_1.rgb.zip(color_2.rgb).map {|v1, v2| v1 * w1 + v2 * w2}
-      rgba << color_1.alpha * p + color_2.alpha * (1 - p)
+      rgba = color1.rgb.zip(color2.rgb).map {|v1, v2| v1 * w1 + v2 * w2}
+      rgba << color1.alpha * p + color2.alpha * (1 - p)
       rgb_color(*rgba)
     end
-    declare :mix, [:color_1, :color_2]
-    declare :mix, [:color_1, :color_2, :weight]
+    declare :mix, [:color1, :color2], :deprecated => [:color_1, :color_2]
+    declare :mix, [:color1, :color2, :weight], :deprecated => [:color_1, :color_2, :weight]
 
     # Converts a color to grayscale. This is identical to `desaturate(color,
     # 100%)`.
@@ -1394,7 +1397,7 @@ module Sass::Script
     declare :str_insert, [:string, :insert, :index]
 
     # Returns the index of the first occurance of `$substring` in `$string`. If
-    # there is no such occurance, returns 0.
+    # there is no such occurance, returns `null`.
     #
     # Note that unlike some languages, the first character in a Sass string is
     # number 1, the second number 2, and so forth.
@@ -1402,19 +1405,19 @@ module Sass::Script
     # @example
     #   str-index(abcd, a)  => 1
     #   str-index(abcd, ab) => 1
-    #   str-index(abcd, X)  => 0
+    #   str-index(abcd, X)  => null
     #   str-index(abcd, c)  => 3
     #
     # @overload str_index($string, $substring)
     # @param $string [Sass::Script::Value::String]
     # @param $substring [Sass::Script::Value::String]
-    # @return [Sass::Script::Value::Number]
+    # @return [Sass::Script::Value::Number, Sass::Script::Value::Null]
     # @raise [ArgumentError] if any parameter is the wrong type
     def str_index(string, substring)
       assert_type string, :String, :string
       assert_type substring, :String, :substring
-      index = string.value.index(substring.value) || -1
-      number(index + 1)
+      index = string.value.index(substring.value)
+      index ? number(index + 1) : null
     end
     declare :str_index, [:string, :substring]
 
@@ -1564,90 +1567,90 @@ module Sass::Script
     #   comparable(2px, 1px) => true
     #   comparable(100px, 3em) => false
     #   comparable(10cm, 3mm) => true
-    # @overload comparable($number-1, $number-2)
-    # @param $number-1 [Sass::Script::Value::Number]
-    # @param $number-2 [Sass::Script::Value::Number]
+    # @overload comparable($number1, $number2)
+    # @param $number1 [Sass::Script::Value::Number]
+    # @param $number2 [Sass::Script::Value::Number]
     # @return [Sass::Script::Value::Bool]
     # @raise [ArgumentError] if either parameter is the wrong type
-    def comparable(number_1, number_2)
-      assert_type number_1, :Number, :number_1
-      assert_type number_2, :Number, :number_2
-      bool(number_1.comparable_to?(number_2))
+    def comparable(number1, number2)
+      assert_type number1, :Number, :number1
+      assert_type number2, :Number, :number2
+      bool(number1.comparable_to?(number2))
     end
-    declare :comparable, [:number_1, :number_2]
+    declare :comparable, [:number1, :number2], :deprecated => [:number_1, :number_2]
 
     # Converts a unitless number to a percentage.
     #
     # @example
     #   percentage(0.2) => 20%
     #   percentage(100px / 50px) => 200%
-    # @overload percentage($value)
-    # @param $value [Sass::Script::Value::Number]
+    # @overload percentage($number)
+    # @param $number [Sass::Script::Value::Number]
     # @return [Sass::Script::Value::Number]
-    # @raise [ArgumentError] if `$value` isn't a unitless number
-    def percentage(value)
-      unless value.is_a?(Sass::Script::Value::Number) && value.unitless?
-        raise ArgumentError.new("$value: #{value.inspect} is not a unitless number")
+    # @raise [ArgumentError] if `$number` isn't a unitless number
+    def percentage(number)
+      unless number.is_a?(Sass::Script::Value::Number) && number.unitless?
+        raise ArgumentError.new("$number: #{number.inspect} is not a unitless number")
       end
-      number(value.value * 100, '%')
+      number(number.value * 100, '%')
     end
-    declare :percentage, [:value]
+    declare :percentage, [:number], :deprecated => [:value]
 
     # Rounds a number to the nearest whole number.
     #
     # @example
     #   round(10.4px) => 10px
     #   round(10.6px) => 11px
-    # @overload round($value)
-    # @param $value [Sass::Script::Value::Number]
+    # @overload round($number)
+    # @param $number [Sass::Script::Value::Number]
     # @return [Sass::Script::Value::Number]
-    # @raise [ArgumentError] if `$value` isn't a number
-    def round(value)
-      numeric_transformation(value) {|n| n.round}
+    # @raise [ArgumentError] if `$number` isn't a number
+    def round(number)
+      numeric_transformation(number) {|n| n.round}
     end
-    declare :round, [:value]
+    declare :round, [:number], :deprecated => [:value]
 
     # Rounds a number up to the next whole number.
     #
     # @example
     #   ceil(10.4px) => 11px
     #   ceil(10.6px) => 11px
-    # @overload ceil($value)
-    # @param $value [Sass::Script::Value::Number]
+    # @overload ceil($number)
+    # @param $number [Sass::Script::Value::Number]
     # @return [Sass::Script::Value::Number]
-    # @raise [ArgumentError] if `$value` isn't a number
-    def ceil(value)
-      numeric_transformation(value) {|n| n.ceil}
+    # @raise [ArgumentError] if `$number` isn't a number
+    def ceil(number)
+      numeric_transformation(number) {|n| n.ceil}
     end
-    declare :ceil, [:value]
+    declare :ceil, [:number], :deprecated => [:value]
 
     # Rounds a number down to the previous whole number.
     #
     # @example
     #   floor(10.4px) => 10px
     #   floor(10.6px) => 10px
-    # @overload floor($value)
-    # @param $value [Sass::Script::Value::Number]
+    # @overload floor($number)
+    # @param $number [Sass::Script::Value::Number]
     # @return [Sass::Script::Value::Number]
-    # @raise [ArgumentError] if `$value` isn't a number
-    def floor(value)
-      numeric_transformation(value) {|n| n.floor}
+    # @raise [ArgumentError] if `$number` isn't a number
+    def floor(number)
+      numeric_transformation(number) {|n| n.floor}
     end
-    declare :floor, [:value]
+    declare :floor, [:number], :deprecated => [:value]
 
     # Returns the absolute value of a number.
     #
     # @example
     #   abs(10px) => 10px
     #   abs(-10px) => 10px
-    # @overload abs($value)
-    # @param $value [Sass::Script::Value::Number]
+    # @overload abs($number)
+    # @param $number [Sass::Script::Value::Number]
     # @return [Sass::Script::Value::Number]
-    # @raise [ArgumentError] if `$value` isn't a number
-    def abs(value)
-      numeric_transformation(value) {|n| n.abs}
+    # @raise [ArgumentError] if `$number` isn't a number
+    def abs(number)
+      numeric_transformation(number) {|n| n.abs}
     end
-    declare :abs, [:value]
+    declare :abs, [:number], :deprecated => [:value]
 
     # Finds the minimum of several numbers. This function takes any number of
     # arguments.
@@ -1857,7 +1860,7 @@ module Sass::Script
     declare :zip, [], :var_args => true
 
     # Returns the position of a value within a list. If the value isn't found,
-    # returns false instead.
+    # returns `null` instead.
     #
     # Note that unlike some languages, the first item in a Sass list is number
     # 1, the second number 2, and so forth.
@@ -1866,20 +1869,16 @@ module Sass::Script
     #
     # @example
     #   index(1px solid red, solid) => 2
-    #   index(1px solid red, dashed) => false
+    #   index(1px solid red, dashed) => null
     #   index((width: 10px, height: 20px), (height, 20px)) => 2
     # @overload index($list, $value)
     # @param $list [Sass::Script::Value::Base]
     # @param $value [Sass::Script::Value::Base]
-    # @return [Sass::Script::Value::Number, Sass::Script::Value::Bool] The
-    #   1-based index of `$value` in `$list`, or `false`
+    # @return [Sass::Script::Value::Number, Sass::Script::Value::Null] The
+    #   1-based index of `$value` in `$list`, or `null`
     def index(list, value)
       index = list.to_a.index {|e| e.eq(value).to_bool}
-      if index
-        number(index + 1)
-      else
-        bool(false)
-      end
+      index ? number(index + 1) : null
     end
     declare :index, [:list, :value]
 
@@ -1912,7 +1911,7 @@ module Sass::Script
     #   if the map doesn't contain the given key
     # @raise [ArgumentError] if `$map` is not a map
     def map_get(map, key)
-      assert_type map, :Map
+      assert_type map, :Map, :map
       to_h(map)[key] || null
     end
     declare :map_get, [:map, :key]
@@ -1935,11 +1934,29 @@ module Sass::Script
     # @return [Sass::Script::Value::Map]
     # @raise [ArgumentError] if either parameter is not a map
     def map_merge(map1, map2)
-      assert_type map1, :Map
-      assert_type map2, :Map
+      assert_type map1, :Map, :map1
+      assert_type map2, :Map, :map2
       map(to_h(map1).merge(to_h(map2)))
     end
-    declare :map_get, [:map1, :map2]
+    declare :map_merge, [:map1, :map2]
+
+    # Returns a new map with a key removed.
+    #
+    # @example
+    #   map-remove(("foo": 1, "bar": 2), "bar") => ("foo": 1)
+    #   map-remove(("foo": 1, "bar": 2), "baz") => ("foo": 1, "bar": 2)
+    # @overload map_remove($map, $key)
+    # @param $map [Sass::Script::Value::Map]
+    # @param $key [Sass::Script::Value::Base]
+    # @return [Sass::Script::Value::Map]
+    # @raise [ArgumentError] if `$map` is not a map
+    def map_remove(map, key)
+      assert_type map, :Map, :map
+      hash = to_h(map).dup
+      hash.delete key
+      map(hash)
+    end
+    declare :map_remove, [:map, :key]
 
     # Returns a list of all keys in a map.
     #
@@ -1950,7 +1967,7 @@ module Sass::Script
     # @return [List] the list of keys, comma-separated
     # @raise [ArgumentError] if `$map` is not a map
     def map_keys(map)
-      assert_type map, :Map
+      assert_type map, :Map, :map
       list(to_h(map).keys, :comma)
     end
     declare :map_keys, [:map]
@@ -1966,7 +1983,7 @@ module Sass::Script
     # @return [List] the list of values, comma-separated
     # @raise [ArgumentError] if `$map` is not a map
     def map_values(map)
-      assert_type map, :Map
+      assert_type map, :Map, :map
       list(to_h(map).values, :comma)
     end
     declare :map_values, [:map]
@@ -1982,7 +1999,7 @@ module Sass::Script
     # @return [Sass::Script::Value::Bool]
     # @raise [ArgumentError] if `$map` is not a map
     def map_has_key(map, key)
-      assert_type map, :Map
+      assert_type map, :Map, :map
       bool(to_h(map).has_key?(key))
     end
     declare :map_has_key, [:map, :key]
@@ -2002,8 +2019,8 @@ module Sass::Script
     # @return [Sass::Script::Value::Map]
     # @raise [ArgumentError] if `$args` isn't a variable argument list
     def keywords(args)
-      assert_type args, :ArgList
-      map(Sass::Util.map_keys(args.keywords) {|k| Sass::Script::String.new(k)})
+      assert_type args, :ArgList, :args
+      map(Sass::Util.map_keys(args.keywords.as_stored) {|k| Sass::Script::String.new(k)})
     end
     declare :keywords, [:args]
 
@@ -2115,7 +2132,7 @@ module Sass::Script
     # @return [Sass::Script::Bool] Whether the variable is defined in
     #   the current scope.
     def variable_exists(name)
-      assert_type name, :String
+      assert_type name, :String, :name
       bool(environment.caller.var(name.value))
     end
     declare :variable_exists, [:name]
@@ -2136,7 +2153,7 @@ module Sass::Script
     # @return [Sass::Script::Bool] Whether the variable is defined in
     #   the global scope.
     def global_variable_exists(name)
-      assert_type name, :String
+      assert_type name, :String, :name
       bool(environment.global_env.var(name.value))
     end
     declare :global_variable_exists, [:name]
@@ -2152,7 +2169,7 @@ module Sass::Script
     #   check.
     # @return [Sass::Script::Bool] Whether the function is defined.
     def function_exists(name)
-      assert_type name, :String
+      assert_type name, :String, :name
       exists = Sass::Script::Functions.callable?(name.value.tr("-", "_"))
       exists ||= environment.function(name.value)
       bool(exists)
@@ -2170,7 +2187,7 @@ module Sass::Script
     #   check.
     # @return [Sass::Script::Bool] Whether the mixin is defined.
     def mixin_exists(name)
-      assert_type name, :String
+      assert_type name, :String, :name
       bool(environment.mixin(name.value))
     end
     declare :mixin_exists, [:name]

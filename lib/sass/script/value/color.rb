@@ -14,13 +14,33 @@ module Sass::Script::Value
   # If only the alpha channel is modified using \{#with},
   # the cached RGB and HSL values are retained.
   class Color < Base
-    class << self; include Sass::Util; end
+    # @private
+    #
+    # Convert a ruby integer to a rgba components
+    # @param color [Fixnum]
+    # @return [Array<Fixnum>] Array of 4 numbers representing r,g,b and alpha
+    def self.int_to_rgba(color)
+      rgba = (0..3).map {|n| color >> (n << 3) & 0xff}.reverse
+      rgba[-1] = rgba[-1] / 255.0
+      rgba
+    end
+
+    ALTERNATE_COLOR_NAMES = Sass::Util.map_vals({
+        'aqua'                 => 0x00FFFFFF,
+        'darkgrey'             => 0xA9A9A9FF,
+        'darkslategrey'        => 0x2F4F4FFF,
+        'dimgrey'              => 0x696969FF,
+        'fuchsia'              => 0xFF00FFFF,
+        'grey'                 => 0x808080FF,
+        'lightgrey'            => 0xD3D3D3FF,
+        'lightslategrey'       => 0x778899FF,
+        'slategrey'            => 0x708090FF,
+    }, &method(:int_to_rgba))
 
     # A hash from color names to `[red, green, blue]` value arrays.
-    COLOR_NAMES = map_vals(
+    COLOR_NAMES = Sass::Util.map_vals({
         'aliceblue'            => 0xF0F8FFFF,
         'antiquewhite'         => 0xFAEBD7FF,
-        'aqua'                 => 0x00FFFFFF,
         'aquamarine'           => 0x7FFFD4FF,
         'azure'                => 0xF0FFFFFF,
         'beige'                => 0xF5F5DCFF,
@@ -43,7 +63,6 @@ module Sass::Script::Value
         'darkcyan'             => 0x008B8BFF,
         'darkgoldenrod'        => 0xB8860BFF,
         'darkgray'             => 0xA9A9A9FF,
-        'darkgrey'             => 0xA9A9A9FF,
         'darkgreen'            => 0x006400FF,
         'darkkhaki'            => 0xBDB76BFF,
         'darkmagenta'          => 0x8B008BFF,
@@ -55,24 +74,20 @@ module Sass::Script::Value
         'darkseagreen'         => 0x8FBC8FFF,
         'darkslateblue'        => 0x483D8BFF,
         'darkslategray'        => 0x2F4F4FFF,
-        'darkslategrey'        => 0x2F4F4FFF,
         'darkturquoise'        => 0x00CED1FF,
         'darkviolet'           => 0x9400D3FF,
         'deeppink'             => 0xFF1493FF,
         'deepskyblue'          => 0x00BFFFFF,
         'dimgray'              => 0x696969FF,
-        'dimgrey'              => 0x696969FF,
         'dodgerblue'           => 0x1E90FFFF,
         'firebrick'            => 0xB22222FF,
         'floralwhite'          => 0xFFFAF0FF,
         'forestgreen'          => 0x228B22FF,
-        'fuchsia'              => 0xFF00FFFF,
         'gainsboro'            => 0xDCDCDCFF,
         'ghostwhite'           => 0xF8F8FFFF,
         'gold'                 => 0xFFD700FF,
         'goldenrod'            => 0xDAA520FF,
         'gray'                 => 0x808080FF,
-        'grey'                 => 0x808080FF,
         'green'                => 0x008000FF,
         'greenyellow'          => 0xADFF2FFF,
         'honeydew'             => 0xF0FFF0FF,
@@ -91,13 +106,11 @@ module Sass::Script::Value
         'lightgoldenrodyellow' => 0xFAFAD2FF,
         'lightgreen'           => 0x90EE90FF,
         'lightgray'            => 0xD3D3D3FF,
-        'lightgrey'            => 0xD3D3D3FF,
         'lightpink'            => 0xFFB6C1FF,
         'lightsalmon'          => 0xFFA07AFF,
         'lightseagreen'        => 0x20B2AAFF,
         'lightskyblue'         => 0x87CEFAFF,
         'lightslategray'       => 0x778899FF,
-        'lightslategrey'       => 0x778899FF,
         'lightsteelblue'       => 0xB0C4DEFF,
         'lightyellow'          => 0xFFFFE0FF,
         'lime'                 => 0x00FF00FF,
@@ -150,7 +163,6 @@ module Sass::Script::Value
         'skyblue'              => 0x87CEEBFF,
         'slateblue'            => 0x6A5ACDFF,
         'slategray'            => 0x708090FF,
-        'slategrey'            => 0x708090FF,
         'snow'                 => 0xFFFAFAFF,
         'springgreen'          => 0x00FF7FFF,
         'steelblue'            => 0x4682B4FF,
@@ -166,14 +178,14 @@ module Sass::Script::Value
         'whitesmoke'           => 0xF5F5F5FF,
         'yellow'               => 0xFFFF00FF,
         'yellowgreen'          => 0x9ACD32FF
-      ) do |color|
-        rgba = (0..3).map {|n| color >> (n << 3) & 0xff}.reverse
-        rgba[-1] = rgba[-1] / 255.0
-        rgba
-      end
+     }, &method(:int_to_rgba))
 
     # A hash from `[red, green, blue, alpha]` value arrays to color names.
-    COLOR_NAMES_REVERSE = map_hash(hash_to_a(COLOR_NAMES)) {|k, v| [v, k]}
+    COLOR_NAMES_REVERSE = COLOR_NAMES.invert.freeze
+
+    # We add the alternate color names after inverting because
+    # different ruby implementations and versions vary on the ordering of the result of invert.
+    COLOR_NAMES.update(ALTERNATE_COLOR_NAMES).freeze
 
     # Constructs an RGB or HSL color object,
     # optionally with an alpha channel.

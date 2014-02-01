@@ -20,7 +20,7 @@ module Sass::Script::Tree
 
     # The keyword arguments to the function.
     #
-    # @return [{String => Node}]
+    # @return [Sass::Util::NormalizedMap<Node>]
     attr_reader :keywords
 
     # The first splat argument for this function, if one exists.
@@ -128,7 +128,7 @@ module Sass::Script::Tree
       splat = Sass::Tree::Visitors::Perform.perform_splat(
         @splat, keywords, @kwarg_splat, environment)
       if (fn = environment.function(@name))
-        return perform_sass_fn(fn, args, splat, environment)
+        return without_original(perform_sass_fn(fn, args, splat, environment))
       end
 
       args = construct_ruby_args(ruby_name, args, splat, environment)
@@ -136,8 +136,9 @@ module Sass::Script::Tree
       if Sass::Script::Functions.callable?(ruby_name)
         local_environment = Sass::Environment.new(environment.global_env, environment.options)
         local_environment.caller = Sass::ReadOnlyEnvironment.new(environment, environment.options)
-        opts(Sass::Script::Functions::EvaluationContext.new(
+        result = opts(Sass::Script::Functions::EvaluationContext.new(
           local_environment).send(ruby_name, *args))
+        without_original(result)
       else
         opts(to_literal(args))
       end
@@ -173,6 +174,13 @@ module Sass::Script::Tree
       @signature ||= Sass::Script::Functions.signature(name.to_sym, @args.size, @keywords.size)
     end
 
+    def without_original(value)
+      return value unless value.is_a?(Sass::Script::Value::Number)
+      value = value.dup
+      value.original = nil
+      value
+    end
+
     def construct_ruby_args(name, args, splat, environment)
       args += splat.to_a if splat
 
@@ -198,9 +206,16 @@ module Sass::Script::Tree
         return args
       end
 
-      args = args + (signature.args[args.size..-1] || []).map do |argname|
+      argnames = signature.args[args.size..-1] || []
+      deprecated_argnames = (signature.deprecated && signature.deprecated[args.size..-1]) || []
+      args = args + argnames.zip(deprecated_argnames).map do |(argname, deprecated_argname)|
         if keywords.has_key?(argname)
           keywords.delete(argname)
+        elsif deprecated_argname && keywords.has_key?(deprecated_argname)
+          deprecated_argname = keywords.denormalize(deprecated_argname)
+          Sass::Util.sass_warn("DEPRECATION WARNING: The `$#{deprecated_argname}' argument for " +
+            "`#{name}()' has been renamed to `$#{argname}'.")
+          keywords.delete(deprecated_argname)
         else
           raise Sass::SyntaxError.new("Function #{name} requires an argument named $#{argname}")
         end
@@ -208,7 +223,8 @@ module Sass::Script::Tree
 
       if keywords.size > 0
         if signature.var_kwargs
-          args << keywords
+          # Don't pass a NormalizedMap to a Ruby function.
+          args << keywords.to_hash
         else
           argname = keywords.keys.sort.first
           if signature.args.include?(argname)

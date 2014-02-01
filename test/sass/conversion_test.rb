@@ -499,6 +499,29 @@ foo
 SASS
   end
 
+  def test_loud_comment_containing_silent_comment
+    assert_scss_to_sass <<SASS, <<SCSS
+/*
+ *// foo bar
+SASS
+/*
+// foo bar
+*/
+SCSS
+  end
+
+  def test_silent_comment_containing_loud_comment
+    assert_scss_to_sass <<SASS, <<SCSS
+// /*
+//  * foo bar
+//  */
+SASS
+// /*
+//  * foo bar
+//  */
+SCSS
+  end
+
   def test_immediately_preceding_comments
     assert_renders <<SASS, <<SCSS
 /* Foo
@@ -1004,6 +1027,19 @@ SASS
 foo {
   @include foo-bar(12px, "blaz", $blip: blap, $bloop: blop);
   @include foo-bar($blip: blap, $bloop: blop);
+  a: blip;
+}
+SCSS
+  end
+
+  def test_mixin_include_with_hyphen_conversion_keyword_arg
+    assert_renders <<SASS, <<SCSS
+foo
+  +foo-bar($a-b_c: val)
+  a: blip
+SASS
+foo {
+  @include foo-bar($a-b_c: val);
   a: blip;
 }
 SCSS
@@ -1768,6 +1804,54 @@ SASS
 
 .foo {
   a: foo($list..., $map...);
+}
+SCSS
+  end
+
+  def test_keyframes
+    assert_renders(<<SASS, <<SCSS)
+@keyframes bounce
+  from
+    top: 100px
+  25%
+    top: 50px
+  to
+    top: 0px
+SASS
+@keyframes bounce {
+  from {
+    top: 100px;
+  }
+  25% {
+    top: 50px;
+  }
+  to {
+    top: 0px;
+  }
+}
+SCSS
+  end
+
+  def test_vendor_keyframes
+    assert_renders(<<SASS, <<SCSS)
+@-webkit-keyframes bounce
+  from
+    top: 100px
+  25%
+    top: 50px
+  to
+    top: 0px
+SASS
+@-webkit-keyframes bounce {
+  from {
+    top: 100px;
+  }
+  25% {
+    top: 50px;
+  }
+  to {
+    top: 0px;
+  }
 }
 SCSS
   end

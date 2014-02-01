@@ -27,9 +27,10 @@ a {
 /*# sourceMappingURL=test.css.map */
 CSS
 {
-"version": "3",
+"version": 3,
 "mappings": "AAAA,CAAE;EACA,GAAG,EAAE,GAAG;;EAER,SAAS,EAAE,IAAI",
 "sources": ["test_simple_mapping_scss_inline.scss"],
+"names": [],
 "file": "test.css"
 }
 JSON
@@ -50,9 +51,10 @@ a {
 /*# sourceMappingURL=test.css.map */
 CSS
 {
-"version": "3",
+"version": 3,
 "mappings": "AAAA,CAAC;EACC,GAAG,EAAE,GAAG;;EAEP,SAAS,EAAC,IAAI",
 "sources": ["test_simple_mapping_sass_inline.sass"],
+"names": [],
 "file": "test.css"
 }
 JSON
@@ -75,9 +77,10 @@ a {
 /*# sourceMappingURL=style.css.map */
 CSS
 {
-"version": "3",
+"version": 3,
 "mappings": "AAAA,CAAE;EACA,GAAG,EAAE,GAAG;;EAER,SAAS,EAAE,IAAI",
 "sources": ["../scss/style.scss"],
+"names": [],
 "file": "style.css"
 }
 JSON
@@ -99,9 +102,10 @@ a {
 /*# sourceMappingURL=style.css.map */
 CSS
 {
-"version": "3",
+"version": 3,
 "mappings": "AAAA,CAAC;EACC,GAAG,EAAE,GAAG;;EAEP,SAAS,EAAC,IAAI",
 "sources": ["../sass/style.sass"],
+"names": [],
 "file": "style.css"
 }
 JSON
@@ -121,9 +125,10 @@ a {
 /*# sourceMappingURL=test.css.map */
 CSS
 {
-"version": "3",
+"version": 3,
 "mappings": ";AAAA,CAAE;EACA,GAAG,EAAE,GAAG",
 "sources": ["test_simple_charset_mapping_scss_inline.scss"],
+"names": [],
 "file": "test.css"
 }
 JSON
@@ -141,9 +146,10 @@ a {
 /*# sourceMappingURL=test.css.map */
 CSS
 {
-"version": "3",
+"version": 3,
 "mappings": ";AAAA,CAAC;EACC,GAAG,EAAE,GAAG",
 "sources": ["test_simple_charset_mapping_sass_inline.sass"],
+"names": [],
 "file": "test.css"
 }
 JSON
@@ -163,9 +169,10 @@ f\x86\x86 {
 /*# sourceMappingURL=test.css.map */
 CSS
 {
-"version": "3",
+"version": 3,
 "mappings": ";AACA,GAAI;EACF,CAAC,EAAE,CAAC",
 "sources": ["test_different_charset_than_encoding_scss_inline.scss"],
+"names": [],
 "file": "test.css"
 }
 JSON
@@ -184,9 +191,10 @@ f\x86\x86 {
 /*# sourceMappingURL=test.css.map */
 CSS
 {
-"version": "3",
+"version": 3,
 "mappings": ";AACA,GAAG;EACD,CAAC,EAAE,CAAC",
 "sources": ["test_different_charset_than_encoding_sass_inline.sass"],
+"names": [],
 "file": "test.css"
 }
 JSON

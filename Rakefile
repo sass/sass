@@ -1,3 +1,5 @@
+require 'rubygems/package'
+
 # ----- Utility Functions -----
 
 def scope(path)
@@ -21,7 +23,7 @@ end
 
 # ----- Code Style Enforcement -----
 
-if RUBY_VERSION !~ /^(1\.8|2\.1)/ && (ENV.has_key?("RUBOCOP") && ENV["RUBOCOP"] == "true" || !ENV.has_key?("RUBOCOP"))
+if RUBY_VERSION !~ /^(1\.8)/ && (ENV.has_key?("RUBOCOP") && ENV["RUBOCOP"] == "true" || !(ENV.has_key?("RUBOCOP") || ENV.has_key?("TEST")))
   require 'rubocop/rake_task'
   Rubocop::RakeTask.new do |t|
     t.patterns = FileList["lib/**/*"]
@@ -47,7 +49,7 @@ task :package => [:revision_file, :date_file, :submodules, :permissions] do
   version = get_version
   File.open(scope('VERSION'), 'w') {|f| f.puts(version)}
   load scope('sass.gemspec')
-  Gem::Builder.new(SASS_GEMSPEC).build
+  Gem::Package.build(SASS_GEMSPEC)
   sh %{git checkout VERSION}
 
   pkg = "#{SASS_GEMSPEC.name}-#{SASS_GEMSPEC.version}"

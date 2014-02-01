@@ -120,37 +120,67 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("50%",  evaluate("percentage(.5)"))
     assert_equal("100%", evaluate("percentage(1)"))
     assert_equal("25%",  evaluate("percentage(25px / 100px)"))
-    assert_equal("50%",  evaluate("percentage($value: 0.5)"))
+    assert_equal("50%",  evaluate("percentage($number: 0.5)"))
+  end
+
+  def test_percentage_deprecated_arg_name
+    assert_warning(<<WARNING) {assert_equal("50%", evaluate("percentage($value: 0.5)"))}
+DEPRECATION WARNING: The `$value' argument for `percentage()' has been renamed to `$number'.
+WARNING
   end
 
   def test_percentage_checks_types
-    assert_error_message("$value: 25px is not a unitless number for `percentage'", "percentage(25px)")
-    assert_error_message("$value: #cccccc is not a unitless number for `percentage'", "percentage(#ccc)")
-    assert_error_message("$value: \"string\" is not a unitless number for `percentage'", %Q{percentage("string")})
+    assert_error_message("$number: 25px is not a unitless number for `percentage'", "percentage(25px)")
+    assert_error_message("$number: #cccccc is not a unitless number for `percentage'", "percentage(#ccc)")
+    assert_error_message("$number: \"string\" is not a unitless number for `percentage'", %Q{percentage("string")})
   end
 
   def test_round
     assert_equal("5",   evaluate("round(4.8)"))
     assert_equal("5px", evaluate("round(4.8px)"))
     assert_equal("5px", evaluate("round(5.49px)"))
-    assert_equal("5px", evaluate("round($value: 5.49px)"))
+    assert_equal("5px", evaluate("round($number: 5.49px)"))
+  end
 
+  def test_round_deprecated_arg_name
+    assert_warning(<<WARNING) {assert_equal("5px", evaluate("round($value: 5.49px)"))}
+DEPRECATION WARNING: The `$value' argument for `round()' has been renamed to `$number'.
+WARNING
+  end
+
+  def test_round_checks_types
     assert_error_message("$value: #cccccc is not a number for `round'", "round(#ccc)")
   end
 
   def test_floor
     assert_equal("4",   evaluate("floor(4.8)"))
     assert_equal("4px", evaluate("floor(4.8px)"))
-    assert_equal("4px", evaluate("floor($value: 4.8px)"))
+    assert_equal("4px", evaluate("floor($number: 4.8px)"))
+  end
 
+  def test_floor_deprecated_arg_name
+    assert_warning(<<WARNING) {assert_equal("4px", evaluate("floor($value: 4.8px)"))}
+DEPRECATION WARNING: The `$value' argument for `floor()' has been renamed to `$number'.
+WARNING
+  end
+
+  def test_floor_checks_types
     assert_error_message("$value: \"foo\" is not a number for `floor'", "floor(\"foo\")")
   end
 
   def test_ceil
     assert_equal("5",   evaluate("ceil(4.1)"))
     assert_equal("5px", evaluate("ceil(4.8px)"))
-    assert_equal("5px", evaluate("ceil($value: 4.8px)"))
+    assert_equal("5px", evaluate("ceil($number: 4.8px)"))
+  end
 
+  def test_ceil_deprecated_arg_name
+    assert_warning(<<WARNING) {assert_equal("5px", evaluate("ceil($value: 4.8px)"))}
+DEPRECATION WARNING: The `$value' argument for `ceil()' has been renamed to `$number'.
+WARNING
+  end
+
+  def test_ceil_checks_types
     assert_error_message("$value: \"a\" is not a number for `ceil'", "ceil(\"a\")")
   end
 
@@ -159,8 +189,16 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("5px", evaluate("abs(-5px)"))
     assert_equal("5",   evaluate("abs(5)"))
     assert_equal("5px", evaluate("abs(5px)"))
-    assert_equal("5px", evaluate("abs($value: 5px)"))
+    assert_equal("5px", evaluate("abs($number: 5px)"))
+  end
 
+  def test_abs_deprecated_arg_name
+    assert_warning(<<WARNING) {assert_equal("5px", evaluate("abs($value: 5px)"))}
+DEPRECATION WARNING: The `$value' argument for `abs()' has been renamed to `$number'.
+WARNING
+  end
+
+  def test_abs_checks_types
     assert_error_message("$value: #aaaaaa is not a number for `abs'", "abs(#aaa)")
   end
 
@@ -799,12 +837,38 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("blue", evaluate("mix(transparentize(#f00, 1), #00f, 0%)"))
     assert_equal("rgba(0, 0, 255, 0)", evaluate("mix(#f00, transparentize(#00f, 1), 0%)"))
     assert_equal("rgba(255, 0, 0, 0)", evaluate("mix(transparentize(#f00, 1), #00f, 100%)"))
-    assert_equal("rgba(255, 0, 0, 0)", evaluate("mix($color-1: transparentize(#f00, 1), $color-2: #00f, $weight: 100%)"))
+    assert_equal("rgba(255, 0, 0, 0)", evaluate("mix($color1: transparentize(#f00, 1), $color2: #00f, $weight: 100%)"))
+  end
+
+  def test_mix_deprecated_arg_name
+    assert_warning <<WARNING do
+DEPRECATION WARNING: The `$color-1' argument for `mix()' has been renamed to `$color1'.
+DEPRECATION WARNING: The `$color-2' argument for `mix()' has been renamed to `$color2'.
+WARNING
+      assert_equal("rgba(255, 0, 0, 0)",
+        evaluate("mix($color-1: transparentize(#f00, 1), $color-2: #00f, $weight: 100%)"))
+    end
+
+    assert_warning <<WARNING do
+DEPRECATION WARNING: The `$color-1' argument for `mix()' has been renamed to `$color1'.
+DEPRECATION WARNING: The `$color-2' argument for `mix()' has been renamed to `$color2'.
+WARNING
+      assert_equal("rgba(0, 0, 255, 0.5)",
+        evaluate("mix($color-1: transparentize(#f00, 1), $color-2: #00f)"))
+    end
+
+    assert_warning <<WARNING do
+DEPRECATION WARNING: The `$color_1' argument for `mix()' has been renamed to `$color1'.
+DEPRECATION WARNING: The `$color_2' argument for `mix()' has been renamed to `$color2'.
+WARNING
+      assert_equal("rgba(0, 0, 255, 0.5)",
+        evaluate("mix($color_1: transparentize(#f00, 1), $color_2: #00f)"))
+    end
   end
 
   def test_mix_tests_types
-    assert_error_message("$color-1: \"foo\" is not a color for `mix'", "mix(\"foo\", #f00, 10%)")
-    assert_error_message("$color-2: \"foo\" is not a color for `mix'", "mix(#f00, \"foo\", 10%)")
+    assert_error_message("$color1: \"foo\" is not a color for `mix'", "mix(\"foo\", #f00, 10%)")
+    assert_error_message("$color2: \"foo\" is not a color for `mix'", "mix(#f00, \"foo\", 10%)")
     assert_error_message("$weight: \"foo\" is not a number for `mix'", "mix(#f00, #baf, \"foo\")")
   end
 
@@ -817,8 +881,8 @@ class SassFunctionTest < Test::Unit::TestCase
 
   def test_grayscale
     assert_equal("#bbbbbb", evaluate("grayscale(#abc)"))
-    assert_equal("grey", evaluate("grayscale(#f00)"))
-    assert_equal("grey", evaluate("grayscale(#00f)"))
+    assert_equal("gray", evaluate("grayscale(#f00)"))
+    assert_equal("gray", evaluate("grayscale(#00f)"))
     assert_equal("white", evaluate("grayscale(white)"))
     assert_equal("black", evaluate("grayscale(black)"))
     assert_equal("black", evaluate("grayscale($color: black)"))
@@ -904,7 +968,7 @@ class SassFunctionTest < Test::Unit::TestCase
   def test_str_index
     assert_equal('1', evaluate('str-index(abcd, a)'))
     assert_equal('1', evaluate('str-index(abcd, ab)'))
-    assert_equal('0', evaluate('str-index(abcd, X)'))
+    assert_equal(Sass::Script::Value::Null.new, perform('str-index(abcd, X)'))
     assert_equal('3', evaluate('str-index(abcd, c)'))
   end
 
@@ -1017,9 +1081,28 @@ MSG
     assert_equal(%Q{true}, evaluate("comparable(2px, 1px)"))
     assert_equal(%Q{true}, evaluate("comparable(10cm, 3mm)"))
     assert_equal(%Q{false}, evaluate("comparable(100px, 3em)"))
-    assert_equal(%Q{false}, evaluate("comparable($number-1: 100px, $number-2: 3em)"))
-    assert_error_message("$number-1: #ff0000 is not a number for `comparable'", "comparable(#f00, 1px)")
-    assert_error_message("$number-2: #ff0000 is not a number for `comparable'", "comparable(1px, #f00)")
+    assert_equal(%Q{false}, evaluate("comparable($number1: 100px, $number2: 3em)"))
+  end
+
+  def test_comparable_deprecated_arg_name
+    assert_warning <<WARNING do
+DEPRECATION WARNING: The `$number-1' argument for `comparable()' has been renamed to `$number1'.
+DEPRECATION WARNING: The `$number-2' argument for `comparable()' has been renamed to `$number2'.
+WARNING
+      assert_equal("false", evaluate("comparable($number-1: 100px, $number-2: 3em)"))
+    end
+
+    assert_warning <<WARNING do
+DEPRECATION WARNING: The `$number_1' argument for `comparable()' has been renamed to `$number1'.
+DEPRECATION WARNING: The `$number_2' argument for `comparable()' has been renamed to `$number2'.
+WARNING
+      assert_equal("false", evaluate("comparable($number_1: 100px, $number_2: 3em)"))
+    end
+  end
+
+  def test_comparable_checks_types
+    assert_error_message("$number1: #ff0000 is not a number for `comparable'", "comparable(#f00, 1px)")
+    assert_error_message("$number2: #ff0000 is not a number for `comparable'", "comparable(1px, #f00)")
   end
 
   def test_length
@@ -1174,16 +1257,17 @@ MSG
   end
 
   def test_index
+    null = Sass::Script::Value::Null.new
     assert_equal("1", evaluate("index(1px solid blue, 1px)"))
     assert_equal("2", evaluate("index(1px solid blue, solid)"))
     assert_equal("3", evaluate("index(1px solid blue, #00f)"))
     assert_equal("1", evaluate("index(1px, 1px)"))
-    assert_equal("false", evaluate("index(1px solid blue, 1em)"))
-    assert_equal("false", evaluate("index(1px solid blue, notfound)"))
-    assert_equal("false", evaluate("index(1px, #00f)"))
+    assert_equal(null, perform("index(1px solid blue, 1em)"))
+    assert_equal(null, perform("index(1px solid blue, notfound)"))
+    assert_equal(null, perform("index(1px, #00f)"))
 
     assert_equal("1", evaluate("index((foo: bar, bar: baz), (foo bar))"))
-    assert_equal("false", evaluate("index((foo: bar, bar: baz), (foo: bar))"))
+    assert_equal(null, perform("index((foo: bar, bar: baz), (foo: bar))"))
   end
 
   def test_list_separator
@@ -1312,7 +1396,9 @@ SCSS
     assert_equal "2", evaluate("map-get((foo: 1, bar: 2), bar)")
     assert_equal "null", perform("map-get((foo: 1, bar: 2), baz)").to_sass
     assert_equal "null", perform("map-get((), foo)").to_sass
+  end
 
+  def test_map_get_deprecation_warning
     assert_warning(<<WARNING) do
 DEPRECATION WARNING: Passing lists of pairs to map-get is deprecated and will
 be removed in future versions of Sass. Use Sass maps instead. For details, see
@@ -1322,6 +1408,10 @@ WARNING
     end
   end
 
+  def test_map_get_checks_type
+    assert_error_message("$map: 12 is not a map for `map-get'", "map-get(12, bar)")
+  end
+
   def test_map_merge
     assert_equal("(foo: 1, bar: 2, baz: 3)",
       perform("map-merge((foo: 1, bar: 2), (baz: 3))").to_sass)
@@ -1329,7 +1419,9 @@ WARNING
       perform("map-merge((), (foo: 1, bar: 2))").to_sass)
     assert_equal("(foo: 1, bar: 2)",
       perform("map-merge((foo: 1, bar: 2), ())").to_sass)
+  end
 
+  def test_map_merge_deprecation_warning
     assert_warning(<<WARNING) do
 DEPRECATION WARNING: Passing lists of pairs to map-merge is deprecated and will
 be removed in future versions of Sass. Use Sass maps instead. For details, see
@@ -1349,11 +1441,39 @@ WARNING
     end
   end
 
+  def test_map_merge_checks_type
+    assert_error_message("$map1: 12 is not a map for `map-merge'", "map-merge(12, (foo: 1))")
+    assert_error_message("$map2: 12 is not a map for `map-merge'", "map-merge((foo: 1), 12)")
+  end
+
+  def test_map_remove
+    assert_equal("(foo: 1, baz: 3)",
+      perform("map-remove((foo: 1, bar: 2, baz: 3), bar)").to_sass)
+    assert_equal("()", perform("map-remove((), foo)").to_sass)
+  end
+
+  def test_map_remove_deprecation_warning
+    assert_warning(<<WARNING) do
+DEPRECATION WARNING: Passing lists of pairs to map-remove is deprecated and will
+be removed in future versions of Sass. Use Sass maps instead. For details, see
+http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
+WARNING
+      assert_equal("(foo: 1, baz: 3)",
+        perform("map-remove((foo 1, bar 2, baz 3), bar)").to_sass)
+    end
+  end
+
+  def test_map_remove_checks_type
+    assert_error_message("$map: 12 is not a map for `map-remove'", "map-remove(12, foo)")
+  end
+
   def test_map_keys
     assert_equal("foo, bar",
       perform("map-keys((foo: 1, bar: 2))").to_sass)
     assert_equal("()", perform("map-keys(())").to_sass)
+  end
 
+  def test_map_keys_deprecation_warning
     assert_warning(<<WARNING) do
 DEPRECATION WARNING: Passing lists of pairs to map-keys is deprecated and will
 be removed in future versions of Sass. Use Sass maps instead. For details, see
@@ -1364,12 +1484,18 @@ WARNING
     end
   end
 
+  def test_map_keys_checks_type
+    assert_error_message("$map: 12 is not a map for `map-keys'", "map-keys(12)")
+  end
+
   def test_map_values
     assert_equal("1, 2", perform("map-values((foo: 1, bar: 2))").to_sass)
     assert_equal("1, 2, 2",
       perform("map-values((foo: 1, bar: 2, baz: 2))").to_sass)
     assert_equal("()", perform("map-values(())").to_sass)
+  end
 
+  def test_map_values_deprecation_warning
     assert_warning(<<WARNING) do
 DEPRECATION WARNING: Passing lists of pairs to map-values is deprecated and will
 be removed in future versions of Sass. Use Sass maps instead. For details, see
@@ -1379,11 +1505,17 @@ WARNING
     end
   end
 
+  def test_map_values_checks_type
+    assert_error_message("$map: 12 is not a map for `map-values'", "map-values(12)")
+  end
+
   def test_map_has_key
     assert_equal "true", evaluate("map-has-key((foo: 1, bar: 1), foo)")
     assert_equal "false", evaluate("map-has-key((foo: 1, bar: 1), baz)")
     assert_equal "false", evaluate("map-has-key((), foo)")
+  end
 
+  def test_map_has_key_deprecation_warning
     assert_warning(<<WARNING) do
 DEPRECATION WARNING: Passing lists of pairs to map-has-key is deprecated and will
 be removed in future versions of Sass. Use Sass maps instead. For details, see
@@ -1393,10 +1525,15 @@ WARNING
     end
   end
 
+  def test_map_has_key_checks_type
+    assert_error_message("$map: 12 is not a map for `map-has-key'", "map-has-key(12, foo)")
+  end
+
   def test_keywords
     # The actual functionality is tested in tests where real arglists are passed.
-    assert_error_message("12 is not a variable argument list for `keywords'", "keywords(12)")
-    assert_error_message("(1 2 3) is not a variable argument list for `keywords'", "keywords(1 2 3)")
+    assert_error_message("$args: 12 is not a variable argument list for `keywords'", "keywords(12)")
+    assert_error_message(
+      "$args: (1 2 3) is not a variable argument list for `keywords'", "keywords(1 2 3)")
   end
 
   def test_partial_list_of_pairs_doesnt_work_as_a_map
@@ -1495,6 +1632,10 @@ $global-var: has-value;
 SCSS
   end
 
+  def test_variable_exists_checks_type
+    assert_error_message("$name: 1 is not a string for `variable-exists'", "variable-exists(1)")
+  end
+
   def test_global_variable_exists
     assert_equal <<CSS, render(<<SCSS)
 .test {
@@ -1524,6 +1665,11 @@ $named: global-variable-exists($name: g);
 SCSS
   end
 
+  def test_global_variable_exists_checks_type
+    assert_error_message("$name: 1 is not a string for `global-variable-exists'",
+      "global-variable-exists(1)")
+  end
+
   def test_function_exists
     # built-ins
     assert_equal "true", evaluate("function-exists(lighten)")
@@ -1543,6 +1689,10 @@ CSS
 SCSS
   end
 
+  def test_function_exists_checks_type
+    assert_error_message("$name: 1 is not a string for `function-exists'", "function-exists(1)")
+  end
+
   def test_mixin_exists
     assert_equal "false", evaluate("mixin-exists(foo)")
     # with named argument
@@ -1560,11 +1710,8 @@ CSS
 SCSS
   end
 
-  def test_existence_functions_check_argument_type
-    assert_error_message("2px is not a string for `function-exists'", "function-exists(2px)")
-    assert_error_message("2px is not a string for `mixin-exists'", "mixin-exists(2px)")
-    assert_error_message("2px is not a string for `global-variable-exists'", "global-variable-exists(2px)")
-    assert_error_message("2px is not a string for `variable-exists'", "variable-exists(2px)")
+  def test_mixin_exists_checks_type
+    assert_error_message("$name: 1 is not a string for `mixin-exists'", "mixin-exists(1)")
   end
 
   def test_inspect

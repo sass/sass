@@ -77,21 +77,52 @@ module Sass
       # by replacing them with the given parent selector,
       # handling commas appropriately.
       #
-      # @param super_seq [Sequence] The parent selector sequence
-      # @return [Array<SimpleSequence>] This selector, with parent references resolved.
-      #   This is an array because the parent selector is itself a {Sequence}
+      # @param super_cseq [CommaSequence] The parent selector
+      # @return [CommaSequence] This selector, with parent references resolved
       # @raise [Sass::SyntaxError] If a parent selector is invalid
-      def resolve_parent_refs(super_seq)
+      def resolve_parent_refs(super_cseq)
         # Parent selector only appears as the first selector in the sequence
-        return [self] unless @members.first.is_a?(Parent)
-
-        return super_seq.members if @members.size == 1
-        unless super_seq.members.last.is_a?(SimpleSequence)
-          raise Sass::SyntaxError.new("Invalid parent selector: " + super_seq.to_a.join)
+        unless (parent = @members.first).is_a?(Parent)
+          return CommaSequence.new([Sequence.new([self])])
         end
 
-        super_seq.members[0...-1] +
-          [SimpleSequence.new(super_seq.members.last.members + @members[1..-1], subject?)]
+        return super_cseq if @members.size == 1 && parent.suffix.empty?
+
+        CommaSequence.new(super_cseq.members.map do |super_seq|
+          unless super_seq.members.last.is_a?(SimpleSequence)
+            raise Sass::SyntaxError.new("Invalid parent selector for \"#{self}\": \"" +
+              super_seq.to_a.join + '"')
+          end
+
+          parent_sub = super_seq.members.last.members
+          unless parent.suffix.empty?
+            parent_sub = parent_sub.dup
+            parent_sub[-1] = parent_sub.last.dup
+            case parent_sub.last
+            when Sass::Selector::Class, Sass::Selector::Id, Sass::Selector::Placeholder
+              parent_sub[-1] = parent_sub.last.class.new(parent_sub.last.name + parent.suffix)
+            when Sass::Selector::Element
+              parent_sub[-1] = parent_sub.last.class.new(
+                parent_sub.last.name + parent.suffix,
+                parent_sub.last.namespace)
+            when Sass::Selector::Pseudo
+              if parent_sub.last.arg
+                raise Sass::SyntaxError.new("Invalid parent selector for \"#{self}\": \"" +
+                  super_seq.to_a.join + '"')
+              end
+              parent_sub[-1] = parent_sub.last.class.new(
+                parent_sub.last.type,
+                parent_sub.last.name + parent.suffix,
+                nil)
+            else
+              raise Sass::SyntaxError.new("Invalid parent selector for \"#{self}\": \"" +
+                super_seq.to_a.join + '"')
+            end
+          end
+
+          Sequence.new(super_seq.members[0...-1] +
+            [SimpleSequence.new(parent_sub + @members[1..-1], subject?)])
+        end)
       end
 
       # Non-destrucively extends this selector with the extensions specified in a hash
@@ -107,18 +138,18 @@ module Sass
       #   by extending this selector with `extends`.
       # @see CommaSequence#do_extend
       def do_extend(extends, parent_directives, seen = Set.new)
-        groups = Sass::Util.group_by_to_a(extends.get(members.to_set)) {|ex, _| ex.extender}
+        groups = Sass::Util.group_by_to_a(extends[members.to_set]) {|ex| ex.extender}
         groups.map! do |seq, group|
-          sels = group.map {|_, s| s}.flatten
+          sels = group.map {|e| e.target}.flatten
           # If A {@extend B} and C {...},
           # seq is A, sels is B, and self is C
 
           self_without_sel = Sass::Util.array_minus(members, sels)
-          group.each {|e, _| e.result = :failed_to_unify unless e.result == :succeeded}
+          group.each {|e| e.result = :failed_to_unify unless e.result == :succeeded}
           unified = seq.members.last.unify(self_without_sel, subject?)
           next unless unified
-          group.each {|e, _| e.result = :succeeded}
-          group.each {|e, _| check_directives_match!(e, parent_directives)}
+          group.each {|e| e.result = :succeeded}
+          group.each {|e| check_directives_match!(e, parent_directives)}
           new_seq = Sequence.new(seq.members[0...-1] + [unified])
           new_seq.add_sources!(sources + [seq])
           [sels, new_seq]
@@ -208,7 +239,7 @@ module Sass
         # TODO(nweiz): this should use the Sass stack trace of the extend node,
         # not the selector.
         raise Sass::SyntaxError.new(<<MESSAGE)
-You may not @extend an outer selector from within #{extend.directives.last.name}.
+You may not @extend an outer selector from within @#{extend.directives.last.prefixed_name}.
 You may only @extend selectors within the same directive.
 From "@extend #{extend.target.join(', ')}" on line #{line}#{" of #{filename}" if filename}.
 MESSAGE
