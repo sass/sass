@@ -1721,6 +1721,45 @@ SCSS
     assert_equal "(a: 1, b: 2)", evaluate("inspect((a: 1, b: 2))")
   end
 
+  def test_random
+    Sass::Script::Functions.random_seed = 1
+    assert_equal "0.41702", evaluate("random()")
+    assert_equal "13", evaluate("random(100)")
+  end
+
+  def test_random_works_without_a_seed
+    if Sass::Script::Functions.instance_variable_defined?("@random_number_generator")
+      Sass::Script::Functions.send(:remove_instance_variable, "@random_number_generator")
+    end
+
+    result = perform("random()")
+    assert_kind_of Sass::Script::Number, result
+    assert result.value >= 0, "Random number was below 0"
+    assert result.value <= 1, "Random number was above 1"
+  end
+
+  def test_random_with_limit_one
+    # Passing 1 as the limit should always return 1, since limit calls return
+    # integers from 1 to the argument, so when the argument is 1, its a predicatble
+    # outcome
+    assert "1", evaluate("random(1)")
+  end
+
+  def test_random_with_limit_too_low
+    assert_error_message("$limit 0 must be greater than or equal to 1 for `random'", "random(0)")
+  end
+
+  def test_random_with_non_integer_limit
+    assert_error_message("Expected $limit to be an integer but got 1.5 for `random'", "random(1.5)")
+  end
+
+  # This could *possibly* fail, but exceedingly unlikely
+  def test_random_is_semi_unique
+    if Sass::Script::Functions.instance_variable_defined?("@random_number_generator")
+      Sass::Script::Functions.send(:remove_instance_variable, "@random_number_generator")
+    end
+    assert_not_equal evaluate("random()"), evaluate("random()")
+  end
 
   ## Regression Tests
 
