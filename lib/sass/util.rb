@@ -1167,4 +1167,4 @@ end
 
 require 'sass/util/multibyte_string_scanner'
 require 'sass/util/normalized_map'
-require 'sass/util/random'
+require 'sass/util/cross_platform_random'

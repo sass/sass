@@ -157,6 +157,9 @@ module Sass::Script
   # \{#max max($numbers...)\}
   # : Finds the maximum of several numbers.
   #
+  # \{#random random([$limit])\}
+  # : Returns a random number.
+  #
   # ## List Functions {#list-functions}
   #
   # All list functions work for maps as well, treating them as lists of pairs.
@@ -413,14 +416,14 @@ module Sass::Script
     # @param seed [Integer]
     # @return [Integer] The same seed.
     def self.random_seed=(seed)
-      @random_number_generator = Random.new(seed)
+      @random_number_generator = Sass::Util::CrossPlatformRandom.new(seed)
     end
 
     # Get Sass's internal random number generator.
     #
     # @return [Random]
     def self.random_number_generator
-      @random_number_generator ||= Random.new
+      @random_number_generator ||= Sass::Util::CrossPlatformRandom.new
     end
 
     # The context in which methods in {Script::Functions} are evaluated.
@@ -2053,6 +2056,7 @@ module Sass::Script
     # @overload unique_id()
     # @return [Sass::Script::Value::String]
     def unique_id
+      generator = Sass::Script::Functions.random_number_generator
       Thread.current[:sass_last_unique_id] ||= generator.rand(36**8)
       # avoid the temptation of trying to guess the next unique value.
       value = (Thread.current[:sass_last_unique_id] += (generator.rand(10) + 1))
@@ -2203,18 +2207,20 @@ module Sass::Script
     declare :inspect, [:value]
 
     # @overload random()
-    #   Return a decimal between 0 and 1, inclusive of 0, but not 1.
+    #   Return a decimal between 0 and 1, inclusive of 0 but not 1.
     #   @return [Sass::Script::Number] A decimal value.
     # @overload random($limit)
-    #   Return an integer between 1 and `$limit` inclusive.
-    #   @param $limit [Sass::Script::Value::Number] The maximum of the random integer to be returned, a positive integer.
+    #   Return an integer between 1 and `$limit`, inclusive of 1 but not `$limit`.
+    #   @param $limit [Sass::Script::Value::Number] The maximum of the random integer to be
+    #     returned, a positive integer.
     #   @return [Sass::Script::Number] An integer.
     #   @raise [ArgumentError] if the `$limit` is not 1 or greater
     def random(limit = nil)
+      generator = Sass::Script::Functions.random_number_generator
       if limit
         assert_integer limit, "limit"
         if limit.value < 1
-          raise ArgumentError.new("Expected the limit to be 1 or greater")
+          raise ArgumentError.new("$limit #{limit} must be greater than or equal to 1")
         end
         number(1 + generator.rand(limit.value))
       else
@@ -2260,13 +2266,6 @@ be removed in future versions of Sass. Use Sass maps instead. For details, see
 http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
 WARNING
       obj.to_h
-    end
-
-    # Convenient access to Sass's internal random number generator.
-    #
-    # @return [Random]
-    def generator
-      Sass::Script::Functions.random_number_generator
     end
   end
 end
