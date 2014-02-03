@@ -125,11 +125,12 @@ module Sass
       # from this importer.
       #
       # @param uri [String] A URI known to be valid for this importer.
-      # @param relative_to_directory [String, NilClass] A directory (on disk) the url
-      #   should be made relative to, if possible. This directory may not be
-      #   provided.
-      # @return [String?] The publicly-visible URL for this file.
-      def public_url(uri, relative_to_directory = nil)
+      # @param sourcemap_directory [String, NilClass] The directory on disk where the sourcemap
+      #   will be saved. If uri refers to a file on disk that's accessible relative to
+      #   sourcemap_directory, this may return a relative URL.
+      # @return [String?] The publicly-visible URL for this file, or `nil`
+      #   indicating that no publicly-visible URL exists.
+      def public_url(uri, sourcemap_directory = nil)
         warn_about_public_url(uri)
         nil
       end

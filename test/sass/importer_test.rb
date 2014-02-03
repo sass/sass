@@ -31,7 +31,7 @@ class ImporterTest < Test::Unit::TestCase
       [self.class.name, name]
     end
 
-    def public_url(name, relative_to_directory = nil)
+    def public_url(name, sourcemap_directory = nil)
       "http://#{parse(name)}.example.com/style.scss"
     end
 
@@ -43,7 +43,7 @@ class ImporterTest < Test::Unit::TestCase
   end
 
   class NoPublicUrlImporter < FruitImporter
-    def public_url(name, relative_to_directory = nil)
+    def public_url(name, sourcemap_directory = nil)
       nil
     end
 
@@ -229,7 +229,7 @@ JSON
     $TEST = true
     ephemeral_importer = NoPublicUrlImporter.new
     mock_importer = MockImporter.new
-    def mock_importer.public_url(name, relative_to_directory = nil)
+    def mock_importer.public_url(name, sourcemap_directory = nil)
       "css_uri"
     end
 

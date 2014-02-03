@@ -65,12 +65,12 @@ module Sass
           filename.start_with?(root + File::SEPARATOR)
       end
 
-      def public_url(name, relative_to_directory = nil)
-        if relative_to_directory.nil?
+      def public_url(name, sourcemap_directory = nil)
+        if sourcemap_directory.nil?
           warn_about_public_url(name)
         else
           file_path = Pathname.new(@root).join(Pathname.new(remove_root(name.to_s)))
-          file_path.relative_path_from(Pathname.new(relative_to_directory.to_s)).to_s
+          file_path.relative_path_from(Pathname.new(sourcemap_directory.to_s)).to_s
         end
       rescue ArgumentError
         warn_about_public_url(name)
