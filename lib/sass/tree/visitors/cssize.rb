@@ -9,10 +9,12 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
 
   # Returns the immediate parent of the current node.
   # @return [Tree::Node]
-  attr_reader :parent
+  def parent
+    @parents.last
+  end
 
   def initialize
-    @parent_directives = []
+    @parents = []
     @extends = Sass::Util::SubsetMap.new
   end
 
@@ -41,8 +43,6 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
     node.children.map {|c| visit(c)}.flatten
   end
 
-  MERGEABLE_DIRECTIVES = [Sass::Tree::MediaNode]
-
   # Runs a block of code with the current parent node
   # replaced with the given node.
   #
@@ -50,19 +50,10 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
   # @yield A block in which the parent is set to `parent`.
   # @return [Object] The return value of the block.
   def with_parent(parent)
-    if parent.is_a?(Sass::Tree::DirectiveNode)
-      if MERGEABLE_DIRECTIVES.any? {|klass| parent.is_a?(klass)}
-        old_parent_directive = @parent_directives.pop
-      end
-      @parent_directives.push parent
-    end
-
-    old_parent, @parent = @parent, parent
+    @parents.push parent
     yield
   ensure
-    @parent_directives.pop if parent.is_a?(Sass::Tree::DirectiveNode)
-    @parent_directives.push old_parent_directive if old_parent_directive
-    @parent = old_parent
+    @parents.pop
   end
 
   # In Ruby 1.8, ensures that there's only one `@charset` directive
@@ -82,17 +73,29 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
         node.children.unshift charset if charset
       end
 
-      imports = Sass::Util.extract!(node.children) do |c|
-        c.is_a?(Sass::Tree::DirectiveNode) && !c.is_a?(Sass::Tree::MediaNode) &&
-          c.resolved_value =~ /^@import /i
+      imports_to_move = []
+      import_limit = nil
+      i = -1
+      node.children.reject! do |n|
+        i += 1
+        if import_limit
+          next false unless n.is_a?(Sass::Tree::CssImportNode)
+          imports_to_move << n
+          next true
+        end
+
+        if !n.is_a?(Sass::Tree::CommentNode) &&
+            !n.is_a?(Sass::Tree::CharsetNode) &&
+            !n.is_a?(Sass::Tree::CssImportNode)
+          import_limit = i
+        end
+
+        false
       end
-      charset_and_index = Sass::Util.ruby1_8? &&
-        node.children.each_with_index.find {|c, _| c.is_a?(Sass::Tree::CharsetNode)}
-      if charset_and_index
-        index = charset_and_index.last
-        node.children = node.children[0..index] + imports + node.children[index + 1..-1]
-      else
-        node.children = imports + node.children
+
+      if import_limit
+        node.children = node.children[0...import_limit] + imports_to_move +
+          node.children[import_limit..-1]
       end
     end
 
@@ -138,7 +141,8 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
           raise Sass::SyntaxError.new("#{member} can't extend: invalid selector")
         end
 
-        @extends[sel] = Extend.new(member, sel, node, @parent_directives.dup, :not_found)
+        parent_directives = @parents.select {|p| p.is_a?(Sass::Tree::DirectiveNode)}
+        @extends[sel] = Extend.new(member, sel, node, parent_directives, :not_found)
       end
     end
 
@@ -154,31 +158,6 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
     raise e
   end
 
-  # Bubbles the `@media` directive up through RuleNodes
-  # and merges it with other `@media` directives.
-  def visit_media(node)
-    yield unless bubble(node)
-
-    bubbled = node.children.select do |n|
-      n.is_a?(Sass::Tree::AtRootNode) || n.is_a?(Sass::Tree::MediaNode)
-    end
-    node.children -= bubbled
-
-    bubbled = bubbled.map do |n|
-      next visit(n) if n.is_a?(Sass::Tree::AtRootNode)
-      # Otherwise, n should be a MediaNode.
-      next [] unless n.resolved_query = n.resolved_query.merge(node.resolved_query)
-      n
-    end.flatten
-
-    (node.children.empty? ? [] : [node]) + bubbled
-  end
-
-  # Bubbles the `@supports` directive up through RuleNodes.
-  def visit_supports(node)
-    visit_directive(node) {yield}
-  end
-
   # Asserts that all the traced children are valid in their new location.
   def visit_trace(node)
     visit_children_without_parent(node)
@@ -186,16 +165,6 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
     e.modify_backtrace(:mixin => node.name, :filename => node.filename, :line => node.line)
     e.add_backtrace(:filename => node.filename, :line => node.line)
     raise e
-  end
-
-  # Bubbles a directive up through RuleNodes.
-  def visit_directive(node)
-    return yield unless node.has_children
-    yield unless (bubbled = bubble(node))
-    at_roots = node.children.select {|n| n.is_a?(Sass::Tree::AtRootNode)}
-    node.children -= at_roots
-    at_roots.map! {|n| visit(n)}.flatten
-    (bubbled && node.children.empty? ? [] : [node]) + at_roots
   end
 
   # Converts nested properties into flat properties
@@ -217,15 +186,38 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
     result
   end
 
+  def visit_atroot(node)
+    # If there aren't any more directives or rules that this @at-root needs to
+    # exclude, we can get rid of it and just evaluate the children.
+    if @parents.none? {|n| node.exclude_node?(n)}
+      results = visit_children_without_parent(node)
+      results.each {|c| c.tabs += node.tabs if bubblable?(c)}
+      if !results.empty? && bubblable?(results.last)
+        results.last.group_end = node.group_end
+      end
+      return results
+    end
+
+    # If this @at-root excludes the immediate parent, return it as-is so that it
+    # can be bubbled up by the parent node.
+    return Bubble.new(node) if node.exclude_node?(parent)
+
+    # Otherwise, duplicate the current parent and move it into the @at-root
+    # node. As above, returning an @at-root node signals to the parent directive
+    # that it should be bubbled upwards.
+    bubble(node)
+  end
+
+  # The following directives are visible and have children. This means they need
+  # to be able to handle bubbling up nodes such as @at-root and @media.
+
   # Updates the indentation of the rule node based on the nesting
   # level. The selectors were resolved in {Perform}.
   def visit_rule(node)
     yield
 
-    rules = node.children.select {|c| c.is_a?(Sass::Tree::RuleNode) || c.bubbles?}
-    props = node.children.reject {|c| c.is_a?(Sass::Tree::RuleNode) || c.bubbles? || c.invisible?}
-
-    rules.map {|c| c.is_a?(Sass::Tree::AtRootNode) ? visit(c) : c}.flatten
+    rules = node.children.select {|c| bubblable?(c)}
+    props = node.children.reject {|c| bubblable?(c) || c.invisible?}
 
     unless props.empty?
       node.children = props
@@ -233,37 +225,141 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
       rules.unshift(node)
     end
 
-    rules.last.group_end = true unless parent.is_a?(Sass::Tree::RuleNode) || rules.empty?
-
+    rules = debubble(rules)
+    unless parent.is_a?(Sass::Tree::RuleNode) || rules.empty? || !bubblable?(rules.last)
+      rules.last.group_end = true
+    end
     rules
   end
 
-  def visit_atroot(node)
-    if @parent_directives.any? {|n| node.exclude_node?(n)}
-      return node if node.exclude_node?(parent)
+  # Bubbles a directive up through RuleNodes.
+  def visit_directive(node)
+    return node unless node.has_children
+    return bubble(node) if parent.is_a?(Sass::Tree::RuleNode)
 
-      new_rule = parent.dup
-      new_rule.children = node.children
-      node.children = [new_rule]
-      return node
+    yield
+
+    # Since we don't know if the mere presence of an unknown directive may be
+    # important, we should keep an empty version around even if all the contents
+    # are removed via @at-root. However, if the contents are just bubbled out,
+    # we don't need to do so.
+    directive_exists = node.children.any? do |child|
+      next true unless child.is_a?(Bubble)
+      next false unless child.node.is_a?(Sass::Tree::DirectiveNode)
+      child.node.resolved_value == node.resolved_value
     end
 
-    results = visit_children_without_parent(node)
-    results.each {|n| n.tabs += node.tabs}
-    results.last.group_end = node.group_end unless results.empty?
-    results
+    if directive_exists
+      []
+    else
+      empty_node = node.dup
+      empty_node.children = []
+      [empty_node]
+    end + debubble(node.children, node)
+  end
+
+  # Bubbles the `@media` directive up through RuleNodes
+  # and merges it with other `@media` directives.
+  def visit_media(node)
+    return bubble(node) if parent.is_a?(Sass::Tree::RuleNode)
+    return Bubble.new(node) if parent.is_a?(Sass::Tree::MediaNode)
+
+    yield
+
+    debubble(node.children, node).map do |child|
+      next child unless child.is_a?(Sass::Tree::MediaNode)
+      # The debubbled list can include copies of `node`, and we don't want to
+      # merge it with its own query.
+      next child if child.resolved_query == node.resolved_query
+      next child if child.resolved_query = child.resolved_query.merge(node.resolved_query)
+    end.compact
+  end
+
+  # Bubbles the `@supports` directive up through RuleNodes.
+  def visit_supports(node)
+    return node unless node.has_children
+    return bubble(node) if parent.is_a?(Sass::Tree::RuleNode)
+
+    yield
+
+    debubble(node.children, node)
   end
 
   private
 
+  # "Bubbles" `node` one level by copying the parent and wrapping `node`'s
+  # children with it.
+  #
+  # @param node [Sass::Tree::Node].
+  # @return [Bubble]
   def bubble(node)
-    return unless parent.is_a?(Sass::Tree::RuleNode)
     new_rule = parent.dup
     new_rule.children = node.children
-    node.children = with_parent(node) {Array(visit(new_rule))}
-    # If the last child is actually the end of the group,
-    # the parent's cssize will set it properly
-    node.children.last.group_end = false unless node.children.empty?
-    true
+    node.children = [new_rule]
+    Bubble.new(node)
+  end
+
+  # Pops all bubbles in `children` and intersperses the results with the other
+  # values.
+  #
+  # If `parent` is passed, it's copied and used as the parent node for the
+  # nested portions of `children`.
+  #
+  # @param children [List<Sass::Tree::Node, Bubble>]
+  # @param parent [Sass::Tree::Node]
+  # @return [List<Sass::Tree::Node, Bubble>]
+  def debubble(children, parent = nil)
+    Sass::Util.slice_by(children) {|c| c.is_a?(Bubble)}.map do |(is_bubble, slice)|
+      next slice.map {|b| b.pop(self)} if is_bubble
+      next slice unless parent
+      parent.children = slice
+      parent
+    end.flatten
+  end
+
+  # Returns whether or not a node can be bubbled up through the syntax tree.
+  #
+  # @param node [Sass::Tree::Node]
+  # @return [Boolean]
+  def bubblable?(node)
+    node.is_a?(Sass::Tree::RuleNode) || node.bubbles?
+  end
+
+  # A wrapper class for a node that indicates to the parent that it should
+  # treat the wrapped node as a sibling rather than a child.
+  #
+  # Nodes should be wrapped before they're passed to \{Cssize.visit}. They will
+  # be automatically visited upon calling \{#pop}.
+  #
+  # This duck types as a [Sass::Tree::Node] for the purposes of
+  # tree-manipulation operations.
+  class Bubble
+    attr_accessor :node
+    attr_accessor :tabs
+    attr_accessor :group_end
+
+    def initialize(node)
+      @node = node
+      @tabs = 0
+    end
+
+    # "Pops" the bubble by using `visitor` to visit the wrapped node and
+    # returning the result.
+    #
+    # @param visitor [Sass::Tree::Visitors::Cssize]
+    # @return [Array<Sass::Tree::Node, Bubble>] The results of visiting `node`.
+    def pop(visitor)
+      node.tabs += tabs
+      node.group_end = group_end
+      [visitor.send(:visit, node)].flatten
+    end
+
+    def bubbles?
+      true
+    end
+
+    def inspect
+      "(Bubble #{children.map {|c| c.inspect}.join(' ')})"
+    end
   end
 end

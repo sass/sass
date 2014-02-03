@@ -96,7 +96,7 @@ module Sass::Source
       css_uri, css_path, sourcemap_path =
         options[:css_uri], options[:css_path], options[:sourcemap_path]
       unless css_uri || (css_path && sourcemap_path)
-        raise ArgumentError.new("Sass::Source::Map#to_json requires either " +
+        raise ArgumentError.new("Sass::Source::Map#to_json requires either " \
           "the :css_uri option or both the :css_path and :soucemap_path options.")
       end
       css_path &&= Pathname.pwd.join(Pathname.new(css_path)).cleanpath

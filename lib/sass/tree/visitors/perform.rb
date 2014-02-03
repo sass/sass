@@ -18,7 +18,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
       # All keywords are contained in splat.keywords for consistency,
       # even if there were no splats passed in.
       old_keywords_accessed = splat.keywords_accessed
-      keywords = Sass::Util::NormalizedMap.new(splat.keywords)
+      keywords = splat.keywords
       splat.keywords_accessed = old_keywords_accessed
 
       begin
@@ -70,7 +70,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
       if callable.splat
         rest = args[callable.args.length..-1] || []
-        arg_list = Sass::Script::Value::ArgList.new(rest, keywords.as_stored, splat_sep)
+        arg_list = Sass::Script::Value::ArgList.new(rest, keywords, splat_sep)
         arg_list.options = env.options
         env.set_local_var(callable.splat.name, arg_list)
       end
@@ -112,7 +112,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
           args = splat.to_a
         end
       end
-      kwargs ||= Sass::Util.ordered_hash
+      kwargs ||= Sass::Util::NormalizedMap.new
       kwargs.update(performed_keywords)
 
       if kwarg_splat
@@ -242,12 +242,14 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     to.assert_int!
 
     to = to.coerce(from.numerator_units, from.denominator_units)
-    range = Range.new(from.to_i, to.to_i, node.exclusive)
+    direction = from.to_i > to.to_i ? -1 : 1
+    range = Range.new(direction * from.to_i, direction * to.to_i, node.exclusive)
 
     with_environment Sass::Environment.new(@environment) do
       range.map do |i|
         @environment.set_local_var(node.var,
-          Sass::Script::Value::Number.new(i, from.numerator_units, from.denominator_units))
+          Sass::Script::Value::Number.new(direction * i,
+            from.numerator_units, from.denominator_units))
         node.children.map {|c| visit(c)}
       end.flatten
     end
@@ -313,12 +315,6 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
   # Runs a mixin.
   def visit_mixin(node)
-    include_loop = true
-    if @environment.stack.frames.any? {|f| f.is_mixin? && f.name == node.name}
-      handle_include_loop!(node)
-    end
-    include_loop = false
-
     @environment.stack.with_mixin(node.filename, node.line, node.name) do
       mixin = @environment.mixin(node.name)
       raise Sass::SyntaxError.new("Undefined mixin '#{node.name}'.") unless mixin
@@ -341,10 +337,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
       end
     end
   rescue Sass::SyntaxError => e
-    unless include_loop
-      e.modify_backtrace(:mixin => node.name, :line => node.line)
-      e.add_backtrace(:line => node.line)
-    end
+    e.modify_backtrace(:mixin => node.name, :line => node.line)
+    e.add_backtrace(:line => node.line)
     raise e
   end
 
@@ -498,6 +492,14 @@ WARNING
     yield
   end
 
+  def visit_keyframesblock(node)
+    node.resolved_value = run_interp(node.value)
+    with_environment Sass::Environment.new(@environment) do
+      node.children = node.children.map {|c| visit(c)}.flatten
+      node
+    end
+  end
+
   private
 
   def run_interp_no_strip(text)
@@ -512,31 +514,6 @@ WARNING
 
   def run_interp(text)
     run_interp_no_strip(text).strip
-  end
-
-  def handle_include_loop!(node)
-    msg = "An @include loop has been found:"
-    content_count = 0
-    mixins = @environment.stack.frames.select {|f| f.is_mixin?}.reverse!.map! {|f| f.name}
-    mixins = mixins.select do |name|
-      if name == '@content'
-        content_count += 1
-        false
-      elsif content_count > 0
-        content_count -= 1
-        false
-      else
-        true
-      end
-    end
-
-    return unless mixins.include?(node.name)
-    raise Sass::SyntaxError.new("#{msg} #{node.name} includes itself") if mixins.size == 1
-
-    msg << "\n" << Sass::Util.enum_cons(mixins.reverse + [node.name], 2).map do |m1, m2|
-      "    #{m1} includes #{m2}"
-    end.join("\n")
-    raise Sass::SyntaxError.new(msg)
   end
 
   def handle_import_loop!(node)

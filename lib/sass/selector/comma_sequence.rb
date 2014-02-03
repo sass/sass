@@ -37,10 +37,9 @@ module Sass
           return self
         end
 
-        CommaSequence.new(
-          super_cseq.members.map do |super_seq|
-            @members.map {|seq| seq.resolve_parent_refs(super_seq, implicit_parent)}
-          end.flatten)
+        CommaSequence.new(Sass::Util.flatten_vertically(@members.map do |seq|
+          seq.resolve_parent_refs(super_cseq, implicit_parent).members
+        end))
       end
 
       # Non-destrucively extends this selector with the extensions specified in a hash

@@ -401,6 +401,12 @@ SASS
     assert_equal "true", resolve('() != null')
   end
 
+  def test_mod
+    assert_equal "5", resolve("29 % 12")
+    assert_equal "5px", resolve("29px % 12")
+    assert_equal "5px", resolve("29px % 12px")
+  end
+
   def test_operation_precedence
     assert_equal "false true", resolve("true and false false or true")
     assert_equal "true", resolve("false and true or true and true")
@@ -564,27 +570,6 @@ SASS
     assert_equal "true", resolve("$ie or $undef", {}, env('ie' => Sass::Script::Value::Bool.new(true)))
   end
 
-  def test_selector
-    env = Sass::Environment.new
-    assert_equal "true", resolve("& == null", {}, env)
-
-    env.selector = selector('.foo.bar .baz.bang, .bip.bop')
-    assert_equal ".foo.bar .baz.bang, .bip.bop", resolve("&", {}, env)
-    assert_equal ".foo.bar .baz.bang", resolve("nth(&, 1)", {}, env)
-    assert_equal ".bip.bop", resolve("nth(&, 2)", {}, env)
-    assert_equal ".foo.bar", resolve("nth(nth(&, 1), 1)", {}, env)
-    assert_equal ".baz.bang", resolve("nth(nth(&, 1), 2)", {}, env)
-    assert_equal ".bip.bop", resolve("nth(nth(&, 2), 1)", {}, env)
-    assert_equal "string", resolve("type-of(nth(nth(&, 1), 1))", {}, env)
-
-    env.selector = selector('.foo > .bar')
-    assert_equal ".foo > .bar", resolve("&", {}, env)
-    assert_equal ".foo > .bar", resolve("nth(&, 1)", {}, env)
-    assert_equal ".foo", resolve("nth(nth(&, 1), 1)", {}, env)
-    assert_equal ">", resolve("nth(nth(&, 1), 2)", {}, env)
-    assert_equal ".bar", resolve("nth(nth(&, 1), 3)", {}, env)
-  end
-
   def test_setting_global_variable_locally_warns
     assert_warning(<<WARNING) {assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))}
 DEPRECATION WARNING on line 4 of test_setting_global_variable_locally_warns_inline.scss:
@@ -686,6 +671,10 @@ SCSS
 
   # Regression Tests
 
+  def test_minus_without_whitespace
+    assert_equal "5px", resolve("15px-10px")
+  end
+
   def test_user_defined_function_forces_division
     assert_equal(<<CSS, render(<<SASS))
 a {
@@ -711,6 +700,13 @@ SASS
 end
 
   def test_funcall_has_higher_precedence_than_color_name
+    assert_equal "teal(12)", resolve("teal(12)")
+    assert_equal "tealbang(12)", resolve("tealbang(12)")
+    assert_equal "teal-bang(12)", resolve("teal-bang(12)")
+    assert_equal "teal\\+bang(12)", resolve("teal\\+bang(12)")
+  end
+
+  def test_funcall_has_higher_precedence_than_true_false_null
     assert_equal "teal(12)", resolve("teal(12)")
     assert_equal "tealbang(12)", resolve("tealbang(12)")
     assert_equal "teal-bang(12)", resolve("teal-bang(12)")

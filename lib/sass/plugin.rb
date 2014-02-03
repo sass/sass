@@ -120,7 +120,6 @@ module Sass
     def options
       compiler.options
     end
-
   end
 end
 

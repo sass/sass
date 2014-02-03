@@ -3,7 +3,6 @@ module Sass
   # Provides `Sass.has_feature?` which allows for simple feature detection
   # by providing a feature name.
   module Features
-
     # This is the set of features that can be detected.
     KNOWN_FEATURES = Set[*%w{
     }]

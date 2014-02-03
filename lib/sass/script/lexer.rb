@@ -72,8 +72,7 @@ module Sass
 
       TOKEN_NAMES = Sass::Util.map_hash(OPERATORS_REVERSE) {|k, v| [k, v.inspect]}.merge(
           :const => "variable (e.g. $foo)",
-          :ident => "identifier (e.g. middle)",
-          :bool => "boolean (e.g. true, false)")
+          :ident => "identifier (e.g. middle)")
 
       # A list of operator strings ordered with longer names first
       # so that `>` and `<` don't clobber `>=` and `<=`.
@@ -90,11 +89,8 @@ module Sass
         :single_line_comment => SINGLE_LINE_COMMENT,
         :variable => /(\$)(#{IDENT})/,
         :ident => /(#{IDENT})(\()?/,
-        :number => /(-)?(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
+        :number => /(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
         :color => HEXCOLOR,
-        :bool => /(true|false)\b/,
-        :null => /null\b/,
-        :selector => /&/,
         :ident_op => /(#{Regexp.union(*IDENT_OP_NAMES.map do |s|
           Regexp.new(Regexp.escape(s) + "(?!#{NMCHAR}|\Z)")
         end)})/,
@@ -102,7 +98,6 @@ module Sass
       }
 
       class << self
-
         private
 
         def string_re(open, close)
@@ -254,9 +249,9 @@ module Sass
           return string(interp_type, true)
         end
 
-        variable || string(:double, false) || string(:single, false) || number ||
-          color || bool || null || selector || string(:uri, false) ||
-          raw(UNICODERANGE) || special_fun || special_val || ident_op || ident || op
+        variable || string(:double, false) || string(:single, false) || number || color ||
+          string(:uri, false) || raw(UNICODERANGE) || special_fun || special_val || ident_op ||
+          ident || op
       end
 
       def variable
@@ -293,9 +288,8 @@ module Sass
 
       def number
         return unless scan(REGULAR_EXPRESSIONS[:number])
-        value = @scanner[2] ? @scanner[2].to_f : @scanner[3].to_i
-        value = -value if @scanner[1]
-        script_number = Script::Value::Number.new(value, Array(@scanner[4]))
+        value = @scanner[1] ? @scanner[1].to_f : @scanner[2].to_i
+        script_number = Script::Value::Number.new(value, Array(@scanner[3]))
         [:number, script_number]
       end
 
@@ -307,27 +301,6 @@ Colors must have either three or six digits: '#{s}'
 MESSAGE
         script_color = Script::Value::Color.from_hex(s)
         [:color, script_color]
-      end
-
-      def bool
-        s = scan(REGULAR_EXPRESSIONS[:bool])
-        return unless s
-        script_bool = Script::Value::Bool.new(s == 'true')
-        [:bool, script_bool]
-      end
-
-      def null
-        return unless scan(REGULAR_EXPRESSIONS[:null])
-        script_null = Script::Value::Null.new
-        [:null, script_null]
-      end
-
-      def selector
-        start_pos = source_position
-        return unless scan(REGULAR_EXPRESSIONS[:selector])
-        script_selector = Script::Tree::Selector.new
-        script_selector.source_range = range(start_pos)
-        [:selector, script_selector]
       end
 
       def special_fun

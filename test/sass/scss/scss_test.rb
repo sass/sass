@@ -163,6 +163,51 @@ CSS
 SCSS
   end
 
+  def test_for_directive_with_same_start_and_end
+    assert_equal <<CSS, render(<<SCSS)
+CSS
+.foo {
+  @for $var from 1 to 1 {a: $var;}
+}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: 1; }
+CSS
+.foo {
+  @for $var from 1 through 1 {a: $var;}
+}
+SCSS
+  end
+
+  def test_decrementing_estfor_directive
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: 5;
+  a: 4;
+  a: 3;
+  a: 2;
+  a: 1; }
+CSS
+.foo {
+  @for $var from 5 through 1 {a: $var;}
+}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: 5;
+  a: 4;
+  a: 3;
+  a: 2; }
+CSS
+.foo {
+  @for $var from 5 to 1 {a: $var;}
+}
+SCSS
+  end
+
   def test_if_directive
     assert_equal <<CSS, render(<<SCSS)
 foo {
@@ -345,6 +390,44 @@ SCSS
 
   def test_url_import
     assert_equal("@import url(fonts.sass);\n", render("@import url(fonts.sass);"))
+  end
+
+  def test_css_import_doesnt_move_through_comments
+    assert_equal <<CSS, render(<<SCSS)
+/* Comment 1 */
+@import url("foo.css");
+/* Comment 2 */
+@import url("bar.css");
+CSS
+/* Comment 1 */
+@import url("foo.css");
+
+/* Comment 2 */
+@import url("bar.css");
+SCSS
+  end
+
+  def test_css_import_movement_stops_at_comments
+    assert_equal <<CSS, render(<<SCSS)
+/* Comment 1 */
+@import url("foo.css");
+/* Comment 2 */
+@import url("bar.css");
+.foo {
+  a: b; }
+
+/* Comment 3 */
+CSS
+/* Comment 1 */
+@import url("foo.css");
+
+/* Comment 2 */
+
+.foo {a: b}
+
+/* Comment 3 */
+@import url("bar.css");
+SCSS
   end
 
   def test_block_comment_in_script
@@ -577,6 +660,33 @@ foo bar {
 SCSS
   end
 
+  def test_parent_selector_with_suffix
+    assert_equal <<CSS, render(<<SCSS)
+.foo-bar {
+  a: b; }
+.foo_bar {
+  c: d; }
+.foobar {
+  e: f; }
+.foo123 {
+  e: f; }
+
+:hover-suffix {
+  g: h; }
+CSS
+.foo {
+  &-bar {a: b}
+  &_bar {c: d}
+  &bar {e: f}
+  &123 {e: f}
+}
+
+:hover {
+  &-suffix {g: h}
+}
+SCSS
+  end
+
   def test_unknown_directive_bubbling
     assert_equal(<<CSS, render(<<SCSS, :style => :nested))
 @fblthp {
@@ -586,6 +696,46 @@ CSS
 .foo {
   @fblthp {
     .bar {a: b}
+  }
+}
+SCSS
+  end
+
+  def test_keyframes_with_dynamic_values
+    assert_equal(<<CSS, render(<<SCSS))
+@keyframes bounce {
+  50% {
+    top: 50px; } }
+CSS
+@keyframes bounce {
+  \#{10% + 40%} {
+    top: 50px;
+  }
+}
+SCSS
+  end
+
+  def test_keyframes_with_control_directives
+    assert_equal(<<CSS, render(<<SCSS))
+@keyframes bounce {
+  10% {
+    top: 100px; }
+  to {
+    top: 50px; } }
+CSS
+@keyframes bounce {
+  @if true {
+    10% {top: 100px}
+  } @else {
+    20% {top: 50px}
+  }
+
+  to {
+    @if true {
+      top: 50px;
+    } @else {
+      top: 100px;
+    }
   }
 }
 SCSS
@@ -1774,10 +1924,10 @@ SCSS
 
   def test_basic_selector_interpolation
     assert_equal <<CSS, render(<<SCSS)
-foo 3 baz {
+foo a12 baz {
   a: b; }
 CSS
-foo \#{1 + 2} baz {a: b}
+foo \#{a + 1 + 2} baz {a: b}
 SCSS
     assert_equal <<CSS, render(<<SCSS)
 foo.bar baz {
@@ -2224,6 +2374,123 @@ CSS
 SCSS
   end
 
+  def test_comments_in_at_root
+    assert_equal <<CSS, render(<<SCSS)
+/* foo */
+.bar {
+  a: b; }
+
+/* baz */
+CSS
+.foo {
+  @at-root {
+    /* foo */
+    .bar {a: b}
+    /* baz */
+  }
+}
+SCSS
+  end
+
+  def test_comments_in_at_root_in_media
+    assert_equal <<CSS, render(<<SCSS)
+@media screen {
+  /* foo */
+  .bar {
+    a: b; }
+
+  /* baz */ }
+CSS
+@media screen {
+  .foo {
+    @at-root {
+      /* foo */
+      .bar {a: b}
+      /* baz */
+    }
+  }
+}
+SCSS
+  end
+
+  def test_comments_in_at_root_in_unknown_directive
+    assert_equal <<CSS, render(<<SCSS)
+@fblthp {
+  /* foo */
+  .bar {
+    a: b; }
+
+  /* baz */ }
+CSS
+@fblthp {
+  .foo {
+    @at-root {
+      /* foo */
+      .bar {a: b}
+      /* baz */
+    }
+  }
+}
+SCSS
+  end
+
+  def test_media_directive_in_at_root
+    assert_equal <<CSS, render(<<SCSS)
+@media screen {
+  .bar {
+    a: b; } }
+CSS
+.foo {
+  @at-root {
+    @media screen {.bar {a: b}}
+  }
+}
+SCSS
+  end
+
+  def test_bubbled_media_directive_in_at_root
+    assert_equal <<CSS, render(<<SCSS)
+@media screen {
+  .bar .baz {
+    a: b; } }
+CSS
+.foo {
+  @at-root {
+    .bar {
+      @media screen {.baz {a: b}}
+    }
+  }
+}
+SCSS
+  end
+
+  def test_unknown_directive_in_at_root
+    assert_equal <<CSS, render(<<SCSS)
+@fblthp {
+  .bar {
+    a: b; } }
+CSS
+.foo {
+  @at-root {
+    @fblthp {.bar {a: b}}
+  }
+}
+SCSS
+  end
+
+  def test_at_root_in_at_root
+    assert_equal <<CSS, render(<<SCSS)
+.bar {
+  a: b; }
+CSS
+.foo {
+  @at-root {
+    @at-root .bar {a: b}
+  }
+}
+SCSS
+  end
+
   def test_at_root_with_parent_ref
     assert_equal <<CSS, render(<<SCSS)
 .foo {
@@ -2264,6 +2531,45 @@ CSS
     @at-root & {
       a: b;
     }
+  }
+}
+SCSS
+  end
+
+  def test_at_root_beneath_comma_selector
+    assert_equal(<<CSS, render(<<SCSS))
+.baz {
+  a: b; }
+CSS
+.foo, .bar {
+  @at-root .baz {
+    a: b;
+  }
+}
+SCSS
+  end
+
+  def test_at_root_with_parent_ref
+    assert_equal(<<CSS, render(<<SCSS))
+.foo.bar {
+  a: b; }
+CSS
+.foo {
+  @at-root &.bar {
+    a: b;
+  }
+}
+SCSS
+  end
+
+  def test_at_root_beneath_comma_selector_with_parent_ref
+    assert_equal(<<CSS, render(<<SCSS))
+.foo.baz, .bar.baz {
+  a: b; }
+CSS
+.foo, .bar {
+  @at-root &.baz {
+    a: b;
   }
 }
 SCSS
@@ -2325,6 +2631,7 @@ SCSS
 
   def test_at_root_without_unknown_directive
     assert_equal <<CSS, render(<<SCSS)
+@fblthp {}
 .foo .bar {
   a: b; }
 CSS
@@ -2362,6 +2669,8 @@ SCSS
 
   def test_at_root_without_all
     assert_equal <<CSS, render(<<SCSS)
+@supports (foo: bar) {
+  @fblthp {} }
 .bar {
   a: b; }
 CSS
@@ -2382,6 +2691,7 @@ SCSS
   def test_at_root_with_media
     assert_equal <<CSS, render(<<SCSS)
 @media screen {
+  @fblthp {}
   .bar {
     a: b; } }
 CSS
@@ -2403,6 +2713,8 @@ SCSS
 
   def test_at_root_with_rule
     assert_equal <<CSS, render(<<SCSS)
+@media screen {
+  @fblthp {} }
 .foo .bar {
   a: b; }
 CSS
@@ -2424,6 +2736,8 @@ SCSS
 
   def test_at_root_with_supports
     assert_equal <<CSS, render(<<SCSS)
+@media screen {
+  @fblthp {} }
 @supports (foo: bar) {
   .bar {
     a: b; } }
@@ -2446,6 +2760,8 @@ SCSS
 
   def test_at_root_with_unknown_directive
     assert_equal <<CSS, render(<<SCSS)
+@media screen {
+  @fblthp {} }
 @fblthp {
   .bar {
     a: b; } }
@@ -2469,6 +2785,7 @@ SCSS
   def test_at_root_with_multiple
     assert_equal <<CSS, render(<<SCSS)
 @media screen {
+  @fblthp {}
   .foo .bar {
     a: b; } }
 CSS
@@ -2571,186 +2888,51 @@ CSS
 SCSS
   end
 
-  ## Selector Script
-
-  def test_selector_script
-    assert_equal(<<CSS, render(<<SCSS))
-.foo .bar {
-  content: ".foo .bar"; }
-CSS
-.foo .bar {
-  content: "\#{&}";
-}
-SCSS
-  end
-
-  def test_nested_selector_script
-    assert_equal(<<CSS, render(<<SCSS))
-.foo .bar {
-  content: ".foo .bar"; }
-CSS
-.foo {
-  .bar {
-    content: "\#{&}";
-  }
-}
-SCSS
-  end
-
-  def test_nested_selector_script_with_outer_comma_selector
-    assert_equal(<<CSS, render(<<SCSS))
-.foo .baz, .bar .baz {
-  content: ".foo .baz, .bar .baz"; }
-CSS
-.foo, .bar {
-  .baz {
-    content: "\#{&}";
-  }
-}
-SCSS
-  end
-
-  def test_nested_selector_script_with_inner_comma_selector
-    assert_equal(<<CSS, render(<<SCSS))
-.foo .bar, .foo .baz {
-  content: ".foo .bar, .foo .baz"; }
-CSS
-.foo {
-  .bar, .baz {
-    content: "\#{&}";
-  }
-}
-SCSS
-  end
-
-  def test_selector_script_through_mixin
-    assert_equal(<<CSS, render(<<SCSS))
-.foo {
-  content: ".foo"; }
-CSS
-@mixin mixin {
-  content: "\#{&}";
-}
-
-.foo {
-  @include mixin;
-}
-SCSS
-  end
-
-  def test_selector_script_through_content
-    assert_equal(<<CSS, render(<<SCSS))
-.foo {
-  content: ".foo"; }
-CSS
-@mixin mixin {
-  @content;
-}
-
-.foo {
-  @include mixin {
-    content: "\#{&}";
-  }
-}
-SCSS
-  end
-
-  def test_selector_script_through_function
-    assert_equal(<<CSS, render(<<SCSS))
-.foo {
-  content: ".foo"; }
-CSS
-@function fn() {
-  @return "\#{&}";
-}
-
-.foo {
-  content: fn();
-}
-SCSS
-  end
-
-  def test_selector_script_through_media
-    assert_equal(<<CSS, render(<<SCSS))
-.foo {
-  content: "outer"; }
-  @media screen {
-    .foo .bar {
-      content: ".foo .bar"; } }
-CSS
-.foo {
-  content: "outer";
-  @media screen {
-    .bar {
-      content: "\#{&}";
-    }
-  }
-}
-SCSS
-  end
-
-  def test_selector_script_save_and_reuse
-    assert_equal(<<CSS, render(<<SCSS))
-.bar {
-  content: ".foo"; }
-CSS
-$var: null;
-.foo {
-  $var: & !global;
-}
-
-.bar {
-  content: "\#{$var}";
-}
-SCSS
-  end
-
-  def test_selector_script_with_at_root
-    assert_equal(<<CSS, render(<<SCSS))
-.foo-bar {
-  a: b; }
-CSS
-.foo {
-  @at-root \#{&}-bar {
-    a: b;
-  }
-}
-SCSS
-  end
-
-  def test_multi_level_at_root_with_inner_selector_script
-    assert_equal <<CSS, render(<<SCSS)
-.bar {
-  a: b; }
-CSS
-.foo {
-  @at-root .bar {
-    @at-root \#{&} {
-      a: b;
-    }
-  }
-}
-SCSS
-  end
-
-  def test_at_root_with_at_root_through_mixin
-    assert_equal(<<CSS, render(<<SCSS))
-.bar-baz {
-  a: b; }
-CSS
-@mixin foo {
-  .bar {
-    @at-root \#{&}-baz {
-      a: b;
-    }
-  }
-}
-
-@include foo;
-SCSS
-  end
-
   ## Errors
+
+  def test_no_extend_in_keyframes
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
+Only keyframes blocks (e.g. "15% { ... }") are allowed within @keyframes.
+MESSAGE
+@keyframes bounce {
+  @extend %foo;
+}
+SCSS
+  end
+
+  def test_no_extend_in_vendor_keyframes
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
+Only keyframes blocks (e.g. "15% { ... }") are allowed within @keyframes.
+MESSAGE
+@-webkit-keyframes bounce {
+  @extend %foo;
+}
+SCSS
+  end
+
+  def test_no_extend_in_keyframes_rules
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
+Only properties are allowed within @keyframes blocks.
+MESSAGE
+@keyframes bounce {
+  top {
+    @extend %foo;
+  }
+}
+SCSS
+  end
+
+  def test_no_extend_in_vendor_keyframes_rules
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
+Only properties are allowed within @keyframes blocks.
+MESSAGE
+@-webkit-keyframes bounce {
+  top {
+    @extend %foo;
+  }
+}
+SCSS
+  end
 
   def test_nested_mixin_def_is_scoped
     render <<SCSS
@@ -2955,6 +3137,48 @@ SCSS
 Invalid CSS: @else must come after @if
 MESSAGE
 @else {foo: bar}
+SCSS
+  end
+
+  def test_failed_parent_selector_with_suffix
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render(<<SCSS)}
+Invalid parent selector for "&-bar": "*"
+MESSAGE
+* {
+  &-bar {a: b}
+}
+SCSS
+
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render(<<SCSS)}
+Invalid parent selector for "&-bar": "[foo=bar]"
+MESSAGE
+[foo=bar] {
+  &-bar {a: b}
+}
+SCSS
+
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render(<<SCSS)}
+Invalid parent selector for "&-bar": "::nth-child(2n+1)"
+MESSAGE
+::nth-child(2n+1) {
+  &-bar {a: b}
+}
+SCSS
+
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render(<<SCSS)}
+Invalid parent selector for "&-bar": ":not(.foo)"
+MESSAGE
+:not(.foo) {
+  &-bar {a: b}
+}
+SCSS
+
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render(<<SCSS)}
+Invalid parent selector for "&-bar": ".foo +"
+MESSAGE
+.foo + {
+  &-bar {a: b}
+}
 SCSS
   end
 
@@ -3176,7 +3400,7 @@ SCSS
 
   def test_if_error_line
     assert_raise_line(2) {render(<<SCSS)}
-@if true {foo: bar}
+@if true {a {foo: bar}}
 }
 SCSS
   end

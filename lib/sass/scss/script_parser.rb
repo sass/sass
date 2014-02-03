@@ -6,7 +6,6 @@ module Sass
     # when there's more content in the lexer once lexing is done.
     # In addition, the parser doesn't support `!` for a variable prefix.
     module ScriptParser
-
       private
 
       # @private

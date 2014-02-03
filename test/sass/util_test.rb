@@ -42,6 +42,15 @@ class UtilTest < Test::Unit::TestCase
       }, map_hash({:foo => 1, :bar => 2, :baz => 3}) {|k, v| [k.to_s, v.to_s]})
   end
 
+  def test_map_hash_with_normalized_map
+    map = NormalizedMap.new("foo-bar" => 1, "baz_bang" => 2)
+    result = map_hash(map) {|k, v| [k, v.to_s]}
+    assert_equal("1", result["foo-bar"])
+    assert_equal("1", result["foo_bar"])
+    assert_equal("2", result["baz-bang"])
+    assert_equal("2", result["baz_bang"])
+  end
+
   def test_powerset
     return unless Set[Set[]] == Set[Set[]] # There's a bug in Ruby 1.8.6 that breaks nested set equality
     assert_equal([[].to_set].to_set,
@@ -200,6 +209,13 @@ class UtilTest < Test::Unit::TestCase
     assert_equal([[[1], 2], [3], 4], flatten([[[1], 2], [3], 4], 0))
     assert_equal([[1], 2, 3, 4], flatten([[[1], 2], [3], 4], 1))
     assert_equal([1, 2, 3, 4], flatten([[[1], 2], [3], 4], 2))
+  end
+
+  def test_flatten_vertically
+    assert_equal([1, 2, 3], flatten_vertically([1, 2, 3]))
+    assert_equal([1, 3, 5, 2, 4, 6], flatten_vertically([[1, 2], [3, 4], [5, 6]]))
+    assert_equal([1, 2, 4, 3, 5, 6], flatten_vertically([1, [2, 3], [4, 5, 6]]))
+    assert_equal([1, 4, 6, 2, 5, 3], flatten_vertically([[1, 2, 3], [4, 5], 6]))
   end
 
   def test_set_hash

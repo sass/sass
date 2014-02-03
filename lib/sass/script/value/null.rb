@@ -1,7 +1,6 @@
 module Sass::Script::Value
   # A SassScript object representing a null value.
   class Null < Base
-
     # The null value in SassScript.
     #
     # This is assigned before new is overridden below so that we use the default implementation.

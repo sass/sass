@@ -103,6 +103,10 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
     res + yield + "\n"
   end
 
+  def visit_keyframesblock(node)
+    "#{tab_str}#{interp_to_src(node.value).rstrip}#{yield}"
+  end
+
   def visit_each(node)
     vars = node.vars.map {|var| "$#{dasherize(var)}"}.join(", ")
     "#{tab_str}@each #{vars} in #{node.list.to_sass(@options)}#{yield}"
@@ -207,7 +211,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
 
     unless node.args.empty? && node.keywords.empty? && node.splat.nil?
       args = node.args.map(&arg_to_sass)
-      keywords = Sass::Util.hash_to_a(node.keywords).
+      keywords = Sass::Util.hash_to_a(node.keywords.as_stored).
         map {|k, v| "$#{dasherize(k)}: #{arg_to_sass[v]}"}
 
       if node.splat

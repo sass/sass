@@ -74,6 +74,7 @@ module Sass
       # We don't delegate to map_hash for performance here
       # because map_hash does more than is necessary.
       rv = hash.class.new
+      hash = hash.as_stored if hash.is_a?(NormalizedMap)
       hash.each do |k, v|
         rv[k] = yield(v)
       end
@@ -99,7 +100,7 @@ module Sass
       rv = hash.class.new
       hash.each do |k, v|
         new_key, new_value = yield(k, v)
-        rv.delete(k)
+        new_key = hash.denormalize(new_key) if hash.is_a?(NormalizedMap) && new_key == k
         rv[new_key] = new_value
       end
       rv
@@ -168,6 +169,19 @@ module Sass
     # @return [Array]
     def intersperse(enum, val)
       enum.inject([]) {|a, e| a << e << val}[0...-1]
+    end
+
+    def slice_by(enum)
+      results = []
+      enum.each do |value|
+        key = yield(value)
+        if !results.empty? && results.last.first == key
+          results.last.last << value
+        else
+          results << [key, [value]]
+        end
+      end
+      results
     end
 
     # Substitutes a sub-array of one array with another sub-array.
@@ -487,6 +501,15 @@ module Sass
       version_geq(ActionPack::VERSION::STRING, version)
     end
 
+    # Returns whether this environment is using Listen
+    # version 2.0.0 or greater.
+    #
+    # @return [Boolean]
+    def listen_geq_2?
+      require 'listen/version'
+      version_geq(::Listen::VERSION, '2.0.0')
+    end
+
     # Returns an ActionView::Template* class.
     # In pre-3.0 versions of Rails, most of these classes
     # were of the form `ActionView::TemplateFoo`,
@@ -537,15 +560,10 @@ module Sass
       @jruby = RUBY_PLATFORM =~ /java/
     end
 
-    # @see #jruby_version-class_method
-    def jruby_version
-      Sass::Util.jruby_version
-    end
-
     # Returns an array of ints representing the JRuby version number.
     #
     # @return [Array<Fixnum>]
-    def self.jruby_version
+    def jruby_version
       @jruby_version ||= ::JRUBY_VERSION.split(".").map {|s| s.to_i}
     end
 
@@ -650,7 +668,6 @@ module Sass
       return Hash[pairs_or_hash] unless ruby1_8?
       (pairs_or_hash.is_a?(NormalizedMap) ? NormalizedMap : OrderedHash)[*flatten(pairs_or_hash, 1)]
     end
-
 
     # Checks that the encoding of a string is valid in Ruby 1.9
     # and cleans up potential encoding gotchas like the UTF-8 BOM.
@@ -842,6 +859,24 @@ MSG
       return arr.flatten(n) unless ruby1_8_6?
       return arr if n == 0
       arr.inject([]) {|res, e| e.is_a?(Array) ? res.concat(flatten(e, n - 1)) : res << e}
+    end
+
+    # Flattens the first level of nested arrays in `arrs`. Unlike
+    # `Array#flatten`, this orders the result by taking the first
+    # values from each array in order, then the second, and so on.
+    #
+    # @param arrs [Array] The array to flatten.
+    # @return [Array] The flattened array.
+    def flatten_vertically(arrs)
+      result = []
+      arrs = arrs.map {|sub| sub.is_a?(Array) ? sub.dup : Array(sub)}
+      until arrs.empty?
+        arrs.reject! do |arr|
+          result << arr.shift
+          arr.empty?
+        end
+      end
+      result
     end
 
     # Returns the hash code for a set in a cross-version manner.
@@ -1091,7 +1126,6 @@ MSG
 
     # rubocop:disable LineLength
 
-
     # Calculates the memoization table for the Least Common Subsequence algorithm.
     # Algorithm from [Wikipedia](http://en.wikipedia.org/wiki/Longest_common_subsequence_problem#Computing_the_length_of_the_LCS)
     def lcs_table(x, y)
@@ -1112,9 +1146,7 @@ MSG
       end
       c
     end
-
     # rubocop:disable ParameterLists, LineLength
-
 
     # Computes a single longest common subsequence for arrays x and y.
     # Algorithm from [Wikipedia](http://en.wikipedia.org/wiki/Longest_common_subsequence_problem#Reading_out_an_LCS)
@@ -1129,9 +1161,10 @@ MSG
       lcs_backtrace(c, x, y, i - 1, j, &block)
     end
 
-    (Sass::Util.methods - Module.methods).each {|method| module_function method}
+    singleton_methods.each {|method| module_function method}
   end
 end
 
 require 'sass/util/multibyte_string_scanner'
 require 'sass/util/normalized_map'
+require 'sass/util/cross_platform_random'

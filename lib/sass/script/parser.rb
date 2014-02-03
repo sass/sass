@@ -382,9 +382,16 @@ RUBY
 
         name = @lexer.next
         if (color = Sass::Script::Value::Color::COLOR_NAMES[name.value.downcase])
-          return literal_node(Sass::Script::Value::Color.new(color), name.source_range)
+          literal_node(Sass::Script::Value::Color.new(color), name.source_range)
+        elsif name.value == "true"
+          literal_node(Sass::Script::Value::Bool.new(true), name.source_range)
+        elsif name.value == "false"
+          literal_node(Sass::Script::Value::Bool.new(false), name.source_range)
+        elsif name.value == "null"
+          literal_node(Sass::Script::Value::Null.new, name.source_range)
+        else
+          literal_node(Sass::Script::Value::String.new(name.value, :identifier), name.source_range)
         end
-        literal_node(Script::Value::String.new(name.value, :identifier), name.source_range)
       end
 
       def funcall
@@ -543,7 +550,7 @@ RUBY
       end
 
       def literal
-        t = try_toks(:color, :bool, :null)
+        t = try_tok(:color)
         return literal_node(t.value, t.source_range) if t
       end
 

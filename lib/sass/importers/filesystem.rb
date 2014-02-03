@@ -6,7 +6,6 @@ module Sass
     # The default importer, used for any strings found in the load path.
     # Simply loads Sass files from the filesystem using the default logic.
     class Filesystem < Base
-
       attr_accessor :root
 
       # Creates a new filesystem importer that imports files relative to a given path.
@@ -145,7 +144,7 @@ module Sass
           path = dir == "." || Pathname.new(f).absolute? ? f : "#{escape_glob_characters(dir)}/#{f}"
           Dir[path].map do |full_path|
             full_path.gsub!(REDUNDANT_DIRECTORY, File::SEPARATOR)
-            [full_path, s]
+            [Pathname.new(full_path).cleanpath.to_s, s]
           end
         end
         found = Sass::Util.flatten(found, 1)
@@ -203,10 +202,6 @@ WARNING
         options[:filename] = full_filename
         options[:importer] = self
         Sass::Engine.new(File.read(full_filename), options)
-      end
-
-      def join(base, path)
-        Pathname.new(base).join(path).to_s
       end
     end
   end

@@ -67,7 +67,7 @@ MSG
     "$a: 1b <= 2c" => "Incompatible units: 'c' and 'b'.",
     "$a: 1b >= 2c" => "Incompatible units: 'c' and 'b'.",
     "a\n  b: 1b * 2c" => "2b*c isn't a valid CSS value.",
-    "a\n  b: 1b % 2c" => "Cannot modulo by a number with units: 2c.",
+    "a\n  b: 1b % 2c" => "Incompatible units: 'c' and 'b'.",
     "$a: 2px + #ccc" => "Cannot add a number with units (2px) to a color (#cccccc).",
     "$a: #ccc + 2px" => "Cannot add a number with units (2px) to a color (#cccccc).",
     "& a\n  :b c" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 1],
@@ -158,19 +158,20 @@ MSG
     "$var: true\n@while $var\n  @extend .bar\n  $var: false" => ["Extend directives may only be used within rules.", 3],
     "@for $i from 0 to 1\n  @extend .bar" => ["Extend directives may only be used within rules.", 2],
     "@mixin foo\n  @extend .bar\n@include foo" => ["Extend directives may only be used within rules.", 2],
-    "foo\n  &a\n    b: c" => ["Invalid CSS after \"&\": expected \"{\", was \"a\"\n\n\"a\" may only be used at the beginning of a compound selector.", 2],
-    "foo\n  &1\n    b: c" => ["Invalid CSS after \"&\": expected \"{\", was \"1\"\n\n\"1\" may only be used at the beginning of a compound selector.", 2],
     "foo %\n  a: b" => ['Invalid CSS after "foo %": expected placeholder name, was ""', 1],
     "=foo\n  @content error" => "Invalid content directive. Trailing characters found: \"error\".",
     "=foo\n  @content\n    b: c" => "Illegal nesting: Nothing may be nested beneath @content directives.",
     "@content" => '@content may only be used within a mixin.',
     "=simple\n  .simple\n    color: red\n+simple\n  color: blue" => ['Mixin "simple" does not accept a content block.', 4],
     "@import \"foo\" // bar" => "Invalid CSS after \"\"foo\" \": expected media query list, was \"// bar\"",
+    "@at-root\n  a: b" => "Properties are only allowed within rules, directives, mixin includes, or other properties.",
+    "10%\n  a: b" => ["Invalid CSS after \"\": expected selector, was \"10%\"", 1],
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only properties may be nested beneath properties.", 3],
     "& foo\n  bar: baz\n  blat: bang" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 1],
     "a\n  b: c\n& foo\n  bar: baz\n  blat: bang" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 3],
+    "@" => "Invalid directive: '@'.",
   }
 
   def teardown
@@ -467,89 +468,25 @@ SASS
     assert_hash_has(err.sass_backtrace[4], :filename => nil, :mixin => nil, :line => 1)
   end
 
-  def test_basic_mixin_loop_exception
-    render <<SASS
-@mixin foo
-  @include foo
-@include foo
+  def test_recursive_mixin
+    assert_equal <<CSS, render(<<SASS)
+.foo .bar .baz {
+  color: blue; }
+.foo .bar .qux {
+  color: red; }
+.foo .zap {
+  color: green; }
+CSS
+@mixin map-to-rule($map-or-color)
+  @if type-of($map-or-color) == map
+    @each $key, $value in $map-or-color
+      .\#{$key}
+        @include map-to-rule($value)
+  @else
+    color: $map-or-color
+
+@include map-to-rule((foo: (bar: (baz: blue, qux: red), zap: green)))
 SASS
-    assert(false, "Exception not raised")
-  rescue Sass::SyntaxError => err
-    assert_equal("An @include loop has been found: foo includes itself", err.message)
-    assert_hash_has(err.sass_backtrace[0], :mixin => "foo", :line => 2)
-  end
-
-  def test_double_mixin_loop_exception
-    render <<SASS
-@mixin foo
-  @include bar
-@mixin bar
-  @include foo
-@include foo
-SASS
-    assert(false, "Exception not raised")
-  rescue Sass::SyntaxError => err
-    assert_equal(<<MESSAGE.rstrip, err.message)
-An @include loop has been found:
-    foo includes bar
-    bar includes foo
-MESSAGE
-    assert_hash_has(err.sass_backtrace[0], :mixin => "bar", :line => 4)
-    assert_hash_has(err.sass_backtrace[1], :mixin => "foo", :line => 2)
-  end
-
-  def test_deep_mixin_loop_exception
-    render <<SASS
-@mixin foo
-  @include bar
-
-@mixin bar
-  @include baz
-
-@mixin baz
-  @include foo
-
-@include foo
-SASS
-    assert(false, "Exception not raised")
-  rescue Sass::SyntaxError => err
-    assert_equal(<<MESSAGE.rstrip, err.message)
-An @include loop has been found:
-    foo includes bar
-    bar includes baz
-    baz includes foo
-MESSAGE
-    assert_hash_has(err.sass_backtrace[0], :mixin => "baz", :line => 8)
-    assert_hash_has(err.sass_backtrace[1], :mixin => "bar", :line => 5)
-    assert_hash_has(err.sass_backtrace[2], :mixin => "foo", :line => 2)
-  end
-
-  def test_mixin_loop_with_content
-    render <<SASS
-=foo
-  @content
-=bar
-  +foo
-    +bar
-+bar
-SASS
-    assert(false, "Exception not raised")
-  rescue Sass::SyntaxError => err
-    assert_equal("An @include loop has been found: bar includes itself", err.message)
-    assert_hash_has(err.sass_backtrace[0], :mixin => "@content", :line => 5)
-  end
-
-  def test_basic_import_loop_exception
-    import = filename_for_test
-    importer = MockImporter.new
-    importer.add_import(import, "@import '#{import}'")
-
-    engine = Sass::Engine.new("@import '#{import}'", :filename => import,
-      :load_paths => [importer])
-
-    assert_raise_message(Sass::SyntaxError, <<ERR.rstrip) {engine.render}
-An @import loop has been found: #{import} imports itself
-ERR
   end
 
   def test_double_import_loop_exception
@@ -891,7 +828,7 @@ SASS
 
     assert_equal("@a {\n  #b {\n    a: b; }\n    #b #c {\n      d: e; } }\n",
                  render("@a\n  #b\n    :a b\n    #c\n      :d e"))
-    assert_equal("@a { #b { a: b; }\n  #b #c { d: e; } }\n",
+    assert_equal("@a { #b { a: b; } #b #c { d: e; } }\n",
                  render("@a\n  #b\n    :a b\n    #c\n      :d e", :style => :compact))
     assert_equal("@a {\n  #b {\n    a: b;\n  }\n  #b #c {\n    d: e;\n  }\n}\n",
                  render("@a\n  #b\n    :a b\n    #c\n      :d e", :style => :expanded))
@@ -915,13 +852,51 @@ SASS
   :g h
 END
     rendered = <<END
-@a { b: c;
-  #d { e: f; }
-  g: h; }
+@a { b: c; #d { e: f; } g: h; }
 END
     assert_equal(rendered, render(to_render, :style => :compact))
     
     assert_equal("@a{b:c;#d{e:f}g:h}\n", render(to_render, :style => :compressed))
+  end
+
+  def test_keyframes
+    assert_equal(<<CSS, render(<<SCSS))
+@keyframes bounce {
+  from {
+    top: 100px; }
+  50% {
+    top: 50px; }
+  to {
+    top: 0px; } }
+CSS
+@keyframes bounce
+  from
+    top: 100px
+  50%
+    top: 50px
+  to
+    top: 0px
+SCSS
+  end
+
+  def test_vendor_keyframes
+    assert_equal(<<CSS, render(<<SCSS))
+@-webkit-keyframes bounce {
+  from {
+    top: 100px; }
+  50% {
+    top: 50px; }
+  to {
+    top: 0px; } }
+CSS
+@-webkit-keyframes bounce
+  from
+    top: 100px
+  50%
+    top: 50px
+  to
+    top: 0px
+SCSS
   end
 
   def test_property_hacks
@@ -1090,7 +1065,6 @@ SASS
 @-webkit-keyframes warm {
   from {
     color: black; }
-
   to {
     color: red; } }
 CSS
@@ -2308,9 +2282,10 @@ SASS
   @media print {
     .outside {
       color: black; } }
-    @media print and (a: b) {
-      .outside .inside {
-        border: 1px solid black; } }
+  @media print and (a: b) {
+    .outside .inside {
+      border: 1px solid black; } }
+
   .outside .middle {
     display: block; }
 CSS
@@ -2586,24 +2561,6 @@ body
   @include respond-to(20px)
     background: blue
 SASS
-  end
-
-  def test_tricky_mixin_loop_exception
-    render <<SASS
-@mixin foo($a)
-  @if $a
-    @include foo(false)
-    @include foo(true)
-  @else
-    a: b
-
-a
-  @include foo(true)
-SASS
-    assert(false, "Exception not raised")
-  rescue Sass::SyntaxError => err
-    assert_equal("An @include loop has been found: foo includes itself", err.message)
-    assert_hash_has(err.sass_backtrace[0], :mixin => "foo", :line => 3)
   end
 
   def test_interpolated_comment_in_mixin

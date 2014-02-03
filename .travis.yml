@@ -23,6 +23,9 @@ matrix:
     - rvm: rbx
     - rvm: jruby-18mode
     - rvm: jruby-19mode
+
+    # https://bugs.ruby-lang.org/issues/9340
+    - rvm: 2.1.0
   include:
     - rvm: 2.1.0
       env: MATHN=true RUBOCOP=true
@@ -30,3 +33,9 @@ matrix:
       env: MATHN=true RUBOCOP=true
     - rvm: 1.9.3
       env: MATHN=true RUBOCOP=true
+
+# As of 7 Jan 2014, RubyGems 2.2.0 was the default and was causing
+# errors when running "bundle install" on master. We should remove
+# this block once 2.2.0 is no longer the default.
+before_install:
+  - gem update --system 2.2.1

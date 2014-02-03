@@ -5,7 +5,6 @@ module Sass
     # The parser for SCSS.
     # It parses a string of code into a tree of {Sass::Tree::Node}s.
     class Parser
-
       # Expose for the SASS parser.
       attr_accessor :offset
 
@@ -178,7 +177,7 @@ module Sass
         :each, :while, :if, :else, :extend, :import, :media, :charset, :content,
         :_moz_document, :at_root]
 
-      PREFIXED_DIRECTIVES = Set[:supports]
+      PREFIXED_DIRECTIVES = Set[:supports, :keyframes]
 
       def directive
         start_pos = source_position
@@ -281,7 +280,8 @@ module Sass
         to = sass_script(:parse)
         ss
 
-        block(node(Sass::Tree::ForNode.new(var, from, to, exclusive), start_pos), :directive)
+        block(node(Sass::Tree::ForNode.new(var, from, to, exclusive), start_pos),
+          @block_context || :directive)
       end
 
       def each_directive(start_pos)
@@ -299,19 +299,19 @@ module Sass
         list = sass_script(:parse)
         ss
 
-        block(node(Sass::Tree::EachNode.new(vars, list), start_pos), :directive)
+        block(node(Sass::Tree::EachNode.new(vars, list), start_pos), @block_context || :directive)
       end
 
       def while_directive(start_pos)
         expr = sass_script(:parse)
         ss
-        block(node(Sass::Tree::WhileNode.new(expr), start_pos), :directive)
+        block(node(Sass::Tree::WhileNode.new(expr), start_pos), @block_context || :directive)
       end
 
       def if_directive(start_pos)
         expr = sass_script(:parse)
         ss
-        node = block(node(Sass::Tree::IfNode.new(expr), start_pos), :directive)
+        node = block(node(Sass::Tree::IfNode.new(expr), start_pos), @block_context || :directive)
         pos = @scanner.pos
         line = @line
         ss
@@ -331,7 +331,7 @@ module Sass
         ss
         else_node = block(
           node(Sass::Tree::IfNode.new((sass_script(:parse) if tok(/if/))), start_pos),
-          :directive)
+          @block_context || :directive)
         node.add_else(else_node)
         pos = @scanner.pos
         line = @line
@@ -530,6 +530,25 @@ module Sass
         arr
       end
 
+      def keyframes_directive(name, start_pos)
+        keyframe_name = expr!(:interp_ident)
+        node = node(Sass::Tree::DirectiveNode.new(["@#{name} "] + keyframe_name), start_pos)
+        ss
+        block(node, :keyframes)
+      end
+
+      def keyframes_block
+        start_pos = source_position
+        # Keyframes actually support a very restricted subset of all
+        # expressions, but we allow the general case for backwards and
+        # forwards compatibility, and so we get free support for
+        # interpolation.
+        return unless (value = expr)
+        ss
+        node = node(Sass::Tree::KeyframesBlockNode.new(value), start_pos)
+        block(node, :keyframes_block)
+      end
+
       # http://www.w3.org/TR/css3-conditional/
       def supports_directive(name, start_pos)
         condition = expr!(:supports_condition)
@@ -651,9 +670,18 @@ module Sass
       end
 
       def block_child(context)
-        return variable || directive if context == :function
-        return variable || directive || ruleset if context == :stylesheet
-        variable || directive || declaration_or_ruleset
+        old_block_context, @block_context = @block_context, context
+        case context
+        when :function;            variable || directive
+        when :stylesheet;          variable || directive || ruleset
+        when :keyframes;           variable || directive || keyframes_block
+        when :keyframes_block;     variable || directive || declaration
+        when :ruleset, :directive,
+             :property;            variable || directive || declaration_or_ruleset
+        else raise "[BUG] Unknown block_child context #{context}"
+        end
+      ensure
+        @block_context = old_block_context
       end
 
       def has_children?(child_or_array)
@@ -775,14 +803,10 @@ module Sass
       end
 
       def simple_selector_sequence
-        # Returning expr by default allows for stuff like
-        # http://www.w3.org/TR/css3-animations/#keyframes-
-
         start_pos = source_position
-        e = element_name || id_selector ||
+        return unless (e = element_name || id_selector ||
           class_selector || placeholder_selector || attrib || pseudo ||
-          parent_selector || interpolation_selector
-        return expr(!:allow_var) unless e
+          parent_selector || interpolation_selector)
         res = [e]
 
         # The tok(/\*/) allows the "E*" hack
@@ -813,7 +837,7 @@ module Sass
 
       def parent_selector
         return unless tok(/&/)
-        Selector::Parent.new
+        Selector::Parent.new(interp_ident(NAME) || [])
       end
 
       def class_selector
