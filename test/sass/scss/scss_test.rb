@@ -2549,7 +2549,7 @@ CSS
 SCSS
   end
 
-  def test_at_root_with_parent_ref
+  def test_at_root_with_parent_ref_and_class
     assert_equal(<<CSS, render(<<SCSS))
 .foo.bar {
   a: b; }
