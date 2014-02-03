@@ -226,7 +226,6 @@ JSON
   end
 
   def test_source_map_with_only_css_uri_can_have_no_public_url_without_warning
-    $TEST = true
     ephemeral_importer = NoPublicUrlImporter.new
     mock_importer = MockImporter.new
     def mock_importer.public_url(name, sourcemap_directory = nil)
@@ -268,8 +267,6 @@ CSS
 }
 JSON
     end
-  ensure
-    $TEST = false
   end
 
   def test_source_map_with_only_css_uri_doesnt_support_filesystem_importer
