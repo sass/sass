@@ -251,7 +251,7 @@ SCSS
 
     assert_warning("") do
       css_output, sourcemap = engine.render_with_sourcemap('sourcemap_uri')
-      assert_equal <<CSS.strip, css_output
+      assert_equal <<CSS.strip, css_output.strip
 .orange {
   color: orange; }
 
