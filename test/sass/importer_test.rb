@@ -290,7 +290,6 @@ SCSS
     assert_warning(<<WARNING) {sourcemap.to_json(:css_uri => 'css_uri')}
 WARNING: Couldn't determine public URL for "#{filename_for_test(:scss)}" while generating sourcemap.
   Without a public URL, there's nothing for the source map to link to.
-  Custom importers should define the #public_url method.
 WARNING
   end
 
@@ -312,7 +311,6 @@ SCSS
     assert_warning(<<WARNING) {sourcemap.to_json(:css_uri => 'css_uri', :css_path => 'css_path')}
 WARNING: Couldn't determine public URL for "#{filename_for_test(:scss)}" while generating sourcemap.
   Without a public URL, there's nothing for the source map to link to.
-  Custom importers should define the #public_url method.
 WARNING
   end
 

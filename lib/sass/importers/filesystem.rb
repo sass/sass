@@ -70,11 +70,13 @@ module Sass
           warn_about_public_url(name)
         else
           file_path = Pathname.new(@root).join(Pathname.new(remove_root(name.to_s)))
-          file_path.relative_path_from(Pathname.new(sourcemap_directory.to_s)).to_s
+          begin
+            file_path.relative_path_from(Pathname.new(sourcemap_directory.to_s)).to_s
+          rescue ArgumentError # when a relative path cannot be constructed
+            warn_about_public_url(name)
+            nil
+          end
         end
-      rescue ArgumentError
-        warn_about_public_url(name)
-        nil
       end
 
       protected
@@ -190,6 +192,22 @@ WARNING
           extension = $2
         end
         [dirname, basename, extension]
+      end
+
+      # Issues a warning about being unable to determine a public url.
+      #
+      # @param uri [String] A URI known to be valid for this importer.
+      # @return [NilClass] nil
+      def warn_about_public_url(uri)
+        @warnings_issued ||= Set.new
+        unless @warnings_issued.include?(uri)
+          Sass::Util.sass_warn <<WARNING
+WARNING: Couldn't determine public URL for "#{uri}" while generating sourcemap.
+  Without a public URL, there's nothing for the source map to link to.
+WARNING
+          @warnings_issued << uri
+        end
+        nil
       end
 
       private
