@@ -29,22 +29,20 @@ class Test::Unit::TestCase
     opts
   end
 
-  def filename_for_test(syntax = :sass)
-    test_name = caller.
+  def test_name
+    caller.
       map {|c| Sass::Util.caller_info(c)[2]}.
       compact.
       map {|c| c.sub(/^(block|rescue) in /, '')}.
       find {|c| c =~ /^test_/}
+  end
+
+  def filename_for_test(syntax = :sass)
     "#{test_name}_inline.#{syntax}"
   end
 
   def sourcemap_filename_for_test(syntax = :sass)
-    test_name = caller.
-      map {|c| Sass::Util.caller_info(c)[2]}.
-      compact.
-      map {|c| c.sub(/^(block|rescue) in /, '')}.
-      find {|c| c =~ /^test_/}
-    "#{test_name}.css.map"
+    "#{test_name}_inline.css.map"
   end
 
   def clean_up_sassc
