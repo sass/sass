@@ -69,9 +69,10 @@ module Sass
         if sourcemap_directory.nil?
           warn_about_public_url(name)
         else
-          file_path = Pathname.new(@root).join(Pathname.new(remove_root(name.to_s)))
+          file_pathname = Pathname.new(File.join(@root, remove_root(name))).cleanpath
+          sourcemap_pathname = Pathname.new(sourcemap_directory).cleanpath
           begin
-            file_path.relative_path_from(Pathname.new(sourcemap_directory.to_s)).to_s
+            file_pathname.relative_path_from(sourcemap_pathname).to_s
           rescue ArgumentError # when a relative path cannot be constructed
             warn_about_public_url(name)
             nil
