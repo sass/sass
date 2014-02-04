@@ -69,7 +69,7 @@ module Sass
         if sourcemap_directory.nil?
           warn_about_public_url(name)
         else
-          file_pathname = Pathname.new(File.join(@root, remove_root(name))).cleanpath
+          file_pathname = Pathname.new(File.absolute_path(name, @root)).cleanpath
           sourcemap_pathname = Pathname.new(sourcemap_directory).cleanpath
           begin
             file_pathname.relative_path_from(sourcemap_pathname).to_s

@@ -128,7 +128,8 @@ module Sass
       # @param sourcemap_directory [String, NilClass] The absolute path to a
       #   directory on disk where the sourcemap will be saved. If uri refers to
       #   a file on disk that's accessible relative to sourcemap_directory, this
-      #   may return a relative URL.
+      #   may return a relative URL. This may be `nil` if the sourcemap's
+      #   eventual location is unknown.
       # @return [String?] The publicly-visible URL for this file, or `nil`
       #   indicating that no publicly-visible URL exists.
       def public_url(uri, sourcemap_directory = nil)
