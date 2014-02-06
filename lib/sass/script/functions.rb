@@ -2089,7 +2089,7 @@ module Sass::Script
         nil,
         nil)
       funcall.options = options
-      funcall.perform(environment)
+      perform(funcall)
     end
     declare :call, [:name], :var_args => true, :var_kwargs => true
 

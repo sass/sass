@@ -1599,6 +1599,27 @@ WARNING
         env("fn" => Sass::Script::String.new("lighten"))))
   end
 
+  def test_call_uses_local_scope
+    assert_equal <<CSS, render(<<SCSS)
+.first-scope {
+  a: local; }
+
+.second-scope {
+  a: global; }
+CSS
+@function foo() {@return global}
+
+.first-scope {
+  @function foo() {@return local}
+  a: call(foo);
+}
+
+.second-scope {
+  a: call(foo);
+}
+SCSS
+  end
+
   def test_call_unknown_function
     assert_equal evaluate("unknown(red, blue)"), evaluate("call(unknown, red, blue)")
   end
