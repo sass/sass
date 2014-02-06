@@ -1075,6 +1075,20 @@ MSG
       URI_ESCAPE.escape string
     end
 
+    # A cross-platform implementation of `File.absolute_path`.
+    #
+    # @param path [String]
+    # @param dir_string [String] The directory to consider [path] relative to.
+    # @return [String] The absolute version of `path`.
+    def absolute_path(path, dir_string = nil)
+      # Ruby 1.8 doesn't support File.absolute_path.
+      return File.absolute_path(path, dir_string) unless ruby1_8?
+
+      # File.expand_path expands "~", which we don't want.
+      return File.expand_path(path, dir_string) unless path[0] == ?~
+      return File.expand_path(File.join(".", path), dir_string)
+    end
+
     ## Static Method Stuff
 
     # The context in which the ERB for \{#def\_static\_method} will be run.
