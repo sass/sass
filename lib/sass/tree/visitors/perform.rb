@@ -414,10 +414,12 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # Loads the new variable value into the environment.
   def visit_variable(node)
     env = @environment
+    identifier = [node.name, node.filename, node.line]
     if node.global
       env = env.global_env
-    elsif env.parent && env.is_var_global?(node.name) && !node.global_warning_given
-      node.global_warning_given = true
+    elsif env.parent && env.is_var_global?(node.name) &&
+        !env.global_env.global_warning_given.include?(identifier)
+      env.global_env.global_warning_given.add(identifier)
       var_expr = "$#{node.name}: #{node.expr.to_sass(env.options)} !global"
       var_expr << " !default" if node.guarded
       location = "on line #{node.line}"

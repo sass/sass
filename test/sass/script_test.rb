@@ -596,6 +596,23 @@ $var: 1;
 SCSS
   end
 
+  def test_setting_global_variable_locally_warns_only_once
+    assert_warning(<<WARNING) {assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))}
+DEPRECATION WARNING on line 3 of test_setting_global_variable_locally_warns_only_once_inline.scss:
+Assigning to global variable "$var" by default is deprecated.
+In future versions of Sass, this will create a new local variable.
+If you want to assign to the global variable, use "$var: x !global" instead.
+WARNING
+CSS
+$var: 1;
+
+@mixin foo {$var: x}
+@include foo;
+@include foo;
+@include foo;
+SCSS
+  end
+
   def test_setting_global_variable_globally
     assert_no_warning {assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))}
 .foo {

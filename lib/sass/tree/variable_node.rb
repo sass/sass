@@ -20,11 +20,6 @@ module Sass
       # @return [Boolean]
       attr_reader :global
 
-      # Whether we've warned about deprecated global variable
-      # assignment yet for this node.
-      # @return [Boolean]
-      attr_accessor :global_warning_given
-
       # @param name [String] The name of the variable
       # @param expr [Script::Tree::Node] See \{#expr}
       # @param guarded [Boolean] See \{#guarded}

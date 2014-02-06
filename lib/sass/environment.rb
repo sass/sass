@@ -76,6 +76,13 @@ module Sass
     # Sass::Callable
     inherited_hash_reader :function
 
+    # Whether a warning has been emitted for assigning to the given
+    # global variable. This is a set of tuples containing the name of
+    # the variable, its filename, and its line number.
+    #
+    # @return [Set<[String, String, int]>]
+    attr_reader :global_warning_given
+
     # @param options [{Symbol => Object}] The options hash. See
     #   {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
     # @param parent [Environment] See \{#parent}
@@ -83,6 +90,7 @@ module Sass
       @parent = parent
       @options = options || (parent && parent.options) || {}
       @stack = Sass::Stack.new if @parent.nil?
+      @global_warning_given = Set.new
     end
 
     # The environment of the caller of this environment's mixin or function.
