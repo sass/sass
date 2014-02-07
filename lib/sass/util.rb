@@ -1086,7 +1086,7 @@ MSG
 
       # File.expand_path expands "~", which we don't want.
       return File.expand_path(path, dir_string) unless path[0] == ?~
-      return File.expand_path(File.join(".", path), dir_string)
+      File.expand_path(File.join(".", path), dir_string)
     end
 
     ## Static Method Stuff
