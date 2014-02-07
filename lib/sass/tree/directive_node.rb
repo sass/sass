@@ -1,5 +1,3 @@
-require 'sass/scss/rx'
-
 module Sass::Tree
   # A static node representing an unproccessed Sass `@`-directive.
   # Directives known to Sass, like `@for` and `@debug`,
@@ -11,8 +9,6 @@ module Sass::Tree
   #
   # @see Sass::Tree
   class DirectiveNode < Node
-    DIRECTIVE_NAME = /^@(?:-#{Sass::SCSS::RX::IDENT}-)?(#{Sass::SCSS::RX::NMCHAR}+)/
-
     # The text of the directive, `@` and all, with interpolation included.
     #
     # @return [Array<String, Sass::Script::Tree::Node>]
@@ -45,14 +41,9 @@ module Sass::Tree
       node
     end
 
-    # @return [String] The name of the directive, excluding `@` and any vendor prefixes.
+    # @return [String] The name of the directive, including `@`.
     def name
-      @name ||= value.first[DIRECTIVE_NAME, 1]
-    end
-
-    # @return [String] The name of the directive, excluding `@` but including vendor prefixes.
-    def prefixed_name
-      @prefixed_name ||= value.first[/^@([^ ]+)/, 1]
+      value.first.gsub(/ .*$/, '')
     end
 
     def bubbles?

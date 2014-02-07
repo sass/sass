@@ -175,9 +175,9 @@ module Sass
 
       DIRECTIVES = Set[:mixin, :include, :function, :return, :debug, :warn, :for,
         :each, :while, :if, :else, :extend, :import, :media, :charset, :content,
-        :_moz_document, :at_root]
+        :_moz_document, :at_root, :keyframes]
 
-      PREFIXED_DIRECTIVES = Set[:supports, :keyframes]
+      PREFIXED_DIRECTIVES = Set[:supports]
 
       def directive
         start_pos = source_position
@@ -530,9 +530,9 @@ module Sass
         arr
       end
 
-      def keyframes_directive(name, start_pos)
-        keyframe_name = expr!(:interp_ident)
-        node = node(Sass::Tree::DirectiveNode.new(["@#{name} "] + keyframe_name), start_pos)
+      def keyframes_directive(start_pos)
+        name = expr!(:interp_ident)
+        node = node(Sass::Tree::DirectiveNode.new(['@keyframes '] + name), start_pos)
         ss
         block(node, :keyframes)
       end

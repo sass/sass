@@ -137,7 +137,7 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
                                               Sass::Tree::CommentNode,
                                               Sass::Tree::KeyframesBlockNode]
   def invalid_directive_child?(parent, child)
-    return unless parent.name == 'keyframes'
+    return unless parent.name == '@keyframes'
     unless is_any_of?(child, VALID_KEYFRAMES_CHILDREN)
       'Only keyframes blocks (e.g. "15% { ... }") are allowed within @keyframes.'
     end

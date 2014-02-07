@@ -678,7 +678,7 @@ WARNING
 
       unless (res = parser.parse_interp_ident)
         parsed = parse_interp(line.text, line.offset)
-        if parent.is_a?(Tree::DirectiveNode) && parent.name == 'keyframes'
+        if parent.is_a?(Tree::DirectiveNode) && parent.name == '@keyframes'
           return Tree::KeyframesBlockNode.new(parsed)
         else
           return Tree::RuleNode.new(parsed, full_line_range(line))
@@ -716,7 +716,7 @@ WARNING
           ident_range.start_pos,
           Sass::Source::Position.new(@line, to_parser_offset(line.offset) + line.text.length),
           @options[:filename], @options[:importer])
-        if parent.is_a?(Tree::DirectiveNode) && parent.name == 'keyframes'
+        if parent.is_a?(Tree::DirectiveNode) && parent.name == '@keyframes'
           rule = Tree::KeyframesBlockNode.new(res + interp_parsed)
         else
           rule = Tree::RuleNode.new(res + interp_parsed, selector_range)
