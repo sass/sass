@@ -2218,6 +2218,36 @@ CSS
 SASS
   end
 
+  def test_double_media_bubbling_with_surrounding_rules
+    assert_equal <<CSS, render(<<SASS)
+@media (min-width: 0) {
+  a {
+    a: a; }
+
+  b {
+    before: b;
+    after: b; } }
+  @media (min-width: 0) and (max-width: 5000px) {
+    b {
+      x: x; } }
+
+@media (min-width: 0) {
+  c {
+    c: c; } }
+CSS
+@media (min-width: 0)
+  a
+    a: a
+  b
+    before: b
+    @media (max-width: 5000px)
+      x: x
+    after: b
+  c
+    c: c
+SASS
+  end
+
   def test_rule_media_rule_bubbling
     assert_equal <<CSS, render(<<SASS)
 @media bar {

@@ -266,13 +266,13 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
 
     yield
 
-    debubble(node.children, node).map do |child|
+    debubble(node.children, node) do |child|
       next child unless child.is_a?(Sass::Tree::MediaNode)
-      # The debubbled list can include copies of `node`, and we don't want to
-      # merge it with its own query.
+      # Copies of `node` can be bubbled, and we don't want to merge it with its
+      # own query.
       next child if child.resolved_query == node.resolved_query
       next child if child.resolved_query = child.resolved_query.merge(node.resolved_query)
-    end.compact
+    end
   end
 
   # Bubbles the `@supports` directive up through RuleNodes.
@@ -307,13 +307,28 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
   #
   # @param children [List<Sass::Tree::Node, Bubble>]
   # @param parent [Sass::Tree::Node]
+  # @yield [node] An optional block for processing bubbled nodes. Each bubbled
+  #   node will be passed to this block.
+  # @yieldparam node [Sass::Tree::Node] A bubbled node.
+  # @yieldreturn [Sass::Tree::Node?] A node to use in place of the bubbled node.
+  #   This can be the node itself, or `nil` to indicate that the node should be
+  #   omitted.
   # @return [List<Sass::Tree::Node, Bubble>]
   def debubble(children, parent = nil)
     Sass::Util.slice_by(children) {|c| c.is_a?(Bubble)}.map do |(is_bubble, slice)|
-      next slice.map {|b| b.pop(self)} if is_bubble
-      next slice unless parent
-      parent.children = slice
-      parent
+      unless is_bubble
+        next slice unless parent
+        new_parent = parent.dup
+        new_parent.children = slice
+        next new_parent
+      end
+
+      next slice.map do |bubble|
+        next unless (node = block_given? ? yield(bubble.node) : bubble.node)
+        node.tabs += bubble.tabs
+        node.group_end = bubble.group_end
+        [visit(node)].flatten
+      end.compact
     end.flatten
   end
 
@@ -343,23 +358,12 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
       @tabs = 0
     end
 
-    # "Pops" the bubble by using `visitor` to visit the wrapped node and
-    # returning the result.
-    #
-    # @param visitor [Sass::Tree::Visitors::Cssize]
-    # @return [Array<Sass::Tree::Node, Bubble>] The results of visiting `node`.
-    def pop(visitor)
-      node.tabs += tabs
-      node.group_end = group_end
-      [visitor.send(:visit, node)].flatten
-    end
-
     def bubbles?
       true
     end
 
     def inspect
-      "(Bubble #{children.map {|c| c.inspect}.join(' ')})"
+      "(Bubble #{node.inspect})"
     end
   end
 end
