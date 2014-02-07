@@ -189,12 +189,25 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     node.children.each do |child|
       next if child.invisible?
       if node.style == :compact
-        output " " unless first
         if child.is_a?(Sass::Tree::PropNode)
-          with_tabs(0) {visit(child)}
+          with_tabs(first || was_prop ? 0 : @tabs + 1) do
+            visit(child)
+            output(' ')
+          end
         else
-          with_tabs(0) {visit(child)}
+          if was_prop
+            erase! 1
+            output "\n"
+          end
+
+          if first
+            lstrip {with_tabs(@tabs + 1) {visit(child)}}
+          else
+            with_tabs(@tabs + 1) {visit(child)}
+          end
+
           rstrip!
+          output "\n"
         end
         was_prop = child.is_a?(Sass::Tree::PropNode)
         first = false
@@ -230,10 +243,6 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   end
 
   def visit_cssimport(node)
-    visit_directive(node)
-  end
-
-  def visit_keyframesblock(node)
     visit_directive(node)
   end
 

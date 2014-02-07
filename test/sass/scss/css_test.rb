@@ -653,127 +653,6 @@ CSS
 SCSS
   end
 
-  def test_keyframes_nested
-    assert_equal(<<CSS, render(<<SCSS, :style => :nested))
-@keyframes bounce {
-  from {
-    top: 100px; }
-  50% {
-    top: 50px; }
-  to {
-    top: 0px; } }
-CSS
-@keyframes bounce {
-  from {
-    top: 100px;
-  }
-  50% {
-    top: 50px;
-  }
-  to {
-    top: 0px;
-  }
-}
-SCSS
-  end
-
-  def test_keyframes_compact
-    assert_equal(<<CSS, render(<<SCSS, :style => :compact))
-@keyframes bounce { from { top: 100px; } 50% { top: 50px; } to { top: 0px; } }
-CSS
-@keyframes bounce {
-  from {
-    top: 100px;
-  }
-  50% {
-    top: 50px;
-  }
-  to {
-    top: 0px;
-  }
-}
-SCSS
-  end
-
-  def test_keyframes_compressed
-    assert_equal(<<CSS, render(<<SCSS, :style => :compressed))
-@keyframes bounce{from{top:100px}50%{top:50px}to{top:0px}}
-CSS
-@keyframes bounce {
-  from {
-    top: 100px;
-  }
-  50% {
-    top: 50px;
-  }
-  to {
-    top: 0px;
-  }
-}
-SCSS
-  end
-
-  def test_keyframes_expanded
-    assert_equal(<<CSS, render(<<SCSS, :style => :expanded))
-@keyframes bounce {
-  from {
-    top: 100px;
-  }
-  50% {
-    top: 50px;
-  }
-  to {
-    top: 0px;
-  }
-}
-CSS
-@keyframes bounce {
-  from {
-    top: 100px;
-  }
-  50% {
-    top: 50px;
-  }
-  to {
-    top: 0px;
-  }
-}
-SCSS
-  end
-
-  def test_keyframes_with_comments
-    assert_equal(<<CSS, render(<<SCSS))
-@keyframes bounce {
-  from {
-    top: 100px; }
-  /* loud comment */
-  50% {
-    top: 50px; }
-  75% {
-    top: 25px; }
-  to {
-    top: 0px; } }
-CSS
-@keyframes /* weird loud comment 1 */ bounce /* weird loud comment 2 */ {
-  // silent comment
-  from {
-    top: 100px;
-  }
-  /* loud comment */
-  50% {
-    top: 50px;
-  }
-  75% // weird silent comment
-    {
-    top: 25px;
-  }
-  to /* weird loud comment 3 */ {
-    top: 0px;
-  }
-}
-SCSS
-  end
-
   ## Selectors
 
   # Taken from http://dev.w3.org/csswg/selectors4/#overview
@@ -1008,6 +887,14 @@ SCSS
     assert_selector_parses("E, F\nG, H")
   end
 
+  def test_expression_fallback_selectors
+    assert_selector_parses('0%')
+    assert_selector_parses('60%')
+    assert_selector_parses('100%')
+    assert_selector_parses('12px')
+    assert_selector_parses('"foo"')
+  end
+
   def test_functional_pseudo_selectors
     assert_selector_parses(':foo("bar")')
     assert_selector_parses(':foo(bar)')
@@ -1125,70 +1012,6 @@ SCSS
   rescue Sass::SyntaxError => e
     assert_equal 'Invalid CSS after "foo {bar": expected ":", was "}"', e.message
     assert_equal 1, e.sass_line
-  end
-
-  def test_no_properties_in_keyframes
-    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
-Invalid CSS after "  a: b": expected "{", was ";"
-MESSAGE
-@keyframes bounce {
-  a: b;
-}
-SCSS
-  end
-
-  def test_no_rules_in_keyframes
-    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
-Invalid CSS after "...frames bounce {": expected "}", was ".foo {a: b}"
-MESSAGE
-@keyframes bounce {
-  .foo {a: b}
-}
-SCSS
-  end
-
-  def test_no_rules_in_keyframes_rules
-    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
-Invalid CSS after "    .foo ": expected ":", was "{a: b}"
-MESSAGE
-@keyframes bounce {
-  top {
-    .foo {a: b}
-  }
-}
-SCSS
-  end
-
-  def test_no_media_in_keyframes
-    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
-Only keyframes blocks (e.g. "15% { ... }") are allowed within @keyframes.
-MESSAGE
-@keyframes bounce {
-  @media screen {}
-}
-SCSS
-  end
-
-  def test_no_media_in_keyframes_rules
-    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
-Only properties are allowed within @keyframes blocks.
-MESSAGE
-@keyframes bounce {
-  top {
-    @media screen {}
-  }
-}
-SCSS
-  end
-
-  def test_no_expression_selectors
-    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
-Invalid CSS after "": expected selector or at-rule, was "50% {"
-MESSAGE
-50% {
-  a: b;
-}
-SCSS
   end
 
   ## Regressions
