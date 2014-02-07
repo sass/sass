@@ -494,14 +494,6 @@ WARNING
     yield
   end
 
-  def visit_keyframesblock(node)
-    node.resolved_value = run_interp(node.value)
-    with_environment Sass::Environment.new(@environment) do
-      node.children = node.children.map {|c| visit(c)}.flatten
-      node
-    end
-  end
-
   private
 
   def run_interp_no_strip(text)

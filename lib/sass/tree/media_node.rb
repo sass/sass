@@ -24,8 +24,14 @@ module Sass::Tree
     # @param query [Array<String, Sass::Script::Tree::Node>] See \{#query}
     def initialize(query)
       @query = query
-      super(['@media'])
+      super('')
     end
+
+    # @see DirectiveNode#value
+    def value; raise NotImplementedError; end
+
+    # @see DirectiveNode#name
+    def name; '@media'; end
 
     # @see DirectiveNode#resolved_value
     def resolved_value

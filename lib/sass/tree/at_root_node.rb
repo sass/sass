@@ -69,7 +69,7 @@ module Sass
       # @param node [Sass::Tree::Node]
       # @return [Boolean]
       def exclude_node?(node)
-        return exclude?(node.name) if node.is_a?(Sass::Tree::DirectiveNode)
+        return exclude?(node.name.gsub(/^@/, '')) if node.is_a?(Sass::Tree::DirectiveNode)
         exclude?('rule') && node.is_a?(Sass::Tree::RuleNode)
       end
 

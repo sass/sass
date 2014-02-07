@@ -239,7 +239,7 @@ module Sass
         # TODO(nweiz): this should use the Sass stack trace of the extend node,
         # not the selector.
         raise Sass::SyntaxError.new(<<MESSAGE)
-You may not @extend an outer selector from within @#{extend.directives.last.prefixed_name}.
+You may not @extend an outer selector from within #{extend.directives.last.name}.
 You may only @extend selectors within the same directive.
 From "@extend #{extend.target.join(', ')}" on line #{line}#{" of #{filename}" if filename}.
 MESSAGE

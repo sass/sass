@@ -103,10 +103,6 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
     res + yield + "\n"
   end
 
-  def visit_keyframesblock(node)
-    "#{tab_str}#{interp_to_src(node.value).rstrip}#{yield}"
-  end
-
   def visit_each(node)
     vars = node.vars.map {|var| "$#{dasherize(var)}"}.join(", ")
     "#{tab_str}@each #{vars} in #{node.list.to_sass(@options)}#{yield}"
