@@ -90,6 +90,7 @@ module Sass
         :variable => /(\$)(#{IDENT})/,
         :ident => /(#{IDENT})(\()?/,
         :number => /(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
+        :unary_minus_number => /-(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
         :color => HEXCOLOR,
         :ident_op => /(#{Regexp.union(*IDENT_OP_NAMES.map do |s|
           Regexp.new(Regexp.escape(s) + "(?!#{NMCHAR}|\Z)")
@@ -287,8 +288,28 @@ module Sass
       end
 
       def number
-        return unless scan(REGULAR_EXPRESSIONS[:number])
-        value = @scanner[1] ? @scanner[1].to_f : @scanner[2].to_i
+        # Handling unary minus is complicated by the fact that whitespace is an
+        # operator in SassScript. We want "1-2" to be parsed as "1 - 2", but we
+        # want "1 -2" to be parsed as "1 (-2)". To accomplish this, we only
+        # parse a unary minus as part of a number literal if there's whitespace
+        # before and not after it. Cases like "(-2)" are handled by the unary
+        # minus logic in the parser instead.
+        if @scanner.peek(1) == '-'
+          return if @scanner.pos == 0
+          @scanner.pos -= 1
+          # Don't use @scanner.scan so we don't mess up the match data.
+          unary_minus_allowed = @scanner.peek(1) =~ /\s/
+          @scanner.pos += 1
+
+          return unless unary_minus_allowed
+          return unless scan(REGULAR_EXPRESSIONS[:unary_minus_number])
+          minus = true
+        else
+          return unless scan(REGULAR_EXPRESSIONS[:number])
+          minus = false
+        end
+
+        value = (@scanner[1] ? @scanner[1].to_f : @scanner[2].to_i) * (minus ? -1 : 1)
         script_number = Script::Value::Number.new(value, Array(@scanner[3]))
         [:number, script_number]
       end
