@@ -3100,6 +3100,24 @@ SCSS
 
   # Regression
 
+  def test_parent_ref_in_nested_at_root
+    assert_equal(<<CSS, render(<<SCSS))
+#test {
+  border: 0; }
+  #test:hover {
+    display: none; }
+CSS
+a {
+  @at-root #test {
+    border: 0;
+    &:hover{
+      display: none;
+    }
+  }
+}
+SCSS
+  end
+
   def test_loud_comment_in_compressed_mode
     assert_equal(<<CSS, render(<<SCSS))
 /*! foo */
