@@ -302,6 +302,7 @@ module Sass::Plugin
     private
 
     def create_listener(*args, &block)
+      require 'listen'
       if Sass::Util.listen_geq_2?
         Listen.to(*args, &block)
       else
