@@ -2848,6 +2848,185 @@ CSS
 SCSS
   end
 
+  ## Selector Script
+
+  def test_selector_script
+    assert_equal(<<CSS, render(<<SCSS))
+.foo .bar {
+  content: ".foo .bar"; }
+CSS
+.foo .bar {
+  content: "\#{&}";
+}
+SCSS
+  end
+
+  def test_nested_selector_script
+    assert_equal(<<CSS, render(<<SCSS))
+.foo .bar {
+  content: ".foo .bar"; }
+CSS
+.foo {
+  .bar {
+    content: "\#{&}";
+  }
+}
+SCSS
+  end
+
+  def test_nested_selector_script_with_outer_comma_selector
+    assert_equal(<<CSS, render(<<SCSS))
+.foo .baz, .bar .baz {
+  content: ".foo .baz, .bar .baz"; }
+CSS
+.foo, .bar {
+  .baz {
+    content: "\#{&}";
+  }
+}
+SCSS
+  end
+
+  def test_nested_selector_script_with_inner_comma_selector
+    assert_equal(<<CSS, render(<<SCSS))
+.foo .bar, .foo .baz {
+  content: ".foo .bar, .foo .baz"; }
+CSS
+.foo {
+  .bar, .baz {
+    content: "\#{&}";
+  }
+}
+SCSS
+  end
+
+  def test_selector_script_through_mixin
+    assert_equal(<<CSS, render(<<SCSS))
+.foo {
+  content: ".foo"; }
+CSS
+@mixin mixin {
+  content: "\#{&}";
+}
+
+.foo {
+  @include mixin;
+}
+SCSS
+  end
+
+  def test_selector_script_through_content
+    assert_equal(<<CSS, render(<<SCSS))
+.foo {
+  content: ".foo"; }
+CSS
+@mixin mixin {
+  @content;
+}
+
+.foo {
+  @include mixin {
+    content: "\#{&}";
+  }
+}
+SCSS
+  end
+
+  def test_selector_script_through_function
+    assert_equal(<<CSS, render(<<SCSS))
+.foo {
+  content: ".foo"; }
+CSS
+@function fn() {
+  @return "\#{&}";
+}
+
+.foo {
+  content: fn();
+}
+SCSS
+  end
+
+  def test_selector_script_through_media
+    assert_equal(<<CSS, render(<<SCSS))
+.foo {
+  content: "outer"; }
+  @media screen {
+    .foo .bar {
+      content: ".foo .bar"; } }
+CSS
+.foo {
+  content: "outer";
+  @media screen {
+    .bar {
+      content: "\#{&}";
+    }
+  }
+}
+SCSS
+  end
+
+  def test_selector_script_save_and_reuse
+    assert_equal(<<CSS, render(<<SCSS))
+.bar {
+  content: ".foo"; }
+CSS
+$var: null;
+.foo {
+  $var: & !global;
+}
+
+.bar {
+  content: "\#{$var}";
+}
+SCSS
+  end
+
+  def test_selector_script_with_at_root
+    assert_equal(<<CSS, render(<<SCSS))
+.foo-bar {
+  a: b; }
+CSS
+.foo {
+  @at-root \#{&}-bar {
+    a: b;
+  }
+}
+SCSS
+  end
+
+  def test_multi_level_at_root_with_inner_selector_script
+    assert_equal <<CSS, render(<<SCSS)
+.bar {
+  a: b; }
+CSS
+.foo {
+  @at-root .bar {
+    @at-root \#{&} {
+      a: b;
+    }
+  }
+}
+SCSS
+  end
+
+  def test_at_root_with_at_root_through_mixin
+    assert_equal(<<CSS, render(<<SCSS))
+.bar-baz {
+  a: b; }
+CSS
+@mixin foo {
+  .bar {
+    @at-root \#{&}-baz {
+      a: b;
+    }
+  }
+}
+
+@include foo;
+SCSS
+  end
+
   ## Errors
 
   def test_nested_mixin_def_is_scoped

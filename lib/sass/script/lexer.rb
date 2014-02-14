@@ -92,6 +92,7 @@ module Sass
         :number => /(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
         :unary_minus_number => /-(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
         :color => HEXCOLOR,
+        :selector => /&/,
         :ident_op => /(#{Regexp.union(*IDENT_OP_NAMES.map do |s|
           Regexp.new(Regexp.escape(s) + "(?!#{NMCHAR}|\Z)")
         end)})/,
@@ -251,8 +252,8 @@ module Sass
         end
 
         variable || string(:double, false) || string(:single, false) || number || color ||
-          string(:uri, false) || raw(UNICODERANGE) || special_fun || special_val || ident_op ||
-          ident || op
+          selector || string(:uri, false) || raw(UNICODERANGE) || special_fun || special_val ||
+          ident_op || ident || op
       end
 
       def variable
@@ -322,6 +323,14 @@ Colors must have either three or six digits: '#{s}'
 MESSAGE
         script_color = Script::Value::Color.from_hex(s)
         [:color, script_color]
+      end
+
+      def selector
+        start_pos = source_position
+        return unless scan(REGULAR_EXPRESSIONS[:selector])
+        script_selector = Script::Tree::Selector.new
+        script_selector.source_range = range(start_pos)
+        [:selector, script_selector]
       end
 
       def special_fun

@@ -3,6 +3,42 @@
 * Table of contents
 {:toc}
 
+## 3.4.0 (Unreleased)
+
+### Using `&` in SassScript
+
+For a long time, Sass has supported a special
+{file:SASS_REFERENCE.md#parent-selector "parent selector", `&`}, which is used
+when nesting selectors to describe how a nested selector relates to the
+selectors above it. Until now, this has only been usable in selectors, but now
+it can be used in SassScript as well.
+
+In a SassScript expression, `&` refers to the current parent selector. It's a
+comma-separated list of space-separated lists. For example:
+
+    .foo.bar .baz.bang, .bip.qux {
+      $selector: &;
+    }
+
+The value of `$selector` is now `((".foo.bar" ".baz.bang"), ".bip.qux")`. The
+compound selectors are quoted here to indicate that they're strings, but in
+reality they would be unquoted.
+
+If there is no parent selector, the value of `&` will be null. This means you
+can use it in a mixin to detect whether a parent selector exists:
+
+    @mixin does-parent-exist {
+      @if & {
+        &:hover {
+          color: red;
+        }
+      } else {
+        a {
+          color: red;
+        }
+      }
+    }
+
 ## 3.3.0 (Unreleased)
 
 ### SassScript Maps
