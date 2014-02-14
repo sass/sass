@@ -197,7 +197,7 @@ module Sass
           PRECEDENCE.each_with_index do |e, i|
             return i if Array(e).include?(op)
           end
-          raise "[BUG] Unknown operator #{op}"
+          raise "[BUG] Unknown operator #{op.inspect}"
         end
 
         # Returns whether or not the given operation is associative.

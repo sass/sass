@@ -51,11 +51,8 @@ module Sass::Script::Value
     # @see Value#to_sass
     def to_sass(opts = {})
       return "()" if value.empty?
-      precedence = Sass::Script::Parser.precedence_of(separator)
       members = value.map do |v|
-        if v.is_a?(List) && Sass::Script::Parser.precedence_of(v.separator) <= precedence ||
-            separator == :space && v.is_a?(Sass::Script::Tree::UnaryOperation) &&
-            (v.operator == :minus || v.operator == :plus)
+        if element_needs_parens?(v)
           "(#{v.to_sass(opts)})"
         else
           v.to_sass(opts)
@@ -109,6 +106,18 @@ module Sass::Script::Value
     end
 
     private
+
+    def element_needs_parens?(element)
+      if element.is_a?(List)
+        return false if element.value.empty?
+        precedence = Sass::Script::Parser.precedence_of(separator)
+        return Sass::Script::Parser.precedence_of(element.separator) <= precedence
+      end
+
+      return false unless separator == :space
+      return false unless element.is_a?(Sass::Script::Tree::UnaryOperation)
+      element.operator == :minus || element.operator == :plus
+    end
 
     def sep_str(opts = options)
       return ' ' if separator == :space

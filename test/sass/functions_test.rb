@@ -1784,6 +1784,10 @@ SCSS
 
   ## Regression Tests
 
+  def test_inspect_nested_empty_lists
+    assert_equal "() ()", evaluate("inspect(() ())")
+  end
+
   def test_saturation_bounds
     assert_equal "#fbfdff", evaluate("hsl(hue(#fbfdff), saturation(#fbfdff), lightness(#fbfdff))")
   end
