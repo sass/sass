@@ -1788,20 +1788,11 @@ These produce, respectively:
     .child1 { ... }
     .child2 { ... }
 
-`@at-root` is most commonly used with [the SassScript parent selector
-`&`](#parent-script), to ensure that the parent selector isn't duplicated.
-
-Currently, `@at-root` will only ignore parent *selectors*, not any other
-directives such as `@media`. It may be extended in the future to allow other
-directives to be ignored, but the default will continue to ignore only
-selectors.
-
 #### `@at-root (without: ...)` and `@at-root (with: ...)`
 
-By default, `@at-root` just excludes selectors to allow `#{&}` to work
-similarly to just including `&` in a selector. However, it's also
-possible to use `@at-root` to move outside of nested directives such
-as `@media` as well. For example:
+By default, `@at-root` just excludes selectors. However, it's also possible to
+use `@at-root` to move outside of nested directives such as `@media` as well.
+For example:
 
     @media print {
       .page {
