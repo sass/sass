@@ -445,25 +445,71 @@ module Sass::Script::Value
       end
     end
 
-    # A hash of unit names to their index in the conversion table
-    CONVERTABLE_UNITS = %w(in cm pc mm pt px).inject({}) {|m, v| m[v] = m.size; m}
+    # This is the source data for all the unit logic. It's pre-processed to make
+    # it efficient to figure out whether a set of units is mutually compatible
+    # and what the conversion ratio is between two units.
+    #
+    # These come from http://www.w3.org/TR/2012/WD-css3-values-20120308/.
+    relative_sizes = [
+      {
+        'in' => Rational(1),
+        'cm' => Rational(1, 2.54),
+        'pc' => Rational(1, 6),
+        'mm' => Rational(1, 25.4),
+        'pt' => Rational(1, 72),
+        'px' => Rational(1, 96)
+      },
+      {
+        'deg'  => Rational(1, 360),
+        'grad' => Rational(1, 400),
+        'rad'  => Rational(1, 2 * Math::PI),
+        'turn' => Rational(1)
+      },
+      {
+        's'  => Rational(1),
+        'ms' => Rational(1, 1000)
+      },
+      {
+        'Hz'  => Rational(1),
+        'kHz' => Rational(1000)
+      },
+      {
+        'dpi'  => Rational(1),
+        'dpcm' => Rational(1, 2.54),
+        'dppx' => Rational(1, 96)
+      }
+    ]
 
-    #                    in   cm    pc          mm          pt          px
-    CONVERSION_TABLE = [[1,   2.54, 6,          25.4,       72        , 96],           # in
-                        [nil, 1,    2.36220473, 10,         28.3464567, 37.795275591], # cm
-                        [nil, nil,  1,          4.23333333, 12        , 16],           # pc
-                        [nil, nil,  nil,        1,          2.83464567, 3.7795275591], # mm
-                        [nil, nil,  nil,        nil,        1         , 1.3333333333], # pt
-                        [nil, nil,  nil,        nil,        nil       , 1]]            # px
+    # A hash from each known unit to the set of units that it's mutually
+    # convertible with.
+    MUTUALLY_CONVERTIBLE = {}
+    relative_sizes.map do |values|
+      set = values.keys.to_set
+      values.keys.each {|name| MUTUALLY_CONVERTIBLE[name] = set}
+    end
+
+    # A two-dimensional hash from two units to the conversion ratio between
+    # them. Multiply `X` by `CONVERSION_TABLE[X][Y]` to convert it to `Y`.
+    CONVERSION_TABLE = {}
+    relative_sizes.each do |values|
+      values.each do |(name1, value1)|
+        CONVERSION_TABLE[name1] ||= {}
+        values.each do |(name2, value2)|
+          value = value1 / value2
+          CONVERSION_TABLE[name1][name2] = value.denominator == 1 ? value.to_i : value.to_f
+        end
+      end
+    end
 
     def conversion_factor(from_unit, to_unit)
-      res = CONVERSION_TABLE[CONVERTABLE_UNITS[from_unit]][CONVERTABLE_UNITS[to_unit]]
-      return 1.0 / conversion_factor(to_unit, from_unit) if res.nil?
-      res
+      CONVERSION_TABLE[from_unit][to_unit]
     end
 
     def convertable?(units)
-      Array(units).all? {|u| CONVERTABLE_UNITS.include?(u)}
+      units = Array(units).to_set
+      return true if units.empty?
+      return false unless (mutually_convertible = MUTUALLY_CONVERTIBLE[units.first])
+      units.subset?(mutually_convertible)
     end
 
     def sans_common_units(units1, units2)

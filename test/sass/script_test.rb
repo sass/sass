@@ -430,6 +430,36 @@ SASS
     assert_equal "true", resolve("1.1cm == 11mm")
   end
 
+  def test_length_units
+    assert_equal "2.54", resolve("(1in/1cm)")
+    assert_equal "2.3622", resolve("(1cm/1pc)")
+    assert_equal "4.23333", resolve("(1pc/1mm)")
+    assert_equal "2.83465", resolve("(1mm/1pt)")
+    assert_equal "1.33333", resolve("(1pt/1px)")
+    assert_equal "0.01042", resolve("(1px/1in)")
+  end
+
+  def test_angle_units
+    assert_equal "1.11111", resolve("(1deg/1grad)")
+    assert_equal "0.01571", resolve("(1grad/1rad)")
+    assert_equal "0.15915", resolve("(1rad/1turn)")
+    assert_equal "360", resolve("(1turn/1deg)")
+  end
+
+  def test_time_units
+    assert_equal "1000", resolve("(1s/1ms)")
+  end
+
+  def test_frequency_units
+    assert_equal "0.001", resolve("(1Hz/1kHz)")
+  end
+
+  def test_resolution_units
+    assert_equal "2.54", resolve("(1dpi/1dpcm)")
+    assert_equal "37.79528", resolve("(1dpcm/1dppx)")
+    assert_equal "0.01042", resolve("(1dppx/1dpi)")
+  end
+
   def test_operations_have_options
     assert_equal "Options defined!", resolve("assert_options(1 + 1)")
     assert_equal "Options defined!", resolve("assert_options('bar' + 'baz')")
