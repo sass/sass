@@ -44,7 +44,7 @@ class SassScriptTest < Test::Unit::TestCase
 
   def test_color_names
     assert_equal "white", resolve("white")
-    assert_equal "white", resolve("#ffffff")
+    assert_equal "#ffffff", resolve("#ffffff")
     assert_equal "#fffffe", resolve("white - #000001")
     assert_equal "transparent", resolve("transparent")
     assert_equal "transparent", resolve("rgba(0, 0, 0, 0)")
@@ -506,8 +506,8 @@ SASS
   end
 
   def test_case_insensitive_color_names
-    assert_equal "blue", resolve("BLUE")
-    assert_equal "red", resolve("rEd")
+    assert_equal "BLUE", resolve("BLUE")
+    assert_equal "rEd", resolve("rEd")
     assert_equal "#7f4000", resolve("mix(GrEeN, ReD)")
   end
 
@@ -553,7 +553,7 @@ SASS
     assert_raise_message(Sass::SyntaxError, 'Duplicate key 2px in map (2px: bar, 1px + 1px: baz).') do
       eval("(2px: bar, 1px + 1px: baz)")
     end
-    assert_raise_message(Sass::SyntaxError, 'Duplicate key #0000ff in map (blue: bar, blue: baz).') do
+    assert_raise_message(Sass::SyntaxError, 'Duplicate key #0000ff in map (blue: bar, #00f: baz).') do
       eval("(blue: bar, #00f: baz)")
     end
   end
