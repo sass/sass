@@ -382,7 +382,7 @@ RUBY
 
         name = @lexer.next
         if (color = Sass::Script::Value::Color::COLOR_NAMES[name.value.downcase])
-          literal_node(Sass::Script::Value::Color.new(color), name.source_range)
+          literal_node(Sass::Script::Value::Color.new(color, name.value), name.source_range)
         elsif name.value == "true"
           literal_node(Sass::Script::Value::Bool.new(true), name.source_range)
         elsif name.value == "false"

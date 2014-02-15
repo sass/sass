@@ -591,6 +591,10 @@ module Sass::Script
           raise ArgumentError.new("Expected #{c} to be unitless or have a unit of % but got #{c}")
         end
       end
+
+      # Don't store the string representation for function-created colors, both
+      # because it's not very useful and because some functions aren't supported
+      # on older browsers.
       Sass::Script::Value::Color.new(color_attrs)
     end
     declare :rgb, [:red, :green, :blue]
@@ -698,6 +702,9 @@ module Sass::Script
       s = Sass::Util.check_range('Saturation', 0..100, saturation, '%')
       l = Sass::Util.check_range('Lightness', 0..100, lightness, '%')
 
+      # Don't store the string representation for function-created colors, both
+      # because it's not very useful and because some functions aren't supported
+      # on older browsers.
       Sass::Script::Value::Color.new(
         :hue => h, :saturation => s, :lightness => l, :alpha => alpha.value)
     end

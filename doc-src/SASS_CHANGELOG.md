@@ -41,6 +41,11 @@ can use it in a mixin to detect whether a parent selector exists:
 
 ### Smaller Improvements
 
+* When using colors in SassScript, the original representation of the color will
+  be preserved wherever possible. If you write `#f00`, it will be rendered as
+  `#f00`, not as `red` or `#ff0000`. In compressed mode, Sass will continue to
+  choose the most compact possible representation for colors.
+
 * Add support for unit arithmetic with many more units, including angles, times,
   frequencies, and resolutions.
 

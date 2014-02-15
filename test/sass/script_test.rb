@@ -44,7 +44,7 @@ class SassScriptTest < Test::Unit::TestCase
 
   def test_color_names
     assert_equal "white", resolve("white")
-    assert_equal "white", resolve("#ffffff")
+    assert_equal "#ffffff", resolve("#ffffff")
     assert_equal "#fffffe", resolve("white - #000001")
     assert_equal "transparent", resolve("transparent")
     assert_equal "transparent", resolve("rgba(0, 0, 0, 0)")
@@ -93,7 +93,7 @@ class SassScriptTest < Test::Unit::TestCase
     assert_equal "#123", resolve("#112233", :style => :compressed)
     assert_equal "#000", resolve("black", :style => :compressed)
     assert_equal "red", resolve("#f00", :style => :compressed)
-    assert_equal "blue", resolve("#00f", :style => :compressed)
+    assert_equal "blue", resolve("blue", :style => :compressed)
     assert_equal "navy", resolve("#000080", :style => :compressed)
     assert_equal "navy #fff", resolve("#000080 white", :style => :compressed)
     assert_equal "This color is #fff", resolve('"This color is #{ white }"', :style => :compressed)
@@ -506,8 +506,8 @@ SASS
   end
 
   def test_case_insensitive_color_names
-    assert_equal "blue", resolve("BLUE")
-    assert_equal "red", resolve("rEd")
+    assert_equal "BLUE", resolve("BLUE")
+    assert_equal "rEd", resolve("rEd")
     assert_equal "#7f4000", resolve("mix(GrEeN, ReD)")
   end
 
@@ -553,7 +553,7 @@ SASS
     assert_raise_message(Sass::SyntaxError, 'Duplicate key 2px in map (2px: bar, 1px + 1px: baz).') do
       eval("(2px: bar, 1px + 1px: baz)")
     end
-    assert_raise_message(Sass::SyntaxError, 'Duplicate key #0000ff in map (blue: bar, blue: baz).') do
+    assert_raise_message(Sass::SyntaxError, 'Duplicate key #0000ff in map (blue: bar, #00f: baz).') do
       eval("(blue: bar, #00f: baz)")
     end
   end
@@ -735,6 +735,32 @@ $var1: 1;
   c: $var3;
 }
 SCSS
+  end
+
+  def test_color_format_is_preserved_by_default
+    assert_equal "blue", resolve("blue")
+    assert_equal "bLuE", resolve("bLuE")
+    assert_equal "#00f", resolve("#00f")
+    assert_equal "blue #00F", resolve("blue #00F")
+    assert_equal "blue", resolve("nth(blue #00F, 1)")
+    assert_equal "#00F", resolve("nth(blue #00F, 2)")
+  end
+
+  def test_color_format_isnt_always_preserved_in_compressed_style
+    assert_equal "red", resolve("red", :style => :compressed)
+    assert_equal "red", resolve("#f00", :style => :compressed)
+    assert_equal "red red", resolve("red #f00", :style => :compressed)
+    assert_equal "red", resolve("nth(red #f00, 2)", :style => :compressed)
+  end
+
+  def test_color_format_is_sometimes_preserved_in_compressed_style
+    assert_equal "ReD", resolve("ReD", :style => :compressed)
+    assert_equal "blue", resolve("blue", :style => :compressed)
+    assert_equal "#00f", resolve("#00f", :style => :compressed)
+  end
+
+  def test_color_format_isnt_preserved_when_modified
+    assert_equal "magenta", resolve("#f00 + #00f")
   end
 
   # Regression Tests

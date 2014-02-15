@@ -443,8 +443,8 @@ CSS
   {{7}}border-width{{/7}}: {{8}}3px{{/8}}
 SASS
 {{1}}.error, .seriousError{{/1}} {
-  {{2}}border{{/2}}: {{3}}1px red{{/3}};
-  {{4}}background-color{{/4}}: {{5}}#ffdddd{{/5}}; }
+  {{2}}border{{/2}}: {{3}}1px #f00{{/3}};
+  {{4}}background-color{{/4}}: {{5}}#fdd{{/5}}; }
 
 {{6}}.seriousError{{/6}} {
   {{7}}border-width{{/7}}: {{8}}3px{{/8}}; }
@@ -632,9 +632,9 @@ SCSS
   {{22}}border-style{{/22}}: {{23}}dashed{{/23}}; }
 
 {{24}}.shadows{{/24}} {
-  {{25}}-moz-box-shadow{{/25}}: {{26}}0px 4px 5px #666666, 2px 6px 10px #999999{{/26}};
-  {{27}}-webkit-box-shadow{{/27}}: {{28}}0px 4px 5px #666666, 2px 6px 10px #999999{{/28}};
-  {{29}}box-shadow{{/29}}: {{30}}0px 4px 5px #666666, 2px 6px 10px #999999{{/30}}; }
+  {{25}}-moz-box-shadow{{/25}}: {{26}}0px 4px 5px #666, 2px 6px 10px #999{{/26}};
+  {{27}}-webkit-box-shadow{{/27}}: {{28}}0px 4px 5px #666, 2px 6px 10px #999{{/28}};
+  {{29}}box-shadow{{/29}}: {{30}}0px 4px 5px #666, 2px 6px 10px #999{{/30}}; }
 
 /*# sourceMappingURL=test.css.map */
 CSS
@@ -675,7 +675,7 @@ SASS
 {{1}}.page-title{{/1}} {
   {{2}}font-size{{/2}}: {{3}}20px{{/3}};
   {{4}}font-weight{{/4}}: {{5}}bold{{/5}};
-  {{6}}color{{/6}}: {{7}}red{{/7}};
+  {{6}}color{{/6}}: {{7}}#ff0000{{/7}};
   {{8}}padding{{/8}}: {{9}}4px{{/9}}; }
 
 {{10}}p{{/10}} {
@@ -689,9 +689,9 @@ SASS
   {{22}}border-style{{/22}}: {{23}}dashed{{/23}}; }
 
 {{24}}.shadows{{/24}} {
-  {{25}}-moz-box-shadow{{/25}}: {{26}}0px 4px 5px #666666, 2px 6px 10px #999999{{/26}};
-  {{27}}-webkit-box-shadow{{/27}}: {{28}}0px 4px 5px #666666, 2px 6px 10px #999999{{/28}};
-  {{29}}box-shadow{{/29}}: {{30}}0px 4px 5px #666666, 2px 6px 10px #999999{{/30}}; }
+  {{25}}-moz-box-shadow{{/25}}: {{26}}0px 4px 5px #666, 2px 6px 10px #999{{/26}};
+  {{27}}-webkit-box-shadow{{/27}}: {{28}}0px 4px 5px #666, 2px 6px 10px #999{{/28}};
+  {{29}}box-shadow{{/29}}: {{30}}0px 4px 5px #666, 2px 6px 10px #999{{/30}}; }
 
 /*# sourceMappingURL=test.css.map */
 CSS

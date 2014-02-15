@@ -68,8 +68,8 @@ MSG
     "$a: 1b >= 2c" => "Incompatible units: 'c' and 'b'.",
     "a\n  b: 1b * 2c" => "2b*c isn't a valid CSS value.",
     "a\n  b: 1b % 2c" => "Incompatible units: 'c' and 'b'.",
-    "$a: 2px + #ccc" => "Cannot add a number with units (2px) to a color (#cccccc).",
-    "$a: #ccc + 2px" => "Cannot add a number with units (2px) to a color (#cccccc).",
+    "$a: 2px + #ccc" => "Cannot add a number with units (2px) to a color (#ccc).",
+    "$a: #ccc + 2px" => "Cannot add a number with units (2px) to a color (#ccc).",
     "& a\n  :b c" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 1],
     "a\n  :b\n    c" => "Illegal nesting: Only properties may be nested beneath properties.",
     "$a: b\n  :c d\n" => "Illegal nesting: Nothing may be nested beneath variable declarations.",
@@ -702,12 +702,12 @@ ERR
   def test_import_in_rule
     assert_equal(<<CSS, render(<<SASS, :load_paths => [File.dirname(__FILE__) + '/templates/']))
 .foo #foo {
-  background-color: #bbaaff; }
+  background-color: #baf; }
 
 .bar {
   a: b; }
   .bar #foo {
-    background-color: #bbaaff; }
+    background-color: #baf; }
 CSS
 .foo
   @import partial
@@ -1130,7 +1130,13 @@ SASS
   end
 
   def test_default_values_for_mixin_arguments
-    assert_equal("white {\n  color: white; }\n\nblack {\n  color: black; }\n", render(<<SASS))
+    assert_equal(<<CSS, render(<<SASS))
+white {
+  color: #FFF; }
+
+black {
+  color: #000; }
+CSS
 =foo($a: #FFF)
   :color $a
 white
@@ -1140,17 +1146,17 @@ black
 SASS
     assert_equal(<<CSS, render(<<SASS))
 one {
-  color: white;
+  color: #fff;
   padding: 1px;
   margin: 4px; }
 
 two {
-  color: white;
+  color: #fff;
   padding: 2px;
   margin: 5px; }
 
 three {
-  color: white;
+  color: #fff;
   padding: 2px;
   margin: 3px; }
 CSS
@@ -1168,17 +1174,17 @@ three
 SASS
     assert_equal(<<CSS, render(<<SASS))
 one {
-  color: white;
+  color: #fff;
   padding: 1px;
   margin: 4px; }
 
 two {
-  color: white;
+  color: #fff;
   padding: 2px;
   margin: 5px; }
 
 three {
-  color: white;
+  color: #fff;
   padding: 2px;
   margin: 3px; }
 CSS
