@@ -187,6 +187,11 @@ module Sass::Script::Value
     # different ruby implementations and versions vary on the ordering of the result of invert.
     COLOR_NAMES.update(ALTERNATE_COLOR_NAMES).freeze
 
+    # The user's original representation of the color.
+    #
+    # @return [String]
+    attr_reader :representation
+
     # Constructs an RGB or HSL color object,
     # optionally with an alpha channel.
     #
@@ -197,25 +202,28 @@ module Sass::Script::Value
     # @raise [Sass::SyntaxError] if any color value isn't in the specified range
     #
     # @overload initialize(attrs)
-    #   The attributes are specified as a hash.
-    #   This hash must contain either `:hue`, `:saturation`, and `:value` keys,
-    #   or `:red`, `:green`, and `:blue` keys.
-    #   It cannot contain both HSL and RGB keys.
-    #   It may also optionally contain an `:alpha` key.
+    #   The attributes are specified as a hash. This hash must contain either
+    #   `:hue`, `:saturation`, and `:value` keys, or `:red`, `:green`, and
+    #   `:blue` keys. It cannot contain both HSL and RGB keys. It may also
+    #   optionally contain an `:alpha` key, and a `:representation` key
+    #   indicating the original representation of the color that the user wrote
+    #   in their stylesheet.
     #
     #   @param attrs [{Symbol => Numeric}] A hash of color attributes to values
     #   @raise [ArgumentError] if not enough attributes are specified,
     #     or both RGB and HSL attributes are specified
     #
-    # @overload initialize(rgba)
+    # @overload initialize(rgba, [representation])
     #   The attributes are specified as an array.
     #   This overload only supports RGB or RGBA colors.
     #
     #   @param rgba [Array<Numeric>] A three- or four-element array
     #     of the red, green, blue, and optionally alpha values (respectively)
     #     of the color
+    #   @param representation [String] The original representation of the color
+    #     that the user wrote in their stylesheet.
     #   @raise [ArgumentError] if not enough attributes are specified
-    def initialize(attrs, allow_both_rgb_and_hsl = false)
+    def initialize(attrs, representation = nil, allow_both_rgb_and_hsl = false)
       super(nil)
 
       if attrs.is_a?(Array)
@@ -226,6 +234,7 @@ module Sass::Script::Value
         red, green, blue = attrs[0...3].map {|c| c.to_i}
         @attrs = {:red => red, :green => green, :blue => blue}
         @attrs[:alpha] = attrs[3] ? attrs[3].to_f : 1
+        @representation = representation
       else
         attrs = attrs.reject {|k, v| v.nil?}
         hsl = [:hue, :saturation, :lightness] & attrs.keys
@@ -243,6 +252,7 @@ module Sass::Script::Value
         @attrs = attrs
         @attrs[:hue] %= 360 if @attrs[:hue]
         @attrs[:alpha] ||= 1
+        @representation = @attrs.delete(:representation)
       end
 
       [:red, :green, :blue].each do |k|
@@ -273,7 +283,9 @@ module Sass::Script::Value
       red   = $1.ljust(2, $1).to_i(16)
       green = $2.ljust(2, $2).to_i(16)
       blue  = $3.ljust(2, $3).to_i(16)
-      attrs = {:red => red, :green => green, :blue => blue}
+
+      hex_string = '##{hex_string}' unless hex_string[0] == ?#
+      attrs = {:red => red, :green => green, :blue => blue, :representation => hex_string}
       attrs[:alpha] = alpha if alpha
       new(attrs)
     end
@@ -549,6 +561,7 @@ module Sass::Script::Value
     # @return [String] The string representation
     def to_s(opts = {})
       return smallest if options[:style] == :compressed
+      return representation if representation
       return COLOR_NAMES_REVERSE[rgba] if COLOR_NAMES_REVERSE[rgba]
       alpha? ? rgba_str : hex_str
     end
