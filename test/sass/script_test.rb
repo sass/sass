@@ -492,17 +492,17 @@ SASS
     assert_equal "0.5", resolve("$var", {}, env("var" => eval("1px/2px")))
   end
 
-  def test_colors_with_wrong_number_of_digits
+  def test_non_ident_colors_with_wrong_number_of_digits
     assert_raise_message(Sass::SyntaxError,
-      "Colors must have either three or six digits: '#0'") {eval("#0")}
+      'Invalid CSS after "": expected expression (e.g. 1px, bold), was "#1"') {eval("#1")}
     assert_raise_message(Sass::SyntaxError,
-      "Colors must have either three or six digits: '#12'") {eval("#12")}
+      'Invalid CSS after "": expected expression (e.g. 1px, bold), was "#12"') {eval("#12")}
     assert_raise_message(Sass::SyntaxError,
-      "Colors must have either three or six digits: '#abcd'") {eval("#abcd")}
+      'Invalid CSS after "": expected expression (e.g. 1px, bold), was "#1234"') {eval("#1234")}
     assert_raise_message(Sass::SyntaxError,
-      "Colors must have either three or six digits: '#abcdE'") {eval("#abcdE")}
-    assert_raise_message(Sass::SyntaxError,
-      "Colors must have either three or six digits: '#abcdEFA'") {eval("#abcdEFA")}
+      'Invalid CSS after "": expected expression (e.g. 1px, bold), was "#12345"') {eval("#12345")}
+    assert_raise_message(Sass::SyntaxError, 'Invalid CSS after "": expected expression (e.g. ' \
+      '1px, bold), was "#1234567"') {eval("#1234567")}
   end
 
   def test_case_insensitive_color_names
@@ -761,6 +761,16 @@ SCSS
 
   def test_color_format_isnt_preserved_when_modified
     assert_equal "magenta", resolve("#f00 + #00f")
+  end
+
+  def test_ids
+    assert_equal "#foo", resolve("#foo")
+    assert_equal "#abcd", resolve("#abcd")
+    assert_equal "#abc-def", resolve("#abc-def")
+    assert_equal "#abc_def", resolve("#abc_def")
+    assert_equal "#uvw-xyz", resolve("#uvw-xyz")
+    assert_equal "#uvw_xyz", resolve("#uvw_xyz")
+    assert_equal "#uvwxyz", resolve("#uvw + xyz")
   end
 
   # Regression Tests

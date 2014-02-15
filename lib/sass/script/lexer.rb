@@ -92,6 +92,7 @@ module Sass
         :number => /(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
         :unary_minus_number => /-(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
         :color => HEXCOLOR,
+        :id => /##{IDENT}/,
         :selector => /&/,
         :ident_op => /(#{Regexp.union(*IDENT_OP_NAMES.map do |s|
           Regexp.new(Regexp.escape(s) + "(?!#{NMCHAR}|\Z)")
@@ -251,7 +252,7 @@ module Sass
           return string(interp_type, true)
         end
 
-        variable || string(:double, false) || string(:single, false) || number || color ||
+        variable || string(:double, false) || string(:single, false) || number || id || color ||
           selector || string(:uri, false) || raw(UNICODERANGE) || special_fun || special_val ||
           ident_op || ident || op
       end
@@ -315,13 +316,31 @@ module Sass
         [:number, script_number]
       end
 
+      def id
+        # Colors and ids are tough to tell apart, because they overlap but
+        # neither is a superset of the other. "#xyz" is an id but not a color,
+        # "#000" is a color but not an id, "#abc" is both, and "#0" is neither.
+        # We need to handle all these cases correctly.
+        #
+        # To do so, we first try to parse something as an id. If this works and
+        # the id is also a valid color, we return the color. Otherwise, we
+        # return the id. If it didn't parse as an id, we then try to parse it as
+        # a color. If *this* works, we return the color, and if it doesn't we
+        # give up and throw an error.
+        #
+        # IDs in properties are used in the Basic User Interface Module
+        # (http://www.w3.org/TR/css3-ui/).
+        return unless scan(REGULAR_EXPRESSIONS[:id])
+        if @scanner[0] =~ /^\#[0-9a-fA-F]+$/ && (@scanner[0].length == 4 || @scanner[0].length == 7)
+          return [:color, Script::Value::Color.from_hex(@scanner[0])]
+        end
+        return [:ident, @scanner[0]] 
+      end
+
       def color
-        s = scan(REGULAR_EXPRESSIONS[:color])
-        return unless s
-        raise Sass::SyntaxError.new(<<MESSAGE.rstrip) unless s.size == 4 || s.size == 7
-Colors must have either three or six digits: '#{s}'
-MESSAGE
-        script_color = Script::Value::Color.from_hex(s)
+        return unless @scanner.match?(REGULAR_EXPRESSIONS[:color])
+        return unless @scanner[0].length == 4 || @scanner[0].length == 7
+        script_color = Script::Value::Color.from_hex(scan(REGULAR_EXPRESSIONS[:color]))
         [:color, script_color]
       end
 

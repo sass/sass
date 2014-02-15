@@ -49,6 +49,9 @@ can use it in a mixin to detect whether a parent selector exists:
 * Add support for unit arithmetic with many more units, including angles, times,
   frequencies, and resolutions.
 
+* Sass now supports using ids as values in SassScript as defined in the CSS
+  Basic User Interface Module. They're treated as unquoted strings.
+
 ## 3.3.0 (Unreleased)
 
 ### SassScript Maps
