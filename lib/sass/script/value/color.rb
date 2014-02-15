@@ -578,9 +578,8 @@ module Sass::Script::Value
 
     def smallest
       small_explicit_str = alpha? ? rgba_str : hex_str.gsub(/^#(.)\1(.)\2(.)\3$/, '#\1\2\3')
-      return small_explicit_str unless (color = COLOR_NAMES_REVERSE[rgba]) &&
-        color.size <= small_explicit_str.size
-      color
+      [representation, COLOR_NAMES_REVERSE[rgba], small_explicit_str].
+          compact.min_by {|str| str.size}
     end
 
     def rgba_str
