@@ -319,16 +319,9 @@ Available options are:
   for displaying the Sass filename and line number.
   Automatically disabled when using the `:compressed` output style.
 
-{#trace-option} `:trace`
-: Show a full traceback on error.
-
-{#json_err-option} `:json_err`
-: When set to true, errors are written to stderr in JSON format.
-  This implies --trace.
-
 #### JSON format
-: All warnings and errors have a `type`, `message`, and `backtrace`. Some may
-  have some additional fields pertinent to the particular warning.
+All warnings and errors have a `type`, `message`, and `backtrace`. Some may
+have some additional fields pertinent to the particular warning.
 
     {
         "type": ["warning", "WarningType"],
@@ -337,9 +330,9 @@ Available options are:
         "additional_field1": "value"
     }
 
-: In addition to `type`, `message`, and `backtrace`, all `Sass::SyntaxError`s
- have a `sass_backtrace`, `filename`, `line`, and a `mixin` (if the error
- occurred within a mixin).
+In addition to `type`, `message`, and `backtrace`, all errors caused by the stylesheets
+have a `sass_backtrace`, `filename`, `line`, and a `mixin` (if the error
+occurred within a mixin).
 
     {
         "type": ["error", "Sass::SyntaxError"],
