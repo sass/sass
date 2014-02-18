@@ -4,6 +4,7 @@ require 'test/unit'
 require 'fileutils'
 $:.unshift lib_dir unless $:.include?(lib_dir)
 require 'sass'
+require 'json'
 require 'mathn' if ENV['MATHN'] == 'true'
 
 Sass::RAILS_LOADED = true unless defined?(Sass::RAILS_LOADED)
@@ -65,6 +66,12 @@ class Test::Unit::TestCase
     yield
   ensure
     Sass.json_err = old_json_err
+  end
+
+  def collect_json_warnings(&block)
+    with_json_warnings do
+      JSON.parse(collect_stderr(&block))
+    end
   end
 
   def assert_raise_message(klass, message)
