@@ -429,6 +429,7 @@ DEPRECATION WARNING #{location}:
 Assigning to global variable "$#{node.name}" by default is deprecated.
 In future versions of Sass, this will create a new local variable.
 If you want to assign to the global variable, use "#{var_expr}" instead.
+Note that this will be incompatible with Sass 3.2.
 WARNING
     end
 
