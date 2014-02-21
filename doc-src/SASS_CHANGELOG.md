@@ -52,6 +52,11 @@ can use it in a mixin to detect whether a parent selector exists:
 * Sass now supports using ids as values in SassScript as defined in the CSS
   Basic User Interface Module. They're treated as unquoted strings.
 
+### Backwards Incompatibilities -- Must Read!
+
+* `index()` now returns `null` rather than `false` if the value isn't found in
+  the list.
+
 ## 3.3.0 (Unreleased)
 
 ### SassScript Maps
