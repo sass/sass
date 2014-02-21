@@ -1398,16 +1398,6 @@ SCSS
     assert_equal "null", perform("map-get((), foo)").to_sass
   end
 
-  def test_map_get_deprecation_warning
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: Passing lists of pairs to map-get is deprecated and will
-be removed in future versions of Sass. Use Sass maps instead. For details, see
-http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
-WARNING
-      assert_equal "1", evaluate("map-get((foo 1) (bar 2), foo)")
-    end
-  end
-
   def test_map_get_checks_type
     assert_error_message("$map: 12 is not a map for `map-get'", "map-get(12, bar)")
   end
@@ -1421,26 +1411,6 @@ WARNING
       perform("map-merge((foo: 1, bar: 2), ())").to_sass)
   end
 
-  def test_map_merge_deprecation_warning
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: Passing lists of pairs to map-merge is deprecated and will
-be removed in future versions of Sass. Use Sass maps instead. For details, see
-http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
-WARNING
-      assert_equal("(foo: 1, bar: 2, baz: 3)",
-        perform("map-merge((foo 1, bar 2), (baz: 3))").to_sass)
-    end
-
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: Passing lists of pairs to map-merge is deprecated and will
-be removed in future versions of Sass. Use Sass maps instead. For details, see
-http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
-WARNING
-      assert_equal("(baz: 3, foo: 1, bar: 2)",
-        perform("map-merge((baz: 3), (foo 1, bar 2))").to_sass)
-    end
-  end
-
   def test_map_merge_checks_type
     assert_error_message("$map1: 12 is not a map for `map-merge'", "map-merge(12, (foo: 1))")
     assert_error_message("$map2: 12 is not a map for `map-merge'", "map-merge((foo: 1), 12)")
@@ -1452,17 +1422,6 @@ WARNING
     assert_equal("()", perform("map-remove((), foo)").to_sass)
   end
 
-  def test_map_remove_deprecation_warning
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: Passing lists of pairs to map-remove is deprecated and will
-be removed in future versions of Sass. Use Sass maps instead. For details, see
-http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
-WARNING
-      assert_equal("(foo: 1, baz: 3)",
-        perform("map-remove((foo 1, bar 2, baz 3), bar)").to_sass)
-    end
-  end
-
   def test_map_remove_checks_type
     assert_error_message("$map: 12 is not a map for `map-remove'", "map-remove(12, foo)")
   end
@@ -1471,17 +1430,6 @@ WARNING
     assert_equal("foo, bar",
       perform("map-keys((foo: 1, bar: 2))").to_sass)
     assert_equal("()", perform("map-keys(())").to_sass)
-  end
-
-  def test_map_keys_deprecation_warning
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: Passing lists of pairs to map-keys is deprecated and will
-be removed in future versions of Sass. Use Sass maps instead. For details, see
-http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
-WARNING
-      assert_equal("foo, bar",
-        perform("map-keys((foo 1, bar 2))").to_sass)
-    end
   end
 
   def test_map_keys_checks_type
@@ -1495,16 +1443,6 @@ WARNING
     assert_equal("()", perform("map-values(())").to_sass)
   end
 
-  def test_map_values_deprecation_warning
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: Passing lists of pairs to map-values is deprecated and will
-be removed in future versions of Sass. Use Sass maps instead. For details, see
-http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
-WARNING
-      assert_equal("1, 2", perform("map-values((foo 1, bar 2))").to_sass)
-    end
-  end
-
   def test_map_values_checks_type
     assert_error_message("$map: 12 is not a map for `map-values'", "map-values(12)")
   end
@@ -1513,16 +1451,6 @@ WARNING
     assert_equal "true", evaluate("map-has-key((foo: 1, bar: 1), foo)")
     assert_equal "false", evaluate("map-has-key((foo: 1, bar: 1), baz)")
     assert_equal "false", evaluate("map-has-key((), foo)")
-  end
-
-  def test_map_has_key_deprecation_warning
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: Passing lists of pairs to map-has-key is deprecated and will
-be removed in future versions of Sass. Use Sass maps instead. For details, see
-http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
-WARNING
-      assert_equal("true", evaluate("map-has-key((foo 1, bar 1), foo)"))
-    end
   end
 
   def test_map_has_key_checks_type

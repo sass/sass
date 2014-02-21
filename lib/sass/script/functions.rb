@@ -474,7 +474,7 @@ module Sass::Script
       def assert_type(value, type, name = nil)
         klass = Sass::Script::Value.const_get(type)
         return if value.is_a?(klass)
-        return if value.is_a?(Sass::Script::Value::List) && type == :Map && value.is_pseudo_map?
+        return if value.is_a?(Sass::Script::Value::List) && type == :Map && value.value.empty?
         err = "#{value.inspect} is not a #{TYPE_NAMES[type] || type.to_s.downcase}"
         err = "$#{name.to_s.gsub('_', '-')}: " + err if name
         raise ArgumentError.new(err)
@@ -1922,7 +1922,7 @@ module Sass::Script
     # @raise [ArgumentError] if `$map` is not a map
     def map_get(map, key)
       assert_type map, :Map, :map
-      to_h(map)[key] || null
+      map.to_h[key] || null
     end
     declare :map_get, [:map, :key]
 
@@ -1946,7 +1946,7 @@ module Sass::Script
     def map_merge(map1, map2)
       assert_type map1, :Map, :map1
       assert_type map2, :Map, :map2
-      map(to_h(map1).merge(to_h(map2)))
+      map(map1.to_h.merge(map2.to_h))
     end
     declare :map_merge, [:map1, :map2]
 
@@ -1962,7 +1962,7 @@ module Sass::Script
     # @raise [ArgumentError] if `$map` is not a map
     def map_remove(map, key)
       assert_type map, :Map, :map
-      hash = to_h(map).dup
+      hash = map.to_h.dup
       hash.delete key
       map(hash)
     end
@@ -1978,7 +1978,7 @@ module Sass::Script
     # @raise [ArgumentError] if `$map` is not a map
     def map_keys(map)
       assert_type map, :Map, :map
-      list(to_h(map).keys, :comma)
+      list(map.to_h.keys, :comma)
     end
     declare :map_keys, [:map]
 
@@ -1994,7 +1994,7 @@ module Sass::Script
     # @raise [ArgumentError] if `$map` is not a map
     def map_values(map)
       assert_type map, :Map, :map
-      list(to_h(map).values, :comma)
+      list(map.to_h.values, :comma)
     end
     declare :map_values, [:map]
 
@@ -2010,7 +2010,7 @@ module Sass::Script
     # @raise [ArgumentError] if `$map` is not a map
     def map_has_key(map, key)
       assert_type map, :Map, :map
-      bool(to_h(map).has_key?(key))
+      bool(map.to_h.has_key?(key))
     end
     declare :map_has_key, [:map, :key]
 
@@ -2261,18 +2261,6 @@ module Sass::Script
       # and allow clipping in rgb() et al?
       color.with(attr => Sass::Util.restrict(
           color.send(attr).send(op, amount.value), range))
-    end
-
-    def to_h(obj)
-      return obj.to_h unless obj.is_a?(Sass::Script::Value::List) && obj.needs_map_warning?
-
-      fn_name = Sass::Util.caller_info.last.gsub('_', '-')
-      Sass::Util.sass_warn <<WARNING + environment.stack.to_s.gsub(/^/, '        ')
-DEPRECATION WARNING: Passing lists of pairs to #{fn_name} is deprecated and will
-be removed in future versions of Sass. Use Sass maps instead. For details, see
-http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
-WARNING
-      obj.to_h
     end
   end
 end

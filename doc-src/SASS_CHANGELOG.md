@@ -58,6 +58,8 @@ can use it in a mixin to detect whether a parent selector exists:
   by default. If you need the current working directory to be available,
   set `SASS_PATH=.` in your shell's environment.
 
+* Sass will now throw an error when a list of pairs is passed to a map function.
+
 * `index()` now returns `null` rather than `false` if the value isn't found in
   the list.
 
