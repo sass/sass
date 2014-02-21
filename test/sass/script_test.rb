@@ -627,6 +627,7 @@ DEPRECATION WARNING on line 4 of test_setting_global_variable_locally_warns_inli
 Assigning to global variable "$var" by default is deprecated.
 In future versions of Sass, this will create a new local variable.
 If you want to assign to the global variable, use "$var: x !global" instead.
+Note that this will be incompatible with Sass 3.2.
 WARNING
 .foo {
   a: x; }
@@ -653,6 +654,7 @@ DEPRECATION WARNING on line 3 of test_setting_global_variable_locally_warns_only
 Assigning to global variable "$var" by default is deprecated.
 In future versions of Sass, this will create a new local variable.
 If you want to assign to the global variable, use "$var: x !global" instead.
+Note that this will be incompatible with Sass 3.2.
 WARNING
 CSS
 $var: 1;
