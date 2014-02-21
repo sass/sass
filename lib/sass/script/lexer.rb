@@ -334,7 +334,7 @@ module Sass
         if @scanner[0] =~ /^\#[0-9a-fA-F]+$/ && (@scanner[0].length == 4 || @scanner[0].length == 7)
           return [:color, Script::Value::Color.from_hex(@scanner[0])]
         end
-        return [:ident, @scanner[0]] 
+        [:ident, @scanner[0]]
       end
 
       def color
