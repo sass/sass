@@ -38,9 +38,7 @@ module Sass::Script::Tree
     protected
 
     def _perform(environment)
-      value.line = line
       value.source_range = source_range
-      value.filename = filename
       value
     end
   end

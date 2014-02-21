@@ -11,20 +11,10 @@ module Sass::Script::Value
     # @return [Object]
     attr_reader :value
 
-    # The line of the document on which this node appeared.
-    #
-    # @return [Fixnum]
-    attr_accessor :line
-
     # The source range in the document on which this node appeared.
     #
     # @return [Sass::Source::Range]
     attr_accessor :source_range
-
-    # The file name of the document on which this node appeared.
-    #
-    # @return [String]
-    attr_accessor :filename
 
     # Creates a new value.
     #
