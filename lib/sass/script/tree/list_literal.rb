@@ -61,9 +61,7 @@ module Sass::Script::Tree
       list = Sass::Script::Value::List.new(
         elements.map {|e| e.perform(environment)},
         separator)
-      list.line = line
       list.source_range = source_range
-      list.filename = filename
       list.options = options
       list
     end
