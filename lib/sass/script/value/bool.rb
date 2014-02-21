@@ -20,6 +20,11 @@ module Sass::Script::Value
       value ? TRUE : FALSE
     end
 
+    def eq(other)
+      return other.eq(self) if other.is_a?(DeprecatedFalse)
+      super
+    end
+
     # The Ruby value of the boolean.
     #
     # @return [Boolean]

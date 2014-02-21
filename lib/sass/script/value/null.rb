@@ -25,6 +25,11 @@ module Sass::Script::Value
       true
     end
 
+    def neq(other)
+      return other.neq(self) if other.is_a?(DeprecatedFalse)
+      super
+    end
+
     # @return [String] '' (An empty string)
     def to_s(opts = {})
       ''

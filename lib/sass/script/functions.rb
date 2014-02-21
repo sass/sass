@@ -1881,7 +1881,8 @@ module Sass::Script
     #   1-based index of `$value` in `$list`, or `null`
     def index(list, value)
       index = list.to_a.index {|e| e.eq(value).to_bool}
-      index ? number(index + 1) : null
+      return number(index + 1) if index
+      Sass::Script::Value::DeprecatedFalse.new(environment)
     end
     declare :index, [:list, :value]
 

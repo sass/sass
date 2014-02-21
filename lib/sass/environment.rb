@@ -83,6 +83,12 @@ module Sass
     # @return [Set<[String, String, int]>]
     attr_reader :global_warning_given
 
+    # Whether a warning has been emitted for misusing a deprecated false value.
+    # This is a set of tuples containing the filename and its line number.
+    #
+    # @return [Set<[String, int]>]
+    attr_reader :deprecated_false_warning_given
+
     # @param options [{Symbol => Object}] The options hash. See
     #   {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
     # @param parent [Environment] See \{#parent}
@@ -91,6 +97,7 @@ module Sass
       @options = options || (parent && parent.options) || {}
       @stack = Sass::Stack.new if @parent.nil?
       @global_warning_given = Set.new
+      @deprecated_false_warning_given = Set.new
     end
 
     # The environment of the caller of this environment's mixin or function.

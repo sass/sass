@@ -1257,17 +1257,76 @@ WARNING
   end
 
   def test_index
-    null = Sass::Script::Value::Null.new
     assert_equal("1", evaluate("index(1px solid blue, 1px)"))
     assert_equal("2", evaluate("index(1px solid blue, solid)"))
     assert_equal("3", evaluate("index(1px solid blue, #00f)"))
     assert_equal("1", evaluate("index(1px, 1px)"))
-    assert_equal(null, perform("index(1px solid blue, 1em)"))
-    assert_equal(null, perform("index(1px solid blue, notfound)"))
-    assert_equal(null, perform("index(1px, #00f)"))
+    assert_equal("false", evaluate("index(1px solid blue, 1em)"))
+    assert_equal("false", evaluate("index(1px solid blue, notfound)"))
+    assert_equal("false", evaluate("index(1px, #00f)"))
 
     assert_equal("1", evaluate("index((foo: bar, bar: baz), (foo bar))"))
-    assert_equal(null, perform("index((foo: bar, bar: baz), (foo: bar))"))
+    assert_equal("false", evaluate("index((foo: bar, bar: baz), (foo: bar))"))
+  end
+
+  def test_index_deprecation_warning
+    assert_warning(<<WARNING) do
+DEPRECATION WARNING: The return value of index() will change from "false" to
+"null" in future versions of Sass. For compatibility, avoid using "== false" on
+the return value. For example, instead of "@if index(...) == false", just write
+"@if index(...)".
+WARNING
+      assert_equal("true", evaluate("index(1, 2 3 4) == false"))
+    end
+
+    assert_warning(<<WARNING) do
+DEPRECATION WARNING: The return value of index() will change from "false" to
+"null" in future versions of Sass. For compatibility, avoid using "!= null" on
+the return value.
+WARNING
+      assert_equal("true", evaluate("index(1, 2 3 4) != null"))
+    end
+
+    assert_warning(<<WARNING) do
+DEPRECATION WARNING: The return value of index() will change from "false" to
+"null" in future versions of Sass. For compatibility, avoid using "== false" on
+the return value. For example, instead of "@if index(...) == false", just write
+"@if index(...)".
+WARNING
+      assert_equal("true", evaluate("false == index(1, 2 3 4)"))
+    end
+
+    assert_warning(<<WARNING) do
+DEPRECATION WARNING: The return value of index() will change from "false" to
+"null" in future versions of Sass. For compatibility, avoid using "!= null" on
+the return value.
+WARNING
+      assert_equal("true", evaluate("null != index(1, 2 3 4)"))
+    end
+  end
+
+  def test_index_deprecation_warning_is_only_emitted_once_per_call
+    assert_warning(<<WARNING) do
+DEPRECATION WARNING: The return value of index() will change from "false" to
+"null" in future versions of Sass. For compatibility, avoid using "== false" on
+the return value. For example, instead of "@if index(...) == false", just write
+"@if index(...)".
+        on line 3 of test_index_deprecation_warning_is_only_emitted_once_per_call_inline.scss
+DEPRECATION WARNING: The return value of index() will change from "false" to
+"null" in future versions of Sass. For compatibility, avoid using "== false" on
+the return value. For example, instead of "@if index(...) == false", just write
+"@if index(...)".
+        on line 6 of test_index_deprecation_warning_is_only_emitted_once_per_call_inline.scss
+WARNING
+      render(<<SCSS)
+@for $i from 1 to 10 {
+  $var1: index(1, 2 3 4);
+  $var2: $var1 == false;
+  $var3: $var1 != null;
+}
+$var4: index(1, 2 3 4) == false;
+SCSS
+    end
   end
 
   def test_list_separator
