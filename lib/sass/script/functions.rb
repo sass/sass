@@ -1264,8 +1264,8 @@ module Sass::Script
       rgba << color1.alpha * p + color2.alpha * (1 - p)
       rgb_color(*rgba)
     end
-    declare :mix, [:color1, :color2], :deprecated => [:color_1, :color_2]
-    declare :mix, [:color1, :color2, :weight], :deprecated => [:color_1, :color_2, :weight]
+    declare :mix, [:color1, :color2]
+    declare :mix, [:color1, :color2, :weight]
 
     # Converts a color to grayscale. This is identical to `desaturate(color,
     # 100%)`.
@@ -1587,7 +1587,7 @@ module Sass::Script
       assert_type number2, :Number, :number2
       bool(number1.comparable_to?(number2))
     end
-    declare :comparable, [:number1, :number2], :deprecated => [:number_1, :number_2]
+    declare :comparable, [:number1, :number2]
 
     # Converts a unitless number to a percentage.
     #
@@ -1604,7 +1604,7 @@ module Sass::Script
       end
       number(number.value * 100, '%')
     end
-    declare :percentage, [:number], :deprecated => [:value]
+    declare :percentage, [:number]
 
     # Rounds a number to the nearest whole number.
     #
@@ -1618,7 +1618,7 @@ module Sass::Script
     def round(number)
       numeric_transformation(number) {|n| n.round}
     end
-    declare :round, [:number], :deprecated => [:value]
+    declare :round, [:number]
 
     # Rounds a number up to the next whole number.
     #
@@ -1632,7 +1632,7 @@ module Sass::Script
     def ceil(number)
       numeric_transformation(number) {|n| n.ceil}
     end
-    declare :ceil, [:number], :deprecated => [:value]
+    declare :ceil, [:number]
 
     # Rounds a number down to the previous whole number.
     #
@@ -1646,7 +1646,7 @@ module Sass::Script
     def floor(number)
       numeric_transformation(number) {|n| n.floor}
     end
-    declare :floor, [:number], :deprecated => [:value]
+    declare :floor, [:number]
 
     # Returns the absolute value of a number.
     #
@@ -1660,7 +1660,7 @@ module Sass::Script
     def abs(number)
       numeric_transformation(number) {|n| n.abs}
     end
-    declare :abs, [:number], :deprecated => [:value]
+    declare :abs, [:number]
 
     # Finds the minimum of several numbers. This function takes any number of
     # arguments.

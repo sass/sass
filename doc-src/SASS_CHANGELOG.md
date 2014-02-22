@@ -60,6 +60,16 @@ can use it in a mixin to detect whether a parent selector exists:
 
 * Sass will now throw an error when a list of pairs is passed to a map function.
 
+* `mix()`'s deprecated argument names, `$color-1` and `$color-2`, will now throw
+   errors. Use `$color1` and `$color2` instead.
+
+* `comparable()`'s deprecated argument names, `$number-1` and `$number-2`, will
+  now throw errors. Use `$number1` and `$number2` instead.
+
+* `percentage()`'s, `round()`'s, `ceil()`'s, `floor()`'s, and `abs()`'s
+  deprecated argument name, `$value`, will now throw an error. Use `$number`
+  instead.
+
 * `index()` now returns `null` rather than `false` if the value isn't found in
   the list.
 
