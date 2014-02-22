@@ -621,51 +621,6 @@ SASS
     assert_equal ".bar", resolve("nth(nth(&, 1), 3)", {}, env)
   end
 
-  def test_setting_global_variable_locally_warns
-    assert_warning(<<WARNING) {assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))}
-DEPRECATION WARNING on line 4 of test_setting_global_variable_locally_warns_inline.scss:
-Assigning to global variable "$var" by default is deprecated.
-In future versions of Sass, this will create a new local variable.
-If you want to assign to the global variable, use "$var: x !global" instead.
-Note that this will be incompatible with Sass 3.2.
-WARNING
-.foo {
-  a: x; }
-
-.bar {
-  b: x; }
-CSS
-$var: 1;
-
-.foo {
-  $var: x;
-  a: $var;
-}
-
-.bar {
-  b: $var;
-}
-SCSS
-  end
-
-  def test_setting_global_variable_locally_warns_only_once
-    assert_warning(<<WARNING) {assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))}
-DEPRECATION WARNING on line 3 of test_setting_global_variable_locally_warns_only_once_inline.scss:
-Assigning to global variable "$var" by default is deprecated.
-In future versions of Sass, this will create a new local variable.
-If you want to assign to the global variable, use "$var: x !global" instead.
-Note that this will be incompatible with Sass 3.2.
-WARNING
-CSS
-$var: 1;
-
-@mixin foo {$var: x}
-@include foo;
-@include foo;
-@include foo;
-SCSS
-  end
-
   def test_setting_global_variable_globally
     assert_no_warning {assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))}
 .foo {
@@ -688,7 +643,7 @@ $var: 2;
 SCSS
   end
 
-  def test_setting_global_variable_with_flag
+  def test_setting_global_variable_locally
     assert_no_warning {assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))}
 .bar {
   a: x;
@@ -714,7 +669,7 @@ $var3: 3;
 SCSS
   end
 
-  def test_setting_global_variable_with_flag_and_default
+  def test_setting_global_variable_locally_with_default
     assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))
 .bar {
   a: 1;
@@ -735,6 +690,49 @@ $var1: 1;
   a: $var1;
   b: $var2;
   c: $var3;
+}
+SCSS
+  end
+
+  def test_setting_local_variable
+    assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))
+.a {
+  value: inside; }
+
+.b {
+  value: outside; }
+CSS
+$var: outside;
+
+.a {
+  $var: inside;
+  value: $var;
+}
+
+.b {
+  value: $var;
+}
+SCSS
+  end
+
+  def test_setting_local_variable_from_inner_scope
+    assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))
+.a .b {
+  value: inside; }
+.a .c {
+  value: inside; }
+CSS
+.a {
+  $var: outside;
+
+  .b {
+    $var: inside;
+    value: $var;
+  }
+
+  .c {
+    value: $var;
+  }
 }
 SCSS
   end

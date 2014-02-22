@@ -41,7 +41,7 @@ module Sass
             if @#{name}s.include?(name)
               @#{name}s[name] = value
               true
-            elsif @parent
+            elsif @parent && !@parent.global?
               @parent.try_set_#{name}(name, value)
             else
               false
@@ -52,6 +52,10 @@ module Sass
           def set_local_#{name}(name, value)
             @#{name}s ||= {}
             @#{name}s[name.tr('_', '-')] = value
+          end
+
+          def set_global_#{name}(name, value)
+            global_env.set_#{name}(name, value)
           end
         RUBY
       end
@@ -76,13 +80,6 @@ module Sass
     # Sass::Callable
     inherited_hash_reader :function
 
-    # Whether a warning has been emitted for assigning to the given
-    # global variable. This is a set of tuples containing the name of
-    # the variable, its filename, and its line number.
-    #
-    # @return [Set<[String, String, int]>]
-    attr_reader :global_warning_given
-
     # @param options [{Symbol => Object}] The options hash. See
     #   {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
     # @param parent [Environment] See \{#parent}
@@ -90,7 +87,13 @@ module Sass
       @parent = parent
       @options = options || (parent && parent.options) || {}
       @stack = Sass::Stack.new if @parent.nil?
-      @global_warning_given = Set.new
+    end
+
+    # Returns whether this is the global environment.
+    #
+    # @return [Boolean]
+    def global?
+      @parent.nil?
     end
 
     # The environment of the caller of this environment's mixin or function.
@@ -121,7 +124,7 @@ module Sass
     #
     # @return [Environment]
     def global_env
-      @global_env ||= @parent.nil? ? self : @parent.global_env
+      @global_env ||= global? ? self : @parent.global_env
     end
 
     # The import/mixin stack.

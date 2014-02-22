@@ -414,27 +414,12 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # Loads the new variable value into the environment.
   def visit_variable(node)
     env = @environment
-    identifier = [node.name, node.filename, node.line]
-    if node.global
-      env = env.global_env
-    elsif env.parent && env.is_var_global?(node.name) &&
-        !env.global_env.global_warning_given.include?(identifier)
-      env.global_env.global_warning_given.add(identifier)
-      var_expr = "$#{node.name}: #{node.expr.to_sass(env.options)} !global"
-      var_expr << " !default" if node.guarded
-      location = "on line #{node.line}"
-      location << " of #{node.filename}" if node.filename
-      Sass::Util.sass_warn <<WARNING
-DEPRECATION WARNING #{location}:
-Assigning to global variable "$#{node.name}" by default is deprecated.
-In future versions of Sass, this will create a new local variable.
-If you want to assign to the global variable, use "#{var_expr}" instead.
-Note that this will be incompatible with Sass 3.2.
-WARNING
+    env = env.global_env if node.global
+    if node.guarded
+      var = env.var(node.name)
+      return [] if var && !var.null?
     end
 
-    var = env.var(node.name)
-    return [] if node.guarded && var && !var.null?
     val = node.expr.perform(@environment)
     if node.expr.source_range
       val.source_range = node.expr.source_range

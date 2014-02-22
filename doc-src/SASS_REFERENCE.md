@@ -646,10 +646,29 @@ You can then refer to them in properties:
       width: $width;
     }
 
-Variables are only available within the level of nested selectors
-where they're defined.
-If they're defined outside of any nested selectors,
-they're available everywhere.
+Variables are only available within the level of nested selectors where they're
+defined. If they're defined outside of any nested selectors, they're available
+everywhere. They can also be defined with the `!global` flag, in which case
+they're also available everywhere. For example:
+
+    #main {
+      $width: 5em !global;
+      width: $width;
+    }
+
+    #sidebar {
+      width: $width;
+    }
+
+is compiled to:
+
+    #main {
+      width: 5em;
+    }
+
+    #sidebar {
+      width: 5em;
+    }
 
 Variables used to use the prefix character `!`;
 this still works, but it's deprecated and prints a warning.

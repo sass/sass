@@ -17,6 +17,11 @@ module Sass::Script::Functions::UserFunctions
     return Sass::Script::Value::Null.new
   end
 
+  def set_a_global_variable(name, value)
+    environment.set_global_var(name.value, value)
+    return Sass::Script::Value::Null.new
+  end
+
   def get_a_variable(name)
     environment.var(name.value) || Sass::Script::Value::String.new("undefined")
   end
@@ -1389,7 +1394,7 @@ CSS
 $variable: 0
 bar
   $local: 10
-  -no-op: set-a-variable(variable, 5)
+  -no-op: set-a-global-variable(variable, 5)
   a: $variable
 SASS
   end
@@ -1620,31 +1625,6 @@ a
   b: $a
   $a: 2
   c: $a
-SASS
-  end
-
-  def test_variable_scope
-    silence_warnings {assert_equal(<<CSS, render(<<SASS))}
-a {
-  b-1: c;
-  b-2: c;
-  d: 12; }
-
-b {
-  d: 17; }
-CSS
-$i: 12
-a
-  @for $i from 1 through 2
-    b-\#{$i}: c
-  d: $i
-
-=foo
-  $i: 17
-
-b
-  +foo
-  d: $i
 SASS
   end
 

@@ -73,6 +73,11 @@ can use it in a mixin to detect whether a parent selector exists:
 * `index()` now returns `null` rather than `false` if the value isn't found in
   the list.
 
+* All variable assignments not at the top level of the document are now local by
+  default. If there's a global variable with the same name, it won't be
+  overwritten unless the `!global` flag is used. For example, `$var: value
+  !global` will assign to `$var` globally.
+
 ## 3.3.0 (Unreleased)
 
 ### SassScript Maps
