@@ -651,14 +651,6 @@ where they're defined.
 If they're defined outside of any nested selectors,
 they're available everywhere.
 
-Variables used to use the prefix character `!`;
-this still works, but it's deprecated and prints a warning.
-`$` is the recommended syntax.
-
-Variables also used to be defined with `=` rather than `:`;
-this still works, but it's deprecated and prints a warning.
-`:` is the recommended syntax.
-
 ### Data Types
 
 SassScript supports six main data types:
@@ -703,10 +695,6 @@ is compiled to:
 
     body.firefox .header:before {
       content: "Hi, Firefox users!"; }
-
-It's also worth noting that when using the [deprecated `=` property syntax](#sassscript),
-all strings are interpreted as unquoted,
-regardless of whether or not they're written with quotes.
 
 #### Lists
 
