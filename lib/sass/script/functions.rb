@@ -208,6 +208,21 @@ module Sass::Script
   # \{#keywords keywords($args)}
   # : Returns the keywords passed to a function that takes variable arguments.
   #
+  # ## Selector Functions
+  #
+  # Selector functions are very liberal in the formats they support
+  # for selector arguments. They can take a plain string, a list of
+  # lists as returned by `&` or anything in between:
+  #
+  # * A plain sring, such as `".foo .bar, .baz .bang"`.
+  # * A space-separated list of strings such as `(".foo" ".bar")`.
+  # * A comma-separated list of strings such as `(".foo .bar", ".baz .bang")`.
+  # * A comma-separated list of space-separated lists of strings such
+  #   as `((".foo" ".bar"), (".baz" ".bang"))`.
+  #
+  # \{#selector_parse selector-parse($selector)}
+  # : Parses a selector into the format returned by `&`.
+  #
   # ## Introspection Functions
   #
   # \{#feature_exists feature-exists($feature)}
@@ -2255,6 +2270,24 @@ module Sass::Script
     end
     declare :random, []
     declare :random, [:limit]
+
+    # Parses a user-provided selector into a list of lists of strings
+    # as returned by `&`.
+    #
+    # @example
+    #   selector-parse(".foo .bar, .baz .bang") => ('.foo' '.bar', '.baz' '.bang')
+    #
+    # @overload selector_parse($selector)
+    #   @param $selector [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The selector to parse. This can be either a string, a list of
+    #     strings, or a list of lists of strings as returned by `&`.
+    #   @return [Sass::Script::Value::List]
+    #     A list of lists of strings representing `$selector`. This is
+    #     in the same format as a selector returned by `&`.
+    def selector_parse(selector)
+      parse_selector(selector, :selector).to_sass_script
+    end
+    declare :selector_parse, [:selector]
 
     private
 

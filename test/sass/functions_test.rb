@@ -1675,6 +1675,39 @@ WARNING
     assert_equal("1 2", evaluate("deprecated-arg-fn($arg1: 1, $arg2: 2)"))
   end
 
+  ## Selector Functions
+
+  def test_selector_argument_parsing
+    assert_equal("true", evaluate("selector-parse('.foo') == (join(('.foo',), (), space),)"))
+    assert_equal("true", evaluate("selector-parse('.foo .bar') == ('.foo' '.bar',)"))
+    assert_equal("true",
+      evaluate("selector-parse('.foo .bar, .baz .bang') == ('.foo' '.bar', '.baz' '.bang')"))
+
+    assert_equal("true",
+      evaluate("selector-parse(('.foo', '.bar')) == selector-parse('.foo, .bar')"))
+    assert_equal("true",
+      evaluate("selector-parse('.foo' '.bar') == selector-parse('.foo .bar')"))
+
+    assert_equal("true", evaluate("selector-parse(('.foo' '.bar', '.baz' '.bang')) == " +
+        "selector-parse('.foo .bar, .baz .bang')"))
+    assert_equal("true", evaluate("selector-parse(('.foo .bar', '.baz .bang')) == " +
+        "selector-parse('.foo .bar, .baz .bang')"))
+
+    # This may throw an error in the future.
+    assert_equal("true", evaluate("selector-parse(('.foo, .bar' '.baz, .bang')) == " +
+        "selector-parse('.foo, .bar .baz, .bang')"))
+  end
+
+  def test_selector_argument_validation
+    assert_error_message("$selector: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-parse'", "selector-parse(12)")
+    assert_error_message("$selector: (((\".foo\" \".bar\"), \".baz\") (\".bang\", \".qux\")) is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-parse'",
+      "selector-parse(('.foo' '.bar', '.baz') ('.bang', '.qux'))")
+    assert_error_message("$selector: \".#\" is not a valid selector: Invalid CSS after \".\": " +
+      "expected class name, was \"#\" for `selector-parse'", "selector-parse('.#')")
+  end
+
   ## Regression Tests
 
   def test_inspect_nested_empty_lists

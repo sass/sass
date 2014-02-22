@@ -121,7 +121,62 @@ module Sass::Script::Value
     end
     alias_method :identifier, :unquoted_string
 
+    # Parses a user-provided selector.
+    #
+    # @param value [Sass::Script::Value::String, Sass::Script::Value::List]
+    #   The selector to parse. This can be either a string, a list of
+    #   strings, or a list of lists of strings as returned by `&`.
+    # @param name [Symbol, nil]
+    #   If provided, the name of the selector argument. This is used
+    #   for error reporting.
+    # @return [Sass::Selector::CommaSequence] The parsed selector.
+    # @throw [ArgumentError] if the parse failed for any reason.
+    def parse_selector(value, name = nil)
+      str = normalize_selector(value, name)
+      begin
+        Sass::SCSS::CssParser.new(str, nil, nil).parse_selector
+      rescue Sass::SyntaxError => e
+        err = "#{value.inspect} is not a valid selector: #{e}"
+        err = "$#{name.to_s.gsub('_', '-')}: #{err}" if name
+        raise ArgumentError.new(err)
+      end
+    end
+
     private
+
+    # Converts a user-provided selector into string form or throws an
+    # ArgumentError if it's in an invalid format.
+    def normalize_selector(value, name)
+      if (str = selector_to_str(value))
+        return str
+      end
+
+      err = "#{value.inspect} is not a valid selector: it must be a string,\n" +
+        "a list of strings, or a list of lists of strings"
+      err = "$#{name.to_s.gsub('_', '-')}: #{err}" if name
+      raise ArgumentError.new(err)
+    end
+
+    # Converts a user-provided selector into string form or returns
+    # `nil` if it's in an invalid format.
+    def selector_to_str(value)
+      return value.value if value.is_a?(Sass::Script::String)
+      return unless value.is_a?(Sass::Script::List)
+
+      if value.separator == :comma
+        return value.to_a.map do |complex|
+          next complex.value if complex.is_a?(Sass::Script::String)
+          return unless complex.is_a?(Sass::Script::List) && complex.separator == :space
+          return unless (str = selector_to_str(complex))
+          str
+        end.join(', ')
+      end
+
+      value.to_a.map do |compound|
+        return unless compound.is_a?(Sass::Script::String)
+        compound.value
+      end.join(' ')
+    end
 
     # @private
     VALID_UNIT = /#{Sass::SCSS::RX::NMSTART}#{Sass::SCSS::RX::NMCHAR}|%*/
