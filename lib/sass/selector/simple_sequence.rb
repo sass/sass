@@ -89,12 +89,14 @@ module Sass
         return super_cseq if @members.size == 1 && parent.suffix.empty?
 
         CommaSequence.new(super_cseq.members.map do |super_seq|
-          unless super_seq.members.last.is_a?(SimpleSequence)
+          members = super_seq.members.dup
+          newline = members.pop if members.last == "\n"
+          unless members.last.is_a?(SimpleSequence)
             raise Sass::SyntaxError.new("Invalid parent selector for \"#{self}\": \"" +
               super_seq.to_a.join + '"')
           end
 
-          parent_sub = super_seq.members.last.members
+          parent_sub = members.last.members
           unless parent.suffix.empty?
             parent_sub = parent_sub.dup
             parent_sub[-1] = parent_sub.last.dup
@@ -120,8 +122,9 @@ module Sass
             end
           end
 
-          Sequence.new(super_seq.members[0...-1] +
-            [SimpleSequence.new(parent_sub + @members[1..-1], subject?)])
+          Sequence.new(members[0...-1] +
+            [SimpleSequence.new(parent_sub + @members[1..-1], subject?)] +
+            [newline].compact)
         end)
       end
 

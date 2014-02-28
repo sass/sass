@@ -3099,6 +3099,17 @@ SCSS
   end
 
   # Regression
+ 
+  def test_parent_ref_with_newline
+    assert_equal(<<CSS, render(<<SCSS))
+a.c
+, b.c {
+  x: y; }
+CSS
+a
+, b {&.c {x: y}}
+SCSS
+  end
 
   def test_parent_ref_in_nested_at_root
     assert_equal(<<CSS, render(<<SCSS))
