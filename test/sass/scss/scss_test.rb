@@ -1762,6 +1762,17 @@ SCSS
   end
 
   # Regression
+ 
+  def test_parent_ref_with_newline
+    assert_equal(<<CSS, render(<<SCSS))
+a.c
+, b.c {
+  x: y; }
+CSS
+a
+, b {&.c {x: y}}
+SCSS
+  end
 
   def test_loud_comment_in_compressed_mode
     assert_equal(<<CSS, render(<<SCSS))

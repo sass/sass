@@ -79,13 +79,16 @@ module Sass
         # Parent selector only appears as the first selector in the sequence
         return [self] unless @members.first.is_a?(Parent)
 
-        return super_seq.members if @members.size == 1
-        unless super_seq.members.last.is_a?(SimpleSequence)
+        members = super_seq.members.dup
+        newline = members.pop if members.last == "\n"
+        return members if @members.size == 1
+        unless members.last.is_a?(SimpleSequence)
           raise Sass::SyntaxError.new("Invalid parent selector: " + super_seq.to_a.join)
         end
 
-        super_seq.members[0...-1] +
-          [SimpleSequence.new(super_seq.members.last.members + @members[1..-1], subject?)]
+        members[0...-1] +
+          [SimpleSequence.new(members.last.members + @members[1..-1], subject?)] +
+          [newline].compact
       end
 
       # Non-destrucively extends this selector with the extensions specified in a hash

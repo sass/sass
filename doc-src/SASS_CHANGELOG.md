@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.2.15 (Unreleased)
+
+* Support `&.foo` when the parent selector has a newline followed by a comma.
+
 ## 3.2.14
 
 * Don't crash when parsing a directive with no name in the indented syntax.
