@@ -14,7 +14,7 @@ if RUBY_VERSION =~ /^1\.8/
 elsif RUBY_VERSION =~ /^1\.9\.[012]$/
   gem 'listen', '>= 1.1.0', '< 2.0.0'
 else
-  gem 'listen', '>= 1.1.0', '< 2.5.0'
+  gem 'listen', '>= 1.1.0', '< 3.0.0'
 end
 
 gem 'rubyforge', :group => :development

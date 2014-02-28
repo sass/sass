@@ -14,8 +14,8 @@ puts "Ensuring you have the right version of listen installed."
 Gem::Command.build_args = ARGV
 inst = Gem::DependencyInstaller.new
 if Sass::Util.version_geq(RUBY_VERSION, "1.9.3")
-  puts "Installing listen >= 1.1.0, < 2.5"
-  inst.install "listen", Gem::Requirement.new(">= 1.1.0", "< 2.5")
+  puts "Installing listen >= 1.1.0, < 3.0.0"
+  inst.install "listen", Gem::Requirement.new(">= 1.1.0", "< 3.0.0")
 else
   puts "Installing listen ~> 1.1.0"
   inst.install "listen", "~> 1.1.0"
