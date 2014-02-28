@@ -230,6 +230,16 @@ module Sass::Plugin
       # TODO: Keep better track of what depends on what
       # so we don't have to run a global update every time anything changes.
       listener_args = directories + [{:relative_paths => false}]
+
+      # The native windows listener is much slower than the polling option, according to
+      # https://github.com/nex3/sass/commit/a3031856b22bc834a5417dedecb038b7be9b9e3e
+      poll = @options[:poll] || Sass::Util.windows?
+      if poll && Sass::Util.listen_geq_2?
+        # In Listen 2.0.0 and on, :force_polling is an option. In earlier
+        # versions, it's a method on the listener (called below).
+        listener_args.last[:force_polling] = true
+      end
+
       listener = create_listener(*listener_args) do |modified, added, removed|
         recompile_required = false
 
@@ -276,9 +286,11 @@ module Sass::Plugin
         end
       end
 
-      # The native windows listener is much slower than the polling option, according to
-      # https://github.com/nex3/sass/commit/a3031856b22bc834a5417dedecb038b7be9b9e3e
-      listener.force_polling(true) if @options[:poll] || Sass::Util.windows?
+      if poll && !Sass::Util.listen_geq_2?
+        # In Listen 2.0.0 and on, :force_polling is an option (set above). In
+        # earlier versions, it's a method on the listener.
+        listener.force_polling(true)
+      end
 
       listen_to(listener)
     end
