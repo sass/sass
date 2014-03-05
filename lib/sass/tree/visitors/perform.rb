@@ -143,6 +143,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   protected
 
   def initialize(env)
+    @at_root_without_rule = nil
     @environment = env
   end
 

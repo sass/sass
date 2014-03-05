@@ -14,6 +14,8 @@ module Sass::Script::Value
       if (frame = environment.stack.frames.last)
         @filename = frame.filename
         @line = frame.line
+      else
+        @filename = @line = nil
       end
     end
 

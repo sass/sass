@@ -34,6 +34,7 @@ module Sass::Plugin
     # @param opts [{Symbol => Object}]
     #   See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
     def initialize(opts = {})
+      @_sass_callbacks = {}
       options.merge!(opts)
     end
 
@@ -281,7 +282,7 @@ module Sass::Plugin
         if recompile_required
           # In case a file we're watching is removed and then recreated we
           # prune out the non-existant files here.
-          watched_files_remaining = individual_files.select {|(source, _, _)| File.exists?(source)}
+          watched_files_remaining = individual_files.select {|(source, _, _)| File.exist?(source)}
           update_stylesheets(watched_files_remaining)
         end
       end
@@ -354,7 +355,7 @@ module Sass::Plugin
 
     def update_stylesheet(filename, css, sourcemap)
       dir = File.dirname(css)
-      unless File.exists?(dir)
+      unless File.exist?(dir)
         run_creating_directory dir
         FileUtils.mkdir_p dir
       end
@@ -394,12 +395,12 @@ module Sass::Plugin
     end
 
     def try_delete_css(css)
-      if File.exists?(css)
+      if File.exist?(css)
         run_deleting_css css
         File.delete css
       end
       map = Sass::Util.sourcemap_name(css)
-      if File.exists?(map)
+      if File.exist?(map)
         run_deleting_sourcemap map
         File.delete map
       end
