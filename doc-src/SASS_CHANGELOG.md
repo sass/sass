@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.2.15 (Unreleased)
+## 3.2.15
 
 * Support `&.foo` when the parent selector has a newline followed by a comma.
 
