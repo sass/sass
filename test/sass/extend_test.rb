@@ -1115,6 +1115,16 @@ SCSS
 
   # Regression Tests
 
+  def test_extend_parent_selector_suffix
+    assert_equal <<CSS, render(<<SCSS)
+.a-b, .c {
+  x: y; }
+CSS
+.a {&-b {x: y}}
+.c {@extend .a-b}
+SCSS
+  end
+
   def test_pseudo_element_superselector
     # Pseudo-elements shouldn't be removed in superselector calculations.
     assert_equal <<CSS, render(<<SCSS)

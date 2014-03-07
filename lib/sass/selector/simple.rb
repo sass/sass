@@ -46,7 +46,7 @@ module Sass
       #
       # @return [Fixnum]
       def hash
-        @_hash ||= to_a.hash
+        @_hash ||= equality_key.hash
       end
 
       # Checks equality between this and another object.
@@ -58,7 +58,7 @@ module Sass
       # @param other [Object] The object to test equality against
       # @return [Boolean] Whether or not this is equal to `other`
       def eql?(other)
-        other.class == self.class && other.hash == hash && other.to_a.eql?(to_a)
+        other.class == self.class && other.hash == hash && other.equality_key.eql?(equality_key)
       end
       alias_method :==, :eql?
 
@@ -93,6 +93,16 @@ module Sass
       end
 
       protected
+
+      # Returns the key used for testing whether selectors are equal.
+      #
+      # This is based on \{#to\_a}, with adjacent strings merged so that
+      # selectors constructed in different ways are considered equivalent.
+      #
+      # @return [Array<String, Sass::Script::Tree::Node>]
+      def equality_key
+        @equality_key ||= Sass::Util.merge_adjacent_strings(to_a)
+      end
 
       # Unifies two namespaces,
       # returning a namespace that works for both of them if possible.
