@@ -1,5 +1,3 @@
-require 'pathname'
-
 module Sass::Source
   class Map
     # A mapping from one source range to another. Indicates that `input` was
@@ -99,8 +97,8 @@ module Sass::Source
         raise ArgumentError.new("Sass::Source::Map#to_json requires either " \
           "the :css_uri option or both the :css_path and :soucemap_path options.")
       end
-      css_path &&= Pathname.pwd.join(Pathname.new(css_path)).cleanpath
-      sourcemap_path &&= Pathname.pwd.join(Pathname.new(sourcemap_path)).cleanpath
+      css_path &&= Pathname.pwd.join(Sass::Util.pathname(css_path)).cleanpath
+      sourcemap_path &&= Pathname.pwd.join(Sass::Util.pathname(sourcemap_path)).cleanpath
       css_uri ||= css_path.relative_path_from(sourcemap_path.dirname).to_s
 
       result = "{\n"

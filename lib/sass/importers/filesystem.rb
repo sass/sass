@@ -1,4 +1,3 @@
-require 'pathname'
 require 'set'
 
 module Sass
@@ -69,8 +68,8 @@ module Sass
         if sourcemap_directory.nil?
           warn_about_public_url(name)
         else
-          file_pathname = Pathname.new(Sass::Util.absolute_path(name, @root)).cleanpath
-          sourcemap_pathname = Pathname.new(sourcemap_directory).cleanpath
+          file_pathname = Sass::Util.pathname(Sass::Util.absolute_path(name, @root)).cleanpath
+          sourcemap_pathname = Sass::Util.pathname(sourcemap_directory).cleanpath
           begin
             file_pathname.relative_path_from(sourcemap_pathname).to_s
           rescue ArgumentError # when a relative path cannot be constructed
@@ -144,10 +143,11 @@ module Sass
         dir = dir.gsub(File::ALT_SEPARATOR, File::SEPARATOR) unless File::ALT_SEPARATOR.nil?
 
         found = possible_files(remove_root(name)).map do |f, s|
-          path = dir == "." || Pathname.new(f).absolute? ? f : "#{escape_glob_characters(dir)}/#{f}"
+          path = (dir == "." || Sass::Util.pathname(f).absolute?) ? f :
+            "#{escape_glob_characters(dir)}/#{f}"
           Dir[path].map do |full_path|
             full_path.gsub!(REDUNDANT_DIRECTORY, File::SEPARATOR)
-            [Pathname.new(full_path).cleanpath.to_s, s]
+            [Sass::Util.pathname(full_path).cleanpath.to_s, s]
           end
         end
         found = Sass::Util.flatten(found, 1)
@@ -155,13 +155,13 @@ module Sass
 
         if found.size > 1 && !@same_name_warnings.include?(found.first.first)
           found.each {|(f, _)| @same_name_warnings << f}
-          relative_to = Pathname.new(dir)
+          relative_to = Sass::Util.pathname(dir)
           if options[:_from_import_node]
             # If _line exists, we're here due to an actual import in an
             # import_node and we want to print a warning for a user writing an
             # ambiguous import.
             candidates = found.map do |(f, _)|
-              "  " + Pathname.new(f).relative_path_from(relative_to).to_s
+              "  " + Sass::Util.pathname(f).relative_path_from(relative_to).to_s
             end.join("\n")
             raise Sass::SyntaxError.new(<<MESSAGE)
 It's not clear which file to import for '@import "#{name}"'.

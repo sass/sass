@@ -306,14 +306,15 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
           output("#{old_spaces}/* line #{node.line}")
 
           if node.filename
-            relative_filename = if node.options[:css_filename]
-                                  begin
-                                    Pathname.new(node.filename).relative_path_from(
-                                      Pathname.new(File.dirname(node.options[:css_filename]))).to_s
-                                  rescue ArgumentError
-                                    nil
-                                  end
-                                end
+            relative_filename =
+              if node.options[:css_filename]
+                begin
+                  Sass::Util.pathname(node.filename).relative_path_from(
+                    Sass::Util.pathname(File.dirname(node.options[:css_filename]))).to_s
+                rescue ArgumentError
+                  nil
+                end
+              end
             relative_filename ||= node.filename
             output(", #{relative_filename}")
           end

@@ -1,5 +1,4 @@
 require 'fileutils'
-require 'pathname'
 
 require 'sass'
 # XXX CE: is this still necessary now that we have the compiler class?
@@ -436,7 +435,7 @@ module Sass::Plugin
     end
 
     def relative_to_pwd(f)
-      Pathname.new(f).relative_path_from(Pathname.new(Dir.pwd)).to_s
+      Sass::Util.pathname(f).relative_path_from(Sass::Util.pathname(Dir.pwd)).to_s
     rescue ArgumentError # when a relative path cannot be computed
       f
     end

@@ -372,8 +372,8 @@ END
               raise "Can't generate a sourcemap for an input without a path."
             end
 
-            relative_sourcemap_path = Pathname.new(@options[:sourcemap_filename]).
-              relative_path_from(Pathname.new(@options[:output_filename]).dirname)
+            relative_sourcemap_path = Sass::Util.pathname(@options[:sourcemap_filename]).
+              relative_path_from(Sass::Util.pathname(@options[:output_filename]).dirname)
             rendered, mapping = engine.render_with_sourcemap(relative_sourcemap_path.to_s)
             write_output(rendered, output)
             write_output(mapping.to_json(

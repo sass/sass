@@ -5,6 +5,7 @@ require 'stringio'
 require 'rbconfig'
 require 'uri'
 require 'thread'
+require 'pathname'
 
 require 'sass/root'
 require 'sass/util/subset_map'
@@ -577,6 +578,16 @@ module Sass
       else
         Dir.glob(path)
       end
+    end
+
+    # Like `Pathname.new`, but normalizes Windows paths to always use backslash
+    # separators.
+    #
+    # `Pathname.relative_path_from` can break if the two pathnames aren't
+    # consistent in their slash style.
+    def pathname(path)
+      path = path.tr("/", "\\") if windows?
+      Pathname.new(path)
     end
 
     # Prepare a value for a destructuring assignment (e.g. `a, b =
