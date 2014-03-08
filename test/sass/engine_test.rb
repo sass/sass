@@ -2371,6 +2371,17 @@ $baz: 12
 SASS
   end
 
+  def test_directive_interpolation
+    assert_equal <<CSS, render(<<SASS)
+@zogfoo bar qux {
+  a: b; }
+CSS
+$baz: zog
+@\#{$baz}foo bar qux
+  a: b
+SASS
+  end
+
   def test_media_interpolation
     assert_equal <<CSS, render(<<SASS)
 @media bar12 {

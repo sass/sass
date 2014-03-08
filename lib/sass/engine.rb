@@ -722,7 +722,7 @@ WARNING
         end
 
         Tree::DirectiveNode.new(
-          value.nil? ? ["@#{directive}"] : ["@#{directive} "] + parse_interp(value, offset))
+          ['@'] + parse_interp(directive) + (value.nil? ? [] : [' '] + parse_interp(value, offset)))
       end
     end
 
