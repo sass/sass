@@ -3,6 +3,81 @@
 * Table of contents
 {:toc}
 
+## 3.4.0 (Unreleased)
+
+### Using `&` in SassScript
+
+For a long time, Sass has supported a special
+{file:SASS_REFERENCE.md#parent-selector "parent selector", `&`}, which is used
+when nesting selectors to describe how a nested selector relates to the
+selectors above it. Until now, this has only been usable in selectors, but now
+it can be used in SassScript as well.
+
+In a SassScript expression, `&` refers to the current parent selector. It's a
+comma-separated list of space-separated lists. For example:
+
+    .foo.bar .baz.bang, .bip.qux {
+      $selector: &;
+    }
+
+The value of `$selector` is now `((".foo.bar" ".baz.bang"), ".bip.qux")`. The
+compound selectors are quoted here to indicate that they're strings, but in
+reality they would be unquoted.
+
+If there is no parent selector, the value of `&` will be null. This means you
+can use it in a mixin to detect whether a parent selector exists:
+
+    @mixin does-parent-exist {
+      @if & {
+        &:hover {
+          color: red;
+        }
+      } else {
+        a {
+          color: red;
+        }
+      }
+    }
+
+### Smaller Improvements
+
+* When using colors in SassScript, the original representation of the color will
+  be preserved wherever possible. If you write `#f00`, it will be rendered as
+  `#f00`, not as `red` or `#ff0000`. In compressed mode, Sass will continue to
+  choose the most compact possible representation for colors.
+
+* Add support for unit arithmetic with many more units, including angles, times,
+  frequencies, and resolutions.
+
+* Sass now supports using ids as values in SassScript as defined in the CSS
+  Basic User Interface Module. They're treated as unquoted strings.
+
+### Backwards Incompatibilities -- Must Read!
+
+* The current working directory will no longer be placed onto the Sass load path
+  by default. If you need the current working directory to be available,
+  set `SASS_PATH=.` in your shell's environment.
+
+* Sass will now throw an error when a list of pairs is passed to a map function.
+
+* `mix()`'s deprecated argument names, `$color-1` and `$color-2`, will now throw
+   errors. Use `$color1` and `$color2` instead.
+
+* `comparable()`'s deprecated argument names, `$number-1` and `$number-2`, will
+  now throw errors. Use `$number1` and `$number2` instead.
+
+* `percentage()`'s, `round()`'s, `ceil()`'s, `floor()`'s, and `abs()`'s
+  deprecated argument name, `$value`, will now throw an error. Use `$number`
+  instead.
+
+* `index()` now returns `null` rather than `false` if the value isn't found in
+  the list.
+
+* All variable assignments not at the top level of the document are now local by
+  default. If there's a global variable with the same name, it won't be
+  overwritten unless the `!global` flag is used. For example, `$var: value
+  !global` will assign to `$var` globally.
+
 ## 3.3.0 (7 March 2014)
 
 ### SassScript Maps

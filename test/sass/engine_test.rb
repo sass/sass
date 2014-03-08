@@ -17,6 +17,11 @@ module Sass::Script::Functions::UserFunctions
     return Sass::Script::Value::Null.new
   end
 
+  def set_a_global_variable(name, value)
+    environment.set_global_var(name.value, value)
+    return Sass::Script::Value::Null.new
+  end
+
   def get_a_variable(name)
     environment.var(name.value) || Sass::Script::Value::String.new("undefined")
   end
@@ -68,8 +73,8 @@ MSG
     "$a: 1b >= 2c" => "Incompatible units: 'c' and 'b'.",
     "a\n  b: 1b * 2c" => "2b*c isn't a valid CSS value.",
     "a\n  b: 1b % 2c" => "Incompatible units: 'c' and 'b'.",
-    "$a: 2px + #ccc" => "Cannot add a number with units (2px) to a color (#cccccc).",
-    "$a: #ccc + 2px" => "Cannot add a number with units (2px) to a color (#cccccc).",
+    "$a: 2px + #ccc" => "Cannot add a number with units (2px) to a color (#ccc).",
+    "$a: #ccc + 2px" => "Cannot add a number with units (2px) to a color (#ccc).",
     "& a\n  :b c" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 1],
     "a\n  :b\n    c" => "Illegal nesting: Only properties may be nested beneath properties.",
     "$a: b\n  :c d\n" => "Illegal nesting: Nothing may be nested beneath variable declarations.",
@@ -702,12 +707,12 @@ ERR
   def test_import_in_rule
     assert_equal(<<CSS, render(<<SASS, :load_paths => [File.dirname(__FILE__) + '/templates/']))
 .foo #foo {
-  background-color: #bbaaff; }
+  background-color: #baf; }
 
 .bar {
   a: b; }
   .bar #foo {
-    background-color: #bbaaff; }
+    background-color: #baf; }
 CSS
 .foo
   @import partial
@@ -1130,7 +1135,13 @@ SASS
   end
 
   def test_default_values_for_mixin_arguments
-    assert_equal("white {\n  color: white; }\n\nblack {\n  color: black; }\n", render(<<SASS))
+    assert_equal(<<CSS, render(<<SASS))
+white {
+  color: #FFF; }
+
+black {
+  color: #000; }
+CSS
 =foo($a: #FFF)
   :color $a
 white
@@ -1140,17 +1151,17 @@ black
 SASS
     assert_equal(<<CSS, render(<<SASS))
 one {
-  color: white;
+  color: #fff;
   padding: 1px;
   margin: 4px; }
 
 two {
-  color: white;
+  color: #fff;
   padding: 2px;
   margin: 5px; }
 
 three {
-  color: white;
+  color: #fff;
   padding: 2px;
   margin: 3px; }
 CSS
@@ -1168,17 +1179,17 @@ three
 SASS
     assert_equal(<<CSS, render(<<SASS))
 one {
-  color: white;
+  color: #fff;
   padding: 1px;
   margin: 4px; }
 
 two {
-  color: white;
+  color: #fff;
   padding: 2px;
   margin: 5px; }
 
 three {
-  color: white;
+  color: #fff;
   padding: 2px;
   margin: 3px; }
 CSS
@@ -1383,7 +1394,7 @@ CSS
 $variable: 0
 bar
   $local: 10
-  -no-op: set-a-variable(variable, 5)
+  -no-op: set-a-global-variable(variable, 5)
   a: $variable
 SASS
   end
@@ -1614,31 +1625,6 @@ a
   b: $a
   $a: 2
   c: $a
-SASS
-  end
-
-  def test_variable_scope
-    silence_warnings {assert_equal(<<CSS, render(<<SASS))}
-a {
-  b-1: c;
-  b-2: c;
-  d: 12; }
-
-b {
-  d: 17; }
-CSS
-$i: 12
-a
-  @for $i from 1 through 2
-    b-\#{$i}: c
-  d: $i
-
-=foo
-  $i: 17
-
-b
-  +foo
-  d: $i
 SASS
   end
 

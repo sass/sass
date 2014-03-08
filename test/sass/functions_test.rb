@@ -19,6 +19,12 @@ module Sass::Script::Functions
     Sass::Script::Value::String.new("only-kw-args(" + kwargs.keys.map {|a| a.to_s}.sort.join(", ") + ")")
   end
   declare :only_kw_args, [], :var_kwargs => true
+
+  def deprecated_arg_fn(arg1, arg2, arg3 = nil)
+    Sass::Script::Value::List.new([arg1, arg2, arg3 || Sass::Script::Value::Null.new], :space)
+  end
+  declare :deprecated_arg_fn, [:arg1, :arg2, :arg3], :deprecated => [:arg_1, :arg_2, :arg3]
+  declare :deprecated_arg_fn, [:arg1, :arg2], :deprecated => [:arg_1, :arg_2]
 end
 
 module Sass::Script::Functions::UserFunctions
@@ -123,12 +129,6 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("50%",  evaluate("percentage($number: 0.5)"))
   end
 
-  def test_percentage_deprecated_arg_name
-    assert_warning(<<WARNING) {assert_equal("50%", evaluate("percentage($value: 0.5)"))}
-DEPRECATION WARNING: The `$value' argument for `percentage()' has been renamed to `$number'.
-WARNING
-  end
-
   def test_percentage_checks_types
     assert_error_message("$number: 25px is not a unitless number for `percentage'", "percentage(25px)")
     assert_error_message("$number: #cccccc is not a unitless number for `percentage'", "percentage(#ccc)")
@@ -142,12 +142,6 @@ WARNING
     assert_equal("5px", evaluate("round($number: 5.49px)"))
   end
 
-  def test_round_deprecated_arg_name
-    assert_warning(<<WARNING) {assert_equal("5px", evaluate("round($value: 5.49px)"))}
-DEPRECATION WARNING: The `$value' argument for `round()' has been renamed to `$number'.
-WARNING
-  end
-
   def test_round_checks_types
     assert_error_message("$value: #cccccc is not a number for `round'", "round(#ccc)")
   end
@@ -156,12 +150,6 @@ WARNING
     assert_equal("4",   evaluate("floor(4.8)"))
     assert_equal("4px", evaluate("floor(4.8px)"))
     assert_equal("4px", evaluate("floor($number: 4.8px)"))
-  end
-
-  def test_floor_deprecated_arg_name
-    assert_warning(<<WARNING) {assert_equal("4px", evaluate("floor($value: 4.8px)"))}
-DEPRECATION WARNING: The `$value' argument for `floor()' has been renamed to `$number'.
-WARNING
   end
 
   def test_floor_checks_types
@@ -174,12 +162,6 @@ WARNING
     assert_equal("5px", evaluate("ceil($number: 4.8px)"))
   end
 
-  def test_ceil_deprecated_arg_name
-    assert_warning(<<WARNING) {assert_equal("5px", evaluate("ceil($value: 4.8px)"))}
-DEPRECATION WARNING: The `$value' argument for `ceil()' has been renamed to `$number'.
-WARNING
-  end
-
   def test_ceil_checks_types
     assert_error_message("$value: \"a\" is not a number for `ceil'", "ceil(\"a\")")
   end
@@ -190,12 +172,6 @@ WARNING
     assert_equal("5",   evaluate("abs(5)"))
     assert_equal("5px", evaluate("abs(5px)"))
     assert_equal("5px", evaluate("abs($number: 5px)"))
-  end
-
-  def test_abs_deprecated_arg_name
-    assert_warning(<<WARNING) {assert_equal("5px", evaluate("abs($value: 5px)"))}
-DEPRECATION WARNING: The `$value' argument for `abs()' has been renamed to `$number'.
-WARNING
   end
 
   def test_abs_checks_types
@@ -840,32 +816,6 @@ WARNING
     assert_equal("rgba(255, 0, 0, 0)", evaluate("mix($color1: transparentize(#f00, 1), $color2: #00f, $weight: 100%)"))
   end
 
-  def test_mix_deprecated_arg_name
-    assert_warning <<WARNING do
-DEPRECATION WARNING: The `$color-1' argument for `mix()' has been renamed to `$color1'.
-DEPRECATION WARNING: The `$color-2' argument for `mix()' has been renamed to `$color2'.
-WARNING
-      assert_equal("rgba(255, 0, 0, 0)",
-        evaluate("mix($color-1: transparentize(#f00, 1), $color-2: #00f, $weight: 100%)"))
-    end
-
-    assert_warning <<WARNING do
-DEPRECATION WARNING: The `$color-1' argument for `mix()' has been renamed to `$color1'.
-DEPRECATION WARNING: The `$color-2' argument for `mix()' has been renamed to `$color2'.
-WARNING
-      assert_equal("rgba(0, 0, 255, 0.5)",
-        evaluate("mix($color-1: transparentize(#f00, 1), $color-2: #00f)"))
-    end
-
-    assert_warning <<WARNING do
-DEPRECATION WARNING: The `$color_1' argument for `mix()' has been renamed to `$color1'.
-DEPRECATION WARNING: The `$color_2' argument for `mix()' has been renamed to `$color2'.
-WARNING
-      assert_equal("rgba(0, 0, 255, 0.5)",
-        evaluate("mix($color_1: transparentize(#f00, 1), $color_2: #00f)"))
-    end
-  end
-
   def test_mix_tests_types
     assert_error_message("$color1: \"foo\" is not a color for `mix'", "mix(\"foo\", #f00, 10%)")
     assert_error_message("$color2: \"foo\" is not a color for `mix'", "mix(#f00, \"foo\", 10%)")
@@ -1084,22 +1034,6 @@ MSG
     assert_equal(%Q{false}, evaluate("comparable($number1: 100px, $number2: 3em)"))
   end
 
-  def test_comparable_deprecated_arg_name
-    assert_warning <<WARNING do
-DEPRECATION WARNING: The `$number-1' argument for `comparable()' has been renamed to `$number1'.
-DEPRECATION WARNING: The `$number-2' argument for `comparable()' has been renamed to `$number2'.
-WARNING
-      assert_equal("false", evaluate("comparable($number-1: 100px, $number-2: 3em)"))
-    end
-
-    assert_warning <<WARNING do
-DEPRECATION WARNING: The `$number_1' argument for `comparable()' has been renamed to `$number1'.
-DEPRECATION WARNING: The `$number_2' argument for `comparable()' has been renamed to `$number2'.
-WARNING
-      assert_equal("false", evaluate("comparable($number_1: 100px, $number_2: 3em)"))
-    end
-  end
-
   def test_comparable_checks_types
     assert_error_message("$number1: #ff0000 is not a number for `comparable'", "comparable(#f00, 1px)")
     assert_error_message("$number2: #ff0000 is not a number for `comparable'", "comparable(1px, #f00)")
@@ -1257,76 +1191,17 @@ WARNING
   end
 
   def test_index
+    null = Sass::Script::Value::Null.new
     assert_equal("1", evaluate("index(1px solid blue, 1px)"))
     assert_equal("2", evaluate("index(1px solid blue, solid)"))
     assert_equal("3", evaluate("index(1px solid blue, #00f)"))
     assert_equal("1", evaluate("index(1px, 1px)"))
-    assert_equal("false", evaluate("index(1px solid blue, 1em)"))
-    assert_equal("false", evaluate("index(1px solid blue, notfound)"))
-    assert_equal("false", evaluate("index(1px, #00f)"))
+    assert_equal(null, perform("index(1px solid blue, 1em)"))
+    assert_equal(null, perform("index(1px solid blue, notfound)"))
+    assert_equal(null, perform("index(1px, #00f)"))
 
     assert_equal("1", evaluate("index((foo: bar, bar: baz), (foo bar))"))
-    assert_equal("false", evaluate("index((foo: bar, bar: baz), (foo: bar))"))
-  end
-
-  def test_index_deprecation_warning
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: The return value of index() will change from "false" to
-"null" in future versions of Sass. For compatibility, avoid using "== false" on
-the return value. For example, instead of "@if index(...) == false", just write
-"@if index(...)".
-WARNING
-      assert_equal("true", evaluate("index(1, 2 3 4) == false"))
-    end
-
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: The return value of index() will change from "false" to
-"null" in future versions of Sass. For compatibility, avoid using "!= null" on
-the return value.
-WARNING
-      assert_equal("true", evaluate("index(1, 2 3 4) != null"))
-    end
-
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: The return value of index() will change from "false" to
-"null" in future versions of Sass. For compatibility, avoid using "== false" on
-the return value. For example, instead of "@if index(...) == false", just write
-"@if index(...)".
-WARNING
-      assert_equal("true", evaluate("false == index(1, 2 3 4)"))
-    end
-
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: The return value of index() will change from "false" to
-"null" in future versions of Sass. For compatibility, avoid using "!= null" on
-the return value.
-WARNING
-      assert_equal("true", evaluate("null != index(1, 2 3 4)"))
-    end
-  end
-
-  def test_index_deprecation_warning_is_only_emitted_once_per_call
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: The return value of index() will change from "false" to
-"null" in future versions of Sass. For compatibility, avoid using "== false" on
-the return value. For example, instead of "@if index(...) == false", just write
-"@if index(...)".
-        on line 3 of test_index_deprecation_warning_is_only_emitted_once_per_call_inline.scss
-DEPRECATION WARNING: The return value of index() will change from "false" to
-"null" in future versions of Sass. For compatibility, avoid using "== false" on
-the return value. For example, instead of "@if index(...) == false", just write
-"@if index(...)".
-        on line 6 of test_index_deprecation_warning_is_only_emitted_once_per_call_inline.scss
-WARNING
-      render(<<SCSS)
-@for $i from 1 to 10 {
-  $var1: index(1, 2 3 4);
-  $var2: $var1 == false;
-  $var3: $var1 != null;
-}
-$var4: index(1, 2 3 4) == false;
-SCSS
-    end
+    assert_equal(null, perform("index((foo: bar, bar: baz), (foo: bar))"))
   end
 
   def test_list_separator
@@ -1457,16 +1332,6 @@ SCSS
     assert_equal "null", perform("map-get((), foo)").to_sass
   end
 
-  def test_map_get_deprecation_warning
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: Passing lists of pairs to map-get is deprecated and will
-be removed in future versions of Sass. Use Sass maps instead. For details, see
-http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
-WARNING
-      assert_equal "1", evaluate("map-get((foo 1) (bar 2), foo)")
-    end
-  end
-
   def test_map_get_checks_type
     assert_error_message("$map: 12 is not a map for `map-get'", "map-get(12, bar)")
   end
@@ -1480,26 +1345,6 @@ WARNING
       perform("map-merge((foo: 1, bar: 2), ())").to_sass)
   end
 
-  def test_map_merge_deprecation_warning
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: Passing lists of pairs to map-merge is deprecated and will
-be removed in future versions of Sass. Use Sass maps instead. For details, see
-http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
-WARNING
-      assert_equal("(foo: 1, bar: 2, baz: 3)",
-        perform("map-merge((foo 1, bar 2), (baz: 3))").to_sass)
-    end
-
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: Passing lists of pairs to map-merge is deprecated and will
-be removed in future versions of Sass. Use Sass maps instead. For details, see
-http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
-WARNING
-      assert_equal("(baz: 3, foo: 1, bar: 2)",
-        perform("map-merge((baz: 3), (foo 1, bar 2))").to_sass)
-    end
-  end
-
   def test_map_merge_checks_type
     assert_error_message("$map1: 12 is not a map for `map-merge'", "map-merge(12, (foo: 1))")
     assert_error_message("$map2: 12 is not a map for `map-merge'", "map-merge((foo: 1), 12)")
@@ -1511,17 +1356,6 @@ WARNING
     assert_equal("()", perform("map-remove((), foo)").to_sass)
   end
 
-  def test_map_remove_deprecation_warning
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: Passing lists of pairs to map-remove is deprecated and will
-be removed in future versions of Sass. Use Sass maps instead. For details, see
-http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
-WARNING
-      assert_equal("(foo: 1, baz: 3)",
-        perform("map-remove((foo 1, bar 2, baz 3), bar)").to_sass)
-    end
-  end
-
   def test_map_remove_checks_type
     assert_error_message("$map: 12 is not a map for `map-remove'", "map-remove(12, foo)")
   end
@@ -1530,17 +1364,6 @@ WARNING
     assert_equal("foo, bar",
       perform("map-keys((foo: 1, bar: 2))").to_sass)
     assert_equal("()", perform("map-keys(())").to_sass)
-  end
-
-  def test_map_keys_deprecation_warning
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: Passing lists of pairs to map-keys is deprecated and will
-be removed in future versions of Sass. Use Sass maps instead. For details, see
-http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
-WARNING
-      assert_equal("foo, bar",
-        perform("map-keys((foo 1, bar 2))").to_sass)
-    end
   end
 
   def test_map_keys_checks_type
@@ -1554,16 +1377,6 @@ WARNING
     assert_equal("()", perform("map-values(())").to_sass)
   end
 
-  def test_map_values_deprecation_warning
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: Passing lists of pairs to map-values is deprecated and will
-be removed in future versions of Sass. Use Sass maps instead. For details, see
-http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
-WARNING
-      assert_equal("1, 2", perform("map-values((foo 1, bar 2))").to_sass)
-    end
-  end
-
   def test_map_values_checks_type
     assert_error_message("$map: 12 is not a map for `map-values'", "map-values(12)")
   end
@@ -1572,16 +1385,6 @@ WARNING
     assert_equal "true", evaluate("map-has-key((foo: 1, bar: 1), foo)")
     assert_equal "false", evaluate("map-has-key((foo: 1, bar: 1), baz)")
     assert_equal "false", evaluate("map-has-key((), foo)")
-  end
-
-  def test_map_has_key_deprecation_warning
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: Passing lists of pairs to map-has-key is deprecated and will
-be removed in future versions of Sass. Use Sass maps instead. For details, see
-http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
-WARNING
-      assert_equal("true", evaluate("map-has-key((foo 1, bar 1), foo)"))
-    end
   end
 
   def test_map_has_key_checks_type
@@ -1839,6 +1642,37 @@ SCSS
       Sass::Script::Functions.send(:remove_instance_variable, "@random_number_generator")
     end
     assert_not_equal evaluate("random()"), evaluate("random()")
+  end
+
+  def test_deprecated_arg_names
+    assert_warning <<WARNING do
+DEPRECATION WARNING: The `$arg-1' argument for `deprecated-arg-fn()' has been renamed to `$arg1'.
+DEPRECATION WARNING: The `$arg-2' argument for `deprecated-arg-fn()' has been renamed to `$arg2'.
+WARNING
+      assert_equal("1 2 3",
+        evaluate("deprecated-arg-fn($arg-1: 1, $arg-2: 2, $arg3: 3)"))
+    end
+
+    assert_warning <<WARNING do
+DEPRECATION WARNING: The `$arg-1' argument for `deprecated-arg-fn()' has been renamed to `$arg1'.
+DEPRECATION WARNING: The `$arg-2' argument for `deprecated-arg-fn()' has been renamed to `$arg2'.
+WARNING
+      assert_equal("1 2",
+        evaluate("deprecated-arg-fn($arg-1: 1, $arg-2: 2)"))
+    end
+
+    assert_warning <<WARNING do
+DEPRECATION WARNING: The `$arg_1' argument for `deprecated-arg-fn()' has been renamed to `$arg1'.
+DEPRECATION WARNING: The `$arg_2' argument for `deprecated-arg-fn()' has been renamed to `$arg2'.
+WARNING
+      assert_equal("1 2",
+        evaluate("deprecated-arg-fn($arg_1: 1, $arg_2: 2)"))
+    end
+  end
+
+  def test_non_deprecated_arg_names
+    assert_equal("1 2 3", evaluate("deprecated-arg-fn($arg1: 1, $arg2: 2, $arg3: 3)"))
+    assert_equal("1 2", evaluate("deprecated-arg-fn($arg1: 1, $arg2: 2)"))
   end
 
   ## Regression Tests

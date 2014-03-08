@@ -646,10 +646,29 @@ You can then refer to them in properties:
       width: $width;
     }
 
-Variables are only available within the level of nested selectors
-where they're defined.
-If they're defined outside of any nested selectors,
-they're available everywhere.
+Variables are only available within the level of nested selectors where they're
+defined. If they're defined outside of any nested selectors, they're available
+everywhere. They can also be defined with the `!global` flag, in which case
+they're also available everywhere. For example:
+
+    #main {
+      $width: 5em !global;
+      width: $width;
+    }
+
+    #sidebar {
+      width: $width;
+    }
+
+is compiled to:
+
+    #main {
+      width: 5em;
+    }
+
+    #sidebar {
+      width: 5em;
+    }
 
 ### Data Types
 
@@ -1098,6 +1117,37 @@ is compiled to:
 
     p {
       font: 12px/30px; }
+
+### `&` in SassScript {#parent-script}
+
+Just like when it's used [in selectors](#parent-selector), `&` in SassScript
+refers to the current parent selector. It's a comma-separated list of
+space-separated lists. For example:
+
+    .foo.bar .baz.bang, .bip.qux {
+      $selector: &;
+    }
+
+The value of `$selector` is now `((".foo.bar" ".baz.bang"), ".bip.qux")`. The
+compound selectors are quoted here to indicate that they're strings, but in
+reality they would be unquoted. Even if the parent selector doesn't contain a
+comma or a space, `&` will always have two levels of nesting, so it can be
+accessed consistently.
+
+If there is no parent selector, the value of `&` will be null. This means you
+can use it in a mixin to detect whether a parent selector exists:
+
+    @mixin does-parent-exist {
+      @if & {
+        &:hover {
+          color: red;
+        }
+      } else {
+        a {
+          color: red;
+        }
+      }
+    }
 
 ### Variable Defaults: `!default`
 

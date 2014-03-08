@@ -26,6 +26,6 @@ body { font: Arial; background: blue; }
 #content.user.show #container.top #column.right { width: 600px; }
 #content.user.show #container.bottom { background: brown; }
 
-#foo { background-color: #bbaaff; }
+#foo { background-color: #baf; }
 
 nonimported { myconst: hello; otherconst: goodbye; post-mixin: here; }

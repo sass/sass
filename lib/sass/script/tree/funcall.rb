@@ -214,7 +214,7 @@ module Sass::Script::Tree
         elsif deprecated_argname && keywords.has_key?(deprecated_argname)
           deprecated_argname = keywords.denormalize(deprecated_argname)
           Sass::Util.sass_warn("DEPRECATION WARNING: The `$#{deprecated_argname}' argument for " +
-            "`#{name}()' has been renamed to `$#{argname}'.")
+            "`#{@name}()' has been renamed to `$#{argname}'.")
           keywords.delete(deprecated_argname)
         else
           raise Sass::SyntaxError.new("Function #{name} requires an argument named $#{argname}")
