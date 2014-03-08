@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.3.0 (Unreleased)
+## 3.3.0 (7 March 2014)
 
 ### SassScript Maps
 
