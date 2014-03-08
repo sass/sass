@@ -425,11 +425,11 @@ of all directives, but will preserve any CSS rules.
 * `percentage()`, `round()`, `ceil()`, `floor()`, and `abs()` now
   take arguments named '$number' instead of '$value'.
 
-## 3.2.15
+## 3.2.15 (7 March 2014)
 
 * Support `&.foo` when the parent selector has a newline followed by a comma.
 
-## 3.2.14
+## 3.2.14 (24 January 2014)
 
 * Don't crash when parsing a directive with no name in the indented syntax.
 
@@ -440,7 +440,7 @@ of all directives, but will preserve any CSS rules.
 
 * Don't move CSS `@import`s to the top of the file unless it's necessary.
 
-## 3.2.13
+## 3.2.13 (19 December 2013)
 
 * Numbers returned by user-defined functions now trigger division, just like
   numbers stored in variables.
@@ -452,7 +452,7 @@ of all directives, but will preserve any CSS rules.
 
 * Fix CSS imports using `url()` with a quoted string and media queries.
 
-## 3.2.12
+## 3.2.12 (4 October 2013)
 
 * Add a couple missing `require`s, fixing some load errors, especially when
   using the command-line interface.
@@ -462,7 +462,7 @@ of all directives, but will preserve any CSS rules.
   is being used and where it seems intuitively like selectors shouldn't be
   eliminated.
 
-## 3.2.11
+## 3.2.11 (27 September 2013)
 
 * Fix `@extend`'s semantics with respect to pseudo-elements. They are no longer
   treated identically to pseudo-classes.
@@ -478,7 +478,7 @@ of all directives, but will preserve any CSS rules.
 
 * Fix some thread-safety issues.
 
-## 3.2.10
+## 3.2.10 (26 July 2013)
 
 * Use the Sass logger infrastructure for `@debug` directives.
 
@@ -492,7 +492,7 @@ of all directives, but will preserve any CSS rules.
 * Fix a bug where `sass --unix-newlines` and `sass-convert --in-place` are not
   working on Windows (thanks [SATO Kentaro](http://www.ranvis.com)).
 
-## 3.2.9
+## 3.2.9 (10 May 2013)
 
 * Fix a bug where `@extend`s would occasionally cause a selector to be generated
   with the incorrect specificity.
@@ -507,7 +507,7 @@ of all directives, but will preserve any CSS rules.
 
 [cc bug]: http://jes.st/2013/ie7s-css-breaking-content-counter-bug/
 
-## 3.2.8
+## 3.2.8 (22 April 2013)
 
 * Fix some edge cases where redundant selectors were emitted when using
   `@extend`.
@@ -532,7 +532,7 @@ of all directives, but will preserve any CSS rules.
 * Fix a case where a mixin loop error would be incorrectly reported when using
   `@content`.
 
-## 3.2.7
+## 3.2.7 (8 March 2013)
 
 * The \{Sass::Script::Functions#index `index`} and \{Sass::Script::Functions#zip
   `zip`} functions now work like all other list functions and treat individual
@@ -547,7 +547,7 @@ of all directives, but will preserve any CSS rules.
 * Fix a case where very long numbers would cause the SCSS parser to
   take exponential time.
 
-## 3.2.6
+## 3.2.6 (22 February 2013)
 
 * Support for Rubinius 2.0.0.rc1. All tests pass in 1.8 mode. 1.9 mode has some
   tests blocked on [Rubinius issue
@@ -566,7 +566,7 @@ of all directives, but will preserve any CSS rules.
 * Update the bundled version of [listen](http://github.com/guard/listen) to
   0.7.2.
 
-## 3.2.5
+## 3.2.5 (4 January 2013)
 
 * Fix a bug where bogus `@extend` warnings were being generated.
 
@@ -579,7 +579,7 @@ of all directives, but will preserve any CSS rules.
 * Fix incorrect line numbering when using DOS line endings with the indented
   syntax.
 
-## 3.2.4
+## 3.2.4 (21 December 2012)
 
 * Fix imports from `.jar` files in JRuby. Thanks to [Alex
   Hvostov](https://github.com/argv-minus-one).
@@ -589,7 +589,7 @@ of all directives, but will preserve any CSS rules.
 * Fix a parsing performance bug where long decimals would occasionally take many
   minutes to parse.
 
-## 3.2.3
+## 3.2.3 (9 November 2012)
 
 * `sass --watch` no longer crashs when a file in a watched directory is deleted.
 
@@ -600,7 +600,7 @@ of all directives, but will preserve any CSS rules.
 * Work around a performance bug that arises from using `@extend` with
   deeply-nested selectors.
 
-## 3.2.2
+## 3.2.2 (2 November 2012)
 
 * Add a `--poll` option to force `sass --watch` to use the polling backend to
   [Listen](https://github.com/guard/listen).
