@@ -29,6 +29,7 @@ module Sass
       def initialize(str, line, offset, options = {})
         @options = options
         @lexer = lexer_class.new(str, line, offset, options)
+        @in_parens = @stop_at = nil
       end
 
       # Parses a SassScript expression within an interpolated segment (`#{}`).

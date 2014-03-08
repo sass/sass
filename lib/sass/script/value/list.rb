@@ -21,6 +21,7 @@ module Sass::Script::Value
     def initialize(value, separator)
       super(value)
       @separator = separator
+      @map = nil
     end
 
     # @see Value#options=

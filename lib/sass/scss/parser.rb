@@ -30,6 +30,7 @@ module Sass
         @line = line
         @offset = offset
         @strs = []
+        @throw_error = @use_property_exception = @expected = nil
       end
 
       # Parses an SCSS document.

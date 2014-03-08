@@ -35,6 +35,7 @@ module Sass
       # Backwards compatibility
       @options[:old] = true if @options[:alternate] == false
       @template = template
+      @checked_encoding = nil
     end
 
     # Converts the CSS template into Sass or SCSS code.

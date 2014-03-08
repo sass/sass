@@ -95,9 +95,14 @@ module Sass
     def initialize(parent = nil, options = nil)
       @parent = parent
       @options = options || (parent && parent.options) || {}
-      @stack = Sass::Stack.new if @parent.nil?
+      if @parent.nil?
+        @stack = Sass::Stack.new
+      else
+        @stack = nil
+      end
       @global_warning_given = Set.new
       @deprecated_false_warning_given = Set.new
+      @selector = @vars = @mixins = @functions = @caller = @content = nil
     end
 
     # The environment of the caller of this environment's mixin or function.
@@ -168,6 +173,11 @@ module Sass
     # function
     # Sass::Callable
     inherited_hash_writer :function
+
+    def initialize(*args)
+      super(*args)
+      @vars = @mixin = @function = nil
+    end
   end
 
   # A read-only wrapper for a lexical environment for SassScript.
