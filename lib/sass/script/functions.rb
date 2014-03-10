@@ -2082,7 +2082,7 @@ module Sass::Script
     #   call(scale-color, #0a64ff, $lightness: -10%) => #0058ef
     #
     #   $fn: nth;
-    #   call($fn, 2, (a b c)) => b
+    #   call($fn, (a b c), 2) => b
     #
     # @overload call($name, $args...)
     # @param $name [String] The name of the function to call.

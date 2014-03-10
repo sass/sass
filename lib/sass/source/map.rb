@@ -97,9 +97,9 @@ module Sass::Source
         raise ArgumentError.new("Sass::Source::Map#to_json requires either " \
           "the :css_uri option or both the :css_path and :soucemap_path options.")
       end
-      css_path &&= Pathname.pwd.join(Sass::Util.pathname(css_path)).cleanpath
-      sourcemap_path &&= Pathname.pwd.join(Sass::Util.pathname(sourcemap_path)).cleanpath
-      css_uri ||= css_path.relative_path_from(sourcemap_path.dirname).to_s
+      css_path &&= Sass::Util.pathname(Sass::Util.absolute_path(css_path))
+      sourcemap_path &&= Sass::Util.pathname(Sass::Util.absolute_path(sourcemap_path))
+      css_uri ||= css_path.relative_path_from(sourcemap_path.dirname).to_s.tr('\\', '/')
 
       result = "{\n"
       write_json_field(result, "version", 3, true)

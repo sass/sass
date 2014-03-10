@@ -68,8 +68,8 @@ module Sass
         if sourcemap_directory.nil?
           warn_about_public_url(name)
         else
-          file_pathname = Sass::Util.pathname(Sass::Util.absolute_path(name, @root)).cleanpath
-          sourcemap_pathname = Sass::Util.pathname(sourcemap_directory).cleanpath
+          file_pathname = Sass::Util.cleanpath(Sass::Util.absolute_path(name, @root))
+          sourcemap_pathname = Sass::Util.cleanpath(sourcemap_directory)
           begin
             file_pathname.relative_path_from(sourcemap_pathname).to_s
           rescue ArgumentError # when a relative path cannot be constructed
@@ -147,7 +147,7 @@ module Sass
             "#{escape_glob_characters(dir)}/#{f}"
           Dir[path].map do |full_path|
             full_path.gsub!(REDUNDANT_DIRECTORY, File::SEPARATOR)
-            [Sass::Util.pathname(full_path).cleanpath.to_s, s]
+            [Sass::Util.cleanpath(full_path).to_s, s]
           end
         end
         found = Sass::Util.flatten(found, 1)

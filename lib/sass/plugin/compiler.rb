@@ -226,6 +226,11 @@ module Sass::Plugin
       end
       directories = remove_redundant_directories(directories)
 
+      # A Listen version prior to 2.0 will write a test file to a directory to
+      # see if a watcher supports watching that directory. That breaks horribly
+      # on read-only directories, so we filter those out.
+      directories.reject {|d| File.writable?(d)} unless Sass::Util.listen_geq_2?
+
       # TODO: Keep better track of what depends on what
       # so we don't have to run a global update every time anything changes.
       listener_args = directories + [{:relative_paths => false}]
@@ -240,49 +245,7 @@ module Sass::Plugin
       end
 
       listener = create_listener(*listener_args) do |modified, added, removed|
-        recompile_required = false
-
-        modified.uniq.each do |f|
-          next unless watched_file?(f)
-          recompile_required = true
-          run_template_modified(relative_to_pwd(f))
-        end
-
-        added.uniq.each do |f|
-          next unless watched_file?(f)
-          recompile_required = true
-          run_template_created(relative_to_pwd(f))
-        end
-
-        removed.uniq.each do |f|
-          if (files = individual_files.find {|(source, _, _)| File.expand_path(source) == f})
-            recompile_required = true
-            # This was a file we were watching explicitly and compiling to a particular location.
-            # Delete the corresponding file.
-            try_delete_css files[1]
-          else
-            next unless watched_file?(f)
-            recompile_required = true
-            # Look for the sass directory that contained the sass file
-            # And try to remove the css file that corresponds to it
-            template_location_array.each do |(sass_dir, css_dir)|
-              sass_dir = File.expand_path(sass_dir)
-              if child_of_directory?(sass_dir, f)
-                remainder = f[(sass_dir.size + 1)..-1]
-                try_delete_css(css_filename(remainder, css_dir))
-                break
-              end
-            end
-          end
-          run_template_deleted(relative_to_pwd(f))
-        end
-
-        if recompile_required
-          # In case a file we're watching is removed and then recreated we
-          # prune out the non-existant files here.
-          watched_files_remaining = individual_files.select {|(source, _, _)| File.exists?(source)}
-          update_stylesheets(watched_files_remaining)
-        end
+        on_file_changed(individual_files, modified, added, removed)
       end
 
       if poll && !Sass::Util.listen_geq_2?
@@ -313,7 +276,7 @@ module Sass::Plugin
     private
 
     def create_listener(*args, &block)
-      require 'listen'
+      load_listen!
       if Sass::Util.listen_geq_2?
         Listen.to(*args, &block)
       else
@@ -323,16 +286,12 @@ module Sass::Plugin
 
     def listen_to(listener)
       if Sass::Util.listen_geq_2?
-        listener.start
-        listener.thread.join
-        listener.stop # Partially work around guard/listen#146
+        listener.start.join
       else
-        begin
-          listener.start!
-        rescue Interrupt
-          # Squelch Interrupt for clean exit from Listen::Listener
-        end
+        listener.start!
       end
+    rescue Interrupt
+      # Squelch Interrupt for clean exit from Listen::Listener
     end
 
     def remove_redundant_directories(directories)
@@ -349,6 +308,90 @@ module Sass::Plugin
         dedupped << new_directory
       end
       dedupped
+    end
+
+    def load_listen!
+      if defined?(gem)
+        begin
+          gem 'listen', '>= 1.1.0', '< 3.0.0'
+          require 'listen'
+        rescue Gem::LoadError
+          dir = Sass::Util.scope("vendor/listen/lib")
+          $LOAD_PATH.unshift dir
+          begin
+            require 'listen'
+          rescue LoadError => e
+            if Sass::Util.version_geq(RUBY_VERSION, "1.9.3")
+              version_constraint = "~> 2.7"
+            else
+              version_constraint = "~> 1.1"
+            end
+            e.message << "\n" <<
+              "Run \"gem install listen --version '#{version_constraint}'\" to get it."
+            raise e
+          end
+        end
+      else
+        begin
+          require 'listen'
+        rescue LoadError => e
+          dir = Sass::Util.scope("vendor/listen/lib")
+          if $LOAD_PATH.include?(dir)
+            raise e unless File.exists?(scope(".git"))
+            e.message << "\n" <<
+              'Run "git submodule update --init" to get the bundled version.'
+          else
+            $LOAD_PATH.unshift dir
+            retry
+          end
+        end
+      end
+    end
+
+    def on_file_changed(individual_files, modified, added, removed)
+      recompile_required = false
+
+      modified.uniq.each do |f|
+        next unless watched_file?(f)
+        recompile_required = true
+        run_template_modified(relative_to_pwd(f))
+      end
+
+      added.uniq.each do |f|
+        next unless watched_file?(f)
+        recompile_required = true
+        run_template_created(relative_to_pwd(f))
+      end
+
+      removed.uniq.each do |f|
+        if (files = individual_files.find {|(source, _, _)| File.expand_path(source) == f})
+          recompile_required = true
+          # This was a file we were watching explicitly and compiling to a particular location.
+          # Delete the corresponding file.
+          try_delete_css files[1]
+        else
+          next unless watched_file?(f)
+          recompile_required = true
+          # Look for the sass directory that contained the sass file
+          # And try to remove the css file that corresponds to it
+          template_location_array.each do |(sass_dir, css_dir)|
+            sass_dir = File.expand_path(sass_dir)
+            if child_of_directory?(sass_dir, f)
+              remainder = f[(sass_dir.size + 1)..-1]
+              try_delete_css(css_filename(remainder, css_dir))
+              break
+            end
+          end
+        end
+        run_template_deleted(relative_to_pwd(f))
+      end
+
+      if recompile_required
+        # In case a file we're watching is removed and then recreated we
+        # prune out the non-existant files here.
+        watched_files_remaining = individual_files.select {|(source, _, _)| File.exists?(source)}
+        update_stylesheets(watched_files_remaining)
+      end
     end
 
     def update_stylesheet(filename, css, sourcemap)
