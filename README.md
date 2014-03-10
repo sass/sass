@@ -28,6 +28,10 @@ The first step is to install the gem:
 
     gem install sass
 
+If you are using Debian-like Operating System it could be easiest to install from apt-get
+
+    sudo apt-get install ruby-sass
+
 After you convert some CSS to Sass, you can run
 
     sass style.scss
