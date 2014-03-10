@@ -3,6 +3,43 @@
 * Table of contents
 {:toc}
 
+## 3.3.1 (Unreleased)
+
+This release includes a number of fixes for issues that popped up in the
+immediate aftermath of the 3.3.0 release.
+
+### Re-bundle [listen](http://github.com/guard/listen)
+
+With 3.3.0, we un-bundled the listen library from Sass. We did so hoping that it
+would make it easier for users to keep up to date with the latest features and
+bug fixes, but unfortunately listen 2.0 and on have dropped support for Ruby
+1.8.7, which Sass continues to support. Further complicating things, RubyGems
+lacks the ability to install only the version of listen supported by the current
+Ruby installation, so we were unable to use a standard Gem dependency on listen.
+
+To work around this, we tried to piggyback on RubyGems' native extension support
+to install the correct version of listen when Sass was installed. This is what
+we released in 3.3.0. However, this caused numerous problems in practice,
+especially for users on Windows. It quickly became clear that this wasn't a
+viable long-term solution.
+
+As such, we're going back to the bundling strategy. While not perfect, this
+worked well enough for the duration of the Sass 3.2 release, and we expect it to
+cause much less havoc than un-bundling. We'll bundle listen 1.3.1, the most
+recent version that retains Ruby 1.8.7 compatibility. If a user of Sass has a
+more recent version of listen installed, that will be preferred to the bundled
+version. Listen versions through 2.7.0 have been tested, and we expect the code
+to work without modification on versions up to 3.0.0, assuming no major API
+changes.
+
+### Smaller Changes
+
+* Fixed a small interface incompatibility with listen 2.7.0.
+
+* Fix some corner cases of path handling on Windows.
+
+* Avoid errors when trying to watch read-only directories using listen 1.x.
+
 ## 3.3.0 (7 March 2014)
 
 ### SassScript Maps
