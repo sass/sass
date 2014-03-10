@@ -583,11 +583,26 @@ module Sass
     # Like `Pathname.new`, but normalizes Windows paths to always use backslash
     # separators.
     #
-    # `Pathname.relative_path_from` can break if the two pathnames aren't
+    # `Pathname#relative_path_from` can break if the two pathnames aren't
     # consistent in their slash style.
+    #
+    # @param path [String]
+    # @return [Pathname]
     def pathname(path)
       path = path.tr("/", "\\") if windows?
       Pathname.new(path)
+    end
+
+    # Like `Pathname#cleanpath`, but normalizes Windows paths to always use
+    # backslash separators. Normally, `Pathname#cleanpath` actually does the
+    # reverse -- it will convert backslashes to forward slashes, which can break
+    # `Pathname#relative_path_from`.
+    #
+    # @param path [String, Pathname]
+    # @return [Pathname]
+    def cleanpath(path)
+      path = Pathname.new(path) unless path.is_a?(Pathname)
+      pathname(path.cleanpath.to_s)
     end
 
     # Prepare a value for a destructuring assignment (e.g. `a, b =
