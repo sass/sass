@@ -323,16 +323,12 @@ module Sass::Plugin
 
     def listen_to(listener)
       if Sass::Util.listen_geq_2?
-        listener.start
-        listener.thread.join
-        listener.stop # Partially work around guard/listen#146
+        listener.start.join
       else
-        begin
-          listener.start!
-        rescue Interrupt
-          # Squelch Interrupt for clean exit from Listen::Listener
-        end
+        listener.start!
       end
+    rescue Interrupt
+      # Squelch Interrupt for clean exit from Listen::Listener
     end
 
     def remove_redundant_directories(directories)
