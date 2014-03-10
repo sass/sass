@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.3.1 (Unreleased)
+## 3.3.1 (10 March 2014)
 
 This release includes a number of fixes for issues that popped up in the
 immediate aftermath of the 3.3.0 release.
