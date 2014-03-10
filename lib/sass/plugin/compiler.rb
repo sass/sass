@@ -245,49 +245,7 @@ module Sass::Plugin
       end
 
       listener = create_listener(*listener_args) do |modified, added, removed|
-        recompile_required = false
-
-        modified.uniq.each do |f|
-          next unless watched_file?(f)
-          recompile_required = true
-          run_template_modified(relative_to_pwd(f))
-        end
-
-        added.uniq.each do |f|
-          next unless watched_file?(f)
-          recompile_required = true
-          run_template_created(relative_to_pwd(f))
-        end
-
-        removed.uniq.each do |f|
-          if (files = individual_files.find {|(source, _, _)| File.expand_path(source) == f})
-            recompile_required = true
-            # This was a file we were watching explicitly and compiling to a particular location.
-            # Delete the corresponding file.
-            try_delete_css files[1]
-          else
-            next unless watched_file?(f)
-            recompile_required = true
-            # Look for the sass directory that contained the sass file
-            # And try to remove the css file that corresponds to it
-            template_location_array.each do |(sass_dir, css_dir)|
-              sass_dir = File.expand_path(sass_dir)
-              if child_of_directory?(sass_dir, f)
-                remainder = f[(sass_dir.size + 1)..-1]
-                try_delete_css(css_filename(remainder, css_dir))
-                break
-              end
-            end
-          end
-          run_template_deleted(relative_to_pwd(f))
-        end
-
-        if recompile_required
-          # In case a file we're watching is removed and then recreated we
-          # prune out the non-existant files here.
-          watched_files_remaining = individual_files.select {|(source, _, _)| File.exists?(source)}
-          update_stylesheets(watched_files_remaining)
-        end
+        on_file_changed(individual_files, modified, added, removed)
       end
 
       if poll && !Sass::Util.listen_geq_2?
@@ -387,6 +345,52 @@ module Sass::Plugin
             retry
           end
         end
+      end
+    end
+
+    def on_file_changed(individual_files, modified, added, removed)
+      recompile_required = false
+
+      modified.uniq.each do |f|
+        next unless watched_file?(f)
+        recompile_required = true
+        run_template_modified(relative_to_pwd(f))
+      end
+
+      added.uniq.each do |f|
+        next unless watched_file?(f)
+        recompile_required = true
+        run_template_created(relative_to_pwd(f))
+      end
+
+      removed.uniq.each do |f|
+        if (files = individual_files.find {|(source, _, _)| File.expand_path(source) == f})
+          recompile_required = true
+          # This was a file we were watching explicitly and compiling to a particular location.
+          # Delete the corresponding file.
+          try_delete_css files[1]
+        else
+          next unless watched_file?(f)
+          recompile_required = true
+          # Look for the sass directory that contained the sass file
+          # And try to remove the css file that corresponds to it
+          template_location_array.each do |(sass_dir, css_dir)|
+            sass_dir = File.expand_path(sass_dir)
+            if child_of_directory?(sass_dir, f)
+              remainder = f[(sass_dir.size + 1)..-1]
+              try_delete_css(css_filename(remainder, css_dir))
+              break
+            end
+          end
+        end
+        run_template_deleted(relative_to_pwd(f))
+      end
+
+      if recompile_required
+        # In case a file we're watching is removed and then recreated we
+        # prune out the non-existant files here.
+        watched_files_remaining = individual_files.select {|(source, _, _)| File.exists?(source)}
+        update_stylesheets(watched_files_remaining)
       end
     end
 
