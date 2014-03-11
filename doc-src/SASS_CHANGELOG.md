@@ -78,6 +78,10 @@ can use it in a mixin to detect whether a parent selector exists:
   overwritten unless the `!global` flag is used. For example, `$var: value
   !global` will assign to `$var` globally.
 
+## 3.3.2 (11 March 2014)
+
+* Fix a bug with loading the bundled version of Listen.
+
 ## 3.3.1 (10 March 2014)
 
 This release includes a number of fixes for issues that popped up in the
