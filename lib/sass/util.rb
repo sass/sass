@@ -507,8 +507,14 @@ module Sass
     #
     # @return [Boolean]
     def listen_geq_2?
-      require 'listen/version'
-      version_geq(::Listen::VERSION, '2.0.0')
+      return @listen_geq_2 unless @listen_geq_2.nil?
+      @listen_geq_2 =
+        begin
+          require 'listen/version'
+          version_geq(::Listen::VERSION, '2.0.0')
+        rescue LoadError => e
+          false
+        end
     end
 
     # Returns an ActionView::Template* class.
