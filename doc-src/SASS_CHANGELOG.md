@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.3.2 (Unreleased)
+## 3.3.2 (11 March 2014)
 
 * Fix a bug with loading the bundled version of Listen.
 
