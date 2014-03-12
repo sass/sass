@@ -512,7 +512,7 @@ module Sass
         begin
           require 'listen/version'
           version_geq(::Listen::VERSION, '2.0.0')
-        rescue LoadError => e
+        rescue LoadError
           false
         end
     end
