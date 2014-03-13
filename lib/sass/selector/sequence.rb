@@ -78,12 +78,12 @@ module Sass
       # Non-destructively extends this selector with the extensions specified in a hash
       # (which should come from {Sass::Tree::Visitors::Cssize}).
       #
-      # @overload def do_extend(extends, parent_directives)
-      # @param extends [Sass::Util::SubsetMap{Selector::Simple =>
-      #                                       Sass::Tree::Visitors::Cssize::Extend}]
-      #   The extensions to perform on this selector
-      # @param parent_directives [Array<Sass::Tree::DirectiveNode>]
-      #   The directives containing this selector.
+      # @overload do_extend(extends, parent_directives)
+      #   @param extends [Sass::Util::SubsetMap{Selector::Simple =>
+      #                                         Sass::Tree::Visitors::Cssize::Extend}]
+      #     The extensions to perform on this selector
+      #   @param parent_directives [Array<Sass::Tree::DirectiveNode>]
+      #     The directives containing this selector.
       # @return [Array<Sequence>] A list of selectors generated
       #   by extending this selector with `extends`.
       #   These correspond to a {CommaSequence}'s {CommaSequence#members members array}.
