@@ -3,6 +3,12 @@
 * Table of contents
 {:toc}
 
+## 3.3.3 (Unreleased)
+
+* Fix a bug in Sass that was causing caching errors when unserializable objects
+  were in the Ruby options hash. Note that these errors may persist when using
+  Sass with Sprockets until the Sprockets importer is made serializable.
+
 ## 3.3.2 (11 March 2014)
 
 * Fix a bug with loading the bundled version of Listen.
