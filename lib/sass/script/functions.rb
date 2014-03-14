@@ -1,6 +1,9 @@
 require 'sass/script/value/helpers'
 
 module Sass::Script
+  # @comment
+  #   YARD can't handle some multiline tags, and we need really long tags for function declarations.
+  #   rubocop:disable LineLength
   # Methods in this module are accessible from the SassScript context.
   # For example, you can write
   #
@@ -93,16 +96,13 @@ module Sass::Script
   #
   # ## Other Color Functions
   #
-  # \{#adjust_color adjust-color($color, \[$red\], \[$green\], \[$blue\],
-  #   \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\])}
+  # \{#adjust_color adjust-color($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\])}
   # : Increases or decreases one or more components of a color.
   #
-  # \{#scale_color scale-color($color, \[$red\], \[$green\], \[$blue\],
-  #   \[$saturation\], \[$lightness\], \[$alpha\])}
+  # \{#scale_color scale-color($color, \[$red\], \[$green\], \[$blue\], \[$saturation\], \[$lightness\], \[$alpha\])}
   # : Fluidly scales one or more properties of a color.
   #
-  # \{#change_color change-color($color, \[$red\], \[$green\], \[$blue\],
-  #   \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\])}
+  # \{#change_color change-color($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\])}
   # : Changes one or more properties of a color.
   #
   # \{#ie_hex_str ie-hex-str($color)}
@@ -302,6 +302,9 @@ module Sass::Script
   # safe to call {Value::Base#to_s #to_s} (or other methods that use the string
   # representation) on those objects without first setting {Tree::Node#options=
   # the #options attribute}.
+  #
+  # @comment
+  #   rubocop:enable LineLength
   module Functions
     @signatures = {}
 
@@ -1023,7 +1026,11 @@ module Sass::Script
     #   adjust-color(#102030, $blue: 5) => #102035
     #   adjust-color(#102030, $red: -5, $blue: 5) => #0b2035
     #   adjust-color(hsl(25, 100%, 80%), $lightness: -30%, $alpha: -0.4) => hsla(25, 100%, 50%, 0.6)
+    # @comment
+    #   rubocop:disable LineLength
     # @overload adjust_color($color, [$red], [$green], [$blue], [$hue], [$saturation], [$lightness], [$alpha])
+    #   @comment
+    #     rubocop:disable LineLength
     #   @param $color [Sass::Script::Value::Color]
     #   @param $red [Sass::Script::Value::Number] The adjustment to make on the
     #     red component, between -255 and 255 inclusive
@@ -1100,7 +1107,11 @@ module Sass::Script
     #   scale-color(hsl(120, 70%, 80%), $lightness: 50%) => hsl(120, 70%, 90%)
     #   scale-color(rgb(200, 150%, 170%), $green: -40%, $blue: 70%) => rgb(200, 90, 229)
     #   scale-color(hsl(200, 70%, 80%), $saturation: -90%, $alpha: -30%) => hsla(200, 7%, 80%, 0.7)
+    # @comment
+    #   rubocop:disable LineLength
     # @overload scale_color($color, [$red], [$green], [$blue], [$saturation], [$lightness], [$alpha])
+    #   @comment
+    #     rubocop:disable LineLength
     #   @param $color [Sass::Script::Value::Color]
     #   @param $red [Sass::Script::Value::Number]
     #   @param $green [Sass::Script::Value::Number]
@@ -1157,7 +1168,11 @@ module Sass::Script
     #   change-color(#102030, $blue: 5) => #102005
     #   change-color(#102030, $red: 120, $blue: 5) => #782005
     #   change-color(hsl(25, 100%, 80%), $lightness: 40%, $alpha: 0.8) => hsla(25, 100%, 40%, 0.8)
+    # @comment
+    #   rubocop:disable LineLength
     # @overload change_color($color, [$red], [$green], [$blue], [$hue], [$saturation], [$lightness], [$alpha])
+    #   @comment
+    #     rubocop:disable LineLength
     #   @param $color [Sass::Script::Value::Color]
     #   @param $red [Sass::Script::Value::Number] The new red component for the
     #     color, within 0 and 255 inclusive
