@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.3.3 (Unreleased)
+## 3.3.3 (14 March 2014)
 
 * Fix a bug in Sass that was causing caching errors when unserializable objects
   were in the Ruby options hash. Note that these errors may persist when using
