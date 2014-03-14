@@ -78,6 +78,12 @@ can use it in a mixin to detect whether a parent selector exists:
   overwritten unless the `!global` flag is used. For example, `$var: value
   !global` will assign to `$var` globally.
 
+## 3.3.3 (14 March 2014)
+
+* Fix a bug in Sass that was causing caching errors when unserializable objects
+  were in the Ruby options hash. Note that these errors may persist when using
+  Sass with Sprockets until the Sprockets importer is made serializable.
+
 ## 3.3.2 (11 March 2014)
 
 * Fix a bug with loading the bundled version of Listen.
