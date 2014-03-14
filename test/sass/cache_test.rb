@@ -66,17 +66,52 @@ class CacheTest < Test::Unit::TestCase
     assert_equal an_object, cache.retrieve("an_object", "")
   end
 
-  class Unmarshalable
-    def _dump(_)
-      raise 'Unmarshalable'
-    end
+  def test_cache_node_with_unmarshalable_option
+    engine_with_unmarshalable_options("foo {a: b + c}").to_tree
   end
 
-  def test_cache_node_with_unmarshalable_option
-    engine = Sass::Engine.new("foo {a: b + c}",
-      :syntax => :scss, :object => Unmarshalable.new, :filename => 'file.scss',
-      :importer => Sass::Importers::Filesystem.new(absolutize('templates')))
-    engine.to_tree
+  # Regression tests
+
+  def test_cache_mixin_def_splat_sass_node_with_unmarshalable_option
+    engine_with_unmarshalable_options(<<SASS, :syntax => :sass).to_tree
+=color($args...)
+  color: red
+SASS
+  end
+
+  def test_cache_mixin_def_splat_scss_node_with_unmarshalable_option
+    engine_with_unmarshalable_options(<<SCSS, :syntax => :scss).to_tree
+@mixin color($args...) {
+  color: red;
+}
+SCSS
+  end
+
+  def test_cache_function_splat_sass_node_with_unmarshalable_option
+    engine_with_unmarshalable_options(<<SASS, :syntax => :sass).to_tree
+@function color($args...)
+  @return red
+SASS
+  end
+
+  def test_cache_function_splat_scss_node_with_unmarshalable_option
+    engine_with_unmarshalable_options(<<SCSS, :syntax => :scss).to_tree
+@function color($args...) {
+  @return red;
+}
+SCSS
+  end
+
+  def test_cache_include_splat_sass_node_with_unmarshalable_option
+    engine_with_unmarshalable_options(<<SASS, :syntax => :sass).to_tree
+@include color($args..., $kwargs...)
+SASS
+  end
+
+  def test_cache_include_splat_scss_node_with_unmarshalable_option
+    engine_with_unmarshalable_options(<<SCSS, :syntax => :scss).to_tree
+@include color($args..., $kwargs...);
+SCSS
   end
 
   private
@@ -85,5 +120,12 @@ class CacheTest < Test::Unit::TestCase
       @mixin color($c) { color: $c}
       div { @include color(red); }
     SCSS
+  end
+
+  def engine_with_unmarshalable_options(src, options={})
+    Sass::Engine.new(src, {
+      :syntax => :scss, :object => Class.new.new, :filename => 'file.scss',
+      :importer => Sass::Importers::Filesystem.new(absolutize('templates'))
+    }.merge(options))
   end
 end
