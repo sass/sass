@@ -72,18 +72,45 @@ class CacheTest < Test::Unit::TestCase
 
   # Regression tests
 
-  def test_cache_varargs_sass_node_with_unmarshalable_option
+  def test_cache_mixin_def_splat_sass_node_with_unmarshalable_option
     engine_with_unmarshalable_options(<<SASS, :syntax => :sass).to_tree
 =color($args...)
   color: red
 SASS
   end
 
-  def test_cache_varargs_scss_node_with_unmarshalable_option
+  def test_cache_mixin_def_splat_scss_node_with_unmarshalable_option
     engine_with_unmarshalable_options(<<SCSS, :syntax => :scss).to_tree
 @mixin color($args...) {
   color: red;
 }
+SCSS
+  end
+
+  def test_cache_function_splat_sass_node_with_unmarshalable_option
+    engine_with_unmarshalable_options(<<SASS, :syntax => :sass).to_tree
+@function color($args...)
+  @return red
+SASS
+  end
+
+  def test_cache_function_splat_scss_node_with_unmarshalable_option
+    engine_with_unmarshalable_options(<<SCSS, :syntax => :scss).to_tree
+@function color($args...) {
+  @return red;
+}
+SCSS
+  end
+
+  def test_cache_include_splat_sass_node_with_unmarshalable_option
+    engine_with_unmarshalable_options(<<SASS, :syntax => :sass).to_tree
+@include color($args..., $kwargs...)
+SASS
+  end
+
+  def test_cache_include_splat_scss_node_with_unmarshalable_option
+    engine_with_unmarshalable_options(<<SCSS, :syntax => :scss).to_tree
+@include color($args..., $kwargs...);
 SCSS
   end
 

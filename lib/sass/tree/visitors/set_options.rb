@@ -41,6 +41,7 @@ class Sass::Tree::Visitors::SetOptions < Sass::Tree::Visitors::Base
       k.options = @options
       v.options = @options if v
     end
+    node.splat.options = @options if node.splat
     yield
   end
 
@@ -70,6 +71,8 @@ class Sass::Tree::Visitors::SetOptions < Sass::Tree::Visitors::Base
   def visit_mixin(node)
     node.args.each {|a| a.options = @options}
     node.keywords.each {|k, v| v.options = @options}
+    node.splat.options = @options if node.splat
+    node.kwarg_splat.options = @options if node.kwarg_splat
     yield
   end
 
