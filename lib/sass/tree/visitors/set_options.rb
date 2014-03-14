@@ -63,6 +63,7 @@ class Sass::Tree::Visitors::SetOptions < Sass::Tree::Visitors::Base
       k.options = @options
       v.options = @options if v
     end
+    node.splat.options = @options if node.splat
     yield
   end
 

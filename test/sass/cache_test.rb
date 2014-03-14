@@ -73,10 +73,22 @@ class CacheTest < Test::Unit::TestCase
   end
 
   def test_cache_node_with_unmarshalable_option
-    engine = Sass::Engine.new("foo {a: b + c}",
-      :syntax => :scss, :object => Unmarshalable.new, :filename => 'file.scss',
-      :importer => Sass::Importers::Filesystem.new(absolutize('templates')))
-    engine.to_tree
+    engine_with_unmarshalable_options("foo {a: b + c}").to_tree
+  end
+
+  def test_cache_varargs_sass_node_with_unmarshalable_option
+    engine_with_unmarshalable_options(<<-SASS, :syntax => :sass).to_tree
+=color($args...)
+  color: red
+SASS
+  end
+
+  def test_cache_varargs_scss_node_with_unmarshalable_option
+    engine_with_unmarshalable_options(<<-SCSS, :syntax => :scss).to_tree
+      @mixin color($args...) {
+        color: red;
+      }
+    SCSS
   end
 
   private
@@ -85,5 +97,12 @@ class CacheTest < Test::Unit::TestCase
       @mixin color($c) { color: $c}
       div { @include color(red); }
     SCSS
+  end
+
+  def engine_with_unmarshalable_options(src, options={})
+    Sass::Engine.new(src, {
+      :syntax => :scss, :object => Unmarshalable.new, :filename => 'file.scss',
+      :importer => Sass::Importers::Filesystem.new(absolutize('templates'))
+    }.merge(options))
   end
 end
