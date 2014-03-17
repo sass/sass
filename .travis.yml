@@ -10,5 +10,6 @@ branches:
   only:
     - master
     - stable
+    - stable_3_2
 notifications:
   irc: {channels: "irc.freenode.org#sass"}
