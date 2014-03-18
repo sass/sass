@@ -458,6 +458,7 @@ module Sass::Script
       def initialize(environment)
         @environment = environment
         @options = environment.options
+        extend @options[:functions] if @options[:functions]
       end
 
       # Asserts that the type of a given SassScript value
