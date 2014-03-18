@@ -472,6 +472,11 @@ of all directives, but will preserve any CSS rules.
 * `percentage()`, `round()`, `ceil()`, `floor()`, and `abs()` now
   take arguments named '$number' instead of '$value'.
 
+## 3.2.16 (17 March 2014)
+
+* Handle a race condition in the filesystem cache store when a cache
+  entry becomes invalidated.
+
 ## 3.2.15 (7 March 2014)
 
 * Support `&.foo` when the parent selector has a newline followed by a comma.
