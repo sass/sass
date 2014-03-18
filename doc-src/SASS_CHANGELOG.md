@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.2.16
+
+* Handle a race condition in the filesystem cache store when a cache
+  entry becomes invalidated.
+
 ## 3.2.15
 
 * Support `&.foo` when the parent selector has a newline followed by a comma.
