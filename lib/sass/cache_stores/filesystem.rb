@@ -22,7 +22,11 @@ module Sass
             return f.read
           end
         end
-        File.unlink path_to(key)
+        begin
+          File.unlink path_to(key)
+        rescue Errno::ENOENT
+          # Already deleted. Race condition?
+        end
         nil
       rescue EOFError, TypeError, ArgumentError => e
         Sass::Util.sass_warn "Warning. Error encountered while reading cache #{path_to(key)}: #{e}"
