@@ -59,7 +59,7 @@ module Sass
       #
       # In the worst case, this runs in `O(m*max(n, log m))` time,
       # where `n` is the size of `set`
-      # and `m` is the number of assocations in the map.
+      # and `m` is the number of associations in the map.
       # However, unless many keys in the map overlap with `set`,
       # `m` will typically be much smaller.
       #

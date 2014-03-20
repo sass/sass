@@ -1,7 +1,7 @@
 require 'sass/tree/node'
 
 module Sass::Tree
-  # A static node reprenting an `@extend` directive.
+  # A static node representing an `@extend` directive.
   #
   # @see Sass::Tree
   class ExtendNode < Node
