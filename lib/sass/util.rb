@@ -880,9 +880,14 @@ MSG
     def atomic_create_and_write_file(filename)
       require 'tempfile'
       tmpfile = Tempfile.new(File.basename(filename), File.dirname(filename))
-      tmp_path = tmpfile.path
       tmpfile.binmode if tmpfile.respond_to?(:binmode)
       result = yield tmpfile
+      tmpfile.flush # ensure all writes are flushed to the OS
+      begin
+        tmpfile.fsync # ensure all buffered data in the OS is sync'd to disk.
+      rescue NotImplementedError
+        # Not all OSes support fsync
+      end
       File.rename tmpfile.path, filename
       result
     ensure

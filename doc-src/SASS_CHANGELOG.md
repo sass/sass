@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.2.17
+
+* Ensure that atomic writes are fully flushed to disk.
+
 ## 3.2.16
 
 * Handle a race condition in the filesystem cache store when a cache
