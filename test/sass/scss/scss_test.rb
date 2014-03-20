@@ -3099,7 +3099,7 @@ SCSS
   end
 
   # Regression
- 
+
   def test_parent_ref_with_newline
     assert_equal(<<CSS, render(<<SCSS))
 a.c
@@ -3422,10 +3422,10 @@ SCSS
 }
 .aaa .aaa .aaa {
   background-color: black;
-}   
+}
 .bbb {
   @extend .aaa;
-} 
+}
 .xxx {
   @extend .bbb;
 }
