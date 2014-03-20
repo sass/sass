@@ -1274,7 +1274,7 @@ WARNING
 DEPRECATION WARNING: The return value of index() will change from "false" to
 "null" in future versions of Sass. For compatibility, avoid using "== false" on
 the return value. For example, instead of "@if index(...) == false", just write
-"@if index(...)".
+"@if not index(...)".
 WARNING
       assert_equal("true", evaluate("index(1, 2 3 4) == false"))
     end
@@ -1291,7 +1291,7 @@ WARNING
 DEPRECATION WARNING: The return value of index() will change from "false" to
 "null" in future versions of Sass. For compatibility, avoid using "== false" on
 the return value. For example, instead of "@if index(...) == false", just write
-"@if index(...)".
+"@if not index(...)".
 WARNING
       assert_equal("true", evaluate("false == index(1, 2 3 4)"))
     end
@@ -1310,12 +1310,12 @@ WARNING
 DEPRECATION WARNING: The return value of index() will change from "false" to
 "null" in future versions of Sass. For compatibility, avoid using "== false" on
 the return value. For example, instead of "@if index(...) == false", just write
-"@if index(...)".
+"@if not index(...)".
         on line 3 of test_index_deprecation_warning_is_only_emitted_once_per_call_inline.scss
 DEPRECATION WARNING: The return value of index() will change from "false" to
 "null" in future versions of Sass. For compatibility, avoid using "== false" on
 the return value. For example, instead of "@if index(...) == false", just write
-"@if index(...)".
+"@if not index(...)".
         on line 6 of test_index_deprecation_warning_is_only_emitted_once_per_call_inline.scss
 WARNING
       render(<<SCSS)

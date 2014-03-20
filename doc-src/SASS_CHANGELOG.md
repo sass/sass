@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.3.4 (Unreleased)
+
+* Improve the warning message for `index(...) == false`.
+
 ## 3.3.3 (14 March 2014)
 
 * Fix a bug in Sass that was causing caching errors when unserializable objects
