@@ -1885,7 +1885,7 @@ module Sass::Script
     # @example
     #   index(1px solid red, solid) => 2
     #   index(1px solid red, dashed) => null
-    #   index((width: 10px, height: 20px), (height, 20px)) => 2
+    #   index((width: 10px, height: 20px), (height 20px)) => 2
     # @overload index($list, $value)
     #   @param $list [Sass::Script::Value::Base]
     #   @param $value [Sass::Script::Value::Base]
