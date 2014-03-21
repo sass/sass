@@ -116,7 +116,7 @@ class SassScriptConversionTest < Test::Unit::TestCase
     op_outer = Sass::Script::Lexer::OPERATORS_REVERSE[outer]
     op_inner = Sass::Script::Lexer::OPERATORS_REVERSE[inner]
     class_eval <<RUBY
-      def test_precedence_#{outer}_#{inner} 
+      def test_precedence_#{outer}_#{inner}
         assert_renders "$foo #{op_outer} $bar #{op_inner} $baz"
         assert_renders "$foo #{op_inner} $bar #{op_outer} $baz"
 
@@ -135,7 +135,7 @@ RUBY
     op = separator_for(op_name)
     sibling = separator_for(sibling_name)
     class_eval <<RUBY
-      def test_associative_#{op_name}_#{sibling_name} 
+      def test_associative_#{op_name}_#{sibling_name}
         assert_renders "$foo#{op}$bar#{op}$baz"
 
         assert_equal "$foo#{op}$bar#{op}$baz",
@@ -163,7 +163,7 @@ RUBY
     op = Sass::Script::Lexer::OPERATORS_REVERSE[op_name]
     sibling = Sass::Script::Lexer::OPERATORS_REVERSE[sibling_name]
     class_eval <<RUBY
-      def test_non_associative_#{op_name}_#{sibling_name} 
+      def test_non_associative_#{op_name}_#{sibling_name}
         assert_renders "$foo #{op} $bar #{op} $baz"
 
         assert_renders "$foo #{op} ($bar #{op} $baz)"
