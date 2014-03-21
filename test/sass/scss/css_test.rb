@@ -94,7 +94,7 @@ foo {a /*: b; c */: d}
 SCSS
   end
 
-  def test_crazy_comments 
+  def test_crazy_comments
     # http://www.w3.org/Style/CSS/Test/CSS2.1/current/xhtml1/t040109-c17-comments-00-b.xht
     assert_equal <<CSS, render(<<SCSS)
 /* This is a CSS comment. */
@@ -836,7 +836,7 @@ SCSS
 
   def assert_selector_can_contain_selectors(sel)
     try = lambda {|subsel| assert_selector_parses(sel.gsub('<sel>', subsel))}
-    
+
     try['foo|bar']
     try['*|bar']
 

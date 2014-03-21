@@ -1,7 +1,7 @@
 require 'pathname'
 
 module Sass::Tree
-  # A static node reprenting a CSS rule.
+  # A static node representing a CSS rule.
   #
   # @see Sass::Tree
   class RuleNode < Node

@@ -128,7 +128,7 @@ module Sass
         end)
       end
 
-      # Non-destrucively extends this selector with the extensions specified in a hash
+      # Non-destructively extends this selector with the extensions specified in a hash
       # (which should come from {Sass::Tree::Visitors::Cssize}).
       #
       # @overload do_extend(extends, parent_directives)

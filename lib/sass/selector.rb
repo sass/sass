@@ -7,7 +7,7 @@ require 'sass/selector/simple_sequence'
 module Sass
   # A namespace for nodes in the parse tree for selectors.
   #
-  # {CommaSequence} is the toplevel seelctor,
+  # {CommaSequence} is the toplevel selector,
   # representing a comma-separated sequence of {Sequence}s,
   # such as `foo bar, baz bang`.
   # {Sequence} is the next level,

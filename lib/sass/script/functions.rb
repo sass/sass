@@ -922,7 +922,7 @@ module Sass::Script
     #   darken(#800, 20%) => #200
     # @overload darken($color, $amount)
     #   @param $color [Sass::Script::Value::Color]
-    #   @param $amount [Sass::Script::Value::Number] The amount to dencrease the
+    #   @param $amount [Sass::Script::Value::Number] The amount to decrease the
     #     lightness by, between `0%` and `100%`
     # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if `$amount` is out of bounds, or either parameter
@@ -1411,8 +1411,8 @@ module Sass::Script
     end
     declare :str_insert, [:string, :insert, :index]
 
-    # Returns the index of the first occurance of `$substring` in `$string`. If
-    # there is no such occurance, returns `null`.
+    # Returns the index of the first occurrence of `$substring` in `$string`. If
+    # there is no such occurrence, returns `null`.
     #
     # Note that unlike some languages, the first character in a Sass string is
     # number 1, the second number 2, and so forth.
@@ -2212,7 +2212,7 @@ module Sass::Script
     # Return a string containing the value as its Sass representation.
     #
     # @param value [Sass::Script::Value::Base] The value to inspect.
-    # @return [Sass::Script::Value::String] A respresentation of the value as
+    # @return [Sass::Script::Value::String] A representation of the value as
     #   it would be written in Sass.
     def inspect(value)
       unquoted_string(value.to_sass)
