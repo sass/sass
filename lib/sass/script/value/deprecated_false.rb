@@ -24,7 +24,7 @@ module Sass::Script::Value
 DEPRECATION WARNING: The return value of index() will change from "false" to
 "null" in future versions of Sass. For compatibility, avoid using "== false" on
 the return value. For example, instead of "@if index(...) == false", just write
-"@if index(...)".
+"@if not index(...)".
 WARNING
       end
       Bool.new(other.value == false)

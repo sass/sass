@@ -23,8 +23,12 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
   SCRIPT_NODES = [Sass::Tree::ImportNode] + CONTROL_NODES
   def visit_children(parent)
     old_parent = @parent
-    @parent = parent unless is_any_of?(parent, SCRIPT_NODES) ||
-      (parent.bubbles? && !old_parent.is_a?(Sass::Tree::RootNode))
+    unless is_any_of?(parent, SCRIPT_NODES) ||
+        (parent.bubbles? &&
+        !old_parent.is_a?(Sass::Tree::RootNode) &&
+        !old_parent.is_a?(Sass::Tree::AtRootNode))
+      @parent = parent
+    end
     @parents.push parent
     super
   ensure
