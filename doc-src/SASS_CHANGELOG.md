@@ -78,7 +78,7 @@ can use it in a mixin to detect whether a parent selector exists:
   overwritten unless the `!global` flag is used. For example, `$var: value
   !global` will assign to `$var` globally.
 
-## 3.3.4 (Unreleased)
+## 3.3.4 (21 March 2014)
 
 * Improve the warning message for `index(...) == false`.
 
