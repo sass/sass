@@ -7,6 +7,8 @@
 
 * Improve the warning message for `index(...) == false`.
 
+* Fix the use of directives like `@font-face` within `@at-root`.
+
 ## 3.3.3 (14 March 2014)
 
 * Fix a bug in Sass that was causing caching errors when unserializable objects
