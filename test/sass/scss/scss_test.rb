@@ -3433,10 +3433,10 @@ SCSS
 }
 .aaa .aaa .aaa {
   background-color: black;
-}   
+}
 .bbb {
   @extend .aaa;
-} 
+}
 .xxx {
   @extend .bbb;
 }
