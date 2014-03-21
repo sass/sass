@@ -1149,15 +1149,20 @@ MSG
     # rename operation.
     #
     # @param filename [String] The file to write to.
+    # @param perms [Integer] The permissions used for creating this file.
+    #   Will be masked by the process umask. Defaults to readable/writeable
+    #   by all users however the umask usually changes this to only be writable
+    #   by the process's user.
     # @yieldparam tmpfile [Tempfile] The temp file that can be written to.
     # @return The value returned by the block.
-    def atomic_create_and_write_file(filename)
+    def atomic_create_and_write_file(filename, perms = 0666)
       require 'tempfile'
       tmpfile = Tempfile.new(File.basename(filename), File.dirname(filename))
       tmpfile.binmode if tmpfile.respond_to?(:binmode)
       result = yield tmpfile
       tmpfile.close
       ATOMIC_WRITE_MUTEX.synchronize do
+        File.chmod(perms & ~File.umask, tmpfile.path)
         File.rename tmpfile.path, filename
       end
       result

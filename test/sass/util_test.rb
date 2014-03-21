@@ -419,6 +419,27 @@ WARNING
     end
   end
 
+  def test_atomic_write_permissions
+    atomic_filename = File.join(Dir.tmpdir, "test_atomic_perms.atomic")
+    normal_filename = File.join(Dir.tmpdir, "test_atomic_perms.normal")
+    atomic_create_and_write_file(atomic_filename) {|f| f.write("whatever\n") }
+    open(normal_filename, "wb") {|f| f.write("whatever\n") }
+    assert_equal File.stat(normal_filename).mode.to_s(8), File.stat(atomic_filename).mode.to_s(8)
+  ensure
+    File.unlink(atomic_filename) rescue nil
+    File.unlink(normal_filename) rescue nil
+  end
+
+  def test_atomic_writes_respect_umask
+    atomic_filename = File.join(Dir.tmpdir, "test_atomic_perms.atomic")
+    atomic_create_and_write_file(atomic_filename) do |f|
+      f.write("whatever\n")
+    end
+    assert_equal 0, File.stat(atomic_filename).mode & File.umask
+  ensure
+    File.unlink(atomic_filename)
+  end
+
   class FakeError < RuntimeError; end
 
   def test_atomic_writes_handles_exceptions
