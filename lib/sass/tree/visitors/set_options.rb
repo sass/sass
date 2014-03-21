@@ -15,6 +15,11 @@ class Sass::Tree::Visitors::SetOptions < Sass::Tree::Visitors::Base
     super
   end
 
+  def visit_comment(node)
+    node.value.each {|c| c.options = @options if c.is_a?(Sass::Script::Tree::Node)}
+    yield
+  end
+
   def visit_debug(node)
     node.expr.options = @options
     yield
