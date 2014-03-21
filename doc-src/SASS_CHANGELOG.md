@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.3.4 (Unreleased)
+## 3.3.4 (21 March 2014)
 
 * Improve the warning message for `index(...) == false`.
 
