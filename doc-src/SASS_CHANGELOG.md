@@ -9,6 +9,9 @@
 
 * Fix the use of directives like `@font-face` within `@at-root`.
 
+* Fix a `sass --watch` issue on Windows where too many files would be updated
+  on every change.
+
 * Avoid freezing Ruby's `nil` value.
 
 ## 3.3.3 (14 March 2014)
