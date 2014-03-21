@@ -145,8 +145,8 @@ SCSS
   end
 
   def test_class_unification
-    assert_unification '.foo.bar', '.baz {@extend .foo}', '.foo.bar, .bar.baz' 
-    assert_unification '.foo.baz', '.baz {@extend .foo}', '.baz' 
+    assert_unification '.foo.bar', '.baz {@extend .foo}', '.foo.bar, .bar.baz'
+    assert_unification '.foo.baz', '.baz {@extend .foo}', '.baz'
   end
 
   def test_id_unification

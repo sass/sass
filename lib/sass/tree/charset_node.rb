@@ -1,5 +1,5 @@
 module Sass::Tree
-  # A static node representing an unproccessed Sass `@charset` directive.
+  # A static node representing an unprocessed Sass `@charset` directive.
   #
   # @see Sass::Tree
   class CharsetNode < Node

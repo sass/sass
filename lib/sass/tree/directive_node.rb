@@ -1,5 +1,5 @@
 module Sass::Tree
-  # A static node representing an unproccessed Sass `@`-directive.
+  # A static node representing an unprocessed Sass `@`-directive.
   # Directives known to Sass, like `@for` and `@debug`,
   # are handled by their own nodes;
   # only CSS directives like `@media` and `@font-face` become {DirectiveNode}s.

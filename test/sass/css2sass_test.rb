@@ -62,7 +62,7 @@ div .debug
 SASS
 div .warning {
   color: #d21a19; }
-span .debug { 
+span .debug {
   cursor: crosshair;}
 div .debug {
   cursor: default; }
