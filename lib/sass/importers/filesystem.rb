@@ -139,8 +139,9 @@ module Sass
       # @param name [String] The filename to search for.
       # @return [(String, Symbol)] A filename-syntax pair.
       def find_real_file(dir, name, options)
-        # on windows 'dir' can be in native File::ALT_SEPARATOR form
+        # On windows 'dir' or 'name' can be in native File::ALT_SEPARATOR form.
         dir = dir.gsub(File::ALT_SEPARATOR, File::SEPARATOR) unless File::ALT_SEPARATOR.nil?
+        name = name.gsub(File::ALT_SEPARATOR, File::SEPARATOR) unless File::ALT_SEPARATOR.nil?
 
         found = possible_files(remove_root(name)).map do |f, s|
           path = (dir == "." || Sass::Util.pathname(f).absolute?) ? f :

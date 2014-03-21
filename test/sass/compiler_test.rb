@@ -18,7 +18,7 @@ class CompilerTest < Test::Unit::TestCase
       @start_called = false
       reset_events!
     end
-    
+
     def fire_events!(*args)
       @on_filesystem_event.call(@modified, @added, @removed)
       reset_events!
