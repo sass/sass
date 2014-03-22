@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.2.18
+
+* Ensure that atomic writes have the same permissions as a normal
+  open() would.
+
 ## 3.2.17
 
 * Ensure that atomic writes are fully flushed to disk.
