@@ -869,6 +869,10 @@ MSG
       end
     end
 
+    # @private
+    ATOMIC_WRITE_MUTEX = Mutex.new
+
+
     # This creates a temp file and yields it for writing. When the
     # write is complete, the file is moved into the desired location.
     # The atomicity of this operation is provided by the filesystem's
@@ -892,9 +896,12 @@ MSG
       rescue NotImplementedError
         # Not all OSes support fsync
       end
+      tmpfile.close # Windows cannot rename an open file.
       # Make file readable and writeable to all but respect umask (usually 022).
       File.chmod(perms & ~File.umask, tmpfile.path)
-      File.rename tmpfile.path, filename
+      ATOMIC_WRITE_MUTEX.synchronize do
+        File.rename tmpfile.path, filename
+      end
       result
     ensure
       # close and remove the tempfile if it still exists,
