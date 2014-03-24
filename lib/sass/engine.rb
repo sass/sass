@@ -261,8 +261,8 @@ module Sass
     #   cannot be converted to UTF-8
     # @raise [ArgumentError] if the document uses an unknown encoding with `@charset`
     def render
-      return encode_and_set_charset(_to_tree.render) unless @options[:quiet]
-      Sass::Util.silence_sass_warnings {encode_and_set_charset(_to_tree.render)}
+      return _to_tree.render unless @options[:quiet]
+      Sass::Util.silence_sass_warnings {_to_tree.render}
     end
 
     # Render the template to CSS and return the source map.
@@ -305,7 +305,7 @@ module Sass
     # @raise [ArgumentError] if the document uses an unknown encoding with `@charset`
     def source_encoding
       check_encoding!
-      @original_encoding
+      @source_encoding
     end
 
     # Gets a set of all the documents
@@ -365,23 +365,12 @@ ERR
       rendered << "/*# sourceMappingURL="
       rendered << Sass::Util.escape_uri(sourcemap_uri)
       rendered << " */\n"
-      rendered = encode_and_set_charset(rendered)
       return rendered, sourcemap
     end
 
-    def encode_and_set_charset(rendered)
-      return rendered if Sass::Util.ruby1_8?
-      begin
-        # Try to convert the result to the original encoding,
-        # but if that doesn't work fall back on UTF-8
-        rendered = rendered.encode(source_encoding)
-      rescue EncodingError
-      end
-      rendered.gsub(Regexp.new('\A@charset "(.*?)"'.encode(source_encoding)),
-        "@charset \"#{source_encoding.name}\"".encode(source_encoding))
-    end
-
     def _to_tree
+      check_encoding!
+
       if (@options[:cache] || @options[:read_cache]) &&
           @options[:filename] && @options[:importer]
         key = sassc_key
@@ -392,8 +381,6 @@ ERR
           return root
         end
       end
-
-      check_encoding!
 
       if @options[:syntax] == :scss
         root = Sass::SCSS::Parser.new(@template, @options[:filename], @options[:importer]).parse
@@ -426,9 +413,7 @@ ERR
     def check_encoding!
       return if @checked_encoding
       @checked_encoding = true
-      @template, @original_encoding = Sass::Util.check_sass_encoding(@template) do |msg, line|
-        raise Sass::SyntaxError.new(msg, :line => line)
-      end
+      @template, @source_encoding = Sass::Util.check_sass_encoding(@template)
     end
 
     def tabulate(string)
@@ -436,7 +421,7 @@ ERR
       comment_tab_str = nil
       first = true
       lines = []
-      string.gsub(/\r\n|\r|\n/, "\n").scan(/^[^\n]*?$/).each_with_index do |line, index|
+      string.scan(/^[^\n]*?$/).each_with_index do |line, index|
         index += (@options[:line] || 1)
         if line.strip.empty?
           lines.last.text << "\n" if lines.last && lines.last.comment?

@@ -156,15 +156,15 @@ JSON
     end
 
     def test_different_charset_than_encoding_scss
-      assert_parses_with_sourcemap(<<SCSS.force_encoding("IBM866"), <<CSS.force_encoding("IBM866"), <<JSON)
+      assert_parses_with_sourcemap(<<SCSS.force_encoding("IBM866"), <<CSS, <<JSON)
 @charset "IBM866";
 f\x86\x86 {
   \x86: b;
 }
 SCSS
-@charset "IBM866";
-f\x86\x86 {
-  \x86: b; }
+@charset "UTF-8";
+fЖЖ {
+  Ж: b; }
 
 /*# sourceMappingURL=test.css.map */
 CSS
@@ -179,14 +179,14 @@ JSON
     end
 
     def test_different_charset_than_encoding_sass
-      assert_parses_with_sourcemap(<<SASS.force_encoding("IBM866"), <<CSS.force_encoding("IBM866"), <<JSON, :syntax => :sass)
+      assert_parses_with_sourcemap(<<SASS.force_encoding("IBM866"), <<CSS, <<JSON, :syntax => :sass)
 @charset "IBM866"
 f\x86\x86
   \x86: b
 SASS
-@charset "IBM866";
-f\x86\x86 {
-  \x86: b; }
+@charset "UTF-8";
+fЖЖ {
+  Ж: b; }
 
 /*# sourceMappingURL=test.css.map */
 CSS

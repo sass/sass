@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'erb'
 require 'set'
 require 'enumerator'
@@ -701,114 +702,71 @@ module Sass
       (pairs_or_hash.is_a?(NormalizedMap) ? NormalizedMap : OrderedHash)[*flatten(pairs_or_hash, 1)]
     end
 
-    # Checks that the encoding of a string is valid in Ruby 1.9
-    # and cleans up potential encoding gotchas like the UTF-8 BOM.
-    # If it's not, yields an error string describing the invalid character
-    # and the line on which it occurrs.
-    #
-    # @param str [String] The string of which to check the encoding
-    # @yield [msg] A block in which an encoding error can be raised.
-    #   Only yields if there is an encoding error
-    # @yieldparam msg [String] The error message to be raised
-    # @return [String] `str`, potentially with encoding gotchas like BOMs removed
-    def check_encoding(str)
-      if ruby1_8?
-        return str.gsub(/\A\xEF\xBB\xBF/, '') # Get rid of the UTF-8 BOM
-      elsif str.valid_encoding?
-        # Get rid of the Unicode BOM if possible
-        if str.encoding.name =~ /^UTF-(8|16|32)(BE|LE)?$/
-          return str.gsub(Regexp.new("\\A\uFEFF".encode(str.encoding.name)), '')
-        else
-          return str
-        end
-      end
-
-      encoding = str.encoding
-      newlines = Regexp.new("\r\n|\r|\n".encode(encoding).force_encoding("binary"))
-      str.force_encoding("binary").split(newlines).each_with_index do |line, i|
-        begin
-          line.encode(encoding)
-        rescue Encoding::UndefinedConversionError => e
-          yield <<MSG.rstrip, i + 1
-Invalid #{encoding.name} character #{undefined_conversion_error_char(e)}
-MSG
-        end
-      end
-      str
+    unless ruby1_8?
+      CHARSET_REGEXP = /\A@charset "([^"]+)"/
+      UTF_8_BOM = "\xEF\xBB\xBF".force_encoding('BINARY')
+      UTF_16BE_BOM = "\xFE\xFF".force_encoding('BINARY')
+      UTF_16LE_BOM = "\xFF\xFE".force_encoding('BINARY')
     end
 
     # Like {\#check\_encoding}, but also checks for a `@charset` declaration
     # at the beginning of the file and uses that encoding if it exists.
     #
-    # The Sass encoding rules are simple.
-    # If a `@charset` declaration exists,
-    # we assume that that's the original encoding of the document.
-    # Otherwise, we use whatever encoding Ruby has.
-    # Then we convert that to UTF-8 to process internally.
-    # The UTF-8 end result is what's returned by this method.
+    # Sass follows CSS's decoding rules.
     #
     # @param str [String] The string of which to check the encoding
-    # @yield [msg] A block in which an encoding error can be raised.
-    #   Only yields if there is an encoding error
-    # @yieldparam msg [String] The error message to be raised
     # @return [(String, Encoding)] The original string encoded as UTF-8,
     #   and the source encoding of the string (or `nil` under Ruby 1.8)
     # @raise [Encoding::UndefinedConversionError] if the source encoding
     #   cannot be converted to UTF-8
     # @raise [ArgumentError] if the document uses an unknown encoding with `@charset`
-    def check_sass_encoding(str, &block)
-      return check_encoding(str, &block), nil if ruby1_8?
-      # We allow any printable ASCII characters but double quotes in the charset decl
-      bin = str.dup.force_encoding("BINARY")
-      encoding = Sass::Util::ENCODINGS_TO_CHECK.find do |enc|
-        re = Sass::Util::CHARSET_REGEXPS[enc]
-        re && bin =~ re
+    # @raise [Sass::SyntaxError] If the document declares an encoding that
+    #   doesn't match its contents, or it doesn't declare an encoding and its
+    #   contents are invalid in the native encoding.
+    def check_sass_encoding(str)
+      # On Ruby 1.8 we can't do anything complicated with encodings.
+      # Instead, we just strip out a UTF-8 BOM if it exists and
+      # sanitize according to Section 3.3 of CSS Syntax Level 3. We
+      # don't sanitize null characters since they might be components
+      # of other characters.
+      if ruby1_8?
+        return str.gsub(/\A\xEF\xBB\xBF/, '').gsub(/\r\n?|\f/, "\n"), nil
       end
-      charset, bom = $1, $2
-      if charset
-        charset = charset.force_encoding(encoding).encode("UTF-8")
-        if (endianness = encoding[/[BL]E$/])
-          begin
-            Encoding.find(charset + endianness)
-            charset << endianness
-          rescue ArgumentError # Encoding charset + endianness doesn't exist
-          end
+
+      # Determine the fallback encoding following section 3.2 of CSS Syntax Level 3 and Encodings:
+      # http://www.w3.org/TR/2013/WD-css-syntax-3-20130919/#determine-the-fallback-encoding
+      # http://encoding.spec.whatwg.org/#decode
+      binary = str.dup.force_encoding("BINARY")
+      if binary.start_with?(UTF_8_BOM)
+        binary.slice! 0, UTF_8_BOM.length
+        str = binary.force_encoding('UTF-8')
+      elsif binary.start_with?(UTF_16BE_BOM)
+        binary.slice! 0, UTF_16BE_BOM.length
+        str = binary.force_encoding('UTF-16BE')
+      elsif binary.start_with?(UTF_16LE_BOM)
+        binary.slice! 0, UTF_16LE_BOM.length
+        str = binary.force_encoding('UTF-16LE')
+      elsif binary =~ CHARSET_REGEXP
+        charset = $1.force_encoding('US-ASCII')
+        encoding = Encoding.find(charset)
+        if encoding.name == 'UTF-16' || encoding.name == 'UTF-16BE'
+          encoding = Encoding.find('UTF-8')
         end
-        str.force_encoding(charset)
-      elsif bom
-        str.force_encoding(encoding)
+        str = binary.force_encoding(encoding)
+      elsif str.encoding.name == "ASCII-8BIT"
+        # Normally we want to fall back on believing the Ruby string
+        # encoding, but if that's just binary we want to make sure
+        # it's valid UTF-8.
+        str = str.force_encoding('utf-8')
       end
 
-      str = check_encoding(str, &block)
-      return str.encode("UTF-8"), str.encoding
-    end
+      find_encoding_error(str) unless str.valid_encoding?
 
-    unless ruby1_8?
-      # @private
-      def _enc(string, encoding)
-        string.encode(encoding).force_encoding("BINARY")
-      end
-
-      # We could automatically add in any non-ASCII-compatible encodings here,
-      # but there's not really a good way to do that
-      # without manually checking that each encoding
-      # encodes all ASCII characters properly,
-      # which takes long enough to affect the startup time of the CLI.
-      ENCODINGS_TO_CHECK = %w[UTF-8 UTF-16BE UTF-16LE UTF-32BE UTF-32LE]
-
-      CHARSET_REGEXPS = Hash.new do |h, e|
-        h[e] =
-          begin
-            # /\A(?:\uFEFF)?@charset "(.*?)"|\A(\uFEFF)/
-            Regexp.new(/\A(?:#{_enc("\uFEFF", e)})?#{
-              _enc('@charset "', e)}(.*?)#{_enc('"', e)}|\A(#{
-              _enc("\uFEFF", e)})/)
-          rescue Encoding::ConverterNotFoundError => _
-            nil # JRuby on Java 5 doesn't support UTF-32
-          rescue
-            # /\A@charset "(.*?)"/
-            Regexp.new(/\A#{_enc('@charset "', e)}(.*?)#{_enc('"', e)}/)
-          end
+      begin
+        # If the string is valid, preprocess it according to section 3.3 of CSS Syntax Level 3.
+        return str.encode("UTF-8").gsub(/\r\n?|\f/, "\n").tr("\u0000", "�"), str.encoding
+      rescue EncodingError
+        find_encoding_error(str)
       end
     end
 
@@ -1174,6 +1132,27 @@ MSG
     end
 
     private
+
+    def find_encoding_error(str)
+      encoding = str.encoding
+      cr = Regexp.quote("\r".encode(encoding).force_encoding('BINARY'))
+      lf = Regexp.quote("\n".encode(encoding).force_encoding('BINARY'))
+      ff = Regexp.quote("\f".encode(encoding).force_encoding('BINARY'))
+      line_break = /#{cr}#{lf}?|#{ff}|#{lf}/
+
+      str.force_encoding("binary").split(line_break).each_with_index do |line, i|
+        begin
+          line.encode(encoding)
+        rescue Encoding::UndefinedConversionError => e
+          raise Sass::SyntaxError.new(
+            "Invalid #{encoding.name} character #{undefined_conversion_error_char(e)}",
+            :line => i + 1)
+        end
+      end
+
+      # We shouldn't get here, but it's possible some weird encoding stuff causes it.
+      return str, str.encoding
+    end
 
     # rubocop:disable LineLength
 

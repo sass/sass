@@ -127,21 +127,18 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     return "" if @result.empty?
 
     output "\n"
-    return @result if Sass::Util.ruby1_8? || @result.ascii_only?
 
-    if node.children.first.is_a?(Sass::Tree::CharsetNode)
-      begin
-        encoding = node.children.first.name
-        # Default to big-endian encoding, because we have to decide somehow
-        encoding << 'BE' if encoding =~ /\Autf-(16|32)\Z/i
-        @result = @result.encode(Encoding.find(encoding))
-      rescue EncodingError
+    unless Sass::Util.ruby1_8? || @result.ascii_only?
+      if node.style == :compressed
+        # A byte order mark is sufficient to tell browsers that this
+        # file is UTF-8 encoded, and will override any other detection
+        # methods as per http://encoding.spec.whatwg.org/#decode-and-encode.
+        prepend! "\uFEFF"
+      else
+        prepend! "@charset \"UTF-8\";\n"
       end
     end
 
-    prepend! "@charset \"#{@result.encoding.name}\";#{
-      node.style == :compressed ? '' : "\n"
-    }".encode(@result.encoding)
     @result
   rescue Sass::SyntaxError => e
     e.sass_template ||= node.template

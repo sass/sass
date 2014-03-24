@@ -67,9 +67,7 @@ module Sass
     def check_encoding!
       return if @checked_encoding
       @checked_encoding = true
-      @template, @original_encoding = Sass::Util.check_sass_encoding(@template) do |msg, line|
-        raise Sass::SyntaxError.new(msg, :line => line)
-      end
+      @template, @original_encoding = Sass::Util.check_sass_encoding(@template)
     end
 
     # Parses the CSS template and applies various transformations

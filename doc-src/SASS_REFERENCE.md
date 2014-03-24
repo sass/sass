@@ -348,45 +348,25 @@ like the `sass` program but it defaults to assuming the syntax is SCSS.
 
 ### Encodings
 
-When running on Ruby 1.9 and later, Sass is aware of the character encoding of documents.
-By default, Sass assumes that all stylesheets are encoded
-using whatever coding system your operating system defaults to.
-For many users this will be `UTF-8`, the de facto standard for the web.
-For some users, though, it may be a more local encoding.
+When running on Ruby 1.9 and later, Sass is aware of the character encoding of
+documents. Sass follows the [CSS spec][syntax level 3] to determine the encoding
+of a stylesheet, and falls back to the Ruby string encoding. This means that it
+first checks the Unicode byte order mark, then the `@charset` declaration, then
+the Ruby string encoding. If none of these are set, it will assume the document
+is in UTF-8.
 
-If you want to use a different encoding for your stylesheet
-than your operating system default,
-you can use the `@charset` declaration just like in CSS.
-Add `@charset "encoding-name";` at the beginning of the stylesheet
-(before any whitespace or comments)
-and Sass will interpret it as the given encoding.
-Note that whatever encoding you use, it must be convertible to Unicode.
+[syntax level 3]: http://www.w3.org/TR/2013/WD-css-syntax-3-20130919/#determine-the-fallback-encoding
 
-Sass will also respect any Unicode BOMs and non-ASCII-compatible Unicode encodings
-[as specified by the CSS spec](http://www.w3.org/TR/CSS2/syndata.html#charset),
-although this is *not* the recommended way
-to specify the character set for a document.
-Note that Sass does not support the obscure `UTF-32-2143`,
-`UTF-32-3412`, `EBCDIC`, `IBM1026`, and `GSM 03.38` encodings,
-since Ruby does not have support for them
-and they're highly unlikely to ever be used in practice.
+To explicitly specify the encoding of your stylesheet, use a `@charset`
+declaration just like in CSS. Add `@charset "encoding-name";` at the beginning
+of the stylesheet (before any whitespace or comments) and Sass will interpret it
+as the given encoding. Note that whatever encoding you use, it must be
+convertible to Unicode.
 
-#### Output Encoding
-
-In general, Sass will try to encode the output stylesheet
-using the same encoding as the input stylesheet.
-In order for it to do this, though, the input stylesheet must have a `@charset` declaration;
-otherwise, Sass will default to encoding the output stylesheet as `UTF-8`.
-In addition, it will add a `@charset` declaration to the output
-if it's not plain ASCII.
-
-When other stylesheets with `@charset` declarations are `@import`ed,
-Sass will convert them to the same encoding as the main stylesheet.
-
-Note that Ruby 1.8 does not have good support for character encodings,
-and so Sass behaves somewhat differently when running under it than under Ruby 1.9 and later.
-In Ruby 1.8, Sass simply uses the first `@charset` declaration in the stylesheet
-or any of the other stylesheets it `@import`s.
+Sass will always encode its output as UTF-8. It will include a `@charset`
+declaration if and only if the output file contains non-ASCII characters. In
+compressed mode, a UTF-8 byte order mark is used in place of a `@charset`
+declaration.
 
 ## CSS Extensions
 

@@ -49,6 +49,13 @@ can use it in a mixin to detect whether a parent selector exists:
 * Add support for unit arithmetic with many more units, including angles, times,
   frequencies, and resolutions.
 
+* Sass now follows the [CSS Syntax Level 3][encodings level 3]
+  specification for determining a stylesheet's encoding. In addition,
+  it not only emits UTF-8 CSS rather than trying to match the source
+  encoding.
+
+[encodings level 3]: http://www.w3.org/TR/2013/WD-css-syntax-3-20130919/#determine-the-fallback-encoding
+
 * Sass now supports using ids as values in SassScript as defined in the CSS
   Basic User Interface Module. They're treated as unquoted strings.
 
