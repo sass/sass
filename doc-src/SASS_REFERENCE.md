@@ -231,7 +231,6 @@ Available options are:
   and at the top of the page (in supported browsers).
   Otherwise, an exception will be raised in the Ruby code.
   Defaults to false in production mode, true otherwise.
-  Only has meaning within Rack, Ruby on Rails, or Merb.
 
 {#template_location-option} `:template_location`
 : A path to the root sass template directory for your application.

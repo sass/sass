@@ -87,6 +87,7 @@ END
           write_output(engine.render, output)
         end
       rescue Sass::SyntaxError => e
+        write_output(Sass::SyntaxError.exception_to_css(e), output) if output.is_a?(String)
         raise e if @options[:trace]
         raise e.sass_backtrace_str("standard input")
       ensure

@@ -416,7 +416,8 @@ module Sass::Plugin
       rescue StandardError => e
         compilation_error_occured = true
         run_compilation_error e, filename, css, sourcemap
-        rendered = Sass::SyntaxError.exception_to_css(e, options)
+        raise e unless options[:full_exception]
+        rendered = Sass::SyntaxError.exception_to_css(e, options[:line] || 1)
       end
 
       write_file(css, rendered)
