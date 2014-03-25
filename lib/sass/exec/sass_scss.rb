@@ -75,8 +75,8 @@ END
       end
       opts.on('--precision NUMBER_OF_DIGITS', Integer,
               "How many digits of precision to use when outputting decimal numbers." +
-              "Defaults to #{::Sass::Script::Value::Number.precision}.") do |precision|
-        ::Sass::Script::Value::Number.precision = precision
+              "Defaults to #{Sass::Script::Value::Number.precision}.") do |precision|
+        Sass::Script::Value::Number.precision = precision
       end
       opts.on('-q', '--quiet', 'Silence warnings and status messages during compilation.') do
         @options[:for_engine][:quiet] = true
@@ -113,13 +113,13 @@ END
         @options[:sourcemap] = true
       end
 
-      encoding_desc = if ::Sass::Util.ruby1_8?
+      encoding_desc = if Sass::Util.ruby1_8?
                         'Does not work in ruby 1.8.'
                       else
                         'Specify the default encoding for Sass files.'
                       end
       opts.on('-E', '--default-encoding ENCODING', encoding_desc) do |encoding|
-        if ::Sass::Util.ruby1_8?
+        if Sass::Util.ruby1_8?
           $stderr.puts "Specifying the encoding is not supported in ruby 1.8."
           exit 1
         else
@@ -159,12 +159,12 @@ END
         @options[:for_engine][:syntax] ||= @default_syntax
         engine =
           if input.is_a?(File) && !@options[:check_syntax]
-            ::Sass::Engine.for_file(input.path, @options[:for_engine])
+            Sass::Engine.for_file(input.path, @options[:for_engine])
           else
             # We don't need to do any special handling of @options[:check_syntax] here,
             # because the Sass syntax checking happens alongside evaluation
             # and evaluation doesn't actually evaluate any code anyway.
-            ::Sass::Engine.new(input.read, @options[:for_engine])
+            Sass::Engine.new(input.read, @options[:for_engine])
           end
 
         input.close if input.is_a?(File)
@@ -174,8 +174,8 @@ END
             raise "Can't generate a sourcemap for an input without a path."
           end
 
-          relative_sourcemap_path = ::Sass::Util.pathname(@options[:sourcemap_filename]).
-            relative_path_from(::Sass::Util.pathname(@options[:output_filename]).dirname)
+          relative_sourcemap_path = Sass::Util.pathname(@options[:sourcemap_filename]).
+            relative_path_from(Sass::Util.pathname(@options[:output_filename]).dirname)
           rendered, mapping = engine.render_with_sourcemap(relative_sourcemap_path.to_s)
           write_output(rendered, output)
           write_output(mapping.to_json(
@@ -185,7 +185,7 @@ END
         else
           write_output(engine.render, output)
         end
-      rescue ::Sass::SyntaxError => e
+      rescue Sass::SyntaxError => e
         raise e if @options[:trace]
         raise e.sass_backtrace_str("standard input")
       ensure
@@ -214,21 +214,21 @@ END
 
     def interactive
       require 'sass/repl'
-      ::Sass::Repl.new(@options).run
+      Sass::Repl.new(@options).run
     end
 
     # @comment
     #   rubocop:disable MethodLength
     def watch_or_update
       require 'sass/plugin'
-      ::Sass::Plugin.options.merge! @options[:for_engine]
-      ::Sass::Plugin.options[:unix_newlines] = @options[:unix_newlines]
-      ::Sass::Plugin.options[:poll] = @options[:poll]
-      ::Sass::Plugin.options[:sourcemap] = @options[:sourcemap]
+      Sass::Plugin.options.merge! @options[:for_engine]
+      Sass::Plugin.options[:unix_newlines] = @options[:unix_newlines]
+      Sass::Plugin.options[:poll] = @options[:poll]
+      Sass::Plugin.options[:sourcemap] = @options[:sourcemap]
 
       if @options[:force]
         raise "The --force flag may only be used with --update." unless @options[:update]
-        ::Sass::Plugin.options[:always_update] = true
+        Sass::Plugin.options[:always_update] = true
       end
 
       raise <<MSG if @args.empty?
@@ -259,9 +259,9 @@ MSG
         [from, to, sourcemap]
       end
       dirs.map! {|from, to| [from, to || from]}
-      ::Sass::Plugin.options[:template_location] = dirs
+      Sass::Plugin.options[:template_location] = dirs
 
-      ::Sass::Plugin.on_updated_stylesheet do |_, css, sourcemap|
+      Sass::Plugin.on_updated_stylesheet do |_, css, sourcemap|
         [css, sourcemap].each do |file|
           next unless file
           puts_action :write, :green, file
@@ -269,10 +269,10 @@ MSG
       end
 
       had_error = false
-      ::Sass::Plugin.on_creating_directory {|dirname| puts_action :directory, :green, dirname}
-      ::Sass::Plugin.on_deleting_css {|filename| puts_action :delete, :yellow, filename}
-      ::Sass::Plugin.on_deleting_sourcemap {|filename| puts_action :delete, :yellow, filename}
-      ::Sass::Plugin.on_compilation_error do |error, _, _|
+      Sass::Plugin.on_creating_directory {|dirname| puts_action :directory, :green, dirname}
+      Sass::Plugin.on_deleting_css {|filename| puts_action :delete, :yellow, filename}
+      Sass::Plugin.on_deleting_sourcemap {|filename| puts_action :delete, :yellow, filename}
+      Sass::Plugin.on_compilation_error do |error, _, _|
         if error.is_a?(SystemCallError) && !@options[:stop_on_error]
           had_error = true
           puts_action :error, :red, error.message
@@ -280,7 +280,7 @@ MSG
           next
         end
 
-        raise error unless error.is_a?(::Sass::SyntaxError) && !@options[:stop_on_error]
+        raise error unless error.is_a?(Sass::SyntaxError) && !@options[:stop_on_error]
         had_error = true
         puts_action :error, :red,
           "#{error.sass_filename} (Line #{error.sass_line}: #{error.message})"
@@ -288,27 +288,27 @@ MSG
       end
 
       if @options[:update]
-        ::Sass::Plugin.update_stylesheets(files)
+        Sass::Plugin.update_stylesheets(files)
         exit 1 if had_error
         return
       end
 
       puts ">>> Sass is watching for changes. Press Ctrl-C to stop."
 
-      ::Sass::Plugin.on_template_modified do |template|
+      Sass::Plugin.on_template_modified do |template|
         puts ">>> Change detected to: #{template}"
         STDOUT.flush
       end
-      ::Sass::Plugin.on_template_created do |template|
+      Sass::Plugin.on_template_created do |template|
         puts ">>> New template detected: #{template}"
         STDOUT.flush
       end
-      ::Sass::Plugin.on_template_deleted do |template|
+      Sass::Plugin.on_template_deleted do |template|
         puts ">>> Deleted template detected: #{template}"
         STDOUT.flush
       end
 
-      ::Sass::Plugin.watch(files)
+      Sass::Plugin.watch(files)
     end
     # @comment
     #   rubocop:enable MethodLength
@@ -319,7 +319,7 @@ MSG
 
     def split_colon_path(path)
       one, two = path.split(':', 2)
-      if one && two && ::Sass::Util.windows? &&
+      if one && two && Sass::Util.windows? &&
           one =~ /\A[A-Za-z]\Z/ && two =~ /\A[\/\\]/
         # If we're on Windows and we were passed a drive letter path,
         # don't split on that colon.
@@ -334,7 +334,7 @@ MSG
     def probably_dest_dir?(path)
       return false unless path
       return false if colon_path?(path)
-      ::Sass::Util.glob(File.join(path, "*.s[ca]ss")).empty?
+      Sass::Util.glob(File.join(path, "*.s[ca]ss")).empty?
     end
 
     def default_sass_path

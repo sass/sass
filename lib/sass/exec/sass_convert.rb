@@ -85,7 +85,7 @@ END
         @options[:for_engine][:read_cache] = false
       end
 
-      unless ::Sass::Util.ruby1_8?
+      unless Sass::Util.ruby1_8?
         opts.on('-E encoding',
                 'Specify the default encoding for Sass and CSS files.') do |encoding|
           Encoding.default_external = encoding
@@ -142,7 +142,7 @@ END
       end
 
       ext = @options[:from]
-      ::Sass::Util.glob("#{@options[:input]}/**/*.#{ext}") do |f|
+      Sass::Util.glob("#{@options[:input]}/**/*.#{ext}") do |f|
         output =
           if @options[:in_place]
             f
@@ -196,22 +196,22 @@ END
       @options[:for_engine][:syntax] = @options[:from]
 
       out =
-        ::Sass::Util.silence_sass_warnings do
+        Sass::Util.silence_sass_warnings do
           if @options[:from] == :css
             require 'sass/css'
-            ::Sass::CSS.new(input.read, @options[:for_tree]).render(@options[:to])
+            Sass::CSS.new(input.read, @options[:for_tree]).render(@options[:to])
           else
             if input.is_a?(File)
-              ::Sass::Engine.for_file(input.path, @options[:for_engine])
+              Sass::Engine.for_file(input.path, @options[:for_engine])
             else
-              ::Sass::Engine.new(input.read, @options[:for_engine])
+              Sass::Engine.new(input.read, @options[:for_engine])
             end.to_tree.send("to_#{@options[:to]}", @options[:for_tree])
           end
         end
 
       output = input.path if @options[:in_place]
       write_output(out, output)
-    rescue ::Sass::SyntaxError => e
+    rescue Sass::SyntaxError => e
       raise e if @options[:trace]
       file = " of #{e.sass_filename}" if e.sass_filename
       raise "Error on line #{e.sass_line}#{file}: #{e.message}\n  Use --trace for backtrace"

@@ -81,7 +81,7 @@ module Sass::Exec
       end
 
       opts.on('--unix-newlines', 'Use Unix-style newlines in written files.') do
-        @options[:unix_newlines] = true if ::Sass::Util.windows?
+        @options[:unix_newlines] = true if Sass::Util.windows?
       end
 
       opts.on_tail("-?", "-h", "--help", "Show this message") do
@@ -90,7 +90,7 @@ module Sass::Exec
       end
 
       opts.on_tail("-v", "--version", "Print version") do
-        puts("Sass #{::Sass.version[:string]}")
+        puts("Sass #{Sass.version[:string]}")
         exit
       end
     end
