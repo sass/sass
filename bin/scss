@@ -9,5 +9,5 @@ rescue LoadError
 end
 require 'sass/exec'
 
-opts = Sass::Exec::Scss.new(ARGV)
+opts = Sass::Exec::SassScss.new(ARGV, :scss)
 opts.parse!
