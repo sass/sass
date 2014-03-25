@@ -71,27 +71,25 @@ module Sass::Exec
     #
     # @param opts [OptionParser]
     def set_opts(opts)
-      opts.on('-s', '--stdin', :NONE,
-              'Read input from standard input instead of an input file') do
-        @options[:input] = $stdin
-      end
+      Sass::Util.abstract(this)
+    end
 
-      opts.on('--trace', :NONE, 'Show a full traceback on error') do
-        @options[:trace] = true
-      end
-
-      opts.on('--unix-newlines', 'Use Unix-style newlines in written files.') do
-        @options[:unix_newlines] = true if Sass::Util.windows?
-      end
-
-      opts.on_tail("-?", "-h", "--help", "Show this message") do
-        puts opts
-        exit
-      end
-
-      opts.on_tail("-v", "--version", "Print version") do
-        puts("Sass #{Sass.version[:string]}")
-        exit
+    # Set an option for specifying `Encoding.default_external`.
+    #
+    # @param opts [OptionParser]
+    def encoding_option(opts)
+      encoding_desc = if Sass::Util.ruby1_8?
+                        'Does not work in Ruby 1.8.'
+                      else
+                        'Specify the default encoding for input files.'
+                      end
+      opts.on('-E', '--default-encoding ENCODING', encoding_desc) do |encoding|
+        if Sass::Util.ruby1_8?
+          $stderr.puts "Specifying the encoding is not supported in ruby 1.8."
+          exit 1
+        else
+          Encoding.default_external = encoding
+        end
       end
     end
 

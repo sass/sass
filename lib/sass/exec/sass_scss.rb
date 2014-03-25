@@ -17,118 +17,19 @@ module Sass::Exec
     # Tells optparse how to parse the arguments.
     #
     # @param opts [OptionParser]
-    # @comment
-    #   rubocop:disable MethodLength
     def set_opts(opts)
-      super
-
       opts.banner = <<END
 Usage: #{default_syntax} [options] [INPUT] [OUTPUT]
 
 Description:
   Converts SCSS or Sass files to CSS.
-
-Options:
 END
 
-      if @default_syntax == :sass
-        opts.on('--scss',
-                'Use the CSS-superset SCSS syntax.') do
-          @options[:for_engine][:syntax] = :scss
-        end
-      else
-        opts.on('--sass',
-                'Use the Indented syntax.') do
-          @options[:for_engine][:syntax] = :sass
-        end
-      end
-      opts.on('--watch', 'Watch files or directories for changes.',
-                         'The location of the generated CSS can be set using a colon:',
-                         "  #{@default_syntax} --watch input.#{@default_syntax}:output.css",
-                         "  #{@default_syntax} --watch input-dir:output-dir") do
-        @options[:watch] = true
-      end
-      opts.on('--update', 'Compile files or directories to CSS.',
-                          'Locations are set like --watch.') do
-        @options[:update] = true
-      end
-      opts.on('--stop-on-error', 'If a file fails to compile, exit immediately.',
-                                 'Only meaningful for --watch and --update.') do
-        @options[:stop_on_error] = true
-      end
-      opts.on('--poll', 'Check for file changes manually, rather than relying on the OS.',
-                        'Only meaningful for --watch.') do
-        @options[:poll] = true
-      end
-      opts.on('-f', '--force', 'Recompile all Sass files, even if the CSS file is newer.',
-                               'Only meaningful for --update.') do
-        @options[:force] = true
-      end
-      opts.on('-c', '--check', "Just check syntax, don't evaluate.") do
-        require 'stringio'
-        @options[:check_syntax] = true
-        @options[:output] = StringIO.new
-      end
-      style_desc = 'Output style. Can be nested (default), compact, compressed, or expanded.'
-      opts.on('-t', '--style NAME', style_desc) do |name|
-        @options[:for_engine][:style] = name.to_sym
-      end
-      opts.on('--precision NUMBER_OF_DIGITS', Integer,
-              "How many digits of precision to use when outputting decimal numbers." +
-              "Defaults to #{Sass::Script::Value::Number.precision}.") do |precision|
-        Sass::Script::Value::Number.precision = precision
-      end
-      opts.on('-q', '--quiet', 'Silence warnings and status messages during compilation.') do
-        @options[:for_engine][:quiet] = true
-      end
-      opts.on('--compass', 'Make Compass imports available and load project configuration.') do
-        @options[:compass] = true
-      end
-      opts.on('-g', '--debug-info',
-              'Emit output that can be used by the FireSass Firebug plugin.') do
-        @options[:for_engine][:debug_info] = true
-      end
-      opts.on('-l', '--line-numbers', '--line-comments',
-              'Emit comments in the generated CSS indicating the corresponding source line.') do
-        @options[:for_engine][:line_numbers] = true
-      end
-      opts.on('-i', '--interactive',
-              'Run an interactive SassScript shell.') do
-        @options[:interactive] = true
-      end
-      opts.on('-I', '--load-path PATH', 'Add a sass import path.') do |path|
-        @options[:for_engine][:load_paths] << path
-      end
-      opts.on('-r', '--require LIB', 'Require a Ruby library before running Sass.') do |lib|
-        require lib
-      end
-      opts.on('--cache-location PATH',
-              'The path to put cached Sass files. Defaults to .sass-cache.') do |loc|
-        @options[:for_engine][:cache_location] = loc
-      end
-      opts.on('-C', '--no-cache', "Don't cache to sassc files.") do
-        @options[:for_engine][:cache] = false
-      end
-      opts.on('--sourcemap', 'Create sourcemap files next to the generated CSS files.') do
-        @options[:sourcemap] = true
-      end
-
-      encoding_desc = if Sass::Util.ruby1_8?
-                        'Does not work in ruby 1.8.'
-                      else
-                        'Specify the default encoding for Sass files.'
-                      end
-      opts.on('-E', '--default-encoding ENCODING', encoding_desc) do |encoding|
-        if Sass::Util.ruby1_8?
-          $stderr.puts "Specifying the encoding is not supported in ruby 1.8."
-          exit 1
-        else
-          Encoding.default_external = encoding
-        end
-      end
+      common_options(opts)
+      watching_and_updating(opts)
+      input_and_output(opts)
+      miscellaneous(opts)
     end
-    # @comment
-    #   rubocop:enable MethodLength
 
     # Processes the options set by the command-line arguments,
     # and runs the Sass compiler appropriately.
@@ -194,6 +95,156 @@ END
     end
 
     private
+
+    def common_options(opts)
+      opts.separator ''
+      opts.separator 'Common Options:'
+
+      opts.on('--sourcemap', 'Create sourcemap files next to the generated CSS files.') do
+        @options[:sourcemap] = true
+      end
+
+      opts.on('-I', '--load-path PATH', 'Specify a Sass import path.') do |path|
+        @options[:for_engine][:load_paths] << path
+      end
+
+      opts.on('-r', '--require LIB', 'Require a Ruby library before running Sass.') do |lib|
+        require lib
+      end
+
+      opts.on('--compass', 'Make Compass imports available and load project configuration.') do
+        @options[:compass] = true
+      end
+
+      opts.on('-t', '--style NAME', 'Output style. Can be nested (default), compact, ' \
+                                    'compressed, or expanded.') do |name|
+        @options[:for_engine][:style] = name.to_sym
+      end
+
+      opts.on("-?", "-h", "--help", "Show this help message.") do
+        puts opts
+        exit
+      end
+
+      opts.on("-v", "--version", "Print the Sass version.") do
+        puts("Sass #{Sass.version[:string]}")
+        exit
+      end
+    end
+
+    def watching_and_updating(opts)
+      opts.separator ''
+      opts.separator 'Watching and Updating:'
+
+      opts.on('--watch', 'Watch files or directories for changes.',
+                         'The location of the generated CSS can be set using a colon:',
+                         "  #{@default_syntax} --watch input.#{@default_syntax}:output.css",
+                         "  #{@default_syntax} --watch input-dir:output-dir") do
+        @options[:watch] = true
+      end
+
+      # Polling is used by default on Windows.
+      unless Sass::Util.windows?
+        opts.on('--poll', 'Check for file changes manually, rather than relying on the OS.',
+                          'Only meaningful for --watch.') do
+          @options[:poll] = true
+        end
+      end
+
+      opts.on('--update', 'Compile files or directories to CSS.',
+                          'Locations are set like --watch.') do
+        @options[:update] = true
+      end
+
+      opts.on('-f', '--force', 'Recompile every Sass file, even if the CSS file is newer.',
+                               'Only meaningful for --update.') do
+        @options[:force] = true
+      end
+
+      opts.on('--stop-on-error', 'If a file fails to compile, exit immediately.',
+                                 'Only meaningful for --watch and --update.') do
+        @options[:stop_on_error] = true
+      end
+    end
+
+    def input_and_output(opts)
+      opts.separator ''
+      opts.separator 'Input and Output:'
+
+      if @default_syntax == :sass
+        opts.on('--scss',
+                'Use the CSS-superset SCSS syntax.') do
+          @options[:for_engine][:syntax] = :scss
+        end
+      else
+        opts.on('--sass',
+                'Use the indented Sass syntax.') do
+          @options[:for_engine][:syntax] = :sass
+        end
+      end
+
+      opts.on('-s', '--stdin', :NONE,
+              'Read input from standard input instead of an input file.',
+              'This is the default if no input file is specified.') do
+        @options[:input] = $stdin
+      end
+
+      encoding_option(opts)
+
+      opts.on('--unix-newlines', 'Use Unix-style newlines in written files.',
+                                 ('Always true on Unix.' unless Sass::Util.windows?)) do
+        @options[:unix_newlines] = true if Sass::Util.windows?
+      end
+
+      opts.on('-g', '--debug-info',
+              'Emit output that can be used by the FireSass Firebug plugin.') do
+        @options[:for_engine][:debug_info] = true
+      end
+
+      opts.on('-l', '--line-numbers', '--line-comments',
+              'Emit comments in the generated CSS indicating the corresponding source line.') do
+        @options[:for_engine][:line_numbers] = true
+      end
+    end
+
+    def miscellaneous(opts)
+      opts.separator ''
+      opts.separator 'Miscellaneous:'
+
+      opts.on('-i', '--interactive',
+              'Run an interactive SassScript shell.') do
+        @options[:interactive] = true
+      end
+
+      opts.on('-c', '--check', "Just check syntax, don't evaluate.") do
+        require 'stringio'
+        @options[:check_syntax] = true
+        @options[:output] = StringIO.new
+      end
+
+      opts.on('--precision NUMBER_OF_DIGITS', Integer,
+              "How many digits of precision to use when outputting decimal numbers.",
+              "Defaults to #{Sass::Script::Value::Number.precision}.") do |precision|
+        Sass::Script::Value::Number.precision = precision
+      end
+
+      opts.on('--cache-location PATH',
+              'The path to save parsed Sass files. Defaults to .sass-cache.') do |loc|
+        @options[:for_engine][:cache_location] = loc
+      end
+
+      opts.on('-C', '--no-cache', "Don't cache parsed Sass files.") do
+        @options[:for_engine][:cache] = false
+      end
+
+      opts.on('--trace', :NONE, 'Show a full Ruby stack trace on error.') do
+        @options[:trace] = true
+      end
+
+      opts.on('-q', '--quiet', 'Silence warnings and status messages during compilation.') do
+        @options[:for_engine][:quiet] = true
+      end
+    end
 
     def load_compass
       begin

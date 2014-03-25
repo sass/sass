@@ -15,87 +15,21 @@ module Sass::Exec
     # Tells optparse how to parse the arguments.
     #
     # @param opts [OptionParser]
-    # @comment
-    #   rubocop:disable MethodLength
     def set_opts(opts)
       opts.banner = <<END
 Usage: sass-convert [options] [INPUT] [OUTPUT]
 
 Description:
-  Converts between CSS, Sass, and SCSS files.
-  E.g. converts from SCSS to Sass,
-  or converts from CSS to SCSS (adding appropriate nesting).
-
-Options:
+  Converts between CSS, indented syntax, and SCSS files. For example,
+  this can convert from the indented syntax to SCSS, or from CSS to
+  SCSS (adding appropriate nesting).
 END
 
-      opts.on('-F', '--from FORMAT',
-        'The format to convert from. Can be css, scss, sass.',
-        'By default, this is inferred from the input filename.',
-        'If there is none, defaults to css.') do |name|
-        @options[:from] = name.downcase.to_sym
-        raise "sass-convert no longer supports LessCSS." if @options[:from] == :less
-        unless [:css, :scss, :sass].include?(@options[:from])
-          raise "Unknown format for sass-convert --from: #{name}"
-        end
-      end
-
-      opts.on('-T', '--to FORMAT',
-        'The format to convert to. Can be scss or sass.',
-        'By default, this is inferred from the output filename.',
-        'If there is none, defaults to sass.') do |name|
-        @options[:to] = name.downcase.to_sym
-        unless [:scss, :sass].include?(@options[:to])
-          raise "Unknown format for sass-convert --to: #{name}"
-        end
-      end
-
-      opts.on('-R', '--recursive',
-        'Convert all the files in a directory. Requires --from and --to.') do
-        @options[:recursive] = true
-      end
-
-      opts.on('-i', '--in-place',
-        'Convert a file to its own syntax.',
-        'This can be used to update some deprecated syntax.') do
-        @options[:in_place] = true
-      end
-
-      opts.on('--dasherize', 'Convert underscores to dashes') do
-        @options[:for_tree][:dasherize] = true
-      end
-
-      opts.on('--indent NUM',
-        'How many spaces to use for each level of indentation. Defaults to 2.',
-        '"t" means use hard tabs.') do |indent|
-
-        if indent == 't'
-          @options[:for_tree][:indent] = "\t"
-        else
-          @options[:for_tree][:indent] = " " * indent.to_i
-        end
-      end
-
-      opts.on('--old', 'Output the old-style ":prop val" property syntax.',
-                       'Only meaningful when generating Sass.') do
-        @options[:for_tree][:old] = true
-      end
-
-      opts.on('-C', '--no-cache', "Don't cache to sassc files.") do
-        @options[:for_engine][:read_cache] = false
-      end
-
-      unless Sass::Util.ruby1_8?
-        opts.on('-E encoding',
-                'Specify the default encoding for Sass and CSS files.') do |encoding|
-          Encoding.default_external = encoding
-        end
-      end
-
-      super
+      common_options(opts)
+      style(opts)
+      input_and_output(opts)
+      miscellaneous(opts)
     end
-    # @comment
-    #   rubocop:enable MethodLength
 
     # Processes the options set by the command-line arguments,
     # and runs the CSS compiler appropriately.
@@ -118,6 +52,114 @@ END
     end
 
     private
+
+    def common_options(opts)
+      opts.separator ''
+      opts.separator 'Common Options:'
+
+      opts.on('-F', '--from FORMAT',
+        'The format to convert from. Can be css, scss, sass.',
+        'By default, this is inferred from the input filename.',
+        'If there is none, defaults to css.') do |name|
+        @options[:from] = name.downcase.to_sym
+        raise "sass-convert no longer supports LessCSS." if @options[:from] == :less
+        unless [:css, :scss, :sass].include?(@options[:from])
+          raise "Unknown format for sass-convert --from: #{name}"
+        end
+      end
+
+      opts.on('-T', '--to FORMAT',
+        'The format to convert to. Can be scss or sass.',
+        'By default, this is inferred from the output filename.',
+        'If there is none, defaults to sass.') do |name|
+        @options[:to] = name.downcase.to_sym
+        unless [:scss, :sass].include?(@options[:to])
+          raise "Unknown format for sass-convert --to: #{name}"
+        end
+      end
+
+      opts.on('-i', '--in-place',
+        'Convert a file to its own syntax.',
+        'This can be used to update some deprecated syntax.') do
+        @options[:in_place] = true
+      end
+
+      opts.on('-R', '--recursive',
+          'Convert all the files in a directory. Requires --from and --to.') do
+        @options[:recursive] = true
+      end
+
+      opts.on("-?", "-h", "--help", "Show this help message.") do
+        puts opts
+        exit
+      end
+
+      opts.on("-v", "--version", "Print the Sass version.") do
+        puts("Sass #{Sass.version[:string]}")
+        exit
+      end
+    end
+
+    def style(opts)
+      opts.separator ''
+      opts.separator 'Style:'
+
+      opts.on('--dasherize', 'Convert underscores to dashes.') do
+        @options[:for_tree][:dasherize] = true
+      end
+
+      opts.on('--indent NUM',
+        'How many spaces to use for each level of indentation. Defaults to 2.',
+        '"t" means use hard tabs.') do |indent|
+
+        if indent == 't'
+          @options[:for_tree][:indent] = "\t"
+        else
+          @options[:for_tree][:indent] = " " * indent.to_i
+        end
+      end
+
+      opts.on('--old', 'Output the old-style ":prop val" property syntax.',
+                       'Only meaningful when generating Sass.') do
+        @options[:for_tree][:old] = true
+      end
+    end
+
+    def input_and_output(opts)
+      opts.separator ''
+      opts.separator 'Input and Output:'
+
+      opts.on('-s', '--stdin', :NONE,
+              'Read input from standard input instead of an input file.',
+              'This is the default if no input file is specified. Requires --from.') do
+        @options[:input] = $stdin
+      end
+
+      encoding_option(opts)
+
+      opts.on('--unix-newlines', 'Use Unix-style newlines in written files.',
+                                 ('Always true on Unix.' unless Sass::Util.windows?)) do
+        @options[:unix_newlines] = true if Sass::Util.windows?
+      end
+    end
+
+    def miscellaneous(opts)
+      opts.separator ''
+      opts.separator 'Miscellaneous:'
+
+        opts.on('--cache-location PATH',
+                'The path to save parsed Sass files. Defaults to .sass-cache.') do |loc|
+          @options[:for_engine][:cache_location] = loc
+        end
+
+      opts.on('-C', '--no-cache', "Don't cache to sassc files.") do
+        @options[:for_engine][:read_cache] = false
+      end
+
+      opts.on('--trace', :NONE, 'Show a full Ruby stack trace on error') do
+        @options[:trace] = true
+      end
+    end
 
     def process_directory
       unless (input = @options[:input] = @args.shift)
