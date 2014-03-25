@@ -52,6 +52,9 @@ can use it in a mixin to detect whether a parent selector exists:
 * Sass now supports using ids as values in SassScript as defined in the CSS
   Basic User Interface Module. They're treated as unquoted strings.
 
+* The command-line `--help` documentation for the `sass`, `scss`, and
+  `sass-convert` executables is revised and re-organized.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * The current working directory will no longer be placed onto the Sass load path
