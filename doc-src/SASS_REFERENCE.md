@@ -920,7 +920,7 @@ For example:
 is compiled to:
 
     p {
-      color: rgba(255, 0, 0, 0.9);
+      color: rgba(255, 0, 0, 0.8);
       background-color: rgba(255, 0, 0, 0.25); }
 
 IE filters require all colors include the alpha layer, and be in
