@@ -296,10 +296,12 @@ module Sass
         # minus logic in the parser instead.
         if @scanner.peek(1) == '-'
           return if @scanner.pos == 0
-          @scanner.pos -= 1
-          # Don't use @scanner.scan so we don't mess up the match data.
-          unary_minus_allowed = @scanner.peek(1) =~ /\s/
-          @scanner.pos += 1
+          unary_minus_allowed =
+            case @scanner.string[@scanner.pos - 1, 1]
+            when /\s/; true
+            when '/'; @scanner.pos != 1 && @scanner.string[@scanner.pos - 2, 1] == '*'
+            else; false
+            end
 
           return unless unary_minus_allowed
           return unless scan(REGULAR_EXPRESSIONS[:unary_minus_number])

@@ -7,6 +7,8 @@
 
 * Fix `LoadError`s when using `--watch` with the bundled version of Listen.
 
+* Properly parse negative numbers preceded by a comment.
+
 ## 3.3.4 (21 March 2014)
 
 * Improve the warning message for `index(...) == false`.
