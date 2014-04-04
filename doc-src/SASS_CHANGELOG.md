@@ -56,6 +56,14 @@ can use it in a mixin to detect whether a parent selector exists:
 
 [encodings level 3]: http://www.w3.org/TR/2013/WD-css-syntax-3-20130919/#determine-the-fallback-encoding
 
+* Sass now allows numbers to be written using scientific notation. It will not
+  emit numbers in scientific notation until it's more widely supported in
+  browsers.
+
+* Sass now allows almost any identifier to be used as a custom numeric unit.
+  Identifiers that are ambiguous with subtraction, such as `px-1px`, are
+  disallowed.
+
 * Sass now supports using ids as values in SassScript as defined in the CSS
   Basic User Interface Module. They're treated as unquoted strings.
 

@@ -82,6 +82,8 @@ module Sass
       # with identifier names.
       IDENT_OP_NAMES = OP_NAMES.select {|k, v| k =~ /^\w+/}
 
+      PARSEABLE_NUMBER = /(?:(\d*\.\d+)|(\d+))(?:[eE]([+-]?\d+))?(#{UNIT})?/
+
       # A hash of regular expressions that are used for tokenizing.
       REGULAR_EXPRESSIONS = {
         :whitespace => /\s+/,
@@ -89,8 +91,8 @@ module Sass
         :single_line_comment => SINGLE_LINE_COMMENT,
         :variable => /(\$)(#{IDENT})/,
         :ident => /(#{IDENT})(\()?/,
-        :number => /(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
-        :unary_minus_number => /-(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
+        :number => PARSEABLE_NUMBER,
+        :unary_minus_number => /-#{PARSEABLE_NUMBER}/,
         :color => HEXCOLOR,
         :id => /##{IDENT}/,
         :selector => /&/,
@@ -314,7 +316,8 @@ module Sass
         end
 
         value = (@scanner[1] ? @scanner[1].to_f : @scanner[2].to_i) * (minus ? -1 : 1)
-        script_number = Script::Value::Number.new(value, Array(@scanner[3]))
+        value *= 10**@scanner[3].to_i if @scanner[3]
+        script_number = Script::Value::Number.new(value, Array(@scanner[4]))
         [:number, script_number]
       end
 

@@ -65,7 +65,7 @@ module Sass
 
       IDENT    = /-?#{NMSTART}#{NMCHAR}*/
       NAME     = /#{NMCHAR}+/
-      NUM      = /[0-9]+|[0-9]*\.[0-9]+/
+      NUM      = //
       STRING   = /#{STRING1}|#{STRING2}/
       URLCHAR  = /[#%&*-~]|#{NONASCII}|#{ESCAPE}/
       URL      = /(#{URLCHAR}*)/
@@ -95,7 +95,7 @@ module Sass
 
       IMPORTANT = /!#{W}important/i
 
-      NUMBER = /#{NUM}(?:#{IDENT}|%)?/
+      NUMBER = /(?:[0-9]+|[0-9]*\.[0-9]+)(?:[eE][+-]?\d+)?(?:#{IDENT}|%)?/
 
       URI = /url\(#{W}(?:#{STRING}|#{URL})#{W}\)/i
       FUNCTION = /#{IDENT}\(/
@@ -118,6 +118,11 @@ module Sass
       INTERP_START = /#\{/
       ANY = /:(-[-\w]+-)?any\(/i
       OPTIONAL = /!#{W}optional/i
+
+      # A unit is like an IDENT, but disallows a hyphen followed by a digit.
+      # This allows "1px-2px" to be interpreted as subtraction rather than "1"
+      # with the unit "px-2px". It also allows "%".
+      UNIT = /-?#{NMSTART}(?:[a-zA-Z0-9_]|#{NONASCII}|#{ESCAPE}|-(?!\d))*|%/
 
       IDENT_HYPHEN_INTERP = /-(#\{)/
       STRING1_NOINTERP = /\"((?:[^\n\r\f\\"#]|#(?!\{)|\\#{NL}|#{ESCAPE})*)\"/

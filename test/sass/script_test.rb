@@ -773,10 +773,27 @@ SCSS
     assert_equal "#uvwxyz", resolve("#uvw + xyz")
   end
 
+  def test_scientific_notation
+    assert_equal "2000", resolve("2e3")
+    assert_equal "2000", resolve("2E3")
+    assert_equal "2000", resolve("2e+3")
+    assert_equal "2000em", resolve("2e3em")
+    assert_equal "25000000000", resolve("2.5e10")
+    assert_equal "0.1234", resolve("1234e-4")
+    assert_equal "12.34", resolve("1.234e1")
+  end
+
+  def test_identifier_units
+    assert_equal "5-foo", resolve("2-foo + 3-foo")
+    assert_equal "5-foo-", resolve("2-foo- + 3-foo-")
+    assert_equal "5-\\u2603", resolve("2-\\u2603 + 3-\\u2603")
+  end
+
   # Regression Tests
 
   def test_minus_without_whitespace
     assert_equal "5px", resolve("15px-10px")
+    assert_equal "5px-", resolve("15px--10px-")
   end
 
   def test_minus_preceded_by_comment
