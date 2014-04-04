@@ -779,6 +779,10 @@ SCSS
     assert_equal "5px", resolve("15px-10px")
   end
 
+  def test_minus_preceded_by_comment
+    assert_equal "15px -10px", resolve("15px/**/-10px")
+  end
+
   def test_user_defined_function_forces_division
     assert_equal(<<CSS, render(<<SASS))
 a {
