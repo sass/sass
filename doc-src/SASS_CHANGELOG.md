@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.3.5 (Unreleased)
+
+* Fix `LoadError`s when using `--watch` with the bundled version of Listen.
+
 ## 3.3.4 (21 March 2014)
 
 * Improve the warning message for `index(...) == false`.
