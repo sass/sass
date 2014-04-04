@@ -158,7 +158,7 @@ module Sass
       # @raise [Exception] `e`, if the
       #   {file:SASS_REFERENCE.md#full_exception-option `:full_exception`} option
       #   is set to false.
-      def exception_to_css(e, line_offset=1)
+      def exception_to_css(e, line_offset = 1)
         header = header_string(e, line_offset)
 
         <<END

@@ -531,7 +531,7 @@ ERR
     opts = {:full_exception => true, :line => 362}
     render(("a\n  b: c\n" * 10) + "d\n  e:\n" + ("f\n  g: h\n" * 10), opts)
   rescue Sass::SyntaxError => e
-    assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e, opts).split("\n")[0..15].join("\n"))
+    assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e, opts[:line]).split("\n")[0..15].join("\n"))
 /*
 Syntax error: Invalid property: "e:" (no value).
         on line 383 of test_exception_css_with_offset_inline.sass
@@ -553,8 +553,7 @@ CSS
   end
 
   def test_exception_css_with_mixins
-    opts = {:full_exception => true}
-    render(<<SASS, opts)
+    render(<<SASS, :full_exception => true)
 =error-mixin($a)
   color: $a * 1em * 1px
 
@@ -565,7 +564,7 @@ CSS
   +outer-mixin(12)
 SASS
   rescue Sass::SyntaxError => e
-    assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e, opts).split("\n")[0..13].join("\n"))
+    assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e).split("\n")[0..13].join("\n"))
 /*
 Syntax error: 12em*px isn't a valid CSS value.
         on line 2 of test_exception_css_with_mixins_inline.sass, in `error-mixin'
@@ -585,8 +584,7 @@ CSS
   end
 
   def test_cssize_exception_css
-    opts = {:full_exception => true}
-    render(<<SASS, opts)
+    render(<<SASS, :full_exception => true)
 .filler
   stuff: "stuff!"
 
@@ -596,7 +594,7 @@ a: b
   a: b
 SASS
   rescue Sass::SyntaxError => e
-    assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e, opts).split("\n")[0..11].join("\n"))
+    assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e).split("\n")[0..11].join("\n"))
 /*
 Syntax error: Properties are only allowed within rules, directives, mixin includes, or other properties.
         on line 4 of test_cssize_exception_css_inline.sass
