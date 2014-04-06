@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.2.19
+
+* Fix a bug in windows caused by trying to move a file that is not closed.
+
 ## 3.2.18
 
 * Ensure that atomic writes have the same permissions as a normal
