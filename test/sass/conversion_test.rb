@@ -1267,6 +1267,17 @@ $val: 20;
 SCSS
   end
 
+  def test_media_with_feature
+    assert_sass_to_scss <<SCSS, <<SASS
+@media screen and (-webkit-transform-3d) {
+  a: b;
+}
+SCSS
+@media screen and (-webkit-transform-3d)
+  a: b
+SASS
+  end
+
   def test_supports_with_expressions
     assert_renders <<SASS, <<SCSS
 $query: "(feature1: val)"

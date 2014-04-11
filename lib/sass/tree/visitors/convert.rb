@@ -287,6 +287,12 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   # Like interp_to_src, but removes the unnecessary `#{}` around the keys and
   # values in query expressions.
   def query_interp_to_src(interp)
+    interp = interp.map do |e|
+      next e unless e.is_a?(Sass::Script::Tree::Literal)
+      next e unless e.value.is_a?(Sass::Script::Value::String)
+      e.value.value
+    end
+
     Sass::Util.enum_with_index(interp).map do |r, i|
       next r if r.is_a?(String)
       before, after = interp[i - 1], interp[i + 1]

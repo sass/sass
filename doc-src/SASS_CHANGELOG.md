@@ -9,6 +9,8 @@
 
 * Properly parse negative numbers preceded by a comment.
 
+* Avoid unnecessary interpolation when running `sass-convert` on media queries.
+
 ## 3.3.4 (21 March 2014)
 
 * Improve the warning message for `index(...) == false`.
