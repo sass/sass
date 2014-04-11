@@ -7,6 +7,8 @@
 
 * Fix `LoadError`s when using `--watch` with the bundled version of Listen.
 
+* Avoid freezing Ruby's `true` or `false` values.
+
 ## 3.3.4 (21 March 2014)
 
 * Improve the warning message for `index(...) == false`.
