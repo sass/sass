@@ -202,7 +202,7 @@ module Sass::Script
   # \{#map_values map-values($map)}
   # : Returns a list of all values in a map.
   #
-  # \{#map_has_key map-has-key($key)}
+  # \{#map_has_key map-has-key($map, $key)}
   # : Returns whether a map has a value associated with a given key.
   #
   # \{#keywords keywords($args)}
