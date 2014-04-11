@@ -20,7 +20,7 @@ module Sass::Script::Value
     #
     # @param value [Object] The object for \{#value}
     def initialize(value = nil)
-      value.freeze unless [nil, true, false].include?(value)
+      value.freeze unless value.nil? || value == true || value == false
       @value = value
     end
 
