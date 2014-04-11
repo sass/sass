@@ -11,6 +11,8 @@
 
 * Avoid unnecessary interpolation when running `sass-convert` on media queries.
 
+* Avoid freezing Ruby's `true` or `false` values.
+
 ## 3.3.4 (21 March 2014)
 
 * Improve the warning message for `index(...) == false`.
