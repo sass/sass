@@ -174,12 +174,12 @@ class CompilerTest < Test::Unit::TestCase
     directories = nil
     c = watcher do |listener|
       directories = listener.directories
-      listener.removed "/asdf/foobar/sass/foo.scss"
+      listener.removed File.expand_path("./foo.scss")
       listener.fire_events!
     end
-    c.watch([["/asdf/foobar/sass/foo.scss", "/asdf/foobar/css/foo.css", nil]])
-    assert directories.include?("/asdf/foobar/sass"), directories.inspect
-    assert_equal "/asdf/foobar/css/foo.css", c.deleted_css_files.first, "the corresponding css file was not deleted"
+    c.watch([[File.expand_path("./foo.scss"), File.expand_path("./foo.css"), nil]])
+    assert directories.include?(File.expand_path(".")), directories.inspect
+    assert_equal File.expand_path("./foo.css"), c.deleted_css_files.first, "the corresponding css file was not deleted"
     assert_equal [], c.update_stylesheets_called_with[1], "the sass file should not have been compiled"
   end
 

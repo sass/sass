@@ -229,7 +229,9 @@ module Sass::Plugin
       # A Listen version prior to 2.0 will write a test file to a directory to
       # see if a watcher supports watching that directory. That breaks horribly
       # on read-only directories, so we filter those out.
-      directories.reject {|d| File.writable?(d)} unless Sass::Util.listen_geq_2?
+      unless Sass::Util.listen_geq_2?
+        directories = directories.select {|d| File.directory?(d) && File.writable?(d)}
+      end
 
       # TODO: Keep better track of what depends on what
       # so we don't have to run a global update every time anything changes.
