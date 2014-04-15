@@ -725,7 +725,6 @@ SCSS
     assert_selector_parses('E! > F')
 
     assert_selector_parses('E /ns|foo/ F')
-    assert_selector_parses('E /*|foo/ F')
   end
 
   # Taken from http://dev.w3.org/csswg/selectors4/#overview, but without element

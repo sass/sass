@@ -118,6 +118,7 @@ module Sass
       INTERP_START = /#\{/
       ANY = /:(-[-\w]+-)?any\(/i
       OPTIONAL = /!#{W}optional/i
+      IDENT_START = /-|#{NMSTART}/
 
       # A unit is like an IDENT, but disallows a hyphen followed by a digit.
       # This allows "1px-2px" to be interpreted as subtraction rather than "1"

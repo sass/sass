@@ -536,11 +536,17 @@ foo :baz {
   c: d; }
 foo bang:bop {
   e: f; }
+foo ::qux {
+  g: h; }
+foo zap::fblthp {
+  i: j; }
 CSS
 foo {
   .bar {a: b}
   :baz {c: d}
-  bang:bop {e: f}}
+  bang:bop {e: f}
+  ::qux {g: h}
+  zap::fblthp {i: j}}
 SCSS
   end
 
@@ -799,16 +805,25 @@ SCSS
   def test_no_namespace_properties_without_space_even_when_its_unambiguous
     render(<<SCSS)
 foo {
-  bar:1px {
+  bar:baz calc(1 + 2) {
     bip: bop }}
 SCSS
     assert(false, "Expected syntax error")
   rescue Sass::SyntaxError => e
-    assert_equal <<MESSAGE, e.message
-Invalid CSS: a space is required between a property and its definition
-when it has other properties nested beneath it.
-MESSAGE
+    assert_equal 'Invalid CSS after "bar:baz calc": expected selector, was "(1 + 2)"', e.message
     assert_equal 2, e.sass_line
+  end
+
+  def test_namespace_properties_without_space_allowed_for_non_identifier
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  bar: 1px;
+    bar-bip: bop; }
+CSS
+foo {
+  bar:1px {
+    bip: bop }}
+SCSS
   end
 
   ## Mixins
@@ -3083,7 +3098,7 @@ foo {
 SCSS
     assert(false, "Expected syntax error")
   rescue Sass::SyntaxError => e
-    assert_equal 'Invalid CSS after "  .bar:baz ": expected "{", was "<fail>; }"', e.message
+    assert_equal 'Invalid CSS after "  .bar:baz <fail>": expected expression (e.g. 1px, bold), was "; }"', e.message
     assert_equal 2, e.sass_line
   end
 
@@ -3193,7 +3208,7 @@ SCSS
 
   def test_parent_in_mid_selector_error
     assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
-Invalid CSS after "  .foo": expected "{", was "&.bar {a: b}"
+Invalid CSS after ".foo": expected "{", was "&.bar"
 
 "&.bar" may only be used at the beginning of a compound selector.
 MESSAGE
@@ -3205,7 +3220,7 @@ SCSS
 
   def test_parent_after_selector_error
     assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
-Invalid CSS after "  .foo.bar": expected "{", was "& {a: b}"
+Invalid CSS after ".foo.bar": expected "{", was "&"
 
 "&" may only be used at the beginning of a compound selector.
 MESSAGE
@@ -3217,7 +3232,7 @@ SCSS
 
   def test_double_parent_selector_error
     assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
-Invalid CSS after "  &": expected "{", was "& {a: b}"
+Invalid CSS after "&": expected "{", was "&"
 
 "&" may only be used at the beginning of a compound selector.
 MESSAGE

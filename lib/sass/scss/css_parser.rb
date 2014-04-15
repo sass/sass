@@ -25,8 +25,16 @@ module Sass
         end
       end
 
-      def nested_properties!(node, space)
+      def nested_properties!(node)
         expected('expression (e.g. 1px, bold)')
+      end
+
+      def ruleset
+        start_pos = source_position
+        rules, source_range = selector_sequence
+        return unless rules
+        block(node(
+          Sass::Tree::RuleNode.new(rules.flatten.compact, source_range), start_pos), :ruleset)
       end
 
       @sass_script_parser = Class.new(Sass::Script::CssParser)
