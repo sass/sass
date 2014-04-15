@@ -658,6 +658,14 @@ module Sass
       @ruby1_8_6 = ruby1_8? && Sass::Util::RUBY_VERSION[2] < 7
     end
 
+    # Whether or not this is running under Ruby 1.9.2 exactly.
+    #
+    # @return [Boolean]
+    def ruby1_9_2?
+      return @ruby1_9_2 if defined?(@ruby1_9_2)
+      @ruby1_9_2 = Sass::Util::RUBY_VERSION == [1, 9, 2]
+    end
+
     # Wehter or not this is running under JRuby 1.6 or lower.
     def jruby1_6?
       return @jruby1_6 if defined?(@jruby1_6)
@@ -748,9 +756,14 @@ module Sass
         str = binary.force_encoding('UTF-16LE')
       elsif binary =~ CHARSET_REGEXP
         charset = $1.force_encoding('US-ASCII')
-        encoding = Encoding.find(charset)
-        if encoding.name == 'UTF-16' || encoding.name == 'UTF-16BE'
+        # Ruby 1.9.2 doesn't recognize a UTF-16 encoding without an endian marker.
+        if ruby1_9_2? && charset.downcase == 'utf-16'
           encoding = Encoding.find('UTF-8')
+        else
+          encoding = Encoding.find(charset)
+          if encoding.name == 'UTF-16' || encoding.name == 'UTF-16BE'
+            encoding = Encoding.find('UTF-8')
+          end
         end
         str = binary.force_encoding(encoding)
       elsif str.encoding.name == "ASCII-8BIT"
