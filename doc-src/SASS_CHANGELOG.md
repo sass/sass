@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.3.5 (Unreleased)
+## 3.3.5 (14 April 2014)
 
 * Fix `LoadError`s when using `--watch` with the bundled version of Listen.
 
