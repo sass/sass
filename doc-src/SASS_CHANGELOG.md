@@ -101,11 +101,15 @@ can use it in a mixin to detect whether a parent selector exists:
   overwritten unless the `!global` flag is used. For example, `$var: value
   !global` will assign to `$var` globally.
 
-## 3.3.5 (Unreleased)
+## 3.3.5 (14 April 2014)
 
 * Fix `LoadError`s when using `--watch` with the bundled version of Listen.
 
 * Properly parse negative numbers preceded by a comment.
+
+* Avoid unnecessary interpolation when running `sass-convert` on media queries.
+
+* Avoid freezing Ruby's `true` or `false` values.
 
 ## 3.3.4 (21 March 2014)
 
