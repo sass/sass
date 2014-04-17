@@ -1,5 +1,7 @@
+require "json"
 # A visitor for converting a dynamic Sass tree into a static Sass tree.
 class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
+  attr_accessor :immutable_path
   class << self
     # @param root [Tree::Node] The root node of the tree to visit.
     # @param environment [Sass::Environment] The lexical environment.
@@ -280,7 +282,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # Returns a static DirectiveNode if this is importing a CSS file,
   # or parses and includes the imported Sass file.
   def visit_import(node)
-    if (path = node.css_import?)
+    if (path = node.css_import?(@immutable_path))
       resolved_node = Sass::Tree::CssImportNode.resolved("url(#{path})")
       resolved_node.source_range = node.source_range
       return resolved_node
@@ -523,5 +525,28 @@ WARNING
       "    #{m1} imports #{m2}"
     end.join("\n")
     raise Sass::SyntaxError.new(msg)
+  end
+  def visit_path(node)
+    @immutable_path = {} if @immutable_path.nil?
+    get_path(node)
+  end
+ 
+  def get_path(node)
+    raw_path = run_interp(node.value)
+    cleaned_path = clean_path(raw_path)
+    puts cleaned_path
+    cleaned_path = JSON.parse(cleaned_path);
+ 
+    cleaned_path.each do |old_path, new_path|
+      @immutable_path[old_path] = new_path
+    end
+  end
+ 
+  def clean_path(path)
+    parsed_path = path[6..-1]
+    parsed_path.gsub!(/\A'|'\Z/, '')
+    parsed_path.gsub!("(", "{")
+    parsed_path.gsub!(")", "}")
+    return parsed_path
   end
 end

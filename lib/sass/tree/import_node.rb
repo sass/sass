@@ -12,6 +12,8 @@ module Sass
       # Sets the imported file.
       attr_writer :imported_file
 
+      attr_accessor :immutable_path
+
       # @param imported_filename [String] The name of the imported file
       def initialize(imported_filename)
         @imported_filename = imported_filename
@@ -31,7 +33,9 @@ module Sass
       # Returns whether or not this import should emit a CSS @import declaration
       #
       # @return [Boolean] Whether or not this is a simple CSS @import declaration.
-      def css_import?
+      def css_import?(immutable_path = {})
+        self.immutable_path = immutable_path
+        self.immutable_path = {} if self.immutable_path.nil?
         if @imported_filename =~ /\.css$/
           @imported_filename
         elsif imported_file.is_a?(String) && imported_file =~ /\.css$/
@@ -43,8 +47,11 @@ module Sass
 
       def import
         paths = @options[:load_paths]
-
+         
         if @options[:importer]
+          if(self.immutable_path[imported_filename])
+            @imported_filename = self.immutable_path[imported_filename]
+          end
           f = @options[:importer].find_relative(
             @imported_filename, @options[:filename], options_for_importer)
           return f if f
