@@ -468,6 +468,10 @@ WARNING
 
   def visit_directive(node)
     node.resolved_value = run_interp(node.value)
+    if node.resolved_value[0, 5] == '@path'
+      visit_path(node)
+    end
+
     with_environment Sass::Environment.new(@environment) do
       node.children = node.children.map {|c| visit(c)}.flatten
       node
