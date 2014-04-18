@@ -47,10 +47,10 @@ module Sass
 
       def import
         paths = @options[:load_paths]
-         
+        immutable_path = self.immutable_path
         if @options[:importer]
-          if(self.immutable_path[imported_filename])
-            @imported_filename = self.immutable_path[imported_filename]
+          if  immutable_path[imported_filename]
+            @imported_filename = immutable_path[imported_filename]
           end
           f = @options[:importer].find_relative(
             @imported_filename, @options[:filename], options_for_importer)

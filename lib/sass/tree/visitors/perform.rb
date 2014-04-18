@@ -526,27 +526,27 @@ WARNING
     end.join("\n")
     raise Sass::SyntaxError.new(msg)
   end
+
   def visit_path(node)
     @immutable_path = {} if @immutable_path.nil?
     get_path(node)
   end
- 
+
   def get_path(node)
     raw_path = run_interp(node.value)
     cleaned_path = clean_path(raw_path)
     puts cleaned_path
     cleaned_path = JSON.parse(cleaned_path);
- 
+
     cleaned_path.each do |old_path, new_path|
       @immutable_path[old_path] = new_path
     end
   end
- 
+
   def clean_path(path)
     parsed_path = path[6..-1]
     parsed_path.gsub!(/\A'|'\Z/, '')
     parsed_path.gsub!("(", "{")
     parsed_path.gsub!(")", "}")
-    return parsed_path
   end
 end
