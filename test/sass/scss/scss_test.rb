@@ -1899,10 +1899,10 @@ SCSS
 
   def test_basic_selector_interpolation
     assert_equal <<CSS, render(<<SCSS)
-foo 3 baz {
+foo ab baz {
   a: b; }
 CSS
-foo \#{1 + 2} baz {a: b}
+foo \#{'a' + 'b'} baz {a: b}
 SCSS
     assert_equal <<CSS, render(<<SCSS)
 foo.bar baz {

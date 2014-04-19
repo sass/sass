@@ -33,30 +33,27 @@ module Sass
         start_pos = source_position
         rules, source_range = selector_sequence
         return unless rules
-        block(node(Sass::Tree::RuleNode.new(merge(rules), source_range), start_pos), :ruleset)
+        block(node(Sass::Tree::RuleNode.new([rules], source_range), start_pos), :ruleset)
       end
 
       def selector_sequence
         start_pos = source_position
         if (sel = tok(STATIC_SELECTOR, true))
-          return [sel], range(start_pos)
+          return sel, range(start_pos)
         end
 
-        rules = []
-        v = selector
-        return unless v
-        rules.concat v
+        sel = selector_string
+        return unless sel
 
         ws = ''
         while tok(/,/)
           ws << str {ss}
-          if (v = selector)
-            rules << ',' << ws
-            rules.concat v
+          if (v = selector_string)
+            sel << ',' << ws << v
             ws = ''
           end
         end
-        return rules, range(start_pos)
+        return sel, range(start_pos)
       end
 
       @sass_script_parser = Class.new(Sass::Script::CssParser)

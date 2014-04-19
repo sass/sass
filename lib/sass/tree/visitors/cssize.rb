@@ -125,14 +125,14 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
   def visit_extend(node)
     node.resolved_selector.members.each do |seq|
       if seq.members.size > 1
-        raise Sass::SyntaxError.new("Can't extend #{seq.to_a.join}: can't extend nested selectors")
+        raise Sass::SyntaxError.new("Can't extend #{seq}: can't extend nested selectors")
       end
 
       sseq = seq.members.first
       if !sseq.is_a?(Sass::Selector::SimpleSequence)
-        raise Sass::SyntaxError.new("Can't extend #{seq.to_a.join}: invalid selector")
+        raise Sass::SyntaxError.new("Can't extend #{seq}: invalid selector")
       elsif sseq.members.any? {|ss| ss.is_a?(Sass::Selector::Parent)}
-        raise Sass::SyntaxError.new("Can't extend #{seq.to_a.join}: can't extend parent selectors")
+        raise Sass::SyntaxError.new("Can't extend #{seq}: can't extend parent selectors")
       end
 
       sel = sseq.members

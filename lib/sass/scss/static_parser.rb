@@ -65,13 +65,13 @@ module Sass
       end
 
       def selector_comma_sequence
-        sel = _selector
+        sel = selector
         return unless sel
         selectors = [sel]
         ws = ''
         while tok(/,/)
           ws << str {ss}
-          if (sel = _selector)
+          if (sel = selector)
             selectors << sel
             if ws.include?("\n")
               selectors[-1] = Selector::Sequence.new(["\n"] + selectors.last.members)
@@ -82,13 +82,13 @@ module Sass
         Selector::CommaSequence.new(selectors)
       end
 
-      def selector
-        sel = _selector
+      def selector_string
+        sel = selector
         return unless sel
-        sel.to_a
+        sel.to_s
       end
 
-      def _selector
+      def selector
         # The combinator here allows the "> E" hack
         val = combinator || simple_selector_sequence
         return unless val
@@ -110,12 +110,10 @@ module Sass
 
       def reference_combinator
         return unless tok(/\//)
-        res = ['/']
+        res = '/'
         ns, name = expr!(:qualified_name)
         res << ns << '|' if ns
         res << name << tok!(/\//)
-        res = res.flatten
-        res = res.join '' if res.all? {|e| e.is_a?(String)}
         res
       end
 
@@ -124,16 +122,14 @@ module Sass
         # http://www.w3.org/TR/css3-animations/#keyframes-
 
         start_pos = source_position
-        e = element_name || id_selector ||
-          class_selector || placeholder_selector || attrib || pseudo ||
-          parent_selector || interpolation_selector
-        return expr(!:allow_var) unless e
+        e = element_name || id_selector || class_selector || placeholder_selector || attrib ||
+            pseudo || parent_selector
+        return unless e
         res = [e]
 
         # The tok(/\*/) allows the "E*" hack
         while (v = id_selector || class_selector || placeholder_selector ||
-                   attrib || pseudo || interpolation_selector ||
-                   (tok(/\*/) && Selector::Universal.new(nil)))
+                   attrib || pseudo || (tok(/\*/) && Selector::Universal.new(nil)))
           res << v
         end
 
@@ -158,25 +154,25 @@ module Sass
 
       def parent_selector
         return unless tok(/&/)
-        Selector::Parent.new(interp_ident(NAME) || [])
+        Selector::Parent.new(tok(NAME))
       end
 
       def class_selector
         return unless tok(/\./)
         @expected = "class name"
-        Selector::Class.new(merge(expr!(:interp_ident)))
+        Selector::Class.new(tok!(IDENT))
       end
 
       def id_selector
         return unless tok(/#(?!\{)/)
         @expected = "id name"
-        Selector::Id.new(merge(expr!(:interp_name)))
+        Selector::Id.new(tok!(NAME))
       end
 
       def placeholder_selector
         return unless tok(/%/)
         @expected = "placeholder name"
-        Selector::Placeholder.new(merge(expr!(:interp_ident)))
+        Selector::Placeholder.new(tok!(IDENT))
       end
 
       def element_name
@@ -184,26 +180,20 @@ module Sass
         return unless ns || name
 
         if name == '*'
-          Selector::Universal.new(merge(ns))
+          Selector::Universal.new(ns)
         else
-          Selector::Element.new(merge(name), merge(ns))
+          Selector::Element.new(name, ns)
         end
       end
 
       def qualified_name(allow_star_name = false)
-        name = interp_ident || tok(/\*/) || (tok?(/\|/) && "")
+        name = tok(IDENT) || tok(/\*/) || (tok?(/\|/) && "")
         return unless name
         return nil, name unless tok(/\|/)
 
-        return name, expr!(:interp_ident) unless allow_star_name
+        return name, tok!(IDENT) unless allow_star_name
         @expected = "identifier or *"
-        return name, interp_ident || tok!(/\*/)
-      end
-
-      def interpolation_selector
-        if (script = interpolation)
-          Selector::Interpolation.new(script)
-        end
+        return name, tok(IDENT) || tok!(/\*/)
       end
 
       def attrib
@@ -221,29 +211,29 @@ module Sass
         if op
           @expected = "identifier or string"
           ss
-          val = interp_ident || expr!(:interp_string)
+          val = tok(IDENT) || tok!(STRING)
           ss
         end
-        flags = interp_ident || interp_string
+        flags = tok(IDENT) || tok(STRING)
         tok!(/\]/)
 
-        Selector::Attribute.new(merge(name), merge(ns), op, merge(val), merge(flags))
+        Selector::Attribute.new(name, ns, op, val, flags)
       end
 
       def attrib_name!
-        if (name_or_ns = interp_ident)
+        if (name_or_ns = tok(IDENT))
           # E, E|E
           if tok(/\|(?!=)/)
             ns = name_or_ns
-            name = interp_ident
+            name = tok(IDENT)
           else
             name = name_or_ns
           end
         else
           # *|E or |E
-          ns = [tok(/\*/) || ""]
+          ns = tok(/\*/) || ""
           tok!(/\|/)
-          name = expr!(:interp_ident)
+          name = tok!(IDENT)
         end
         return ns, name
       end
@@ -252,17 +242,16 @@ module Sass
         s = tok(/::?/)
         return unless s
         @expected = "pseudoclass or pseudoelement"
-        name = expr!(:interp_ident)
+        name = tok!(IDENT)
         if tok(/\(/)
           ss
           arg = expr!(:pseudo_arg)
           while tok(/,/)
-            arg << ',' << str {ss}
-            arg.concat expr!(:pseudo_arg)
+            arg << ',' << str {ss} << expr!(:pseudo_arg)
           end
           tok!(/\)/)
         end
-        Selector::Pseudo.new(s == ':' ? :class : :element, merge(name), merge(arg))
+        Selector::Pseudo.new(s == ':' ? :class : :element, name, arg)
       end
 
       def pseudo_arg
@@ -284,7 +273,7 @@ module Sass
         end
 
         return expr if expr
-        sel_err = catch_error {sel = selector}
+        sel_err = catch_error {sel = selector_string}
         return sel if sel
         rethrow pseudo_err if pseudo_err
         rethrow sel_err if sel_err
@@ -292,13 +281,13 @@ module Sass
       end
 
       def pseudo_expr_token
-        tok(PLUS) || tok(/[-*]/) || tok(NUMBER) || interp_string || tok(IDENT) || interpolation
+        tok(PLUS) || tok(/[-*]/) || tok(NUMBER) || tok(STRING) || tok(IDENT)
       end
 
       def pseudo_expr
-        e = pseudo_expr_token
-        return unless e
-        res = [e, str {ss}]
+        res = pseudo_expr_token
+        return unless res
+        res << str {ss}
         while (e = pseudo_expr_token)
           res << e << str {ss}
         end
