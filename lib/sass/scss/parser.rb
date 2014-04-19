@@ -743,7 +743,7 @@ module Sass
         value = nil
         error = catch_error do
           value = value!
-          if tok?(/{/)
+          if tok?(/\{/)
             # Properties that are ambiguous with selectors can't have additional
             # properties nested beneath them.
             tok!(/;/) if could_be_selector
