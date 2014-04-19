@@ -969,10 +969,6 @@ module Sass
         return [var] if var
       end
 
-      def interp_name
-        interp_ident NAME
-      end
-
       def str
         @strs.push ""
         yield
@@ -1039,7 +1035,6 @@ module Sass
         :at_root_directive_list => '* or identifier',
         :pseudo_arg => "expression (e.g. fr, 2n+1)",
         :interp_ident => "identifier",
-        :interp_name => "identifier",
         :qualified_name => "identifier",
         :expr => "expression (e.g. 1px, bold)",
         :selector_comma_sequence => "selector",

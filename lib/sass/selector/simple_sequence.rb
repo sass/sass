@@ -86,7 +86,7 @@ module Sass
           return CommaSequence.new([Sequence.new([self])])
         end
 
-        return super_cseq if @members.size == 1 && parent.suffix.empty?
+        return super_cseq if @members.size == 1 && parent.suffix.nil?
 
         CommaSequence.new(super_cseq.members.map do |super_seq|
           members = super_seq.members.dup
@@ -97,7 +97,7 @@ module Sass
           end
 
           parent_sub = members.last.members
-          unless parent.suffix.empty?
+          unless parent.suffix.nil?
             parent_sub = parent_sub.dup
             parent_sub[-1] = parent_sub.last.dup
             case parent_sub.last
