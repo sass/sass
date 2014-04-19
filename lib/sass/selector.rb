@@ -37,9 +37,9 @@ module Sass
         @suffix = suffix
       end
 
-      # @see Selector#to_a
-      def to_a
-        ["&", @suffix]
+      # @see Selector#to_s
+      def to_s
+        "&" + (@suffix || '')
       end
 
       # Always raises an exception.
@@ -63,9 +63,9 @@ module Sass
         @name = name
       end
 
-      # @see Selector#to_a
-      def to_a
-        [".", @name]
+      # @see Selector#to_s
+      def to_s
+        "." + @name
       end
 
       # @see AbstractSequence#specificity
@@ -86,9 +86,9 @@ module Sass
         @name = name
       end
 
-      # @see Selector#to_a
-      def to_a
-        ["#", @name]
+      # @see Selector#to_s
+      def to_s
+        "#" + @name
       end
 
       # Returns `nil` if `sels` contains an {Id} selector
@@ -121,9 +121,9 @@ module Sass
         @name = name
       end
 
-      # @see Selector#to_a
-      def to_a
-        ["%", @name]
+      # @see Selector#to_s
+      def to_s
+        "%" + @name
       end
 
       # @see AbstractSequence#specificity
@@ -145,9 +145,9 @@ module Sass
         @namespace = namespace
       end
 
-      # @see Selector#to_a
-      def to_a
-        @namespace ? [@namespace, "|*"] : ["*"]
+      # @see Selector#to_s
+      def to_s
+        @namespace ? "#{@namespace}|*" : "*"
       end
 
       # Unification of a universal selector is somewhat complicated,
@@ -217,9 +217,9 @@ module Sass
         @namespace = namespace
       end
 
-      # @see Selector#to_a
-      def to_a
-        @namespace ? [@namespace, "|", @name] : [@name]
+      # @see Selector#to_s
+      def to_s
+        @namespace ? "#{@namespace}|#{@name}" : @name
       end
 
       # Unification of an element selector is somewhat complicated,
@@ -306,9 +306,9 @@ module Sass
         @flags = flags
       end
 
-      # @see Selector#to_a
-      def to_a
-        res = ["["]
+      # @see Selector#to_s
+      def to_s
+        res = "["
         res << @namespace << "|" if @namespace
         res << @name
         res << @operator << @value if @value
@@ -372,9 +372,9 @@ module Sass
         ACTUALLY_ELEMENTS.include?(name) ? :element : syntactic_type
       end
 
-      # @see Selector#to_a
-      def to_a
-        res = [syntactic_type == :class ? ":" : "::", @name]
+      # @see Selector#to_s
+      def to_s
+        res = (syntactic_type == :class ? ":" : "::") + @name
         res << "(" << @arg.strip << ")" if @arg
         res
       end
@@ -417,9 +417,9 @@ module Sass
         @selector = selector
       end
 
-      # @see Selector#to_a
-      def to_a
-        [":", @name, "("] + @selector.to_a + [")"]
+      # @see Selector#to_s
+      def to_s
+        ":#{@name}(#{@selector})"
       end
 
       # @see AbstractSequence#specificity

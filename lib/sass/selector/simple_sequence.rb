@@ -93,7 +93,7 @@ module Sass
           newline = members.pop if members.last == "\n"
           unless members.last.is_a?(SimpleSequence)
             raise Sass::SyntaxError.new("Invalid parent selector for \"#{self}\": \"" +
-              super_seq.to_a.join + '"')
+              super_seq.to_s + '"')
           end
 
           parent_sub = members.last.members
@@ -110,7 +110,7 @@ module Sass
             when Sass::Selector::Pseudo
               if parent_sub.last.arg
                 raise Sass::SyntaxError.new("Invalid parent selector for \"#{self}\": \"" +
-                  super_seq.to_a.join + '"')
+                  super_seq.to_s + '"')
               end
               parent_sub[-1] = parent_sub.last.class.new(
                 parent_sub.last.type,
@@ -118,7 +118,7 @@ module Sass
                 nil)
             else
               raise Sass::SyntaxError.new("Invalid parent selector for \"#{self}\": \"" +
-                super_seq.to_a.join + '"')
+                super_seq.to_s + '"')
             end
           end
 
@@ -203,9 +203,9 @@ module Sass
           rest.subset?(sseq.rest)
       end
 
-      # @see Simple#to_a
-      def to_a
-        res = @members.map {|sel| sel.to_a}.flatten
+      # @see Simple#to_s
+      def to_s
+        res = @members.join
         res << '!' if subject?
         res
       end

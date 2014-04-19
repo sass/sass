@@ -65,13 +65,13 @@ module Sass
       end
 
       def selector_comma_sequence
-        sel = _selector
+        sel = selector
         return unless sel
         selectors = [sel]
         ws = ''
         while tok(/,/)
           ws << str {ss}
-          if (sel = _selector)
+          if (sel = selector)
             selectors << sel
             if ws.include?("\n")
               selectors[-1] = Selector::Sequence.new(["\n"] + selectors.last.members)
@@ -82,13 +82,13 @@ module Sass
         Selector::CommaSequence.new(selectors)
       end
 
-      def selector
-        sel = _selector
+      def selector_string
+        sel = selector
         return unless sel
-        sel.to_a
+        sel.to_s
       end
 
-      def _selector
+      def selector
         # The combinator here allows the "> E" hack
         val = combinator || simple_selector_sequence
         return unless val
@@ -124,7 +124,7 @@ module Sass
         start_pos = source_position
         e = element_name || id_selector || class_selector || placeholder_selector || attrib ||
             pseudo || parent_selector
-        return expr(!:allow_var) unless e
+        return unless e
         res = [e]
 
         # The tok(/\*/) allows the "E*" hack
@@ -231,7 +231,7 @@ module Sass
           end
         else
           # *|E or |E
-          ns = [tok(/\*/) || ""]
+          ns = tok(/\*/) || ""
           tok!(/\|/)
           name = tok!(IDENT)
         end
@@ -273,8 +273,8 @@ module Sass
         end
 
         return expr if expr
-        sel_err = catch_error {sel = selector}
-        return sel.join if sel
+        sel_err = catch_error {sel = selector_string}
+        return sel if sel
         rethrow pseudo_err if pseudo_err
         rethrow sel_err if sel_err
         nil

@@ -14,28 +14,18 @@ module Sass
       # @return [String, nil]
       attr_accessor :filename
 
-      # Returns a representation of the node as an array of strings and
-      # potentially {Sass::Script::Tree::Node}s (if there's interpolation in the
-      # selector). When the interpolation is resolved and the strings are joined
-      # together, this will be the string representation of this node.
-      #
-      # @return [Array<String, Sass::Script::Tree::Node>]
-      def to_a
-        Sass::Util.abstract(self)
-      end
-
-      # Returns a string representation of the node.
-      # This is basically the selector string.
+      # @see #to_s
       #
       # @return [String]
       def inspect
-        to_a.map {|e| e.is_a?(Sass::Script::Tree::Node) ? "\#{#{e.to_sass}}" : e}.join
+        to_s
       end
 
-      # @see \{#inspect}
+      # Returns the selector string.
+      #
       # @return [String]
       def to_s
-        inspect
+        Sass::Util.abstract(self)
       end
 
       # Returns a hash code for this selector object.
@@ -58,7 +48,7 @@ module Sass
       # @param other [Object] The object to test equality against
       # @return [Boolean] Whether or not this is equal to `other`
       def eql?(other)
-        other.class == self.class && other.hash == hash && other.equality_key.eql?(equality_key)
+        other.class == self.class && other.hash == hash && other.equality_key == equality_key
       end
       alias_method :==, :eql?
 
@@ -96,12 +86,11 @@ module Sass
 
       # Returns the key used for testing whether selectors are equal.
       #
-      # This is based on \{#to\_a}, with adjacent strings merged so that
-      # selectors constructed in different ways are considered equivalent.
+      # This is a cached version of \{#to\_s}.
       #
-      # @return [Array<String, Sass::Script::Tree::Node>]
+      # @return [String]
       def equality_key
-        @equality_key ||= Sass::Util.merge_adjacent_strings(to_a)
+        @equality_key ||= to_s
       end
 
       # Unifies two namespaces,

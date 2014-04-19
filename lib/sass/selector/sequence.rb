@@ -114,12 +114,9 @@ module Sass
         members.last.superselector?(sseq)
       end
 
-      # @see Simple#to_a
-      def to_a
-        ary = @members.map do |seq_or_op|
-          seq_or_op.is_a?(SimpleSequence) ? seq_or_op.to_a : seq_or_op
-        end
-        Sass::Util.intersperse(ary, " ").flatten.compact
+      # @see AbstractSequence#to_s
+      def to_s
+        @members.join(" ")
       end
 
       # Returns a string representation of the sequence.

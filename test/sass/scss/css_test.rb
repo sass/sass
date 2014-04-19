@@ -887,11 +887,11 @@ SCSS
   end
 
   def test_expression_fallback_selectors
-    assert_selector_parses('0%')
-    assert_selector_parses('60%')
-    assert_selector_parses('100%')
-    assert_selector_parses('12px')
-    assert_selector_parses('"foo"')
+    assert_directive_parses('0%')
+    assert_directive_parses('60%')
+    assert_directive_parses('100%')
+    assert_directive_parses('12px')
+    assert_directive_parses('"foo"')
   end
 
   def test_functional_pseudo_selectors
@@ -1085,6 +1085,13 @@ SCSS
   def assert_selector_parses(selector)
     assert_parses <<SCSS
 #{selector} {
+  a: b; }
+SCSS
+  end
+
+  def assert_directive_parses(param)
+    assert_parses <<SCSS
+@keyframes #{param} {
   a: b; }
 SCSS
   end
