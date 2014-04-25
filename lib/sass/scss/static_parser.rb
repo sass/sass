@@ -240,7 +240,7 @@ module Sass
 
       SELECTOR_PSEUDO_CLASSES = %w[not matches current any].to_set
 
-      PREFIXED_SELECTOR_PSEUDO_CLASSES = %w[nth-column nth-last-column].to_set
+      PREFIXED_SELECTOR_PSEUDO_CLASSES = %w[nth-child nth-last-child].to_set
 
       def pseudo
         s = tok(/::?/)

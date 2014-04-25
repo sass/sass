@@ -324,7 +324,7 @@ module Sass
 
     # A pseudoclass (e.g. `:visited`) or pseudoelement (e.g. `::first-line`)
     # selector. It can have arguments (e.g. `:nth-child(2n+1)`) which can
-    # contain selectors (e.g. `:nth-column(2n+1 of .foo)`).
+    # contain selectors (e.g. `:nth-child(2n+1 of .foo)`).
     class Pseudo < Simple
       # Some psuedo-class-syntax selectors are actually considered
       # pseudo-elements and must be treated differently. This is a list of such
