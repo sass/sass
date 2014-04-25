@@ -1016,6 +1016,19 @@ SCSS
 
   ## Regressions
 
+  def test_very_long_comment_doesnt_take_forever
+    string = 'asdf' * (100000)
+    assert_equal(<<CSS, render(<<SCSS))
+/*
+  #{string}
+*/
+CSS
+/*
+  #{string}
+*/
+SCSS
+  end
+
   def test_double_space_string
     assert_equal(<<CSS, render(<<SCSS))
 .a {

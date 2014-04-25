@@ -9,6 +9,9 @@
   under the same circumstances that it would be interpreted as division when
   used in a property.
 
+* Fix a case where parsing pathological comments would cause Sass to take
+  exponential time and consume all available CPU.
+
 ## 3.3.5 (14 April 2014)
 
 * Fix `LoadError`s when using `--watch` with the bundled version of Listen.
