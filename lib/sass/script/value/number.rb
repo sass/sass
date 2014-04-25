@@ -271,6 +271,8 @@ module Sass::Script::Value
     #
     # @return [String] The representation
     def inspect(opts = {})
+      return original if original
+
       value = self.class.round(self.value)
       str = value.to_s
 

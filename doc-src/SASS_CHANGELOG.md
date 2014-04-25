@@ -3,6 +3,12 @@
 * Table of contents
 {:toc}
 
+## 3.3.6 (Unreleased)
+
+* The `inspect()` function will only interpret `/` between numbers as division
+  under the same circumstances that it would be interpreted as division when
+  used in a property.
+
 ## 3.3.5 (14 April 2014)
 
 * Fix `LoadError`s when using `--watch` with the bundled version of Listen.
