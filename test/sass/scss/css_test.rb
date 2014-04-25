@@ -1029,6 +1029,14 @@ CSS
 SCSS
   end
 
+  def test_long_unclosed_comment_doesnt_take_forever
+    assert_raise_message(Sass::SyntaxError,
+      'Invalid CSS after "/*": expected "/", was "//*************..."') {render(<<SCSS)}
+/*
+//**************************************************************************
+SCSS
+  end
+
   def test_double_space_string
     assert_equal(<<CSS, render(<<SCSS))
 .a {
