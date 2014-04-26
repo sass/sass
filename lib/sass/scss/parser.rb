@@ -1235,8 +1235,9 @@ MESSAGE
 
         unless name
           # Display basic regexps as plain old strings
+          source = rx.source.gsub(%r{\\/}, '/')
           string = rx.source.gsub(/\\(.)/, '\1')
-          name = rx.source == Regexp.escape(string) ? string.inspect : rx.inspect
+          name = source == Regexp.escape(string) ? string.inspect : rx.inspect
         end
 
         expected(name)
