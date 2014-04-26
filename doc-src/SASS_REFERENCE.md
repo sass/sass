@@ -1872,7 +1872,7 @@ flexibility.
 
 ### `if()`
 
-The builtin `if()` function allows you to branch on a condition and
+The built-in `if()` function allows you to branch on a condition and
 returns only one of two possible outcomes. It can be used in any script
 context. The `if` function only evaluates the argument corresponding to
 the one that it will return -- this allows you to refer to variables
