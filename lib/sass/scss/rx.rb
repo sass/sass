@@ -80,7 +80,7 @@ module Sass
 
       S = /[ \t\r\n\f]+/
 
-      COMMENT = %r{/\*[^*]*\*+(?:[^/][^*]*\*+)*/}
+      COMMENT = %r{/\*([^*]|\*+[^/*])*\**\*/}
       SINGLE_LINE_COMMENT = %r{//.*(\n[ \t]*//.*)*}
 
       CDO            = quote("<!--")

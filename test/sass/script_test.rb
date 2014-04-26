@@ -791,6 +791,11 @@ SCSS
 
   # Regression Tests
 
+  def test_inspect_divided_numbers
+    assert_equal "1px/2px", resolve("inspect(1px/2px)")
+    assert_equal "0.5", resolve("inspect((1px/2px))")
+  end
+
   def test_minus_without_whitespace
     assert_equal "5px", resolve("15px-10px")
     assert_equal "5px-", resolve("15px--10px-")

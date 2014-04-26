@@ -101,6 +101,15 @@ can use it in a mixin to detect whether a parent selector exists:
   overwritten unless the `!global` flag is used. For example, `$var: value
   !global` will assign to `$var` globally.
 
+## 3.3.6 (25 April 2014)
+
+* The `inspect()` function will only interpret `/` between numbers as division
+  under the same circumstances that it would be interpreted as division when
+  used in a property.
+
+* Fix several cases where parsing pathological comments would cause Sass to take
+  exponential time and consume all available CPU.
+
 ## 3.3.5 (14 April 2014)
 
 * Fix `LoadError`s when using `--watch` with the bundled version of Listen.
