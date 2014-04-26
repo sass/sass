@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.3.6 (Unreleased)
+## 3.3.6 (25 April 2014)
 
 * The `inspect()` function will only interpret `/` between numbers as division
   under the same circumstances that it would be interpreted as division when
