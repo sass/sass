@@ -7,6 +7,9 @@
 
 * Properly set the default `Sass::Plugin` options in Rails 3.0.
 
+* Fix a few cases where source ranges were being computed incorrectly for
+  SassScript expressions.
+
 ## 3.3.6 (25 April 2014)
 
 * The `inspect()` function will only interpret `/` between numbers as division

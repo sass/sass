@@ -226,8 +226,8 @@ module Sass
                   return other_interp
                 end
 
-                start_pos = source_position
-                e = node(Tree::Operation.new(e, assert_expr(#{sub.inspect}), tok.type), start_pos)
+                e = node(Tree::Operation.new(e, assert_expr(#{sub.inspect}), tok.type),
+                         e.source_range.start_pos)
               end
               e
             end
