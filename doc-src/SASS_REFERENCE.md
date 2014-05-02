@@ -2299,9 +2299,9 @@ is compiled to:
     }
 
     .secondary {
-      color: #0000ff;
-      background-color: #ff0000;
-      border-color: #00ff00;
+      color: #00ff00;
+      background-color: #0000ff;
+      border-color: #ff0000;
     }
 
 You can pass both an argument list and a map as long as the list comes before
