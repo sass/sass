@@ -752,6 +752,18 @@ SASS
 CSS
   end
 
+  def test_multiline_script_scss
+    assert_parses_with_mapping <<SCSS, <<CSS, :syntax => :scss
+$var: {{3}}foo +
+    bar{{/3}}; {{1}}x {{/1}}{ {{2}}y{{/2}}: $var }
+SCSS
+{{1}}x{{/1}} {
+  {{2}}y{{/2}}: {{3}}foobar{{/3}}; }
+
+/*# sourceMappingURL=test.css.map */
+CSS
+  end
+
   private
 
   ANNOTATION_REGEX = /\{\{(\/?)([^}]+)\}\}/
@@ -810,11 +822,18 @@ CSS
 
   def assert_positions_equal(expected, actual, lines, message = nil)
     prefix = message ? message + ": " : ""
+    expected_location = lines[expected.line - 1] + "\n" + ("-" * (expected.offset - 1)) + "^"
+    actual_location = lines[actual.line - 1] + "\n" + ("-" * (actual.offset - 1)) + "^"
     assert_equal(expected.line, actual.line, prefix +
-      "Expected #{expected.inspect} but was #{actual.inspect}")
+      "Expected #{expected.inspect}\n" +
+      expected_location + "\n\n" +
+      "But was #{actual.inspect}\n" +
+      actual_location)
     assert_equal(expected.offset, actual.offset, prefix +
-      "Expected #{expected.inspect} but was #{actual.inspect}\n" +
-      lines[actual.line - 1] + "\n" + ("-" * (actual.offset - 1)) + "^")
+      "Expected #{expected.inspect}\n" +
+      expected_location + "\n\n" +
+      "But was #{actual.inspect}\n" +
+      actual_location)
   end
 
   def assert_ranges_equal(expected, actual, lines, prefix)
