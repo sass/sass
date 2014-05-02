@@ -123,9 +123,9 @@ module Sass
   end
 end
 
-# On Rails 3+ the rails plugin is loaded at the right time in railtie.rb
-if defined?(ActionController) && !Sass::Util.ap_geq_3?
-  require 'sass/plugin/rails'
+if defined?(ActionController)
+  # On Rails 3+ the rails plugin is loaded at the right time in railtie.rb
+  require 'sass/plugin/rails' unless Sass::Util.ap_geq_3?
 elsif defined?(Merb::Plugins)
   require 'sass/plugin/merb'
 else

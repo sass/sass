@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.3.7 (Unreleased)
+
+* Properly set the default `Sass::Plugin` options in Rails 3.0.
+
 ## 3.3.6 (25 April 2014)
 
 * The `inspect()` function will only interpret `/` between numbers as division
