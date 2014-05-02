@@ -1074,7 +1074,7 @@ module Sass
 
         unless name
           # Display basic regexps as plain old strings
-          source = rx.source.gsub(%r{\\/}, '/')
+          source = rx.source.gsub(/\\\//, '/')
           string = rx.source.gsub(/\\(.)/, '\1')
           name = source == Regexp.escape(string) ? string.inspect : rx.inspect
         end
