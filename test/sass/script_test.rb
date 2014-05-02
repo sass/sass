@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
 require File.dirname(__FILE__) + '/../test_helper'
 require 'sass/engine'
 
@@ -33,13 +34,38 @@ class SassScriptTest < Test::Unit::TestCase
   def test_string_escapes
     assert_equal "'", resolve("\"'\"")
     assert_equal '"', resolve("\"\\\"\"")
-    assert_equal "\\\\", resolve("\"\\\\\"")
-    assert_equal "\\02fa", resolve("\"\\02fa\"")
+    assert_equal "\\", resolve("\"\\\\\"")
+    assert_equal "☃", resolve("\"\\2603\"")
+    assert_equal "☃f", resolve("\"\\2603 f\"")
+    assert_equal "☃x", resolve("\"\\2603x\"")
+    assert_equal "\\2603", resolve("\"\\\\2603\"")
 
-    assert_equal "'", resolve("'\\''")
-    assert_equal '"', resolve("'\"'")
-    assert_equal "\\\\", resolve("'\\\\'")
-    assert_equal "\\02fa", resolve("'\\02fa'")
+    # U+FFFD is the replacement character, "�".
+    assert_equal [0xFFFD].pack("U"), resolve("\"\\0\"")
+    assert_equal [0xFFFD].pack("U"), resolve("\"\\FFFFFF\"")
+    assert_equal [0xFFFD].pack("U"), resolve("\"\\D800\"")
+    assert_equal [0xD7FF].pack("U"), resolve("\"\\D7FF\"")
+    assert_equal [0xFFFD].pack("U"), resolve("\"\\DFFF\"")
+    assert_equal [0xE000].pack("U"), resolve("\"\\E000\"")
+  end
+
+  def test_string_escapes_are_resolved_before_operators
+    assert_equal "true", resolve('"abc" == "\61\62\63"')
+  end
+
+  def test_string_quote
+    assert_equal '"foo"', resolve_quoted('"foo"')
+    assert_equal "'f\"oo'", resolve_quoted('"f\"oo"')
+    assert_equal "\"f'oo\"", resolve_quoted("'f\\'oo'")
+    assert_equal "\"f'o\\\"o\"", resolve_quoted("'f\\'o\"o'")
+    assert_equal '"foo bar"', resolve_quoted('"foo\20 bar"')
+    assert_equal '"foo\a bar"', resolve_quoted('"foo\a bar"')
+    assert_equal '"x\ay"', resolve_quoted('"x\a y"')
+    assert_equal '"\a  "', resolve_quoted('"\a\20"')
+    assert_equal '"\a abcdef"', resolve_quoted('"\a abcdef"')
+    assert_equal '"☃abcdef"', resolve_quoted('"\2603 abcdef"')
+    assert_equal '"\\\\"', resolve_quoted('"\\\\"')
+    assert_equal '"foobar"', resolve_quoted("\"foo\\\nbar\"")
   end
 
   def test_color_names
@@ -789,6 +815,11 @@ SCSS
     assert_equal "5-\\u2603", resolve("2-\\u2603 + 3-\\u2603")
   end
 
+  def test_backslash_newline_in_string
+    assert_equal 'foobar', resolve("\"foo\\\nbar\"")
+    assert_equal 'foobar', resolve("'foo\\\nbar'")
+  end
+
   # Regression Tests
 
   def test_inspect_divided_numbers
@@ -905,6 +936,13 @@ end
     val = eval(str, opts, environment)
     assert_kind_of Sass::Script::Value::Base, val
     val.is_a?(Sass::Script::Value::String) ? val.value : val.to_s
+  end
+
+  def resolve_quoted(str, opts = {}, environment = env)
+    munge_filename opts
+    val = eval(str, opts, environment)
+    assert_kind_of Sass::Script::Value::Base, val
+    val.to_s
   end
 
   def assert_unquoted(str, opts = {}, environment = env)

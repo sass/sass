@@ -67,6 +67,10 @@ can use it in a mixin to detect whether a parent selector exists:
 * Sass now supports using ids as values in SassScript as defined in the CSS
   Basic User Interface Module. They're treated as unquoted strings.
 
+* SassScript strings and `@import` directives now support the full CSS string
+  grammar. This includes handling escape codes and ignoring backslashes followed
+  by newlines.
+
 * When the `sass` and `scss` executables encounter an error, they will now
   produce a CSS file describing that error. Previously this was enabled only for
   `--watch` and `--update` mode; now it's enabled whenever a CSS file is being
@@ -100,6 +104,9 @@ can use it in a mixin to detect whether a parent selector exists:
   default. If there's a global variable with the same name, it won't be
   overwritten unless the `!global` flag is used. For example, `$var: value
   !global` will assign to `$var` globally.
+
+* SassScript strings in SCSS may no longer include unescaped newlines. As doing
+  so produced invalid CSS, there will be no deprecation period for this change.
 
 ## 3.3.6 (25 April 2014)
 

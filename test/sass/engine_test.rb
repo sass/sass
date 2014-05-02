@@ -616,12 +616,12 @@ CSS
   end
 
   def test_http_import
-    assert_equal("@import url(http://fonts.googleapis.com/css?family=Droid+Sans);\n",
+    assert_equal("@import \"http://fonts.googleapis.com/css?family=Droid+Sans\";\n",
       render("@import \"http://fonts.googleapis.com/css?family=Droid+Sans\""))
   end
 
   def test_protocol_relative_import
-    assert_equal("@import url(//fonts.googleapis.com/css?family=Droid+Sans);\n",
+    assert_equal("@import \"//fonts.googleapis.com/css?family=Droid+Sans\";\n",
       render("@import \"//fonts.googleapis.com/css?family=Droid+Sans\""))
   end
 

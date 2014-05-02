@@ -106,7 +106,7 @@ module Sass
         private
 
         def string_re(open, close)
-          /#{open}((?:\\.|\#(?!\{)|[^#{close}\\#])*)(#{close}|#\{)/
+          /#{open}((?:\\.|\#(?!\{)|[^#{close}\n\\#])*)(#{close}|#\{)/m
         end
       end
 
@@ -286,7 +286,7 @@ module Sass
             url = "#{'url(' unless open}#{@scanner[1]}#{')' unless @scanner[2] == '#{'}"
             Script::Value::String.new(url)
           else
-            Script::Value::String.new(@scanner[1].gsub(/\\(['"]|\#\{)/, '\1'), :string)
+            Script::Value::String.new(Sass::Script::Value::String.value(@scanner[1]), :string)
           end
         [:string, str]
       end

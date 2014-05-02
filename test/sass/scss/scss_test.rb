@@ -3292,6 +3292,19 @@ MESSAGE
 SCSS
   end
 
+  def test_newline_in_property_value
+    assert_equal(<<CSS, render(<<SCSS))
+.foo {
+  bar: "bazbang"; }
+CSS
+.foo {
+  $var: "baz\\
+bang";
+  bar: $var;
+}
+SCSS
+  end
+
   # Regression
 
   def test_top_level_unknown_directive_in_at_root

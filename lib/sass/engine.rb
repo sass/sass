@@ -1001,7 +1001,7 @@ WARNING
         return node
       end
 
-      unless (str = scanner.scan(Sass::SCSS::RX::STRING))
+      unless (quoted_val = scanner.scan(Sass::SCSS::RX::STRING))
         scanned = scanner.scan(/[^,;]+/)
         node = Tree::ImportNode.new(scanned)
         start_parser_offset = to_parser_offset(offset)
@@ -1013,21 +1013,21 @@ WARNING
       end
 
       start_offset = offset
-      offset += str.length
-      val = scanner[1] || scanner[2]
+      offset += scanner.matched.length
+      val = Sass::Script::Value::String.value(scanner[1] || scanner[2])
       scanned = scanner.scan(/\s*/)
       if !scanner.match?(/[,;]|$/)
         offset += scanned.length if scanned
         media_parser = Sass::SCSS::Parser.new(scanner,
           @options[:filename], @options[:importer], @line, offset)
         media = media_parser.parse_media_query_list
-        node = Tree::CssImportNode.new(str || uri, media.to_a)
+        node = Tree::CssImportNode.new(quoted_val, media.to_a)
         node.source_range = Sass::Source::Range.new(
           Sass::Source::Position.new(@line, to_parser_offset(start_offset)),
           Sass::Source::Position.new(@line, media_parser.offset),
           @options[:filename], @options[:importer])
       elsif val =~ %r{^(https?:)?//}
-        node = Tree::CssImportNode.new("url(#{val})")
+        node = Tree::CssImportNode.new(quoted_val)
         node.source_range = Sass::Source::Range.new(
           Sass::Source::Position.new(@line, to_parser_offset(start_offset)),
           Sass::Source::Position.new(@line, to_parser_offset(offset)),

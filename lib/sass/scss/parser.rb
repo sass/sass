@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'set'
 
 module Sass
@@ -375,7 +376,7 @@ module Sass
 
       def import_arg
         start_pos = source_position
-        return unless (str = tok(STRING)) || (uri = tok?(/url\(/i))
+        return unless (str = string) || (uri = tok?(/url\(/i))
         if uri
           str = sass_script(:parse_string)
           ss
@@ -383,16 +384,15 @@ module Sass
           ss
           return node(Tree::CssImportNode.new(str, media.to_a), start_pos)
         end
-
-        path = @scanner[1] || @scanner[2]
         ss
 
         media = media_query_list
-        if path =~ %r{^(https?:)?//} || media || use_css_import?
-          return node(Sass::Tree::CssImportNode.new(str, media.to_a), start_pos)
+        if str =~ %r{^(https?:)?//} || media || use_css_import?
+          return node(Sass::Tree::CssImportNode.new(
+              Sass::Script::Value::String.quote(str), media.to_a), start_pos)
         end
 
-        node(Sass::Tree::ImportNode.new(path.strip), start_pos)
+        node(Sass::Tree::ImportNode.new(str.strip), start_pos)
       end
 
       def use_css_import?; false; end
@@ -475,8 +475,7 @@ module Sass
       alias_method :at_root_query, :query_expr
 
       def charset_directive(start_pos)
-        tok! STRING
-        name = @scanner[1] || @scanner[2]
+        name = expr!(:string)
         ss
         node(Sass::Tree::CharsetNode.new(name), start_pos)
       end
@@ -934,6 +933,11 @@ module Sass
         sass_script(:parse_interpolated)
       end
 
+      def string
+        return unless tok(STRING)
+        Sass::Script::Value::String.value(@scanner[1] || @scanner[2])
+      end
+
       def interp_string
         _interp_string(:double) || _interp_string(:single)
       end
@@ -1043,6 +1047,7 @@ module Sass
         :qualified_name => "identifier",
         :expr => "expression (e.g. 1px, bold)",
         :selector_comma_sequence => "selector",
+        :string => "string",
         :import_arg => "file to import (string or url())",
         :moz_document_function => "matching function (e.g. url-prefix(), domain())",
         :supports_condition => "@supports condition (e.g. (display: flexbox))",

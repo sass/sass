@@ -499,10 +499,24 @@ SCSS
 
   def test_import_directive
     assert_parses '@import "foo.css";'
-    assert_parses "@import 'foo.css';"
     assert_parses '@import url("foo.css");'
     assert_parses "@import url('foo.css');"
     assert_parses '@import url(foo.css);'
+
+    assert_equal <<CSS, render(<<SCSS)
+@import "foo.css";
+CSS
+@import 'foo.css';
+SCSS
+  end
+
+  def test_import_directive_with_backslash_newline
+    assert_equal <<CSS, render(<<SCSS)
+@import "foobar.css";
+CSS
+@import "foo\\
+bar.css";
+SCSS
   end
 
   def test_string_import_directive_with_media
@@ -1011,6 +1025,19 @@ SCSS
   rescue Sass::SyntaxError => e
     assert_equal 'Invalid CSS after "foo {bar": expected ":", was "}"', e.message
     assert_equal 1, e.sass_line
+  end
+
+  def test_newline_in_property_value
+    assert_equal(<<CSS, render(<<SCSS))
+.foo {
+  bar: "baz\\
+bang"; }
+CSS
+.foo {
+  bar: "baz\\
+bang";
+}
+SCSS
   end
 
   ## Regressions

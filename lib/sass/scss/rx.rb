@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 module Sass
   module SCSS
     # A module containing regular expressions used
