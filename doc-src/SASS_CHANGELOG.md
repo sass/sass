@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.3.7 (Unreleased)
+## 3.3.7 (2 May 2014)
 
 * Properly set the default `Sass::Plugin` options in Rails 3.0.
 
