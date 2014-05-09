@@ -1030,8 +1030,7 @@ SCSS
   def test_newline_in_property_value
     assert_equal(<<CSS, render(<<SCSS))
 .foo {
-  bar: "baz\\
-bang"; }
+  bar: "bazbang"; }
 CSS
 .foo {
   bar: "baz\\

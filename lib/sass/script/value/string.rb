@@ -77,7 +77,7 @@ module Sass::Script::Value
 
     # @see Value#to_s
     def to_s(opts = {})
-      return @value if @type == :identifier
+      return @value.gsub(/\n\s*/, ' ') if @type == :identifier
       Sass::Script::Value::String.quote(value, opts[:quote])
     end
 
