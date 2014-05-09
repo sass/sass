@@ -315,19 +315,31 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
   #   omitted.
   # @return [List<Sass::Tree::Node, Bubble>]
   def debubble(children, parent = nil)
+    # Keep track of the previous parent so that we don't divide `parent`
+    # unnecessarily if the `@at-root` doesn't produce any new nodes (e.g.
+    # `@at-root {@extend %foo}`).
+    previous_parent = nil
+
     Sass::Util.slice_by(children) {|c| c.is_a?(Bubble)}.map do |(is_bubble, slice)|
       unless is_bubble
         next slice unless parent
-        new_parent = parent.dup
-        new_parent.children = slice
-        next new_parent
+        if previous_parent
+          previous_parent.children.push(*slice)
+          next []
+        else
+          previous_parent = new_parent = parent.dup
+          new_parent.children = slice
+          next new_parent
+        end
       end
 
-      next slice.map do |bubble|
+      slice.map do |bubble|
         next unless (node = block_given? ? yield(bubble.node) : bubble.node)
         node.tabs += bubble.tabs
         node.group_end = bubble.group_end
-        [visit(node)].flatten
+        results = [visit(node)].flatten
+        previous_parent = nil unless results.empty?
+        results
       end.compact
     end.flatten
   end

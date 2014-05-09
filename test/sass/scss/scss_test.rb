@@ -2848,6 +2848,34 @@ CSS
 SCSS
   end
 
+  def test_at_root_doesnt_always_break_blocks
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: b; }
+
+@media screen {
+  .foo {
+    c: d; }
+  .bar {
+    e: f; } }
+CSS
+%base {
+  a: b;
+}
+
+@media screen {
+  .foo {
+    c: d;
+    @at-root (without: media) {
+      @extend %base;
+    }
+  }
+
+  .bar {e: f}
+}
+SCSS
+  end
+
   ## Errors
 
   def test_nested_mixin_def_is_scoped

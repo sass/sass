@@ -3,6 +3,13 @@
 * Table of contents
 {:toc}
 
+## 3.3.8 (Unreleased)
+
+* When a use of `@at-root` doesn't add any new rules, it will no longer split
+  its containing block in two ([issue 1239][]).
+
+[issue 1239]: https://github.com/nex3/sass/issues/1239
+
 ## 3.3.7 (2 May 2014)
 
 * Properly set the default `Sass::Plugin` options in Rails 3.0.
