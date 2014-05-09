@@ -1144,6 +1144,44 @@ module Sass
       tmpfile.unlink if tmpfile
     end
 
+    def load_listen!
+      if defined?(gem)
+        begin
+          gem 'listen', '>= 1.1.0', '< 3.0.0'
+          require 'listen'
+        rescue Gem::LoadError
+          dir = scope("vendor/listen/lib")
+          $LOAD_PATH.unshift dir
+          begin
+            require 'listen'
+          rescue LoadError => e
+            if version_geq(RUBY_VERSION, "1.9.3")
+              version_constraint = "~> 2.7"
+            else
+              version_constraint = "~> 1.1"
+            end
+            e.message << "\n" <<
+              "Run \"gem install listen --version '#{version_constraint}'\" to get it."
+            raise e
+          end
+        end
+      else
+        begin
+          require 'listen'
+        rescue LoadError => e
+          dir = scope("vendor/listen/lib")
+          if $LOAD_PATH.include?(dir)
+            raise e unless File.exists?(scope(".git"))
+            e.message << "\n" <<
+              'Run "git submodule update --init" to get the bundled version.'
+          else
+            $LOAD_PATH.unshift dir
+            retry
+          end
+        end
+      end
+    end
+
     private
 
     def find_encoding_error(str)
