@@ -223,6 +223,10 @@ module Sass::Script
   # \{#selector_parse selector-parse($selector)}
   # : Parses a selector into the format returned by `&`.
   #
+  # \{#selector_nest selector-nest($selectors...)}
+  # : Nests selector beneath one another like they would be nested in the
+  #   stylesheet.
+  #
   # ## Introspection Functions
   #
   # \{#feature_exists feature-exists($feature)}
@@ -2288,6 +2292,33 @@ module Sass::Script
       parse_selector(selector, :selector).to_sass_script
     end
     declare :selector_parse, [:selector]
+
+    # Return a new selector with all selectors in `$selectors` nested beneath
+    # one another as though they had been nested in the stylesheet.
+    #
+    # @example
+    #   selector-nest(".foo", ".bar", ".baz") => .foo .bar .baz
+    #   selector-nest(".a .foo", ".b .bar") => .a .foo .b .bar
+    #
+    # @overload selector_nest($selectors...)
+    #   @param $selectors [[Sass::Script::Value::String, Sass::Script::Value::List]]
+    #     The selectors to nest. At least one selector must be passed. Each of
+    #     these can be either a string, a list of strings, or a list of lists of
+    #     strings as returned by `&`.
+    #   @return [Sass::Script::Value::List]
+    #     A list of lists of strings representing the result of nesting
+    #     `$selectors`. This is in the same format as a selector returned by
+    #     `&`.
+    def selector_nest(*selectors)
+      if selectors.empty?
+        raise ArgumentError.new("$selectors: At least one selector must be passed")
+      end
+
+      selectors.map {|sel| parse_selector(sel, :selectors)}.
+          inject {|result, child| child.resolve_parent_refs(result)}.
+          to_sass_script
+    end
+    declare :selector_nest, [], :var_args => true
 
     private
 
