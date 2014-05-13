@@ -230,6 +230,9 @@ module Sass::Script
   # : Nests selector beneath one another like they would be nested in the
   #   stylesheet.
   #
+  # \{#selector_append selector-append($selectors...)}
+  # : Appends selectors to one another without spaces in between.
+  #
   # ## Introspection Functions
   #
   # \{#feature_exists feature-exists($feature)}
@@ -2297,7 +2300,8 @@ module Sass::Script
     declare :selector_parse, [:selector]
 
     # Return a new selector with all selectors in `$selectors` nested beneath
-    # one another as though they had been nested in the stylesheet.
+    # one another as though they had been nested in the stylesheet as
+    # `$selector1 { $selector2 { ... } }`.
     #
     # Unlike most selector functions, `selector-nest` allows the
     # parent selector `&` to be used in any selector but the first.
@@ -2326,6 +2330,55 @@ module Sass::Script
       parsed.inject {|result, child| child.resolve_parent_refs(result)}.to_sass_script
     end
     declare :selector_nest, [], :var_args => true
+
+    # Return a new selector with all selectors in `$selectors` appended one
+    # another as though they had been nested in the stylesheet as `$selector1 {
+    # &$selector2 { ... } }`.
+    #
+    # @example
+    #   selector-append(".foo", ".bar", ".baz") => .foo.bar.baz
+    #   selector-append(".a .foo", ".b .bar") => "a .foo.b .bar"
+    #   selector-append(".foo", "-suffix") => ".foo-suffix"
+    #
+    # @overload selector_append($selectors...)
+    #   @param $selectors [[Sass::Script::Value::String, Sass::Script::Value::List]]
+    #     The selectors to append. At least one selector must be passed. Each of
+    #     these can be either a string, a list of strings, or a list of lists of
+    #     strings as returned by `&`.
+    #   @return [Sass::Script::Value::List]
+    #     A list of lists of strings representing the result of appending
+    #     `$selectors`. This is in the same format as a selector returned by
+    #     `&`.
+    #   @raise [ArgumentError] if a selector could not be appended.
+    def selector_append(*selectors)
+      if selectors.empty?
+        raise ArgumentError.new("$selectors: At least one selector must be passed")
+      end
+
+      selectors.map {|sel| parse_selector(sel, :selectors)}.inject do |parent, child|
+        child.members.each do |seq|
+          sseq = seq.members.first
+          unless sseq.is_a?(Sass::Selector::SimpleSequence)
+            raise ArgumentError.new("Can't append \"#{seq}\" to \"#{parent}\"")
+          end
+
+          base = sseq.base
+          case base
+          when Sass::Selector::Universal
+            raise ArgumentError.new("Can't append \"#{seq}\" to \"#{parent}\"")
+          when Sass::Selector::Element
+            unless base.namespace.nil?
+              raise ArgumentError.new("Can't append \"#{seq}\" to \"#{parent}\"")
+            end
+            sseq.members[0] = Sass::Selector::Parent.new(base.name)
+          else
+            sseq.members.unshift Sass::Selector::Parent.new
+          end
+        end
+        child.resolve_parent_refs(parent)
+      end.to_sass_script
+    end
+    declare :selector_append, [], :var_args => true
 
     private
 

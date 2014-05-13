@@ -1735,6 +1735,33 @@ WARNING
       "selector-nest()")
   end
 
+  def test_selector_append
+    assert_equal(".foo.bar", evaluate("selector-append('.foo', '.bar')"))
+    assert_equal(".a .foo.b .bar", evaluate("selector-append('.a .foo', '.b .bar')"))
+    assert_equal(".foo-suffix", evaluate("selector-append('.foo', '-suffix')"))
+    assert_equal(".foo.bar, .foo-suffix", evaluate("selector-append('.foo', '.bar, -suffix')"))
+  end
+
+  def test_selector_append_checks_types
+    assert_error_message("$selectors: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-append'",
+      "selector-append(12)")
+    assert_error_message("$selectors: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-append'",
+      "selector-append('.foo', 12)")
+  end
+
+  def test_selector_append_errors
+    assert_error_message("$selectors: At least one selector must be passed for `selector-append'",
+      "selector-append()")
+    assert_error_message("Can't append \"> .bar\" to \".foo\" for `selector-append'",
+      "selector-append('.foo', '> .bar')")
+    assert_error_message("Can't append \"*.bar\" to \".foo\" for `selector-append'",
+      "selector-append('.foo', '*.bar')")
+    assert_error_message("Can't append \"ns|suffix\" to \".foo\" for `selector-append'",
+      "selector-append('.foo', 'ns|suffix')")
+  end
+
   ## Regression Tests
 
   def test_inspect_nested_empty_lists
