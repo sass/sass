@@ -220,6 +220,9 @@ module Sass::Script
   # * A comma-separated list of space-separated lists of strings such
   #   as `((".foo" ".bar"), (".baz" ".bang"))`.
   #
+  # In general, selector functions allow placeholder selectors
+  # (`%foo`) but disallow parent-reference selectors (`&`).
+  #
   # \{#selector_parse selector-parse($selector)}
   # : Parses a selector into the format returned by `&`.
   #
@@ -2296,9 +2299,13 @@ module Sass::Script
     # Return a new selector with all selectors in `$selectors` nested beneath
     # one another as though they had been nested in the stylesheet.
     #
+    # Unlike most selector functions, `selector-nest` allows the
+    # parent selector `&` to be used in any selector but the first.
+    #
     # @example
     #   selector-nest(".foo", ".bar", ".baz") => .foo .bar .baz
     #   selector-nest(".a .foo", ".b .bar") => .a .foo .b .bar
+    #   selector-nest(".foo", "&.bar") => .foo.bar
     #
     # @overload selector_nest($selectors...)
     #   @param $selectors [[Sass::Script::Value::String, Sass::Script::Value::List]]
@@ -2314,9 +2321,9 @@ module Sass::Script
         raise ArgumentError.new("$selectors: At least one selector must be passed")
       end
 
-      selectors.map {|sel| parse_selector(sel, :selectors)}.
-          inject {|result, child| child.resolve_parent_refs(result)}.
-          to_sass_script
+      parsed = [parse_selector(selectors.first, :selectors)]
+      parsed += selectors[1..-1].map {|sel| parse_selector(sel, :selectors, !!:parse_parent_ref)}
+      parsed.inject {|result, child| child.resolve_parent_refs(result)}.to_sass_script
     end
     declare :selector_nest, [], :var_args => true
 

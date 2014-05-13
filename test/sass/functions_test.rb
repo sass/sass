@@ -1683,6 +1683,8 @@ WARNING
     assert_equal("true",
       evaluate("selector-parse('.foo .bar, .baz .bang') == ('.foo' '.bar', '.baz' '.bang')"))
 
+    assert_equal(".foo %bar", evaluate("selector-parse('.foo %bar')"))
+
     assert_equal("true",
       evaluate("selector-parse(('.foo', '.bar')) == selector-parse('.foo, .bar')"))
     assert_equal("true",
@@ -1706,6 +1708,8 @@ WARNING
       "selector-parse(('.foo' '.bar', '.baz') ('.bang', '.qux'))")
     assert_error_message("$selector: \".#\" is not a valid selector: Invalid CSS after \".\": " +
       "expected class name, was \"#\" for `selector-parse'", "selector-parse('.#')")
+    assert_error_message("$selector: \"&.foo\" is not a valid selector: Invalid CSS after \"\": " +
+      "expected selector, was \"&.foo\" for `selector-parse'", "selector-parse('&.foo')")
   end
 
   def test_selector_nest
@@ -1713,6 +1717,8 @@ WARNING
     assert_equal(".foo .bar", evaluate("selector-nest('.foo', '.bar')"))
     assert_equal(".foo .bar .baz", evaluate("selector-nest('.foo', '.bar', '.baz')"))
     assert_equal(".a .foo .b .bar", evaluate("selector-nest('.a .foo', '.b .bar')"))
+    assert_equal(".foo.bar", evaluate("selector-nest('.foo', '&.bar')"))
+    assert_equal(".baz .foo.bar", evaluate("selector-nest('.foo', '&.bar', '.baz &')"))
   end
 
   def test_selector_nest_checks_types

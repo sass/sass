@@ -129,12 +129,14 @@ module Sass::Script::Value
     # @param name [Symbol, nil]
     #   If provided, the name of the selector argument. This is used
     #   for error reporting.
+    # @param allow_parent_ref [Boolean]
+    #   Whether the parsed selector should allow parent references.
     # @return [Sass::Selector::CommaSequence] The parsed selector.
     # @throw [ArgumentError] if the parse failed for any reason.
-    def parse_selector(value, name = nil)
+    def parse_selector(value, name = nil, allow_parent_ref = false)
       str = normalize_selector(value, name)
       begin
-        Sass::SCSS::CssParser.new(str, nil, nil).parse_selector
+        Sass::SCSS::StaticParser.new(str, nil, nil, 1, 1, allow_parent_ref).parse_selector
       rescue Sass::SyntaxError => e
         err = "#{value.inspect} is not a valid selector: #{e}"
         err = "$#{name.to_s.gsub('_', '-')}: #{err}" if name
