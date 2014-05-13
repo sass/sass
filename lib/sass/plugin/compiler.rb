@@ -229,7 +229,9 @@ module Sass::Plugin
       # A Listen version prior to 2.0 will write a test file to a directory to
       # see if a watcher supports watching that directory. That breaks horribly
       # on read-only directories, so we filter those out.
-      directories.reject {|d| File.writable?(d)} unless Sass::Util.listen_geq_2?
+      unless Sass::Util.listen_geq_2?
+        directories = directories.select {|d| File.directory?(d) && File.writable?(d)}
+      end
 
       # TODO: Keep better track of what depends on what
       # so we don't have to run a global update every time anything changes.
@@ -276,7 +278,7 @@ module Sass::Plugin
     private
 
     def create_listener(*args, &block)
-      load_listen!
+      Sass::Util.load_listen!
       if Sass::Util.listen_geq_2?
         Listen.to(*args, &block)
       else
@@ -308,44 +310,6 @@ module Sass::Plugin
         dedupped << new_directory
       end
       dedupped
-    end
-
-    def load_listen!
-      if defined?(gem)
-        begin
-          gem 'listen', '>= 1.1.0', '< 3.0.0'
-          require 'listen'
-        rescue Gem::LoadError
-          dir = Sass::Util.scope("vendor/listen/lib")
-          $LOAD_PATH.unshift dir
-          begin
-            require 'listen'
-          rescue LoadError => e
-            if Sass::Util.version_geq(RUBY_VERSION, "1.9.3")
-              version_constraint = "~> 2.7"
-            else
-              version_constraint = "~> 1.1"
-            end
-            e.message << "\n" <<
-              "Run \"gem install listen --version '#{version_constraint}'\" to get it."
-            raise e
-          end
-        end
-      else
-        begin
-          require 'listen'
-        rescue LoadError => e
-          dir = Sass::Util.scope("vendor/listen/lib")
-          if $LOAD_PATH.include?(dir)
-            raise e unless File.exists?(scope(".git"))
-            e.message << "\n" <<
-              'Run "git submodule update --init" to get the bundled version.'
-          else
-            $LOAD_PATH.unshift dir
-            retry
-          end
-        end
-      end
     end
 
     def on_file_changed(individual_files, modified, added, removed)
