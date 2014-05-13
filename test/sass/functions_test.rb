@@ -1762,6 +1762,40 @@ WARNING
       "selector-append('.foo', 'ns|suffix')")
   end
 
+  def test_selector_extend
+    assert_equal(".foo .x, .foo .a .bar, .a .foo .bar",
+      evaluate("selector-extend('.foo .x', '.x', '.a .bar')"))
+    assert_equal(".foo .x, .foo .bang, .x.bar, .bar.bang",
+      evaluate("selector-extend('.foo .x, .x.bar', '.x', '.bang')"))
+    assert_equal(".y .x, .foo .x, .y .foo, .foo .foo",
+      evaluate("selector-extend('.y .x', '.x, .y', '.foo')"))
+    assert_equal(".foo .x, .foo .bar, .foo .bang",
+      evaluate("selector-extend('.foo .x', '.x', '.bar, .bang')"))
+    assert_equal(".foo.x, .foo",
+      evaluate("selector-extend('.foo.x', '.x', '.foo')"))
+  end
+
+  def test_selector_extend_checks_types
+    assert_error_message("$selector: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-extend'",
+      "selector-extend(12, '.foo', '.bar')")
+    assert_error_message("$extendee: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-extend'",
+      "selector-extend('.foo', 12, '.bar')")
+    assert_error_message("$extender: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-extend'",
+      "selector-extend('.foo', '.bar', 12)")
+  end
+
+  def test_selector_extend_errors
+    assert_error_message("Can't extend .bar .baz: can't extend nested selectors for " +
+      "`selector-extend'", "selector-extend('.foo', '.bar .baz', '.bang')")
+    assert_error_message("Can't extend >: invalid selector for `selector-extend'",
+      "selector-extend('.foo', '>', '.bang')")
+    assert_error_message(".bang > can't extend: invalid selector for `selector-extend'",
+      "selector-extend('.foo', '.bar', '.bang >')")
+  end
+
   ## Regression Tests
 
   def test_inspect_nested_empty_lists

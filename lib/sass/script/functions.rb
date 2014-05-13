@@ -233,6 +233,9 @@ module Sass::Script
   # \{#selector_append selector-append($selectors...)}
   # : Appends selectors to one another without spaces in between.
   #
+  # \{#selector_extend selector-extend($selector, $extendee, $extender)}
+  # : Extends `$extendee` with `$extender` within `$selector`.
+  #
   # ## Introspection Functions
   #
   # \{#feature_exists feature-exists($feature)}
@@ -2379,6 +2382,48 @@ module Sass::Script
       end.to_sass_script
     end
     declare :selector_append, [], :var_args => true
+
+    # Returns a new version of `$selector` with `$extendee` extended
+    # with `$extender`. This works just like the result of
+    #
+    #     $selector { ... }
+    #     $extender { @extend $extendee }
+    #
+    # @example
+    #   selector-extend(".a .b", ".b", ".foo .bar") => .a .b, .a .foo .bar, .foo .a .bar
+    #
+    # @overload selector_extend($selector, $extendee, $extender)
+    #   @param $selector [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The selector within which `$extendee` is extended with
+    #     `$extender`. This can be either a string, a list of strings,
+    #     or a list of lists of strings as returned by `&`.
+    #   @param $extendee [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The selector being extended. This can be either a string, a
+    #     list of strings, or a list of lists of strings as returned
+    #     by `&`.
+    #   @param $extender [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The selector being injected into `$selector`. This can be
+    #     either a string, a list of strings, or a list of lists of
+    #     strings as returned by `&`.
+    #   @return [Sass::Script::Value::List]
+    #     A list of lists of strings representing the result of the
+    #     extension. This is in the same format as a selector returned
+    #     by `&`.
+    #   @raise [ArgumentError] if the extension failed
+    def selector_extend(selector, extendee, extender)
+      selector = parse_selector(selector, :selector)
+      extendee = parse_selector(extendee, :extendee)
+      extender = parse_selector(extender, :extender)
+
+      extends = Sass::Util::SubsetMap.new
+      begin
+        extender.populate_extends(extends, extendee)
+        selector.do_extend(extends).to_sass_script
+      rescue Sass::SyntaxError => e
+        raise ArgumentError.new(e.to_s)
+      end
+    end
+    declare :selector_extend, [:selector, :extendee, :extender]
 
     private
 

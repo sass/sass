@@ -60,7 +60,7 @@ module Sass
       #   the result of a previous extension that's being re-extended.
       # @return [CommaSequence] A copy of this selector,
       #   with extensions made according to `extends`
-      def do_extend(extends, parent_directives, seen = Set.new, original = true)
+      def do_extend(extends, parent_directives = [], seen = Set.new, original = true)
         CommaSequence.new(members.map do |seq|
           seq.do_extend(extends, parent_directives, seen, original)
         end.flatten)
@@ -76,6 +76,44 @@ module Sass
       # @return [Boolean]
       def superselector?(cseq)
         cseq.members.all? {|seq1| members.any? {|seq2| seq2.superselector?(seq1)}}
+      end
+
+      # Populates a subset map that can then be used to extend
+      # selectors. This registers an extension with this selector as
+      # the extender and `extendee` as the extendee.
+      #
+      # @param extends [Sass::Util::SubsetMap{Selector::Simple =>
+      #                                       Sass::Tree::Visitors::Cssize::Extend}]
+      #   The subset map representing the extensions to perform.
+      # @param extendee [CommaSequence] The selector being extended.
+      # @param extend_node [Sass::Tree::ExtendNode]
+      #   The node that caused this extension.
+      # @param parent_directives [Array<Sass::Tree::DirectiveNode>]
+      #   The parent directives containing `extend_node`.
+      # @raise [Sass::SyntaxError] if this extension is invalid.
+      def populate_extends(extends, extendee, extend_node = nil, parent_directives = [])
+        extendee.members.each do |seq|
+          if seq.members.size > 1
+            raise Sass::SyntaxError.new("Can't extend #{seq}: can't extend nested selectors")
+          end
+
+          sseq = seq.members.first
+          if !sseq.is_a?(Sass::Selector::SimpleSequence)
+            raise Sass::SyntaxError.new("Can't extend #{seq}: invalid selector")
+          elsif sseq.members.any? {|ss| ss.is_a?(Sass::Selector::Parent)}
+            raise Sass::SyntaxError.new("Can't extend #{seq}: can't extend parent selectors")
+          end
+
+          sel = sseq.members
+          members.each do |member|
+            unless member.members.last.is_a?(Sass::Selector::SimpleSequence)
+              raise Sass::SyntaxError.new("#{member} can't extend: invalid selector")
+            end
+
+            extends[sel] = Sass::Tree::Visitors::Cssize::Extend.new(
+              member, sel, extend_node, parent_directives, :not_found)
+          end
+        end
       end
 
       # Returns a SassScript representation of this selector.
