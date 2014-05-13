@@ -1796,6 +1796,38 @@ WARNING
       "selector-extend('.foo', '.bar', '.bang >')")
   end
 
+  def test_selector_replace
+    assert_equal(".bar", evaluate("selector-replace('.foo', '.foo', '.bar')"))
+    assert_equal(".foo.baz", evaluate("selector-replace('.foo.bar', '.bar', '.baz')"))
+    assert_equal(".a .foo.baz", evaluate("selector-replace('.foo.bar', '.bar', '.a .baz')"))
+    assert_equal(".foo.bar", evaluate("selector-replace('.foo.bar', '.baz.bar', '.qux')"))
+    assert_equal(".bar.qux", evaluate("selector-replace('.foo.bar.baz', '.foo.baz', '.qux')"))
+
+    assert_equal(":not(.bar)", evaluate("selector-replace(':not(.foo)', '.foo', '.bar')"))
+    assert_equal(".bar", evaluate("selector-replace(':not(.foo)', ':not(.foo)', '.bar')"))
+  end
+
+  def test_selector_replace_checks_types
+    assert_error_message("$selector: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-replace'",
+      "selector-replace(12, '.foo', '.bar')")
+    assert_error_message("$original: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-replace'",
+      "selector-replace('.foo', 12, '.bar')")
+    assert_error_message("$replacement: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-replace'",
+      "selector-replace('.foo', '.bar', 12)")
+  end
+
+  def test_selector_replace_errors
+    assert_error_message("Can't extend .bar .baz: can't extend nested selectors for " +
+      "`selector-replace'", "selector-replace('.foo', '.bar .baz', '.bang')")
+    assert_error_message("Can't extend >: invalid selector for `selector-replace'",
+      "selector-replace('.foo', '>', '.bang')")
+    assert_error_message(".bang > can't extend: invalid selector for `selector-replace'",
+      "selector-replace('.foo', '.bar', '.bang >')")
+  end
+
   ## Regression Tests
 
   def test_inspect_nested_empty_lists

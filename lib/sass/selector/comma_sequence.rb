@@ -53,6 +53,9 @@ module Sass
       #   The extensions to perform on this selector
       # @param parent_directives [Array<Sass::Tree::DirectiveNode>]
       #   The directives containing this selector.
+      # @param replace [Boolean]
+      #   Whether to replace the original selector entirely or include
+      #   it in the result.
       # @param seen [Set<Array<Selector::Simple>>]
       #   The set of simple sequences that are currently being replaced.
       # @param original [Boolean]
@@ -60,9 +63,10 @@ module Sass
       #   the result of a previous extension that's being re-extended.
       # @return [CommaSequence] A copy of this selector,
       #   with extensions made according to `extends`
-      def do_extend(extends, parent_directives = [], seen = Set.new, original = true)
+      def do_extend(extends, parent_directives = [], replace = false, seen = Set.new,
+          original = true)
         CommaSequence.new(members.map do |seq|
-          seq.do_extend(extends, parent_directives, seen, original)
+          seq.do_extend(extends, parent_directives, replace, seen, original)
         end.flatten)
       end
 

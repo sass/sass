@@ -149,14 +149,17 @@ module Sass
       # @return [Array<Sequence>] A list of selectors generated
       #   by extending this selector with `extends`.
       # @see CommaSequence#do_extend
-      def do_extend(extends, parent_directives, seen)
+      def do_extend(extends, parent_directives, replace, seen)
         seen_with_pseudo_selectors = seen.dup
+
+        modified_original = false
         members = Sass::Util.enum_with_index(self.members).map do |sel, i|
           next sel unless sel.is_a?(Pseudo) && sel.selector
           next sel if seen.include?([sel])
-          extended = sel.selector.do_extend(extends, parent_directives, seen, !:original)
+          extended = sel.selector.do_extend(extends, parent_directives, replace, seen, !:original)
+          next sel if extended == sel.selector
           extended.members.reject! {|seq| seq.has_placeholder?}
-          next sel if extended.members.empty?
+          modified_original = true
           result = sel.with_selector(extended)
           seen_with_pseudo_selectors << [result]
           result
@@ -181,17 +184,20 @@ module Sass
         groups.compact!
         groups.map! do |sels, seq|
           next [] if seen.include?(sels)
-          seq.do_extend(extends, parent_directives, seen_with_pseudo_selectors + [sels], !:original)
+          seq.do_extend(
+            extends, parent_directives, !:replace, seen_with_pseudo_selectors + [sels], !:original)
         end
         groups.flatten!
 
-        # First Law of Extend: the result of extending a selector should
-        # (almost) always contain the base selector.
-        #
-        # See https://github.com/nex3/sass/issues/324.
-        original = Sequence.new([SimpleSequence.new(members, @subject, source_range)])
-        original.add_sources! sources
-        groups.unshift original
+        if modified_original || !replace || groups.empty?
+          # First Law of Extend: the result of extending a selector should
+          # (almost) always contain the base selector.
+          #
+          # See https://github.com/nex3/sass/issues/324.
+          original = Sequence.new([SimpleSequence.new(members, @subject, source_range)])
+          original.add_sources! sources
+          groups.unshift original
+        end
         groups.uniq!
         groups
       end

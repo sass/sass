@@ -236,6 +236,9 @@ module Sass::Script
   # \{#selector_extend selector-extend($selector, $extendee, $extender)}
   # : Extends `$extendee` with `$extender` within `$selector`.
   #
+  # \{#selector_replace selector-replace($selector, $original, $replacement)}
+  # : Replaces `$original` with `$replacement` within `$selector`.
+  #
   # ## Introspection Functions
   #
   # \{#feature_exists feature-exists($feature)}
@@ -2409,7 +2412,7 @@ module Sass::Script
     #     A list of lists of strings representing the result of the
     #     extension. This is in the same format as a selector returned
     #     by `&`.
-    #   @raise [ArgumentError] if the extension failed
+    #   @raise [ArgumentError] if the extension fails
     def selector_extend(selector, extendee, extender)
       selector = parse_selector(selector, :selector)
       extendee = parse_selector(extendee, :extendee)
@@ -2424,6 +2427,49 @@ module Sass::Script
       end
     end
     declare :selector_extend, [:selector, :extendee, :extender]
+
+    # Replaces all instances of `$original` with `$replacement` in `$selector`
+    #
+    # This works by using `@extend` and throwing away the original
+    # selector. This means that it can be used to do very advanced
+    # replacements; see the examples below.
+    #
+    # @example
+    #   selector-replace(".foo .bar", ".bar", ".baz") => ".foo .baz"
+    #   selector-replace(".foo.bar.baz", ".foo.baz", ".qux") => ".foo.qux"
+    #
+    # @overload selector_replace($selector, $original, $replacement)
+    #   @param $selector [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The selector within which `$original` is replaced with
+    #     `$replacement`. This can be either a string, a list of
+    #     strings, or a list of lists of strings as returned by `&`.
+    #   @param $original [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The selector being replaced. This can be either a string, a
+    #     list of strings, or a list of lists of strings as returned
+    #     by `&`.
+    #   @param $replacement [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The selector that `$original` is being replaced with. This
+    #     can be either a string, a list of strings, or a list of
+    #     lists of strings as returned by `&`.
+    #   @return [Sass::Script::Value::List]
+    #     A list of lists of strings representing the result of the
+    #     extension. This is in the same format as a selector returned
+    #     by `&`.
+    #   @raise [ArgumentError] if the replacement fails
+    def selector_replace(selector, original, replacement)
+      selector = parse_selector(selector, :selector)
+      original = parse_selector(original, :original)
+      replacement = parse_selector(replacement, :replacement)
+
+      extends = Sass::Util::SubsetMap.new
+      begin
+        replacement.populate_extends(extends, original)
+        selector.do_extend(extends, [], !!:replace).to_sass_script
+      rescue Sass::SyntaxError => e
+        raise ArgumentError.new(e.to_s)
+      end
+    end
+    declare :selector_replace, [:selector, :original, :replacement]
 
     private
 
