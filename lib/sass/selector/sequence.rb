@@ -112,6 +112,27 @@ module Sass
         trim(weaves).map {|p| Sequence.new(p)}
       end
 
+      # Unifies this with another selector sequence to produce a selector
+      # that matches (a subset of) the intersection of the two inputs.
+      #
+      # @param other [Sequence]
+      # @return [CommaSequence, nil] The unified selector, or nil if unification failed.
+      # @raise [Sass::SyntaxError] If this selector cannot be unified.
+      #   This will only ever occur when a dynamic selector,
+      #   such as {Parent} or {Interpolation}, is used in unification.
+      #   Since these selectors should be resolved
+      #   by the time extension and unification happen,
+      #   this exception will only ever be raised as a result of programmer error
+      def unify(other)
+        base = members.last
+        other_base = other.members.last
+        return unless base.is_a?(SimpleSequence) && other_base.is_a?(SimpleSequence)
+        return unless (unified = other_base.unify(base))
+
+        woven = weave([members[0...-1], other.members[0...-1] + [unified]])
+        CommaSequence.new(woven.map {|w| Sequence.new(w)})
+      end
+
       # Returns whether or not this selector matches all elements
       # that the given selector matches (as well as possibly more).
       #
@@ -164,6 +185,7 @@ module Sass
         prefixes = [[]]
 
         path.each do |current|
+          next if current.empty?
           current = current.dup
           last_current = [current.pop]
           prefixes = Sass::Util.flatten(prefixes.map do |prefix|
@@ -297,7 +319,7 @@ module Sass
             elsif sel2.superselector?(sel1)
               res.unshift sel1, '~'
             else
-              merged = sel1.unify(sel2.members, sel2.subject?)
+              merged = sel1.unify(sel2)
               res.unshift [
                 [sel1, '~', sel2, '~'],
                 [sel2, '~', sel1, '~'],
@@ -314,7 +336,7 @@ module Sass
             if tilde_sel.superselector?(plus_sel)
               res.unshift plus_sel, '+'
             else
-              merged = plus_sel.unify(tilde_sel.members, tilde_sel.subject?)
+              merged = plus_sel.unify(tilde_sel)
               res.unshift [
                 [tilde_sel, '~', plus_sel, '+'],
                 ([merged, '+'] if merged)
@@ -327,7 +349,7 @@ module Sass
             res.unshift sel1, op1
             seq2.push sel2, op2
           elsif op1 == op2
-            merged = sel1.unify(sel2.members, sel2.subject?)
+            merged = sel1.unify(sel2)
             return unless merged
             res.unshift merged, op1
           else

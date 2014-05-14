@@ -120,6 +120,22 @@ module Sass
         end
       end
 
+      # Unifies this with another comma selector to produce a selector
+      # that matches (a subset of) the intersection of the two inputs.
+      #
+      # @param other [CommaSequence]
+      # @return [CommaSequence, nil] The unified selector, or nil if unification failed.
+      # @raise [Sass::SyntaxError] If this selector cannot be unified.
+      #   This will only ever occur when a dynamic selector,
+      #   such as {Parent} or {Interpolation}, is used in unification.
+      #   Since these selectors should be resolved
+      #   by the time extension and unification happen,
+      #   this exception will only ever be raised as a result of programmer error
+      def unify(other)
+        results = members.map {|seq1| other.members.map {|seq2| seq1.unify(seq2)}}.flatten.compact
+        results.empty? ? nil : CommaSequence.new(results.map {|cseq| cseq.members}.flatten)
+      end
+
       # Returns a SassScript representation of this selector.
       #
       # @return [Sass::Script::Value::List]

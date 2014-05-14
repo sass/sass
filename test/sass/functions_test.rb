@@ -1828,6 +1828,28 @@ WARNING
       "selector-replace('.foo', '.bar', '.bang >')")
   end
 
+  def test_selector_unify
+    assert_equal(".foo", evaluate("selector-unify('.foo', '.foo')"))
+    assert_equal(".foo.bar", evaluate("selector-unify('.foo', '.bar')"))
+    assert_equal(".foo.bar.baz", evaluate("selector-unify('.foo.bar', '.bar.baz')"))
+    assert_equal(".a .b .foo.bar, .b .a .foo.bar", evaluate("selector-unify('.a .foo', '.b .bar')"))
+    assert_equal(".a .foo.bar", evaluate("selector-unify('.a .foo', '.a .bar')"))
+    assert_equal("", evaluate("selector-unify('p', 'a')"))
+    assert_equal("", evaluate("selector-unify('.foo >', '.bar')"))
+    assert_equal("", evaluate("selector-unify('.foo', '.bar >')"))
+    assert_equal(".foo.baz, .foo.bang, .bar.baz, .bar.bang",
+      evaluate("selector-unify('.foo, .bar', '.baz, .bang')"))
+  end
+
+  def test_selector_unify_checks_types
+    assert_error_message("$selector1: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-unify'",
+      "selector-unify(12, '.foo')")
+    assert_error_message("$selector2: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-unify'",
+      "selector-unify('.foo', 12)")
+  end
+
   ## Regression Tests
 
   def test_inspect_nested_empty_lists

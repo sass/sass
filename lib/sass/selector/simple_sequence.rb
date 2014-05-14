@@ -173,7 +173,7 @@ module Sass
 
           self_without_sel = Sass::Util.array_minus(members, sels)
           group.each {|e| e.result = :failed_to_unify unless e.result == :succeeded}
-          unified = seq.members.last.unify(self_without_sel, subject?)
+          unified = seq.members.last.unify(SimpleSequence.new(self_without_sel, subject?))
           next unless unified
           group.each {|e| e.result = :succeeded}
           group.each {|e| check_directives_match!(e, parent_directives)}
@@ -202,12 +202,11 @@ module Sass
         groups
       end
 
-      # Unifies this selector with another {SimpleSequence}'s
-      # {SimpleSequence#members members array}, returning another `SimpleSequence`
-      # that matches both this selector and the input selector.
+      # Unifies this selector with another {SimpleSequence}, returning
+      # another `SimpleSequence` that is a subselector of both input
+      # selectors.
       #
-      # @param sels [Array<Simple>] A {SimpleSequence}'s {SimpleSequence#members members array}
-      # @param other_subject [Boolean] Whether the other {SimpleSequence} being merged is a subject.
+      # @param other [SimpleSequence]
       # @return [SimpleSequence, nil] A {SimpleSequence} matching both `sels` and this selector,
       #   or `nil` if this is impossible (e.g. unifying `#foo` and `#bar`)
       # @raise [Sass::SyntaxError] If this selector cannot be unified.
@@ -216,13 +215,13 @@ module Sass
       #   Since these selectors should be resolved
       #   by the time extension and unification happen,
       #   this exception will only ever be raised as a result of programmer error
-      def unify(sels, other_subject)
-        sseq = members.inject(sels) do |member, sel|
+      def unify(other)
+        sseq = members.inject(other.members) do |member, sel|
           return unless member
           sel.unify(member)
         end
         return unless sseq
-        SimpleSequence.new(sseq, other_subject || subject?)
+        SimpleSequence.new(sseq, other.subject? || subject?)
       end
 
       # Returns whether or not this selector matches all elements

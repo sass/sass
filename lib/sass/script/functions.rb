@@ -239,6 +239,10 @@ module Sass::Script
   # \{#selector_replace selector-replace($selector, $original, $replacement)}
   # : Replaces `$original` with `$replacement` within `$selector`.
   #
+  # \{#selector_unify selector-unify($selector1, $selector2)}
+  # : Unifies two selectors to produce a selector that matches
+  #   elements matched by both.
+  #
   # ## Introspection Functions
   #
   # \{#feature_exists feature-exists($feature)}
@@ -2470,6 +2474,45 @@ module Sass::Script
       end
     end
     declare :selector_replace, [:selector, :original, :replacement]
+
+    # Unifies two selectors into a single selector that matches only
+    # elements matched by both input selectors. Returns `null` if
+    # there is no such selector.
+    #
+    # Like the selector unification done for `@extend`, this doesn't
+    # guarantee that the output selector will match *all* elements
+    # matched by both input selectors. For example, if `.a .b` is
+    # unified with `.x .y`, `.a .x .b.y, .x .a .b.y` will be returned,
+    # but `.a.x .b.y` will not. This avoids exponential output size
+    # while matching all elements that are likely to exist in
+    # practice.
+    #
+    # @example
+    #   selector-unify(".a", ".b") => .a.b
+    #   selector-unify(".a .b", ".x .y") => .a .x .b.y, .x .a .b.y
+    #   selector-unify(".a.b", ".b.c") => .a.b.c
+    #   selector-unify("#a", "#b") => null
+    #
+    # @overload selector_unify($selector1, $selector2)
+    #   @param $selector1 [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The first selector to be unified. This can be either a
+    #     string, a list of strings, or a list of lists of strings as
+    #     returned by `&`.
+    #   @param $selector2 [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The second selector to be unified. This can be either a
+    #     string, a list of strings, or a list of lists of strings as
+    #     returned by `&`.
+    #   @return [Sass::Script::Value::List, Sass::Script::Value::Null]
+    #     A list of lists of strings representing the result of the
+    #     unification, or null if no unification exists. This is in
+    #     the same format as a selector returned by `&`.
+    def selector_unify(selector1, selector2)
+      selector1 = parse_selector(selector1, :selector1)
+      selector2 = parse_selector(selector2, :selector2)
+      return null unless (unified = selector1.unify(selector2))
+      unified.to_sass_script
+    end
+    declare :selector_unify, [:selector1, :selector2]
 
     private
 
