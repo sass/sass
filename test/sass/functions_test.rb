@@ -1850,6 +1850,27 @@ WARNING
       "selector-unify('.foo', 12)")
   end
 
+  def test_simple_selectors
+    assert_equal('(.foo,)', evaluate("inspect(simple-selectors('.foo'))"))
+    assert_equal('.foo, .bar', evaluate("inspect(simple-selectors('.foo.bar'))"))
+    assert_equal('.foo, .bar, :pseudo("flip, flap")',
+      evaluate("inspect(simple-selectors('.foo.bar:pseudo(\"flip, flap\")'))"))
+  end
+
+  def test_simple_selectors_checks_types
+    assert_error_message("$selector: 12 is not a string for `simple-selectors'",
+      "simple-selectors(12)")
+  end
+
+  def test_simple_selectors_errors
+    assert_error_message("$selector: \".foo .bar\" is not a compound selector for `simple-selectors'",
+      "simple-selectors('.foo .bar')")
+    assert_error_message("$selector: \".foo,.bar\" is not a compound selector for `simple-selectors'",
+      "simple-selectors('.foo,.bar')")
+    assert_error_message("$selector: \".#\" is not a valid selector: Invalid CSS after \".\": " +
+      "expected class name, was \"#\" for `simple-selectors'", "simple-selectors('.#')")
+  end
+
   ## Regression Tests
 
   def test_inspect_nested_empty_lists

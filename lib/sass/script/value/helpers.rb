@@ -144,6 +144,56 @@ module Sass::Script::Value
       end
     end
 
+    # Parses a user-provided complex selector.
+    #
+    # A complex selector can contain combinators but cannot contain commas.
+    #
+    # @param value [Sass::Script::Value::String, Sass::Script::Value::List]
+    #   The selector to parse. This can be either a string or a list of
+    #   strings.
+    # @param name [Symbol, nil]
+    #   If provided, the name of the selector argument. This is used
+    #   for error reporting.
+    # @param allow_parent_ref [Boolean]
+    #   Whether the parsed selector should allow parent references.
+    # @return [Sass::Selector::Sequence] The parsed selector.
+    # @throw [ArgumentError] if the parse failed for any reason.
+    def parse_complex_selector(value, name = nil, allow_parent_ref = false)
+      selector = parse_selector(value, name, allow_parent_ref)
+      return seq if selector.members.length == 1
+
+      err = "#{value.inspect} is not a complex selector"
+      err = "$#{name.to_s.gsub('_', '-')}: #{err}" if name
+      raise ArgumentError.new(err)
+    end
+
+    # Parses a user-provided compound selector.
+    #
+    # A compound selector cannot contain combinators or commas.
+    #
+    # @param value [Sass::Script::Value::String] The selector to parse.
+    # @param name [Symbol, nil]
+    #   If provided, the name of the selector argument. This is used
+    #   for error reporting.
+    # @param allow_parent_ref [Boolean]
+    #   Whether the parsed selector should allow parent references.
+    # @return [Sass::Selector::SimpleSequence] The parsed selector.
+    # @throw [ArgumentError] if the parse failed for any reason.
+    def parse_compound_selector(value, name = nil, allow_parent_ref = false)
+      assert_type value, :String, name
+      selector = parse_selector(value, name, allow_parent_ref)
+      seq = selector.members.first
+      sseq = seq.members.first
+      if selector.members.length == 1 && seq.members.length == 1 &&
+          sseq.is_a?(Sass::Selector::SimpleSequence)
+        return sseq
+      end
+
+      err = "#{value.inspect} is not a compound selector"
+      err = "$#{name.to_s.gsub('_', '-')}: #{err}" if name
+      raise ArgumentError.new(err)
+    end
+
     private
 
     # Converts a user-provided selector into string form or throws an

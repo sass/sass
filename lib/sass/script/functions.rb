@@ -243,6 +243,9 @@ module Sass::Script
   # : Unifies two selectors to produce a selector that matches
   #   elements matched by both.
   #
+  # \{#simple_selectors simple-selectors($selector)}
+  # : Returns the simple selectors that comprise a compound selector.
+  #
   # ## Introspection Functions
   #
   # \{#feature_exists feature-exists($feature)}
@@ -2513,6 +2516,31 @@ module Sass::Script
       unified.to_sass_script
     end
     declare :selector_unify, [:selector1, :selector2]
+
+    # Returns the [simple
+    # selectors](http://dev.w3.org/csswg/selectors4/#simple) that
+    # comprise the compound selector `$selector`.
+    #
+    # Note that `$selector` **must be** a [compound
+    # selector](http://dev.w3.org/csswg/selectors4/#compound). That
+    # means it cannot contain commas or spaces. It also means that
+    # unlike other selector functions, this takes only strings, not
+    # lists.
+    #
+    # @example
+    #   simple-selectors(".foo.bar") => ".foo", ".bar"
+    #   simple-selectors(".foo.bar.baz") => ".foo", ".bar", ".baz"
+    #
+    # @overload simple_selectors($selector)
+    #   @param $selector [Sass::Script::Value::String]
+    #     The compound selector whose simple selectors will be extracted.
+    #   @return [Sass::Script::Value::List]
+    #     A list of simple selectors in the compound selector.
+    def simple_selectors(selector)
+      selector = parse_compound_selector(selector, :selector)
+      list(selector.members.map {|simple| unquoted_string(simple.to_s)}, :comma)
+    end
+    declare :simple_selectors, [:selector]
 
     private
 
