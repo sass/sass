@@ -783,17 +783,7 @@ that it has special support for.
 #### Number Operations
 
 SassScript supports the standard arithmetic operations on numbers
-(addition `+`, subtraction `-`, multiplication `*`, division `/`, and modulo `%`),
-and will automatically convert between units if it can:
-
-    p {
-      width: 1in + 8pt;
-    }
-
-is compiled to:
-
-    p {
-      width: 1.111in; }
+(addition `+`, subtraction `-`, multiplication `*`, division `/`, and modulo `%`). Sass math functions preserve units during arithmetic operations. This means that, just like in real life, you cannot work on numbers with incompatible units (such as adding a number with `px` and `em`) and two numbers with the same unit that are multiplied together will produce square units (`10px * 10px == 100px * px`). **Be Aware** that `px * px` is an invalid CSS unit and you will get an error from Sass for attempting to use invalid units in CSS.
 
 Relational operators
 (`<`, `>`, `<=`, `>=`)
