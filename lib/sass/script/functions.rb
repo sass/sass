@@ -2036,7 +2036,7 @@ module Sass::Script
     # @raise [ArgumentError] if `$args` isn't a variable argument list
     def keywords(args)
       assert_type args, :ArgList, :args
-      map(Sass::Util.map_keys(args.keywords.as_stored) {|k| Sass::Script::String.new(k)})
+      map(Sass::Util.map_keys(args.keywords.as_stored) {|k| Sass::Script::Value::String.new(k)})
     end
     declare :keywords, [:args]
 
@@ -2106,31 +2106,29 @@ module Sass::Script
     end
     declare :call, [:name], :var_args => true, :var_kwargs => true
 
-    # This function only exists as a workaround for IE7's [`content: counter`
-    # bug][bug]. It works identically to any other plain-CSS function, except it
+    # This function only exists as a workaround for IE7's [`content:
+    # counter` bug](http://jes.st/2013/ie7s-css-breaking-content-counter-bug/).
+    # It works identically to any other plain-CSS function, except it
     # avoids adding spaces between the argument commas.
-    #
-    # [bug]: http://jes.st/2013/ie7s-css-breaking-content-counter-bug/
     #
     # @example
     #   counter(item, ".") => counter(item,".")
     # @overload counter($args...)
-    # @return [String]
+    # @return [Sass::Script::Value::String]
     def counter(*args)
       identifier("counter(#{args.map {|a| a.to_s(options)}.join(',')})")
     end
     declare :counter, [], :var_args => true
 
-    # This function only exists as a workaround for IE7's [`content: counters`
-    # bug][bug]. It works identically to any other plain-CSS function, except it
+    # This function only exists as a workaround for IE7's [`content:
+    # counter` bug](http://jes.st/2013/ie7s-css-breaking-content-counter-bug/).
+    # It works identically to any other plain-CSS function, except it
     # avoids adding spaces between the argument commas.
-    #
-    # [bug]: http://jes.st/2013/ie7s-css-breaking-content-counter-bug/
     #
     # @example
     #   counters(item, ".") => counters(item,".")
     # @overload counters($args...)
-    # @return [String]
+    # @return [Sass::Script::Value::String]
     def counters(*args)
       identifier("counters(#{args.map {|a| a.to_s(options)}.join(',')})")
     end
@@ -2144,9 +2142,11 @@ module Sass::Script
     #   variable-exists(a-false-value) => true
     #
     #   variable-exists(nonexistent) => false
-    # @param name [Sass::Script::String] The name of the variable to
-    #   check. The name should not include the `$`.
-    # @return [Sass::Script::Bool] Whether the variable is defined in
+    #
+    # @overload variable_exists($name)
+    #   @param $name [Sass::Script::Value::String] The name of the variable to
+    #     check. The name should not include the `$`.
+    # @return [Sass::Script::Value::Bool] Whether the variable is defined in
     #   the current scope.
     def variable_exists(name)
       assert_type name, :String, :name
@@ -2165,9 +2165,11 @@ module Sass::Script
     #     $some-var: false;
     #     @if global-variable-exists(some-var) { /* false, doesn't run */ }
     #   }
-    # @param name [Sass::Script::String] The name of the variable to
-    #   check.  The name should not include the `$`.
-    # @return [Sass::Script::Bool] Whether the variable is defined in
+    #
+    # @overload global_variable_exists($name)
+    #   @param $name [Sass::Script::Value::String] The name of the variable to
+    #     check. The name should not include the `$`.
+    # @return [Sass::Script::Value::Bool] Whether the variable is defined in
     #   the global scope.
     def global_variable_exists(name)
       assert_type name, :String, :name
@@ -2182,9 +2184,11 @@ module Sass::Script
     #
     #   @function myfunc { @return "something"; }
     #   function-exists(myfunc) => true
-    # @param name [Sass::Script::String] The name of the function to
-    #   check.
-    # @return [Sass::Script::Bool] Whether the function is defined.
+    #
+    # @overload function_exists($name)
+    #   @param name [Sass::Script::Value::String] The name of the function to
+    #     check.
+    # @return [Sass::Script::Value::Bool] Whether the function is defined.
     def function_exists(name)
       assert_type name, :String, :name
       exists = Sass::Script::Functions.callable?(name.value.tr("-", "_"))
@@ -2200,9 +2204,11 @@ module Sass::Script
     #
     #   @mixin red-text { color: red; }
     #   mixin-exists(red-text) => true
-    # @param name [Sass::Script::String] The name of the mixin to
-    #   check.
-    # @return [Sass::Script::Bool] Whether the mixin is defined.
+    #
+    # @overload mixin_exists($name)
+    #   @param name [Sass::Script::Value::String] The name of the mixin to
+    #     check.
+    # @return [Sass::Script::Value::Bool] Whether the mixin is defined.
     def mixin_exists(name)
       assert_type name, :String, :name
       bool(environment.mixin(name.value))
@@ -2211,7 +2217,8 @@ module Sass::Script
 
     # Return a string containing the value as its Sass representation.
     #
-    # @param value [Sass::Script::Value::Base] The value to inspect.
+    # @overload inspect($value)
+    #   @param $value [Sass::Script::Value::Base] The value to inspect.
     # @return [Sass::Script::Value::String] A representation of the value as
     #   it would be written in Sass.
     def inspect(value)
@@ -2221,12 +2228,12 @@ module Sass::Script
 
     # @overload random()
     #   Return a decimal between 0 and 1, inclusive of 0 but not 1.
-    #   @return [Sass::Script::Number] A decimal value.
+    #   @return [Sass::Script::Value::Number] A decimal value.
     # @overload random($limit)
     #   Return an integer between 1 and `$limit`, inclusive of 1 but not `$limit`.
     #   @param $limit [Sass::Script::Value::Number] The maximum of the random integer to be
     #     returned, a positive integer.
-    #   @return [Sass::Script::Number] An integer.
+    #   @return [Sass::Script::Value::Number] An integer.
     #   @raise [ArgumentError] if the `$limit` is not 1 or greater
     def random(limit = nil)
       generator = Sass::Script::Functions.random_number_generator
