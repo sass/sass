@@ -322,12 +322,13 @@ module Sass
       end
     end
 
-    # A pseudoclass (e.g. `:visited`) or pseudoelement (e.g. `::first-line`) selector.
-    # It can have arguments (e.g. `:nth-child(2n+1)`).
+    # A pseudoclass (e.g. `:visited`) or pseudoelement (e.g. `::first-line`)
+    # selector. It can have arguments (e.g. `:nth-child(2n+1)`) which can
+    # contain selectors (e.g. `:nth-column(2n+1 of .foo)`).
     class Pseudo < Simple
       # Some psuedo-class-syntax selectors are actually considered
       # pseudo-elements and must be treated differently. This is a list of such
-      # selectors
+      # selectors.
       #
       # @return [Array<String>]
       ACTUALLY_ELEMENTS = %w[after before first-line first-letter]
@@ -347,21 +348,24 @@ module Sass
       # The argument to the selector,
       # or `nil` if no argument was given.
       #
-      # This may include SassScript nodes that will be run during resolution.
-      # Note that this should not include SassScript nodes
-      # after resolution has taken place.
-      #
       # @return [String, nil]
       attr_reader :arg
 
-      # @param type [Symbol] See \{#type}
-      # @param name [String] The name of the selector
-      # @param arg [nil, String] The argument to the selector,
-      #   or nil if no argument was given
-      def initialize(type, name, arg)
-        @syntactic_type = type
+      # The selector argument, or `nil` if no selector exists.
+      #
+      # If this and \{#arg\} are both set, \{#arg\} is considered a non-selector
+      # prefix.
+      attr_reader :selector
+
+      # @param syntactic_type [Symbol] See \{#syntactic_type}
+      # @param name [String] See \{#name}
+      # @param arg [nil, String] See \{#arg}
+      # @param selector [nil, Selector] See \{#selector}
+      def initialize(syntactic_type, name, arg, selector)
+        @syntactic_type = syntactic_type
         @name = name
         @arg = arg
+        @selector = selector
       end
 
       # The type of the selector. `:class` if this is a pseudoclass selector,
@@ -375,7 +379,13 @@ module Sass
       # @see Selector#to_s
       def to_s
         res = (syntactic_type == :class ? ":" : "::") + @name
-        res << "(" << @arg.strip << ")" if @arg
+        if @arg || @selector
+          res << "("
+          res << @arg.strip if @arg
+          res << " " if @arg && @selector
+          res << @selector.to_s if @selector
+          res << ")"
+        end
         res
       end
 
@@ -386,7 +396,7 @@ module Sass
       def unify(sels)
         return if type == :element && sels.any? do |sel|
           sel.is_a?(Pseudo) && sel.type == :element &&
-            (sel.name != name || sel.arg != arg)
+            (sel.name != name || sel.arg != arg || sel.selector != selector)
         end
         super
       end
@@ -394,37 +404,6 @@ module Sass
       # @see AbstractSequence#specificity
       def specificity
         type == :class ? SPECIFICITY_BASE : 1
-      end
-    end
-
-    # A pseudoclass selector whose argument is itself a selector
-    # (e.g. `:not(.foo)` or `:-moz-all(.foo, .bar)`).
-    class SelectorPseudoClass < Simple
-      # The name of the pseudoclass.
-      #
-      # @return [String]
-      attr_reader :name
-
-      # The selector argument.
-      #
-      # @return [Selector::Sequence]
-      attr_reader :selector
-
-      # @param name [String] The name of the pseudoclass
-      # @param selector [Selector::CommaSequence] The selector argument
-      def initialize(name, selector)
-        @name = name
-        @selector = selector
-      end
-
-      # @see Selector#to_s
-      def to_s
-        ":#{@name}(#{@selector})"
-      end
-
-      # @see AbstractSequence#specificity
-      def specificity
-        SPECIFICITY_BASE
       end
     end
   end

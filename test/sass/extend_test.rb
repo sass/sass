@@ -315,6 +315,23 @@ SCSS
     assert_unification ':not([a=b]).baz', ':not([a = b]) {@extend .baz}', ':not([a=b])'
   end
 
+  def test_prefixed_pseudoclass_unification
+    assert_unification(
+      ':nth-column(2n+1 of .foo).baz',
+      ':nth-column(2n of .foo) {@extend .baz}',
+      ':nth-column(2n+1 of .foo).baz, :nth-column(2n+1 of .foo):nth-column(2n of .foo)')
+
+    assert_unification(
+      ':nth-column(2n+1 of .foo).baz',
+      ':nth-column(2n+1 of .bar) {@extend .baz}',
+      ':nth-column(2n+1 of .foo).baz, :nth-column(2n+1 of .foo):nth-column(2n+1 of .bar)')
+
+    assert_unification(
+      ':nth-column(2n+1 of .foo).baz',
+      ':nth-column(2n+1 of .foo) {@extend .baz}',
+      ':nth-column(2n+1 of .foo)')
+  end
+
   def test_comma_extendee
     assert_equal <<CSS, render(<<SCSS)
 .foo, .baz {

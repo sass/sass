@@ -1131,6 +1131,11 @@ SCSS
 #{selector} {
   a: b; }
 SCSS
+
+    assert_parses <<SCSS
+:not(#{selector}) {
+  a: b; }
+SCSS
   end
 
   def assert_directive_parses(param)

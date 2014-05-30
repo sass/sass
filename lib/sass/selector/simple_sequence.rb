@@ -108,14 +108,14 @@ module Sass
                 parent_sub.last.name + parent.suffix,
                 parent_sub.last.namespace)
             when Sass::Selector::Pseudo
-              if parent_sub.last.arg
+              if parent_sub.last.arg || parent_sub.last.selector
                 raise Sass::SyntaxError.new("Invalid parent selector for \"#{self}\": \"" +
                   super_seq.to_s + '"')
               end
-              parent_sub[-1] = parent_sub.last.class.new(
+              parent_sub[-1] = Sass::Selector::Pseudo.new(
                 parent_sub.last.type,
                 parent_sub.last.name + parent.suffix,
-                nil)
+                nil, nil)
             else
               raise Sass::SyntaxError.new("Invalid parent selector for \"#{self}\": \"" +
                 super_seq.to_s + '"')

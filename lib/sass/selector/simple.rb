@@ -73,10 +73,10 @@ module Sass
         return sels if sels.any? {|sel2| eql?(sel2)}
         sels_with_ix = Sass::Util.enum_with_index(sels)
         _, i =
-          if is_a?(Pseudo) || is_a?(SelectorPseudoClass)
+          if is_a?(Pseudo)
             sels_with_ix.find {|sel, _| sel.is_a?(Pseudo) && (sels.last.type == :element)}
           else
-            sels_with_ix.find {|sel, _| sel.is_a?(Pseudo) || sel.is_a?(SelectorPseudoClass)}
+            sels_with_ix.find {|sel, _| sel.is_a?(Pseudo)}
           end
         return sels + [self] unless i
         sels[0...i] + [self] + sels[i..-1]
