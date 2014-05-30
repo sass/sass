@@ -85,14 +85,25 @@ module Sass
       #   The directives containing this selector.
       # @param seen [Set<Array<Selector::Simple>>]
       #   The set of simple sequences that are currently being replaced.
+      # @param original [Boolean]
+      #   Whether this is the original selector being extended, as opposed to
+      #   the result of a previous extension that's being re-extended.
       # @return [Array<Sequence>] A list of selectors generated
       #   by extending this selector with `extends`.
       #   These correspond to a {CommaSequence}'s {CommaSequence#members members array}.
       # @see CommaSequence#do_extend
-      def do_extend(extends, parent_directives, seen)
+      def do_extend(extends, parent_directives, seen, original)
         extended_not_expanded = members.map do |sseq_or_op|
           next [[sseq_or_op]] unless sseq_or_op.is_a?(SimpleSequence)
-          sseq_or_op.do_extend(extends, parent_directives, seen).map {|seq| seq.members}
+          extended = sseq_or_op.do_extend(extends, parent_directives, seen)
+
+          # The First Law of Extend says that the generated selector should have
+          # specificity greater than or equal to that of the original selector.
+          # In order to ensure that, we record the original selector's
+          # (`extended.first`) original specificity.
+          extended.first.add_sources!([self]) if original && !has_placeholder?
+
+          extended.map {|seq| seq.members}
         end
         weaves = Sass::Util.paths(extended_not_expanded).map {|path| weave(path)}
         trim(weaves).map {|p| Sequence.new(p)}
@@ -466,6 +477,10 @@ module Sass
         # separate sequences should limit the quadratic behavior.
         seqses.each_with_index do |seqs1, i|
           result[i] = seqs1.reject do |seq1|
+            # The maximum specificity of the sources that caused [seq1] to be
+            # generated. In order for [seq1] to be removed, there must be
+            # another selector that's a superselector of it *and* that has
+            # specificity greater or equal to this.
             max_spec = _sources(seq1).map {|seq| seq.specificity}.max || 0
             result.any? do |seqs2|
               next if seqs1.equal?(seqs2)

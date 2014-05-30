@@ -55,11 +55,14 @@ module Sass
       #   The directives containing this selector.
       # @param seen [Set<Array<Selector::Simple>>]
       #   The set of simple sequences that are currently being replaced.
+      # @param original [Boolean]
+      #   Whether this is the original selector being extended, as opposed to
+      #   the result of a previous extension that's being re-extended.
       # @return [CommaSequence] A copy of this selector,
       #   with extensions made according to `extends`
-      def do_extend(extends, parent_directives, seen = Set.new)
+      def do_extend(extends, parent_directives, seen = Set.new, original = true)
         CommaSequence.new(members.map do |seq|
-          seq.do_extend(extends, parent_directives, seen)
+          seq.do_extend(extends, parent_directives, seen, original)
         end.flatten)
       end
 

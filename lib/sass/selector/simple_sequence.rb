@@ -143,6 +143,9 @@ module Sass
       #   The directives containing this selector.
       # @param seen [Set<Array<Selector::Simple>>]
       #   The set of simple sequences that are currently being replaced.
+      # @param original [Boolean]
+      #   Whether this is the original selector being extended, as opposed to
+      #   the result of a previous extension that's being re-extended.
       # @return [Array<Sequence>] A list of selectors generated
       #   by extending this selector with `extends`.
       # @see CommaSequence#do_extend
@@ -152,7 +155,7 @@ module Sass
         members = Sass::Util.enum_with_index(self.members).map do |sel, i|
           next sel unless sel.is_a?(Pseudo) && sel.selector
           next sel if seen.include?([sel])
-          extended = sel.selector.do_extend(extends, parent_directives, seen)
+          extended = sel.selector.do_extend(extends, parent_directives, seen, !:original)
           result = sel.with_selector(extended)
           seen << [result]
           result
@@ -176,7 +179,8 @@ module Sass
         end
         groups.compact!
         groups.map! do |sels, seq|
-          seen.include?(sels) ? [] : seq.do_extend(extends, parent_directives, seen + [sels])
+          next [] if seen.include?(sels)
+          seq.do_extend(extends, parent_directives, seen + [sels], !:original)
         end
         groups.flatten!
 
