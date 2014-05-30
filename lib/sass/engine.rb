@@ -984,15 +984,16 @@ WARNING
         script_parser = Sass::Script::Parser.new(scanner, @line, to_parser_offset(offset), @options)
         str = script_parser.parse_string
 
-        media_parser = Sass::SCSS::Parser.new(scanner,
-          @options[:filename], @options[:importer],
-          @line, str.source_range.end_pos.offset)
-        if (media = media_parser.parse_media_query_list)
-          end_pos = Sass::Source::Position.new(@line, media_parser.offset + 1)
-          node = Tree::CssImportNode.new(str, media.to_a)
-        else
+        if scanner.eos?
           end_pos = str.source_range.end_pos
           node = Tree::CssImportNode.new(str)
+        else
+          media_parser = Sass::SCSS::Parser.new(scanner,
+            @options[:filename], @options[:importer],
+            @line, str.source_range.end_pos.offset)
+          media = media_parser.parse_media_query_list
+          end_pos = Sass::Source::Position.new(@line, media_parser.offset + 1)
+          node = Tree::CssImportNode.new(str, media.to_a)
         end
 
         node.source_range = Sass::Source::Range.new(

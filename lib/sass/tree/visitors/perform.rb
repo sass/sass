@@ -472,7 +472,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
   def visit_cssimport(node)
     node.resolved_uri = run_interp([node.uri])
-    if node.query
+    if node.query && !node.query.empty?
       parser = Sass::SCSS::StaticParser.new(run_interp(node.query),
         node.filename, node.options[:importer], node.line)
       node.resolved_query ||= parser.parse_media_query_list

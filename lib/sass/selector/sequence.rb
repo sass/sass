@@ -116,7 +116,7 @@ module Sass
 
       # @see AbstractSequence#to_s
       def to_s
-        @members.join(" ")
+        @members.join(" ").gsub(/ ?\n ?/, "\n")
       end
 
       # Returns a string representation of the sequence.

@@ -113,6 +113,12 @@ can use it in a mixin to detect whether a parent selector exists:
 * When a use of `@at-root` doesn't add any new rules, it will no longer split
   its containing block in two ([issue 1239][]).
 
+* Fix a `sass-convert` bug where rules would occasionally be folded together
+  incorrectly when converting from CSS to Sass.
+
+* Fix error messages for dynamically-generated `@media` queries with empty
+  queries.
+
 [issue 1239]: https://github.com/nex3/sass/issues/1239
 
 ## 3.3.7 (2 May 2014)

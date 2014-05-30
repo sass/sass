@@ -236,12 +236,13 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   end
 
   def visit_rule(node)
+    rule = node.parsed_rules ? [node.parsed_rules.to_s] : node.rule
     if @format == :sass
-      name = selector_to_sass(node.rule)
+      name = selector_to_sass(rule)
       name = "\\" + name if name[0] == ?:
       name.gsub(/^/, tab_str) + yield
     elsif @format == :scss
-      name = selector_to_scss(node.rule)
+      name = selector_to_scss(rule)
       res = name + yield
       if node.children.last.is_a?(Sass::Tree::CommentNode) && node.children.last.type == :silent
         res.slice!(-3..-1)

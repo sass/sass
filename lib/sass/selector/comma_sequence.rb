@@ -77,7 +77,7 @@ module Sass
 
       # @see AbstractSequence#to_s
       def to_s
-        @members.join(", ").gsub("\n", "")
+        @members.join(", ").gsub(", \n", ",\n")
       end
 
       private

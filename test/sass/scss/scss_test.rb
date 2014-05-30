@@ -3320,6 +3320,16 @@ MESSAGE
 SCSS
   end
 
+  def test_empty_media_query_error
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render(<<SCSS)}
+Invalid CSS after "": expected media query list, was ""
+MESSAGE
+@media \#{""} {
+  foo {a: b}
+}
+SCSS
+  end
+
   def test_newline_in_property_value
     assert_equal(<<CSS, render(<<SCSS))
 .foo {
@@ -3331,7 +3341,7 @@ bang";
   bar: $var;
 }
 SCSS
-  end
+end
 
   # Regression
 
