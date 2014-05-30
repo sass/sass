@@ -726,9 +726,8 @@ SCSS
     assert_selector_parses('E:last-of-type')
     assert_selector_parses('E:nth-last-of-type(n)')
     assert_selector_parses('E:only-of-type')
-    assert_selector_parses('E:nth-match(n of selector)')
-    assert_selector_parses('E:nth-last-match(n of selector)')
-    assert_selector_parses('E:column(selector)')
+    assert_selector_parses('E:nth-column(n of selector)')
+    assert_selector_parses('E:nth-last-column(n of selector)')
     assert_selector_parses('E:nth-column(n)')
     assert_selector_parses('E:nth-last-column(n)')
     assert_selector_parses('E F')
@@ -797,9 +796,8 @@ SCSS
     assert_selector_parses(':last-of-type')
     assert_selector_parses(':nth-last-of-type(n)')
     assert_selector_parses(':only-of-type')
-    assert_selector_parses(':nth-match(n of selector)')
-    assert_selector_parses(':nth-last-match(n of selector)')
-    assert_selector_parses(':column(selector)')
+    assert_selector_parses(':nth-column(n of selector)')
+    assert_selector_parses(':nth-last-column(n of selector)')
     assert_selector_parses(':nth-column(n)')
     assert_selector_parses(':nth-last-column(n)')
   end
@@ -841,9 +839,8 @@ SCSS
   def test_selectors_containing_selectors
     assert_selector_can_contain_selectors(':not(<sel>)')
     assert_selector_can_contain_selectors(':current(<sel>)')
-    assert_selector_can_contain_selectors(':nth-match(n of <sel>)')
-    assert_selector_can_contain_selectors(':nth-last-match(n of <sel>)')
-    assert_selector_can_contain_selectors(':column(<sel>)')
+    assert_selector_can_contain_selectors(':nth-column(n of <sel>)')
+    assert_selector_can_contain_selectors(':nth-last-column(n of <sel>)')
     assert_selector_can_contain_selectors(':-moz-any(<sel>)')
   end
 
