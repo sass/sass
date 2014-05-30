@@ -48,6 +48,14 @@ module Sass
         @selector = selector
       end
 
+      # Returns a copy of this with \{#selector} set to \{#new\_selector}.
+      #
+      # @param new_selector [CommaSequence]
+      # @return [Pseudo]
+      def with_selector(new_selector)
+        Pseudo.new(syntactic_type, name, arg, new_selector)
+      end
+
       # The type of the selector. `:class` if this is a pseudoclass selector,
       # `:element` if it's a pseudoelement.
       #

@@ -136,16 +136,28 @@ module Sass
       # Non-destructively extends this selector with the extensions specified in a hash
       # (which should come from {Sass::Tree::Visitors::Cssize}).
       #
-      # @overload do_extend(extends, parent_directives)
-      #   @param extends [{Selector::Simple =>
-      #                    Sass::Tree::Visitors::Cssize::Extend}]
-      #     The extensions to perform on this selector
-      #   @param parent_directives [Array<Sass::Tree::DirectiveNode>]
-      #     The directives containing this selector.
+      # @param extends [{Selector::Simple =>
+      #                  Sass::Tree::Visitors::Cssize::Extend}]
+      #   The extensions to perform on this selector
+      # @param parent_directives [Array<Sass::Tree::DirectiveNode>]
+      #   The directives containing this selector.
+      # @param seen [Set<Array<Selector::Simple>>]
+      #   The set of simple sequences that are currently being replaced.
       # @return [Array<Sequence>] A list of selectors generated
       #   by extending this selector with `extends`.
       # @see CommaSequence#do_extend
-      def do_extend(extends, parent_directives, seen = Set.new)
+      def do_extend(extends, parent_directives, seen)
+        seen = seen.dup
+
+        members = Sass::Util.enum_with_index(self.members).map do |sel, i|
+          next sel unless sel.is_a?(Pseudo) && sel.selector
+          next sel if seen.include?([sel])
+          extended = sel.selector.do_extend(extends, parent_directives, seen)
+          result = sel.with_selector(extended)
+          seen << [result]
+          result
+        end
+
         groups = Sass::Util.group_by_to_a(extends[members.to_set]) {|ex| ex.extender}
         groups.map! do |seq, group|
           sels = group.map {|e| e.target}.flatten
@@ -167,6 +179,14 @@ module Sass
           seen.include?(sels) ? [] : seq.do_extend(extends, parent_directives, seen + [sels])
         end
         groups.flatten!
+
+        # First Law of Extend: the result of extending a selector should
+        # (almost) always contain the base selector.
+        #
+        # See https://github.com/nex3/sass/issues/324.
+        original = Sequence.new([SimpleSequence.new(members, @subject, source_range)])
+        original.add_sources! sources
+        groups.unshift original
         groups.uniq!
         groups
       end

@@ -53,17 +53,13 @@ module Sass
       #   The extensions to perform on this selector
       # @param parent_directives [Array<Sass::Tree::DirectiveNode>]
       #   The directives containing this selector.
+      # @param seen [Set<Array<Selector::Simple>>]
+      #   The set of simple sequences that are currently being replaced.
       # @return [CommaSequence] A copy of this selector,
       #   with extensions made according to `extends`
-      def do_extend(extends, parent_directives)
+      def do_extend(extends, parent_directives, seen = Set.new)
         CommaSequence.new(members.map do |seq|
-          extended = seq.do_extend(extends, parent_directives)
-          # First Law of Extend: the result of extending a selector should
-          # always contain the base selector.
-          #
-          # See https://github.com/nex3/sass/issues/324.
-          extended.unshift seq unless seq.has_placeholder? || extended.include?(seq)
-          extended
+          seq.do_extend(extends, parent_directives, seen)
         end.flatten)
       end
 
