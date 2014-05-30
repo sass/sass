@@ -39,7 +39,7 @@ module Sass
       def parse
         init_scanner!
         root = stylesheet
-        expected("selector or at-rule") unless @scanner.eos?
+        expected("selector or at-rule") unless root && @scanner.eos?
         root
       end
 
@@ -62,7 +62,7 @@ module Sass
       def parse_media_query_list
         init_scanner!
         ql = media_query_list
-        expected("media query list") unless @scanner.eos?
+        expected("media query list") unless ql && @scanner.eos?
         ql
       end
 
@@ -74,7 +74,7 @@ module Sass
       def parse_at_root_query
         init_scanner!
         query = at_root_query
-        expected("@at-root query list") unless @scanner.eos?
+        expected("@at-root query list") unless query && @scanner.eos?
         query
       end
 
@@ -86,7 +86,7 @@ module Sass
       def parse_supports_condition
         init_scanner!
         condition = supports_condition
-        expected("supports condition") unless @scanner.eos?
+        expected("supports condition") unless condition && @scanner.eos?
         condition
       end
 

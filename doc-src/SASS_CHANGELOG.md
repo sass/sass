@@ -11,6 +11,9 @@
 * Fix a `sass-convert` bug where rules would occasionally be folded together
   incorrectly when converting from CSS to Sass.
 
+* Fix error messages for dynamically-generated `@media` queries with empty
+  queries.
+
 [issue 1239]: https://github.com/nex3/sass/issues/1239
 
 ## 3.3.7 (2 May 2014)

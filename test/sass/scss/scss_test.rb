@@ -3126,6 +3126,16 @@ MESSAGE
 SCSS
   end
 
+  def test_empty_media_query_error
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render(<<SCSS)}
+Invalid CSS after "": expected media query list, was ""
+MESSAGE
+@media \#{""} {
+  foo {a: b}
+}
+SCSS
+  end
+
   # Regression
 
   def test_top_level_unknown_directive_in_at_root
