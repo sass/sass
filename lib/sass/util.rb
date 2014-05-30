@@ -162,6 +162,43 @@ module Sass
       end
     end
 
+    # Non-destructively replaces all occurrences of a subsequence in an array
+    # with another subsequence.
+    #
+    # @example
+    #   replace_subseq([1, 2, 3, 4, 5], [2, 3], [:a, :b])
+    #     #=> [1, :a, :b, 4, 5]
+    #
+    # @param arr [Array] The array whose subsequences will be replaced.
+    # @param subseq [Array] The subsequence to find and replace.
+    # @param replacement [Array] The sequence that `subseq` will be replaced with.
+    # @return [Array] `arr` with `subseq` replaced with `replacement`.
+    def replace_subseq(arr, subseq, replacement)
+      new = []
+      matched = []
+      i = 0
+      arr.each do |elem|
+        if elem != subseq[i]
+          new.push(*matched)
+          matched = []
+          i = 0
+          new << elem
+          next
+        end
+
+        if i == subseq.length - 1
+          matched = []
+          i = 0
+          new.push(*replacement)
+        else
+          matched << elem
+          i += 1
+        end
+      end
+      new.push(*matched)
+      new
+    end
+
     # Intersperses a value in an enumerable, as would be done with `Array#join`
     # but without concatenating the array together afterwards.
     #

@@ -79,6 +79,15 @@ class UtilTest < Test::Unit::TestCase
       merge_adjacent_strings([str, " ", str, " ", str, :bang, str, " ", str, 12]))
   end
 
+  def test_replace_subseq
+    assert_equal([1, 2, :a, :b, 5],
+      replace_subseq([1, 2, 3, 4, 5], [3, 4], [:a, :b]))
+    assert_equal([1, 2, 3, 4, 5],
+      replace_subseq([1, 2, 3, 4, 5], [3, 4, 6], [:a, :b]))
+    assert_equal([1, 2, 3, 4, 5],
+      replace_subseq([1, 2, 3, 4, 5], [4, 5, 6], [:a, :b]))
+  end
+
   def test_intersperse
     assert_equal(["foo", " ", "bar", " ", "baz"],
       intersperse(%w[foo bar baz], " "))

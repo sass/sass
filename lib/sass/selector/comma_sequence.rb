@@ -78,8 +78,7 @@ module Sass
       # @see Simple#to_a
       def to_a
         arr = Sass::Util.intersperse(@members.map {|m| m.to_a}, ", ").flatten
-        arr.delete("\n")
-        arr
+        Sass::Util.replace_subseq(arr, [", ", "\n"], [",\n"])
       end
 
       private

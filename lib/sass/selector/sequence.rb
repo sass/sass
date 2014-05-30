@@ -119,7 +119,9 @@ module Sass
         ary = @members.map do |seq_or_op|
           seq_or_op.is_a?(SimpleSequence) ? seq_or_op.to_a : seq_or_op
         end
-        Sass::Util.intersperse(ary, " ").flatten.compact
+        ary = Sass::Util.intersperse(ary, " ").flatten.compact
+        ary = Sass::Util.replace_subseq(ary, ["\n", " "], ["\n"])
+        Sass::Util.replace_subseq(ary, [" ", "\n"], ["\n"])
       end
 
       # Returns a string representation of the sequence.

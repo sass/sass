@@ -265,6 +265,25 @@ CSS
 
   # Regressions
 
+  def test_nesting_with_matching_property
+    assert_equal(<<SASS, css2sass(<<CSS))
+ul
+  width: 10px
+  div
+    width: 20px
+
+article
+  width: 10px
+  p
+    width: 20px
+SASS
+ul {width: 10px}
+ul div {width: 20px}
+article {width: 10px}
+article p {width: 20px}
+CSS
+  end
+
   def test_empty_rule
     assert_equal(<<SASS, css2sass(<<CSS))
 a
