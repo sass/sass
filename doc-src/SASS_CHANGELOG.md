@@ -108,7 +108,7 @@ can use it in a mixin to detect whether a parent selector exists:
 * SassScript strings in SCSS may no longer include unescaped newlines. As doing
   so produced invalid CSS, there will be no deprecation period for this change.
 
-## 3.3.8 (Unreleased)
+## 3.3.8 (20 May 2014)
 
 * When a use of `@at-root` doesn't add any new rules, it will no longer split
   its containing block in two ([issue 1239][]).
