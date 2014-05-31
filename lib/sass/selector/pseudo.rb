@@ -177,7 +177,38 @@ module Sass
 
       # @see AbstractSequence#specificity
       def specificity
-        type == :class ? SPECIFICITY_BASE : 1
+        return 1 if type == :element
+        return SPECIFICITY_BASE unless selector
+        @specificity ||=
+          if unprefixed_name == 'not'
+            min = 0
+            max = 0
+            selector.members.each do |seq|
+              spec = seq.specificity
+              if spec.is_a?(Range)
+                min = [spec.begin, min].max
+                max = [spec.end, max].max
+              else
+                min = [spec, min].max
+                max = [spec, max].max
+              end
+            end
+            min == max ? max : (min..max)
+          else
+            min = 0
+            max = 0
+            selector.members.each do |seq|
+              spec = seq.specificity
+              if spec.is_a?(Range)
+                min = [spec.begin, min].min
+                max = [spec.end, max].max
+              else
+                min = [spec, min].min
+                max = [spec, max].max
+              end
+            end
+            min == max ? max : (min..max)
+          end
       end
     end
   end
