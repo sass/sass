@@ -783,7 +783,8 @@ debugging maps.
 #### Colors
 
 Any CSS color expression returns a SassScript Color value. This includes
-(a large number of named colors)[https://github.com/nex3/sass/blob/stable/lib/sass/script/value/color.rb#L28-L180]
+[a large number of named
+colors](https://github.com/nex3/sass/blob/stable/lib/sass/script/value/color.rb#L28-L180)
 which are indistinguishable from unquoted strings.
 
 In compressed output mode, Sass will output the smallest CSS
