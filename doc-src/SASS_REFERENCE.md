@@ -780,6 +780,22 @@ variable or an argument to a CSS function will cause an error. Use the
 `inspect($value)` function to produce an output string useful for
 debugging maps.
 
+#### Colors
+
+Any CSS color expression returns a SassScript Color value. This includes
+(a large number of named colors)[https://github.com/nex3/sass/blob/stable/lib/sass/script/value/color.rb#L28-L180]
+which are indistinguishable from unquoted strings.
+
+In compressed output mode, Sass will output the smallest CSS
+representation of a color. For example, `#FF0000` will output as `red`
+in compressed mode, but `blanchedalmond` will output as `#FFEBCD`.
+
+A common issue users encounter with named colors is that since Sass
+prefers the same output format as was typed in other output modes, a
+color interpolated into a selector becomes invalid syntax when
+compressed. To avoid this, always quote named colors if they are meant
+to be used in the construction of a selector.
+
 ### Operations
 
 All types support equality operations (`==` and `!=`).
