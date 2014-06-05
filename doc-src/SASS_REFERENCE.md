@@ -771,8 +771,14 @@ treated as the nested list `key1 value1, key2 value2` by list functions. Lists
 cannot be treated as maps, though, with the exception of the empty list. `()`
 represents both a map with no key/value pairs and a list with no elements.
 
-Maps cannot be converted to plain CSS. Using one as the value of a variable or
-an argument to a CSS function will cause an error.
+Note that map keys can be any Sass data type (even another map) and the
+syntax for declaring a map allows arbitrary SassScript expressions that
+will be evaluated to determine the key.
+
+Maps cannot be converted to plain CSS. Using one as the value of a
+variable or an argument to a CSS function will cause an error. Use the
+`inspect($value)` function to produce an output string useful for
+debugging maps.
 
 ### Operations
 
