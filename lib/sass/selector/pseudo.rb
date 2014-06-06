@@ -51,9 +51,35 @@ module Sass
       # Returns a copy of this with \{#selector} set to \{#new\_selector}.
       #
       # @param new_selector [CommaSequence]
-      # @return [Pseudo]
+      # @return [CommaSequence]
       def with_selector(new_selector)
-        Pseudo.new(syntactic_type, name, arg, new_selector)
+        Pseudo.new(syntactic_type, name, arg, CommaSequence.new(new_selector.members.map do |seq|
+          next seq unless seq.members.length == 1
+          sseq = seq.members.first
+          next seq unless sseq.is_a?(SimpleSequence) && sseq.members.length == 1
+          sel = sseq.members.first
+          next seq unless sel.is_a?(Pseudo) && sel.selector
+
+          case unprefixed_name
+          when 'not'
+            # In theory, if there's a nested :not its contents should be
+            # unified with the return value. For example, if :not(.foo)
+            # extends .bar, :not(.bar) should become .foo:not(.bar). However,
+            # this is a narrow edge case and supporting it properly would make
+            # this code and the code calling it a lot more complicated, so
+            # it's not supported for now.
+            next [] unless sel.unprefixed_name == 'matches'
+            sel.selector.members
+          when 'matches', 'any', 'current', 'nth-child', 'nth-last-child'
+            # As above, we could theoretically support :not within :matches, but
+            # doing so would require this method and its callers to handle much
+            # more complex cases that likely aren't worth the pain.
+            next [] unless sel.name == name && sel.arg == arg
+            sel.selector.members
+          else
+            []
+          end
+        end.flatten))
       end
 
       # The type of the selector. `:class` if this is a pseudoclass selector,
