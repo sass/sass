@@ -43,11 +43,16 @@ module Sass
       end
 
       def pseudo_elements
-        @pseudo_elements ||= (members - [base]).
-          select {|sel| sel.is_a?(Pseudo) && sel.type == :element}
+        @pseudo_elements ||= members.select {|sel| sel.is_a?(Pseudo) && sel.type == :element}
       end
 
-      # Returns the non-base, non-pseudo-class selectors in this sequence.
+      def selector_pseudo_classes
+        @selector_pseudo_classes ||= members.
+          select {|sel| sel.is_a?(Pseudo) && sel.type == :class && sel.selector}.
+          group_by {|sel| sel.unprefixed_name}
+      end
+
+      # Returns the non-base, non-pseudo-element selectors in this sequence.
       #
       # @return [Set<Simple>]
       def rest
@@ -195,12 +200,39 @@ module Sass
       # @example
       #   (.foo).superselector?(.foo.bar) #=> true
       #   (.foo).superselector?(.bar) #=> false
-      # @param sseq [SimpleSequence]
+      # @param their_sseq [SimpleSequence]
+      # @param parents [Array<SimpleSequence, String>] The parent selectors of `their_sseq`, if any.
       # @return [Boolean]
-      def superselector?(sseq)
-        (base.nil? || base.eql?(sseq.base)) &&
-          pseudo_elements.eql?(sseq.pseudo_elements) &&
-          rest.subset?(sseq.rest)
+      def superselector?(their_sseq, parents = [])
+        return false unless base.nil? || base.eql?(their_sseq.base)
+        return false unless pseudo_elements.eql?(their_sseq.pseudo_elements)
+        our_spcs = selector_pseudo_classes
+        their_spcs = their_sseq.selector_pseudo_classes
+
+        # Some psuedo-selectors can be subselectors of non-pseudo selectors.
+        # Pull those out here so we can efficiently check against them below.
+        their_subselector_pseudos = %w[matches any nth-child nth-last-child].
+          map {|name| their_spcs[name] || []}.flatten
+
+        # If `self`'s non-pseudo simple selectors aren't a subset of `their_sseq`'s,
+        # it's definitely not a superselector. This also considers being matched
+        # by `:matches` or `:any`.
+        return false unless rest.all? do |our_sel|
+          next true if our_sel.is_a?(Pseudo) && our_sel.selector
+          next true if their_sseq.rest.include?(our_sel)
+          their_subselector_pseudos.any? do |their_pseudo|
+            their_pseudo.selector.members.all? do |their_seq|
+              next false unless their_seq.members.length == 1
+              their_sseq = their_seq.members.first
+              next false unless their_sseq.is_a?(SimpleSequence)
+              their_sseq.rest.include?(our_sel)
+            end
+          end
+        end
+
+        our_spcs.all? do |name, pseudos|
+          pseudos.all? {|pseudo| pseudo.superselector?(their_sseq, parents)}
+        end
       end
 
       # @see Simple#to_s

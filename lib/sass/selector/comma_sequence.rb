@@ -67,6 +67,18 @@ module Sass
         end.flatten)
       end
 
+      # Returns whether or not this selector matches all elements
+      # that the given selector matches (as well as possibly more).
+      #
+      # @example
+      #   (.foo).superselector?(.foo.bar) #=> true
+      #   (.foo).superselector?(.bar) #=> false
+      # @param cseq [CommaSequence]
+      # @return [Boolean]
+      def superselector?(cseq)
+        cseq.members.all? {|seq1| members.any? {|seq2| seq2.superselector?(seq1)}}
+      end
+
       # Returns a string representation of the sequence.
       # This is basically the selector string.
       #

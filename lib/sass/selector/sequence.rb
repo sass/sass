@@ -93,7 +93,10 @@ module Sass
           next [[sseq_or_op]] unless sseq_or_op.is_a?(SimpleSequence)
           extended = sseq_or_op.do_extend(extends, parent_directives, seen)
           choices = extended.map {|seq| seq.members}
-          choices.unshift([sseq_or_op]) unless extended.any? {|seq| seq.superselector?(sseq_or_op)}
+          wrapped_sseq = Sequence.new([sseq_or_op])
+          unless extended.any? {|seq| seq.superselector?(wrapped_sseq)}
+            choices.unshift([sseq_or_op])
+          end
           choices
         end
         weaves = Sass::Util.paths(extended_not_expanded).map {|path| weave(path)}
@@ -106,12 +109,10 @@ module Sass
       # @example
       #   (.foo).superselector?(.foo.bar) #=> true
       #   (.foo).superselector?(.bar) #=> false
-      #   (.bar .foo).superselector?(.foo) #=> false
-      # @param sseq [SimpleSequence]
+      # @param cseq [Sequence]
       # @return [Boolean]
-      def superselector?(sseq)
-        return false unless members.size == 1
-        members.last.superselector?(sseq)
+      def superselector?(seq)
+        _superselector?(members, seq.members)
       end
 
       # @see AbstractSequence#to_s
@@ -407,12 +408,12 @@ module Sass
           seq1.first.is_a?(String) || seq2.first.is_a?(String)
         # More complex selectors are never superselectors of less complex ones
         return if seq1.size > seq2.size
-        return seq1.first.superselector?(seq2.last) if seq1.size == 1
+        return seq1.first.superselector?(seq2.last, seq2[0...-1]) if seq1.size == 1
 
         _, si = Sass::Util.enum_with_index(seq2).find do |e, i|
           return if i == seq2.size - 1
           next if e.is_a?(String)
-          seq1.first.superselector?(e)
+          seq1.first.superselector?(e, seq2[0...i])
         end
         return unless si
 

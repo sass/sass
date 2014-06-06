@@ -1,6 +1,7 @@
 require 'sass/selector/simple'
 require 'sass/selector/abstract_sequence'
 require 'sass/selector/comma_sequence'
+require 'sass/selector/pseudo'
 require 'sass/selector/sequence'
 require 'sass/selector/simple_sequence'
 
@@ -319,91 +320,6 @@ module Sass
       # @see AbstractSequence#specificity
       def specificity
         SPECIFICITY_BASE
-      end
-    end
-
-    # A pseudoclass (e.g. `:visited`) or pseudoelement (e.g. `::first-line`)
-    # selector. It can have arguments (e.g. `:nth-child(2n+1)`) which can
-    # contain selectors (e.g. `:nth-child(2n+1 of .foo)`).
-    class Pseudo < Simple
-      # Some psuedo-class-syntax selectors are actually considered
-      # pseudo-elements and must be treated differently. This is a list of such
-      # selectors.
-      #
-      # @return [Array<String>]
-      ACTUALLY_ELEMENTS = %w[after before first-line first-letter]
-
-      # Like \{#type}, but returns the type of selector this looks like, rather
-      # than the type it is semantically. This only differs from type for
-      # selectors in \{ACTUALLY\_ELEMENTS}.
-      #
-      # @return [Symbol]
-      attr_reader :syntactic_type
-
-      # The name of the selector.
-      #
-      # @return [String]
-      attr_reader :name
-
-      # The argument to the selector,
-      # or `nil` if no argument was given.
-      #
-      # @return [String, nil]
-      attr_reader :arg
-
-      # The selector argument, or `nil` if no selector exists.
-      #
-      # If this and \{#arg\} are both set, \{#arg\} is considered a non-selector
-      # prefix.
-      attr_reader :selector
-
-      # @param syntactic_type [Symbol] See \{#syntactic_type}
-      # @param name [String] See \{#name}
-      # @param arg [nil, String] See \{#arg}
-      # @param selector [nil, Selector] See \{#selector}
-      def initialize(syntactic_type, name, arg, selector)
-        @syntactic_type = syntactic_type
-        @name = name
-        @arg = arg
-        @selector = selector
-      end
-
-      # The type of the selector. `:class` if this is a pseudoclass selector,
-      # `:element` if it's a pseudoelement.
-      #
-      # @return [Symbol]
-      def type
-        ACTUALLY_ELEMENTS.include?(name) ? :element : syntactic_type
-      end
-
-      # @see Selector#to_s
-      def to_s
-        res = (syntactic_type == :class ? ":" : "::") + @name
-        if @arg || @selector
-          res << "("
-          res << @arg.strip if @arg
-          res << " " if @arg && @selector
-          res << @selector.to_s if @selector
-          res << ")"
-        end
-        res
-      end
-
-      # Returns `nil` if this is a pseudoelement selector
-      # and `sels` contains a pseudoelement selector different than this one.
-      #
-      # @see Selector#unify
-      def unify(sels)
-        return if type == :element && sels.any? do |sel|
-          sel.is_a?(Pseudo) && sel.type == :element &&
-            (sel.name != name || sel.arg != arg || sel.selector != selector)
-        end
-        super
-      end
-
-      # @see AbstractSequence#specificity
-      def specificity
-        type == :class ? SPECIFICITY_BASE : 1
       end
     end
   end
