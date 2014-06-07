@@ -150,8 +150,7 @@ module Sass
       #   by extending this selector with `extends`.
       # @see CommaSequence#do_extend
       def do_extend(extends, parent_directives, seen)
-        seen = seen.dup
-
+        seen_with_pseudo_selectors = seen.dup
         members = Sass::Util.enum_with_index(self.members).map do |sel, i|
           next sel unless sel.is_a?(Pseudo) && sel.selector
           next sel if seen.include?([sel])
@@ -159,7 +158,7 @@ module Sass
           extended.members.reject! {|seq| seq.has_placeholder?}
           next sel if extended.members.empty?
           result = sel.with_selector(extended)
-          seen << [result]
+          seen_with_pseudo_selectors << [result]
           result
         end
 
@@ -182,7 +181,7 @@ module Sass
         groups.compact!
         groups.map! do |sels, seq|
           next [] if seen.include?(sels)
-          seq.do_extend(extends, parent_directives, seen + [sels], !:original)
+          seq.do_extend(extends, parent_directives, seen_with_pseudo_selectors + [sels], !:original)
         end
         groups.flatten!
 

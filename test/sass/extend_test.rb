@@ -376,6 +376,14 @@ SCSS
       ':nth-last-child(n of .bar, .x .y)')
   end
 
+  def test_extend_over_selector_pseudoclass
+    assert_extends(':not(.foo)', '.x {@extend :not(.foo)}', ':not(.foo), .x')
+    assert_extends(
+      ':matches(.foo, .bar)',
+      '.x {@extend :matches(.foo, .bar)}',
+      ':matches(.foo, .bar), .x')
+  end
+
   def test_matches_within_not
     assert_extends(
       ':not(.foo, .bar)',
