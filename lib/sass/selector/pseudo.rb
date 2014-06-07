@@ -212,11 +212,11 @@ module Sass
             selector.members.each do |seq|
               spec = seq.specificity
               if spec.is_a?(Range)
-                min = [spec.begin, min].max
-                max = [spec.end, max].max
+                min = Sass::Util.max(spec.begin, min)
+                max = Sass::Util.max(spec.end, max)
               else
-                min = [spec, min].max
-                max = [spec, max].max
+                min = Sass::Util.max(spec, min)
+                max = Sass::Util.max(spec, max)
               end
             end
             min == max ? max : (min..max)
@@ -226,11 +226,11 @@ module Sass
             selector.members.each do |seq|
               spec = seq.specificity
               if spec.is_a?(Range)
-                min = [spec.begin, min].min
-                max = [spec.end, max].max
+                min = Sass::Util.min(spec.begin, min)
+                max = Sass::Util.max(spec.end, max)
               else
-                min = [spec, min].min
-                max = [spec, max].max
+                min = Sass::Util.min(spec, min)
+                max = Sass::Util.max(spec, max)
               end
             end
             min == max ? max : (min..max)

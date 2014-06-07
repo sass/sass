@@ -91,7 +91,7 @@ module Sass
       def _specificity(arr)
         min = 0
         max = 0
-        arr.map do |m|
+        arr.each do |m|
           next if m.is_a?(String)
           spec = m.specificity
           if spec.is_a?(Range)

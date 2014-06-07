@@ -338,6 +338,18 @@ module Sass
       minuend.select {|e| set.include?(e)}
     end
 
+    # Returns the maximum of `val1` and `val2`. We use this over \{Array.max} to
+    # avoid unnecessary garbage collection.
+    def max(val1, val2)
+      val1 > val2 ? val1 : val2
+    end
+
+    # Returns the minimum of `val1` and `val2`. We use this over \{Array.min} to
+    # avoid unnecessary garbage collection.
+    def min(val1, val2)
+      val1 <= val2 ? val1 : val2
+    end
+
     # Returns a string description of the character that caused an
     # `Encoding::UndefinedConversionError`.
     #
