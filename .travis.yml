@@ -3,7 +3,7 @@ rvm:
   - 1.9.2
   - 1.9.3
   - 2.0.0
-  - 2.1.0
+  - 2.1.2
   - jruby-18mode
   - jruby-19mode
   - rbx
@@ -26,9 +26,9 @@ matrix:
     - rvm: jruby-19mode
 
     # https://bugs.ruby-lang.org/issues/9340
-    - rvm: 2.1.0
+    - rvm: 2.1.2
   include:
-    - rvm: 2.1.0
+    - rvm: 2.1.2
       env: MATHN=true RUBOCOP=true
     - rvm: 2.0.0
       env: MATHN=true RUBOCOP=true
