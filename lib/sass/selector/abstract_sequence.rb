@@ -62,8 +62,11 @@ module Sass
       # Whether or not this selector sequence contains a placeholder selector.
       # Checks recursively.
       def has_placeholder?
-        @has_placeholder ||=
-          members.any? {|m| m.is_a?(AbstractSequence) ? m.has_placeholder? : m.is_a?(Placeholder)}
+        @has_placeholder ||= members.any? do |m|
+          next m.has_placeholder? if m.is_a?(AbstractSequence)
+          next m.selector && m.selector.has_placeholder? if m.is_a?(Pseudo)
+          m.is_a?(Placeholder)
+        end
       end
 
       # Returns the selector string.
@@ -73,10 +76,12 @@ module Sass
         Sass::Util.abstract(self)
       end
 
-      # Returns the specificity of the selector as an integer. The base is given
-      # by {Sass::Selector::SPECIFICITY_BASE}.
+      # Returns the specificity of the selector.
       #
-      # @return [Fixnum]
+      # The base is given by {Sass::Selector::SPECIFICITY_BASE}. This can be a
+      # number or a range representing possible specificities.
+      #
+      # @return [Fixnum, Range]
       def specificity
         _specificity(members)
       end
@@ -84,9 +89,20 @@ module Sass
       protected
 
       def _specificity(arr)
-        spec = 0
-        arr.map {|m| spec += m.is_a?(String) ? 0 : m.specificity}
-        spec
+        min = 0
+        max = 0
+        arr.each do |m|
+          next if m.is_a?(String)
+          spec = m.specificity
+          if spec.is_a?(Range)
+            min += spec.begin
+            max += spec.end
+          else
+            min += spec
+            max += spec
+          end
+        end
+        min == max ? min : (min..max)
       end
     end
   end

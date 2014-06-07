@@ -53,18 +53,29 @@ module Sass
       #   The extensions to perform on this selector
       # @param parent_directives [Array<Sass::Tree::DirectiveNode>]
       #   The directives containing this selector.
+      # @param seen [Set<Array<Selector::Simple>>]
+      #   The set of simple sequences that are currently being replaced.
+      # @param original [Boolean]
+      #   Whether this is the original selector being extended, as opposed to
+      #   the result of a previous extension that's being re-extended.
       # @return [CommaSequence] A copy of this selector,
       #   with extensions made according to `extends`
-      def do_extend(extends, parent_directives)
+      def do_extend(extends, parent_directives, seen = Set.new, original = true)
         CommaSequence.new(members.map do |seq|
-          extended = seq.do_extend(extends, parent_directives)
-          # First Law of Extend: the result of extending a selector should
-          # always contain the base selector.
-          #
-          # See https://github.com/nex3/sass/issues/324.
-          extended.unshift seq unless seq.has_placeholder? || extended.include?(seq)
-          extended
+          seq.do_extend(extends, parent_directives, seen, original)
         end.flatten)
+      end
+
+      # Returns whether or not this selector matches all elements
+      # that the given selector matches (as well as possibly more).
+      #
+      # @example
+      #   (.foo).superselector?(.foo.bar) #=> true
+      #   (.foo).superselector?(.bar) #=> false
+      # @param cseq [CommaSequence]
+      # @return [Boolean]
+      def superselector?(cseq)
+        cseq.members.all? {|seq1| members.any? {|seq2| seq2.superselector?(seq1)}}
       end
 
       # Returns a string representation of the sequence.

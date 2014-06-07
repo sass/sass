@@ -220,7 +220,7 @@ module Sass
       end
 
       def prefixed_directive(name, start_pos)
-        sym = name.gsub(/^-[a-z0-9]+-/i, '').gsub('-', '_').to_sym
+        sym = deprefix(name).gsub('-', '_').to_sym
         PREFIXED_DIRECTIVES.include?(sym) && send("#{sym}_directive", name, start_pos)
       end
 
@@ -1042,7 +1042,7 @@ module Sass
         :media_expr => "media expression (e.g. (min-device-width: 800px))",
         :at_root_query => "@at-root query (e.g. (without: media))",
         :at_root_directive_list => '* or identifier',
-        :pseudo_arg => "expression (e.g. fr, 2n+1)",
+        :pseudo_args => "expression (e.g. fr, 2n+1)",
         :interp_ident => "identifier",
         :qualified_name => "identifier",
         :expr => "expression (e.g. 1px, bold)",
@@ -1052,6 +1052,7 @@ module Sass
         :moz_document_function => "matching function (e.g. url-prefix(), domain())",
         :supports_condition => "@supports condition (e.g. (display: flexbox))",
         :supports_condition_in_parens => "@supports condition (e.g. (display: flexbox))",
+        :a_n_plus_b => "An+B expression",
       }
 
       TOK_NAMES = Sass::Util.to_hash(Sass::SCSS::RX.constants.map do |c|
@@ -1191,6 +1192,11 @@ module Sass
           end
           res
         end
+      end
+
+      # Remove a vendor prefix from `str`.
+      def deprefix(str)
+        str.gsub(/^-[a-zA-Z0-9]+-/, '')
       end
     end
   end

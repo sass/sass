@@ -238,6 +238,10 @@ module Sass
         return ns, name
       end
 
+      SELECTOR_PSEUDO_CLASSES = %w[not matches current any].to_set
+
+      PREFIXED_SELECTOR_PSEUDO_CLASSES = %w[nth-child nth-last-child].to_set
+
       def pseudo
         s = tok(/::?/)
         return unless s
@@ -245,43 +249,27 @@ module Sass
         name = tok!(IDENT)
         if tok(/\(/)
           ss
-          arg = expr!(:pseudo_arg)
-          while tok(/,/)
-            arg << ',' << str {ss} << expr!(:pseudo_arg)
+          deprefixed = deprefix(name)
+          if s == ':' && SELECTOR_PSEUDO_CLASSES.include?(deprefixed)
+            sel = selector_comma_sequence
+          elsif s == ':' && PREFIXED_SELECTOR_PSEUDO_CLASSES.include?(deprefixed)
+            arg, sel = prefixed_selector_pseudo
+          else
+            arg = expr!(:pseudo_args)
           end
+
           tok!(/\)/)
         end
-        Selector::Pseudo.new(s == ':' ? :class : :element, name, arg)
+        Selector::Pseudo.new(s == ':' ? :class : :element, name, arg, sel)
       end
 
-      def pseudo_arg
-        # In the CSS spec, every pseudo-class/element either takes a pseudo
-        # expression or a selector comma sequence as an argument. However, we
-        # don't want to have to know which takes which, so we handle both at
-        # once.
-        #
-        # However, there are some ambiguities between the two. For instance, "n"
-        # could start a pseudo expression like "n+1", or it could start a
-        # selector like "n|m". In order to handle this, we must regrettably
-        # backtrack.
-        expr, sel = nil, nil
-        pseudo_err = catch_error do
-          expr = pseudo_expr
-          next if tok?(/[,)]/)
-          expr = nil
-          expected '")"'
+      def pseudo_args
+        arg = expr!(:pseudo_expr)
+        while tok(/,/)
+          arg << ',' << str {ss}
+          arg.concat expr!(:pseudo_expr)
         end
-
-        return expr if expr
-        sel_err = catch_error {sel = selector_string}
-        return sel if sel
-        rethrow pseudo_err if pseudo_err
-        rethrow sel_err if sel_err
-        nil
-      end
-
-      def pseudo_expr_token
-        tok(PLUS) || tok(/[-*]/) || tok(NUMBER) || tok(STRING) || tok(IDENT)
+        arg
       end
 
       def pseudo_expr
@@ -292,6 +280,40 @@ module Sass
           res << e << str {ss}
         end
         res
+      end
+
+      def pseudo_expr_token
+        tok(PLUS) || tok(/[-*]/) || tok(NUMBER) || tok(STRING) || tok(IDENT)
+      end
+
+      def prefixed_selector_pseudo
+        prefix = str do
+          expr = str {expr!(:a_n_plus_b)}
+          ss
+          return expr, nil unless tok(/of/)
+          ss
+        end
+        return prefix, expr!(:selector_comma_sequence)
+      end
+
+      def a_n_plus_b
+        if (parity = tok(/even|odd/i))
+          return parity
+        end
+
+        if tok(/[+-]?[0-9]+/)
+          ss
+          return true unless tok(/n/)
+        else
+          return unless tok(/[+-]?n/i)
+        end
+        ss
+
+        return true unless tok(/[+-]/)
+        ss
+        @expected = "number"
+        tok!(/[0-9]+/)
+        true
       end
 
       @sass_script_parser = Class.new(Sass::Script::CssParser)
