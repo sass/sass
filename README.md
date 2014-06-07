@@ -202,9 +202,9 @@ task for a boy-genius). Nathan lives in Seattle, Washington and works on
 Sass and the creator of Compass, the first Sass-based framework. Chris focuses
 on making Sass more powerful, easy to use, and on ways to speed its adoption
 through the web development community. Chris lives in San Jose, California with
-his wife and daughter. He is the Software Architect for
-[Caring.com](http://caring.com), a website devoted to the 34 Million caregivers
-whose parents are sick or elderly, that uses Haml and Sass.
+his wife and daughter. He is an Engineer for
+[LinkedIn.com](http://linkedin.com), where one of his responsibilities is to
+maintain Sass & Compass.
 
 If you use this software, you must pay Hampton a compliment. And
 buy Nathan some jelly beans. Maybe pet a kitten. Yeah. Pet that kitty.
