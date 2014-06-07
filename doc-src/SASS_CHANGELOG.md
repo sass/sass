@@ -41,6 +41,10 @@ can use it in a mixin to detect whether a parent selector exists:
 
 ### Smaller Improvements
 
+* `@extend` can now extend selectors within selector pseudoclasses such as
+  `:not` and `:matches`. This also means that placeholder selectors can be used
+  within selector pseudoclasses.
+
 * When using colors in SassScript, the original representation of the color will
   be preserved wherever possible. If you write `#f00`, it will be rendered as
   `#f00`, not as `red` or `#ff0000`. In compressed mode, Sass will continue to
