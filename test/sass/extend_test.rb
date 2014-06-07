@@ -993,6 +993,17 @@ $foo: foo;
 SCSS
   end
 
+  def test_placeholder_in_selector_pseudoclass
+    assert_equal <<CSS, render(<<SCSS)
+:matches(.bar, .baz) {
+  color: blue; }
+CSS
+:matches(%foo) {color: blue}
+.bar {@extend %foo}
+.baz {@extend %foo}
+SCSS
+  end
+
   def test_media_in_placeholder_selector
     assert_equal <<CSS, render(<<SCSS)
 .baz {

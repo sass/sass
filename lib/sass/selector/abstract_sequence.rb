@@ -62,8 +62,11 @@ module Sass
       # Whether or not this selector sequence contains a placeholder selector.
       # Checks recursively.
       def has_placeholder?
-        @has_placeholder ||=
-          members.any? {|m| m.is_a?(AbstractSequence) ? m.has_placeholder? : m.is_a?(Placeholder)}
+        @has_placeholder ||= members.any? do |m|
+          next m.has_placeholder? if m.is_a?(AbstractSequence)
+          next m.selector && m.selector.has_placeholder? if m.is_a?(Pseudo)
+          m.is_a?(Placeholder)
+        end
       end
 
       # Returns the selector string.

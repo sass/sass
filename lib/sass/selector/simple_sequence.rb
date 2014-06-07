@@ -156,6 +156,8 @@ module Sass
           next sel unless sel.is_a?(Pseudo) && sel.selector
           next sel if seen.include?([sel])
           extended = sel.selector.do_extend(extends, parent_directives, seen, !:original)
+          extended.members.reject! {|seq| seq.has_placeholder?}
+          next sel if extended.members.empty?
           result = sel.with_selector(extended)
           seen << [result]
           result
