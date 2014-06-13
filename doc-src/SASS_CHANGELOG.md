@@ -39,6 +39,63 @@ can use it in a mixin to detect whether a parent selector exists:
       }
     }
 
+### Selector Functions
+
+Complementing the ability to use `&` in SassScript, there's a new suite of
+functions that use Sass's powerful `@extend` infrastructure to allow users to
+manipulate selectors. These functions take selectors in the fully-parsed format
+returned by `&`, plain strings, or anything in between. Those that return
+selectors return them in the same format as `&`.
+
+* The {Sass::Script::Functions#selector_nest `selector-nest($selectors...)`
+  function} nests each selector within one another just like they would be
+  nested in the stylesheet if you wrote them separated by spaces. For example,
+  `selector-nest(".foo, .bar", ".baz")` returns `.foo .baz, .bar .baz` (well,
+  technically `(("foo" ".baz") (".bar" ".baz"))`).
+
+* The {Sass::Script::Functions#selector_append `selector-append($selectors...)`
+  function} concatenates each selector without a space. It handles selectors
+  with commas gracefully, so it's safer than just concatenating the selectors
+  using `#{}`. For example, `selector-append(".foo, .bar", "-suffix")` returns
+  `.foo-suffix, .bar-suffix`.
+
+* The {Sass::Script::Functions#selector_extend `selector-extend($selector,
+  $extendee, $extender)` function} works just like `@extend`. It adds new
+  selectors to `$selector` as though you'd written `$extender { @extend
+  $extendee; }`.
+
+* The {Sass::Script::Functions#selector_replace `selector-replace($selector,
+  $original, $replacement)` function} replaces all instances of `$original` in
+  `$selector` with `$replacement`. It uses the same logic as `@extend`, so you
+  can replace complex selectors with confidence.
+
+* The {Sass::Script::Functions#selector_unify `selector-unify($selector1,
+  $selector2)` function} returns a selector that matches only elements matched
+  by both `$selector1` and `$selector2`.
+
+* The {Sass::Script::Functions#is_superselector `is-superselector($super, $sub)`
+  function} returns whether or not `$super` matches a superset of the elements
+  `$sub` matches.
+
+* The {Sass::Script::Functions#simple_selectors `simple-selectors($selector)`
+  function} takes only a selector with no commas or spaces (that is, a [compound
+  selector](http://dev.w3.org/csswg/selectors4/#structure)). It returns the list
+  of simple selectors that make up that compound selector.
+
+* The {Sass::Script::Functions#selector_parse `selector-parse($selector)`
+  function} takes a selector in any format accepted by selector functions and
+  returns it in the same format returned by `&`. It's useful for getting a
+  selector into a consistent format before manually manipulating its contents.
+
+One of the most straightforward applications of selector functions and `&` is
+adding multiple suffixes to the same parent selector. For example:
+
+    .list {
+      @at-root #{selector-append(&, "--big", &, "--active")} {
+        color: red;
+      }
+    }
+
 ### Smaller Improvements
 
 * `@extend` can now extend selectors within selector pseudoclasses such as

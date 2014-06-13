@@ -223,9 +223,6 @@ module Sass::Script
   # In general, selector functions allow placeholder selectors
   # (`%foo`) but disallow parent-reference selectors (`&`).
   #
-  # \{#selector_parse selector-parse($selector)}
-  # : Parses a selector into the format returned by `&`.
-  #
   # \{#selector_nest selector-nest($selectors...)}
   # : Nests selector beneath one another like they would be nested in the
   #   stylesheet.
@@ -243,12 +240,15 @@ module Sass::Script
   # : Unifies two selectors to produce a selector that matches
   #   elements matched by both.
   #
-  # \{#simple_selectors simple-selectors($selector)}
-  # : Returns the simple selectors that comprise a compound selector.
-  #
   # \{#is_superselector is-superselector($super, $sub)}
   # : Returns whether `$super` matches all the elements `$sub` does, and
   #   possibly more.
+  #
+  # \{#simple_selectors simple-selectors($selector)}
+  # : Returns the simple selectors that comprise a compound selector.
+  #
+  # \{#selector_parse selector-parse($selector)}
+  # : Parses a selector into the format returned by `&`.
   #
   # ## Introspection Functions
   #
