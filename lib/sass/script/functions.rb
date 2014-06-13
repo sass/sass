@@ -246,6 +246,10 @@ module Sass::Script
   # \{#simple_selectors simple-selectors($selector)}
   # : Returns the simple selectors that comprise a compound selector.
   #
+  # \{#is_superselector is-superselector($super, $sub)}
+  # : Returns whether `$super` matches all the elements `$sub` does, and
+  #   possibly more.
+  #
   # ## Introspection Functions
   #
   # \{#feature_exists feature-exists($feature)}
@@ -2541,6 +2545,33 @@ module Sass::Script
       list(selector.members.map {|simple| unquoted_string(simple.to_s)}, :comma)
     end
     declare :simple_selectors, [:selector]
+
+    # Returns whether `$super` is a superselector of `$sub`. This means that
+    # `$super` matches all the elements that `$sub` matches, as well as possibly
+    # additional elements. In general, simpler selectors tend to be
+    # superselectors of more complex oned.
+    #
+    # @example
+    #   is-superselector(".foo", ".foo.bar") => true
+    #   is-superselector(".foo.bar", ".foo") => false
+    #   is-superselector(".bar", ".foo .bar") => true
+    #   is-superselector(".foo .bar", ".bar") => true
+    #
+    # @overload is_superselector($super, $sub)
+    #   @param $super [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The potential superselector. This can be either a string, a list of
+    #     strings, or a list of lists of strings as returned by `&`.
+    #   @param $sub [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The potential subselector. This can be either a string, a list of
+    #     strings, or a list of lists of strings as returned by `&`.
+    #   @return [Sass::Script::Value::Bool]
+    #     Whether `$selector1` is a superselector of `$selector2`.
+    def is_superselector(sup, sub)
+      sup = parse_selector(sup, :super)
+      sub = parse_selector(sub, :sub)
+      bool(sup.superselector?(sub))
+    end
+    declare :is_superselector, [:super, :sub]
 
     private
 

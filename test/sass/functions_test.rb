@@ -1871,6 +1871,25 @@ WARNING
       "expected class name, was \"#\" for `simple-selectors'", "simple-selectors('.#')")
   end
 
+  def test_is_superselector
+    assert_equal("true", evaluate("is-superselector('.foo', '.foo.bar')"))
+    assert_equal("false", evaluate("is-superselector('.foo.bar', '.foo')"))
+    assert_equal("true", evaluate("is-superselector('.foo', '.foo')"))
+    assert_equal("true", evaluate("is-superselector('.bar', '.foo .bar')"))
+    assert_equal("false", evaluate("is-superselector('.foo .bar', '.bar')"))
+    assert_equal("true", evaluate("is-superselector('.foo .bar', '.foo > .bar')"))
+    assert_equal("false", evaluate("is-superselector('.foo > .bar', '.foo .bar')"))
+  end
+
+  def test_is_superselector_checks_types
+    assert_error_message("$super: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `is-superselector'",
+      "is-superselector(12, '.foo')")
+    assert_error_message("$sub: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `is-superselector'",
+      "is-superselector('.foo', 12)")
+  end
+
   ## Regression Tests
 
   def test_inspect_nested_empty_lists
