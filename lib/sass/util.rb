@@ -1237,7 +1237,7 @@ MSG
         rescue LoadError => e
           dir = scope("vendor/listen/lib")
           if $LOAD_PATH.include?(dir)
-            raise e unless File.exists?(scope(".git"))
+            raise e unless File.exist?(scope(".git"))
             e.message << "\n" <<
               'Run "git submodule update --init" to get the bundled version.'
           else

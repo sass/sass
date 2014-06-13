@@ -10,6 +10,8 @@
   although these functions could be defined previously, they could never be
   successfully invoked.
 
+* Fix deprecation warnings for using `File.exists?` on recent Ruby versions.
+
 ## 3.3.8 (20 May 2014)
 
 * When a use of `@at-root` doesn't add any new rules, it will no longer split
