@@ -49,8 +49,10 @@ see [the Sass reference](http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.ht
 Sass can also be used with any Rack-enabled web framework.
 To do so, just add
 
-    require 'sass/plugin/rack'
-    use Sass::Plugin::Rack
+```ruby
+require 'sass/plugin/rack'
+use Sass::Plugin::Rack
+```
 
 to `config.ru`.
 Then any Sass files in `public/stylesheets/sass`
@@ -93,18 +95,20 @@ put them in a file called `test.scss` and run `sass test.scss`.
 Sass avoids repetition by nesting selectors within one another.
 The same thing works for properties.
 
-    table.hl {
-      margin: 2em 0;
-      td.ln { text-align: right; }
-    }
+```scss
+table.hl {
+  margin: 2em 0;
+  td.ln { text-align: right; }
+}
 
-    li {
-      font: {
-        family: serif;
-        weight: bold;
-        size: 1.2em;
-      }
-    }
+li {
+  font: {
+    family: serif;
+    weight: bold;
+    size: 1.2em;
+  }
+}
+```
 
 ### Variables
 
@@ -112,19 +116,21 @@ Use the same color all over the place?
 Need to do some math with height and width and text size?
 Sass supports variables, math operations, and many useful functions.
 
-    $blue: #3bbfce;
-    $margin: 16px;
+```scss
+$blue: #3bbfce;
+$margin: 16px;
 
-    .content_navigation {
-      border-color: $blue;
-      color: darken($blue, 10%);
-    }
+.content_navigation {
+  border-color: $blue;
+  color: darken($blue, 10%);
+}
 
-    .border {
-      padding: $margin / 2;
-      margin: $margin / 2;
-      border-color: $blue;
-    }
+.border {
+  padding: $margin / 2;
+  margin: $margin / 2;
+  border-color: $blue;
+}
+```
 
 ### Mixins
 
@@ -133,23 +139,25 @@ mixins allow you to re-use whole chunks of CSS,
 properties or selectors.
 You can even give them arguments. 
 
-    @mixin table-scaffolding {
-      th {
-        text-align: center;
-        font-weight: bold;
-      }
-      td, th { padding: 2px; }
-    }
+```scss
+@mixin table-scaffolding {
+  th {
+    text-align: center;
+    font-weight: bold;
+  }
+  td, th { padding: 2px; }
+}
 
-    @mixin left($dist) {
-      float: left;
-      margin-left: $dist;
-    }
+@mixin left($dist) {
+  float: left;
+  margin-left: $dist;
+}
 
-    #data {
-      @include left(10px);
-      @include table-scaffolding;
-    }
+#data {
+  @include left(10px);
+  @include table-scaffolding;
+}
+```
 
 A comprehensive list of features is available
 in the [Sass reference](http://sass-lang.com/documentation/file.SASS_REFERENCE.html).

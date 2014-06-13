@@ -1784,7 +1784,7 @@ or with a block containing multiple selectors:
 
 These produce, respectively:
 
-    .child { ... }
+    .parent { ... }
 
     .child1 { ... }
     .child2 { ... }
