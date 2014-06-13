@@ -874,6 +874,17 @@ end
     assert_equal "teal\\+bang(12)", resolve("teal\\+bang(12)")
   end
 
+  def test_and_or_not_disallowed_as_function_names
+    %w[and or not].each do |name|
+      assert_raise_message(Sass::SyntaxError, "Invalid function name \"#{name}\".") do
+        render(<<SASS)
+@function #{name}()
+  @return null
+SASS
+      end
+    end
+  end
+
   def test_interpolation_after_hash
     assert_equal "#2", resolve('"##{1 + 1}"')
   end

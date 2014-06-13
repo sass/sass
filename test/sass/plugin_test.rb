@@ -209,7 +209,7 @@ CSS
   end
 
   def test_doesnt_render_partials
-    assert !File.exists?(tempfile_loc('_partial'))
+    assert !File.exist?(tempfile_loc('_partial'))
   end
 
   def test_template_location_array
@@ -507,7 +507,7 @@ WARNING
   def template_loc(name = nil, prefix = nil)
     if name
       scss = absolutize "#{prefix}templates/#{name}.scss"
-      File.exists?(scss) ? scss : absolutize("#{prefix}templates/#{name}.sass")
+      File.exist?(scss) ? scss : absolutize("#{prefix}templates/#{name}.sass")
     else
       absolutize "#{prefix}templates"
     end

@@ -172,7 +172,7 @@ END
       unless File.directory?(@options[:input])
         raise "Error: '#{@options[:input]}' is not a directory"
       end
-      if @options[:output] && File.exists?(@options[:output]) &&
+      if @options[:output] && File.exist?(@options[:output]) &&
         !File.directory?(@options[:output])
         raise "Error: '#{@options[:output]}' is not a directory"
       end
@@ -201,7 +201,7 @@ END
           FileUtils.mkdir_p(File.dirname(output))
         end
         puts_action :convert, :green, f
-        if File.exists?(output)
+        if File.exist?(output)
           puts_action :overwrite, :yellow, output
         else
           puts_action :create, :green, output

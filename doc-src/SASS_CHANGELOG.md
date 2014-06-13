@@ -112,6 +112,15 @@ can use it in a mixin to detect whether a parent selector exists:
 * SassScript strings in SCSS may no longer include unescaped newlines. As doing
   so produced invalid CSS, there will be no deprecation period for this change.
 
+## 3.3.9 (Unreleased)
+
+* Defining a function named "and", "or", or "not" is now an error at
+  definition-time. This isn't considered a backwards-incompatible change because
+  although these functions could be defined previously, they could never be
+  successfully invoked.
+
+* Fix deprecation warnings for using `File.exists?` on recent Ruby versions.
+
 ## 3.3.8 (20 May 2014)
 
 * When a use of `@at-root` doesn't add any new rules, it will no longer split

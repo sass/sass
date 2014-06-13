@@ -651,18 +651,18 @@ SASS
 
   def test_sass_import
     sassc_file = sassc_path("importee")
-    assert !File.exists?(sassc_file)
+    assert !File.exist?(sassc_file)
     renders_correctly "import", { :style => :compact, :load_paths => [File.dirname(__FILE__) + "/templates"] }
-    assert File.exists?(sassc_file)
+    assert File.exist?(sassc_file)
   end
 
   def test_sass_pathname_import
     sassc_file = sassc_path("importee")
-    assert !File.exists?(sassc_file)
+    assert !File.exist?(sassc_file)
     renders_correctly("import",
       :style => :compact,
       :load_paths => [Pathname.new(File.dirname(__FILE__) + "/templates")])
-    assert File.exists?(sassc_file)
+    assert File.exist?(sassc_file)
   end
 
   def test_import_from_global_load_paths
@@ -694,12 +694,12 @@ ERR
   end
 
   def test_no_cache
-    assert !File.exists?(sassc_path("importee"))
+    assert !File.exist?(sassc_path("importee"))
     renders_correctly("import", {
         :style => :compact, :cache => false,
         :load_paths => [File.dirname(__FILE__) + "/templates"],
       })
-    assert !File.exists?(sassc_path("importee"))
+    assert !File.exist?(sassc_path("importee"))
   end
 
   def test_import_in_rule
