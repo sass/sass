@@ -18,42 +18,42 @@ class CacheTest < Test::Unit::TestCase
   def test_file_cache_writes_a_file
     file_store = Sass::CacheStores::Filesystem.new(@@cache_dir)
     file_store.store("asdf/foo.scssc", "fakesha1", root_node)
-    assert File.exists?("#{@@cache_dir}/asdf/foo.scssc")
+    assert File.exist?("#{@@cache_dir}/asdf/foo.scssc")
   end
 
   def test_file_cache_reads_a_file
     file_store = Sass::CacheStores::Filesystem.new(@@cache_dir)
-    assert !File.exists?("#{@@cache_dir}/asdf/foo.scssc")
+    assert !File.exist?("#{@@cache_dir}/asdf/foo.scssc")
     file_store.store("asdf/foo.scssc", "fakesha1", root_node)
-    assert File.exists?("#{@@cache_dir}/asdf/foo.scssc")
+    assert File.exist?("#{@@cache_dir}/asdf/foo.scssc")
     assert_kind_of Sass::Tree::RootNode, file_store.retrieve("asdf/foo.scssc", "fakesha1")
   end
 
   def test_file_cache_miss_returns_nil
     file_store = Sass::CacheStores::Filesystem.new(@@cache_dir)
-    assert !File.exists?("#{@@cache_dir}/asdf/foo.scssc")
+    assert !File.exist?("#{@@cache_dir}/asdf/foo.scssc")
     assert_nil file_store.retrieve("asdf/foo.scssc", "fakesha1")
   end
 
   def test_sha_change_invalidates_cache_and_cleans_up
     file_store = Sass::CacheStores::Filesystem.new(@@cache_dir)
-    assert !File.exists?("#{@@cache_dir}/asdf/foo.scssc")
+    assert !File.exist?("#{@@cache_dir}/asdf/foo.scssc")
     file_store.store("asdf/foo.scssc", "fakesha1", root_node)
-    assert File.exists?("#{@@cache_dir}/asdf/foo.scssc")
+    assert File.exist?("#{@@cache_dir}/asdf/foo.scssc")
     assert_nil file_store.retrieve("asdf/foo.scssc", "differentsha1")
-    assert !File.exists?("#{@@cache_dir}/asdf/foo.scssc")
+    assert !File.exist?("#{@@cache_dir}/asdf/foo.scssc")
   end
 
   def test_version_change_invalidates_cache_and_cleans_up
     file_store = Sass::CacheStores::Filesystem.new(@@cache_dir)
-    assert !File.exists?("#{@@cache_dir}/asdf/foo.scssc")
+    assert !File.exist?("#{@@cache_dir}/asdf/foo.scssc")
     file_store.store("asdf/foo.scssc", "fakesha1", root_node)
-    assert File.exists?("#{@@cache_dir}/asdf/foo.scssc")
+    assert File.exist?("#{@@cache_dir}/asdf/foo.scssc")
     real_version = Sass::VERSION
     begin
       Sass::VERSION.replace("a different version")
       assert_nil file_store.retrieve("asdf/foo.scssc", "fakesha1")
-      assert !File.exists?("#{@@cache_dir}/asdf/foo.scssc")
+      assert !File.exist?("#{@@cache_dir}/asdf/foo.scssc")
     ensure
       Sass::VERSION.replace(real_version)
     end

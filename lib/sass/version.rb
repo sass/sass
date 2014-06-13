@@ -85,20 +85,20 @@ module Sass
     private
 
     def revision_number
-      if File.exists?(Sass::Util.scope('REVISION'))
+      if File.exist?(Sass::Util.scope('REVISION'))
         rev = File.read(Sass::Util.scope('REVISION')).strip
         return rev unless rev =~ /^([a-f0-9]+|\(.*\))$/ || rev == '(unknown)'
       end
 
-      return unless File.exists?(Sass::Util.scope('.git/HEAD'))
+      return unless File.exist?(Sass::Util.scope('.git/HEAD'))
       rev = File.read(Sass::Util.scope('.git/HEAD')).strip
       return rev unless rev =~ /^ref: (.*)$/
 
       ref_name = $1
       ref_file = Sass::Util.scope(".git/#{ref_name}")
       info_file = Sass::Util.scope(".git/info/refs")
-      return File.read(ref_file).strip if File.exists?(ref_file)
-      return unless File.exists?(info_file)
+      return File.read(ref_file).strip if File.exist?(ref_file)
+      return unless File.exist?(info_file)
       File.open(info_file) do |f|
         f.each do |l|
           sha, ref = l.strip.split("\t", 2)
@@ -110,7 +110,7 @@ module Sass
     end
 
     def version_date
-      return unless File.exists?(Sass::Util.scope('VERSION_DATE'))
+      return unless File.exist?(Sass::Util.scope('VERSION_DATE'))
       DateTime.parse(File.read(Sass::Util.scope('VERSION_DATE')).strip)
     end
   end
