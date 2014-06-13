@@ -1675,6 +1675,221 @@ WARNING
     assert_equal("1 2", evaluate("deprecated-arg-fn($arg1: 1, $arg2: 2)"))
   end
 
+  ## Selector Functions
+
+  def test_selector_argument_parsing
+    assert_equal("true", evaluate("selector-parse('.foo') == (join(('.foo',), (), space),)"))
+    assert_equal("true", evaluate("selector-parse('.foo .bar') == ('.foo' '.bar',)"))
+    assert_equal("true",
+      evaluate("selector-parse('.foo .bar, .baz .bang') == ('.foo' '.bar', '.baz' '.bang')"))
+
+    assert_equal(".foo %bar", evaluate("selector-parse('.foo %bar')"))
+
+    assert_equal("true",
+      evaluate("selector-parse(('.foo', '.bar')) == selector-parse('.foo, .bar')"))
+    assert_equal("true",
+      evaluate("selector-parse('.foo' '.bar') == selector-parse('.foo .bar')"))
+
+    assert_equal("true", evaluate("selector-parse(('.foo' '.bar', '.baz' '.bang')) == " +
+        "selector-parse('.foo .bar, .baz .bang')"))
+    assert_equal("true", evaluate("selector-parse(('.foo .bar', '.baz .bang')) == " +
+        "selector-parse('.foo .bar, .baz .bang')"))
+
+    # This may throw an error in the future.
+    assert_equal("true", evaluate("selector-parse(('.foo, .bar' '.baz, .bang')) == " +
+        "selector-parse('.foo, .bar .baz, .bang')"))
+  end
+
+  def test_selector_argument_validation
+    assert_error_message("$selector: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-parse'", "selector-parse(12)")
+    assert_error_message("$selector: (((\".foo\" \".bar\"), \".baz\") (\".bang\", \".qux\")) is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-parse'",
+      "selector-parse(('.foo' '.bar', '.baz') ('.bang', '.qux'))")
+    assert_error_message("$selector: \".#\" is not a valid selector: Invalid CSS after \".\": " +
+      "expected class name, was \"#\" for `selector-parse'", "selector-parse('.#')")
+    assert_error_message("$selector: \"&.foo\" is not a valid selector: Invalid CSS after \"\": " +
+      "expected selector, was \"&.foo\" for `selector-parse'", "selector-parse('&.foo')")
+  end
+
+  def test_selector_nest
+    assert_equal(".foo", evaluate("selector-nest('.foo')"))
+    assert_equal(".foo .bar", evaluate("selector-nest('.foo', '.bar')"))
+    assert_equal(".foo .bar .baz", evaluate("selector-nest('.foo', '.bar', '.baz')"))
+    assert_equal(".a .foo .b .bar", evaluate("selector-nest('.a .foo', '.b .bar')"))
+    assert_equal(".foo.bar", evaluate("selector-nest('.foo', '&.bar')"))
+    assert_equal(".baz .foo.bar", evaluate("selector-nest('.foo', '&.bar', '.baz &')"))
+  end
+
+  def test_selector_nest_checks_types
+    assert_error_message("$selectors: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-nest'",
+      "selector-nest(12)")
+    assert_error_message("$selectors: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-nest'",
+      "selector-nest('.foo', 12)")
+  end
+
+  def test_selector_nest_argument_validation
+    assert_error_message("$selectors: At least one selector must be passed for `selector-nest'",
+      "selector-nest()")
+  end
+
+  def test_selector_append
+    assert_equal(".foo.bar", evaluate("selector-append('.foo', '.bar')"))
+    assert_equal(".a .foo.b .bar", evaluate("selector-append('.a .foo', '.b .bar')"))
+    assert_equal(".foo-suffix", evaluate("selector-append('.foo', '-suffix')"))
+    assert_equal(".foo.bar, .foo-suffix", evaluate("selector-append('.foo', '.bar, -suffix')"))
+  end
+
+  def test_selector_append_checks_types
+    assert_error_message("$selectors: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-append'",
+      "selector-append(12)")
+    assert_error_message("$selectors: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-append'",
+      "selector-append('.foo', 12)")
+  end
+
+  def test_selector_append_errors
+    assert_error_message("$selectors: At least one selector must be passed for `selector-append'",
+      "selector-append()")
+    assert_error_message("Can't append \"> .bar\" to \".foo\" for `selector-append'",
+      "selector-append('.foo', '> .bar')")
+    assert_error_message("Can't append \"*.bar\" to \".foo\" for `selector-append'",
+      "selector-append('.foo', '*.bar')")
+    assert_error_message("Can't append \"ns|suffix\" to \".foo\" for `selector-append'",
+      "selector-append('.foo', 'ns|suffix')")
+  end
+
+  def test_selector_extend
+    assert_equal(".foo .x, .foo .a .bar, .a .foo .bar",
+      evaluate("selector-extend('.foo .x', '.x', '.a .bar')"))
+    assert_equal(".foo .x, .foo .bang, .x.bar, .bar.bang",
+      evaluate("selector-extend('.foo .x, .x.bar', '.x', '.bang')"))
+    assert_equal(".y .x, .foo .x, .y .foo, .foo .foo",
+      evaluate("selector-extend('.y .x', '.x, .y', '.foo')"))
+    assert_equal(".foo .x, .foo .bar, .foo .bang",
+      evaluate("selector-extend('.foo .x', '.x', '.bar, .bang')"))
+    assert_equal(".foo.x, .foo",
+      evaluate("selector-extend('.foo.x', '.x', '.foo')"))
+  end
+
+  def test_selector_extend_checks_types
+    assert_error_message("$selector: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-extend'",
+      "selector-extend(12, '.foo', '.bar')")
+    assert_error_message("$extendee: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-extend'",
+      "selector-extend('.foo', 12, '.bar')")
+    assert_error_message("$extender: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-extend'",
+      "selector-extend('.foo', '.bar', 12)")
+  end
+
+  def test_selector_extend_errors
+    assert_error_message("Can't extend .bar .baz: can't extend nested selectors for " +
+      "`selector-extend'", "selector-extend('.foo', '.bar .baz', '.bang')")
+    assert_error_message("Can't extend >: invalid selector for `selector-extend'",
+      "selector-extend('.foo', '>', '.bang')")
+    assert_error_message(".bang > can't extend: invalid selector for `selector-extend'",
+      "selector-extend('.foo', '.bar', '.bang >')")
+  end
+
+  def test_selector_replace
+    assert_equal(".bar", evaluate("selector-replace('.foo', '.foo', '.bar')"))
+    assert_equal(".foo.baz", evaluate("selector-replace('.foo.bar', '.bar', '.baz')"))
+    assert_equal(".a .foo.baz", evaluate("selector-replace('.foo.bar', '.bar', '.a .baz')"))
+    assert_equal(".foo.bar", evaluate("selector-replace('.foo.bar', '.baz.bar', '.qux')"))
+    assert_equal(".bar.qux", evaluate("selector-replace('.foo.bar.baz', '.foo.baz', '.qux')"))
+
+    assert_equal(":not(.bar)", evaluate("selector-replace(':not(.foo)', '.foo', '.bar')"))
+    assert_equal(".bar", evaluate("selector-replace(':not(.foo)', ':not(.foo)', '.bar')"))
+  end
+
+  def test_selector_replace_checks_types
+    assert_error_message("$selector: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-replace'",
+      "selector-replace(12, '.foo', '.bar')")
+    assert_error_message("$original: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-replace'",
+      "selector-replace('.foo', 12, '.bar')")
+    assert_error_message("$replacement: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-replace'",
+      "selector-replace('.foo', '.bar', 12)")
+  end
+
+  def test_selector_replace_errors
+    assert_error_message("Can't extend .bar .baz: can't extend nested selectors for " +
+      "`selector-replace'", "selector-replace('.foo', '.bar .baz', '.bang')")
+    assert_error_message("Can't extend >: invalid selector for `selector-replace'",
+      "selector-replace('.foo', '>', '.bang')")
+    assert_error_message(".bang > can't extend: invalid selector for `selector-replace'",
+      "selector-replace('.foo', '.bar', '.bang >')")
+  end
+
+  def test_selector_unify
+    assert_equal(".foo", evaluate("selector-unify('.foo', '.foo')"))
+    assert_equal(".foo.bar", evaluate("selector-unify('.foo', '.bar')"))
+    assert_equal(".foo.bar.baz", evaluate("selector-unify('.foo.bar', '.bar.baz')"))
+    assert_equal(".a .b .foo.bar, .b .a .foo.bar", evaluate("selector-unify('.a .foo', '.b .bar')"))
+    assert_equal(".a .foo.bar", evaluate("selector-unify('.a .foo', '.a .bar')"))
+    assert_equal("", evaluate("selector-unify('p', 'a')"))
+    assert_equal("", evaluate("selector-unify('.foo >', '.bar')"))
+    assert_equal("", evaluate("selector-unify('.foo', '.bar >')"))
+    assert_equal(".foo.baz, .foo.bang, .bar.baz, .bar.bang",
+      evaluate("selector-unify('.foo, .bar', '.baz, .bang')"))
+  end
+
+  def test_selector_unify_checks_types
+    assert_error_message("$selector1: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-unify'",
+      "selector-unify(12, '.foo')")
+    assert_error_message("$selector2: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-unify'",
+      "selector-unify('.foo', 12)")
+  end
+
+  def test_simple_selectors
+    assert_equal('(.foo,)', evaluate("inspect(simple-selectors('.foo'))"))
+    assert_equal('.foo, .bar', evaluate("inspect(simple-selectors('.foo.bar'))"))
+    assert_equal('.foo, .bar, :pseudo("flip, flap")',
+      evaluate("inspect(simple-selectors('.foo.bar:pseudo(\"flip, flap\")'))"))
+  end
+
+  def test_simple_selectors_checks_types
+    assert_error_message("$selector: 12 is not a string for `simple-selectors'",
+      "simple-selectors(12)")
+  end
+
+  def test_simple_selectors_errors
+    assert_error_message("$selector: \".foo .bar\" is not a compound selector for `simple-selectors'",
+      "simple-selectors('.foo .bar')")
+    assert_error_message("$selector: \".foo,.bar\" is not a compound selector for `simple-selectors'",
+      "simple-selectors('.foo,.bar')")
+    assert_error_message("$selector: \".#\" is not a valid selector: Invalid CSS after \".\": " +
+      "expected class name, was \"#\" for `simple-selectors'", "simple-selectors('.#')")
+  end
+
+  def test_is_superselector
+    assert_equal("true", evaluate("is-superselector('.foo', '.foo.bar')"))
+    assert_equal("false", evaluate("is-superselector('.foo.bar', '.foo')"))
+    assert_equal("true", evaluate("is-superselector('.foo', '.foo')"))
+    assert_equal("true", evaluate("is-superselector('.bar', '.foo .bar')"))
+    assert_equal("false", evaluate("is-superselector('.foo .bar', '.bar')"))
+    assert_equal("true", evaluate("is-superselector('.foo .bar', '.foo > .bar')"))
+    assert_equal("false", evaluate("is-superselector('.foo > .bar', '.foo .bar')"))
+  end
+
+  def test_is_superselector_checks_types
+    assert_error_message("$super: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `is-superselector'",
+      "is-superselector(12, '.foo')")
+    assert_error_message("$sub: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `is-superselector'",
+      "is-superselector('.foo', 12)")
+  end
+
   ## Regression Tests
 
   def test_inspect_nested_empty_lists

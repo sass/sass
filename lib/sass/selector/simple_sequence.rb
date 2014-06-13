@@ -149,14 +149,17 @@ module Sass
       # @return [Array<Sequence>] A list of selectors generated
       #   by extending this selector with `extends`.
       # @see CommaSequence#do_extend
-      def do_extend(extends, parent_directives, seen)
+      def do_extend(extends, parent_directives, replace, seen)
         seen_with_pseudo_selectors = seen.dup
+
+        modified_original = false
         members = Sass::Util.enum_with_index(self.members).map do |sel, i|
           next sel unless sel.is_a?(Pseudo) && sel.selector
           next sel if seen.include?([sel])
-          extended = sel.selector.do_extend(extends, parent_directives, seen, !:original)
+          extended = sel.selector.do_extend(extends, parent_directives, replace, seen, !:original)
+          next sel if extended == sel.selector
           extended.members.reject! {|seq| seq.has_placeholder?}
-          next sel if extended.members.empty?
+          modified_original = true
           result = sel.with_selector(extended)
           seen_with_pseudo_selectors << [result]
           result
@@ -170,7 +173,7 @@ module Sass
 
           self_without_sel = Sass::Util.array_minus(members, sels)
           group.each {|e| e.result = :failed_to_unify unless e.result == :succeeded}
-          unified = seq.members.last.unify(self_without_sel, subject?)
+          unified = seq.members.last.unify(SimpleSequence.new(self_without_sel, subject?))
           next unless unified
           group.each {|e| e.result = :succeeded}
           group.each {|e| check_directives_match!(e, parent_directives)}
@@ -181,27 +184,29 @@ module Sass
         groups.compact!
         groups.map! do |sels, seq|
           next [] if seen.include?(sels)
-          seq.do_extend(extends, parent_directives, seen_with_pseudo_selectors + [sels], !:original)
+          seq.do_extend(
+            extends, parent_directives, !:replace, seen_with_pseudo_selectors + [sels], !:original)
         end
         groups.flatten!
 
-        # First Law of Extend: the result of extending a selector should
-        # (almost) always contain the base selector.
-        #
-        # See https://github.com/nex3/sass/issues/324.
-        original = Sequence.new([SimpleSequence.new(members, @subject, source_range)])
-        original.add_sources! sources
-        groups.unshift original
+        if modified_original || !replace || groups.empty?
+          # First Law of Extend: the result of extending a selector should
+          # (almost) always contain the base selector.
+          #
+          # See https://github.com/nex3/sass/issues/324.
+          original = Sequence.new([SimpleSequence.new(members, @subject, source_range)])
+          original.add_sources! sources
+          groups.unshift original
+        end
         groups.uniq!
         groups
       end
 
-      # Unifies this selector with another {SimpleSequence}'s
-      # {SimpleSequence#members members array}, returning another `SimpleSequence`
-      # that matches both this selector and the input selector.
+      # Unifies this selector with another {SimpleSequence}, returning
+      # another `SimpleSequence` that is a subselector of both input
+      # selectors.
       #
-      # @param sels [Array<Simple>] A {SimpleSequence}'s {SimpleSequence#members members array}
-      # @param other_subject [Boolean] Whether the other {SimpleSequence} being merged is a subject.
+      # @param other [SimpleSequence]
       # @return [SimpleSequence, nil] A {SimpleSequence} matching both `sels` and this selector,
       #   or `nil` if this is impossible (e.g. unifying `#foo` and `#bar`)
       # @raise [Sass::SyntaxError] If this selector cannot be unified.
@@ -210,13 +215,13 @@ module Sass
       #   Since these selectors should be resolved
       #   by the time extension and unification happen,
       #   this exception will only ever be raised as a result of programmer error
-      def unify(sels, other_subject)
-        sseq = members.inject(sels) do |member, sel|
+      def unify(other)
+        sseq = members.inject(other.members) do |member, sel|
           return unless member
           sel.unify(member)
         end
         return unless sseq
-        SimpleSequence.new(sseq, other_subject || subject?)
+        SimpleSequence.new(sseq, other.subject? || subject?)
       end
 
       # Returns whether or not this selector matches all elements

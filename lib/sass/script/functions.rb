@@ -208,6 +208,48 @@ module Sass::Script
   # \{#keywords keywords($args)}
   # : Returns the keywords passed to a function that takes variable arguments.
   #
+  # ## Selector Functions
+  #
+  # Selector functions are very liberal in the formats they support
+  # for selector arguments. They can take a plain string, a list of
+  # lists as returned by `&` or anything in between:
+  #
+  # * A plain sring, such as `".foo .bar, .baz .bang"`.
+  # * A space-separated list of strings such as `(".foo" ".bar")`.
+  # * A comma-separated list of strings such as `(".foo .bar", ".baz .bang")`.
+  # * A comma-separated list of space-separated lists of strings such
+  #   as `((".foo" ".bar"), (".baz" ".bang"))`.
+  #
+  # In general, selector functions allow placeholder selectors
+  # (`%foo`) but disallow parent-reference selectors (`&`).
+  #
+  # \{#selector_nest selector-nest($selectors...)}
+  # : Nests selector beneath one another like they would be nested in the
+  #   stylesheet.
+  #
+  # \{#selector_append selector-append($selectors...)}
+  # : Appends selectors to one another without spaces in between.
+  #
+  # \{#selector_extend selector-extend($selector, $extendee, $extender)}
+  # : Extends `$extendee` with `$extender` within `$selector`.
+  #
+  # \{#selector_replace selector-replace($selector, $original, $replacement)}
+  # : Replaces `$original` with `$replacement` within `$selector`.
+  #
+  # \{#selector_unify selector-unify($selector1, $selector2)}
+  # : Unifies two selectors to produce a selector that matches
+  #   elements matched by both.
+  #
+  # \{#is_superselector is-superselector($super, $sub)}
+  # : Returns whether `$super` matches all the elements `$sub` does, and
+  #   possibly more.
+  #
+  # \{#simple_selectors simple-selectors($selector)}
+  # : Returns the simple selectors that comprise a compound selector.
+  #
+  # \{#selector_parse selector-parse($selector)}
+  # : Parses a selector into the format returned by `&`.
+  #
   # ## Introspection Functions
   #
   # \{#feature_exists feature-exists($feature)}
@@ -2255,6 +2297,281 @@ module Sass::Script
     end
     declare :random, []
     declare :random, [:limit]
+
+    # Parses a user-provided selector into a list of lists of strings
+    # as returned by `&`.
+    #
+    # @example
+    #   selector-parse(".foo .bar, .baz .bang") => ('.foo' '.bar', '.baz' '.bang')
+    #
+    # @overload selector_parse($selector)
+    #   @param $selector [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The selector to parse. This can be either a string, a list of
+    #     strings, or a list of lists of strings as returned by `&`.
+    #   @return [Sass::Script::Value::List]
+    #     A list of lists of strings representing `$selector`. This is
+    #     in the same format as a selector returned by `&`.
+    def selector_parse(selector)
+      parse_selector(selector, :selector).to_sass_script
+    end
+    declare :selector_parse, [:selector]
+
+    # Return a new selector with all selectors in `$selectors` nested beneath
+    # one another as though they had been nested in the stylesheet as
+    # `$selector1 { $selector2 { ... } }`.
+    #
+    # Unlike most selector functions, `selector-nest` allows the
+    # parent selector `&` to be used in any selector but the first.
+    #
+    # @example
+    #   selector-nest(".foo", ".bar", ".baz") => .foo .bar .baz
+    #   selector-nest(".a .foo", ".b .bar") => .a .foo .b .bar
+    #   selector-nest(".foo", "&.bar") => .foo.bar
+    #
+    # @overload selector_nest($selectors...)
+    #   @param $selectors [[Sass::Script::Value::String, Sass::Script::Value::List]]
+    #     The selectors to nest. At least one selector must be passed. Each of
+    #     these can be either a string, a list of strings, or a list of lists of
+    #     strings as returned by `&`.
+    #   @return [Sass::Script::Value::List]
+    #     A list of lists of strings representing the result of nesting
+    #     `$selectors`. This is in the same format as a selector returned by
+    #     `&`.
+    def selector_nest(*selectors)
+      if selectors.empty?
+        raise ArgumentError.new("$selectors: At least one selector must be passed")
+      end
+
+      parsed = [parse_selector(selectors.first, :selectors)]
+      parsed += selectors[1..-1].map {|sel| parse_selector(sel, :selectors, !!:parse_parent_ref)}
+      parsed.inject {|result, child| child.resolve_parent_refs(result)}.to_sass_script
+    end
+    declare :selector_nest, [], :var_args => true
+
+    # Return a new selector with all selectors in `$selectors` appended one
+    # another as though they had been nested in the stylesheet as `$selector1 {
+    # &$selector2 { ... } }`.
+    #
+    # @example
+    #   selector-append(".foo", ".bar", ".baz") => .foo.bar.baz
+    #   selector-append(".a .foo", ".b .bar") => "a .foo.b .bar"
+    #   selector-append(".foo", "-suffix") => ".foo-suffix"
+    #
+    # @overload selector_append($selectors...)
+    #   @param $selectors [[Sass::Script::Value::String, Sass::Script::Value::List]]
+    #     The selectors to append. At least one selector must be passed. Each of
+    #     these can be either a string, a list of strings, or a list of lists of
+    #     strings as returned by `&`.
+    #   @return [Sass::Script::Value::List]
+    #     A list of lists of strings representing the result of appending
+    #     `$selectors`. This is in the same format as a selector returned by
+    #     `&`.
+    #   @raise [ArgumentError] if a selector could not be appended.
+    def selector_append(*selectors)
+      if selectors.empty?
+        raise ArgumentError.new("$selectors: At least one selector must be passed")
+      end
+
+      selectors.map {|sel| parse_selector(sel, :selectors)}.inject do |parent, child|
+        child.members.each do |seq|
+          sseq = seq.members.first
+          unless sseq.is_a?(Sass::Selector::SimpleSequence)
+            raise ArgumentError.new("Can't append \"#{seq}\" to \"#{parent}\"")
+          end
+
+          base = sseq.base
+          case base
+          when Sass::Selector::Universal
+            raise ArgumentError.new("Can't append \"#{seq}\" to \"#{parent}\"")
+          when Sass::Selector::Element
+            unless base.namespace.nil?
+              raise ArgumentError.new("Can't append \"#{seq}\" to \"#{parent}\"")
+            end
+            sseq.members[0] = Sass::Selector::Parent.new(base.name)
+          else
+            sseq.members.unshift Sass::Selector::Parent.new
+          end
+        end
+        child.resolve_parent_refs(parent)
+      end.to_sass_script
+    end
+    declare :selector_append, [], :var_args => true
+
+    # Returns a new version of `$selector` with `$extendee` extended
+    # with `$extender`. This works just like the result of
+    #
+    #     $selector { ... }
+    #     $extender { @extend $extendee }
+    #
+    # @example
+    #   selector-extend(".a .b", ".b", ".foo .bar") => .a .b, .a .foo .bar, .foo .a .bar
+    #
+    # @overload selector_extend($selector, $extendee, $extender)
+    #   @param $selector [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The selector within which `$extendee` is extended with
+    #     `$extender`. This can be either a string, a list of strings,
+    #     or a list of lists of strings as returned by `&`.
+    #   @param $extendee [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The selector being extended. This can be either a string, a
+    #     list of strings, or a list of lists of strings as returned
+    #     by `&`.
+    #   @param $extender [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The selector being injected into `$selector`. This can be
+    #     either a string, a list of strings, or a list of lists of
+    #     strings as returned by `&`.
+    #   @return [Sass::Script::Value::List]
+    #     A list of lists of strings representing the result of the
+    #     extension. This is in the same format as a selector returned
+    #     by `&`.
+    #   @raise [ArgumentError] if the extension fails
+    def selector_extend(selector, extendee, extender)
+      selector = parse_selector(selector, :selector)
+      extendee = parse_selector(extendee, :extendee)
+      extender = parse_selector(extender, :extender)
+
+      extends = Sass::Util::SubsetMap.new
+      begin
+        extender.populate_extends(extends, extendee)
+        selector.do_extend(extends).to_sass_script
+      rescue Sass::SyntaxError => e
+        raise ArgumentError.new(e.to_s)
+      end
+    end
+    declare :selector_extend, [:selector, :extendee, :extender]
+
+    # Replaces all instances of `$original` with `$replacement` in `$selector`
+    #
+    # This works by using `@extend` and throwing away the original
+    # selector. This means that it can be used to do very advanced
+    # replacements; see the examples below.
+    #
+    # @example
+    #   selector-replace(".foo .bar", ".bar", ".baz") => ".foo .baz"
+    #   selector-replace(".foo.bar.baz", ".foo.baz", ".qux") => ".foo.qux"
+    #
+    # @overload selector_replace($selector, $original, $replacement)
+    #   @param $selector [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The selector within which `$original` is replaced with
+    #     `$replacement`. This can be either a string, a list of
+    #     strings, or a list of lists of strings as returned by `&`.
+    #   @param $original [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The selector being replaced. This can be either a string, a
+    #     list of strings, or a list of lists of strings as returned
+    #     by `&`.
+    #   @param $replacement [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The selector that `$original` is being replaced with. This
+    #     can be either a string, a list of strings, or a list of
+    #     lists of strings as returned by `&`.
+    #   @return [Sass::Script::Value::List]
+    #     A list of lists of strings representing the result of the
+    #     extension. This is in the same format as a selector returned
+    #     by `&`.
+    #   @raise [ArgumentError] if the replacement fails
+    def selector_replace(selector, original, replacement)
+      selector = parse_selector(selector, :selector)
+      original = parse_selector(original, :original)
+      replacement = parse_selector(replacement, :replacement)
+
+      extends = Sass::Util::SubsetMap.new
+      begin
+        replacement.populate_extends(extends, original)
+        selector.do_extend(extends, [], !!:replace).to_sass_script
+      rescue Sass::SyntaxError => e
+        raise ArgumentError.new(e.to_s)
+      end
+    end
+    declare :selector_replace, [:selector, :original, :replacement]
+
+    # Unifies two selectors into a single selector that matches only
+    # elements matched by both input selectors. Returns `null` if
+    # there is no such selector.
+    #
+    # Like the selector unification done for `@extend`, this doesn't
+    # guarantee that the output selector will match *all* elements
+    # matched by both input selectors. For example, if `.a .b` is
+    # unified with `.x .y`, `.a .x .b.y, .x .a .b.y` will be returned,
+    # but `.a.x .b.y` will not. This avoids exponential output size
+    # while matching all elements that are likely to exist in
+    # practice.
+    #
+    # @example
+    #   selector-unify(".a", ".b") => .a.b
+    #   selector-unify(".a .b", ".x .y") => .a .x .b.y, .x .a .b.y
+    #   selector-unify(".a.b", ".b.c") => .a.b.c
+    #   selector-unify("#a", "#b") => null
+    #
+    # @overload selector_unify($selector1, $selector2)
+    #   @param $selector1 [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The first selector to be unified. This can be either a
+    #     string, a list of strings, or a list of lists of strings as
+    #     returned by `&`.
+    #   @param $selector2 [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The second selector to be unified. This can be either a
+    #     string, a list of strings, or a list of lists of strings as
+    #     returned by `&`.
+    #   @return [Sass::Script::Value::List, Sass::Script::Value::Null]
+    #     A list of lists of strings representing the result of the
+    #     unification, or null if no unification exists. This is in
+    #     the same format as a selector returned by `&`.
+    def selector_unify(selector1, selector2)
+      selector1 = parse_selector(selector1, :selector1)
+      selector2 = parse_selector(selector2, :selector2)
+      return null unless (unified = selector1.unify(selector2))
+      unified.to_sass_script
+    end
+    declare :selector_unify, [:selector1, :selector2]
+
+    # Returns the [simple
+    # selectors](http://dev.w3.org/csswg/selectors4/#simple) that
+    # comprise the compound selector `$selector`.
+    #
+    # Note that `$selector` **must be** a [compound
+    # selector](http://dev.w3.org/csswg/selectors4/#compound). That
+    # means it cannot contain commas or spaces. It also means that
+    # unlike other selector functions, this takes only strings, not
+    # lists.
+    #
+    # @example
+    #   simple-selectors(".foo.bar") => ".foo", ".bar"
+    #   simple-selectors(".foo.bar.baz") => ".foo", ".bar", ".baz"
+    #
+    # @overload simple_selectors($selector)
+    #   @param $selector [Sass::Script::Value::String]
+    #     The compound selector whose simple selectors will be extracted.
+    #   @return [Sass::Script::Value::List]
+    #     A list of simple selectors in the compound selector.
+    def simple_selectors(selector)
+      selector = parse_compound_selector(selector, :selector)
+      list(selector.members.map {|simple| unquoted_string(simple.to_s)}, :comma)
+    end
+    declare :simple_selectors, [:selector]
+
+    # Returns whether `$super` is a superselector of `$sub`. This means that
+    # `$super` matches all the elements that `$sub` matches, as well as possibly
+    # additional elements. In general, simpler selectors tend to be
+    # superselectors of more complex oned.
+    #
+    # @example
+    #   is-superselector(".foo", ".foo.bar") => true
+    #   is-superselector(".foo.bar", ".foo") => false
+    #   is-superselector(".bar", ".foo .bar") => true
+    #   is-superselector(".foo .bar", ".bar") => true
+    #
+    # @overload is_superselector($super, $sub)
+    #   @param $super [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The potential superselector. This can be either a string, a list of
+    #     strings, or a list of lists of strings as returned by `&`.
+    #   @param $sub [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The potential subselector. This can be either a string, a list of
+    #     strings, or a list of lists of strings as returned by `&`.
+    #   @return [Sass::Script::Value::Bool]
+    #     Whether `$selector1` is a superselector of `$selector2`.
+    def is_superselector(sup, sub)
+      sup = parse_selector(sup, :super)
+      sub = parse_selector(sub, :sub)
+      bool(sup.superselector?(sub))
+    end
+    declare :is_superselector, [:super, :sub]
 
     private
 
