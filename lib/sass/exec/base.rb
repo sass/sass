@@ -113,7 +113,7 @@ module Sass::Exec
       output ||= @options[:output_filename] || $stdout
 
       if @options[:sourcemap] && @options[:output_filename]
-        @options[:sourcemap_filename] = Util.sourcemap_name(@options[:output_filename])
+        @options[:sourcemap_filename] = Sass::Util.sourcemap_name(@options[:output_filename])
       end
 
       @options[:input], @options[:output] = input, output
