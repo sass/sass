@@ -661,6 +661,18 @@ module Sass
       pathname(path.cleanpath.to_s)
     end
 
+    # Converts `path` to a "file:" URI. This handles Windows paths correctly.
+    #
+    # @param path [String, Pathname]
+    # @return [String]
+    def file_uri_from_path(path)
+      path = path.to_s if path.is_a?(Pathname)
+      return path.start_with?('/') ? "file://" + path : path unless windows?
+      return "file:///" + path.tr("\\", "/") if path =~ /^[a-zA-Z]:[\/\\]/
+      return "file://" + path.tr("\\", "/") if path =~ /\\\\[^\\]+\\[^\\\/]+/
+      path.tr("\\", "/")
+    end
+
     # Prepare a value for a destructuring assignment (e.g. `a, b =
     # val`). This works around a performance bug when using
     # ActiveSupport, and only needs to be called when `val` is likely

@@ -6,6 +6,7 @@ module Sass::Exec
     # @param args [Array<String>] The command-line arguments
     def initialize(args, default_syntax)
       super(args)
+      @options[:sourcemap] = :auto
       @options[:for_engine] = {
         :load_paths => default_sass_path
       }
@@ -48,51 +49,17 @@ END
       return interactive if @options[:interactive]
       return watch_or_update if @options[:watch] || @options[:update]
       super
+
+      if @options[:sourcemap] != :none && @options[:output_filename]
+        @options[:sourcemap_filename] = Sass::Util.sourcemap_name(@options[:output_filename])
+      end
+
       @options[:for_engine][:filename] = @options[:filename]
       @options[:for_engine][:css_filename] = @options[:output] if @options[:output].is_a?(String)
       @options[:for_engine][:sourcemap_filename] = @options[:sourcemap_filename]
+      @options[:for_engine][:sourcemap] = @options[:sourcemap]
 
-      begin
-        input = @options[:input]
-        output = @options[:output]
-
-        @options[:for_engine][:syntax] ||= :scss if input.is_a?(File) && input.path =~ /\.scss$/
-        @options[:for_engine][:syntax] ||= @default_syntax
-        engine =
-          if input.is_a?(File) && !@options[:check_syntax]
-            Sass::Engine.for_file(input.path, @options[:for_engine])
-          else
-            # We don't need to do any special handling of @options[:check_syntax] here,
-            # because the Sass syntax checking happens alongside evaluation
-            # and evaluation doesn't actually evaluate any code anyway.
-            Sass::Engine.new(input.read, @options[:for_engine])
-          end
-
-        input.close if input.is_a?(File)
-
-        if @options[:sourcemap]
-          unless @options[:sourcemap_filename]
-            raise "Can't generate a sourcemap for an input without a path."
-          end
-
-          relative_sourcemap_path = Sass::Util.pathname(@options[:sourcemap_filename]).
-            relative_path_from(Sass::Util.pathname(@options[:output_filename]).dirname)
-          rendered, mapping = engine.render_with_sourcemap(relative_sourcemap_path.to_s)
-          write_output(rendered, output)
-          write_output(mapping.to_json(
-              :css_path => @options[:output_filename],
-              :sourcemap_path => @options[:sourcemap_filename]) + "\n",
-            @options[:sourcemap_filename])
-        else
-          write_output(engine.render, output)
-        end
-      rescue Sass::SyntaxError => e
-        write_output(Sass::SyntaxError.exception_to_css(e), output) if output.is_a?(String)
-        raise e if @options[:trace]
-        raise e.sass_backtrace_str("standard input")
-      ensure
-        output.close if output.is_a? File
-      end
+      run
     end
 
     private
@@ -100,10 +67,6 @@ END
     def common_options(opts)
       opts.separator ''
       opts.separator 'Common Options:'
-
-      opts.on('--sourcemap', 'Create sourcemap files next to the generated CSS files.') do
-        @options[:sourcemap] = true
-      end
 
       opts.on('-I', '--load-path PATH', 'Specify a Sass import path.') do |path|
         @options[:for_engine][:load_paths] << path
@@ -182,6 +145,22 @@ END
                 'Use the indented Sass syntax.') do
           @options[:for_engine][:syntax] = :sass
         end
+      end
+
+      # This is optional for backwards-compatibility with Sass 3.3, which didn't
+      # enable sourcemaps by default and instead used "--sourcemap" to do so.
+      opts.on(:OPTIONAL, '--sourcemap=TYPE',
+          'How link generated output to the source files.',
+          '  auto (default): relative paths where possible, file URIs elsewhere',
+          '  file: always absolute file URIs',
+          '  none: no sourcemaps') do |type|
+        if type && !%w[auto file none].include?(type)
+          $stderr.puts "Unknown sourcemap type #{type}.\n\n"
+          $stderr.puts opts
+          exit
+        end
+
+        @options[:sourcemap] = (type || :auto).to_sym
       end
 
       opts.on('-s', '--stdin', :NONE,
@@ -364,6 +343,45 @@ MSG
     end
     # @comment
     #   rubocop:enable MethodLength
+
+    def run
+      input = @options[:input]
+      output = @options[:output]
+
+      @options[:for_engine][:syntax] ||= :scss if input.is_a?(File) && input.path =~ /\.scss$/
+      @options[:for_engine][:syntax] ||= @default_syntax
+      engine =
+        if input.is_a?(File) && !@options[:check_syntax]
+          Sass::Engine.for_file(input.path, @options[:for_engine])
+        else
+          # We don't need to do any special handling of @options[:check_syntax] here,
+          # because the Sass syntax checking happens alongside evaluation
+          # and evaluation doesn't actually evaluate any code anyway.
+          Sass::Engine.new(input.read, @options[:for_engine])
+        end
+
+      input.close if input.is_a?(File)
+
+      if @options[:sourcemap] != :none && @options[:sourcemap_filename]
+        relative_sourcemap_path = Sass::Util.pathname(@options[:sourcemap_filename]).
+          relative_path_from(Sass::Util.pathname(@options[:output_filename]).dirname)
+        rendered, mapping = engine.render_with_sourcemap(relative_sourcemap_path.to_s)
+        write_output(rendered, output)
+        write_output(mapping.to_json(
+            :type => @options[:sourcemap],
+            :css_path => @options[:output_filename],
+            :sourcemap_path => @options[:sourcemap_filename]) + "\n",
+          @options[:sourcemap_filename])
+      else
+        write_output(engine.render, output)
+      end
+    rescue Sass::SyntaxError => e
+      write_output(Sass::SyntaxError.exception_to_css(e), output) if output.is_a?(String)
+      raise e if @options[:trace]
+      raise e.sass_backtrace_str("standard input")
+    ensure
+      output.close if output.is_a? File
+    end
 
     def colon_path?(path)
       !split_colon_path(path)[1].nil?

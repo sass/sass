@@ -294,14 +294,15 @@ Available options are:
   Defaults to {Sass::Importers::Filesystem}.
 
 {#sourcemap-option} `:sourcemap`
-: When set to true, causes Sass to generate standard JSON [source maps][]
-  alongside its compiled CSS files. These source maps tell the browser how to
-  find the Sass styles that caused each CSS style to be generated. Sass assumes
-  that the source stylesheets will be made available on whatever server you're
-  using, and that their relative location will be the same as it is on the local
-  filesystem. If this isn't the case, you'll need to make a custom class that
-  extends \{Sass::Importers::Base} or \{Sass::Importers::Filesystem} and
-  overrides \{Sass::Importers::Base#public\_url `#public_url`}.
+: Controls how sourcemaps are generated. These sourcemaps tell the browser how
+  to find the Sass styles that caused each CSS style to be generated. This has
+  three valid values: **`:auto`** uses relative URIs where possible, assuming
+  that that the source stylesheets will be made available on whatever server
+  you're using, and that their relative location will be the same as it is on
+  the local filesystem. If a relative URI is unavailable, a "file:" URI is used
+  instead. **`:file`** always uses "file:" URIs, which will work locally but
+  can't be deployed to a remote server. Finally, **`:none`** causes no
+  sourcemaps to be generated at all.
 
 {#line_numbers-option} `:line_numbers`
 : When set to true, causes the line number and file

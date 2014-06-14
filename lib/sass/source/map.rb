@@ -68,12 +68,6 @@ module Sass::Source
     # it will be inferred from `:css_path` and `:sourcemap_path` using the
     # assumption that the local file system has the same layout as the server.
     #
-    # If any source stylesheets use the default filesystem importer, sourcemap
-    # generation will fail unless the `:sourcemap_path` option is specified.
-    # The layout of the local file system is assumed to be the same as the
-    # layout of the server for the purposes of linking to source stylesheets
-    # that use the filesystem importer.
-    #
     # Regardless of which options are passed to this method, source stylesheets
     # that are imported using a non-default importer will only be linked to in
     # the source map if their importers implement
@@ -85,6 +79,8 @@ module Sass::Source
     #   The local path of the CSS output file.
     # @option options :sourcemap_path [String]
     #   The (eventual) local path of the sourcemap file.
+    # @option options :type [Symbol]
+    #   `:auto` (default) or  `:file`.
     # @return [String] The JSON string.
     # @raise [ArgumentError] If neither `:css_uri` nor `:css_path` and
     #   `:sourcemap_path` are specified.
@@ -119,8 +115,10 @@ module Sass::Source
 
       @data.each do |m|
         file, importer = m.input.file, m.input.importer
-        source_uri = importer &&
-          importer.public_url(file, sourcemap_path && sourcemap_path.dirname.to_s)
+
+        sourcemap_dir = sourcemap_path && sourcemap_path.dirname.to_s
+        sourcemap_dir = nil if options[:type] == :file
+        source_uri = importer && importer.public_url(file, sourcemap_dir)
         next unless source_uri
 
         current_source_id = source_uri_to_id[source_uri]

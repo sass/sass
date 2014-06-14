@@ -64,17 +64,16 @@ module Sass
           filename.start_with?(root + File::SEPARATOR)
       end
 
-      def public_url(name, sourcemap_directory = nil)
+      def public_url(name, sourcemap_directory)
+        file_pathname = Sass::Util.cleanpath(Sass::Util.absolute_path(name, @root))
         if sourcemap_directory.nil?
-          warn_about_public_url(name)
+          Sass::Util.file_uri_from_path(file_pathname)
         else
-          file_pathname = Sass::Util.cleanpath(Sass::Util.absolute_path(name, @root))
           sourcemap_pathname = Sass::Util.cleanpath(sourcemap_directory)
           begin
             file_pathname.relative_path_from(sourcemap_pathname).to_s
           rescue ArgumentError # when a relative path cannot be constructed
-            warn_about_public_url(name)
-            nil
+            Sass::Util.file_uri_from_path(file_pathname)
           end
         end
       end
@@ -194,22 +193,6 @@ WARNING
           extension = $2
         end
         [dirname, basename, extension]
-      end
-
-      # Issues a warning about being unable to determine a public url.
-      #
-      # @param uri [String] A URI known to be valid for this importer.
-      # @return [NilClass] nil
-      def warn_about_public_url(uri)
-        @warnings_issued ||= Set.new
-        unless @warnings_issued.include?(uri)
-          Sass::Util.sass_warn <<WARNING
-WARNING: Couldn't determine public URL for "#{uri}" while generating sourcemap.
-  Without a public URL, there's nothing for the source map to link to.
-WARNING
-          @warnings_issued << uri
-        end
-        nil
       end
 
       private
