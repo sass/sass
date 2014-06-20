@@ -918,6 +918,36 @@ CSS
 SCSS
   end
 
+  def test_keyframes_rules_in_content
+    assert_equal <<CSS, render(<<SCSS)
+@keyframes identifier {
+  0% {
+    top: 0;
+    left: 0; }
+
+  30% {
+    top: 50px; }
+
+  68%, 72% {
+    left: 50px; }
+
+  100% {
+    top: 100px;
+    left: 100%; } }
+CSS
+@mixin keyframes {
+  @keyframes identifier { @content }
+}
+
+@include keyframes {
+  0% {top: 0; left: 0}
+  30% {top: 50px}
+  68%, 72% {left: 50px}
+  100% {top: 100px; left: 100%}
+}
+SCSS
+  end
+
   ## Functions
 
   def test_basic_function

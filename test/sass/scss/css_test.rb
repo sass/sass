@@ -667,6 +667,32 @@ CSS
 SCSS
   end
 
+  def test_keyframes
+    assert_equal <<CSS, render(<<SCSS)
+@keyframes identifier {
+  0% {
+    top: 0;
+    left: 0; }
+
+  30% {
+    top: 50px; }
+
+  68%, 72% {
+    left: 50px; }
+
+  100% {
+    top: 100px;
+    left: 100%; } }
+CSS
+@keyframes identifier {
+  0% {top: 0; left: 0}
+  30% {top: 50px}
+  68%, 72% {left: 50px}
+  100% {top: 100px; left: 100%}
+}
+SCSS
+  end
+
   ## Selectors
 
   # Taken from http://dev.w3.org/csswg/selectors4/#overview
