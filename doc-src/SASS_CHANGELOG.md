@@ -83,6 +83,8 @@ can use it in a mixin to detect whether a parent selector exists:
 * The command-line `--help` documentation for the `sass`, `scss`, and
   `sass-convert` executables is revised and re-organized.
 
+* The `map-remove` function now allows multiple map keys to be removed at once.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * The current working directory will no longer be placed onto the Sass load path

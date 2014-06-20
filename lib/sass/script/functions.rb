@@ -1962,10 +1962,11 @@ module Sass::Script
     end
     declare :map_merge, [:map1, :map2]
 
-    # Returns a new map with a key removed.
+    # Returns a new map with keys removed.
     #
     # @example
     #   map-remove(("foo": 1, "bar": 2), "bar") => ("foo": 1)
+    #   map-remove(("foo": 1, "bar": 2, "baz": 3), "bar", "baz") => ("foo": 1)
     #   map-remove(("foo": 1, "bar": 2), "baz") => ("foo": 1, "bar": 2)
     # @overload map_remove($map, $keys...)
     #   @param $map  [Sass::Script::Value::Map]
