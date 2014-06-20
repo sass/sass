@@ -96,7 +96,9 @@ module Sass
 
       IMPORTANT = /!#{W}important/i
 
-      NUMBER = /(?:[0-9]+|[0-9]*\.[0-9]+)(?:[eE][+-]?\d+)?(?:#{IDENT}|%)?/
+      UNITLESS_NUMBER = /(?:[0-9]+|[0-9]*\.[0-9]+)(?:[eE][+-]?\d+)?/
+      NUMBER = /#{UNITLESS_NUMBER}(?:#{IDENT}|%)?/
+      PERCENTAGE = /#{UNITLESS_NUMBER}%/
 
       URI = /url\(#{W}(?:#{STRING}|#{URL})#{W}\)/i
       FUNCTION = /#{IDENT}\(/

@@ -70,6 +70,7 @@ module Sass
       # @return [Boolean]
       def exclude_node?(node)
         return exclude?(node.name.gsub(/^@/, '')) if node.is_a?(Sass::Tree::DirectiveNode)
+        return exclude?('keyframes') if node.is_a?(Sass::Tree::KeyframeRuleNode)
         exclude?('rule') && node.is_a?(Sass::Tree::RuleNode)
       end
 

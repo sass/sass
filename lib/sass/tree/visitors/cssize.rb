@@ -211,6 +211,14 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
     rules
   end
 
+  def visit_keyframerule(node)
+    return node unless node.has_children
+
+    yield
+
+    debubble(node.children, node)
+  end
+
   # Bubbles a directive up through RuleNodes.
   def visit_directive(node)
     return node unless node.has_children
@@ -228,7 +236,8 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
       child.node.resolved_value == node.resolved_value
     end
 
-    if directive_exists
+    # We know empty @keyframes directives do nothing.
+    if directive_exists || node.name == '@keyframes'
       []
     else
       empty_node = node.dup

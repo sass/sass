@@ -41,6 +41,13 @@ module Sass
         return type, directives
       end
 
+      def parse_keyframes_selector
+        init_scanner!
+        sel = expr!(:keyframes_selector)
+        expected("keyframes selector") unless @scanner.eos?
+        sel
+      end
+
       # @see Parser#initialize
       # @param allow_parent_ref [Boolean] Whether to allow the
       #   parent-reference selector, `&`, when parsing the document.
@@ -129,9 +136,6 @@ module Sass
       end
 
       def simple_selector_sequence
-        # Returning expr by default allows for stuff like
-        # http://www.w3.org/TR/css3-animations/#keyframes-
-
         start_pos = source_position
         e = element_name || id_selector || class_selector || placeholder_selector || attrib ||
             pseudo || parent_selector
@@ -325,6 +329,23 @@ module Sass
         @expected = "number"
         tok!(/[0-9]+/)
         true
+      end
+
+      def keyframes_selector
+        ss
+        str do
+          return unless keyframes_selector_component
+          ss
+          while tok(/,/)
+            ss
+            expr!(:keyframes_selector_component)
+            ss
+          end
+        end
+      end
+
+      def keyframes_selector_component
+        tok(/from|to/i) || tok(PERCENTAGE)
       end
 
       @sass_script_parser = Class.new(Sass::Script::CssParser)

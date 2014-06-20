@@ -924,13 +924,10 @@ SCSS
   0% {
     top: 0;
     left: 0; }
-
   30% {
     top: 50px; }
-
   68%, 72% {
     left: 50px; }
-
   100% {
     top: 100px;
     left: 100%; } }
@@ -941,7 +938,7 @@ CSS
 
 @include keyframes {
   0% {top: 0; left: 0}
-  30% {top: 50px}
+  \#{"30%"} {top: 50px}
   68%, 72% {left: 50px}
   100% {top: 100px; left: 100%}
 }
@@ -2893,6 +2890,35 @@ CSS
 SCSS
   end
 
+  def test_at_root_without_keyframes_in_keyframe_rule
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: b; }
+CSS
+@keyframes identifier {
+  0% {
+    @at-root (without: keyframes) {
+      .foo {a: b}
+    }
+  }
+}
+SCSS
+  end
+
+  def test_at_root_without_rule_in_keyframe_rule
+    assert_equal <<CSS, render(<<SCSS)
+@keyframes identifier {
+  0% {
+    a: b; } }
+CSS
+@keyframes identifier {
+  0% {
+    @at-root (without: rule) {a: b}
+  }
+}
+SCSS
+  end
+
   ## Selector Script
 
   def test_selector_script
@@ -3101,6 +3127,29 @@ SCSS
   end
 
   ## Errors
+
+  def test_keyframes_rule_outside_of_keyframes
+    render <<SCSS
+0% {
+  top: 0; }
+SCSS
+    assert(false, "Expected syntax error")
+  rescue Sass::SyntaxError => e
+    assert_equal 'Invalid CSS after "": expected selector, was "0%"', e.message
+    assert_equal 1, e.sass_line
+  end
+
+  def test_selector_rule_in_keyframes
+    render <<SCSS
+@keyframes identifier {
+  .foo {
+    top: 0; } }
+SCSS
+    assert(false, "Expected syntax error")
+  rescue Sass::SyntaxError => e
+    assert_equal 'Invalid CSS after "": expected keyframes selector (e.g. 10%), was ".foo"', e.message
+    assert_equal 2, e.sass_line
+  end
 
   def test_nested_mixin_def_is_scoped
     render <<SCSS

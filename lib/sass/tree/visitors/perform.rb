@@ -377,18 +377,31 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # Runs SassScript interpolation in the selector,
   # and then parses the result into a {Sass::Selector::CommaSequence}.
   def visit_rule(node)
-    old_at_root_without_rule, @at_root_without_rule = @at_root_without_rule, false
+    old_at_root_without_rule = @at_root_without_rule
     parser = Sass::SCSS::StaticParser.new(run_interp(node.rule),
       node.filename, node.options[:importer], node.line)
-    node.parsed_rules ||= parser.parse_selector
-    node.resolved_rules = node.parsed_rules.resolve_parent_refs(
-      @environment.selector, !old_at_root_without_rule)
-    node.stack_trace = @environment.stack.to_s if node.options[:trace_selectors]
-    with_environment Sass::Environment.new(@environment, node.options) do
-      @environment.selector = node.resolved_rules
-      node.children = node.children.map {|c| visit(c)}.flatten
+    if @in_keyframes
+      keyframe_rule_node = Sass::Tree::KeyframeRuleNode.new(parser.parse_keyframes_selector)
+      keyframe_rule_node.options = node.options
+      keyframe_rule_node.line = node.line
+      keyframe_rule_node.filename = node.filename
+      keyframe_rule_node.source_range = node.source_range
+      with_environment Sass::Environment.new(@environment, node.options) do
+        keyframe_rule_node.children = node.children.map {|c| visit(c)}.flatten
+      end
+      keyframe_rule_node
+    else
+      @at_root_without_rule = false
+      node.parsed_rules ||= parser.parse_selector
+      node.resolved_rules = node.parsed_rules.resolve_parent_refs(
+        @environment.selector, !old_at_root_without_rule)
+      node.stack_trace = @environment.stack.to_s if node.options[:trace_selectors]
+      with_environment Sass::Environment.new(@environment, node.options) do
+        @environment.selector = node.resolved_rules
+        node.children = node.children.map {|c| visit(c)}.flatten
+      end
+      node
     end
-    node
   ensure
     @at_root_without_rule = old_at_root_without_rule
   end
@@ -405,9 +418,12 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     end
 
     old_at_root_without_rule = @at_root_without_rule
+    old_in_keyframes = @in_keyframes
     @at_root_without_rule = true if node.exclude?('rule')
+    @in_keyframes = false if node.exclude?('keyframes')
     yield
   ensure
+    @in_keyframes = old_in_keyframes
     @at_root_without_rule = old_at_root_without_rule
   end
 
@@ -451,10 +467,13 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
   def visit_directive(node)
     node.resolved_value = run_interp(node.value)
+    old_in_keyframes, @in_keyframes = @in_keyframes, node.name == '@keyframes'
     with_environment Sass::Environment.new(@environment) do
       node.children = node.children.map {|c| visit(c)}.flatten
       node
     end
+  ensure
+    @in_keyframes = old_in_keyframes
   end
 
   def visit_media(node)
