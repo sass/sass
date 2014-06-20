@@ -193,8 +193,8 @@ module Sass::Script
   # \{#map_merge map-merge($map1, $map2)}
   # : Merges two maps together into a new map.
   #
-  # \{#map_remove map-remove($map, $key)}
-  # : Returns a new map with a key removed.
+  # \{#map_remove map-remove($map, $keys...)}
+  # : Returns a new map with keys removed.
   #
   # \{#map_keys map-keys($map)}
   # : Returns a list of all keys in a map.
@@ -2004,23 +2004,24 @@ module Sass::Script
     end
     declare :map_merge, [:map1, :map2]
 
-    # Returns a new map with a key removed.
+    # Returns a new map with keys removed.
     #
     # @example
     #   map-remove(("foo": 1, "bar": 2), "bar") => ("foo": 1)
+    #   map-remove(("foo": 1, "bar": 2, "baz": 3), "bar", "baz") => ("foo": 1)
     #   map-remove(("foo": 1, "bar": 2), "baz") => ("foo": 1, "bar": 2)
-    # @overload map_remove($map, $key)
-    #   @param $map [Sass::Script::Value::Map]
-    #   @param $key [Sass::Script::Value::Base]
+    # @overload map_remove($map, $keys...)
+    #   @param $map  [Sass::Script::Value::Map]
+    #   @param $keys [[Sass::Script::Value::Base]]
     # @return [Sass::Script::Value::Map]
     # @raise [ArgumentError] if `$map` is not a map
-    def map_remove(map, key)
+    def map_remove(map, *keys)
       assert_type map, :Map, :map
       hash = map.to_h.dup
-      hash.delete key
+      hash.delete_if {|key, _| keys.include?(key)}
       map(hash)
     end
-    declare :map_remove, [:map, :key]
+    declare :map_remove, [:map, :key], :var_args => true
 
     # Returns a list of all keys in a map.
     #

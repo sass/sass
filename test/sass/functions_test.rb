@@ -1353,7 +1353,12 @@ SCSS
   def test_map_remove
     assert_equal("(foo: 1, baz: 3)",
       perform("map-remove((foo: 1, bar: 2, baz: 3), bar)").to_sass)
+    assert_equal("(foo: 1, baz: 3)",
+      perform("map-remove($map: (foo: 1, bar: 2, baz: 3), $key: bar)").to_sass)
+    assert_equal("()",
+      perform("map-remove((foo: 1, bar: 2, baz: 3), foo, bar, baz)").to_sass)
     assert_equal("()", perform("map-remove((), foo)").to_sass)
+    assert_equal("()", perform("map-remove((), foo, bar)").to_sass)
   end
 
   def test_map_remove_checks_type
