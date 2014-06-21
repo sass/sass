@@ -726,10 +726,12 @@ WARNING
 
     def parse_variable(line)
       name, value, flags = line.text.scan(Script::MATCH)[0]
-      raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath variable declarations.",
-        :line => @line + 1) unless line.children.empty?
+      multiline_map      = line.children.any?
+
       raise SyntaxError.new("Invalid variable: \"#{line.text}\".",
-        :line => @line) unless name && value
+        :line => @line) unless name && (multiline_map || value)
+      raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath variable declarations.",
+        :line => @line + 1) unless multiline_map ^ value
       flags = flags ? flags.split(/\s+/) : []
       if (invalid_flag = flags.find {|f| f != '!default' && f != '!global'})
         raise SyntaxError.new("Invalid flag \"#{invalid_flag}\".", :line => @line)
@@ -739,7 +741,14 @@ WARNING
       # otherwise we end up with the offset equal to the value index inside the name:
       # $red_color: red;
       var_lhs_length = 1 + name.length # 1 stands for '$'
-      index = line.text.index(value, line.offset + var_lhs_length) || 0
+      index = line.text.index(value || '', line.offset + var_lhs_length) || 0
+
+      if value.nil? || value.strip.empty? # multi-line map
+        value = "(" << line.children.map do |l|
+          l.text
+        end.join << ")"
+      end
+
       expr = parse_script(value, :offset => to_parser_offset(line.offset + index))
 
       Tree::VariableNode.new(name, expr, flags.include?('!default'), flags.include?('!global'))
