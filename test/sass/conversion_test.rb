@@ -1819,6 +1819,39 @@ SASS
 SCSS
   end
 
+  def test_keyframes
+    assert_renders(<<SASS, <<SCSS)
+@keyframes identifier
+  0%
+    top: 0
+    left: 0
+  30%
+    top: 50px
+  68%, 72%
+    left: 50px
+  100%
+    top: 100px
+    left: 100%
+SASS
+@keyframes identifier {
+  0% {
+    top: 0;
+    left: 0;
+  }
+  30% {
+    top: 50px;
+  }
+  68%, 72% {
+    left: 50px;
+  }
+  100% {
+    top: 100px;
+    left: 100%;
+  }
+}
+SCSS
+  end
+
   ## Regression Tests
 
   def test_list_in_args

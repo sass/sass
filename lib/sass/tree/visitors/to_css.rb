@@ -350,6 +350,10 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   # @comment
   #   rubocop:enable MethodLength
 
+  def visit_keyframerule(node)
+    visit_directive(node)
+  end
+
   private
 
   def debug_info_rule(debug_info, options)

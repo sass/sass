@@ -1053,6 +1053,8 @@ module Sass
         :supports_condition => "@supports condition (e.g. (display: flexbox))",
         :supports_condition_in_parens => "@supports condition (e.g. (display: flexbox))",
         :a_n_plus_b => "An+B expression",
+        :keyframes_selector_component => "from, to, or a percentage",
+        :keyframes_selector => "keyframes selector (e.g. 10%)"
       }
 
       TOK_NAMES = Sass::Util.to_hash(Sass::SCSS::RX.constants.map do |c|
