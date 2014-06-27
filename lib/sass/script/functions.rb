@@ -1576,6 +1576,19 @@ module Sass::Script
 
     # Returns whether a feature exists in the current Sass runtime.
     #
+    # The following features are supported:
+    #
+    # * `global-variable-exists` indicates that a local variable will shadow a
+    #   global variable unless `!global` is used.
+    #
+    # * `extend-selector-pseudoclass` indicates that `@extend` will reach into
+    #   selector pseudoclasses like `:not`.
+    #
+    # * `units-level-3` indicates full support for unit arithmetic using units
+    #   defined in the [Values and Units Level 3][] spec.
+    #
+    # [Values and Units Level 3]: http://www.w3.org/TR/css3-values/
+    #
     # @example
     #   feature-exists(some-feature-that-exists) => true
     #   feature-exists(what-is-this-i-dont-know) => false

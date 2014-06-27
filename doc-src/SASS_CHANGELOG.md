@@ -100,7 +100,8 @@ adding multiple suffixes to the same parent selector. For example:
 
 * `@extend` can now extend selectors within selector pseudoclasses such as
   `:not` and `:matches`. This also means that placeholder selectors can be used
-  within selector pseudoclasses.
+  within selector pseudoclasses. This behavior can be detected using
+  `feature-exists(extend-selector-pseudoclass)`.
 
 * When using colors in SassScript, the original representation of the color will
   be preserved wherever possible. If you write `#f00`, it will be rendered as
@@ -108,7 +109,8 @@ adding multiple suffixes to the same parent selector. For example:
   choose the most compact possible representation for colors.
 
 * Add support for unit arithmetic with many more units, including angles, times,
-  frequencies, and resolutions.
+  frequencies, and resolutions. This behavior can be detected using
+  `feature-exists(units-level-3)`.
 
 * Sass now follows the [CSS Syntax Level 3][encodings level 3]
   specification for determining a stylesheet's encoding. In addition,
@@ -168,7 +170,8 @@ adding multiple suffixes to the same parent selector. For example:
 * All variable assignments not at the top level of the document are now local by
   default. If there's a global variable with the same name, it won't be
   overwritten unless the `!global` flag is used. For example, `$var: value
-  !global` will assign to `$var` globally.
+  !global` will assign to `$var` globally. This behavior can be detected using
+  `feature-exists(global-variable-shadowing)`.
 
 * SassScript strings in SCSS may no longer include unescaped newlines. As doing
   so produced invalid CSS, there will be no deprecation period for this change.
