@@ -12,6 +12,8 @@
 
 * Fix deprecation warnings for using `File.exists?` on recent Ruby versions.
 
+* Fix a bug where `@extend` within `@at-root` could crash the compiler.
+
 ## 3.3.8 (20 May 2014)
 
 * When a use of `@at-root` doesn't add any new rules, it will no longer split

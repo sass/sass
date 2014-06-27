@@ -2878,6 +2878,22 @@ CSS
 SCSS
   end
 
+  # See https://github.com/sass/sass/issues/1294
+  def test_extend_top_leveled_by_at_root
+    render(<<SCSS)
+.span-10 {
+  @at-root (without: all) {
+    @extend %column;
+  }
+}
+SCSS
+
+    assert(false, "Expected syntax error")
+  rescue Sass::SyntaxError => e
+    assert_equal "Extend directives may only be used within rules.", e.message
+    assert_equal 3, e.sass_line
+  end
+
   def test_at_root_doesnt_always_break_blocks
     assert_equal <<CSS, render(<<SCSS)
 .foo {

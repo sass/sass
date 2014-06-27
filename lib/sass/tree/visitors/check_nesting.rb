@@ -23,17 +23,34 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
   SCRIPT_NODES = [Sass::Tree::ImportNode] + CONTROL_NODES
   def visit_children(parent)
     old_parent = @parent
-    unless is_any_of?(parent, SCRIPT_NODES) ||
-        (parent.bubbles? &&
-        !old_parent.is_a?(Sass::Tree::RootNode) &&
-        !old_parent.is_a?(Sass::Tree::AtRootNode))
+
+    # When checking a static tree, resolve at-roots to be sure they won't send
+    # nodes where they don't belong.
+    if parent.is_a?(Sass::Tree::AtRootNode) && parent.resolved_value
+      old_parents = @parents
+      @parents = @parents.reject {|p| parent.exclude_node?(p)}
+      @parent = Sass::Util.enum_with_index(@parents.reverse).
+        find {|p, i| !transparent_parent?(p, @parents[-i - 2])}.first
+
+      begin
+        return super
+      ensure
+        @parents = old_parents
+        @parent = old_parent
+      end
+    end
+
+    unless transparent_parent?(parent, old_parent)
       @parent = parent
     end
+
     @parents.push parent
-    super
-  ensure
-    @parent = old_parent
-    @parents.pop
+    begin
+      super
+    ensure
+      @parent = old_parent
+      @parents.pop
+    end
   end
 
   def visit_root(node)
@@ -138,6 +155,14 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
   end
 
   private
+
+  # Whether `parent` should be assigned to `@parent`.
+  def transparent_parent?(parent, grandparent)
+    is_any_of?(parent, SCRIPT_NODES) ||
+      (parent.bubbles? &&
+       !grandparent.is_a?(Sass::Tree::RootNode) &&
+       !grandparent.is_a?(Sass::Tree::AtRootNode))
+  end
 
   def is_any_of?(val, classes)
     classes.each do |c|
