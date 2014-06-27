@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-require 'test/unit'
+require 'minitest/autorun'
 require File.dirname(__FILE__) + '/../test_helper'
 require File.dirname(__FILE__) + '/test_helper'
 require 'sass/script'
@@ -51,7 +51,7 @@ module Sass::Script::Functions
   include Sass::Script::Functions::UserFunctions
 end
 
-class SassFunctionTest < Test::Unit::TestCase
+class SassFunctionTest < MiniTest::Test
   # Tests taken from:
   #   http://www.w3.org/Style/CSS/Test/CSS3/Color/20070927/html4/t040204-hsl-h-rotating-b.htm
   #   http://www.w3.org/Style/CSS/Test/CSS3/Color/20070927/html4/t040204-hsl-values-b.htm
@@ -1321,7 +1321,7 @@ SCSS
     50.times do
       last_id, current_id = current_id, evaluate("unique-id()")
       assert_match(/u[a-z0-9]{8}/, current_id)
-      assert_not_equal last_id, current_id
+      refute_equal last_id, current_id
     end
   end
 
@@ -1646,7 +1646,7 @@ SCSS
     if Sass::Script::Functions.instance_variable_defined?("@random_number_generator")
       Sass::Script::Functions.send(:remove_instance_variable, "@random_number_generator")
     end
-    assert_not_equal evaluate("random()"), evaluate("random()")
+    refute_equal evaluate("random()"), evaluate("random()")
   end
 
   def test_deprecated_arg_names

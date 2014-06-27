@@ -1,6 +1,6 @@
 lib_dir = File.dirname(__FILE__) + '/../lib'
 
-require 'test/unit'
+require 'minitest/autorun'
 require 'fileutils'
 $:.unshift lib_dir unless $:.include?(lib_dir)
 require 'sass'
@@ -22,7 +22,7 @@ module Sass::Script::Functions
   end
 end
 
-class Test::Unit::TestCase
+class MiniTest::Test
   def munge_filename(opts = {})
     opts[:filename] ||= filename_for_test(opts[:syntax] || :sass)
     opts[:sourcemap_filename] ||= sourcemap_filename_for_test

@@ -17,7 +17,7 @@ module Sass::Script::Functions
   end
 end
 
-class SassPluginTest < Test::Unit::TestCase
+class SassPluginTest < MiniTest::Test
   @@templates = %w{
     complex script parent_ref import scss_import alt
     subdir/subdir subdir/nested_subdir/nested_subdir
@@ -183,7 +183,7 @@ CSS
     Sass::Plugin.options[:full_exception] = false
 
     File.delete(tempfile_loc('bork1'))
-    assert_raise(Sass::SyntaxError) {check_for_updates!}
+    assert_raises(Sass::SyntaxError) {check_for_updates!}
   ensure
     Sass::Plugin.options[:full_exception] = old_full_exception
   end

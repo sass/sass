@@ -2,7 +2,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 require 'pathname'
 
-class LoggerTest < Test::Unit::TestCase
+class LoggerTest < MiniTest::Test
 
   class InterceptedLogger < Sass::Logger::Base
 

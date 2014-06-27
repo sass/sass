@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
-require 'test/unit'
+require 'minitest/autorun'
 require File.dirname(__FILE__) + '/../test_helper'
 require 'sass/css'
 
-class CSS2SassTest < Test::Unit::TestCase
+class CSS2SassTest < MiniTest::Test
   def test_basic
     css = <<CSS
 h1 {

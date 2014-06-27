@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/../test_helper'
 
-class ValueHelpersTest < Test::Unit::TestCase
+class ValueHelpersTest < MiniTest::Test
   include Sass::Script
   include Sass::Script::Value::Helpers
 

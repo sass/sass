@@ -3,7 +3,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 require 'sass/engine'
 
-class SassScriptConversionTest < Test::Unit::TestCase
+class SassScriptConversionTest < MiniTest::Test
   def test_bool
     assert_renders "true"
     assert_renders "false"

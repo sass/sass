@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/../test_helper'
 
-class ExtendTest < Test::Unit::TestCase
+class ExtendTest < MiniTest::Test
   def test_basic
     assert_equal <<CSS, render(<<SCSS)
 .foo, .bar {
@@ -675,7 +675,7 @@ SCSS
   end
 
   def test_nested_extender_with_trailing_child_selector
-    assert_raise(Sass::SyntaxError, "bar > can't extend: invalid selector") do
+    assert_raises(Sass::SyntaxError, "bar > can't extend: invalid selector") do
       render("bar > {@extend .baz}")
     end
   end

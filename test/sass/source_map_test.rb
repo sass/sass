@@ -3,12 +3,12 @@
 require File.dirname(__FILE__) + '/../test_helper'
 require File.dirname(__FILE__) + '/test_helper'
 
-class SourcemapTest < Test::Unit::TestCase
+class SourcemapTest < MiniTest::Test
   def test_to_json_requires_args
     _, sourcemap = render_with_sourcemap('')
-    assert_raise(ArgumentError) {sourcemap.to_json({})}
-    assert_raise(ArgumentError) {sourcemap.to_json({:css_path => 'foo'})}
-    assert_raise(ArgumentError) {sourcemap.to_json({:sourcemap_path => 'foo'})}
+    assert_raises(ArgumentError) {sourcemap.to_json({})}
+    assert_raises(ArgumentError) {sourcemap.to_json({:css_path => 'foo'})}
+    assert_raises(ArgumentError) {sourcemap.to_json({:sourcemap_path => 'foo'})}
   end
 
   def test_simple_mapping_scss

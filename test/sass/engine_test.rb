@@ -31,7 +31,7 @@ module Sass::Script::Functions
   include Sass::Script::Functions::UserFunctions
 end
 
-class SassEngineTest < Test::Unit::TestCase
+class SassEngineTest < MiniTest::Test
   FAKE_FILE_NAME = __FILE__.gsub(/rb$/,"sass")
   # A map of erroneous Sass documents to the error messages they should produce.
   # The error messages may be arrays;
@@ -1668,7 +1668,7 @@ SASS
   end
 
   def test_argument_error
-    assert_raise(Sass::SyntaxError) { render("a\n  b: hsl(1)") }
+    assert_raises(Sass::SyntaxError) { render("a\n  b: hsl(1)") }
   end
 
   def test_comments_at_the_top_of_a_document
