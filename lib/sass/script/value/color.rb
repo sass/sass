@@ -151,6 +151,7 @@ module Sass::Script::Value
         'powderblue'           => 0xB0E0E6FF,
         'purple'               => 0x800080FF,
         'red'                  => 0xFF0000FF,
+        'rebeccapurple'        => 0x663399FF,
         'rosybrown'            => 0xBC8F8FFF,
         'royalblue'            => 0x4169E1FF,
         'saddlebrown'          => 0x8B4513FF,
