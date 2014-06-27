@@ -142,6 +142,8 @@ adding multiple suffixes to the same parent selector. For example:
 
 * The `map-remove` function now allows multiple map keys to be removed at once.
 
+* The new `rebeccapurple` color is now supported.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * The current working directory will no longer be placed onto the Sass load path
