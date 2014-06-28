@@ -80,7 +80,7 @@ module Sass::Source
     # @option options :sourcemap_path [String]
     #   The (eventual) local path of the sourcemap file.
     # @option options :type [Symbol]
-    #   `:auto` (default) or  `:file`.
+    #   `:auto` (default),  `:file`, or `:inline`.
     # @return [String] The JSON string.
     # @raise [ArgumentError] If neither `:css_uri` nor `:css_path` and
     #   `:sourcemap_path` are specified.
@@ -102,6 +102,7 @@ module Sass::Source
 
       source_uri_to_id = {}
       id_to_source_uri = {}
+      id_to_contents = {} if options[:type] == :inline
       next_source_id = 0
       line_data = []
       segment_data_for_line = []
@@ -116,10 +117,14 @@ module Sass::Source
       @data.each do |m|
         file, importer = m.input.file, m.input.importer
 
-        sourcemap_dir = sourcemap_path && sourcemap_path.dirname.to_s
-        sourcemap_dir = nil if options[:type] == :file
-        source_uri = importer && importer.public_url(file, sourcemap_dir)
-        next unless source_uri
+        if options[:type] == :inline
+          source_uri = file
+        else
+          sourcemap_dir = sourcemap_path && sourcemap_path.dirname.to_s
+          sourcemap_dir = nil if options[:type] == :file
+          source_uri = importer && importer.public_url(file, sourcemap_dir)
+          next unless source_uri
+        end
 
         current_source_id = source_uri_to_id[source_uri]
         unless current_source_id
@@ -128,6 +133,11 @@ module Sass::Source
 
           source_uri_to_id[source_uri] = current_source_id
           id_to_source_uri[current_source_id] = source_uri
+
+          if options[:type] == :inline
+            id_to_contents[current_source_id] =
+              importer.find(file, {}).instance_variable_get('@template')
+          end
         end
 
         [
@@ -172,6 +182,12 @@ module Sass::Source
       source_names = []
       (0...next_source_id).each {|id| source_names.push(id_to_source_uri[id].to_s)}
       write_json_field(result, "sources", source_names)
+
+      if options[:type] == :inline
+        write_json_field(result, "sourcesContent",
+          (0...next_source_id).map {|id| id_to_contents[id]})
+      end
+
       write_json_field(result, "names", [])
       write_json_field(result, "file", css_uri)
 

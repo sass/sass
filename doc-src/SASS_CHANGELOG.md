@@ -108,6 +108,10 @@ adding multiple suffixes to the same parent selector. For example:
   `--sourcemap=file` can be passed on the command line to force all URIs to Sass
   files to be absolute.
 
+* To guarantee that a sourcemap will be portable, `--sourcemap=inline` can be
+  passed to include the full source text in the sourcemap. Note that this can
+  cause very large sourcemaps to be generated for large projects.
+
 * `@extend` can now extend selectors within selector pseudoclasses such as
   `:not` and `:matches`. This also means that placeholder selectors can be used
   within selector pseudoclasses. This behavior can be detected using

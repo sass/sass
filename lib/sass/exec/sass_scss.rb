@@ -153,8 +153,9 @@ END
           'How link generated output to the source files.',
           '  auto (default): relative paths where possible, file URIs elsewhere',
           '  file: always absolute file URIs',
+          '  inline: include the source text in the sourcemap',
           '  none: no sourcemaps') do |type|
-        if type && !%w[auto file none].include?(type)
+        if type && !%w[auto file inline none].include?(type)
           $stderr.puts "Unknown sourcemap type #{type}.\n\n"
           $stderr.puts opts
           exit

@@ -301,8 +301,10 @@ Available options are:
   you're using, and that their relative location will be the same as it is on
   the local filesystem. If a relative URI is unavailable, a "file:" URI is used
   instead. **`:file`** always uses "file:" URIs, which will work locally but
-  can't be deployed to a remote server. Finally, **`:none`** causes no
-  sourcemaps to be generated at all.
+  can't be deployed to a remote server. **`:inline`** includes the full source
+  text in the sourcemap, which is maximally portable but can create very large
+  sourcemap files. Finally, **`:none`** causes no sourcemaps to be generated at
+  all.
 
 {#line_numbers-option} `:line_numbers`
 : When set to true, causes the line number and file
