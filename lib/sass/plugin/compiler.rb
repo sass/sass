@@ -178,7 +178,7 @@ module Sass::Plugin
           # Get the relative path to the file
           name = file.sub(template_location.to_s.sub(/\/*$/, '/'), "")
           css = css_filename(name, css_location)
-          sourcemap = Sass::Util.sourcemap_name(css) if engine_options[:sourcemap]
+          sourcemap = Sass::Util.sourcemap_name(css) if engine_options[:sourcemap] != :none
           individual_files << [file, css, sourcemap]
         end
       end
@@ -386,7 +386,8 @@ module Sass::Plugin
 
       write_file(css, rendered)
       if mapping
-        write_file(sourcemap, mapping.to_json(:css_path => css, :sourcemap_path => sourcemap))
+        write_file(sourcemap, mapping.to_json(
+            :css_path => css, :sourcemap_path => sourcemap, :type => options[:sourcemap]))
       end
       run_updated_stylesheet(filename, css, sourcemap) unless compilation_error_occured
     end

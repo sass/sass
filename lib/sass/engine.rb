@@ -197,6 +197,7 @@ module Sass
       when :alternate; options[:property_syntax] = :new
       when :normal; options[:property_syntax] = :old
       end
+      options[:sourcemap] = :auto if options[:sourcemap] == true
 
       options
     end
@@ -351,7 +352,10 @@ Error generating source map: couldn't determine public URL for "#{filename}".
   Without a public URL, there's nothing for the source map to link to.
   An importer was not set for this file.
 ERR
-      elsif Sass::Util.silence_warnings {importer.public_url(filename, sourcemap_dir).nil?}
+      elsif Sass::Util.silence_warnings do
+              sourcemap_dir = nil if @options[:sourcemap] == :file
+              importer.public_url(filename, sourcemap_dir).nil?
+            end
         raise Sass::SyntaxError.new(<<ERR)
 Error generating source map: couldn't determine public URL for "#{filename}".
   Without a public URL, there's nothing for the source map to link to.

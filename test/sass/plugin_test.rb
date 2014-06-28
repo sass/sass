@@ -537,7 +537,8 @@ WARNING
       :always_update => true,
       :never_update => false,
       :full_exception => true,
-      :cache_store => @@cache_store
+      :cache_store => @@cache_store,
+      :sourcemap => :none
     )
     Sass::Plugin.options.merge!(overrides)
   end

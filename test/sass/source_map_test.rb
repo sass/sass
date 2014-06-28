@@ -60,6 +60,32 @@ CSS
 JSON
   end
 
+  def test_simple_mapping_with_file_uris
+    uri = Sass::Util.file_uri_from_path(Sass::Util.absolute_path(filename_for_test(:scss)))
+    assert_parses_with_sourcemap <<SCSS, <<CSS, <<JSON, :sourcemap => :file
+a {
+  foo: bar;
+/* SOME COMMENT */
+  font-size: 12px;
+}
+SCSS
+a {
+  foo: bar;
+  /* SOME COMMENT */
+  font-size: 12px; }
+
+/*# sourceMappingURL=test.css.map */
+CSS
+{
+"version": 3,
+"mappings": "AAAA,CAAE;EACA,GAAG,EAAE,GAAG;;EAER,SAAS,EAAE,IAAI",
+"sources": ["#{uri}"],
+"names": [],
+"file": "test.css"
+}
+JSON
+  end
+
   def test_mapping_with_directory_scss
     options = {:filename => "scss/style.scss", :output => "css/style.css"}
     assert_parses_with_sourcemap <<SCSS, <<CSS, <<JSON, options
@@ -862,7 +888,7 @@ MESSAGE
     rendered, sourcemap = render_with_sourcemap(source, options)
     css_path = options[:output] || "test.css"
     sourcemap_path = Sass::Util.sourcemap_name(css_path)
-    rendered_json = sourcemap.to_json(:css_path => css_path, :sourcemap_path => sourcemap_path)
+    rendered_json = sourcemap.to_json(:css_path => css_path, :sourcemap_path => sourcemap_path, :type => options[:sourcemap])
 
     assert_equal css.rstrip, rendered.rstrip
     assert_equal sourcemap_json.rstrip, rendered_json

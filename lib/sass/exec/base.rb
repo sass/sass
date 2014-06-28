@@ -93,10 +93,8 @@ module Sass::Exec
       end
     end
 
-    # Processes the options set by the command-line arguments.
-    # In particular, sets `@options[:input]` and `@options[:output]`
-    # (and `@options[:sourcemap]` if one has been specified)
-    # to appropriate IO streams.
+    # Processes the options set by the command-line arguments. In particular,
+    # sets `@options[:input]` and `@options[:output]` to appropriate IO streams.
     #
     # This is meant to be overridden by subclasses
     # so they can run their respective programs.
@@ -111,11 +109,6 @@ module Sass::Exec
         end
       @options[:output_filename] = args.shift
       output ||= @options[:output_filename] || $stdout
-
-      if @options[:sourcemap] && @options[:output_filename]
-        @options[:sourcemap_filename] = Sass::Util.sourcemap_name(@options[:output_filename])
-      end
-
       @options[:input], @options[:output] = input, output
     end
 
