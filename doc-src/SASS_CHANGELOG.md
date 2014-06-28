@@ -14,6 +14,8 @@
 
 * Fix a bug where `@extend` within `@at-root` could crash the compiler.
 
+* Gracefully handle the inability to change cache files' permissions.
+
 ## 3.3.8 (20 May 2014)
 
 * When a use of `@at-root` doesn't add any new rules, it will no longer split
