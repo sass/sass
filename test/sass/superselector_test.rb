@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/../test_helper'
 
-class SuperselectorTest < Test::Unit::TestCase
+class SuperselectorTest < MiniTest::Test
   def test_superselector_reflexivity
     assert_superselector 'h1', 'h1'
     assert_superselector '.foo', '.foo'
@@ -29,13 +29,13 @@ class SuperselectorTest < Test::Unit::TestCase
   end
 
   def test_leading_combinator_superselector
-    assert_not_superselector '+ .foo', '.foo'
-    assert_not_superselector '+ .foo', '.bar + .foo'
+    refute_superselector '+ .foo', '.foo'
+    refute_superselector '+ .foo', '.bar + .foo'
   end
 
   def test_trailing_combinator_superselector
-    assert_not_superselector '.foo +', '.foo'
-    assert_not_superselector '.foo +', '.foo + .bar'
+    refute_superselector '.foo +', '.foo'
+    refute_superselector '.foo +', '.foo + .bar'
   end
 
   def test_matching_combinator_superselector
@@ -71,8 +71,8 @@ class SuperselectorTest < Test::Unit::TestCase
   end
 
   def test_matches_is_not_superselector_of_any
-    assert_not_superselector ':matches(.foo, .bar)', ':-moz-any(.foo, .bar)'
-    assert_not_superselector ':-moz-any(.foo, .bar)', ':matches(.foo, .bar)'
+    refute_superselector ':matches(.foo, .bar)', ':-moz-any(.foo, .bar)'
+    refute_superselector ':-moz-any(.foo, .bar)', ':matches(.foo, .bar)'
   end
 
   def test_matches_can_be_subselector
@@ -84,7 +84,7 @@ class SuperselectorTest < Test::Unit::TestCase
   end
 
   def test_any_is_not_superselector_of_different_prefix
-    assert_not_superselector ':-moz-any(.foo, .bar)', ':-s-any(.foo, .bar)'
+    refute_superselector ':-moz-any(.foo, .bar)', ':-s-any(.foo, .bar)'
   end
 
   def test_not_is_superselector_of_less_complex_not
@@ -103,8 +103,8 @@ class SuperselectorTest < Test::Unit::TestCase
   end
 
   def test_not_is_not_superselector_of_non_unique_selectors
-    assert_not_superselector ':not(.foo)', '.bar'
-    assert_not_superselector ':not(:hover)', ':visited'
+    refute_superselector ':not(.foo)', '.bar'
+    refute_superselector ':not(:hover)', ':visited'
   end
 
   def test_current_is_superselector_with_identical_innards
@@ -112,8 +112,8 @@ class SuperselectorTest < Test::Unit::TestCase
   end
 
   def test_current_is_superselector_with_subselector_innards
-    assert_not_superselector ':current(.foo)', ':current(.foo.bar)'
-    assert_not_superselector ':current(.foo.bar)', ':current(.foo)'
+    refute_superselector ':current(.foo)', ':current(.foo.bar)'
+    refute_superselector ':current(.foo.bar)', ':current(.foo)'
   end
 
   def test_nth_match_is_superselector_of_subset_nth_match
@@ -124,15 +124,15 @@ class SuperselectorTest < Test::Unit::TestCase
   end
 
   def test_nth_match_is_not_superselector_of_nth_match_with_different_arg
-    assert_not_superselector(
+    refute_superselector(
       ':nth-child(2n of .foo, .bar, .baz)', '#x:nth-child(2n + 1 of .foo.bip, .baz.bang)')
-    assert_not_superselector(
+    refute_superselector(
       ':nth-last-child(2n of .foo, .bar, .baz)', '#x:nth-last-child(2n + 1 of .foo.bip, .baz.bang)')
   end
 
   def test_nth_match_is_not_superselector_of_nth_last_match
-    assert_not_superselector ':nth-child(2n of .foo, .bar)', ':nth-last-child(2n of .foo, .bar)'
-    assert_not_superselector ':nth-last-child(2n of .foo, .bar)', ':nth-child(2n of .foo, .bar)'
+    refute_superselector ':nth-child(2n of .foo, .bar)', ':nth-last-child(2n of .foo, .bar)'
+    refute_superselector ':nth-last-child(2n of .foo, .bar)', ':nth-child(2n of .foo, .bar)'
   end
 
   def test_nth_match_can_be_subselector
@@ -150,14 +150,14 @@ class SuperselectorTest < Test::Unit::TestCase
       "Expected #{superselector} to be a superselector of #{subselector}.")
   end
 
-  def assert_not_superselector(superselector, subselector)
+  def refute_superselector(superselector, subselector)
     assert(!parse_selector(superselector).superselector?(parse_selector(subselector)),
       "Expected #{superselector} not to be a superselector of #{subselector}.")
   end
 
   def assert_strict_superselector(superselector, subselector)
     assert_superselector(superselector, subselector)
-    assert_not_superselector(subselector, superselector)
+    refute_superselector(subselector, superselector)
   end
 
   def parse_selector(selector)

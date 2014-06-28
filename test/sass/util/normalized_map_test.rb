@@ -2,7 +2,7 @@
 require File.dirname(__FILE__) + '/../../test_helper'
 require 'sass/util/normalized_map'
 
-class NormalizedMapTest < Test::Unit::TestCase
+class NormalizedMapTest < MiniTest::Test
   extend PublicApiLinter
 
   lint_api Hash, Sass::Util::NormalizedMap

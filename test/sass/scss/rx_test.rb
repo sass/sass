@@ -3,7 +3,7 @@
 require File.dirname(__FILE__) + '/../../test_helper'
 require 'sass/engine'
 
-class ScssRxTest < Test::Unit::TestCase
+class ScssRxTest < MiniTest::Test
   include Sass::SCSS::RX
 
   def test_identifiers
@@ -144,13 +144,13 @@ class ScssRxTest < Test::Unit::TestCase
   private
 
   def assert_match(rx, str)
-    assert_not_nil(match = rx.match(str))
+    refute_nil(match = rx.match(str))
     assert_equal str.size, match[0].size
   end
 
   def assert_no_match(rx, str)
     match = rx.match(str)
-    assert_not_equal str.size, match && match[0].size
+    refute_equal str.size, match && match[0].size
   end
 
 end

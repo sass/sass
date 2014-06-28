@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 require 'pathname'
 require 'tmpdir'
 
-class UtilTest < Test::Unit::TestCase
+class UtilTest < MiniTest::Test
   include Sass::Util
 
   def test_scope

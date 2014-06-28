@@ -4,7 +4,7 @@ require File.dirname(__FILE__) + '/test_helper'
 require 'mock_importer'
 require 'sass/plugin'
 
-class ImporterTest < Test::Unit::TestCase
+class ImporterTest < MiniTest::Test
 
   class FruitImporter < Sass::Importers::Base
     def find(name, context = nil)
@@ -407,6 +407,6 @@ MESSAGE
 
   def test_absolute_files_across_template_locations
     importer = Sass::Importers::Filesystem.new(absolutize 'templates')
-    assert_not_nil importer.mtime(absolutize('more_templates/more1.sass'), {})
+    refute_nil importer.mtime(absolutize('more_templates/more1.sass'), {})
   end
 end

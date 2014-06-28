@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby
-require 'test/unit'
+require 'minitest/autorun'
 require File.dirname(__FILE__) + '/../test_helper'
 require 'sass/plugin'
 require 'sass/plugin/compiler'
 
-class CompilerTest < Test::Unit::TestCase
+class CompilerTest < MiniTest::Test
   class FakeListener
     attr_accessor :options
     attr_accessor :directories

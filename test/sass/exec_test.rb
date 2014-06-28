@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 require 'sass/util/test'
 require 'tmpdir'
 
-class ExecTest < Test::Unit::TestCase
+class ExecTest < MiniTest::Test
   include Sass::Util::Test
 
   def setup

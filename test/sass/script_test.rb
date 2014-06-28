@@ -18,7 +18,7 @@ module Sass::Script::Functions
   include Sass::Script::Functions::UserFunctions
 end
 
-class SassScriptTest < Test::Unit::TestCase
+class SassScriptTest < MiniTest::Test
   include Sass::Script
 
   def test_color_checks_input
@@ -281,8 +281,8 @@ SASS
     assert_equal eval('1 2 3.0'), eval('1 2 3')
     assert_equal eval('1, 2, 3.0'), eval('1, 2, 3')
     assert_equal eval('(1 2), (3, 4), (5 6)'), eval('(1 2), (3, 4), (5 6)')
-    assert_not_equal eval('1, 2, 3'), eval('1 2 3')
-    assert_not_equal eval('1'), eval('"1"')
+    refute_equal eval('1, 2, 3'), eval('1 2 3')
+    refute_equal eval('1'), eval('"1"')
   end
 
   def test_booleans
@@ -614,7 +614,7 @@ SASS
     return if RUBY_PLATFORM =~ /java/
 
     # Don't validate the message; it's different on Rubinius.
-    assert_raise(ArgumentError) {resolve("arg-error()")}
+    assert_raises(ArgumentError) {resolve("arg-error()")}
   end
 
   def test_shallow_argument_error_unwrapped
