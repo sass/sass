@@ -1194,7 +1194,12 @@ module Sass
       result = yield tmpfile
       tmpfile.close
       ATOMIC_WRITE_MUTEX.synchronize do
-        File.chmod(perms & ~File.umask, tmpfile.path)
+        begin
+          File.chmod(perms & ~File.umask, tmpfile.path)
+        rescue Errno::EPERM
+          # If we don't have permissions to chmod the file, don't let that crash
+          # the compilation. See issue 1215.
+        end
         File.rename tmpfile.path, filename
       end
       result

@@ -190,7 +190,7 @@ adding multiple suffixes to the same parent selector. For example:
 * SassScript strings in SCSS may no longer include unescaped newlines. As doing
   so produced invalid CSS, there will be no deprecation period for this change.
 
-## 3.3.9 (Unreleased)
+## 3.3.9 (27 June 2014)
 
 * Defining a function named "and", "or", or "not" is now an error at
   definition-time. This isn't considered a backwards-incompatible change because
@@ -200,6 +200,8 @@ adding multiple suffixes to the same parent selector. For example:
 * Fix deprecation warnings for using `File.exists?` on recent Ruby versions.
 
 * Fix a bug where `@extend` within `@at-root` could crash the compiler.
+
+* Gracefully handle the inability to change cache files' permissions.
 
 ## 3.3.8 (20 May 2014)
 
