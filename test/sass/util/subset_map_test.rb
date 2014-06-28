@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/../../test_helper'
 
-class SubsetMapTest < Test::Unit::TestCase
+class SubsetMapTest < MiniTest::Test
   def setup
     @ssm = Sass::Util::SubsetMap.new
     @ssm[Set[1, 2]] = "Foo"
@@ -44,7 +44,7 @@ class SubsetMapTest < Test::Unit::TestCase
   end
 
   def test_empty_key_set
-    assert_raise(ArgumentError) {@ssm[Set[]] = "Fail"}
+    assert_raises(ArgumentError) {@ssm[Set[]] = "Fail"}
   end
 
   def test_empty_key_get
