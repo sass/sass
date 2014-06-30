@@ -1029,7 +1029,6 @@ SASS
 @-webkit-keyframes warm {
   from {
     color: black; }
-
   to {
     color: red; } }
 CSS
@@ -3175,6 +3174,62 @@ SASS
     left: 100%; } }
 CSS
 @keyframes identifier
+  0%
+    top: 0
+    left: 0
+  \#{"30%"}
+    top: 50px
+  68%, 72%
+    left: 50px
+  100%
+    top: 100px
+    left: 100%
+SASS
+  end
+
+  def test_prefixed_keyframes
+    assert_equal <<CSS, render(<<SASS)
+@-moz-keyframes identifier {
+  0% {
+    top: 0;
+    left: 0; }
+  30% {
+    top: 50px; }
+  68%, 72% {
+    left: 50px; }
+  100% {
+    top: 100px;
+    left: 100%; } }
+CSS
+@-moz-keyframes identifier
+  0%
+    top: 0
+    left: 0
+  \#{"30%"}
+    top: 50px
+  68%, 72%
+    left: 50px
+  100%
+    top: 100px
+    left: 100%
+SASS
+  end
+
+  def test_uppercase_keyframes
+    assert_equal <<CSS, render(<<SASS)
+@KEYFRAMES identifier {
+  0% {
+    top: 0;
+    left: 0; }
+  30% {
+    top: 50px; }
+  68%, 72% {
+    left: 50px; }
+  100% {
+    top: 100px;
+    left: 100%; } }
+CSS
+@KEYFRAMES identifier
   0%
     top: 0
     left: 0
