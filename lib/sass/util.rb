@@ -724,7 +724,7 @@ module Sass
     # @return [Boolean]
     def ruby1_9_2?
       return @ruby1_9_2 if defined?(@ruby1_9_2)
-      @ruby1_9_2 = Sass::Util::RUBY_VERSION == [1, 9, 2]
+      @ruby1_9_2 = RUBY_VERSION_COMPONENTS == [1, 9, 2]
     end
 
     # Wehter or not this is running under JRuby 1.6 or lower.
