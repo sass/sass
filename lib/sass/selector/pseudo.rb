@@ -60,7 +60,7 @@ module Sass
           sel = sseq.members.first
           next seq unless sel.is_a?(Pseudo) && sel.selector
 
-          case unprefixed_name
+          case normalized_name
           when 'not'
             # In theory, if there's a nested :not its contents should be
             # unified with the return value. For example, if :not(.foo)
@@ -68,7 +68,7 @@ module Sass
             # this is a narrow edge case and supporting it properly would make
             # this code and the code calling it a lot more complicated, so
             # it's not supported for now.
-            next [] unless sel.unprefixed_name == 'matches'
+            next [] unless sel.normalized_name == 'matches'
             sel.selector.members
           when 'matches', 'any', 'current', 'nth-child', 'nth-last-child'
             # As above, we could theoretically support :not within :matches, but
@@ -87,14 +87,14 @@ module Sass
       #
       # @return [Symbol]
       def type
-        ACTUALLY_ELEMENTS.include?(unprefixed_name) ? :element : syntactic_type
+        ACTUALLY_ELEMENTS.include?(normalized_name) ? :element : syntactic_type
       end
 
       # Like \{#name\}, but without any vendor prefix.
       #
       # @return [String]
-      def unprefixed_name
-        @unprefixed_name ||= name.gsub(/^-[a-zA-Z0-9]+-/, '')
+      def normalized_name
+        @normalized_name ||= name.gsub(/^-[a-zA-Z0-9]+-/, '')
       end
 
       # @see Selector#to_s
@@ -132,13 +132,13 @@ module Sass
       # @param parents [Array<SimpleSequence, String>] The parent selectors of `their_sseq`, if any.
       # @return [Boolean]
       def superselector?(their_sseq, parents = [])
-        case unprefixed_name
+        case normalized_name
         when 'matches', 'any'
           # :matches can be a superselector of another selector in one of two
           # ways. Either its constituent selectors can be a superset of those of
           # another :matches in the other selector, or any of its constituent
           # selectors can individually be a superselector of the other selector.
-          (their_sseq.selector_pseudo_classes[unprefixed_name] || []).any? do |their_sel|
+          (their_sseq.selector_pseudo_classes[normalized_name] || []).any? do |their_sel|
             next false unless their_sel.is_a?(Pseudo)
             next false unless their_sel.name == name
             selector.superselector?(their_sel.selector)
@@ -206,7 +206,7 @@ module Sass
         return 1 if type == :element
         return SPECIFICITY_BASE unless selector
         @specificity ||=
-          if unprefixed_name == 'not'
+          if normalized_name == 'not'
             min = 0
             max = 0
             selector.members.each do |seq|

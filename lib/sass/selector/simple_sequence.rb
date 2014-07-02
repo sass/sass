@@ -49,7 +49,7 @@ module Sass
       def selector_pseudo_classes
         @selector_pseudo_classes ||= members.
           select {|sel| sel.is_a?(Pseudo) && sel.type == :class && sel.selector}.
-          group_by {|sel| sel.unprefixed_name}
+          group_by {|sel| sel.normalized_name}
       end
 
       # Returns the non-base, non-pseudo-element selectors in this sequence.
