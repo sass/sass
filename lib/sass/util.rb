@@ -18,7 +18,7 @@ module Sass
 
     # An array of ints representing the Ruby version number.
     # @api public
-    RUBY_VERSION = ::RUBY_VERSION.split(".").map {|s| s.to_i}
+    RUBY_VERSION_COMPONENTS = RUBY_VERSION.split(".").map {|s| s.to_i}
 
     # The Ruby engine we're running under. Defaults to `"ruby"`
     # if the top-level constant is undefined.
@@ -693,7 +693,7 @@ module Sass
     # @return [Boolean]
     def ruby1?
       return @ruby1 if defined?(@ruby1)
-      @ruby1 = Sass::Util::RUBY_VERSION[0] <= 1
+      @ruby1 = RUBY_VERSION_COMPONENTS[0] <= 1
     end
 
     # Whether or not this is running under Ruby 1.8 or lower.
@@ -707,7 +707,7 @@ module Sass
       # We have to fall back to 1.8 behavior.
       return @ruby1_8 if defined?(@ruby1_8)
       @ruby1_8 = ironruby? ||
-                   (Sass::Util::RUBY_VERSION[0] == 1 && Sass::Util::RUBY_VERSION[1] < 9)
+                   (RUBY_VERSION_COMPONENTS[0] == 1 && RUBY_VERSION_COMPONENTS[1] < 9)
     end
 
     # Whether or not this is running under Ruby 1.8.6 or lower.
@@ -716,7 +716,7 @@ module Sass
     # @return [Boolean]
     def ruby1_8_6?
       return @ruby1_8_6 if defined?(@ruby1_8_6)
-      @ruby1_8_6 = ruby1_8? && Sass::Util::RUBY_VERSION[2] < 7
+      @ruby1_8_6 = ruby1_8? && RUBY_VERSION_COMPONENTS[2] < 7
     end
 
     # Whether or not this is running under Ruby 1.9.2 exactly.
@@ -972,7 +972,7 @@ module Sass
     # @param obj {Object}
     # @return {String}
     def inspect_obj(obj)
-      return obj.inspect unless version_geq(::RUBY_VERSION, "1.9.2")
+      return obj.inspect unless version_geq(RUBY_VERSION, "1.9.2")
       return ':' + inspect_obj(obj.to_s) if obj.is_a?(Symbol)
       return obj.inspect unless obj.is_a?(String)
       '"' + obj.gsub(/[\x00-\x7F]+/) {|s| s.inspect[1...-1]} + '"'
