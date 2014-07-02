@@ -465,11 +465,9 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     children.flatten
   end
 
-  PREFIXES = /-moz-|-o-|-ms-|-webkit-/
-  KEYFRAMES_DIRECTIVE = /\A@(#{PREFIXES})?keyframes\Z/i
   def visit_directive(node)
     node.resolved_value = run_interp(node.value)
-    old_in_keyframes, @in_keyframes = @in_keyframes, node.name =~ KEYFRAMES_DIRECTIVE
+    old_in_keyframes, @in_keyframes = @in_keyframes, node.normalized_name == "@keyframes"
     with_environment Sass::Environment.new(@environment) do
       node.children = node.children.map {|c| visit(c)}.flatten
       node
