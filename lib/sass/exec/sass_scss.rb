@@ -288,7 +288,7 @@ MSG
         partition {|i, _| File.directory? i}
       files.map! do |from, to|
         to ||= from.gsub(/\.[^.]*?$/, '.css')
-        sourcemap = Util.sourcemap_name(to) if @options[:sourcemap]
+        sourcemap = Sass::Util.sourcemap_name(to) if @options[:sourcemap]
         [from, to, sourcemap]
       end
       dirs.map! {|from, to| [from, to || from]}
