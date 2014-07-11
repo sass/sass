@@ -26,6 +26,7 @@ class ScssRxTest < MiniTest::Test
     assert_match IDENT, "_foo" # Can put a _ before anything
     assert_match IDENT, "_\xC3\xBFoo"
     assert_match IDENT, "_\\f oo"
+    assert_match IDENT, "--foo" # "Custom" identifier
 
     assert_match IDENT, "foo-bar"
     assert_match IDENT, "f012-23"
@@ -59,7 +60,6 @@ class ScssRxTest < MiniTest::Test
     assert_no_match IDENT, ""
     assert_no_match IDENT, "1foo"
     assert_no_match IDENT, "-1foo"
-    assert_no_match IDENT, "--foo"
     assert_no_match IDENT, "foo bar"
     assert_no_match IDENT, "foo~bar"
 
