@@ -85,5 +85,9 @@ module Sass::Script::Value
     def to_sass(opts = {})
       to_s
     end
+
+    def inspect
+      String.quote(value)
+    end
   end
 end
