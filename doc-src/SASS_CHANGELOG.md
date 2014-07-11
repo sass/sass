@@ -187,8 +187,9 @@ adding multiple suffixes to the same parent selector. For example:
   !global` will assign to `$var` globally. This behavior can be detected using
   `feature-exists(global-variable-shadowing)`.
 
-* SassScript strings in SCSS may no longer include unescaped newlines. As doing
-  so produced invalid CSS, there will be no deprecation period for this change.
+* Unescaped newlines in SassScript strings in SCSS are deprecated, since they're
+  invalid according to the CSS string grammar. To include a newline in a string,
+  use "\a" or "\a " as in CSS.
 
 ## 3.3.9 (27 June 2014)
 

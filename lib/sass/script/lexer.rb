@@ -106,7 +106,7 @@ module Sass
         private
 
         def string_re(open, close)
-          /#{open}((?:\\.|\#(?!\{)|[^#{close}\n\\#])*)(#{close}|#\{)/m
+          /#{open}((?:\\.|\#(?!\{)|[^#{close}\\#])*)(#{close}|#\{)/m
         end
       end
 
@@ -275,7 +275,16 @@ module Sass
       end
 
       def string(re, open)
+        line, offset = @line, @offset
         return unless scan(STRING_REGULAR_EXPRESSIONS[re][open])
+        if @scanner[0] =~ /([^\\]|^)\n/
+          Sass::Util.sass_warn <<MESSAGE
+DEPRECATION WARNING on line #{line}, column #{offset}#{" of #{@filename}" if @filename}:
+Unescaped multiline strings are deprecated and will be removed in a future version of Sass.
+To include a newline in a string, use "\\a" or "\\a " as in CSS.
+MESSAGE
+        end
+
         if @scanner[2] == '#{' # '
           @scanner.pos -= 2 # Don't actually consume the #{
           @offset -= 2
