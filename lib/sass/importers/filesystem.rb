@@ -71,7 +71,7 @@ module Sass
         else
           sourcemap_pathname = Sass::Util.cleanpath(sourcemap_directory)
           begin
-            file_pathname.relative_path_from(sourcemap_pathname).to_s
+            Sass::Util.file_uri_from_path(file_pathname.relative_path_from(sourcemap_pathname))
           rescue ArgumentError # when a relative path cannot be constructed
             Sass::Util.file_uri_from_path(file_pathname)
           end

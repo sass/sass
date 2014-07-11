@@ -191,6 +191,10 @@ adding multiple suffixes to the same parent selector. For example:
   invalid according to the CSS string grammar. To include a newline in a string,
   use "\a" or "\a " as in CSS.
 
+## 3.3.10 (Unreleased)
+
+* Properly encode URLs in sourcemaps.
+
 ## 3.3.9 (27 June 2014)
 
 * Defining a function named "and", "or", or "not" is now an error at
