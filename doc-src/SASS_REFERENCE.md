@@ -2177,7 +2177,7 @@ into the top most level of a document.
 
 ### Arguments {#mixin-arguments}
 
-Mixins can take arguments SassScript values as arguments,
+Mixins can take SassScript values as arguments,
 which are given when the mixin is included
 and made available within the mixin as variables.
 
