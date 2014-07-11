@@ -764,6 +764,32 @@ SCSS
 CSS
   end
 
+  def test_sources_array_is_uri_escaped
+    map = Sass::Source::Map.new
+    importer = Sass::Importers::Filesystem.new('.')
+    map.add(
+      Sass::Source::Range.new(
+        Sass::Source::Position.new(0, 0),
+        Sass::Source::Position.new(0, 10),
+        'source file.scss',
+        importer),
+      Sass::Source::Range.new(
+        Sass::Source::Position.new(0, 0),
+        Sass::Source::Position.new(0, 10),
+        nil, nil))
+
+    json = map.to_json(:css_path => 'output file.css', :sourcemap_path => 'output file.css.map')
+    assert_equal json, <<JSON.rstrip
+{
+"version": 3,
+"mappings": "DADD,UAAU",
+"sources": ["source%20file.scss"],
+"names": [],
+"file": "output%20file.css"
+}
+JSON
+  end
+
   private
 
   ANNOTATION_REGEX = /\{\{(\/?)([^}]+)\}\}/

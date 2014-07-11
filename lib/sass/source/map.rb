@@ -99,7 +99,7 @@ module Sass::Source
       end
       css_path &&= Sass::Util.pathname(Sass::Util.absolute_path(css_path))
       sourcemap_path &&= Sass::Util.pathname(Sass::Util.absolute_path(sourcemap_path))
-      css_uri ||= css_path.relative_path_from(sourcemap_path.dirname).to_s.tr('\\', '/')
+      css_uri ||= Sass::Util.file_uri_from_path(css_path.relative_path_from(sourcemap_path.dirname))
 
       result = "{\n"
       write_json_field(result, "version", 3, true)

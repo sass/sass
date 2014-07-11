@@ -131,7 +131,8 @@ module Sass
       #   may return a relative URL. This may be `nil` if the sourcemap's
       #   eventual location is unknown.
       # @return [String?] The publicly-visible URL for this file, or `nil`
-      #   indicating that no publicly-visible URL exists.
+      #   indicating that no publicly-visible URL exists. This should be
+      #   appropriately URL-escaped.
       def public_url(uri, sourcemap_directory = nil)
         return if @public_url_warning_issued
         @public_url_warning_issued = true

@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.3.10 (Unreleased)
+
+* Properly encode URLs in sourcemaps.
+
 ## 3.3.9 (27 June 2014)
 
 * Defining a function named "and", "or", or "not" is now an error at
