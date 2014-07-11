@@ -36,13 +36,18 @@ module Sass
       # which signals the end of an interpolated segment,
       # it returns rather than throwing an error.
       #
+      # @param warn_for_color [Boolean] Whether raw color values passed to
+      #   interoplation should cause a warning.
       # @return [Script::Tree::Node] The root node of the parse tree
       # @raise [Sass::SyntaxError] if the expression isn't valid SassScript
-      def parse_interpolated
+      def parse_interpolated(warn_for_color = false)
+        start_pos = source_position
         expr = assert_expr :expr
         assert_tok :end_interpolation
+        expr = Sass::Script::Tree::Interpolation.new(
+          nil, expr, nil, !:wb, !:wa, !:originally_text, warn_for_color)
         expr.options = @options
-        expr
+        node(expr, start_pos)
       rescue Sass::SyntaxError => e
         e.modify_backtrace :line => @lexer.line, :filename => @options[:filename]
         raise e
