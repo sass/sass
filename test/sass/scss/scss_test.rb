@@ -2228,6 +2228,66 @@ $domain: "sass-lang.com";
 SCSS
   end
 
+  def test_color_interpolation_warning_in_selector
+    assert_warning(<<WARNING) {assert_equal <<CSS, render(<<SCSS)}
+WARNING on line 1, column 4 of #{filename_for_test(:scss)}:
+You probably don't mean to use the color value `blue' in interpolation here.
+It may end up represented as #0000ff, which will likely produce invalid CSS.
+Always quote color names when using them as strings (for example, "blue").
+WARNING
+fooblue {
+  a: b; }
+CSS
+foo\#{blue} {a: b}
+SCSS
+  end
+
+  def test_color_interpolation_warning_in_directive
+    assert_warning(<<WARNING) {assert_equal <<CSS, render(<<SCSS)}
+WARNING on line 1, column 12 of #{filename_for_test(:scss)}:
+You probably don't mean to use the color value `blue' in interpolation here.
+It may end up represented as #0000ff, which will likely produce invalid CSS.
+Always quote color names when using them as strings (for example, "blue").
+WARNING
+@fblthp fooblue {
+  a: b; }
+CSS
+@fblthp foo\#{blue} {a: b}
+SCSS
+  end
+
+  def test_color_interpolation_warning_in_property_name
+    assert_warning(<<WARNING) {assert_equal <<CSS, render(<<SCSS)}
+WARNING on line 1, column 8 of #{filename_for_test(:scss)}:
+You probably don't mean to use the color value `blue' in interpolation here.
+It may end up represented as #0000ff, which will likely produce invalid CSS.
+Always quote color names when using them as strings (for example, "blue").
+WARNING
+foo {
+  a-blue: b; }
+CSS
+foo {a-\#{blue}: b}
+SCSS
+  end
+
+  def test_no_color_interpolation_warning_in_property_value
+    assert_no_warning {assert_equal <<CSS, render(<<SCSS)}
+foo {
+  a: b-blue; }
+CSS
+foo {a: b-\#{blue}}
+SCSS
+  end
+
+  def test_no_color_interpolation_warning_for_nameless_color
+    assert_no_warning {assert_equal <<CSS, render(<<SCSS)}
+foo-#abcdef {
+  a: b; }
+CSS
+foo-\#{#abcdef} {a: b}
+SCSS
+  end
+
   def test_nested_mixin_def
     assert_equal <<CSS, render(<<SCSS)
 foo {

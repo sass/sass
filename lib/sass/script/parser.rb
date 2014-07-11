@@ -41,7 +41,8 @@ module Sass
       # @return [Script::Tree::Node] The root node of the parse tree
       # @raise [Sass::SyntaxError] if the expression isn't valid SassScript
       def parse_interpolated(warn_for_color = false)
-        start_pos = source_position
+        # Start two characters back to compensate for #{
+        start_pos = Sass::Source::Position.new(line, offset - 2)
         expr = assert_expr :expr
         assert_tok :end_interpolation
         expr = Sass::Script::Tree::Interpolation.new(
