@@ -1745,6 +1745,8 @@ WARNING
     assert_equal(".a .foo.b .bar", evaluate("selector-append('.a .foo', '.b .bar')"))
     assert_equal(".foo-suffix", evaluate("selector-append('.foo', '-suffix')"))
     assert_equal(".foo.bar, .foo-suffix", evaluate("selector-append('.foo', '.bar, -suffix')"))
+    assert_equal(".foo--suffix", evaluate("selector-append('.foo', '--suffix')"))
+    assert_equal(".foo.bar, .foo--suffix", evaluate("selector-append('.foo', '.bar, --suffix')"))
   end
 
   def test_selector_append_checks_types

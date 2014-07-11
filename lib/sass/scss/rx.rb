@@ -64,7 +64,7 @@ module Sass
       STRING1  = /\"((?:[^\n\r\f\\"]|\\#{NL}|#{ESCAPE})*)\"/
       STRING2  = /\'((?:[^\n\r\f\\']|\\#{NL}|#{ESCAPE})*)\'/
 
-      IDENT    = /-?#{NMSTART}#{NMCHAR}*/
+      IDENT    = /-*#{NMSTART}#{NMCHAR}*/
       NAME     = /#{NMCHAR}+/
       NUM      = //
       STRING   = /#{STRING1}|#{STRING2}/
