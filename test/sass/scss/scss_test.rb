@@ -2234,6 +2234,7 @@ WARNING on line 1, column 4 of #{filename_for_test(:scss)}:
 You probably don't mean to use the color value `blue' in interpolation here.
 It may end up represented as #0000ff, which will likely produce invalid CSS.
 Always quote color names when using them as strings (for example, "blue").
+If you really want to use the color value here, use `"" + blue'.
 WARNING
 fooblue {
   a: b; }
@@ -2248,6 +2249,7 @@ WARNING on line 1, column 12 of #{filename_for_test(:scss)}:
 You probably don't mean to use the color value `blue' in interpolation here.
 It may end up represented as #0000ff, which will likely produce invalid CSS.
 Always quote color names when using them as strings (for example, "blue").
+If you really want to use the color value here, use `"" + blue'.
 WARNING
 @fblthp fooblue {
   a: b; }
@@ -2262,6 +2264,7 @@ WARNING on line 1, column 8 of #{filename_for_test(:scss)}:
 You probably don't mean to use the color value `blue' in interpolation here.
 It may end up represented as #0000ff, which will likely produce invalid CSS.
 Always quote color names when using them as strings (for example, "blue").
+If you really want to use the color value here, use `"" + blue'.
 WARNING
 foo {
   a-blue: b; }

@@ -99,11 +99,13 @@ module Sass::Script::Tree
 
       val = @mid.perform(environment)
       if @warn_for_color && val.is_a?(Sass::Script::Value::Color) && val.name
+        alternative = Operation.new(Sass::Script::Value::String.new("", :string), @mid, :plus)
         Sass::Util.sass_warn <<MESSAGE
 WARNING on line #{line}, column #{source_range.start_pos.offset}#{" of #{filename}" if filename}:
 You probably don't mean to use the color value `#{val}' in interpolation here.
 It may end up represented as #{val.inspect}, which will likely produce invalid CSS.
 Always quote color names when using them as strings (for example, "#{val}").
+If you really want to use the color value here, use `#{alternative.to_sass}'.
 MESSAGE
       end
 

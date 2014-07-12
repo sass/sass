@@ -70,7 +70,7 @@ module Sass
 
       def variable; nil; end
       def script_value; nil; end
-      def interpolation; nil; end
+      def interpolation(warn_for_color = false); nil; end
       def var_expr; nil; end
       def interp_string; (s = tok(STRING)) && [s]; end
       def interp_uri; (s = tok(URI)) && [s]; end

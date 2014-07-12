@@ -346,7 +346,8 @@ RUBY
         e = first
         while (interp = try_tok(:begin_interpolation))
           wb = @lexer.whitespace?(interp)
-          mid = parse_interpolated
+          mid = assert_expr :expr
+          assert_tok :end_interpolation
           wa = @lexer.whitespace?
           e = node(
             Script::Tree::Interpolation.new(e, mid, space, wb, wa),
@@ -536,7 +537,8 @@ RUBY
         return number unless first
         str = literal_node(first.value, first.source_range)
         return str unless try_tok(:begin_interpolation)
-        mid = parse_interpolated
+        mid = assert_expr :expr
+        assert_tok :end_interpolation
         last = assert_expr(:string)
         node(Tree::StringInterpolation.new(str, mid, last), first.source_range.start_pos)
       end
