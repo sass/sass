@@ -351,6 +351,9 @@ SCSS
 
     assert_extends(':-moz-any(.foo)', '.x {@extend .foo}', ':-moz-any(.foo, .x)')
     assert_extends(':current(.foo)', '.x {@extend .foo}', ':current(.foo, .x)')
+    assert_extends(':has(.foo)', '.x {@extend .foo}', ':has(.foo, .x)')
+    assert_extends(':host(.foo)', '.x {@extend .foo}', ':host(.foo, .x)')
+    assert_extends(':host-context(.foo)', '.x {@extend .foo}', ':host-context(.foo, .x)')
     assert_extends(':nth-child(n of .foo)', '.x {@extend .foo}', ':nth-child(n of .foo, .x)')
     assert_extends(
       ':nth-last-child(n of .foo)',
@@ -362,6 +365,9 @@ SCSS
     assert_extends(':not(.bar)', '.x .y {@extend .bar}', ':not(.bar, .x .y)')
     assert_extends(':matches(.bar)', '.x .y {@extend .bar}', ':matches(.bar, .x .y)')
     assert_extends(':current(.bar)', '.x .y {@extend .bar}', ':current(.bar, .x .y)')
+    assert_extends(':has(.bar)', '.x .y {@extend .bar}', ':has(.bar, .x .y)')
+    assert_extends(':host(.bar)', '.x .y {@extend .bar}', ':host(.bar, .x .y)')
+    assert_extends(':host-context(.bar)', '.x .y {@extend .bar}', ':host-context(.bar, .x .y)')
     assert_extends(
       ':-moz-any(.bar)',
       '.x .y {@extend .bar}',
@@ -403,6 +409,15 @@ SCSS
       ':nth-last-child(n of .foo)',
       ':nth-last-child(n of .bar) {@extend .foo}',
       ':nth-last-child(n of .foo, .bar)')
+  end
+
+  def test_nesting_pseudoclasses_merge
+    assert_extends(':has(.foo)', ':has(.bar) {@extend .foo}', ':has(.foo, :has(.bar))')
+    assert_extends(':host(.foo)', ':host(.bar) {@extend .foo}', ':host(.foo, :host(.bar))')
+    assert_extends(
+      ':host-context(.foo)',
+      ':host-context(.bar) {@extend .foo}',
+      ':host-context(.foo, :host-context(.bar))')
   end
 
   def test_not_unifies_with_unique_values

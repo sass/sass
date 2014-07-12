@@ -253,7 +253,7 @@ module Sass
         return ns, name
       end
 
-      SELECTOR_PSEUDO_CLASSES = %w[not matches current any].to_set
+      SELECTOR_PSEUDO_CLASSES = %w[not matches current any has host host-context].to_set
 
       PREFIXED_SELECTOR_PSEUDO_CLASSES = %w[nth-child nth-last-child].to_set
 

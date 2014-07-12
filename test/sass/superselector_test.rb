@@ -143,6 +143,31 @@ class SuperselectorTest < MiniTest::Test
     end
   end
 
+  def has_is_superselector_of_subset_host
+    assert_strict_superselector ':has(.foo, .bar, .baz)', ':has(.foo.bip, .baz.bang)'
+  end
+
+  def has_isnt_superselector_of_contained_selector
+    assert_strict_superselector ':has(.foo, .bar, .baz)', '.foo'
+  end
+
+  def host_is_superselector_of_subset_host
+    assert_strict_superselector ':host(.foo, .bar, .baz)', ':host(.foo.bip, .baz.bang)'
+  end
+
+  def host_isnt_superselector_of_contained_selector
+    assert_strict_superselector ':host(.foo, .bar, .baz)', '.foo'
+  end
+
+  def host_context_is_superselector_of_subset_host
+    assert_strict_superselector(
+      ':host-context(.foo, .bar, .baz)', ':host-context(.foo.bip, .baz.bang)')
+  end
+
+  def host_context_isnt_superselector_of_contained_selector
+    assert_strict_superselector ':host-context(.foo, .bar, .baz)', '.foo'
+  end
+
   private
 
   def assert_superselector(superselector, subselector)

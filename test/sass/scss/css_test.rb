@@ -699,6 +699,8 @@ SCSS
     assert_selector_parses('E:not(s)')
     assert_selector_parses('E:not(s1, s2)')
     assert_selector_parses('E:matches(s1, s2)')
+    assert_selector_parses('E:has(s1, s2)')
+    assert_selector_parses('E:has(> s1, > s2)')
     assert_selector_parses('E.warning')
     assert_selector_parses('E#myid')
     assert_selector_parses('E[foo]')
@@ -761,6 +763,10 @@ SCSS
     assert_selector_parses('E! > F')
 
     assert_selector_parses('E /ns|foo/ F')
+
+    # From http://dev.w3.org/csswg/css-scoping-1/
+    assert_selector_parses('E:host(s)')
+    assert_selector_parses('E:host-context(s)')
   end
 
   # Taken from http://dev.w3.org/csswg/selectors4/#overview, but without element
@@ -769,6 +775,8 @@ SCSS
     assert_selector_parses(':not(s)')
     assert_selector_parses(':not(s1, s2)')
     assert_selector_parses(':matches(s1, s2)')
+    assert_selector_parses(':has(s1, s2)')
+    assert_selector_parses(':has(> s1, > s2)')
     assert_selector_parses('.warning')
     assert_selector_parses('#myid')
     assert_selector_parses('[foo]')
@@ -823,6 +831,10 @@ SCSS
     assert_selector_parses(':nth-last-child(n of selector)')
     assert_selector_parses(':nth-child(n)')
     assert_selector_parses(':nth-last-child(n)')
+
+    # From http://dev.w3.org/csswg/css-scoping-1/
+    assert_selector_parses(':host(s)')
+    assert_selector_parses(':host-context(s)')
   end
 
   def test_attribute_selectors_with_identifiers
@@ -865,6 +877,10 @@ SCSS
     assert_selector_can_contain_selectors(':nth-child(n of <sel>)')
     assert_selector_can_contain_selectors(':nth-last-child(n of <sel>)')
     assert_selector_can_contain_selectors(':-moz-any(<sel>)')
+    assert_selector_can_contain_selectors(':has(<sel>)')
+    assert_selector_can_contain_selectors(':has(+ <sel>)')
+    assert_selector_can_contain_selectors(':host(<sel>)')
+    assert_selector_can_contain_selectors(':host-context(<sel>)')
   end
 
   def assert_selector_can_contain_selectors(sel)

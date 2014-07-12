@@ -76,6 +76,11 @@ module Sass
             # more complex cases that likely aren't worth the pain.
             next [] unless sel.name == name && sel.arg == arg
             sel.selector.members
+          when 'has', 'host', 'host-context'
+            # We can't expand nested selectors here, because each layer adds an
+            # additional layer of semantics. For example, `:has(:has(img))`
+            # doesn't match `<div><img></div>` but `:has(img)` does.
+            sel
           else
             []
           end
@@ -145,6 +150,16 @@ module Sass
           end || selector.members.any? do |our_seq|
             their_seq = Sequence.new(parents + [their_sseq])
             our_seq.superselector?(their_seq)
+          end
+        when 'has', 'host', 'host-context'
+          # Like :matches, :has (et al) can be a superselector of another
+          # selector if its constituent selectors are a superset of those of
+          # another :has in the other selector. However, the :matches other case
+          # doesn't work, because :has refers to nested elements.
+          (their_sseq.selector_pseudo_classes[normalized_name] || []).any? do |their_sel|
+            next false unless their_sel.is_a?(Pseudo)
+            next false unless their_sel.name == name
+            selector.superselector?(their_sel.selector)
           end
         when 'not'
           selector.members.all? do |our_seq|
