@@ -277,7 +277,9 @@ module Sass
       #
       # @return [String]
       def inspect
-        members.map {|m| m.inspect}.join
+        res = members.map {|m| m.inspect}.join
+        res << '!' if subject?
+        res
       end
 
       # Return a copy of this simple sequence with `sources` merged into the

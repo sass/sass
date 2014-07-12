@@ -760,7 +760,7 @@ SCSS
     assert_selector_parses('E + F')
     assert_selector_parses('E ~ F')
     assert_selector_parses('E /foo/ F')
-    assert_selector_parses('E! > F')
+    silence_warnings {assert_selector_parses('E! > F')}
 
     assert_selector_parses('E /ns|foo/ F')
 
@@ -976,6 +976,29 @@ SCSS
     assert_equal "E > F {\n  a: b; }\n", render("E>F { a: b;} ")
     assert_equal "E ~ F {\n  a: b; }\n", render("E~F { a: b;} ")
     assert_equal "E + F {\n  a: b; }\n", render("E+F { a: b;} ")
+  end
+
+  def test_subject_selector_deprecation
+    assert_warning(<<WARNING) {render(".foo .bar! .baz {a: b}")}
+DEPRECATION WARNING on line 1, column 1:
+The subject selector operator "!" is deprecated and will be removed in a future release.
+This operator has been replaced by ":has()" in the CSS spec.
+For example: .foo .bar:has(.baz)
+WARNING
+
+    assert_warning(<<WARNING) {render(".foo .bar! > .baz {a: b}")}
+DEPRECATION WARNING on line 1, column 1:
+The subject selector operator "!" is deprecated and will be removed in a future release.
+This operator has been replaced by ":has()" in the CSS spec.
+For example: .foo .bar:has(> .baz)
+WARNING
+
+    assert_warning(<<WARNING) {render(".foo .bar! {a: b}")}
+DEPRECATION WARNING on line 1, column 1:
+The subject selector operator "!" is deprecated and will be removed in a future release.
+This operator has been replaced by ":has()" in the CSS spec.
+For example: .foo .bar
+WARNING
   end
 
   ## Errors

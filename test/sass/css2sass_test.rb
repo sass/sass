@@ -238,7 +238,7 @@ CSS
   end
 
   def test_subject
-    assert_equal(<<SASS, css2sass(<<CSS))
+    silence_warnings {assert_equal(<<SASS, css2sass(<<CSS))}
 .foo
   .bar!
     .baz

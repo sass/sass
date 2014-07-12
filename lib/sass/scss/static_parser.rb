@@ -107,6 +107,7 @@ module Sass
       end
 
       def selector
+        start_pos = source_position
         # The combinator here allows the "> E" hack
         val = combinator || simple_selector_sequence
         return unless val
@@ -119,7 +120,19 @@ module Sass
           res << val
           res << "\n" if str {ss}.include?("\n")
         end
-        Selector::Sequence.new(res.compact)
+        seq = Selector::Sequence.new(res.compact)
+
+        if seq.members.any? {|sseq| sseq.is_a?(Selector::SimpleSequence) && sseq.subject?}
+          location = " of #{@filename}" if @filename
+          Sass::Util.sass_warn <<MESSAGE
+DEPRECATION WARNING on line #{start_pos.line}, column #{start_pos.offset}#{location}:
+The subject selector operator "!" is deprecated and will be removed in a future release.
+This operator has been replaced by ":has()" in the CSS spec.
+For example: #{seq.subjectless}
+MESSAGE
+        end
+
+        seq
       end
 
       def combinator

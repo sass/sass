@@ -191,6 +191,9 @@ adding multiple suffixes to the same parent selector. For example:
   invalid according to the CSS string grammar. To include a newline in a string,
   use "\a" or "\a " as in CSS.
 
+* The subject selector operator, `!`, is deprecated and will produce a warning
+  if used. The `:has()` selector should be used instead.
+
 ## 3.3.10 (Unreleased)
 
 * Properly encode URLs in sourcemaps.

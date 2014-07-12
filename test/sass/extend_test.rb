@@ -1202,7 +1202,7 @@ SCSS
   end
 
   def test_extend_with_subject_transfers_subject_to_extender
-    assert_equal(<<CSS, render(<<SCSS))
+    silence_warnings {assert_equal(<<CSS, render(<<SCSS))}
 foo bar! baz, foo .bip .bap! baz, .bip foo .bap! baz {
   a: b; }
 CSS
@@ -1210,7 +1210,7 @@ foo bar! baz {a: b}
 .bip .bap {@extend bar}
 SCSS
 
-    assert_equal(<<CSS, render(<<SCSS))
+    silence_warnings {assert_equal(<<CSS, render(<<SCSS))}
 foo.x bar.y! baz.z, foo.x .bip bar.bap! baz.z, .bip foo.x bar.bap! baz.z {
   a: b; }
 CSS
@@ -1220,7 +1220,7 @@ SCSS
   end
 
   def test_extend_with_subject_retains_subject_on_target
-    assert_equal(<<CSS, render(<<SCSS))
+    silence_warnings {assert_equal(<<CSS, render(<<SCSS))}
 .foo! .bar, .foo! .bip .bap, .bip .foo! .bap {
   a: b; }
 CSS
@@ -1230,7 +1230,7 @@ SCSS
   end
 
   def test_extend_with_subject_transfers_subject_to_target
-    assert_equal(<<CSS, render(<<SCSS))
+    silence_warnings {assert_equal(<<CSS, render(<<SCSS))}
 a.foo .bar, .bip a.bap! .bar {
   a: b; }
 CSS
@@ -1240,7 +1240,7 @@ SCSS
   end
 
   def test_extend_with_subject_retains_subject_on_extender
-    assert_equal(<<CSS, render(<<SCSS))
+    silence_warnings {assert_equal(<<CSS, render(<<SCSS))}
 .foo .bar, .foo .bip! .bap, .bip! .foo .bap {
   a: b; }
 CSS
@@ -1250,7 +1250,7 @@ SCSS
   end
 
   def test_extend_with_subject_fails_with_conflicting_subject
-    assert_equal(<<CSS, render(<<SCSS))
+    silence_warnings {assert_equal(<<CSS, render(<<SCSS))}
 x! .bar {
   a: b; }
 CSS

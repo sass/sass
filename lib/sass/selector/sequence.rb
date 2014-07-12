@@ -167,6 +167,35 @@ module Sass
         members.map! {|m| m.is_a?(SimpleSequence) ? m.with_more_sources(sources) : m}
       end
 
+      # Converts the subject operator "!", if it exists, into a ":has()"
+      # selector.
+      #
+      # @retur [Sequence]
+      def subjectless
+        pre_subject = []
+        has = []
+        subject = nil
+        members.each do |sseq_or_op|
+          if subject
+            has << sseq_or_op
+          elsif sseq_or_op.is_a?(String) || !sseq_or_op.subject?
+            pre_subject << sseq_or_op
+          else
+            subject = sseq_or_op.dup
+            subject.members = sseq_or_op.members.dup
+            subject.subject = false
+            has = []
+          end
+        end
+
+        return self unless subject
+
+        unless has.empty?
+          subject.members << Pseudo.new(:class, 'has', nil, CommaSequence.new([Sequence.new(has)]))
+        end
+        Sequence.new(pre_subject + [subject])
+      end
+
       private
 
       # Conceptually, this expands "parenthesized selectors". That is, if we

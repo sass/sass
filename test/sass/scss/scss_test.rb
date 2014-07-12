@@ -651,7 +651,7 @@ SCSS
   end
 
   def test_parent_selector_with_subject
-    assert_equal <<CSS, render(<<SCSS)
+    silence_warnings {assert_equal <<CSS, render(<<SCSS)}
 bar foo.baz! .bip {
   a: b; }
 
@@ -2055,7 +2055,7 @@ SCSS
   end
 
   def test_parent_selector_with_parent_and_subject
-    assert_equal <<CSS, render(<<SCSS)
+    silence_warnings {assert_equal <<CSS, render(<<SCSS)}
 bar foo.baz! .bip {
   c: d; }
 CSS
