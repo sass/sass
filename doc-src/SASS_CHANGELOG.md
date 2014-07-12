@@ -203,7 +203,7 @@ adding multiple suffixes to the same parent selector. For example:
 * The subject selector operator, `!`, is deprecated and will produce a warning
   if used. The `:has()` selector should be used instead.
 
-## 3.3.10 (Unreleased)
+## 3.3.10 (11 July 2014)
 
 * Properly encode URLs in sourcemaps.
 
