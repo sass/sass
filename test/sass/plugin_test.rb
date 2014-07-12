@@ -113,7 +113,7 @@ class SassPluginTest < MiniTest::Test
     File.open(tempfile_loc('bork1')) do |file|
       assert_equal(<<CSS.strip, file.read.split("\n")[0...6].join("\n"))
 /*
-Syntax error: Undefined variable: "$bork".
+Error: Undefined variable: "$bork".
         on line 2 of #{template_loc('bork1')}
 
 1: bork
@@ -129,7 +129,7 @@ CSS
     File.open(tempfile_loc('bork5')) do |file|
       assert_equal(<<CSS.strip, file.read.split("\n")[0...7].join("\n"))
 /*
-Syntax error: Undefined variable: "$bork".
+Error: Undefined variable: "$bork".
         on line 3 of #{template_loc('bork5')}
 
 1: bork
@@ -146,7 +146,7 @@ CSS
     File.open(tempfile_loc('single_import_loop')) do |file|
       assert_equal(<<CSS.strip, file.read.split("\n")[0...2].join("\n"))
 /*
-Syntax error: An @import loop has been found: #{template_loc('single_import_loop')} imports itself
+Error: An @import loop has been found: #{template_loc('single_import_loop')} imports itself
 CSS
     end
   end
@@ -157,9 +157,9 @@ CSS
     File.open(tempfile_loc('double_import_loop1')) do |file|
       assert_equal(<<CSS.strip, file.read.split("\n")[0...4].join("\n"))
 /*
-Syntax error: An @import loop has been found:
-                  #{template_loc('double_import_loop1')} imports #{template_loc('_double_import_loop2')}
-                  #{template_loc('_double_import_loop2')} imports #{template_loc('double_import_loop1')}
+Error: An @import loop has been found:
+           #{template_loc('double_import_loop1')} imports #{template_loc('_double_import_loop2')}
+           #{template_loc('_double_import_loop2')} imports #{template_loc('double_import_loop1')}
 CSS
     end
   end
@@ -170,8 +170,8 @@ CSS
     File.open(tempfile_loc('subdir/import_up1')) do |file|
       assert_equal(<<CSS.strip, file.read.split("\n")[0...5].join("\n"))
 /*
-Syntax error: File to import not found or unreadable: ../subdir/import_up3.scss.
-              Load path: #{template_loc}
+Error: File to import not found or unreadable: ../subdir/import_up3.scss.
+       Load path: #{template_loc}
         on line 1 of #{template_loc 'subdir/import_up2'}
         from line 1 of #{template_loc 'subdir/import_up1'}
 CSS

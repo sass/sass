@@ -533,7 +533,7 @@ ERR
   rescue Sass::SyntaxError => e
     assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e, opts[:line]).split("\n")[0..15].join("\n"))
 /*
-Syntax error: Invalid property: "e:" (no value).
+Error: Invalid property: "e:" (no value).
         on line 383 of test_exception_css_with_offset_inline.sass
 
 378: a
@@ -566,7 +566,7 @@ SASS
   rescue Sass::SyntaxError => e
     assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e).split("\n")[0..13].join("\n"))
 /*
-Syntax error: 12em*px isn't a valid CSS value.
+Error: 12em*px isn't a valid CSS value.
         on line 2 of test_exception_css_with_mixins_inline.sass, in `error-mixin'
         from line 5 of test_exception_css_with_mixins_inline.sass, in `outer-mixin'
         from line 8 of test_exception_css_with_mixins_inline.sass
@@ -596,7 +596,7 @@ SASS
   rescue Sass::SyntaxError => e
     assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e).split("\n")[0..11].join("\n"))
 /*
-Syntax error: Properties are only allowed within rules, directives, mixin includes, or other properties.
+Error: Properties are only allowed within rules, directives, mixin includes, or other properties.
         on line 4 of test_cssize_exception_css_inline.sass
 
 1: .filler
