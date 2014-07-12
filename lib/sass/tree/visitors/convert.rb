@@ -96,6 +96,10 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
     "#{tab_str}@debug #{node.expr.to_sass(@options)}#{semi}\n"
   end
 
+  def visit_error(node)
+    "#{tab_str}@error #{node.expr.to_sass(@options)}#{semi}\n"
+  end
+
   def visit_directive(node)
     res = "#{tab_str}#{interp_to_src(node.value)}"
     res.gsub!(/^@import \#\{(.*)\}([^}]*)$/, '@import \1\2')

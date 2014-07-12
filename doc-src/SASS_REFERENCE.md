@@ -1903,6 +1903,24 @@ Usage Example:
       position: relative; left: $x; top: $y;
     }
 
+### `@error`
+
+The `@error` directive throws the value of a SassScript expression as a fatal
+error, including a nice stack trace. It's useful for validating arguments to
+mixins and functions. For example:
+
+    @mixin adjust-location($x, $y) {
+      @if unitless($x) {
+        @error "$x may not be unitless, was #{$x}.";
+      }
+      @if unitless($y) {
+        @error "$y may not be unitless, was #{$y}.";
+      }
+      position: relative; left: $x; top: $y;
+    }
+
+There is currently no way to catch errors.
+
 ## Control Directives & Expressions
 
 SassScript supports basic control directives

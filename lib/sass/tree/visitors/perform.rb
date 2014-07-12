@@ -207,6 +207,17 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     []
   end
 
+  # Throws the expression as an error.
+  def visit_error(node)
+    res = node.expr.perform(@environment)
+    if res.is_a?(Sass::Script::Value::String)
+      res = res.value
+    else
+      res = res.to_sass
+    end
+    raise Sass::SyntaxError.new(res)
+  end
+
   # Runs the child nodes once for each value in the list.
   def visit_each(node)
     list = node.list.perform(@environment)

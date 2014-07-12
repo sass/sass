@@ -25,6 +25,11 @@ class Sass::Tree::Visitors::SetOptions < Sass::Tree::Visitors::Base
     yield
   end
 
+  def visit_error(node)
+    node.expr.options = @options
+    yield
+  end
+
   def visit_each(node)
     node.list.options = @options
     yield

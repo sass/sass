@@ -115,6 +115,14 @@ SCSS
     end
   end
 
+  def test_error_directive
+    assert_raise_message(Sass::SyntaxError, "hello world!") {render(<<SCSS)}
+foo {a: b}
+@error "hello world!";
+bar {c: d}
+SCSS
+  end
+
   def test_warn_directive
     expected_warning = <<EXPECTATION
 WARNING: this is a warning

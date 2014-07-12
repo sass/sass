@@ -146,6 +146,8 @@ MSG
     '@while' => "Invalid while directive '@while': expected expression.",
     '@debug' => "Invalid debug directive '@debug': expected expression.",
     %Q{@debug "a message"\n  "nested message"} => "Illegal nesting: Nothing may be nested beneath debug directives.",
+    '@error' => "Invalid error directive '@error': expected expression.",
+    %Q{@error "a message"\n  "nested message"} => "Illegal nesting: Nothing may be nested beneath error directives.",
     '@warn' => "Invalid warn directive '@warn': expected expression.",
     %Q{@warn "a message"\n  "nested message"} => "Illegal nesting: Nothing may be nested beneath warn directives.",
     "/* foo\n    bar\n  baz" => "Inconsistent indentation: previous line was indented by 4 spaces, but this line was indented by 2 spaces.",
@@ -3129,6 +3131,13 @@ END
     assert_warning(<<END) {render("$map: (a: 1, b: 2); @debug $map", :syntax => :scss)}
 test_debug_inspects_sass_objects_inline.scss:1 DEBUG: (a: 1, b: 2)
 END
+  end
+
+  def test_error_throws_sass_objects
+    assert_raise_message(Sass::SyntaxError, "(a: 1, b: 2)") {render("@error (a: 1, b: 2)")}
+    assert_raise_message(Sass::SyntaxError, "(a: 1, b: 2)") do
+      render("$map: (a: 1, b: 2); @error $map", :syntax => :scss)
+    end
   end
 
   def test_default_arg_before_splat

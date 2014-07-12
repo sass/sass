@@ -181,7 +181,7 @@ module Sass
 
       DIRECTIVES = Set[:mixin, :include, :function, :return, :debug, :warn, :for,
         :each, :while, :if, :else, :extend, :import, :media, :charset, :content,
-        :_moz_document, :at_root]
+        :_moz_document, :at_root, :error]
 
       PREFIXED_DIRECTIVES = Set[:supports]
 
@@ -530,6 +530,10 @@ module Sass
           ss
         end
         arr
+      end
+
+      def error_directive(start_pos)
+        node(Sass::Tree::ErrorNode.new(sass_script(:parse)), start_pos)
       end
 
       # http://www.w3.org/TR/css3-conditional/

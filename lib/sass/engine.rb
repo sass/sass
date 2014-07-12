@@ -31,6 +31,7 @@ require 'sass/tree/import_node'
 require 'sass/tree/charset_node'
 require 'sass/tree/at_root_node'
 require 'sass/tree/keyframe_rule_node'
+require 'sass/tree/error_node'
 require 'sass/tree/visitors/base'
 require 'sass/tree/visitors/perform'
 require 'sass/tree/visitors/cssize'
@@ -772,7 +773,7 @@ WARNING
 
     DIRECTIVES = Set[:mixin, :include, :function, :return, :debug, :warn, :for,
       :each, :while, :if, :else, :extend, :import, :media, :charset, :content,
-      :at_root]
+      :at_root, :error]
 
     # @comment
     #   rubocop:disable MethodLength
@@ -812,6 +813,14 @@ WARNING
         :line => @line + 1) unless line.children.empty?
       offset = line.offset + line.text.index(value).to_i
       Tree::DebugNode.new(parse_script(value, :offset => offset))
+    end
+
+    def parse_error_directive(parent, line, root, value, offset)
+      raise SyntaxError.new("Invalid error directive '@error': expected expression.") unless value
+      raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath error directives.",
+        :line => @line + 1) unless line.children.empty?
+      offset = line.offset + line.text.index(value).to_i
+      Tree::ErrorNode.new(parse_script(value, :offset => offset))
     end
 
     def parse_extend_directive(parent, line, root, value, offset)

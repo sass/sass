@@ -589,6 +589,19 @@ foo {
 SCSS
   end
 
+  def test_error
+    assert_renders <<SASS, <<SCSS
+foo
+  @error "oh no!"
+  bar: baz
+SASS
+foo {
+  @error "oh no!";
+  bar: baz;
+}
+SCSS
+  end
+
   def test_directive_without_children
     assert_renders <<SASS, <<SCSS
 foo
