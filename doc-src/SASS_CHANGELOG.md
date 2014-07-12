@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.3.10 (Unreleased)
+## 3.3.10 (11 July 2014)
 
 * Properly encode URLs in sourcemaps.
 
