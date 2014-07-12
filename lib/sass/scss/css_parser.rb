@@ -11,7 +11,7 @@ module Sass
 
       def placeholder_selector; nil; end
       def parent_selector; nil; end
-      def interpolation; nil; end
+      def interpolation(warn_for_color = false); nil; end
       def use_css_import?; true; end
 
       def block_child(context)

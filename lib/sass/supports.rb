@@ -212,7 +212,7 @@ module Sass::Supports
     end
 
     def to_src(options)
-      "\#{#{@value.to_sass(options)}}"
+      @value.to_sass(options)
     end
 
     def deep_copy

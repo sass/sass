@@ -279,10 +279,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   private
 
   def interp_to_src(interp)
-    interp.map do |r|
-      next r if r.is_a?(String)
-      "\#{#{r.to_sass(@options)}}"
-    end.join
+    interp.map {|r| r.is_a?(String) ? r : r.to_sass(@options)}.join
   end
 
   # Like interp_to_src, but removes the unnecessary `#{}` around the keys and
@@ -294,17 +291,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
       e.value.value
     end
 
-    Sass::Util.enum_with_index(interp).map do |r, i|
-      next r if r.is_a?(String)
-      before, after = interp[i - 1], interp[i + 1]
-      if before.is_a?(String) && after.is_a?(String) &&
-          ((before[-1] == ?( && after[0] == ?:) ||
-           (before =~ /:\s*/ && after[0] == ?)))
-        r.to_sass(@options)
-      else
-        "\#{#{r.to_sass(@options)}}"
-      end
-    end.join
+    interp_to_src(interp)
   end
 
   def selector_to_src(sel)
@@ -316,7 +303,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
       if r.is_a?(String)
         r.gsub(/(,)?([ \t]*)\n\s*/) {$1 ? "#{$1}#{$2}\n" : " "}
       else
-        "\#{#{r.to_sass(@options)}}"
+        r.to_sass(@options)
       end
     end.join
   end

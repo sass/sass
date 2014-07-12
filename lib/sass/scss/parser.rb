@@ -814,7 +814,7 @@ module Sass
             !(?![a-z]) # TODO: never consume "!" when issue 1126 is fixed.
           )+
         }xi) || tok(COMMENT) || tok(SINGLE_LINE_COMMENT) || interp_string || interp_uri ||
-                interpolation
+                interpolation(:warn_for_color)
       end
 
       def declaration
@@ -928,9 +928,9 @@ module Sass
         var
       end
 
-      def interpolation
+      def interpolation(warn_for_color = false)
         return unless tok(INTERP_START)
-        sass_script(:parse_interpolated)
+        sass_script(:parse_interpolated, warn_for_color)
       end
 
       def string
@@ -962,10 +962,10 @@ module Sass
       end
 
       def interp_ident(start = IDENT)
-        val = tok(start) || interpolation || tok(IDENT_HYPHEN_INTERP, true)
+        val = tok(start) || interpolation(:warn_for_color) || tok(IDENT_HYPHEN_INTERP, true)
         return unless val
         res = [val]
-        while (val = tok(NAME) || interpolation)
+        while (val = tok(NAME) || interpolation(:warn_for_color))
           res << val
         end
         res

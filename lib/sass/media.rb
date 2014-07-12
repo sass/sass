@@ -205,9 +205,6 @@ module Sass::Media
   # @param options [{Symbol => Object}] An options hash (see {Sass::CSS#initialize}).
   # @return [String]
   def self._interp_to_src(interp, options)
-    interp.map do |r|
-      next r if r.is_a?(String)
-      "\#{#{r.to_sass(options)}}"
-    end.join
+    interp.map {|r| r.is_a?(String) ? r : r.to_sass(options)}.join
   end
 end

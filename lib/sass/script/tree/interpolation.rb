@@ -23,6 +23,10 @@ module Sass::Script::Tree
     #   SassScript.
     attr_reader :originally_text
 
+    # @return [Boolean] Whether a color value passed to the interpolation should
+    #   generate a warning.
+    attr_reader :warn_for_color
+
     # Interpolation in a property is of the form `before #{mid} after`.
     #
     # @param before [Node] See {Interpolation#before}
@@ -31,9 +35,10 @@ module Sass::Script::Tree
     # @param wb [Boolean] See {Interpolation#whitespace_before}
     # @param wa [Boolean] See {Interpolation#whitespace_after}
     # @param originally_text [Boolean] See {Interpolation#originally_text}
+    # @param warn_for_color [Boolean] See {Interpolation#warn_for_color}
     # @comment
     #   rubocop:disable ParameterLists
-    def initialize(before, mid, after, wb, wa, originally_text = false)
+    def initialize(before, mid, after, wb, wa, originally_text = false, warn_for_color = false)
       # rubocop:enable ParameterLists
       @before = before
       @mid = mid
@@ -41,6 +46,7 @@ module Sass::Script::Tree
       @whitespace_before = wb
       @whitespace_after = wa
       @originally_text = originally_text
+      @warn_for_color = warn_for_color
     end
 
     # @return [String] A human-readable s-expression representation of the interpolation
@@ -90,7 +96,19 @@ module Sass::Script::Tree
       res = ""
       res << @before.perform(environment).to_s if @before
       res << " " if @before && @whitespace_before
+
       val = @mid.perform(environment)
+      if @warn_for_color && val.is_a?(Sass::Script::Value::Color) && val.name
+        alternative = Operation.new(Sass::Script::Value::String.new("", :string), @mid, :plus)
+        Sass::Util.sass_warn <<MESSAGE
+WARNING on line #{line}, column #{source_range.start_pos.offset}#{" of #{filename}" if filename}:
+You probably don't mean to use the color value `#{val}' in interpolation here.
+It may end up represented as #{val.inspect}, which will likely produce invalid CSS.
+Always quote color names when using them as strings (for example, "#{val}").
+If you really want to use the color value here, use `#{alternative.to_sass}'.
+MESSAGE
+      end
+
       res << (val.is_a?(Sass::Script::Value::String) ? val.value : val.to_s)
       res << " " if @after && @whitespace_after
       res << @after.perform(environment).to_s if @after

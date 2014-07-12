@@ -160,6 +160,11 @@ adding multiple suffixes to the same parent selector. For example:
 
 * The new `rebeccapurple` color is now supported.
 
+* Sass will now emit a warning when a named color is used directly in
+  interpolation (`#{}`) in a context where the hex representation would likely
+  be invalid. This should help users avoid having their stylesheets break in
+  compressed output mode.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * The current working directory will no longer be placed onto the Sass load path

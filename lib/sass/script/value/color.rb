@@ -563,7 +563,7 @@ module Sass::Script::Value
     def to_s(opts = {})
       return smallest if options[:style] == :compressed
       return representation if representation
-      return COLOR_NAMES_REVERSE[rgba] if COLOR_NAMES_REVERSE[rgba]
+      return name if name
       alpha? ? rgba_str : hex_str
     end
     alias_method :to_sass, :to_s
@@ -573,6 +573,13 @@ module Sass::Script::Value
     # @return [String] The hex value
     def inspect
       alpha? ? rgba_str : hex_str
+    end
+
+    # Returns the color's name, if it has one.
+    #
+    # @return [String, nil]
+    def name
+      COLOR_NAMES_REVERSE[rgba]
     end
 
     private
