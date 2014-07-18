@@ -2,7 +2,7 @@ AccessorMethodName:
   # We have good reasons for choosing our method names.
   Enabled: false
 AlignParameters:
-  # Nathan doesn't like to align parameters to the method call.
+  # Natalie doesn't like to align parameters to the method call.
   Enabled: false
 BlockNesting:
   # We'll catch this in code review. There are some legitimate uses.
