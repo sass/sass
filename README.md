@@ -199,11 +199,11 @@ and now occasionally consults on the language issues. Hampton lives in San
 Francisco, California and works as VP of Technology
 at [Moovweb](http://www.moovweb.com/).
 
-[Nathan Weizenbaum](http://nex-3.com) is the primary developer and architect of
-Sass. His hard work has kept the project alive by endlessly answering forum
+[Natalie Weizenbaum](http://nex-3.com) is the primary developer and architect of
+Sass. Her hard work has kept the project alive by endlessly answering forum
 posts, fixing bugs, refactoring, finding speed improvements, writing
 documentation, implementing new features, and getting Hampton coffee (a fitting
-task for a boy-genius). Nathan lives in Seattle, Washington and works on
+task for a girl genius). Natalie lives in Seattle, Washington and works on
 [Dart](http://dartlang.org) application libraries at Google.
 
 [Chris Eppstein](http://acts-as-architect.blogspot.com) is a core contributor to
@@ -214,8 +214,8 @@ his wife and daughter. He is an Engineer for
 [LinkedIn.com](http://linkedin.com), where one of his responsibilities is to
 maintain Sass & Compass.
 
-If you use this software, you must pay Hampton a compliment. And
-buy Nathan some jelly beans. Maybe pet a kitten. Yeah. Pet that kitty.
+If you use this software, you must pay Hampton a compliment. And buy Natalie
+some candy. Maybe pet a kitten. Yeah. Pet that kitty.
 
 Beyond that, the implementation is licensed under the MIT License.
 Okay, fine, I guess that means compliments aren't __required__.
