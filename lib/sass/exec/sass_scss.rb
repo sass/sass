@@ -69,7 +69,7 @@ END
       opts.separator 'Common Options:'
 
       opts.on('-I', '--load-path PATH', 'Specify a Sass import path.') do |path|
-        @options[:for_engine][:load_paths] << path
+        (@options[:for_engine][:load_paths] ||= []) << path
       end
 
       opts.on('-r', '--require LIB', 'Require a Ruby library before running Sass.') do |lib|
