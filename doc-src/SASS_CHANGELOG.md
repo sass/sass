@@ -119,7 +119,8 @@ adding multiple suffixes to the same parent selector. For example:
 
 * Sass now supports an `@error` directive that prints a message as a fatal
   error. This is useful for user-defined mixins and functions that want to
-  validate arguments and throw useful errors for unexpected conditions.
+  validate arguments and throw useful errors for unexpected conditions. Support
+  for this directive can be detected using `feature-exists(at-error)`.
 
 * When using colors in SassScript, the original representation of the color will
   be preserved wherever possible. If you write `#f00`, it will be rendered as

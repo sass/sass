@@ -11,6 +11,7 @@ module Sass
       global-variable-shadowing
       extend-selector-pseudoclass
       units-level-3
+      at-error
     }]
 
     # Check if a feature exists by name. This is used to implement
