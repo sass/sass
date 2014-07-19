@@ -71,13 +71,12 @@ module Sass::Script::Value
 
     # @see Value#plus
     def plus(other)
-      other_str = other.is_a?(Sass::Script::Value::String) ? other.value : other.to_s
-      Sass::Script::Value::String.new(value + other_str, type)
+      Sass::Script::Value::String.new(value + other.to_s(:quote => :none), type)
     end
 
     # @see Value#to_s
     def to_s(opts = {})
-      return @value.gsub(/\n\s*/, ' ') if @type == :identifier
+      return @value.gsub(/\n\s*/, ' ') if opts[:quote] == :none || @type == :identifier
       Sass::Script::Value::String.quote(value, opts[:quote])
     end
 

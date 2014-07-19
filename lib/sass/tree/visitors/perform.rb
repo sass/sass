@@ -515,10 +515,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def run_interp_no_strip(text)
     text.map do |r|
       next r if r.is_a?(String)
-      val = r.perform(@environment)
-      # Interpolated strings should never render with quotes
-      next val.value if val.is_a?(Sass::Script::Value::String)
-      val.to_s
+      r.perform(@environment).to_s(:quote => :none)
     end.join
   end
 

@@ -109,7 +109,7 @@ If you really want to use the color value here, use `#{alternative.to_sass}'.
 MESSAGE
       end
 
-      res << (val.is_a?(Sass::Script::Value::String) ? val.value : val.to_s)
+      res << val.to_s(:quote => :none)
       res << " " if @after && @whitespace_after
       res << @after.perform(environment).to_s if @after
       opts(Sass::Script::Value::String.new(res))

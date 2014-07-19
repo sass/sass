@@ -2014,10 +2014,10 @@ $var: "bar"
 SASS
   end
 
-  def test_interpolation_doesnt_deep_unquote_strings
+  def test_interpolation_deep_unquotes_strings
     assert_equal(<<CSS, render(<<SASS))
 .foo {
-  a: "bar" "baz"; }
+  a: bar baz; }
 CSS
 .foo
   a: \#{"bar" "baz"}

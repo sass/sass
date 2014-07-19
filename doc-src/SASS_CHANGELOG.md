@@ -204,6 +204,12 @@ adding multiple suffixes to the same parent selector. For example:
 * The subject selector operator, `!`, is deprecated and will produce a warning
   if used. The `:has()` selector should be used instead.
 
+* Quoted strings in lists will now be unquoted when those lists are interpolated
+  in anything else. This makes it much easier to add user-defined strings to
+  selector lists returned by `&`. This is unlikely to be behavior anyone's
+  relying on and would be difficult to deprecate gracefully, so there will be no
+  deprecation period for this change.
+
 ## 3.3.10 (11 July 2014)
 
 * Properly encode URLs in sourcemaps.
