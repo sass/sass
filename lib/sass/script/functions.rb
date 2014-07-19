@@ -2463,7 +2463,7 @@ module Sass::Script
     #
     # @example
     #   selector-replace(".foo .bar", ".bar", ".baz") => ".foo .baz"
-    #   selector-replace(".foo.bar.baz", ".foo.baz", ".qux") => ".foo.qux"
+    #   selector-replace(".foo.bar.baz", ".foo.baz", ".qux") => ".bar.qux"
     #
     # @overload selector_replace($selector, $original, $replacement)
     #   @param $selector [Sass::Script::Value::String, Sass::Script::Value::List]
@@ -2571,7 +2571,7 @@ module Sass::Script
     #   is-superselector(".foo", ".foo.bar") => true
     #   is-superselector(".foo.bar", ".foo") => false
     #   is-superselector(".bar", ".foo .bar") => true
-    #   is-superselector(".foo .bar", ".bar") => true
+    #   is-superselector(".foo .bar", ".bar") => false
     #
     # @overload is_superselector($super, $sub)
     #   @param $super [Sass::Script::Value::String, Sass::Script::Value::List]
