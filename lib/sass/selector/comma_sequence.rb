@@ -142,8 +142,9 @@ module Sass
       def to_sass_script
         Sass::Script::Value::List.new(members.map do |seq|
           Sass::Script::Value::List.new(seq.members.map do |component|
+            next if component == "\n"
             Sass::Script::Value::String.new(component.to_s)
-          end, :space)
+          end.compact, :space)
         end, :comma)
       end
 

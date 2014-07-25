@@ -647,6 +647,18 @@ SASS
     assert_equal ".bar", resolve("nth(nth(&, 1), 3)", {}, env)
   end
 
+  def test_selector_with_newlines
+    env = Sass::Environment.new
+    env.selector = selector(".foo.bar\n.baz.bang,\n\n.bip.bop")
+    assert_equal ".foo.bar .baz.bang, .bip.bop", resolve("&", {}, env)
+    assert_equal ".foo.bar .baz.bang", resolve("nth(&, 1)", {}, env)
+    assert_equal ".bip.bop", resolve("nth(&, 2)", {}, env)
+    assert_equal ".foo.bar", resolve("nth(nth(&, 1), 1)", {}, env)
+    assert_equal ".baz.bang", resolve("nth(nth(&, 1), 2)", {}, env)
+    assert_equal ".bip.bop", resolve("nth(nth(&, 2), 1)", {}, env)
+    assert_equal "string", resolve("type-of(nth(nth(&, 1), 1))", {}, env)
+  end
+
   def test_setting_global_variable_globally
     assert_no_warning {assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))}
 .foo {
