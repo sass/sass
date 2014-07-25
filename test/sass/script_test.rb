@@ -206,6 +206,11 @@ class SassScriptTest < MiniTest::Test
     assert_equal "foo1bar5baz4bang", resolve('\'foo#{1 + "bar#{2 + 3}baz" + 4}bang\'')
   end
 
+  def test_interpolation_with_newline
+    assert_equal "\nbang", resolve('"#{"\a "}bang"')
+    assert_equal "\n\nbang", resolve('"#{"\a "}\a bang"')
+  end
+
   def test_rule_interpolation
     assert_equal(<<CSS, render(<<SASS))
 foo bar baz bang {
@@ -342,6 +347,7 @@ SASS
     assert_equal '"foo", "bar"', resolve("'foo' , 'bar'")
     assert_equal "true, 1", resolve('true , 1')
     assert_equal "foobar", resolve('"foo" + "bar"')
+    assert_equal "\nfoo\nxyz", resolve('"\a foo" + "\axyz"')
     assert_equal "true1", resolve('true + 1')
     assert_equal '"foo"-"bar"', resolve("'foo' - 'bar'")
     assert_equal "true-1", resolve('true - 1')

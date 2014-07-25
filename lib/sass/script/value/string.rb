@@ -71,7 +71,12 @@ module Sass::Script::Value
 
     # @see Value#plus
     def plus(other)
-      Sass::Script::Value::String.new(value + other.to_s(:quote => :none), type)
+      other_value = if other.is_a?(Sass::Script::Value::String)
+                      other.value
+                    else
+                      other.to_s(:quote => :none)
+                    end
+      Sass::Script::Value::String.new(value + other_value, type)
     end
 
     # @see Value#to_s
