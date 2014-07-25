@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.3.11 (Unreleased)
+
+* `str-slice()` now correctly returns an empty string when `$end-at` is 0.
+
 ## 3.3.10 (11 July 2014)
 
 * Properly encode URLs in sourcemaps.

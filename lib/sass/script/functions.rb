@@ -1465,6 +1465,7 @@ module Sass::Script
       end_at = number(-1) if end_at.nil?
       assert_unit end_at, nil, "end-at"
 
+      return Sass::Script::Value::String.new("", string.type) if end_at.value == 0
       s = start_at.value > 0 ? start_at.value - 1 : start_at.value
       e = end_at.value > 0 ? end_at.value - 1 : end_at.value
       s = string.value.length + s if s < 0
