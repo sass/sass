@@ -945,6 +945,7 @@ class SassFunctionTest < MiniTest::Test
     assert_equal('ab',   evaluate('str-slice(abcd,1,2)'))    # for completeness
     assert_equal('abcd', evaluate('str-slice(abcd,1,4)'))    # at the end points
     assert_equal('abcd', evaluate('str-slice(abcd,0,4)'))    # when start is before the start of the string
+    assert_equal('',     evaluate('str-slice(abcd,1,0)'))    # when end is before the start of the string
     assert_equal('abcd', evaluate('str-slice(abcd,1,100)'))  # when end is past the end of the string
     assert_equal('',     evaluate('str-slice(abcd,2,1)'))    # when end is before start
     assert_equal('"bc"', evaluate('str-slice("abcd",2,3)'))  # when used with a quoted string
