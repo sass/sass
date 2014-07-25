@@ -441,7 +441,7 @@ module Sass::Script::Value
       end
       attrs[:alpha] ||= alpha
 
-      Color.new(attrs, :allow_both_rgb_and_hsl)
+      Color.new(attrs, nil, :allow_both_rgb_and_hsl)
     end
 
     # The SassScript `+` operation.

@@ -840,6 +840,25 @@ SCSS
 
   # Regression Tests
 
+  def test_repeatedly_modified_color
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  link-color: #161C14;
+  link-color-hover: black;
+  link-color-tap: rgba(22, 28, 20, 0.3); }
+CSS
+$green: #161C14
+$link-color: $green
+$link-color-hover: darken($link-color, 10%)
+$link-color-tap: rgba($green, 0.3)
+
+a
+  link-color: $link-color
+  link-color-hover: $link-color-hover
+  link-color-tap: $link-color-tap
+SASS
+  end
+
   def test_inspect_divided_numbers
     assert_equal "1px/2px", resolve("inspect(1px/2px)")
     assert_equal "0.5", resolve("inspect((1px/2px))")
