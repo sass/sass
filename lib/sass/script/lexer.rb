@@ -278,8 +278,9 @@ module Sass
         line, offset = @line, @offset
         return unless scan(STRING_REGULAR_EXPRESSIONS[re][open])
         if @scanner[0] =~ /([^\\]|^)\n/
+          filename = @options[:filename]
           Sass::Util.sass_warn <<MESSAGE
-DEPRECATION WARNING on line #{line}, column #{offset}#{" of #{@filename}" if @filename}:
+DEPRECATION WARNING on line #{line}, column #{offset}#{" of #{filename}" if filename}:
 Unescaped multiline strings are deprecated and will be removed in a future version of Sass.
 To include a newline in a string, use "\\a" or "\\a " as in CSS.
 MESSAGE

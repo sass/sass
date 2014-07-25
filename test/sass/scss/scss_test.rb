@@ -3511,7 +3511,7 @@ SCSS
 
   def test_raw_newline_warning
     assert_warning(<<MESSAGE.rstrip) {assert_equal(<<CSS, render(<<SCSS))}
-DEPRECATION WARNING on line 2, column 9:
+DEPRECATION WARNING on line 2, column 9 of #{filename_for_test :scss}:
 Unescaped multiline strings are deprecated and will be removed in a future version of Sass.
 To include a newline in a string, use "\\a" or "\\a " as in CSS.
 MESSAGE
