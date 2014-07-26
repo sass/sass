@@ -210,7 +210,7 @@ adding multiple suffixes to the same parent selector. For example:
   relying on and would be difficult to deprecate gracefully, so there will be no
   deprecation period for this change.
 
-## 3.3.11 (Unreleased)
+## 3.3.11 (25 July 2014)
 
 * `str-slice()` now correctly returns an empty string when `$end-at` is 0.
 
