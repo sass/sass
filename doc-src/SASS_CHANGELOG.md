@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.3.11 (Unreleased)
+## 3.3.11 (25 July 2014)
 
 * `str-slice()` now correctly returns an empty string when `$end-at` is 0.
 
