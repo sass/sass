@@ -139,7 +139,8 @@ module Sass::Plugin
     define_callback :template_deleted
 
     # Register a callback to be run when Sass deletes a CSS file.
-    # This happens when the corresponding Sass/SCSS file has been deleted.
+    # This happens when the corresponding Sass/SCSS file has been deleted
+    # and when the compiler cleans the output files.
     #
     # @yield [filename]
     # @yieldparam filename [String]
@@ -147,7 +148,8 @@ module Sass::Plugin
     define_callback :deleting_css
 
     # Register a callback to be run when Sass deletes a sourcemap file.
-    # This happens when the corresponding Sass/SCSS file has been deleted.
+    # This happens when the corresponding Sass/SCSS file has been deleted
+    # and when the compiler cleans the output files.
     #
     # @yield [filename]
     # @yieldparam filename [String]
@@ -169,21 +171,12 @@ module Sass::Plugin
     #   The first string in each pair is the location of the Sass/SCSS file,
     #   the second is the location of the CSS file that it should be compiled to.
     def update_stylesheets(individual_files = [])
-      individual_files = individual_files.dup
       Sass::Plugin.checked_for_updates = true
       staleness_checker = StalenessChecker.new(engine_options)
 
-      template_location_array.each do |template_location, css_location|
-        Sass::Util.glob(File.join(template_location, "**", "[^_]*.s[ca]ss")).sort.each do |file|
-          # Get the relative path to the file
-          name = file.sub(template_location.to_s.sub(/\/*$/, '/'), "")
-          css = css_filename(name, css_location)
-          sourcemap = Sass::Util.sourcemap_name(css) if engine_options[:sourcemap]
-          individual_files << [file, css, sourcemap]
-        end
-      end
+      files = file_list(individual_files)
 
-      individual_files.each do |file, css, sourcemap|
+      files.each do |file, css, sourcemap|
         # TODO: Does staleness_checker need to check the sourcemap file as well?
         if options[:always_update] || staleness_checker.stylesheet_needs_update?(css, file)
           update_stylesheet(file, css, sourcemap)
@@ -191,6 +184,37 @@ module Sass::Plugin
           run_not_updating_stylesheet(file, css, sourcemap)
         end
       end
+    end
+
+    # Construct a list of files that might need to be compiled
+    # from the provided individual_files and the template_locations.
+    #
+    # Note: this method does not cache the results as they can change
+    # across invocations when sass files are added or removed.
+    #
+    # @param individual_files [Array<(String, String)>]
+    #   A list of files to check for updates
+    # @return [Array<(String, String, String)>]
+    #   A list of [sass_file, css_file, sourcemap_file] tuples.
+    def file_list(individual_files = [])
+      files = individual_files.map do |tuple|
+        if tuple.size < 3
+          [tuple[0], tuple[1], Sass::Util.sourcemap_name(tuple[1])]
+        else
+          tuple
+        end
+      end
+
+      template_location_array.each do |template_location, css_location|
+        Sass::Util.glob(File.join(template_location, "**", "[^_]*.s[ca]ss")).sort.each do |file|
+          # Get the relative path to the file
+          name = file.sub(template_location.to_s.sub(/\/*$/, '/'), "")
+          css = css_filename(name, css_location)
+          sourcemap = Sass::Util.sourcemap_name(css) if engine_options[:sourcemap]
+          files << [file, css, sourcemap]
+        end
+      end
+      files
     end
 
     # Watches the template directory (or directories)
@@ -273,6 +297,28 @@ module Sass::Plugin
     # Compass expects this to exist
     def stylesheet_needs_update?(css_file, template_file)
       StalenessChecker.stylesheet_needs_update?(css_file, template_file)
+    end
+
+    # Remove all output files that would be created by calling update_stylesheets if they exist.
+    #
+    # @param individual_files [Array<(String, String)>]
+    #   A list of files to remove for updates
+    #   **in addition to those specified by the
+    #   {file:SASS_REFERENCE.md#template_location-option `:template_location` option}.**
+    #   The first string in each pair is the location of the Sass/SCSS file,
+    #   the second is the location of the CSS file that it should be compiled to.
+    def clean(individual_files = [])
+      file_list(individual_files).each do |(_, css_file, sourcemap_file)|
+        if File.exist?(css_file)
+          run_deleting_css css_file
+          File.delete(css_file)
+        end
+        if File.exist?(sourcemap_file)
+          run_deleting_sourcemap sourcemap_file
+          File.delete(sourcemap_file)
+        end
+      end
+      nil
     end
 
     private
