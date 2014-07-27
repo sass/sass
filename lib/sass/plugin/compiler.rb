@@ -49,6 +49,17 @@ module Sass::Plugin
     #   the third is the target sourcemap file.
     define_callback :updating_stylesheets
 
+    # Register a callback to be run after stylesheets are mass-updated.
+    # This is run whenever \{#update\_stylesheets} is called,
+    # unless the \{file:SASS_REFERENCE.md#never_update-option `:never_update` option}
+    # is enabled.
+    #
+    # @yield [updated_files]
+    # @yieldparam updated_files [<(String, String)>]
+    #   Individual files that were updated
+    #   The first element of each pair is the source file, the second is the target CSS file.
+    define_callback :updated_stylesheets
+
     # Register a callback to be run after a single stylesheet is updated.
     # The callback is only run if the stylesheet is really updated;
     # if the CSS file is fresh, this won't be run.
@@ -177,14 +188,19 @@ module Sass::Plugin
       files = file_list(individual_files)
       run_updating_stylesheets(files)
 
+      updated_stylesheets = []
       files.each do |file, css, sourcemap|
         # TODO: Does staleness_checker need to check the sourcemap file as well?
         if options[:always_update] || staleness_checker.stylesheet_needs_update?(css, file)
+          # XXX For consistency, this should return the sourcemap too, but it would
+          # XXX be an API change.
+          updated_stylesheets << [file, css]
           update_stylesheet(file, css, sourcemap)
         else
           run_not_updating_stylesheet(file, css, sourcemap)
         end
       end
+      run_updated_stylesheets(updated_stylesheets)
     end
 
     # Construct a list of files that might need to be compiled
