@@ -36,17 +36,17 @@ module Sass::Plugin
       options.merge!(opts)
     end
 
-    # Register a callback to be run after stylesheets are mass-updated.
+    # Register a callback to be run before stylesheets are mass-updated.
     # This is run whenever \{#update\_stylesheets} is called,
     # unless the \{file:SASS_REFERENCE.md#never_update-option `:never_update` option}
     # is enabled.
     #
-    # @yield [individual_files]
-    # @yieldparam individual_files [<(String, String)>]
-    #   Individual files to be updated, in addition to the directories
-    #   specified in the options.
+    # @yield [files]
+    # @yieldparam files [<(String, String, String)>]
+    #   Individual files to be updated. Files in directories specified are included in this list.
     #   The first element of each pair is the source file,
-    #   the second is the target CSS file.
+    #   the second is the target CSS file,
+    #   the third is the target sourcemap file.
     define_callback :updating_stylesheets
 
     # Register a callback to be run after a single stylesheet is updated.
@@ -175,6 +175,7 @@ module Sass::Plugin
       staleness_checker = StalenessChecker.new(engine_options)
 
       files = file_list(individual_files)
+      run_updating_stylesheets(files)
 
       files.each do |file, css, sourcemap|
         # TODO: Does staleness_checker need to check the sourcemap file as well?
