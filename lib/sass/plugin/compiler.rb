@@ -78,6 +78,21 @@ module Sass::Plugin
     #   The location of the sourcemap being generated, if any.
     define_callback :updated_stylesheet
 
+    # Register a callback to be run when compilation starts.
+    #
+    # In combination with on_updated_stylesheet, this could be used
+    # to collect compilation statistics like timing or to take a
+    # diff of the changes to the output file.
+    #
+    # @yield [template, css, sourcemap]
+    # @yieldparam template [String]
+    #   The location of the Sass/SCSS file being updated.
+    # @yieldparam css [String]
+    #   The location of the CSS file being generated.
+    # @yieldparam sourcemap [String]
+    #   The location of the sourcemap being generated, if any.
+    define_callback :compilation_starting
+
     # Register a callback to be run when Sass decides not to update a stylesheet.
     # In particular, the callback is run when Sass finds that
     # the template file and none of its dependencies
@@ -434,6 +449,7 @@ module Sass::Plugin
                                      :filename => filename,
                                      :sourcemap_filename => sourcemap)
         mapping = nil
+        run_compilation_starting(filename, css, sourcemap)
         engine = Sass::Engine.for_file(filename, engine_opts)
         if sourcemap
           rendered, mapping = engine.render_with_sourcemap(File.basename(sourcemap))
