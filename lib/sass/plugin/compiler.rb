@@ -273,8 +273,12 @@ module Sass::Plugin
     #   {file:SASS_REFERENCE.md#template_location-option `:template_location` option}.**
     #   The first string in each pair is the location of the Sass/SCSS file,
     #   the second is the location of the CSS file that it should be compiled to.
-    def watch(individual_files = [])
-      update_stylesheets(individual_files)
+    # @param options [Hash] The options that control how watching works.
+    # @option options [Boolean] :skip_initial_update
+    #   Don't do an initial update when starting the watcher when true
+    def watch(individual_files = [], options = {})
+      options, individual_files = individual_files, [] if individual_files.is_a?(Hash)
+      update_stylesheets(individual_files) unless options[:skip_initial_update]
 
       directories = watched_paths
       individual_files.each do |(source, _, _)|
