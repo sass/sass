@@ -328,6 +328,7 @@ module Sass::Plugin
       end
 
       removed.uniq.each do |f|
+        run_template_deleted(relative_to_pwd(f))
         if (files = individual_files.find {|(source, _, _)| File.expand_path(source) == f})
           recompile_required = true
           # This was a file we were watching explicitly and compiling to a particular location.
@@ -347,7 +348,6 @@ module Sass::Plugin
             end
           end
         end
-        run_template_deleted(relative_to_pwd(f))
       end
 
       if recompile_required
