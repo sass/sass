@@ -276,6 +276,15 @@ module Sass::Plugin
     # @param options [Hash] The options that control how watching works.
     # @option options [Boolean] :skip_initial_update
     #   Don't do an initial update when starting the watcher when true
+    # @option options [Array<String>] :additional_watch_paths
+    #   A list of paths that should be watched for changes for use by the block
+    #   given to this method.
+    #
+    # @yield [modified, added, removed] The files that the listener noticed changed.
+    #   These can be any file in the watched directories; they might not be sass files.
+    # @yieldparam [Array<String>] modified The files that were modified.
+    # @yieldparam [Array<String>] added The files that were added.
+    # @yieldparam [Array<String>] removed The files that were removed.
     def watch(individual_files = [], options = {})
       options, individual_files = individual_files, [] if individual_files.is_a?(Hash)
       update_stylesheets(individual_files) unless options[:skip_initial_update]
@@ -295,7 +304,9 @@ module Sass::Plugin
 
       # TODO: Keep better track of what depends on what
       # so we don't have to run a global update every time anything changes.
-      listener_args = directories + [{:relative_paths => false}]
+      listener_args = directories +
+                      Array(options[:additional_watch_paths]) +
+                      [{:relative_paths => false}]
 
       # The native windows listener is much slower than the polling option, according to
       # https://github.com/nex3/sass/commit/a3031856b22bc834a5417dedecb038b7be9b9e3e
@@ -308,6 +319,7 @@ module Sass::Plugin
 
       listener = create_listener(*listener_args) do |modified, added, removed|
         on_file_changed(individual_files, modified, added, removed)
+        yield(modified, added, removed) if block_given?
       end
 
       if poll && !Sass::Util.listen_geq_2?
