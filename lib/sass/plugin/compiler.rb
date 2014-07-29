@@ -367,7 +367,7 @@ module Sass::Plugin
           run_deleting_css css_file
           File.delete(css_file)
         end
-        if File.exist?(sourcemap_file)
+        if sourcemap_file && File.exist?(sourcemap_file)
           run_deleting_sourcemap sourcemap_file
           File.delete(sourcemap_file)
         end
