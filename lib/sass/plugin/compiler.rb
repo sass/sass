@@ -285,15 +285,6 @@ module Sass::Plugin
     # @param options [Hash] The options that control how watching works.
     # @option options [Boolean] :skip_initial_update
     #   Don't do an initial update when starting the watcher when true
-    # @option options [Array<String>] :additional_watch_paths
-    #   A list of paths that should be watched for changes for use by the block
-    #   given to this method.
-    #
-    # @yield [modified, added, removed] The files that the listener noticed changed.
-    #   These can be any file in the watched directories; they might not be sass files.
-    # @yieldparam [Array<String>] modified The files that were modified.
-    # @yieldparam [Array<String>] added The files that were added.
-    # @yieldparam [Array<String>] removed The files that were removed.
     def watch(individual_files = [], options = {})
       options, individual_files = individual_files, [] if individual_files.is_a?(Hash)
       update_stylesheets(individual_files) unless options[:skip_initial_update]
@@ -313,6 +304,8 @@ module Sass::Plugin
 
       # TODO: Keep better track of what depends on what
       # so we don't have to run a global update every time anything changes.
+      # XXX The :additional_watch_paths option exists for Compass to use until
+      # a deprecated feature is removed. It may be removed without warning.
       listener_args = directories +
                       Array(options[:additional_watch_paths]) +
                       [{:relative_paths => false}]
