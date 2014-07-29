@@ -190,12 +190,13 @@ module Sass::Plugin
     # in {file:SASS_REFERENCE.md#css_location-option `:css_location`}.
     # If it has, it updates the CSS file.
     #
-    # @param individual_files [Array<(String, String)>]
+    # @param individual_files [Array<(String, String[, String])>]
     #   A list of files to check for updates
     #   **in addition to those specified by the
     #   {file:SASS_REFERENCE.md#template_location-option `:template_location` option}.**
     #   The first string in each pair is the location of the Sass/SCSS file,
     #   the second is the location of the CSS file that it should be compiled to.
+    #   The third string, if provided, is the location of the Sourcemap file.
     def update_stylesheets(individual_files = [])
       Sass::Plugin.checked_for_updates = true
       staleness_checker = StalenessChecker.new(engine_options)
@@ -224,10 +225,17 @@ module Sass::Plugin
     # Note: this method does not cache the results as they can change
     # across invocations when sass files are added or removed.
     #
-    # @param individual_files [Array<(String, String)>]
+    # @param individual_files [Array<(String, String[, String])>]
     #   A list of files to check for updates
+    #   **in addition to those specified by the
+    #   {file:SASS_REFERENCE.md#template_location-option `:template_location` option}.**
+    #   The first string in each pair is the location of the Sass/SCSS file,
+    #   the second is the location of the CSS file that it should be compiled to.
+    #   The third string, if provided, is the location of the Sourcemap file.
     # @return [Array<(String, String, String)>]
-    #   A list of [sass_file, css_file, sourcemap_file] tuples.
+    #   A list of [sass_file, css_file, sourcemap_file] tuples similar
+    #   to what was passed in, but expanded to include the current state
+    #   of the directories being updated.
     def file_list(individual_files = [])
       files = individual_files.map do |tuple|
         if tuple.size < 3
@@ -267,12 +275,13 @@ module Sass::Plugin
     # The version of Listen distributed with Sass is loaded by default,
     # but if another version has already been loaded that will be used instead.
     #
-    # @param individual_files [Array<(String, String)>]
-    #   A list of files to watch for updates
+    # @param individual_files [Array<(String, String[, String])>]
+    #   A list of files to check for updates
     #   **in addition to those specified by the
     #   {file:SASS_REFERENCE.md#template_location-option `:template_location` option}.**
     #   The first string in each pair is the location of the Sass/SCSS file,
     #   the second is the location of the CSS file that it should be compiled to.
+    #   The third string, if provided, is the location of the Sourcemap file.
     # @param options [Hash] The options that control how watching works.
     # @option options [Boolean] :skip_initial_update
     #   Don't do an initial update when starting the watcher when true
@@ -347,14 +356,18 @@ module Sass::Plugin
       StalenessChecker.stylesheet_needs_update?(css_file, template_file)
     end
 
-    # Remove all output files that would be created by calling update_stylesheets if they exist.
+    # Remove all output files that would be created by calling update_stylesheets, if they exist.
     #
-    # @param individual_files [Array<(String, String)>]
-    #   A list of files to remove for updates
+    # This method runs the deleting_css and deleting_sourcemap callbacks for
+    # the files that are deleted.
+    #
+    # @param individual_files [Array<(String, String[, String])>]
+    #   A list of files to check for updates
     #   **in addition to those specified by the
     #   {file:SASS_REFERENCE.md#template_location-option `:template_location` option}.**
     #   The first string in each pair is the location of the Sass/SCSS file,
     #   the second is the location of the CSS file that it should be compiled to.
+    #   The third string, if provided, is the location of the Sourcemap file.
     def clean(individual_files = [])
       file_list(individual_files).each do |(_, css_file, sourcemap_file)|
         if File.exist?(css_file)
