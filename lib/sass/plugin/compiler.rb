@@ -56,7 +56,7 @@ module Sass::Plugin
     #
     # @yield [updated_files]
     # @yieldparam updated_files [<(String, String)>]
-    #   Individual files that were updated
+    #   Individual files that were updated.
     #   The first element of each pair is the source file, the second is the target CSS file.
     define_callback :updated_stylesheets
 
