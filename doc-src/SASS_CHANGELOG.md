@@ -3,10 +3,10 @@
 * Table of contents
 {:toc}
 
-## 3.3.11 (UNRELEASED)
+## 3.3.12 (UNRELEASED)
 
 * The Sass::Compiler class has a number of new minor features to support
-Compass's compilation needs:
+  Compass's compilation needs:
 
   * The template_deleted event of the Sass Compiler class now runs before the
     side-effect events.
@@ -19,6 +19,10 @@ Compass's compilation needs:
     after stylesheets are mass-updated.
   * The Sass Compiler can now be made to skip the initial update
     when watching.
+
+## 3.3.11 (25 July 2014)
+
+* `str-slice()` now correctly returns an empty string when `$end-at` is 0.
 
 ## 3.3.10 (11 July 2014)
 
