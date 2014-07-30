@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.3.12 (UNRELEASED)
+## 3.3.12 (29 July 2014)
 
 * The Sass::Compiler class has a number of new minor features to support
   Compass's compilation needs:
