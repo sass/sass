@@ -3,6 +3,23 @@
 * Table of contents
 {:toc}
 
+## 3.3.11 (UNRELEASED)
+
+* The Sass::Compiler class has a number of new minor features to support
+Compass's compilation needs:
+
+  * The template_deleted event of the Sass Compiler class now runs before the
+    side-effect events.
+  * The Sass Compiler class can now be used to clean output files.
+  * The Sass Compiler class now exposes an updating_stylesheets callback
+    that runs before stylesheets are mass-updated.
+  * The Sass Compiler class now exposes a the compilation_starting callback
+    that runs before an individual stylesheet is compiled.
+  * The Sass Compiler class now runs the updated_stylesheets callback
+    after stylesheets are mass-updated.
+  * The Sass Compiler can now be made to skip the initial update
+    when watching.
+
 ## 3.3.10 (11 July 2014)
 
 * Properly encode URLs in sourcemaps.
