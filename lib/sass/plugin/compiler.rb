@@ -383,7 +383,6 @@ module Sass::Plugin
         # Work around guard/listen#243.
         options = args.pop if args.last.is_a?(Hash)
         args.map do |dir|
-          p [dir, options]
           Listen.to(dir, options, &block)
         end
       else
