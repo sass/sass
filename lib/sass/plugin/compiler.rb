@@ -380,7 +380,11 @@ module Sass::Plugin
     def create_listener(*args, &block)
       Sass::Util.load_listen!
       if Sass::Util.listen_geq_2?
-        Listen.to(*args, &block)
+        # Work around guard/listen#243.
+        options = args.pop if args.last.is_a?(Hash)
+        args.map do |dir|
+          Listen.to(dir, options, &block)
+        end
       else
         Listen::Listener.new(*args, &block)
       end
@@ -388,7 +392,7 @@ module Sass::Plugin
 
     def listen_to(listener)
       if Sass::Util.listen_geq_2?
-        listener.start.join
+        listener.map {|listener| listener.start}.each {|thread| thread.join}
       else
         listener.start!
       end

@@ -210,7 +210,7 @@ adding multiple suffixes to the same parent selector. For example:
   relying on and would be difficult to deprecate gracefully, so there will be no
   deprecation period for this change.
 
-## 3.3.12 (UNRELEASED)
+## 3.3.12 (29 July 2014)
 
 * The Sass::Compiler class has a number of new minor features to support
   Compass's compilation needs:
