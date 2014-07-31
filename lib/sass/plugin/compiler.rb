@@ -392,7 +392,7 @@ module Sass::Plugin
 
     def listen_to(listener)
       if Sass::Util.listen_geq_2?
-        listener.map {|listener| listener.start}.each {|thread| thread.join}
+        listener.map {|l| l.start}.each {|thread| thread.join}
       else
         listener.start!
       end
