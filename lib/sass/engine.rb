@@ -199,6 +199,7 @@ module Sass
       when :normal; options[:property_syntax] = :old
       end
       options[:sourcemap] = :auto if options[:sourcemap] == true
+      options[:sourcemap] = :none if options[:sourcemap] == false
 
       options
     end

@@ -341,6 +341,8 @@ module Sass::Plugin
     def engine_options(additional_options = {})
       opts = options.merge(additional_options)
       opts[:load_paths] = load_paths(opts)
+      options[:sourcemap] = :auto if options[:sourcemap] == true
+      options[:sourcemap] = :none if options[:sourcemap] == false
       opts
     end
 
