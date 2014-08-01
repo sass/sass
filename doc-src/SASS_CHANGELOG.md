@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.3.14 (Unreleased)
+
+* Improved edge-case parsing of special-syntax functions like `calc()` and
+  `expression()`.
+
 ## 3.3.13 (31 July 2014)
 
 * Fixed a bug on ruby 2.0 where watching several folders was broken.
