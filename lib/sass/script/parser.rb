@@ -494,22 +494,14 @@ RUBY
       end
 
       def special_fun
-        start_pos = source_position
-        tok = try_tok(:special_fun)
-        return paren unless tok
-        first = literal_node(Script::Value::String.new(tok.value.first),
-          start_pos, start_pos.after(tok.value.first))
-        Sass::Util.enum_slice(tok.value[1..-1], 2).inject(first) do |l, (i, r)|
-          end_pos = i.source_range.end_pos
-          end_pos = end_pos.after(r) if r
-          node(
-            Script::Tree::Interpolation.new(
-              l, i,
-              r && literal_node(Script::Value::String.new(r),
-                i.source_range.end_pos, end_pos),
-              false, false),
-            start_pos, end_pos)
-        end
+        first = try_tok(:special_fun)
+        return paren unless first
+        str = literal_node(first.value, first.source_range)
+        return str unless try_tok(:begin_interpolation)
+        mid = parse_interpolated
+        last = assert_expr(:special_fun)
+        node(Tree::Interpolation.new(str, mid, last, false, false),
+            first.source_range.start_pos)
       end
 
       def paren
@@ -571,6 +563,7 @@ RUBY
         :mixin_arglist => "mixin argument",
         :fn_arglist => "function argument",
         :splat => "...",
+        :special_fun => '")"',
       }
 
       def assert_expr(name, expected = nil)

@@ -838,6 +838,23 @@ SCSS
     assert_equal 'foobar', resolve("'foo\\\nbar'")
   end
 
+  def test_unclosed_special_fun
+    assert_raise_message(Sass::SyntaxError, 'Invalid CSS after "calc(foo()": expected ")", was ""') do
+      resolve("calc(foo()")
+    end
+    assert_raise_message(Sass::SyntaxError, 'Invalid CSS after "calc(#{\')\'}": expected ")", was ""') do
+      resolve("calc(\#{')'}")
+    end
+    assert_raise_message(Sass::SyntaxError, 'Invalid CSS after "calc(#{foo": expected "}", was ""') do
+      resolve("calc(\#{foo")
+    end
+  end
+
+  def test_special_fun_with_interpolation
+    assert_equal "calc())", resolve("calc(\#{')'})")
+    assert_equal "calc(# {foo})", resolve("calc(# {foo})")
+  end
+
   # Regression Tests
 
   def test_repeatedly_modified_color

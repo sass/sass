@@ -250,8 +250,14 @@ module Sass
       end
 
       def token
-        if after_interpolation? && (interp_type = @interpolation_stack.pop)
-          return string(interp_type, true)
+        if after_interpolation? && (interp = @interpolation_stack.pop)
+          interp_type, interp_value = interp
+          if interp_type == :special_fun
+            return special_fun_body(interp_value)
+          else
+            raise "[BUG]: Unknown interp_type #{interp_type}" unless interp_type == :string
+            return string(interp_value, true)
+          end
         end
 
         variable || string(:double, false) || string(:single, false) || number || id || color ||
@@ -289,7 +295,7 @@ MESSAGE
         if @scanner[2] == '#{' # '
           @scanner.pos -= 2 # Don't actually consume the #{
           @offset -= 2
-          @interpolation_stack << re
+          @interpolation_stack << [:string, re]
         end
         str =
           if re == :uri
@@ -368,18 +374,34 @@ MESSAGE
       end
 
       def special_fun
-        str1 = scan(/((-[\w-]+-)?(calc|element)|expression|progid:[a-z\.]*)\(/i)
-        return unless str1
-        str2, _ = Sass::Shared.balance(@scanner, ?(, ?), 1)
-        c = str2.count("\n")
-        old_line = @line
-        old_offset = @offset
-        @line += c
-        @offset = c == 0 ? @offset + str2.size : str2[/\n([^\n]*)/, 1].size + 1
-        [:special_fun,
-         Sass::Util.merge_adjacent_strings(
-            [str1] + Sass::Engine.parse_interp(str2, old_line, old_offset, @options)),
-         str1.size + str2.size]
+        prefix = scan(/((-[\w-]+-)?(calc|element)|expression|progid:[a-z\.]*)\(/i)
+        return unless prefix
+        special_fun_body(1, prefix)
+      end
+
+      def special_fun_body(parens, prefix = nil)
+        str = prefix || ''
+        while (scanned = scan(/.*?([()]|\#{)/m))
+          str << scanned
+          if scanned[-1] == ?(
+            parens += 1
+            next
+          elsif scanned[-1] == ?)
+            parens -= 1
+            next unless parens == 0
+          else
+            raise "[BUG] Unreachable" unless @scanner[1] == '#{' # '
+            str.slice!(-2..-1)
+            @scanner.pos -= 2 # Don't actually consume the #{
+            @offset -= 2
+            @interpolation_stack << [:special_fun, parens]
+          end
+
+          return [:special_fun, Sass::Script::Value::String.new(str)]
+        end
+
+        scan(/.*/)
+        expected!('")"')
       end
 
       def special_val
