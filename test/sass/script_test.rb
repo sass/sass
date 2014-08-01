@@ -21,14 +21,14 @@ end
 class SassScriptTest < MiniTest::Test
   include Sass::Script
 
-  def test_color_checks_input
-    assert_raise_message(ArgumentError, "Blue value -1 must be between 0 and 255") {Sass::Script::Value::Color.new([1, 2, -1])}
-    assert_raise_message(ArgumentError, "Red value 256 must be between 0 and 255") {Sass::Script::Value::Color.new([256, 2, 3])}
+  def test_color_clamps_input
+    assert_equal 0, Sass::Script::Value::Color.new([1, 2, -1]).blue
+    assert_equal 255, Sass::Script::Value::Color.new([256, 2, 3]).red
   end
 
-  def test_color_checks_rgba_input
-    assert_raise_message(ArgumentError, "Alpha channel 1.1 must be between 0 and 1") {Sass::Script::Value::Color.new([1, 2, 3, 1.1])}
-    assert_raise_message(ArgumentError, "Alpha channel -0.1 must be between 0 and 1") {Sass::Script::Value::Color.new([1, 2, 3, -0.1])}
+  def test_color_clamps_rgba_input
+    assert_equal 1, Sass::Script::Value::Color.new([1, 2, 3, 1.1]).alpha
+    assert_equal 0, Sass::Script::Value::Color.new([1, 2, 3, -0.1]).alpha
   end
 
   def test_string_escapes

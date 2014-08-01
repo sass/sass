@@ -51,10 +51,8 @@ class ValueHelpersTest < MiniTest::Test
     assert_equal 0.5, color_with_alpha.alpha
   end
 
-  def test_hex_color_alpha_enforces_0_to_1
-    assert_raises ArgumentError do
-      hex_color("FF007F", 50)
-    end
+  def test_hex_color_alpha_clamps_0_to_1
+    assert_equal 1, hex_color("FF007F", 50).alpha
   end
 
   def test_hsl_color_without_alpha

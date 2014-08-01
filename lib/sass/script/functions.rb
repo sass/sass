@@ -628,10 +628,9 @@ module Sass::Script
 
       color_attrs = [[red, :red], [green, :green], [blue, :blue]].map do |(c, name)|
         if c.is_unit?("%")
-          v = Sass::Util.check_range("$#{name}: Color value", 0..100, c, '%')
-          v * 255 / 100.0
+          c.value * 255 / 100.0
         elsif c.unitless?
-          Sass::Util.check_range("$#{name}: Color value", 0..255, c)
+          c.value
         else
           raise ArgumentError.new("Expected #{c} to be unitless or have a unit of % but got #{c}")
         end
@@ -683,7 +682,6 @@ module Sass::Script
         assert_type color, :Color, :color
         assert_type alpha, :Number, :alpha
 
-        Sass::Util.check_range('Alpha channel', 0..1, alpha)
         color.with(:alpha => alpha.value)
       when 4
         red, green, blue, alpha = args
@@ -741,11 +739,9 @@ module Sass::Script
       assert_type lightness, :Number, :lightness
       assert_type alpha, :Number, :alpha
 
-      Sass::Util.check_range('Alpha channel', 0..1, alpha)
-
       h = hue.value
-      s = Sass::Util.check_range('Saturation', 0..100, saturation, '%')
-      l = Sass::Util.check_range('Lightness', 0..100, lightness, '%')
+      s = saturation.value
+      l = lightness.value
 
       # Don't store the string representation for function-created colors, both
       # because it's not very useful and because some functions aren't supported
@@ -1243,12 +1239,27 @@ module Sass::Script
     #   same time
     def change_color(color, kwargs)
       assert_type color, :Color, :color
-      with = Sass::Util.to_hash(%w[red green blue hue saturation lightness alpha].map do |name|
+      with = Sass::Util.map_hash(
+        'red' => ['Red value', 0..255],
+        'green' => ['Green value', 0..255],
+        'blue' => ['Blue value', 0..255],
+        'hue' => [],
+        'saturation' => ['Saturation', 0..100, '%'],
+        'lightness' => ['Lightness', 0..100, '%'],
+        'alpha' => ['Alpha channel', 0..1]
+      ) do |name, (desc, range, unit)|
         val = kwargs.delete(name)
         next unless val
         assert_type val, :Number, name
-        [name.to_sym, val.value]
-      end)
+
+        if range
+          val = Sass::Util.check_range(desc, range, val, unit)
+        else
+          val = val.value
+        end
+
+        [name.to_sym, val]
+      end
 
       unless kwargs.empty?
         name, val = kwargs.to_a.first
@@ -2609,11 +2620,7 @@ module Sass::Script
       assert_type amount, :Number, :amount
       Sass::Util.check_range('Amount', range, amount, units)
 
-      # TODO: is it worth restricting here,
-      # or should we do so in the Color constructor itself,
-      # and allow clipping in rgb() et al?
-      color.with(attr => Sass::Util.restrict(
-          color.send(attr).send(op, amount.value), range))
+      color.with(attr => color.send(attr).send(op, amount.value))
     end
   end
 end

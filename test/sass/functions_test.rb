@@ -90,9 +90,9 @@ class SassFunctionTest < MiniTest::Test
     assert_equal "#33cccc", evaluate("hsl($hue: 180, $saturation: 60%, $lightness: 50%)")
   end
 
-  def test_hsl_checks_bounds
-    assert_error_message("Saturation -114 must be between 0% and 100% for `hsl'", "hsl(10, -114, 12)");
-    assert_error_message("Lightness 256% must be between 0% and 100% for `hsl'", "hsl(10, 10, 256%)");
+  def test_hsl_clamps_bounds
+    assert_equal("#1f1f1f", evaluate("hsl(10, -114, 12)"))
+    assert_equal("white", evaluate("hsl(10, 10, 256%)"))
   end
 
   def test_hsl_checks_types
@@ -108,11 +108,11 @@ class SassFunctionTest < MiniTest::Test
     assert_equal "rgba(51, 204, 204, 0.4)", evaluate("hsla($hue: 180, $saturation: 60%, $lightness: 50%, $alpha: 0.4)")
   end
 
-  def test_hsla_checks_bounds
-    assert_error_message("Saturation -114 must be between 0% and 100% for `hsla'", "hsla(10, -114, 12, 1)");
-    assert_error_message("Lightness 256% must be between 0% and 100% for `hsla'", "hsla(10, 10, 256%, 0)");
-    assert_error_message("Alpha channel -0.1 must be between 0 and 1 for `hsla'", "hsla(10, 10, 10, -0.1)");
-    assert_error_message("Alpha channel 1.1 must be between 0 and 1 for `hsla'", "hsla(10, 10, 10, 1.1)");
+  def test_hsla_clamps_bounds
+    assert_equal("#1f1f1f", evaluate("hsla(10, -114, 12, 1)"))
+    assert_equal("rgba(255, 255, 255, 0)", evaluate("hsla(10, 10, 256%, 0)"))
+    assert_equal("rgba(28, 24, 23, 0)", evaluate("hsla(10, 10, 10, -0.1)"))
+    assert_equal("#1c1817", evaluate("hsla(10, 10, 10, 1.1)"))
   end
 
   def test_hsla_checks_types
@@ -212,26 +212,18 @@ class SassFunctionTest < MiniTest::Test
     assert_equal("springgreen", evaluate("rgb(0%, 100%, 50%)"))
   end
 
-  def test_rgb_tests_bounds
-    assert_error_message("$red: Color value 256 must be between 0 and 255 for `rgb'",
-      "rgb(256, 1, 1)")
-    assert_error_message("$green: Color value 256 must be between 0 and 255 for `rgb'",
-      "rgb(1, 256, 1)")
-    assert_error_message("$blue: Color value 256 must be between 0 and 255 for `rgb'",
-      "rgb(1, 1, 256)")
-    assert_error_message("$green: Color value 256 must be between 0 and 255 for `rgb'",
-      "rgb(1, 256, 257)")
-    assert_error_message("$red: Color value -1 must be between 0 and 255 for `rgb'",
-      "rgb(-1, 1, 1)")
+  def test_rgb_clamps_bounds
+    assert_equal("#ff0101", evaluate("rgb(256, 1, 1)"))
+    assert_equal("#01ff01", evaluate("rgb(1, 256, 1)"))
+    assert_equal("#0101ff", evaluate("rgb(1, 1, 256)"))
+    assert_equal("#01ffff", evaluate("rgb(1, 256, 257)"))
+    assert_equal("#000101", evaluate("rgb(-1, 1, 1)"))
   end
 
-  def test_rgb_test_percent_bounds
-    assert_error_message("$red: Color value 100.1% must be between 0% and 100% for `rgb'",
-      "rgb(100.1%, 0, 0)")
-    assert_error_message("$green: Color value -0.1% must be between 0% and 100% for `rgb'",
-      "rgb(0, -0.1%, 0)")
-    assert_error_message("$blue: Color value 101% must be between 0% and 100% for `rgb'",
-      "rgb(0, 0, 101%)")
+  def test_rgb_clamps_percent_bounds
+    assert_equal("red", evaluate("rgb(100.1%, 0, 0)"))
+    assert_equal("black", evaluate("rgb(0, -0.1%, 0)"))
+    assert_equal("blue", evaluate("rgb(0, 0, 101%)"))
   end
 
   def test_rgb_tests_types
@@ -247,21 +239,14 @@ class SassFunctionTest < MiniTest::Test
     assert_equal("rgba(0, 255, 127, 0)", evaluate("rgba($red: 0, $green: 255, $blue: 127, $alpha: 0)"))
   end
 
-  def test_rgba_tests_bounds
-    assert_error_message("$red: Color value 256 must be between 0 and 255 for `rgba'",
-      "rgba(256, 1, 1, 0.3)")
-    assert_error_message("$green: Color value 256 must be between 0 and 255 for `rgba'",
-      "rgba(1, 256, 1, 0.3)")
-    assert_error_message("$blue: Color value 256 must be between 0 and 255 for `rgba'",
-      "rgba(1, 1, 256, 0.3)")
-    assert_error_message("$green: Color value 256 must be between 0 and 255 for `rgba'",
-      "rgba(1, 256, 257, 0.3)")
-    assert_error_message("$red: Color value -1 must be between 0 and 255 for `rgba'",
-      "rgba(-1, 1, 1, 0.3)")
-    assert_error_message("Alpha channel -0.2 must be between 0 and 1 for `rgba'",
-      "rgba(1, 1, 1, -0.2)")
-    assert_error_message("Alpha channel 1.2 must be between 0 and 1 for `rgba'",
-      "rgba(1, 1, 1, 1.2)")
+  def test_rgba_clamps_bounds
+    assert_equal("rgba(255, 1, 1, 0.3)", evaluate("rgba(256, 1, 1, 0.3)"))
+    assert_equal("rgba(1, 255, 1, 0.3)", evaluate("rgba(1, 256, 1, 0.3)"))
+    assert_equal("rgba(1, 1, 255, 0.3)", evaluate("rgba(1, 1, 256, 0.3)"))
+    assert_equal("rgba(1, 255, 255, 0.3)", evaluate("rgba(1, 256, 257, 0.3)"))
+    assert_equal("rgba(0, 1, 1, 0.3)", evaluate("rgba(-1, 1, 1, 0.3)"))
+    assert_equal("rgba(1, 1, 1, 0)", evaluate("rgba(1, 1, 1, -0.2)"))
+    assert_equal("#010101", evaluate("rgba(1, 1, 1, 1.2)"))
   end
 
   def test_rgba_tests_types

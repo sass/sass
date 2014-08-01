@@ -165,6 +165,10 @@ adding multiple suffixes to the same parent selector. For example:
 
 * The new `rebeccapurple` color is now supported.
 
+* The `rgb()`, `rgba()`, `hsl()`, and `hsla()` functions now follow the CSS spec
+  by clamping their arguments to the valid ranges rather than emitting an error.
+  Sass-specific color functions still throw errors for out-of-range values.
+
 * Sass will now emit a warning when a named color is used directly in
   interpolation (`#{}`) in a context where the hex representation would likely
   be invalid. This should help users avoid having their stylesheets break in

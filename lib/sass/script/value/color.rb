@@ -196,9 +196,9 @@ module Sass::Script::Value
     # Constructs an RGB or HSL color object,
     # optionally with an alpha channel.
     #
-    # The RGB values must be between 0 and 255.
-    # The saturation and lightness values must be between 0 and 100.
-    # The alpha value must be between 0 and 1.
+    # RGB values are clipped within 0 and 255.
+    # Saturation and lightness values are clipped within 0 and 100.
+    # The alpha value is clipped within 0 and 1.
     #
     # @raise [Sass::SyntaxError] if any color value isn't in the specified range
     #
@@ -258,17 +258,15 @@ module Sass::Script::Value
 
       [:red, :green, :blue].each do |k|
         next if @attrs[k].nil?
-        @attrs[k] = @attrs[k].to_i
-        Sass::Util.check_range("#{k.to_s.capitalize} value", 0..255, @attrs[k])
+        @attrs[k] = Sass::Util.restrict(@attrs[k].to_i, 0..255)
       end
 
       [:saturation, :lightness].each do |k|
         next if @attrs[k].nil?
-        value = Number.new(@attrs[k], ['%']) # Get correct unit for error messages
-        @attrs[k] = Sass::Util.check_range("#{k.to_s.capitalize}", 0..100, value, '%')
+        @attrs[k] = Sass::Util.restrict(@attrs[k], 0..100)
       end
 
-      @attrs[:alpha] = Sass::Util.check_range("Alpha channel", 0..1, @attrs[:alpha])
+      @attrs[:alpha] = Sass::Util.restrict(@attrs[:alpha], 0..1)
     end
 
     # Create a new color from a valid CSS hex string.
