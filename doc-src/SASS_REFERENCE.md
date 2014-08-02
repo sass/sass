@@ -525,9 +525,7 @@ The property namespace itself can also have a value.
 For example:
 
     .funky {
-      font: 2px/3px {
-        family: fantasy;
-        size: 30em;
+      font: 20px/24px fantasy {
         weight: bold;
       }
     }
@@ -535,10 +533,10 @@ For example:
 is compiled to:
 
     .funky {
-      font: 2px/3px;
-        font-family: fantasy;
-        font-size: 30em;
-        font-weight: bold; }
+      font: 20px/24px fantasy;
+        font-weight: bold;
+    }
+
 
 ### Placeholder Selectors: `%foo`
 
