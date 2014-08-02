@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.3.14 (Unreleased)
+## 3.3.14 (1 August 2014)
 
 * Improved edge-case parsing of special-syntax functions like `calc()` and
   `expression()`.
