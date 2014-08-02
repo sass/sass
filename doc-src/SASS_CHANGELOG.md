@@ -8,6 +8,8 @@
 * Improved edge-case parsing of special-syntax functions like `calc()` and
   `expression()`.
 
+* Fixed a bug when using `--update` with absolute paths on Windows.
+
 ## 3.3.13 (31 July 2014)
 
 * Fixed a bug on ruby 2.0 where watching several folders was broken.
