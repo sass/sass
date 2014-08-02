@@ -248,7 +248,8 @@ module Sass::Plugin
       template_location_array.each do |template_location, css_location|
         Sass::Util.glob(File.join(template_location, "**", "[^_]*.s[ca]ss")).sort.each do |file|
           # Get the relative path to the file
-          name = file.sub(template_location.to_s.sub(/\/*$/, '/'), "")
+          name = Sass::Util.pathname(file).relative_path_from(
+            Sass::Util.pathname(template_location.to_s)).to_s
           css = css_filename(name, css_location)
           sourcemap = Sass::Util.sourcemap_name(css) unless engine_options[:sourcemap] == :none
           files << [file, css, sourcemap]
