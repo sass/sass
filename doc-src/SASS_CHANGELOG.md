@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.3.14 (Unreleased)
+
+* Fix a bug where some `@media` queries would be followed by newlines in
+  compressed mode.
+
 ## 3.3.14 (1 August 2014)
 
 * Improved edge-case parsing of special-syntax functions like `calc()` and

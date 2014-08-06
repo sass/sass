@@ -235,7 +235,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
 
   def visit_media(node)
     with_tabs(@tabs + node.tabs) {visit_directive(node)}
-    output("\n") if node.group_end
+    output("\n") if node.style != :compressed && node.group_end
   end
 
   def visit_supports(node)
