@@ -150,7 +150,7 @@ END
       # This is optional for backwards-compatibility with Sass 3.3, which didn't
       # enable sourcemaps by default and instead used "--sourcemap" to do so.
       opts.on(:OPTIONAL, '--sourcemap=TYPE',
-          'How link generated output to the source files.',
+          'How to link generated output to the source files.',
           '  auto (default): relative paths where possible, file URIs elsewhere',
           '  file: always absolute file URIs',
           '  inline: include the source text in the sourcemap',
