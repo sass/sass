@@ -214,6 +214,11 @@ adding multiple suffixes to the same parent selector. For example:
   relying on and would be difficult to deprecate gracefully, so there will be no
   deprecation period for this change.
 
+## 3.3.14 (Unreleased)
+
+* Fix a bug where some `@media` queries would be followed by newlines in
+  compressed mode.
+
 ## 3.3.14 (1 August 2014)
 
 * Improved edge-case parsing of special-syntax functions like `calc()` and

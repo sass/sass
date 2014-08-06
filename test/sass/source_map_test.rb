@@ -791,7 +791,7 @@ CSS
   end
 
   def test_multiline_interpolation_source_range
-    engine = Sass::Engine.new(<<-SCSS, cache: false, syntax: :scss)
+    engine = Sass::Engine.new(<<-SCSS, :cache => false, :syntax => :scss)
 p {
   filter: progid:DXImageTransform(
           '\#{123}');
