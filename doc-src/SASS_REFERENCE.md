@@ -18,7 +18,7 @@ particularly with the help of
 * Fully CSS3-compatible
 * Language extensions such as variables, nesting, and mixins
 * Many {Sass::Script::Functions useful functions} for manipulating colors and other values
-* Advanced features like [control directives](#control_directives) for libraries
+* Advanced features like [control directives](#control_directives__expressions) for libraries
 * Well-formatted, customizable output
 * [Firebug integration](https://addons.mozilla.org/en-US/firefox/addon/103988)
 
