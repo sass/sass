@@ -340,7 +340,7 @@ MESSAGE
 
       def special_fun_body(parens, prefix = nil)
         str = prefix || ''
-        while (scanned = scan(/.*?([()]|\#{)/m))
+        while (scanned = scan(/.*?([()]|\#\{)/m))
           str << scanned
           if scanned[-1] == ?(
             parens += 1
