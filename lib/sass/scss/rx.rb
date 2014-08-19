@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 module Sass
   module SCSS
     # A module containing regular expressions used
@@ -22,7 +23,7 @@ module Sass
           out << escape_char(value.slice!(0...1))
         end
         out << value.gsub(/[^a-zA-Z0-9_-]/) {|c| escape_char c}
-        return out
+        out
       end
 
       # Escapes a single character for a CSS identifier.
@@ -32,7 +33,7 @@ module Sass
       # @private
       def self.escape_char(c)
         return "\\%06x" % Sass::Util.ord(c) unless c =~ /[ -\/:-~]/
-        return "\\#{c}"
+        "\\#{c}"
       end
 
       # Creates a Regexp from a plain text string,
@@ -51,6 +52,8 @@ module Sass
       UNICODE  = /\\#{H}{1,6}[ \t\r\n\f]?/
       s = if Sass::Util.ruby1_8?
             '\200-\377'
+          elsif Sass::Util.macruby?
+            '\u0080-\uD7FF\uE000-\uFFFD\U00010000-\U0010FFFF'
           else
             '\u{80}-\u{D7FF}\u{E000}-\u{FFFD}\u{10000}-\u{10FFFF}'
           end
@@ -61,9 +64,9 @@ module Sass
       STRING1  = /\"((?:[^\n\r\f\\"]|\\#{NL}|#{ESCAPE})*)\"/
       STRING2  = /\'((?:[^\n\r\f\\']|\\#{NL}|#{ESCAPE})*)\'/
 
-      IDENT    = /-?#{NMSTART}#{NMCHAR}*/
+      IDENT    = /-*#{NMSTART}#{NMCHAR}*/
       NAME     = /#{NMCHAR}+/
-      NUM      = /[0-9]+|[0-9]*\.[0-9]+/
+      NUM      = //
       STRING   = /#{STRING1}|#{STRING2}/
       URLCHAR  = /[#%&*-~]|#{NONASCII}|#{ESCAPE}/
       URL      = /(#{URLCHAR}*)/
@@ -78,8 +81,8 @@ module Sass
 
       S = /[ \t\r\n\f]+/
 
-      COMMENT = /\/\*[^*]*\*+(?:[^\/][^*]*\*+)*\//
-      SINGLE_LINE_COMMENT = /\/\/.*(\n[ \t]*\/\/.*)*/
+      COMMENT = %r{/\*([^*]|\*+[^/*])*\**\*/}
+      SINGLE_LINE_COMMENT = %r{//.*(\n[ \t]*//.*)*}
 
       CDO            = quote("<!--")
       CDC            = quote("-->")
@@ -92,9 +95,10 @@ module Sass
       HASH = /##{NAME}/
 
       IMPORTANT = /!#{W}important/i
-      DEFAULT = /!#{W}default/i
 
-      NUMBER = /#{NUM}(?:#{IDENT}|%)?/
+      UNITLESS_NUMBER = /(?:[0-9]+|[0-9]*\.[0-9]+)(?:[eE][+-]?\d+)?/
+      NUMBER = /#{UNITLESS_NUMBER}(?:#{IDENT}|%)?/
+      PERCENTAGE = /#{UNITLESS_NUMBER}%/
 
       URI = /url\(#{W}(?:#{STRING}|#{URL})#{W}\)/i
       FUNCTION = /#{IDENT}\(/
@@ -115,23 +119,23 @@ module Sass
       # Custom
       HEXCOLOR = /\#[0-9a-fA-F]+/
       INTERP_START = /#\{/
-      MOZ_ANY = quote(":-moz-any(", Regexp::IGNORECASE)
+      ANY = /:(-[-\w]+-)?any\(/i
+      OPTIONAL = /!#{W}optional/i
+      IDENT_START = /-|#{NMSTART}/
+
+      # A unit is like an IDENT, but disallows a hyphen followed by a digit.
+      # This allows "1px-2px" to be interpreted as subtraction rather than "1"
+      # with the unit "px-2px". It also allows "%".
+      UNIT = /-?#{NMSTART}(?:[a-zA-Z0-9_]|#{NONASCII}|#{ESCAPE}|-(?!\d))*|%/
 
       IDENT_HYPHEN_INTERP = /-(#\{)/
-      STRING1_NOINTERP = /\"((?:[^\n\r\f\\"#]|#(?!\{)|\\#{NL}|#{ESCAPE})*)\"/
-      STRING2_NOINTERP = /\'((?:[^\n\r\f\\'#]|#(?!\{)|\\#{NL}|#{ESCAPE})*)\'/
+      STRING1_NOINTERP = /\"((?:[^\n\r\f\\"#]|#(?!\{)|#{ESCAPE})*)\"/
+      STRING2_NOINTERP = /\'((?:[^\n\r\f\\'#]|#(?!\{)|#{ESCAPE})*)\'/
       STRING_NOINTERP = /#{STRING1_NOINTERP}|#{STRING2_NOINTERP}/
-      # Can't use IDENT here, because it seems to take exponential time on 1.8.
-      # We could use it for 1.9 only, but I don't want to introduce a cross-version
-      # behavior difference.
-      # In any case, almost all CSS idents will be matched by this.
-      #
-      # We explicitly avoid parsing newlines or values/selectors longer than
-      # about 50 characters. This mitigates the problem of exponential parsing
-      # time when a value has a long string of valid, parsable content followed
-      # by something invalid.
-      STATIC_VALUE = /(-?#{NMSTART}|#{STRING_NOINTERP}|[ \t](?!%)|#[a-f0-9]|[,%]|#{NUM}|\!important){0,50}([;}])/i
-      STATIC_SELECTOR = /(#{NMCHAR}|[ \t]|[,>+*]|[:#.]#{NMSTART}){0,50}([{])/i
+
+      STATIC_COMPONENT = /#{IDENT}|#{STRING_NOINTERP}|#{HEXCOLOR}|[+-]?#{NUMBER}|\!important/i
+      STATIC_VALUE = /#{STATIC_COMPONENT}(\s*[\s,\/]\s*#{STATIC_COMPONENT})*([;}])/i
+      STATIC_SELECTOR = /(#{NMCHAR}|[ \t]|[,>+*]|[:#.]#{NMSTART}){1,50}([{])/i
     end
   end
 end

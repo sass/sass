@@ -8,3 +8,5 @@
 /.sass
 /site
 *.rbc
+/.sass
+*.lock

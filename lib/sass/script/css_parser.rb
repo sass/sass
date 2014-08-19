@@ -17,8 +17,11 @@ module Sass
       production :div, :unary_plus, :div
 
       def string
-        return number unless tok = try_tok(:string)
-        return tok.value unless @lexer.peek && @lexer.peek.type == :begin_interpolation
+        tok = try_tok(:string)
+        return number unless tok
+        unless @lexer.peek && @lexer.peek.type == :begin_interpolation
+          return literal_node(tok.value, tok.source_range)
+        end
       end
 
       # Short-circuit all the SassScript-only productions

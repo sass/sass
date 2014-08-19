@@ -3,7 +3,7 @@
 require File.dirname(__FILE__) + '/../../test_helper'
 require 'sass/engine'
 
-class ScssRxTest < Test::Unit::TestCase
+class ScssRxTest < MiniTest::Test
   include Sass::SCSS::RX
 
   def test_identifiers
@@ -26,6 +26,7 @@ class ScssRxTest < Test::Unit::TestCase
     assert_match IDENT, "_foo" # Can put a _ before anything
     assert_match IDENT, "_\xC3\xBFoo"
     assert_match IDENT, "_\\f oo"
+    assert_match IDENT, "--foo" # "Custom" identifier
 
     assert_match IDENT, "foo-bar"
     assert_match IDENT, "f012-23"
@@ -59,7 +60,6 @@ class ScssRxTest < Test::Unit::TestCase
     assert_no_match IDENT, ""
     assert_no_match IDENT, "1foo"
     assert_no_match IDENT, "-1foo"
-    assert_no_match IDENT, "--foo"
     assert_no_match IDENT, "foo bar"
     assert_no_match IDENT, "foo~bar"
 
@@ -144,13 +144,13 @@ class ScssRxTest < Test::Unit::TestCase
   private
 
   def assert_match(rx, str)
-    assert_not_nil(match = rx.match(str))
+    refute_nil(match = rx.match(str))
     assert_equal str.size, match[0].size
   end
 
   def assert_no_match(rx, str)
     match = rx.match(str)
-    assert_not_equal str.size, match && match[0].size
+    refute_equal str.size, match && match[0].size
   end
 
 end

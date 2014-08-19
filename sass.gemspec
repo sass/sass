@@ -9,7 +9,7 @@ SASS_GEMSPEC = Gem::Specification.new do |spec|
   spec.name = 'sass'
   spec.summary = "A powerful but elegant CSS compiler that makes CSS fun again."
   spec.version = File.read(File.dirname(__FILE__) + '/VERSION').strip
-  spec.authors = ['Nathan Weizenbaum', 'Chris Eppstein', 'Hampton Catlin']
+  spec.authors = ['Natalie Weizenbaum', 'Chris Eppstein', 'Hampton Catlin']
   spec.email = 'sass-lang@googlegroups.com'
   spec.description = <<-END
       Sass makes CSS fun again. Sass is an extension of CSS3, adding
@@ -21,6 +21,7 @@ SASS_GEMSPEC = Gem::Specification.new do |spec|
   spec.required_ruby_version = '>= 1.8.7'
   spec.add_development_dependency 'yard', '>= 0.5.3'
   spec.add_development_dependency 'maruku', '>= 0.5.9'
+  spec.add_development_dependency 'minitest', '>= 5'
 
   readmes = Dir['*'].reject{ |x| x =~ /(^|[^.a-z])[a-z]+/ || x == "TODO" }
   spec.executables = ['sass', 'sass-convert', 'scss']
@@ -30,4 +31,5 @@ SASS_GEMSPEC = Gem::Specification.new do |spec|
   spec.homepage = 'http://sass-lang.com/'
   spec.has_rdoc = false
   spec.test_files = Dir['test/**/*_test.rb']
+  spec.license = "MIT"
 end

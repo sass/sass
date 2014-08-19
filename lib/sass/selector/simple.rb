@@ -14,29 +14,18 @@ module Sass
       # @return [String, nil]
       attr_accessor :filename
 
-      # Returns a representation of the node
-      # as an array of strings and potentially {Sass::Script::Node}s
-      # (if there's interpolation in the selector).
-      # When the interpolation is resolved and the strings are joined together,
-      # this will be the string representation of this node.
-      #
-      # @return [Array<String, Sass::Script::Node>]
-      def to_a
-        Sass::Util.abstract(self)
-      end
-
-      # Returns a string representation of the node.
-      # This is basically the selector string.
+      # @see #to_s
       #
       # @return [String]
       def inspect
-        to_a.map {|e| e.is_a?(Sass::Script::Node) ? "\#{#{e.to_sass}}" : e}.join
+        to_s
       end
 
-      # @see \{#inspect}
+      # Returns the selector string.
+      #
       # @return [String]
       def to_s
-        inspect
+        Sass::Util.abstract(self)
       end
 
       # Returns a hash code for this selector object.
@@ -47,7 +36,7 @@ module Sass
       #
       # @return [Fixnum]
       def hash
-        @_hash ||= to_a.hash
+        @_hash ||= equality_key.hash
       end
 
       # Checks equality between this and another object.
@@ -59,7 +48,7 @@ module Sass
       # @param other [Object] The object to test equality against
       # @return [Boolean] Whether or not this is equal to `other`
       def eql?(other)
-        other.class == self.class && other.hash == self.hash && other.to_a.eql?(to_a)
+        other.class == self.class && other.hash == hash && other.equality_key == equality_key
       end
       alias_method :==, :eql?
 
@@ -84,16 +73,25 @@ module Sass
         return sels if sels.any? {|sel2| eql?(sel2)}
         sels_with_ix = Sass::Util.enum_with_index(sels)
         _, i =
-          if self.is_a?(Pseudo) || self.is_a?(SelectorPseudoClass)
-            sels_with_ix.find {|sel, _| sel.is_a?(Pseudo) && (sels.last.final? || sels.last.type == :element)}
+          if is_a?(Pseudo)
+            sels_with_ix.find {|sel, _| sel.is_a?(Pseudo) && (sels.last.type == :element)}
           else
-            sels_with_ix.find {|sel, _| sel.is_a?(Pseudo) || sel.is_a?(SelectorPseudoClass)}
+            sels_with_ix.find {|sel, _| sel.is_a?(Pseudo)}
           end
         return sels + [self] unless i
-        return sels[0...i] + [self] + sels[i..-1]
+        sels[0...i] + [self] + sels[i..-1]
       end
 
       protected
+
+      # Returns the key used for testing whether selectors are equal.
+      #
+      # This is a cached version of \{#to\_s}.
+      #
+      # @return [String]
+      def equality_key
+        @equality_key ||= to_s
+      end
 
       # Unifies two namespaces,
       # returning a namespace that works for both of them if possible.
@@ -109,10 +107,10 @@ module Sass
       #   could be found at all.
       #   If the second value is `false`, the first should be ignored.
       def unify_namespaces(ns1, ns2)
-        return nil, false unless ns1 == ns2 || ns1.nil? || ns1 == ['*'] || ns2.nil? || ns2 == ['*']
-        return ns2, true if ns1 == ['*']
-        return ns1, true if ns2 == ['*']
-        return ns1 || ns2, true
+        return nil, false unless ns1 == ns2 || ns1.nil? || ns1 == '*' || ns2.nil? || ns2 == '*'
+        return ns2, true if ns1 == '*'
+        return ns1, true if ns2 == '*'
+        [ns1 || ns2, true]
       end
     end
   end

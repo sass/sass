@@ -59,7 +59,7 @@ module Sass
       #
       # In the worst case, this runs in `O(m*max(n, log m))` time,
       # where `n` is the size of `set`
-      # and `m` is the number of assocations in the map.
+      # and `m` is the number of associations in the map.
       # However, unless many keys in the map overlap with `set`,
       # `m` will typically be much smaller.
       #
@@ -72,7 +72,8 @@ module Sass
       # @see #[]
       def get(set)
         res = set.map do |k|
-          next unless subsets = @hash[k]
+          subsets = @hash[k]
+          next unless subsets
           subsets.map do |subenum, subset, index|
             next unless subset.subset?(set)
             [index, subenum]
@@ -83,7 +84,7 @@ module Sass
         res.uniq!
         res.sort!
         res.map! {|i, s| [@vals[i], s]}
-        return res
+        res
       end
 
       # Same as \{#get}, but doesn't return the subsets of the argument
@@ -95,6 +96,14 @@ module Sass
       # @see #get
       def [](set)
         get(set).map {|v, _| v}
+      end
+
+      # Iterates over each value in the subset map. Ignores keys completely. If
+      # multiple keys have the same value, this will return them multiple times.
+      #
+      # @yield [Object] Each value in the map.
+      def each_value
+        @vals.each {|v| yield v}
       end
     end
   end

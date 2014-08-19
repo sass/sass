@@ -26,7 +26,7 @@ module ClassLevelCallerBack
   end
 end
 
-class SassCallbacksTest < Test::Unit::TestCase
+class SassCallbacksTest < MiniTest::Test
   def test_simple_callback
     cb = CallerBack.new
     there = false

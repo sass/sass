@@ -1,3 +1,5 @@
+require 'thread'
+
 module Sass
   module Plugin
     # The class handles `.s[ca]ss` file staleness checks via their mtime timestamps.
@@ -24,11 +26,13 @@ module Sass
     #   as its instance-level caches are never explicitly expired.
     class StalenessChecker
       @dependencies_cache = {}
+      @dependency_cache_mutex = Mutex.new
 
       class << self
         # TODO: attach this to a compiler instance.
         # @private
         attr_accessor :dependencies_cache
+        attr_reader :dependency_cache_mutex
       end
 
       # Creates a new StalenessChecker
@@ -37,15 +41,13 @@ module Sass
       # @param options [{Symbol => Object}]
       #   See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
       def initialize(options)
-        @dependencies = self.class.dependencies_cache
-
         # URIs that are being actively checked for staleness. Protects against
         # import loops.
         @actively_checking = Set.new
 
         # Entries in the following instance-level caches are never explicitly expired.
-        # Instead they are supposed to automaticaly go out of scope when a series of staleness checks
-        # (this instance of StalenessChecker was created for) is finished.
+        # Instead they are supposed to automatically go out of scope when a series of staleness
+        # checks (this instance of StalenessChecker was created for) is finished.
         @mtimes, @dependencies_stale, @parse_trees = {}, {}, {}
         @options = Sass::Engine.normalize_options(options)
       end
@@ -131,7 +133,7 @@ module Sass
           begin
             mtime = importer.mtime(uri, @options)
             if mtime.nil?
-              @dependencies.delete([uri, importer])
+              with_dependency_cache {|cache| cache.delete([uri, importer])}
               nil
             else
               mtime
@@ -140,18 +142,21 @@ module Sass
       end
 
       def dependencies(uri, importer)
-        stored_mtime, dependencies = @dependencies[[uri, importer]]
+        stored_mtime, dependencies =
+          with_dependency_cache {|cache| Sass::Util.destructure(cache[[uri, importer]])}
 
         if !stored_mtime || stored_mtime < mtime(uri, importer)
           dependencies = compute_dependencies(uri, importer)
-          @dependencies[[uri, importer]] = [mtime(uri, importer), dependencies]
+          with_dependency_cache do |cache|
+            cache[[uri, importer]] = [mtime(uri, importer), dependencies]
+          end
         end
 
         dependencies
       end
 
       def dependency_updated?(css_mtime)
-        Proc.new do |uri, importer|
+        proc do |uri, importer|
           next true if @actively_checking.include?(uri)
           begin
             @actively_checking << uri
@@ -177,6 +182,17 @@ module Sass
 
       def tree(uri, importer)
         @parse_trees[[uri, importer]] ||= importer.find(uri, @options).to_tree
+      end
+
+      # Get access to the global dependency cache in a threadsafe manner.
+      # Inside the block, no other thread can access the dependency cache.
+      #
+      # @yieldparam cache [Hash] The hash that is the global dependency cache
+      # @return The value returned by the block to which this method yields
+      def with_dependency_cache
+        StalenessChecker.dependency_cache_mutex.synchronize do
+          yield StalenessChecker.dependencies_cache
+        end
       end
     end
   end

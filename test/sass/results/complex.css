@@ -1,4 +1,4 @@
-body { margin: 0; font: 0.85em "Lucida Grande", "Trebuchet MS", Verdana, sans-serif; color: white; background: url(/images/global_bg.gif); }
+body { margin: 0; font: 0.85em "Lucida Grande", "Trebuchet MS", Verdana, sans-serif; color: #fff; background: url(/images/global_bg.gif); }
 
 #page { width: 900px; margin: 0 auto; background: #440008; border-top-width: 5px; border-top-style: solid; border-top-color: #ff8500; }
 
@@ -16,8 +16,8 @@ body { margin: 0; font: 0.85em "Lucida Grande", "Trebuchet MS", Verdana, sans-se
 
 #menu { clear: both; text-align: right; height: 20px; border-bottom: 5px solid #006b95; background: #00a4e4; }
 #menu .contests ul { margin: 0 5px 0 0; padding: 0; }
-#menu .contests ul li { list-style-type: none; margin: 0 5px; padding: 5px 5px 0 5px; display: inline; font-size: 1.1em; color: white; background: #00a4e4; }
-#menu .contests a:link, #menu .contests a:visited { color: white; text-decoration: none; font-weight: bold; }
+#menu .contests ul li { list-style-type: none; margin: 0 5px; padding: 5px 5px 0 5px; display: inline; font-size: 1.1em; color: #fff; background: #00a4e4; }
+#menu .contests a:link, #menu .contests a:visited { color: #fff; text-decoration: none; font-weight: bold; }
 #menu .contests a:hover { text-decoration: underline; }
 
 #content { clear: both; }
@@ -81,6 +81,6 @@ body { margin: 0; font: 0.85em "Lucida Grande", "Trebuchet MS", Verdana, sans-se
 
 img { border: none; }
 
-button.short { width: 60px; height: 22px; padding: 0 0 2px 0; color: white; border: none; background: url(/images/btn_short.gif) no-repeat; }
+button.short { width: 60px; height: 22px; padding: 0 0 2px 0; color: #fff; border: none; background: url(/images/btn_short.gif) no-repeat; }
 
 table { border-collapse: collapse; }

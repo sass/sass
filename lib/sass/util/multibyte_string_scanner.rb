@@ -1,23 +1,46 @@
 require 'strscan'
 
 if Sass::Util.ruby1_8?
+  # rubocop:disable ConstantName
   Sass::Util::MultibyteStringScanner = StringScanner
+  # rubocop:enable ConstantName
 else
+  if Sass::Util.rbx?
+    # Rubinius's StringScanner class implements some of its methods in terms of
+    # others, which causes us to double-count bytes in some cases if we do
+    # straightforward inheritance. To work around this, we use a delegate class.
+    require 'delegate'
+    class Sass::Util::MultibyteStringScanner < DelegateClass(StringScanner)
+      def initialize(str)
+        super(StringScanner.new(str))
+        @mb_pos = 0
+        @mb_matched_size = nil
+        @mb_last_pos = nil
+      end
+
+      def is_a?(klass)
+        __getobj__.is_a?(klass) || super
+      end
+    end
+  else
+    class Sass::Util::MultibyteStringScanner < StringScanner
+      def initialize(str)
+        super
+        @mb_pos = 0
+        @mb_matched_size = nil
+        @mb_last_pos = nil
+      end
+    end
+  end
+
   # A wrapper of the native StringScanner class that works correctly with
   # multibyte character encodings. The native class deals only in bytes, not
   # characters, for methods like [#pos] and [#matched_size]. This class deals
   # only in characters, instead.
-  class Sass::Util::MultibyteStringScanner < StringScanner
+  class Sass::Util::MultibyteStringScanner
     def self.new(str)
       return StringScanner.new(str) if str.ascii_only?
       super
-    end
-
-    def initialize(str)
-      super
-      @mb_pos = 0
-      @mb_matched_size = nil
-      @mb_last_pos = nil
     end
 
     alias_method :byte_pos, :pos

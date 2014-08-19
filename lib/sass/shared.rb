@@ -44,7 +44,7 @@ module Sass
         str << scanner.matched
         count += 1 if scanner.matched[-1] == start
         count -= 1 if scanner.matched[-1] == finish
-        return [str.strip, scanner.rest] if count == 0
+        return [str, scanner.rest] if count == 0
       end
     end
 

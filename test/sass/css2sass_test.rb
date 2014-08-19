@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
-require 'test/unit'
+require 'minitest/autorun'
 require File.dirname(__FILE__) + '/../test_helper'
 require 'sass/css'
 
-class CSS2SassTest < Test::Unit::TestCase
+class CSS2SassTest < MiniTest::Test
   def test_basic
     css = <<CSS
 h1 {
@@ -62,7 +62,7 @@ div .debug
 SASS
 div .warning {
   color: #d21a19; }
-span .debug { 
+span .debug {
   cursor: crosshair;}
 div .debug {
   cursor: default; }
@@ -237,7 +237,71 @@ SASS
 CSS
   end
 
+  def test_subject
+    silence_warnings {assert_equal(<<SASS, css2sass(<<CSS))}
+.foo
+  .bar!
+    .baz
+      a: b
+    .bip
+      c: d
+  .bar .bonk
+    e: f
+
+.flip!
+  &.bar
+    a: b
+  &.baz
+    c: d
+SASS
+.foo .bar! .baz {a: b;}
+.foo .bar! .bip {c: d;}
+.foo .bar .bonk {e: f;}
+
+.flip.bar! {a: b;}
+.flip.baz! {c: d;}
+CSS
+  end
+
   # Regressions
+
+  def test_nesting_with_matching_property
+    assert_equal(<<SASS, css2sass(<<CSS))
+ul
+  width: 10px
+  div
+    width: 20px
+
+article
+  width: 10px
+  p
+    width: 20px
+SASS
+ul {width: 10px}
+ul div {width: 20px}
+article {width: 10px}
+article p {width: 20px}
+CSS
+  end
+
+  def test_empty_rule
+    assert_equal(<<SASS, css2sass(<<CSS))
+a
+SASS
+a {}
+CSS
+  end
+
+  def test_empty_rule_with_selector_combinator
+    assert_equal(<<SASS, css2sass(<<CSS))
+a
+  color: red
+  > b
+SASS
+a {color: red}
+a > b {}
+CSS
+  end
 
   def test_nesting_within_media
     assert_equal(<<SASS, css2sass(<<CSS))
@@ -298,6 +362,22 @@ CSS
 SASS
 .foo::bar {a: b}
 .foo::baz {c: d}
+CSS
+  end
+
+  def test_triple_nesting
+    assert_equal(<<SASS, css2sass(<<CSS))
+.foo .bar .baz
+  a: b
+SASS
+.foo .bar .baz {a: b}
+CSS
+
+    assert_equal(<<SASS, css2sass(<<CSS))
+.bar > .baz
+  c: d
+SASS
+.bar > .baz {c: d}
 CSS
   end
 

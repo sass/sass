@@ -7,7 +7,6 @@ require 'sass/plugin/configuration'
 require 'sass/plugin/staleness_checker'
 
 module Sass::Plugin
-
   # The Compiler class handles compilation of multiple files and/or directories,
   # including checking which CSS files are out-of-date and need to be updated
   # and calling Sass to perform the compilation on those files.
@@ -26,30 +25,40 @@ module Sass::Plugin
   # * `:never_update`
   # * `:always_check`
   class Compiler
-    include Sass::Util
     include Configuration
     extend Sass::Callbacks
 
     # Creates a new compiler.
     #
-    # @param options [{Symbol => Object}]
+    # @param opts [{Symbol => Object}]
     #   See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
-    def initialize(options = {})
-      self.options.merge!(options)
+    def initialize(opts = {})
+      options.merge!(opts)
     end
+
+    # Register a callback to be run before stylesheets are mass-updated.
+    # This is run whenever \{#update\_stylesheets} is called,
+    # unless the \{file:SASS_REFERENCE.md#never_update-option `:never_update` option}
+    # is enabled.
+    #
+    # @yield [files]
+    # @yieldparam files [<(String, String, String)>]
+    #   Individual files to be updated. Files in directories specified are included in this list.
+    #   The first element of each pair is the source file,
+    #   the second is the target CSS file,
+    #   the third is the target sourcemap file.
+    define_callback :updating_stylesheets
 
     # Register a callback to be run after stylesheets are mass-updated.
     # This is run whenever \{#update\_stylesheets} is called,
     # unless the \{file:SASS_REFERENCE.md#never_update-option `:never_update` option}
     # is enabled.
     #
-    # @yield [individual_files]
-    # @yieldparam individual_files [<(String, String)>]
-    #   Individual files to be updated, in addition to the directories
-    #   specified in the options.
-    #   The first element of each pair is the source file,
-    #   the second is the target CSS file.
-    define_callback :updating_stylesheets
+    # @yield [updated_files]
+    # @yieldparam updated_files [<(String, String)>]
+    #   Individual files that were updated.
+    #   The first element of each pair is the source file, the second is the target CSS file.
+    define_callback :updated_stylesheets
 
     # Register a callback to be run after a single stylesheet is updated.
     # The callback is only run if the stylesheet is really updated;
@@ -60,35 +69,29 @@ module Sass::Plugin
     # when an exception CSS file is being written.
     # To run an action for those files, use \{#on\_compilation\_error}.
     #
-    # @yield [template, css]
+    # @yield [template, css, sourcemap]
     # @yieldparam template [String]
     #   The location of the Sass/SCSS file being updated.
     # @yieldparam css [String]
     #   The location of the CSS file being generated.
+    # @yieldparam sourcemap [String]
+    #   The location of the sourcemap being generated, if any.
     define_callback :updated_stylesheet
 
-    # Register a callback to be run before a single stylesheet is updated.
-    # The callback is only run if the stylesheet is guaranteed to be updated;
-    # if the CSS file is fresh, this won't be run.
+    # Register a callback to be run when compilation starts.
     #
-    # Even if the \{file:SASS_REFERENCE.md#full_exception-option `:full_exception` option}
-    # is enabled, this callback won't be run
-    # when an exception CSS file is being written.
-    # To run an action for those files, use \{#on\_compilation\_error}.
+    # In combination with on_updated_stylesheet, this could be used
+    # to collect compilation statistics like timing or to take a
+    # diff of the changes to the output file.
     #
-    # @yield [template, css]
+    # @yield [template, css, sourcemap]
     # @yieldparam template [String]
     #   The location of the Sass/SCSS file being updated.
     # @yieldparam css [String]
     #   The location of the CSS file being generated.
-    define_callback :updating_stylesheet
-
-    def on_updating_stylesheet_with_deprecation_warning(&block)
-      Sass::Util.sass_warn("Sass::Compiler#on_updating_stylesheet callback is deprecated and will be removed in a future release. Use Sass::Compiler#on_updated_stylesheet instead, which is run after stylesheet compilation.")
-      on_updating_stylesheet_without_deprecation_warning(&block)
-    end
-    alias_method :on_updating_stylesheet_without_deprecation_warning, :on_updating_stylesheet
-    alias_method :on_updating_stylesheet, :on_updating_stylesheet_with_deprecation_warning
+    # @yieldparam sourcemap [String]
+    #   The location of the sourcemap being generated, if any.
+    define_callback :compilation_starting
 
     # Register a callback to be run when Sass decides not to update a stylesheet.
     # In particular, the callback is run when Sass finds that
@@ -162,48 +165,97 @@ module Sass::Plugin
     define_callback :template_deleted
 
     # Register a callback to be run when Sass deletes a CSS file.
-    # This happens when the corresponding Sass/SCSS file has been deleted.
+    # This happens when the corresponding Sass/SCSS file has been deleted
+    # and when the compiler cleans the output files.
     #
     # @yield [filename]
     # @yieldparam filename [String]
     #   The location of the CSS file that was deleted.
     define_callback :deleting_css
 
+    # Register a callback to be run when Sass deletes a sourcemap file.
+    # This happens when the corresponding Sass/SCSS file has been deleted
+    # and when the compiler cleans the output files.
+    #
+    # @yield [filename]
+    # @yieldparam filename [String]
+    #   The location of the sourcemap file that was deleted.
+    define_callback :deleting_sourcemap
+
     # Updates out-of-date stylesheets.
     #
-    # Checks each Sass/SCSS file in {file:SASS_REFERENCE.md#template_location-option `:template_location`}
+    # Checks each Sass/SCSS file in
+    # {file:SASS_REFERENCE.md#template_location-option `:template_location`}
     # to see if it's been modified more recently than the corresponding CSS file
     # in {file:SASS_REFERENCE.md#css_location-option `:css_location`}.
     # If it has, it updates the CSS file.
     #
-    # @param individual_files [Array<(String, String)>]
+    # @param individual_files [Array<(String, String[, String])>]
     #   A list of files to check for updates
     #   **in addition to those specified by the
     #   {file:SASS_REFERENCE.md#template_location-option `:template_location` option}.**
     #   The first string in each pair is the location of the Sass/SCSS file,
     #   the second is the location of the CSS file that it should be compiled to.
+    #   The third string, if provided, is the location of the Sourcemap file.
     def update_stylesheets(individual_files = [])
       Sass::Plugin.checked_for_updates = true
       staleness_checker = StalenessChecker.new(engine_options)
 
+      files = file_list(individual_files)
+      run_updating_stylesheets(files)
+
+      updated_stylesheets = []
+      files.each do |file, css, sourcemap|
+        # TODO: Does staleness_checker need to check the sourcemap file as well?
+        if options[:always_update] || staleness_checker.stylesheet_needs_update?(css, file)
+          # XXX For consistency, this should return the sourcemap too, but it would
+          # XXX be an API change.
+          updated_stylesheets << [file, css]
+          update_stylesheet(file, css, sourcemap)
+        else
+          run_not_updating_stylesheet(file, css, sourcemap)
+        end
+      end
+      run_updated_stylesheets(updated_stylesheets)
+    end
+
+    # Construct a list of files that might need to be compiled
+    # from the provided individual_files and the template_locations.
+    #
+    # Note: this method does not cache the results as they can change
+    # across invocations when sass files are added or removed.
+    #
+    # @param individual_files [Array<(String, String[, String])>]
+    #   A list of files to check for updates
+    #   **in addition to those specified by the
+    #   {file:SASS_REFERENCE.md#template_location-option `:template_location` option}.**
+    #   The first string in each pair is the location of the Sass/SCSS file,
+    #   the second is the location of the CSS file that it should be compiled to.
+    #   The third string, if provided, is the location of the Sourcemap file.
+    # @return [Array<(String, String, String)>]
+    #   A list of [sass_file, css_file, sourcemap_file] tuples similar
+    #   to what was passed in, but expanded to include the current state
+    #   of the directories being updated.
+    def file_list(individual_files = [])
+      files = individual_files.map do |tuple|
+        if tuple.size < 3
+          [tuple[0], tuple[1], Sass::Util.sourcemap_name(tuple[1])]
+        else
+          tuple
+        end
+      end
+
       template_location_array.each do |template_location, css_location|
         Sass::Util.glob(File.join(template_location, "**", "[^_]*.s[ca]ss")).sort.each do |file|
           # Get the relative path to the file
-          name = file.sub(template_location.to_s.sub(/\/*$/, '/'), "")
+          name = Sass::Util.pathname(file).relative_path_from(
+            Sass::Util.pathname(template_location.to_s)).to_s
           css = css_filename(name, css_location)
-          individual_files << [file, css]
+          sourcemap = Sass::Util.sourcemap_name(css) unless engine_options[:sourcemap] == :none
+          files << [file, css, sourcemap]
         end
       end
-
-      run_updating_stylesheets individual_files
-
-      individual_files.each do |file, css|
-        if options[:always_update] || staleness_checker.stylesheet_needs_update?(css, file)
-          update_stylesheet(file, css)
-        else
-          run_not_updating_stylesheet(file, css)
-        end
-      end
+      files
     end
 
     # Watches the template directory (or directories)
@@ -224,89 +276,62 @@ module Sass::Plugin
     # The version of Listen distributed with Sass is loaded by default,
     # but if another version has already been loaded that will be used instead.
     #
-    # @param individual_files [Array<(String, String)>]
-    #   A list of files to watch for updates
+    # @param individual_files [Array<(String, String[, String])>]
+    #   A list of files to check for updates
     #   **in addition to those specified by the
     #   {file:SASS_REFERENCE.md#template_location-option `:template_location` option}.**
     #   The first string in each pair is the location of the Sass/SCSS file,
     #   the second is the location of the CSS file that it should be compiled to.
-    def watch(individual_files = [])
-      update_stylesheets(individual_files)
+    #   The third string, if provided, is the location of the Sourcemap file.
+    # @param options [Hash] The options that control how watching works.
+    # @option options [Boolean] :skip_initial_update
+    #   Don't do an initial update when starting the watcher when true
+    def watch(individual_files = [], options = {})
+      options, individual_files = individual_files, [] if individual_files.is_a?(Hash)
+      update_stylesheets(individual_files) unless options[:skip_initial_update]
 
-      begin
-        require 'listen'
-      rescue LoadError => e
-        dir = Sass::Util.scope("vendor/listen/lib")
-        if $LOAD_PATH.include?(dir)
-          e.message << "\n" <<
-            if File.exists?(scope(".git"))
-              'Run "git submodule update --init" to get the recommended version.'
-            else
-              'Run "gem install listen" to get it.'
-            end
-          raise e
-        else
-          $LOAD_PATH.unshift dir
-          retry
-        end
+      directories = watched_paths
+      individual_files.each do |(source, _, _)|
+        directories << File.dirname(File.expand_path(source))
       end
+      directories = remove_redundant_directories(directories)
 
-      template_paths = template_locations # cache the locations
-      individual_files_hash = individual_files.inject({}) do |h, files|
-        parent = File.dirname(files.first)
-        (h[parent] ||= []) << files unless template_paths.include?(parent)
-        h
+      # A Listen version prior to 2.0 will write a test file to a directory to
+      # see if a watcher supports watching that directory. That breaks horribly
+      # on read-only directories, so we filter those out.
+      unless Sass::Util.listen_geq_2?
+        directories = directories.select {|d| File.directory?(d) && File.writable?(d)}
       end
-      directories = template_paths + individual_files_hash.keys +
-        [{:relative_paths => true}]
 
       # TODO: Keep better track of what depends on what
       # so we don't have to run a global update every time anything changes.
-      listener = Listen::MultiListener.new(*directories) do |modified, added, removed|
-        modified.each do |f|
-          parent = File.dirname(f)
-          if files = individual_files_hash[parent]
-            next unless files.first == f
-          else
-            next unless f =~ /\.s[ac]ss$/
-          end
-          run_template_modified(f)
-        end
+      # XXX The :additional_watch_paths option exists for Compass to use until
+      # a deprecated feature is removed. It may be removed without warning.
+      listener_args = directories +
+                      Array(options[:additional_watch_paths]) +
+                      [{:relative_paths => false}]
 
-        added.each do |f|
-          parent = File.dirname(f)
-          if files = individual_files_hash[parent]
-            next unless files.first == f
-          else
-            next unless f =~ /\.s[ac]ss$/
-          end
-          run_template_created(f)
-        end
-
-        removed.each do |f|
-          parent = File.dirname(f)
-          if files = individual_files_hash[parent]
-            next unless files.first == f
-            try_delete_css files[1]
-          else
-            next unless f =~ /\.s[ac]ss$/
-            try_delete_css f.gsub(/\.s[ac]ss$/, '.css')
-          end
-          run_template_deleted(f)
-        end
-
-        update_stylesheets(individual_files)
+      # The native windows listener is much slower than the polling option, according to
+      # https://github.com/nex3/sass/commit/a3031856b22bc834a5417dedecb038b7be9b9e3e
+      poll = @options[:poll] || Sass::Util.windows?
+      if poll && Sass::Util.listen_geq_2?
+        # In Listen 2.0.0 and on, :force_polling is an option. In earlier
+        # versions, it's a method on the listener (called below).
+        listener_args.last[:force_polling] = true
       end
 
-      # The native windows listener is much slower than the polling
-      # option, according to https://github.com/nex3/sass/commit/a3031856b22bc834a5417dedecb038b7be9b9e3e#commitcomment-1295118
-      listener.force_polling(true) if Sass::Util.windows?
-
-      begin
-        listener.start
-      rescue Exception => e
-        raise e unless e.is_a?(Interrupt)
+      listener = create_listener(*listener_args) do |modified, added, removed|
+        on_file_changed(individual_files, modified, added, removed)
+        yield(modified, added, removed) if block_given?
       end
+
+      if poll && !Sass::Util.listen_geq_2?
+        # In Listen 2.0.0 and on, :force_polling is an option (set above). In
+        # earlier versions, it's a method on the listener.
+        listener.force_polling(true)
+      end
+
+      listen_to(listener)
     end
 
     # Non-destructively modifies \{#options} so that default values are properly set,
@@ -317,6 +342,8 @@ module Sass::Plugin
     def engine_options(additional_options = {})
       opts = options.merge(additional_options)
       opts[:load_paths] = load_paths(opts)
+      options[:sourcemap] = :auto if options[:sourcemap] == true
+      options[:sourcemap] = :none if options[:sourcemap] == false
       opts
     end
 
@@ -325,44 +352,186 @@ module Sass::Plugin
       StalenessChecker.stylesheet_needs_update?(css_file, template_file)
     end
 
+    # Remove all output files that would be created by calling update_stylesheets, if they exist.
+    #
+    # This method runs the deleting_css and deleting_sourcemap callbacks for
+    # the files that are deleted.
+    #
+    # @param individual_files [Array<(String, String[, String])>]
+    #   A list of files to check for updates
+    #   **in addition to those specified by the
+    #   {file:SASS_REFERENCE.md#template_location-option `:template_location` option}.**
+    #   The first string in each pair is the location of the Sass/SCSS file,
+    #   the second is the location of the CSS file that it should be compiled to.
+    #   The third string, if provided, is the location of the Sourcemap file.
+    def clean(individual_files = [])
+      file_list(individual_files).each do |(_, css_file, sourcemap_file)|
+        if File.exist?(css_file)
+          run_deleting_css css_file
+          File.delete(css_file)
+        end
+        if sourcemap_file && File.exist?(sourcemap_file)
+          run_deleting_sourcemap sourcemap_file
+          File.delete(sourcemap_file)
+        end
+      end
+      nil
+    end
+
     private
 
-    def update_stylesheet(filename, css)
+    def create_listener(*args, &block)
+      Sass::Util.load_listen!
+      if Sass::Util.listen_geq_2?
+        # Work around guard/listen#243.
+        options = args.pop if args.last.is_a?(Hash)
+        args.map do |dir|
+          Listen.to(dir, options, &block)
+        end
+      else
+        Listen::Listener.new(*args, &block)
+      end
+    end
+
+    def listen_to(listener)
+      if Sass::Util.listen_geq_2?
+        listener.map {|l| l.start}.each {|thread| thread.join}
+      else
+        listener.start!
+      end
+    rescue Interrupt
+      # Squelch Interrupt for clean exit from Listen::Listener
+    end
+
+    def remove_redundant_directories(directories)
+      dedupped = []
+      directories.each do |new_directory|
+        # no need to add a directory that is already watched.
+        next if dedupped.any? do |existing_directory|
+          child_of_directory?(existing_directory, new_directory)
+        end
+        # get rid of any sub directories of this new directory
+        dedupped.reject! do |existing_directory|
+          child_of_directory?(new_directory, existing_directory)
+        end
+        dedupped << new_directory
+      end
+      dedupped
+    end
+
+    def on_file_changed(individual_files, modified, added, removed)
+      recompile_required = false
+
+      modified.uniq.each do |f|
+        next unless watched_file?(f)
+        recompile_required = true
+        run_template_modified(relative_to_pwd(f))
+      end
+
+      added.uniq.each do |f|
+        next unless watched_file?(f)
+        recompile_required = true
+        run_template_created(relative_to_pwd(f))
+      end
+
+      removed.uniq.each do |f|
+        run_template_deleted(relative_to_pwd(f))
+        if (files = individual_files.find {|(source, _, _)| File.expand_path(source) == f})
+          recompile_required = true
+          # This was a file we were watching explicitly and compiling to a particular location.
+          # Delete the corresponding file.
+          try_delete_css files[1]
+        else
+          next unless watched_file?(f)
+          recompile_required = true
+          # Look for the sass directory that contained the sass file
+          # And try to remove the css file that corresponds to it
+          template_location_array.each do |(sass_dir, css_dir)|
+            sass_dir = File.expand_path(sass_dir)
+            if child_of_directory?(sass_dir, f)
+              remainder = f[(sass_dir.size + 1)..-1]
+              try_delete_css(css_filename(remainder, css_dir))
+              break
+            end
+          end
+        end
+      end
+
+      if recompile_required
+        # In case a file we're watching is removed and then recreated we
+        # prune out the non-existant files here.
+        watched_files_remaining = individual_files.select {|(source, _, _)| File.exist?(source)}
+        update_stylesheets(watched_files_remaining)
+      end
+    end
+
+    def update_stylesheet(filename, css, sourcemap)
       dir = File.dirname(css)
-      unless File.exists?(dir)
+      unless File.exist?(dir)
         run_creating_directory dir
         FileUtils.mkdir_p dir
       end
 
       begin
         File.read(filename) unless File.readable?(filename) # triggers an error for handling
-        engine_opts = engine_options(:css_filename => css, :filename => filename)
-        result = Sass::Engine.for_file(filename, engine_opts).render
-      rescue Exception => e
+        engine_opts = engine_options(:css_filename => css,
+                                     :filename => filename,
+                                     :sourcemap_filename => sourcemap)
+        mapping = nil
+        run_compilation_starting(filename, css, sourcemap)
+        engine = Sass::Engine.for_file(filename, engine_opts)
+        if sourcemap
+          rendered, mapping = engine.render_with_sourcemap(File.basename(sourcemap))
+        else
+          rendered = engine.render
+        end
+      rescue StandardError => e
         compilation_error_occured = true
-        run_compilation_error e, filename, css
-        result = Sass::SyntaxError.exception_to_css(e, options)
-      else
-        run_updating_stylesheet filename, css
+        run_compilation_error e, filename, css, sourcemap
+        raise e unless options[:full_exception]
+        rendered = Sass::SyntaxError.exception_to_css(e, options[:line] || 1)
       end
 
-      write_file(css, result)
-      run_updated_stylesheet(filename, css) unless compilation_error_occured
+      write_file(css, rendered)
+      if mapping
+        write_file(sourcemap, mapping.to_json(
+            :css_path => css, :sourcemap_path => sourcemap, :type => options[:sourcemap]))
+      end
+      run_updated_stylesheet(filename, css, sourcemap) unless compilation_error_occured
     end
 
-    def write_file(css, content)
+    def write_file(fileName, content)
       flag = 'w'
       flag = 'wb' if Sass::Util.windows? && options[:unix_newlines]
-      File.open(css, flag) do |file|
+      File.open(fileName, flag) do |file|
         file.set_encoding(content.encoding) unless Sass::Util.ruby1_8?
         file.print(content)
       end
     end
 
     def try_delete_css(css)
-      return unless File.exists?(css)
-      run_deleting_css css
-      File.delete css
+      if File.exist?(css)
+        run_deleting_css css
+        File.delete css
+      end
+      map = Sass::Util.sourcemap_name(css)
+      if File.exist?(map)
+        run_deleting_sourcemap map
+        File.delete map
+      end
+    end
+
+    def watched_file?(file)
+      normalized_load_paths.find {|lp| lp.watched_file?(file)}
+    end
+
+    def watched_paths
+      @watched_paths ||= normalized_load_paths.map {|lp| lp.directories_to_watch}.compact.flatten
+    end
+
+    def normalized_load_paths
+      @normalized_load_paths ||=
+        Sass::Engine.normalize_options(:load_paths => load_paths)[:load_paths]
     end
 
     def load_paths(opts = options)
@@ -378,7 +547,19 @@ module Sass::Plugin
     end
 
     def css_filename(name, path)
-      "#{path}/#{name}".gsub(/\.s[ac]ss$/, '.css')
+      "#{path}#{File::SEPARATOR unless path.end_with?(File::SEPARATOR)}#{name}".
+        gsub(/\.s[ac]ss$/, '.css')
+    end
+
+    def relative_to_pwd(f)
+      Sass::Util.pathname(f).relative_path_from(Sass::Util.pathname(Dir.pwd)).to_s
+    rescue ArgumentError # when a relative path cannot be computed
+      f
+    end
+
+    def child_of_directory?(parent, child)
+      parent_dir = parent.end_with?(File::SEPARATOR) ? parent : (parent + File::SEPARATOR)
+      child.start_with?(parent_dir) || parent == child
     end
   end
 end

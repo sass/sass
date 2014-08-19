@@ -15,7 +15,17 @@ class Sass::Tree::Visitors::SetOptions < Sass::Tree::Visitors::Base
     super
   end
 
+  def visit_comment(node)
+    node.value.each {|c| c.options = @options if c.is_a?(Sass::Script::Tree::Node)}
+    yield
+  end
+
   def visit_debug(node)
+    node.expr.options = @options
+    yield
+  end
+
+  def visit_error(node)
     node.expr.options = @options
     yield
   end
@@ -26,7 +36,7 @@ class Sass::Tree::Visitors::SetOptions < Sass::Tree::Visitors::Base
   end
 
   def visit_extend(node)
-    node.selector.each {|c| c.options = @options if c.is_a?(Sass::Script::Node)}
+    node.selector.each {|c| c.options = @options if c.is_a?(Sass::Script::Tree::Node)}
     yield
   end
 
@@ -41,6 +51,7 @@ class Sass::Tree::Visitors::SetOptions < Sass::Tree::Visitors::Base
       k.options = @options
       v.options = @options if v
     end
+    node.splat.options = @options if node.splat
     yield
   end
 
@@ -50,22 +61,33 @@ class Sass::Tree::Visitors::SetOptions < Sass::Tree::Visitors::Base
     yield
   end
 
+  def visit_import(node)
+    # We have no good way of propagating the new options through an Engine
+    # instance, so we just null it out. This also lets us avoid caching an
+    # imported Engine along with the importing source tree.
+    node.imported_file = nil
+    yield
+  end
+
   def visit_mixindef(node)
     node.args.each do |k, v|
       k.options = @options
       v.options = @options if v
     end
+    node.splat.options = @options if node.splat
     yield
   end
 
   def visit_mixin(node)
     node.args.each {|a| a.options = @options}
     node.keywords.each {|k, v| v.options = @options}
+    node.splat.options = @options if node.splat
+    node.kwarg_splat.options = @options if node.kwarg_splat
     yield
   end
 
   def visit_prop(node)
-    node.name.each {|c| c.options = @options if c.is_a?(Sass::Script::Node)}
+    node.name.each {|c| c.options = @options if c.is_a?(Sass::Script::Tree::Node)}
     node.value.options = @options
     yield
   end
@@ -76,7 +98,7 @@ class Sass::Tree::Visitors::SetOptions < Sass::Tree::Visitors::Base
   end
 
   def visit_rule(node)
-    node.rule.each {|c| c.options = @options if c.is_a?(Sass::Script::Node)}
+    node.rule.each {|c| c.options = @options if c.is_a?(Sass::Script::Tree::Node)}
     yield
   end
 
@@ -92,6 +114,26 @@ class Sass::Tree::Visitors::SetOptions < Sass::Tree::Visitors::Base
 
   def visit_while(node)
     node.expr.options = @options
+    yield
+  end
+
+  def visit_directive(node)
+    node.value.each {|c| c.options = @options if c.is_a?(Sass::Script::Tree::Node)}
+    yield
+  end
+
+  def visit_media(node)
+    node.query.each {|c| c.options = @options if c.is_a?(Sass::Script::Tree::Node)}
+    yield
+  end
+
+  def visit_cssimport(node)
+    node.query.each {|c| c.options = @options if c.is_a?(Sass::Script::Tree::Node)} if node.query
+    yield
+  end
+
+  def visit_supports(node)
+    node.condition.options = @options
     yield
   end
 end

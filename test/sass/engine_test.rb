@@ -9,11 +9,29 @@ require 'pathname'
 
 module Sass::Script::Functions::UserFunctions
   def option(name)
-    Sass::Script::String.new(@options[name.value.to_sym].to_s)
+    Sass::Script::Value::String.new(@options[name.value.to_sym].to_s)
+  end
+
+  def set_a_variable(name, value)
+    environment.set_var(name.value, value)
+    return Sass::Script::Value::Null.new
+  end
+
+  def set_a_global_variable(name, value)
+    environment.set_global_var(name.value, value)
+    return Sass::Script::Value::Null.new
+  end
+
+  def get_a_variable(name)
+    environment.var(name.value) || Sass::Script::Value::String.new("undefined")
   end
 end
 
-class SassEngineTest < Test::Unit::TestCase
+module Sass::Script::Functions
+  include Sass::Script::Functions::UserFunctions
+end
+
+class SassEngineTest < MiniTest::Test
   FAKE_FILE_NAME = __FILE__.gsub(/rb$/,"sass")
   # A map of erroneous Sass documents to the error messages they should produce.
   # The error messages may be arrays;
@@ -39,8 +57,11 @@ MSG
     "a\n  b: c;" => 'Invalid CSS after "c": expected expression (e.g. 1px, bold), was ";"',
     ".foo ^bar\n  a: b" => ['Invalid CSS after ".foo ": expected selector, was "^bar"', 1],
     "a\n  @extend .foo ^bar" => 'Invalid CSS after ".foo ": expected selector, was "^bar"',
-    "a: b" => 'Properties are only allowed within rules, directives, or other properties.',
-    ":a b" => 'Properties are only allowed within rules, directives, or other properties.',
+    "a\n  @extend .foo .bar" => "Can't extend .foo .bar: can't extend nested selectors",
+    "a\n  @extend >" => "Can't extend >: invalid selector",
+    "a\n  @extend &.foo" => "Can't extend &.foo: can't extend parent selectors",
+    "a: b" => 'Properties are only allowed within rules, directives, mixin includes, or other properties.',
+    ":a b" => 'Properties are only allowed within rules, directives, mixin includes, or other properties.',
     "$" => 'Invalid variable: "$".',
     "$a" => 'Invalid variable: "$a".',
     "$ a" => 'Invalid variable: "$ a".',
@@ -51,9 +72,9 @@ MSG
     "$a: 1b <= 2c" => "Incompatible units: 'c' and 'b'.",
     "$a: 1b >= 2c" => "Incompatible units: 'c' and 'b'.",
     "a\n  b: 1b * 2c" => "2b*c isn't a valid CSS value.",
-    "a\n  b: 1b % 2c" => "Cannot modulo by a number with units: 2c.",
-    "$a: 2px + #ccc" => "Cannot add a number with units (2px) to a color (#cccccc).",
-    "$a: #ccc + 2px" => "Cannot add a number with units (2px) to a color (#cccccc).",
+    "a\n  b: 1b % 2c" => "Incompatible units: 'c' and 'b'.",
+    "$a: 2px + #ccc" => "Cannot add a number with units (2px) to a color (#ccc).",
+    "$a: #ccc + 2px" => "Cannot add a number with units (2px) to a color (#ccc).",
     "& a\n  :b c" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 1],
     "a\n  :b\n    c" => "Illegal nesting: Only properties may be nested beneath properties.",
     "$a: b\n  :c d\n" => "Illegal nesting: Nothing may be nested beneath variable declarations.",
@@ -66,12 +87,11 @@ MSG
     "@mixin foo\n  .foo\n    @import foo" => "Import directives may not be used within control directives or mixins.",
     "@import foo;" => "Invalid @import: expected end of line, was \";\".",
     '$foo: "bar" "baz" !' => %Q{Invalid CSS after ""bar" "baz" ": expected expression (e.g. 1px, bold), was "!"},
-    '$foo: "bar" "baz" $' => %Q{Invalid CSS after ""bar" "baz" ": expected expression (e.g. 1px, bold), was "$"},
+    '$foo: "bar" "baz" $' => %Q{Invalid CSS after ""bar" "baz" ": expected expression (e.g. 1px, bold), was "$"}, #'
     "=foo\n  :color red\n.bar\n  +bang" => "Undefined mixin 'bang'.",
     "=foo\n  :color red\n.bar\n  +bang_bop" => "Undefined mixin 'bang_bop'.",
     "=foo\n  :color red\n.bar\n  +bang-bop" => "Undefined mixin 'bang-bop'.",
-    ".bar\n  =foo\n    :color red\n" => ["Mixins may only be defined at the root of a document.", 2],
-    "=foo\n  :color red\n.bar\n  +foo\n    :color red" => "Illegal nesting: Nothing may be nested beneath mixin directives.",
+    ".foo\n  =foo\n    :color red\n.bar\n  +foo" => "Undefined mixin 'foo'.",
     "    a\n  b: c" => ["Indenting at the beginning of the document is illegal.", 1],
     " \n   \n\t\n  a\n  b: c" => ["Indenting at the beginning of the document is illegal.", 4],
     "a\n  b: c\n b: c" => ["Inconsistent indentation: 1 space was used for indentation, but the rest of the document was indented using 2 spaces.", 3],
@@ -87,12 +107,12 @@ MSG
     "=a(,)" => 'Invalid CSS after "(": expected variable (e.g. $foo), was ",)"',
     "=a($)" => 'Invalid CSS after "(": expected variable (e.g. $foo), was "$)"',
     "=a($foo bar)" => 'Invalid CSS after "($foo ": expected ")", was "bar)"',
-    "=foo\n  bar: baz\n+foo" => ["Properties are only allowed within rules, directives, or other properties.", 2],
+    "=foo\n  bar: baz\n+foo" => ["Properties are only allowed within rules, directives, mixin includes, or other properties.", 2],
     "a-\#{$b\n  c: d" => ['Invalid CSS after "a-#{$b": expected "}", was ""', 1],
     "=a($b: 1, $c)" => "Required argument $c must come before any optional arguments.",
     "=a($b: 1)\n  a: $b\ndiv\n  +a(1,2)" => "Mixin a takes 1 argument but 2 were passed.",
-    "=a($b: 1)\n  a: $b\ndiv\n  +a(1,$c: 3)" => "Mixin a doesn't have an argument named $c",
-    "=a($b)\n  a: $b\ndiv\n  +a" => "Mixin a is missing parameter $b.",
+    "=a($b: 1)\n  a: $b\ndiv\n  +a(1,$c: 3)" => "Mixin a doesn't have an argument named $c.",
+    "=a($b)\n  a: $b\ndiv\n  +a" => "Mixin a is missing argument $b.",
     "@function foo()\n  1 + 2" => "Functions can only contain variable declarations and control directives.",
     "@function foo()\n  foo: bar" => "Functions can only contain variable declarations and control directives.",
     "@function foo()\n  foo: bar\n  @return 3" => ["Functions can only contain variable declarations and control directives.", 2],
@@ -103,9 +123,10 @@ MSG
     "@function foo($)\n  @return 1" => ['Invalid CSS after "(": expected variable (e.g. $foo), was "$)"', 1],
     "@function foo()\n  @return" => 'Invalid @return: expected expression.',
     "@function foo()\n  @return 1\n    $var: val" => 'Illegal nesting: Nothing may be nested beneath return directives.',
-    "foo\n  @function bar()\n    @return 1" => ['Functions may only be defined at the root of a document.', 2],
-    "@function foo($a)\n  @return 1\na\n  b: foo()" => 'Function foo is missing parameter $a.',
-    "@function foo()\n  @return 1\na\n  b: foo(2)" => 'Wrong number of arguments (1 for 0) for `foo\'',
+    "@function foo($a)\n  @return 1\na\n  b: foo()" => 'Function foo is missing argument $a.',
+    "@function foo()\n  @return 1\na\n  b: foo(2)" => 'Function foo takes 0 arguments but 1 was passed.',
+    "@function foo()\n  @return 1\na\n  b: foo($a: 1)" => "Function foo doesn't have an argument named $a.",
+    "@function foo()\n  @return 1\na\n  b: foo($a: 1, $b: 2)" => "Function foo doesn't have the following arguments: $a, $b.",
     "@return 1" => '@return may only be used within a function.',
     "@if true\n  @return 1" => '@return may only be used within a function.',
     "@mixin foo\n  @return 1\n@include foo" => ['@return may only be used within a function.', 2],
@@ -119,35 +140,44 @@ MSG
     '@for $a from "foo" to 1' => '"foo" is not an integer.',
     '@for $a from 1 to "2"' => '"2" is not an integer.',
     '@for $a from 1 to "foo"' => '"foo" is not an integer.',
-    '@for $a from 1 to 1.232323' => '1.232 is not an integer.',
+    '@for $a from 1 to 1.232323' => '1.23232 is not an integer.',
     '@for $a from 1px to 3em' => "Incompatible units: 'em' and 'px'.",
     '@if' => "Invalid if directive '@if': expected expression.",
     '@while' => "Invalid while directive '@while': expected expression.",
     '@debug' => "Invalid debug directive '@debug': expected expression.",
     %Q{@debug "a message"\n  "nested message"} => "Illegal nesting: Nothing may be nested beneath debug directives.",
+    '@error' => "Invalid error directive '@error': expected expression.",
+    %Q{@error "a message"\n  "nested message"} => "Illegal nesting: Nothing may be nested beneath error directives.",
     '@warn' => "Invalid warn directive '@warn': expected expression.",
     %Q{@warn "a message"\n  "nested message"} => "Illegal nesting: Nothing may be nested beneath warn directives.",
     "/* foo\n    bar\n  baz" => "Inconsistent indentation: previous line was indented by 4 spaces, but this line was indented by 2 spaces.",
     '+foo(1 + 1: 2)' => 'Invalid CSS after "(1 + 1": expected comma, was ": 2)"',
     '+foo($var: )' => 'Invalid CSS after "($var: ": expected mixin argument, was ")"',
     '+foo($var: a, $var: b)' => 'Keyword argument "$var" passed more than once',
-    '+foo($var-var: a, $var_var: b)' => 'Keyword argument "$var-var" passed more than once',
-    '+foo($var_var: a, $var-var: b)' => 'Keyword argument "$var_var" passed more than once',
+    '+foo($var-var: a, $var_var: b)' => 'Keyword argument "$var_var" passed more than once',
+    '+foo($var_var: a, $var-var: b)' => 'Keyword argument "$var-var" passed more than once',
     "a\n  b: foo(1 + 1: 2)" => 'Invalid CSS after "foo(1 + 1": expected comma, was ": 2)"',
     "a\n  b: foo($var: )" => 'Invalid CSS after "foo($var: ": expected function argument, was ")"',
     "a\n  b: foo($var: a, $var: b)" => 'Keyword argument "$var" passed more than once',
-    "a\n  b: foo($var-var: a, $var_var: b)" => 'Keyword argument "$var-var" passed more than once',
-    "a\n  b: foo($var_var: a, $var-var: b)" => 'Keyword argument "$var_var" passed more than once',
+    "a\n  b: foo($var-var: a, $var_var: b)" => 'Keyword argument "$var_var" passed more than once',
+    "a\n  b: foo($var_var: a, $var-var: b)" => 'Keyword argument "$var-var" passed more than once',
     "@if foo\n  @extend .bar" => ["Extend directives may only be used within rules.", 2],
     "$var: true\n@while $var\n  @extend .bar\n  $var: false" => ["Extend directives may only be used within rules.", 3],
     "@for $i from 0 to 1\n  @extend .bar" => ["Extend directives may only be used within rules.", 2],
     "@mixin foo\n  @extend .bar\n@include foo" => ["Extend directives may only be used within rules.", 2],
-    "@import \"foo\" // bar" => "Invalid @import: \"\"foo\" // bar\"",
+    "foo %\n  a: b" => ['Invalid CSS after "foo %": expected placeholder name, was ""', 1],
+    "=foo\n  @content error" => "Invalid content directive. Trailing characters found: \"error\".",
+    "=foo\n  @content\n    b: c" => "Illegal nesting: Nothing may be nested beneath @content directives.",
+    "@content" => '@content may only be used within a mixin.',
+    "=simple\n  .simple\n    color: red\n+simple\n  color: blue" => ['Mixin "simple" does not accept a content block.', 4],
+    "@import \"foo\" // bar" => "Invalid CSS after \"\"foo\" \": expected media query list, was \"// bar\"",
+    "@at-root\n  a: b" => "Properties are only allowed within rules, directives, mixin includes, or other properties.",
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only properties may be nested beneath properties.", 3],
     "& foo\n  bar: baz\n  blat: bang" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 1],
     "a\n  b: c\n& foo\n  bar: baz\n  blat: bang" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 3],
+    "@" => "Invalid directive: '@'.",
   }
 
   def teardown
@@ -207,7 +237,35 @@ MSG
     assert_equal("p {\n  a: b; }\n  p q {\n    c: d; }\n",
                  render("p\n\ta: b\n\tq\n\t\tc: d\n"))
   end
-  
+
+  def test_import_same_name_different_ext
+    assert_raise_message Sass::SyntaxError, <<ERROR do
+It's not clear which file to import for '@import "same_name_different_ext"'.
+Candidates:
+  same_name_different_ext.sass
+  same_name_different_ext.scss
+Please delete or rename all but one of these files.
+ERROR
+      options = {:load_paths => [File.dirname(__FILE__) + '/templates/']}
+      munge_filename options
+      Sass::Engine.new("@import 'same_name_different_ext'", options).render
+    end
+  end
+
+  def test_import_same_name_different_partiality
+    assert_raise_message Sass::SyntaxError, <<ERROR do
+It's not clear which file to import for '@import "same_name_different_partiality"'.
+Candidates:
+  _same_name_different_partiality.scss
+  same_name_different_partiality.scss
+Please delete or rename all but one of these files.
+ERROR
+      options = {:load_paths => [File.dirname(__FILE__) + '/templates/']}
+      munge_filename options
+      Sass::Engine.new("@import 'same_name_different_partiality'", options).render
+    end
+  end
+
   EXCEPTION_MAP.each do |key, value|
     define_method("test_exception (#{key.inspect})") do
       line = 10
@@ -262,7 +320,7 @@ SASS
   end
 
   def test_imported_exception
-    [1, 2, 3, 4, 5].each do |i|
+    [1, 2, 3, 4].each do |i|
       begin
         Sass::Engine.new("@import bork#{i}", :load_paths => [File.dirname(__FILE__) + '/templates/']).render
       rescue Sass::SyntaxError => err
@@ -284,7 +342,7 @@ SASS
   end
 
   def test_double_imported_exception
-    [1, 2, 3, 4, 5].each do |i|
+    [1, 2, 3, 4].each do |i|
       begin
         Sass::Engine.new("@import nested_bork#{i}", :load_paths => [File.dirname(__FILE__) + '/templates/']).render
       rescue Sass::SyntaxError => err
@@ -416,74 +474,25 @@ SASS
     assert_hash_has(err.sass_backtrace[4], :filename => nil, :mixin => nil, :line => 1)
   end
 
-  def test_basic_mixin_loop_exception
-    render <<SASS
-@mixin foo
-  @include foo
-@include foo
+  def test_recursive_mixin
+    assert_equal <<CSS, render(<<SASS)
+.foo .bar .baz {
+  color: blue; }
+.foo .bar .qux {
+  color: red; }
+.foo .zap {
+  color: green; }
+CSS
+@mixin map-to-rule($map-or-color)
+  @if type-of($map-or-color) == map
+    @each $key, $value in $map-or-color
+      .\#{$key}
+        @include map-to-rule($value)
+  @else
+    color: $map-or-color
+
+@include map-to-rule((foo: (bar: (baz: blue, qux: red), zap: green)))
 SASS
-    assert(false, "Exception not raised")
-  rescue Sass::SyntaxError => err
-    assert_equal("An @include loop has been found: foo includes itself", err.message)
-    assert_hash_has(err.sass_backtrace[0], :mixin => "foo", :line => 2)
-  end
-
-  def test_double_mixin_loop_exception
-    render <<SASS
-@mixin foo
-  @include bar
-@mixin bar
-  @include foo
-@include foo
-SASS
-    assert(false, "Exception not raised")
-  rescue Sass::SyntaxError => err
-    assert_equal(<<MESSAGE.rstrip, err.message)
-An @include loop has been found:
-    foo includes bar
-    bar includes foo
-MESSAGE
-    assert_hash_has(err.sass_backtrace[0], :mixin => "bar", :line => 4)
-    assert_hash_has(err.sass_backtrace[1], :mixin => "foo", :line => 2)
-  end
-
-  def test_deep_mixin_loop_exception
-    render <<SASS
-@mixin foo
-  @include bar
-
-@mixin bar
-  @include baz
-
-@mixin baz
-  @include foo
-
-@include foo
-SASS
-    assert(false, "Exception not raised")
-  rescue Sass::SyntaxError => err
-    assert_equal(<<MESSAGE.rstrip, err.message)
-An @include loop has been found:
-    foo includes bar
-    bar includes baz
-    baz includes foo
-MESSAGE
-    assert_hash_has(err.sass_backtrace[0], :mixin => "baz", :line => 8)
-    assert_hash_has(err.sass_backtrace[1], :mixin => "bar", :line => 5)
-    assert_hash_has(err.sass_backtrace[2], :mixin => "foo", :line => 2)
-  end
-
-  def test_basic_import_loop_exception
-    import = filename_for_test
-    importer = MockImporter.new
-    importer.add_import(import, "@import '#{import}'")
-
-    engine = Sass::Engine.new("@import '#{import}'", :filename => import,
-      :load_paths => [importer])
-
-    assert_raise_message(Sass::SyntaxError, <<ERR.rstrip) {engine.render}
-An @import loop has been found: #{import} imports itself
-ERR
   end
 
   def test_double_import_loop_exception
@@ -492,7 +501,7 @@ ERR
     importer.add_import("bar", "@import 'foo'")
 
     engine = Sass::Engine.new('@import "foo"', :filename => filename_for_test,
-      :load_paths => [importer])
+      :load_paths => [importer], :importer => importer)
 
     assert_raise_message(Sass::SyntaxError, <<ERR.rstrip) {engine.render}
 An @import loop has been found:
@@ -509,7 +518,7 @@ ERR
     importer.add_import("baz", "@import 'foo'")
 
     engine = Sass::Engine.new('@import "foo"', :filename => filename_for_test,
-      :load_paths => [importer])
+      :load_paths => [importer], :importer => importer)
 
     assert_raise_message(Sass::SyntaxError, <<ERR.rstrip) {engine.render}
 An @import loop has been found:
@@ -524,9 +533,9 @@ ERR
     opts = {:full_exception => true, :line => 362}
     render(("a\n  b: c\n" * 10) + "d\n  e:\n" + ("f\n  g: h\n" * 10), opts)
   rescue Sass::SyntaxError => e
-    assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e, opts).split("\n")[0..15].join("\n"))
+    assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e, opts[:line]).split("\n")[0..15].join("\n"))
 /*
-Syntax error: Invalid property: "e:" (no value).
+Error: Invalid property: "e:" (no value).
         on line 383 of test_exception_css_with_offset_inline.sass
 
 378: a
@@ -546,8 +555,7 @@ CSS
   end
 
   def test_exception_css_with_mixins
-    opts = {:full_exception => true}
-    render(<<SASS, opts)
+    render(<<SASS, :full_exception => true)
 =error-mixin($a)
   color: $a * 1em * 1px
 
@@ -558,9 +566,9 @@ CSS
   +outer-mixin(12)
 SASS
   rescue Sass::SyntaxError => e
-    assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e, opts).split("\n")[0..13].join("\n"))
+    assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e).split("\n")[0..13].join("\n"))
 /*
-Syntax error: 12em*px isn't a valid CSS value.
+Error: 12em*px isn't a valid CSS value.
         on line 2 of test_exception_css_with_mixins_inline.sass, in `error-mixin'
         from line 5 of test_exception_css_with_mixins_inline.sass, in `outer-mixin'
         from line 8 of test_exception_css_with_mixins_inline.sass
@@ -578,8 +586,7 @@ CSS
   end
 
   def test_cssize_exception_css
-    opts = {:full_exception => true}
-    render(<<SASS, opts)
+    render(<<SASS, :full_exception => true)
 .filler
   stuff: "stuff!"
 
@@ -589,9 +596,9 @@ a: b
   a: b
 SASS
   rescue Sass::SyntaxError => e
-    assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e, opts).split("\n")[0..11].join("\n"))
+    assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e).split("\n")[0..11].join("\n"))
 /*
-Syntax error: Properties are only allowed within rules, directives, or other properties.
+Error: Properties are only allowed within rules, directives, mixin includes, or other properties.
         on line 4 of test_cssize_exception_css_inline.sass
 
 1: .filler
@@ -615,19 +622,29 @@ CSS
       render("@import \"http://fonts.googleapis.com/css?family=Droid+Sans\""))
   end
 
-  def test_import_with_interpolation
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING on line 2 of test_import_with_interpolation_inline.sass:
-@import directives using \#{} interpolation will need to use url() in Sass 3.2.
-For example:
+  def test_protocol_relative_import
+    assert_equal("@import \"//fonts.googleapis.com/css?family=Droid+Sans\";\n",
+      render("@import \"//fonts.googleapis.com/css?family=Droid+Sans\""))
+  end
 
-  @import url("http://\#{$url}/style.css");
-WARNING
-      assert_equal("@import \"http://fonts.googleapis.com/css?family=Droid+Sans\";\n",
-        render("$family: unquote(\"Droid+Sans\")\n@import \"http://fonts.googleapis.com/css?family=\#{$family}\"\n"))
-    end
-    assert_equal("@import url(\"http://fonts.googleapis.com/css?family=Droid+Sans\");\n",
-      render("$family: unquote(\"Droid+Sans\")\n@import url(\"http://fonts.googleapis.com/css?family=\#{$family}\")\n"))
+  def test_import_with_interpolation
+    assert_equal(<<CSS, render(<<SASS))
+@import url("http://fonts.googleapis.com/css?family=Droid+Sans");
+CSS
+$family: unquote("Droid+Sans")
+@import url("http://fonts.googleapis.com/css?family=\#{$family}")
+SASS
+  end
+
+  def test_import_with_dynamic_media_query
+    assert_equal(<<CSS, render(<<SASS))
+@import "foo" print and (-webkit-min-device-pixel-ratio-foo: 25);
+CSS
+$media: print
+$key: -webkit-min-device-pixel-ratio
+$value: 20
+@import "foo" \#{$media} and ($key + "-foo": $value + 5)
+SASS
   end
 
   def test_url_import
@@ -636,18 +653,28 @@ WARNING
 
   def test_sass_import
     sassc_file = sassc_path("importee")
-    assert !File.exists?(sassc_file)
+    assert !File.exist?(sassc_file)
     renders_correctly "import", { :style => :compact, :load_paths => [File.dirname(__FILE__) + "/templates"] }
-    assert File.exists?(sassc_file)
+    assert File.exist?(sassc_file)
   end
 
   def test_sass_pathname_import
     sassc_file = sassc_path("importee")
-    assert !File.exists?(sassc_file)
+    assert !File.exist?(sassc_file)
     renders_correctly("import",
       :style => :compact,
       :load_paths => [Pathname.new(File.dirname(__FILE__) + "/templates")])
-    assert File.exists?(sassc_file)
+    assert File.exist?(sassc_file)
+  end
+
+  def test_import_from_global_load_paths
+    importer = MockImporter.new
+    importer.add_import("imported", "div{color:red}")
+    Sass.load_paths << importer
+
+    assert_equal "div {\n  color: red; }\n", Sass::Engine.new('@import "imported"', :importer => importer).render
+  ensure
+    Sass.load_paths.clear
   end
 
   def test_nonexistent_import
@@ -669,23 +696,23 @@ ERR
   end
 
   def test_no_cache
-    assert !File.exists?(sassc_path("importee"))
+    assert !File.exist?(sassc_path("importee"))
     renders_correctly("import", {
         :style => :compact, :cache => false,
         :load_paths => [File.dirname(__FILE__) + "/templates"],
       })
-    assert !File.exists?(sassc_path("importee"))
+    assert !File.exist?(sassc_path("importee"))
   end
 
   def test_import_in_rule
     assert_equal(<<CSS, render(<<SASS, :load_paths => [File.dirname(__FILE__) + '/templates/']))
 .foo #foo {
-  background-color: #bbaaff; }
+  background-color: #baf; }
 
 .bar {
   a: b; }
   .bar #foo {
-    background-color: #bbaaff; }
+    background-color: #baf; }
 CSS
 .foo
   @import partial
@@ -694,24 +721,6 @@ CSS
   a: b
   @import partial
 SASS
-  end
-
-  def test_nested_import_with_toplevel_constructs
-    Sass::Engine.new(".foo\n  @import importee", :load_paths => [File.dirname(__FILE__) + '/templates/']).render
-  rescue Sass::SyntaxError => err
-    assert_equal(3, err.sass_line)
-    assert_match(/(\/|^)importee\.sass$/, err.sass_filename)
-
-    assert_hash_has(err.sass_backtrace.first,
-      :filename => err.sass_filename, :line => err.sass_line)
-
-    assert_nil(err.sass_backtrace[1][:filename])
-    assert_equal(2, err.sass_backtrace[1][:line])
-
-    assert_match(/(\/|^)importee\.sass:3$/, err.backtrace.first)
-    assert_equal("(sass):2", err.backtrace[1])
-  else
-    assert(false, "Exception not raised for importing mixins nested")
   end
 
   def test_units
@@ -986,7 +995,7 @@ SASS
 
   def test_debug_info_without_filename
     assert_equal(<<CSS, Sass::Engine.new(<<SASS, :debug_info => true).render)
-@media -sass-debug-info{filename{font-family:}line{font-family:\\000031}}
+@media -sass-debug-info{filename{}line{font-family:\\000031}}
 foo {
   a: b; }
 CSS
@@ -1022,7 +1031,6 @@ SASS
 @-webkit-keyframes warm {
   from {
     color: black; }
-
   to {
     color: red; } }
 CSS
@@ -1075,6 +1083,7 @@ SASS
   def test_guarded_assign
     assert_equal("foo {\n  a: b; }\n", render(%Q{$foo: b\n$foo: c !default\nfoo\n  a: $foo}))
     assert_equal("foo {\n  a: b; }\n", render(%Q{$foo: b !default\nfoo\n  a: $foo}))
+    assert_equal("foo {\n  a: b; }\n", render(%Q{$foo: null\n$foo: b !default\nfoo\n  a: $foo}))
   end
   
   def test_mixins
@@ -1125,7 +1134,13 @@ SASS
   end
 
   def test_default_values_for_mixin_arguments
-    assert_equal("white {\n  color: white; }\n\nblack {\n  color: black; }\n", render(<<SASS))
+    assert_equal(<<CSS, render(<<SASS))
+white {
+  color: #FFF; }
+
+black {
+  color: #000; }
+CSS
 =foo($a: #FFF)
   :color $a
 white
@@ -1135,17 +1150,17 @@ black
 SASS
     assert_equal(<<CSS, render(<<SASS))
 one {
-  color: white;
+  color: #fff;
   padding: 1px;
   margin: 4px; }
 
 two {
-  color: white;
+  color: #fff;
   padding: 2px;
   margin: 5px; }
 
 three {
-  color: white;
+  color: #fff;
   padding: 2px;
   margin: 3px; }
 CSS
@@ -1154,6 +1169,35 @@ $a: 5px
   :color $a
   :padding $b
   :margin $c
+one
+  +foo(#fff)
+two
+  +foo(#fff, 2px)
+three
+  +foo(#fff, 2px, 3px)
+SASS
+    assert_equal(<<CSS, render(<<SASS))
+one {
+  color: #fff;
+  padding: 1px;
+  margin: 4px; }
+
+two {
+  color: #fff;
+  padding: 2px;
+  margin: 5px; }
+
+three {
+  color: #fff;
+  padding: 2px;
+  margin: 3px; }
+CSS
+$a: 5px
+=foo($a, $b: 1px, $c: null)
+  $c: 3px + $b !default
+  color: $a
+  padding: $b
+  margin: $c
 one
   +foo(#fff)
 two
@@ -1246,6 +1290,58 @@ bar
 SASS
   end
 
+  def test_function_with_missing_argument
+    render(<<SASS)
+@function plus($var1, $var2)
+  @return $var1 + $var2
+
+bar
+  a: plus($var2: bar)
+SASS
+    flunk("Expected exception")
+  rescue Sass::SyntaxError => e
+    assert_equal("Function plus is missing argument $var1.", e.message)
+  end
+
+  def test_function_with_extra_argument
+    render(<<SASS)
+@function plus($var1, $var2)
+  @return $var1 + $var2
+
+bar
+  a: plus($var1: foo, $var2: bar, $var3: baz)
+SASS
+    flunk("Expected exception")
+  rescue Sass::SyntaxError => e
+    assert_equal("Function plus doesn't have an argument named $var3.", e.message)
+  end
+
+  def test_function_with_positional_and_keyword_argument
+    render(<<SASS)
+@function plus($var1, $var2)
+  @return $var1 + $var2
+
+bar
+  a: plus(foo, bar, $var2: baz)
+SASS
+    flunk("Expected exception")
+  rescue Sass::SyntaxError => e
+    assert_equal("Function plus was passed argument $var2 both by position and by name.", e.message)
+  end
+
+  def test_function_with_keyword_before_positional_argument
+    render(<<SASS)
+@function plus($var1, $var2)
+  @return $var1 + $var2
+
+bar
+  a: plus($var2: foo, bar)
+SASS
+    flunk("Expected exception")
+  rescue Sass::SyntaxError => e
+    assert_equal("Positional arguments must come before keyword arguments.", e.message)
+  end
+
   def test_function_with_if
     assert_equal(<<CSS, render(<<SASS))
 bar {
@@ -1275,6 +1371,44 @@ CSS
 
 bar
   a: foo(1, 2)
+SASS
+  end
+
+  def test_user_defined_function_variable_scope
+    render(<<SASS)
+bar
+  -no-op: set-a-variable(variable, 5)
+  a: $variable
+SASS
+    flunk("Exception not raised for test_user_defined_function_variable_scope")
+  rescue Sass::SyntaxError => e
+    assert_equal('Undefined variable: "$variable".', e.message)
+  end
+
+  def test_user_defined_function_can_change_global_variable
+    assert_equal(<<CSS, render(<<SASS))
+bar {
+  a: 5; }
+CSS
+$variable: 0
+bar
+  $local: 10
+  -no-op: set-a-global-variable(variable, 5)
+  a: $variable
+SASS
+  end
+
+  def test_user_defined_function_cannot_read_local_variable
+    assert_equal(<<CSS, render(<<SASS))
+bar {
+  global: 0;
+  local: undefined; }
+CSS
+$global: 0
+bar
+  $local: 10
+  global: get-a-variable(global)
+  local: get-a-variable(local)
 SASS
   end
 
@@ -1316,6 +1450,15 @@ SASS
   def test_if_directive
     assert_equal("a {\n  b: 1; }\n", render(<<SASS))
 $var: true
+a
+  @if $var
+    b: 1
+  @if not $var
+    b: 2
+SASS
+
+    assert_equal("a {\n  b: 2; }\n", render(<<SASS))
+$var: null
 a
   @if $var
     b: 1
@@ -1382,7 +1525,7 @@ $a: 5
 @while $a != 0
   a-\#{$a}
     blooble: gloop
-  $a: $a - 1
+  $a: $a - 1 !global
 SASS
   end
 
@@ -1449,50 +1592,43 @@ a
 SASS
   end
 
+  def test_destructuring_each
+    assert_equal <<CSS, render(<<SCSS)
+a {
+  foo: 1px;
+  bar: 2px;
+  baz: 3px; }
+
+c {
+  foo: "Value is bar";
+  bar: "Value is baz";
+  bang: "Value is "; }
+CSS
+a
+  @each $name, $number in (foo: 1px, bar: 2px, baz: 3px)
+    \#{$name}: $number
+c
+  @each $key, $value in (foo bar) (bar, baz) bang
+    \#{$key}: "Value is \#{$value}"
+SCSS
+  end
+
   def test_variable_reassignment
     assert_equal(<<CSS, render(<<SASS))
 a {
   b: 1;
   c: 2; }
 CSS
-$a: 1
 a
+  $a: 1
   b: $a
   $a: 2
   c: $a
 SASS
   end
 
-  def test_variable_scope
-    assert_equal(<<CSS, render(<<SASS))
-a {
-  b-1: c;
-  b-2: c;
-  d: 12; }
-
-b {
-  d: 17; }
-CSS
-$i: 12
-a
-  @for $i from 1 through 2
-    b-\#{$i}: c
-  d: $i
-
-=foo
-  $i: 17
-
-b
-  +foo
-  d: $i
-SASS
-  end
-
   def test_hyphen_underscore_insensitive_variables
     assert_equal(<<CSS, render(<<SASS))
-a {
-  b: c; }
-
 d {
   e: 13;
   f: foobar; }
@@ -1500,10 +1636,8 @@ CSS
 $var-hyphen: 12
 $var_under: foo
 
-a
-  $var_hyphen: 1 + $var_hyphen
-  $var-under: $var-under + bar
-  b: c
+$var_hyphen: 1 + $var_hyphen
+$var-under: $var-under + bar
 
 d
   e: $var-hyphen
@@ -1535,7 +1669,7 @@ SASS
   end
 
   def test_argument_error
-    assert_raise(Sass::SyntaxError) { render("a\n  b: hsl(1)") }
+    assert_raises(Sass::SyntaxError) { render("a\n  b: hsl(1)") }
   end
 
   def test_comments_at_the_top_of_a_document
@@ -1646,7 +1780,7 @@ SASS
 
   def test_loud_comment_in_compressed_mode
     assert_equal <<CSS, render(<<SASS, :style => :compressed)
-foo{color:blue;/* foo
+foo{color:blue;/*! foo
  * bar
  */}
 CSS
@@ -1658,29 +1792,11 @@ foo
 SASS
   end
 
-  def test_loud_comment_in_silent_comment
-    silence_warnings {assert_equal <<CSS, render(<<SASS, :style => :compressed)}
-foo{color:blue;/* foo */
-/* bar */
-/* bip */
-/* baz */}
-CSS
-foo
-  color: blue
-  //! foo
-  //! bar
-  //!
-    bip
-    baz
-SASS
-  end
-
   def test_loud_comment_is_evaluated
     assert_equal <<CSS, render(<<SASS)
-/* Hue: 327.216deg */
+/*! Hue: 327.21649deg */
 CSS
-/*!
-  Hue: \#{hue(#f836a0)}
+/*! Hue: \#{hue(#f836a0)}
 SASS
   end
 
@@ -1733,6 +1849,26 @@ SASS
 WARNING on line 1 of test_empty_selector_warning_inline.sass:
 This selector doesn't have any properties and will not be rendered.
 END
+  end
+
+  def test_nonprinting_empty_property
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  c: "";
+  e: f; }
+CSS
+$null-value: null
+$empty-string: ''
+$empty-list: (null)
+a
+  b: $null-value
+  c: $empty-string
+  d: $empty-list
+  e: f
+
+g
+  h: null
+SASS
   end
 
   def test_root_level_pseudo_class_with_new_properties
@@ -1878,10 +2014,10 @@ $var: "bar"
 SASS
   end
 
-  def test_interpolation_doesnt_deep_unquote_strings
+  def test_interpolation_deep_unquotes_strings
     assert_equal(<<CSS, render(<<SASS))
 .foo {
-  a: "bar" "baz"; }
+  a: bar baz; }
 CSS
 .foo
   a: \#{"bar" "baz"}
@@ -2028,12 +2164,12 @@ SASS
 
   def test_double_media_bubbling
     assert_equal <<CSS, render(<<SASS)
-@media bar and baz {
+@media bar and (a: b) {
   .foo {
     c: d; } }
 CSS
 @media bar
-  @media baz
+  @media (a: b)
     .foo
       c: d
 SASS
@@ -2042,28 +2178,58 @@ SASS
 @media bar {
   .foo {
     a: b; } }
-  @media bar and baz {
+  @media bar and (a: b) {
     .foo {
       c: d; } }
 CSS
 .foo
   @media bar
     a: b
-    @media baz
+    @media (a: b)
       c: d
 SASS
   end
 
   def test_double_media_bubbling_with_commas
     assert_equal <<CSS, render(<<SASS)
-@media foo and baz, foo and bang, bar and baz, bar and bang {
+@media (a: b) and (e: f), (c: d) and (e: f), (a: b) and (g: h), (c: d) and (g: h) {
   .foo {
     c: d; } }
 CSS
-@media foo, bar
-  @media baz, bang
+@media (a: b), (c: d)
+  @media (e: f), (g: h)
     .foo
       c: d
+SASS
+  end
+
+  def test_double_media_bubbling_with_surrounding_rules
+    assert_equal <<CSS, render(<<SASS)
+@media (min-width: 0) {
+  a {
+    a: a; }
+
+  b {
+    before: b;
+    after: b; } }
+  @media (min-width: 0) and (max-width: 5000px) {
+    b {
+      x: x; } }
+
+@media (min-width: 0) {
+  c {
+    c: c; } }
+CSS
+@media (min-width: 0)
+  a
+    a: a
+  b
+    before: b
+    @media (max-width: 5000px)
+      x: x
+    after: b
+  c
+    c: c
 SASS
   end
 
@@ -2093,9 +2259,10 @@ SASS
   @media print {
     .outside {
       color: black; } }
-    @media print and nested {
-      .outside .inside {
-        border: 1px solid black; } }
+  @media print and (a: b) {
+    .outside .inside {
+      border: 1px solid black; } }
+
   .outside .middle {
     display: block; }
 CSS
@@ -2104,7 +2271,7 @@ CSS
   @media print
     color: black
     .inside
-      @media nested
+      @media (a: b)
         border: 1px solid black
   background: blue
   .middle
@@ -2127,37 +2294,263 @@ CSS
     assert_equal css_str, render(sass_str)
   end
 
+  def test_eliminated_media_bubbling
+    assert_equal <<CSS, render(<<SASS)
+@media screen {
+  a: b; }
+CSS
+@media screen
+  a: b
+  @media print
+    c: d
+SASS
+
+    assert_equal <<CSS, render(<<SASS)
+@media not print {
+  a: b; }
+CSS
+@media not print
+  a: b
+  @media print
+    c: d
+SASS
+
+    assert_equal <<CSS, render(<<SASS)
+@media not print {
+  a: b; }
+CSS
+@media not print
+  a: b
+  @media not screen
+    c: d
+SASS
+  end
+
+  def test_non_eliminated_media_bubbling
+    assert_equal <<CSS, render(<<SASS)
+@media screen {
+  a: b; }
+@media screen and (a: b) {
+  c: d; }
+CSS
+@media screen
+  a: b
+  @media screen and (a: b)
+    c: d
+SASS
+
+    assert_equal <<CSS, render(<<SASS)
+@media not print {
+  a: b; }
+@media screen {
+  c: d; }
+CSS
+@media not print
+  a: b
+  @media screen
+    c: d
+SASS
+
+    assert_equal <<CSS, render(<<SASS)
+@media only screen {
+  a: b; }
+@media only screen and (a: b) {
+  c: d; }
+CSS
+@media only screen
+  a: b
+  @media screen and (a: b)
+    c: d
+SASS
+  end
+
+  def test_directive_interpolation
+    assert_equal <<CSS, render(<<SASS)
+@foo bar12 qux {
+  a: b; }
+CSS
+$baz: 12
+@foo bar\#{$baz} qux
+  a: b
+SASS
+  end
+
+  def test_media_interpolation
+    assert_equal <<CSS, render(<<SASS)
+@media bar12 {
+  a: b; }
+CSS
+$baz: 12
+@media bar\#{$baz}
+  a: b
+SASS
+  end
+
+  def test_variables_in_media
+    assert_equal <<CSS, render(<<SASS)
+@media screen and (-webkit-min-device-pixel-ratio-foo: 25), only print {
+  a: b; }
+CSS
+$media1: screen
+$media2: print
+$var: -webkit-min-device-pixel-ratio
+$val: 20
+@media \#{$media1} and ($var + "-foo": $val + 5), only \#{$media2}
+  a: b
+SASS
+  end
+
+  def test_at_root
+    assert_equal <<CSS, render(<<SASS)
+.bar {
+  a: b; }
+CSS
+.foo
+  @at-root
+    .bar
+      a: b
+SASS
+  end
+
+  def test_at_root_with_selector
+    assert_equal <<CSS, render(<<SASS)
+.bar {
+  a: b; }
+CSS
+.foo
+  @at-root .bar
+    a: b
+SASS
+  end
+
+  def test_at_root_with_query
+    assert_equal <<CSS, render(<<SASS)
+.foo .bar {
+  a: b; }
+CSS
+.foo
+  @media screen
+    @at-root (without: media)
+      .bar
+        a: b
+SASS
+  end
+
+  def test_variable_assignment_with_global
+    assert_no_warning {assert_equal(<<CSS, render(<<SASS))}
+.foo {
+  a: x; }
+
+.bar {
+  b: x; }
+CSS
+$var: 1
+
+.foo
+  $var: x !global
+  a: $var
+
+.bar
+  b: $var
+SASS
+  end
+
   # Regression tests
 
-  def test_tricky_mixin_loop_exception
-    render <<SASS
-@mixin foo($a)
-  @if $a
-    @include foo(false)
-    @include foo(true)
-  @else
-    a: b
+  def test_list_separator_with_arg_list
+    assert_equal(<<CSS, render(<<SASS))
+.test {
+  separator: comma; }
+CSS
+@mixin arglist-test($args...)
+  separator: list-separator($args)
 
-a
-  @include foo(true)
+.test
+  @include arglist-test(this, is, comma, separated)
 SASS
-    assert(false, "Exception not raised")
-  rescue Sass::SyntaxError => err
-    assert_equal("An @include loop has been found: foo includes itself", err.message)
-    assert_hash_has(err.sass_backtrace[0], :mixin => "foo", :line => 3)
+  end
+
+  def test_parent_mixin_in_content_nested
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  b: c; }
+CSS
+=foo
+  @content
+
+=bar
+  +foo
+    +foo
+      a
+        b: c
+
++bar
+SASS
+  end
+
+  def test_supports_bubbles
+    assert_equal <<CSS, render(<<SASS)
+parent {
+  background: orange; }
+  @supports (perspective: 10px) or (-moz-perspective: 10px) {
+    parent child {
+      background: blue; } }
+CSS
+parent
+  background: orange
+  @supports (perspective: 10px) or (-moz-perspective: 10px)
+    child
+      background: blue
+SASS
+  end
+
+  def test_line_numbers_with_dos_line_endings
+    assert_equal <<CSS, render(<<SASS, :line_comments => true)
+/* line 5, test_line_numbers_with_dos_line_endings_inline.sass */
+.foo {
+  a: b; }
+CSS
+\r
+\r
+\r
+\r
+.foo
+  a: b
+SASS
+  end
+
+  def test_variable_in_media_in_mixin
+    assert_equal <<CSS, render(<<SASS)
+@media screen and (min-width: 10px) {
+  body {
+    background: red; } }
+@media screen and (min-width: 20px) {
+  body {
+    background: blue; } }
+CSS
+@mixin respond-to($width)
+  @media screen and (min-width: $width)
+    @content
+
+body
+  @include respond-to(10px)
+    background: red
+  @include respond-to(20px)
+    background: blue
+SASS
   end
 
   def test_interpolated_comment_in_mixin
     assert_equal <<CSS, render(<<SASS)
-/* color: red */
+/*! color: red */
 .foo {
   color: red; }
 
-/* color: blue */
+/*! color: blue */
 .foo {
   color: blue; }
 
-/* color: green */
+/*! color: green */
 .foo {
   color: green; }
 CSS
@@ -2445,24 +2838,6 @@ CSS
 SASS
   end
 
-  def test_comment_interpolation_warning
-    assert_warning(<<END) {render("/* \#{foo}")}
-WARNING:
-On line 1 of 'test_comment_interpolation_warning_inline.sass'
-Comments will evaluate the contents of interpolations (\#{ ... }) in Sass 3.2.
-Please escape the interpolation by adding a backslash before the `#`.
-END
-  end
-
-  def test_loud_silent_comment_warning
-    assert_warning(<<END) {render("//! \#{foo}")}
-WARNING:
-On line 1 of 'test_loud_silent_comment_warning_inline.sass'
-`//` comments will no longer be allowed to use the `!` flag in Sass 3.2.
-Please change to `/*` comments.
-END
-  end
-
   def test_loud_comment_interpolations_can_be_escaped
     assert_equal <<CSS, render(<<SASS)
 /* \#{foo} */
@@ -2470,7 +2845,7 @@ CSS
 /* \\\#{foo}
 SASS
     assert_equal <<CSS, render(<<SASS)
-/* \#{foo} */
+/*! \#{foo} */
 CSS
 /*! \\\#{foo}
 SASS
@@ -2486,149 +2861,26 @@ SASS
   end
 
   def test_comment_like_selector
-    assert_raise_message(Sass::SyntaxError, 'Invalid CSS after "": expected selector, was "/ foo"') {render(<<SASS)}
+    assert_raise_message(Sass::SyntaxError, 'Invalid CSS after "/": expected identifier, was " foo"') {render(<<SASS)}
 / foo
   a: b
 SASS
   end
 
-  # Encodings
+  def test_nested_empty_directive
+    assert_equal <<CSS, render(<<SASS)
+@media screen {
+  .foo {
+    a: b; }
 
-  unless Sass::Util.ruby1_8?
-    def test_encoding_error
-      render("foo\nbar\nb\xFEaz".force_encoding("utf-8"))
-      assert(false, "Expected exception")
-    rescue Sass::SyntaxError => e
-      assert_equal(3, e.sass_line)
-      assert_equal('Invalid UTF-8 character "\xFE"', e.message)
-    end
-
-    def test_ascii_incompatible_encoding_error
-      template = "foo\nbar\nb_z".encode("utf-16le")
-      template[9] = "\xFE".force_encoding("utf-16le")
-      render(template)
-      assert(false, "Expected exception")
-    rescue Sass::SyntaxError => e
-      assert_equal(3, e.sass_line)
-      assert_equal('Invalid UTF-16LE character "\xFE"', e.message)
-    end
-
-    def test_same_charset_as_encoding
-      assert_renders_encoded(<<CSS, <<SASS)
-@charset "UTF-8";
-fóó {
-  a: b; }
+  @unknown-directive; }
 CSS
-@charset "utf-8"
-fóó
-  a: b
+@media screen
+  .foo
+    a: b
+
+  @unknown-directive
 SASS
-    end
-
-    def test_different_charset_than_encoding
-      assert_renders_encoded(<<CSS.force_encoding("IBM866"), <<SASS)
-@charset "IBM866";
-fóó {
-  a: b; }
-CSS
-@charset "ibm866"
-fóó
-  a: b
-SASS
-    end
-
-    def test_different_encoding_than_system
-      assert_renders_encoded(<<CSS.encode("IBM866"), <<SASS.encode("IBM866"))
-@charset "IBM866";
-тАЬ {
-  a: b; }
-CSS
-тАЬ
-  a: b
-SASS
-    end
-
-    def test_multibyte_charset
-      assert_renders_encoded(<<CSS.encode("UTF-16LE"), <<SASS.encode("UTF-16LE").force_encoding("UTF-8"))
-@charset "UTF-16LE";
-fóó {
-  a: b; }
-CSS
-@charset "utf-16le"
-fóó
-  a: b
-SASS
-    end
-
-    def test_multibyte_charset_without_endian_specifier
-      assert_renders_encoded(<<CSS.encode("UTF-32BE"), <<SASS.encode("UTF-32BE").force_encoding("UTF-8"))
-@charset "UTF-32BE";
-fóó {
-  a: b; }
-CSS
-@charset "utf-32"
-fóó
-  a: b
-SASS
-    end
-
-    def test_utf8_bom
-      assert_renders_encoded(<<CSS, <<SASS.force_encoding("BINARY"))
-@charset "UTF-8";
-fóó {
-  a: b; }
-CSS
-\uFEFFfóó
-  a: b
-SASS
-    end
-
-    def test_utf16le_bom
-      assert_renders_encoded(<<CSS.encode("UTF-16LE"), <<SASS.encode("UTF-16LE").force_encoding("BINARY"))
-@charset "UTF-16LE";
-fóó {
-  a: b; }
-CSS
-\uFEFFfóó
-  a: b
-SASS
-    end
-
-    def test_utf32be_bom
-      assert_renders_encoded(<<CSS.encode("UTF-32BE"), <<SASS.encode("UTF-32BE").force_encoding("BINARY"))
-@charset "UTF-32BE";
-fóó {
-  a: b; }
-CSS
-\uFEFFfóó
-  a: b
-SASS
-    end
-
-    # Encoding Regression Test
-
-    def test_multibyte_prop_name
-      assert_equal(<<CSS, render(<<SASS))
-@charset "UTF-8";
-#bar {
-  cölor: blue; }
-CSS
-#bar
-  cölor: blue
-SASS
-    end
-
-    def test_multibyte_and_interpolation
-      assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))
-#bar {
-  background: a 0%; }
-CSS
-#bar {
-  // 
-  background: \#{a} 0%;
-}
-SCSS
-    end
   end
 
   def test_original_filename_set
@@ -2637,21 +2889,17 @@ SCSS
 
     original_filename = filename_for_test
     engine = Sass::Engine.new('@import "imported"; div{color:blue}',
-      :filename => original_filename, :load_paths => [importer], :syntax => :scss)
+      :filename => original_filename, :load_paths => [importer], :syntax => :scss, :importer => importer)
     engine.render
 
     assert_equal original_filename, engine.options[:original_filename]
     assert_equal original_filename, importer.engine("imported").options[:original_filename]
   end
 
-  def test_deprecated_PRECISION
-    assert_warning(<<END) {assert_equal 1000.0, Sass::Script::Number::PRECISION}
-Sass::Script::Number::PRECISION is deprecated and will be removed in a future release. Use Sass::Script::Number.precision_factor instead.
-END
-  end
   def test_changing_precision
+    old_precision = Sass::Script::Value::Number.precision
     begin
-      Sass::Script::Number.precision = 8
+      Sass::Script::Value::Number.precision = 8
       assert_equal <<CSS, render(<<SASS)
 div {
   maximum: 1.00000001;
@@ -2662,8 +2910,346 @@ div
   too-much: 1.000000001
 SASS
     ensure
-      Sass::Script::Number.precision = 3
+      Sass::Script::Value::Number.precision = old_precision
     end
+  end
+
+  def test_content
+    assert_equal <<CSS, render(<<SASS)
+.children {
+  background-color: red;
+  color: blue;
+  border-color: red; }
+CSS
+$color: blue
+=context($class, $color: red)
+  .\#{$class}
+    background-color: $color
+    @content
+    border-color: $color
++context(children)
+  color: $color
+SASS
+  end
+
+  def test_selector_in_content
+    assert_equal <<CSS, render(<<SASS)
+.parent {
+  background-color: red;
+  border-color: red; }
+  .parent .children {
+    color: blue; }
+CSS
+$color: blue
+=context($class, $color: red)
+  .\#{$class}
+    background-color: $color
+    @content
+    border-color: $color
++context(parent)
+  .children
+    color: $color
+SASS
+  end
+
+  def test_using_parent_mixin_in_content
+    assert_equal <<CSS, render(<<SASS)
+.parent {
+  before-color: red;
+  after-color: red; }
+  .parent .sibling {
+    before-color: yellow;
+    after-color: yellow; }
+    .parent .sibling .child {
+      before-color: green;
+      color: blue;
+      after-color: green; }
+CSS
+$color: blue
+=context($class, $color: red)
+  .\#{$class}
+    before-color: $color
+    @content
+    after-color: $color
++context(parent)
+  +context(sibling, $color: yellow)
+    +context(child, $color: green)
+      color: $color
+SASS
+  end
+
+  def test_content_more_than_once
+    assert_equal <<CSS, render(<<SASS)
+.once {
+  color: blue; }
+
+.twice {
+  color: blue; }
+CSS
+$color: blue
+=context($class, $color: red)
+  .once
+    @content
+  .twice
+    @content
++context(parent)
+  color: $color
+SASS
+  end
+
+  def test_content_with_variable
+    assert_equal <<CSS, render(<<SASS)
+.foo {
+  a: 1px; }
+CSS
+=foo
+  .foo
+    @content
++foo
+  $a: 1px
+  a: $a
+SASS
+  end
+
+  def test_nested_content_blocks
+    assert_equal <<CSS, render(<<SASS)
+.foo {
+  a: foo; }
+  .foo .bar {
+    a: bar; }
+    .foo .bar .baz {
+      a: baz; }
+      .foo .bar .baz .outside {
+        a: outside;
+        color: red; }
+CSS
+$a: outside
+=baz($a: baz)
+  .baz
+    a: $a
+    @content
+=bar($a: bar)
+  .bar
+    a: $a
+    +baz
+      @content
+=foo($a: foo)
+  .foo
+    a: $a
+    +bar
+      @content
++foo
+  .outside
+    a: $a
+    color: red
+SASS
+  end
+
+  def test_content_not_seen_through_mixin
+    assert_equal <<CSS, render(<<SASS)
+a foo {
+  mixin: foo;
+  a: b; }
+  a foo bar {
+    mixin: bar; }
+CSS
+=foo
+  foo
+    mixin: foo
+    @content
+    +bar
+=bar
+  bar
+    mixin: bar
+    @content
+a
+  +foo
+    a: b
+SASS
+  end
+
+  def test_content_backtrace_for_perform
+    render(<<SASS)
+=foo
+  @content
+
+a
+  +foo
+    b: 1em + 2px
+SASS
+    assert(false, "Expected exception")
+  rescue Sass::SyntaxError => e
+    assert_equal([
+        {:mixin => '@content', :line => 6, :filename => 'test_content_backtrace_for_perform_inline.sass'},
+        {:mixin => 'foo', :line => 2, :filename => 'test_content_backtrace_for_perform_inline.sass'},
+        {:line => 5, :filename => 'test_content_backtrace_for_perform_inline.sass'},
+      ], e.sass_backtrace)
+  end
+
+  def test_content_backtrace_for_cssize
+    render(<<SASS)
+=foo
+  @content
+
+a
+  +foo
+    @extend foo bar baz
+SASS
+    assert(false, "Expected exception")
+  rescue Sass::SyntaxError => e
+    assert_equal([
+        {:mixin => '@content', :line => 6, :filename => 'test_content_backtrace_for_cssize_inline.sass'},
+        {:mixin => 'foo', :line => 2, :filename => 'test_content_backtrace_for_cssize_inline.sass'},
+        {:line => 5, :filename => 'test_content_backtrace_for_cssize_inline.sass'},
+      ], e.sass_backtrace)
+  end
+
+  def test_mixin_with_args_and_varargs_passed_no_var_args
+    assert_equal <<CSS, render(<<SASS, :syntax => :scss)
+.foo {
+  a: 1;
+  b: 2;
+  c: 3; }
+CSS
+@mixin three-or-more-args($a, $b, $c, $rest...) {
+  a: $a;
+  b: $b;
+  c: $c;
+}
+
+.foo {
+  @include three-or-more-args($a: 1, $b: 2, $c: 3);
+}
+SASS
+
+  end
+
+  def test_debug_inspects_sass_objects
+    assert_warning(<<END) {render("@debug (a: 1, b: 2)")}
+test_debug_inspects_sass_objects_inline.sass:1 DEBUG: (a: 1, b: 2)
+END
+    assert_warning(<<END) {render("$map: (a: 1, b: 2); @debug $map", :syntax => :scss)}
+test_debug_inspects_sass_objects_inline.scss:1 DEBUG: (a: 1, b: 2)
+END
+  end
+
+  def test_error_throws_sass_objects
+    assert_raise_message(Sass::SyntaxError, "(a: 1, b: 2)") {render("@error (a: 1, b: 2)")}
+    assert_raise_message(Sass::SyntaxError, "(a: 1, b: 2)") do
+      render("$map: (a: 1, b: 2); @error $map", :syntax => :scss)
+    end
+  end
+
+  def test_default_arg_before_splat
+    assert_equal <<CSS, render(<<SASS, :syntax => :scss)
+.foo-positional {
+  a: 1;
+  b: 2;
+  positional-arguments: 3, 4;
+  keyword-arguments: (); }
+
+.foo-keywords {
+  a: true;
+  positional-arguments: ();
+  keyword-arguments: (c: c, d: d); }
+CSS
+@mixin foo($a: true, $b: null, $arguments...) {
+  a: $a;
+  b: $b;
+  positional-arguments: inspect($arguments);
+  keyword-arguments: inspect(keywords($arguments));
+}
+.foo-positional {
+  @include foo(1, 2, 3, 4);
+}
+.foo-keywords {
+  @include foo($c: c, $d: d);
+}
+SASS
+  end
+
+  def test_keyframes
+    assert_equal <<CSS, render(<<SASS)
+@keyframes identifier {
+  0% {
+    top: 0;
+    left: 0; }
+  30% {
+    top: 50px; }
+  68%, 72% {
+    left: 50px; }
+  100% {
+    top: 100px;
+    left: 100%; } }
+CSS
+@keyframes identifier
+  0%
+    top: 0
+    left: 0
+  \#{"30%"}
+    top: 50px
+  68%, 72%
+    left: 50px
+  100%
+    top: 100px
+    left: 100%
+SASS
+  end
+
+  def test_prefixed_keyframes
+    assert_equal <<CSS, render(<<SASS)
+@-moz-keyframes identifier {
+  0% {
+    top: 0;
+    left: 0; }
+  30% {
+    top: 50px; }
+  68%, 72% {
+    left: 50px; }
+  100% {
+    top: 100px;
+    left: 100%; } }
+CSS
+@-moz-keyframes identifier
+  0%
+    top: 0
+    left: 0
+  \#{"30%"}
+    top: 50px
+  68%, 72%
+    left: 50px
+  100%
+    top: 100px
+    left: 100%
+SASS
+  end
+
+  def test_uppercase_keyframes
+    assert_equal <<CSS, render(<<SASS)
+@KEYFRAMES identifier {
+  0% {
+    top: 0;
+    left: 0; }
+  30% {
+    top: 50px; }
+  68%, 72% {
+    left: 50px; }
+  100% {
+    top: 100px;
+    left: 100%; } }
+CSS
+@KEYFRAMES identifier
+  0%
+    top: 0
+    left: 0
+  \#{"30%"}
+    top: 50px
+  68%, 72%
+    left: 50px
+  100%
+    top: 100px
+    left: 100%
+SASS
   end
 
   private
@@ -2680,6 +3266,7 @@ SASS
 
   def render(sass, options = {})
     munge_filename options
+    options[:importer] ||= MockImporter.new
     Sass::Engine.new(sass, options).render
   end
 

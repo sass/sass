@@ -1,3 +1,5 @@
+require 'rubygems/package'
+
 # ----- Utility Functions -----
 
 def scope(path)
@@ -19,16 +21,35 @@ Rake::TestTask.new do |t|
   t.verbose = true
 end
 
+# ----- Code Style Enforcement -----
+
+if RUBY_VERSION !~ /^(1\.8)/ && (ENV.has_key?("RUBOCOP") && ENV["RUBOCOP"] == "true" || !(ENV.has_key?("RUBOCOP") || ENV.has_key?("TEST")))
+  require 'rubocop/rake_task'
+  Rubocop::RakeTask.new do |t|
+    t.patterns = FileList["lib/**/*"]
+  end
+else
+  task :rubocop do
+    puts "Skipping rubocop style check."
+    if !ENV.has_key?("RUBOCOP")
+      puts "Passing this check is required in order for your patch to be accepted."
+      puts "Use ruby 1.9 or greater and then run the style check with: rake rubocop"
+    end
+  end
+end
+
+task :test => :rubocop
+
 # ----- Packaging -----
 
 # Don't use Rake::GemPackageTast because we want prerequisites to run
 # before we load the gemspec.
 desc "Build all the packages."
-task :package => [:revision_file, :submodules, :permissions] do
+task :package => [:revision_file, :date_file, :submodules, :permissions] do
   version = get_version
   File.open(scope('VERSION'), 'w') {|f| f.puts(version)}
   load scope('sass.gemspec')
-  Gem::Builder.new(SASS_GEMSPEC).build
+  Gem::Package.build(SASS_GEMSPEC)
   sh %{git checkout VERSION}
 
   pkg = "#{SASS_GEMSPEC.name}-#{SASS_GEMSPEC.version}"
@@ -63,8 +84,17 @@ task :revision_file do
   end
 end
 
+task :date_file do
+  File.open(scope('VERSION_DATE'), 'w') do |f|
+    f.puts Time.now.utc.strftime('%d %B %Y %T %Z')
+  end
+end
+
 # We also need to get rid of this file after packaging.
-at_exit { File.delete(scope('REVISION')) rescue nil }
+at_exit do
+  File.delete(scope('REVISION')) rescue nil
+  File.delete(scope('VERSION_DATE')) rescue nil
+end
 
 desc "Install Sass as a gem. Use SUDO=1 to install with sudo."
 task :install => [:package] do
@@ -72,12 +102,10 @@ task :install => [:package] do
   sh %{#{'sudo ' if ENV["SUDO"]}#{gem} install --no-ri pkg/sass-#{get_version}}
 end
 
-desc "Release a new Sass package to Rubyforge."
+desc "Release a new Sass package to RubyGems.org."
 task :release => [:check_release, :package] do
   name = File.read(scope("VERSION_NAME")).strip
   version = File.read(scope("VERSION")).strip
-  sh %{rubyforge add_release sass sass "#{name} (v#{version})" pkg/sass-#{version}.gem}
-  sh %{rubyforge add_file    sass sass "#{name} (v#{version})" pkg/sass-#{version}.tar.gz}
   sh %{gem push pkg/sass-#{version}.gem}
 end
 
@@ -131,7 +159,11 @@ task :release_edge do
     sh %{git reset --hard origin/master}
     sh %{rake package}
     version = get_version
-    sh %{rubyforge add_release sass sass "Bleeding Edge (v#{version})" pkg/sass-#{version}.gem}
+    if version.include?('.rc.')
+      puts "#{'=' * 20} Not releasing edge gem for RC version"
+      next
+    end
+
     sh %{gem push pkg/sass-#{version}.gem}
   end
 end
@@ -182,7 +214,7 @@ begin
     task :undocumented do
       opts = ENV["YARD_OPTS"] || ""
       ENV["YARD_OPTS"] = opts.dup + <<OPTS
- --list --query "
+ --list --tag comment --hide-tag comment --query "
   object.docstring.blank? &&
   !(object.type == :method && object.is_alias?)"
 OPTS
@@ -194,7 +226,6 @@ OPTS
     t.files = FileList.new(scope('lib/**/*.rb')) do |list|
       list.exclude('lib/sass/plugin/merb.rb')
       list.exclude('lib/sass/plugin/rails.rb')
-      list.exclude('lib/sass/less.rb')
     end.to_a
     t.options << '--incremental' if Rake.application.top_level_tasks.include?('redoc')
     t.options += FileList.new(scope('yard/*.rb')).to_a.map {|f| ['-e', f]}.flatten

@@ -1,0 +1,11 @@
+@mixin imported-mixin {
+  imported-mixin: filename();
+}
+
+@function imported-function() {
+  @return filename();
+}
+
+filename {
+  imported: filename();
+}

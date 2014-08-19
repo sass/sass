@@ -138,36 +138,34 @@ module Sass
     # @see #sass_backtrace
     # @return [String]
     def sass_backtrace_str(default_filename = "an unknown file")
-      lines = self.message.split("\n")
+      lines = message.split("\n")
       msg = lines[0] + lines[1..-1].
-        map {|l| "\n" + (" " * "Syntax error: ".size) + l}.join
-      "Syntax error: #{msg}" +
+        map {|l| "\n" + (" " * "Error: ".size) + l}.join
+      "Error: #{msg}" +
         Sass::Util.enum_with_index(sass_backtrace).map do |entry, i|
-        "\n        #{i == 0 ? "on" : "from"} line #{entry[:line]}" +
-          " of #{entry[:filename] || default_filename}" +
-          (entry[:mixin] ? ", in `#{entry[:mixin]}'" : "")
-      end.join
+          "\n        #{i == 0 ? "on" : "from"} line #{entry[:line]}" +
+            " of #{entry[:filename] || default_filename}" +
+            (entry[:mixin] ? ", in `#{entry[:mixin]}'" : "")
+        end.join
     end
 
     class << self
       # Returns an error report for an exception in CSS format.
       #
       # @param e [Exception]
-      # @param options [{Symbol => Object}] The options passed to {Sass::Engine#initialize}
+      # @param line_offset [Fixnum] The number of the first line of the Sass template.
       # @return [String] The error report
       # @raise [Exception] `e`, if the
       #   {file:SASS_REFERENCE.md#full_exception-option `:full_exception`} option
       #   is set to false.
-      def exception_to_css(e, options)
-        raise e unless options[:full_exception]
-
-        header = header_string(e, options)
+      def exception_to_css(e, line_offset = 1)
+        header = header_string(e, line_offset)
 
         <<END
 /*
-#{header}
+#{header.gsub("*/", "*\\/")}
 
-Backtrace:\n#{e.backtrace.join("\n")}
+Backtrace:\n#{e.backtrace.join("\n").gsub("*/", "*\\/")}
 */
 body:before {
   white-space: pre;
@@ -178,12 +176,11 @@ END
 
       private
 
-      def header_string(e, options)
+      def header_string(e, line_offset)
         unless e.is_a?(Sass::SyntaxError) && e.sass_line && e.sass_template
           return "#{e.class}: #{e.message}"
         end
 
-        line_offset = options[:line] || 1
         line_num = e.sass_line + 1 - line_offset
         min = [line_num - 6, 0].max
         section = e.sass_template.rstrip.split("\n")[min ... line_num + 5]

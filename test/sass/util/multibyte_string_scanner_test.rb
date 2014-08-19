@@ -3,7 +3,7 @@
 require File.dirname(__FILE__) + '/../../test_helper'
 
 unless Sass::Util.ruby1_8?
-  class MultibyteStringScannerTest < Test::Unit::TestCase
+  class MultibyteStringScannerTest < MiniTest::Test
     def setup
       @scanner = Sass::Util::MultibyteStringScanner.new("cölorfül")
     end

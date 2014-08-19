@@ -1,4 +1,4 @@
-# Sass
+# Sass [![Gem Version](https://badge.fury.io/rb/sass.png)](http://badge.fury.io/rb/sass)
 
 **Sass makes CSS fun again**. Sass is an extension of CSS3,
 adding nested rules, variables, mixins, selector inheritance, and more.
@@ -49,15 +49,17 @@ see [the Sass reference](http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.ht
 Sass can also be used with any Rack-enabled web framework.
 To do so, just add
 
-    require 'sass/plugin/rack'
-    use Sass::Plugin::Rack
+```ruby
+require 'sass/plugin/rack'
+use Sass::Plugin::Rack
+```
 
 to `config.ru`.
 Then any Sass files in `public/stylesheets/sass`
-will be compiled CSS files in `public/stylesheets` on every request.
+will be compiled into CSS files in `public/stylesheets` on every request.
 
-To use Sass programatically,
-check out the [YARD documentation](http://sass-lang.com/docs/yardoc/).
+To use Sass programmatically,
+check out the [YARD documentation](http://sass-lang.com/documentation/file.SASS_REFERENCE.html#using_sass).
 
 ## Formatting
 
@@ -71,10 +73,10 @@ and get small stylesheets up and running quickly,
 particularly with the help of
 [the Compass style library](http://compass-style.org).
 
-[vars]:    http://beta.sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#variables_
-[nested]:  http://beta.sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#nested_rules_
-[mixins]:  http://beta.sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#mixins
-[imports]: http://beta.sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#import
+[vars]:    http://sass-lang.com/documentation/file.SASS_REFERENCE.html#variables_
+[nested]:  http://sass-lang.com/documentation/file.SASS_REFERENCE.html#nested_rules
+[mixins]:  http://sass-lang.com/documentation/file.SASS_REFERENCE.html#mixins
+[imports]: http://sass-lang.com/documentation/file.SASS_REFERENCE.html#import
 
 Sass has two syntaxes.
 The one presented here, known as "SCSS" (for "Sassy CSS"),
@@ -83,7 +85,7 @@ The other (older) syntax, known as the indented syntax or just "Sass",
 is whitespace-sensitive and indentation-based.
 For more information, see the [reference documentation][syntax].
 
-[syntax]: http://beta.sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#syntax
+[syntax]: http://sass-lang.com/documentation/file.SASS_REFERENCE.html#syntax
 
 To run the following examples and see the CSS they produce,
 put them in a file called `test.scss` and run `sass test.scss`.
@@ -93,18 +95,20 @@ put them in a file called `test.scss` and run `sass test.scss`.
 Sass avoids repetition by nesting selectors within one another.
 The same thing works for properties.
 
-    table.hl {
-      margin: 2em 0;
-      td.ln { text-align: right; }
-    }
+```scss
+table.hl {
+  margin: 2em 0;
+  td.ln { text-align: right; }
+}
 
-    li {
-      font: {
-        family: serif;
-        weight: bold;
-        size: 1.2em;
-      }
-    }
+li {
+  font: {
+    family: serif;
+    weight: bold;
+    size: 1.2em;
+  }
+}
+```
 
 ### Variables
 
@@ -112,19 +116,21 @@ Use the same color all over the place?
 Need to do some math with height and width and text size?
 Sass supports variables, math operations, and many useful functions.
 
-    $blue: #3bbfce;
-    $margin: 16px;
+```scss
+$blue: #3bbfce;
+$margin: 16px;
 
-    .content_navigation {
-      border-color: $blue;
-      color: darken($blue, 10%);
-    }
+.content_navigation {
+  border-color: $blue;
+  color: darken($blue, 10%);
+}
 
-    .border {
-      padding: $margin / 2;
-      margin: $margin / 2;
-      border-color: $blue;
-    }
+.border {
+  padding: $margin / 2;
+  margin: $margin / 2;
+  border-color: $blue;
+}
+```
 
 ### Mixins
 
@@ -133,26 +139,28 @@ mixins allow you to re-use whole chunks of CSS,
 properties or selectors.
 You can even give them arguments. 
 
-    @mixin table-scaffolding {
-      th {
-        text-align: center;
-        font-weight: bold;
-      }
-      td, th { padding: 2px; }
-    }
+```scss
+@mixin table-scaffolding {
+  th {
+    text-align: center;
+    font-weight: bold;
+  }
+  td, th { padding: 2px; }
+}
 
-    @mixin left($dist) {
-      float: left;
-      margin-left: $dist;
-    }
+@mixin left($dist) {
+  float: left;
+  margin-left: $dist;
+}
 
-    #data {
-      @include left(10px);
-      @include table-scaffolding;
-    }
+#data {
+  @include left(10px);
+  @include table-scaffolding;
+}
+```
 
 A comprehensive list of features is available
-in the [Sass reference](http://beta.sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html).
+in the [Sass reference](http://sass-lang.com/documentation/file.SASS_REFERENCE.html).
 
 ## Executables
 
@@ -171,30 +179,43 @@ When converting from CSS to Sass or SCSS,
 nesting is applied where appropriate.
 See `sass-convert --help` for further information and options.
 
+### Running locally
+
+To run the Sass executables from a source checkout instead of from rubygems:
+
+```
+$ cd <SASS_CHECKOUT_DIRECTORY>
+$ bundle
+$ bundle exec sass ...
+$ bundle exec scss ...
+$ bundle exec sass-convert ...
+```
+
 ## Authors
 
-Sass was envisioned by [Hampton Catlin](http://hamptoncatlin.com) (hcatlin).
-However, Hampton doesn't even know his way around the code anymore and now
-occasionally consults on the language issues. Hampton lives in Cambridge, UK and
-is the owner of [Catlin Software](http://www.catlinsoftware.com/).
+Sass was envisioned by [Hampton Catlin](http://www.hamptoncatlin.com)
+(@hcatlin). However, Hampton doesn't even know his way around the code anymore
+and now occasionally consults on the language issues. Hampton lives in San
+Francisco, California and works as VP of Technology
+at [Moovweb](http://www.moovweb.com/).
 
-[Nathan Weizenbaum](http://nex-3.com) is the primary developer and architect of
-Sass. His hard work has kept the project alive by endlessly answering forum
+[Natalie Weizenbaum](http://nex-3.com) is the primary developer and architect of
+Sass. Her hard work has kept the project alive by endlessly answering forum
 posts, fixing bugs, refactoring, finding speed improvements, writing
 documentation, implementing new features, and getting Hampton coffee (a fitting
-task for a boy-genius). Nathan lives in Seattle, Washington and works on
+task for a girl genius). Natalie lives in Seattle, Washington and works on
 [Dart](http://dartlang.org) application libraries at Google.
 
 [Chris Eppstein](http://acts-as-architect.blogspot.com) is a core contributor to
 Sass and the creator of Compass, the first Sass-based framework. Chris focuses
 on making Sass more powerful, easy to use, and on ways to speed its adoption
 through the web development community. Chris lives in San Jose, California with
-his wife and daughter. He is the Software Architect for
-[Caring.com](http://caring.com), a website devoted to the 34 Million caregivers
-whose parents are sick or elderly, that uses Haml and Sass.
+his wife and daughter. He is an Engineer for
+[LinkedIn.com](http://linkedin.com), where one of his responsibilities is to
+maintain Sass & Compass.
 
-If you use this software, you must pay Hampton a compliment. And
-buy Nathan some jelly beans. Maybe pet a kitten. Yeah. Pet that kitty.
+If you use this software, you must pay Hampton a compliment. And buy Natalie
+some candy. Maybe pet a kitten. Yeah. Pet that kitty.
 
 Beyond that, the implementation is licensed under the MIT License.
 Okay, fine, I guess that means compliments aren't __required__.

@@ -1,9 +1,4 @@
-require 'sass/script/node'
-require 'sass/script/variable'
-require 'sass/script/funcall'
-require 'sass/script/operation'
-require 'sass/script/literal'
-require 'sass/script/parser'
+require 'sass/scss/rx'
 
 module Sass
   # SassScript is code that's embedded in Sass documents
@@ -12,7 +7,8 @@ module Sass
   # This module contains code that handles the parsing and evaluation of SassScript.
   module Script
     # The regular expression used to parse variables.
-    MATCH = /^\$(#{Sass::SCSS::RX::IDENT})\s*:\s*(.+?)(!(?i:default))?$/
+    MATCH = /^\$(#{Sass::SCSS::RX::IDENT})\s*:\s*(.+?)
+      (!#{Sass::SCSS::RX::IDENT}(?:\s+!#{Sass::SCSS::RX::IDENT})*)?$/x
 
     # The regular expression used to validate variables without matching.
     VALIDATE = /^\$#{Sass::SCSS::RX::IDENT}$/
@@ -26,7 +22,7 @@ module Sass
     #   Used for error reporting
     # @param options [{Symbol => Object}] An options hash;
     #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
-    # @return [Script::Node] The root node of the parse tree
+    # @return [Script::Tree::Node] The root node of the parse tree
     def self.parse(value, line, offset, options = {})
       Parser.parse(value, line, offset, options)
     rescue Sass::SyntaxError => e
@@ -35,5 +31,36 @@ module Sass
       raise e
     end
 
+    require 'sass/script/functions'
+    require 'sass/script/parser'
+    require 'sass/script/tree'
+    require 'sass/script/value'
+
+    # @private
+    CONST_RENAMES = {
+      :Literal => Sass::Script::Value::Base,
+      :ArgList => Sass::Script::Value::ArgList,
+      :Bool => Sass::Script::Value::Bool,
+      :Color => Sass::Script::Value::Color,
+      :List => Sass::Script::Value::List,
+      :Null => Sass::Script::Value::Null,
+      :Number => Sass::Script::Value::Number,
+      :String => Sass::Script::Value::String,
+      :Node => Sass::Script::Tree::Node,
+      :Funcall => Sass::Script::Tree::Funcall,
+      :Interpolation => Sass::Script::Tree::Interpolation,
+      :Operation => Sass::Script::Tree::Operation,
+      :StringInterpolation => Sass::Script::Tree::StringInterpolation,
+      :UnaryOperation => Sass::Script::Tree::UnaryOperation,
+      :Variable => Sass::Script::Tree::Variable,
+    }
+
+    # @private
+    def self.const_missing(name)
+      klass = CONST_RENAMES[name]
+      super unless klass
+      CONST_RENAMES.each {|n, k| const_set(n, k)}
+      klass
+    end
   end
 end

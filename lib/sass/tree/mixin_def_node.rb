@@ -12,14 +12,25 @@ module Sass
       # Each element is a tuple containing the variable for argument
       # and the parse tree for the default value of the argument.
       #
-      # @return [Array<(Script::Node, Script::Node)>]
+      # @return [Array<(Script::Tree::Node, Script::Tree::Node)>]
       attr_accessor :args
 
+      # The splat argument for this mixin, if one exists.
+      #
+      # @return [Script::Tree::Node?]
+      attr_accessor :splat
+
+      # Whether the mixin uses `@content`. Set during the nesting check phase.
+      # @return [Boolean]
+      attr_accessor :has_content
+
       # @param name [String] The mixin name
-      # @param args [Array<(Script::Node, Script::Node)>] See \{#args}
-      def initialize(name, args)
+      # @param args [Array<(Script::Tree::Node, Script::Tree::Node)>] See \{#args}
+      # @param splat [Script::Tree::Node] See \{#splat}
+      def initialize(name, args, splat)
         @name = name
         @args = args
+        @splat = splat
         super()
       end
     end
