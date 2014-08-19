@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.4.0 (Unreleased)
+## 3.4.0 (18 August 2014)
 
 ### Using `&` in SassScript
 
