@@ -32,7 +32,7 @@ can use it in a mixin to detect whether a parent selector exists:
         &:hover {
           color: red;
         }
-      } else {
+      } @else {
         a {
           color: red;
         }
