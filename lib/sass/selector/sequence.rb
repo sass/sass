@@ -78,26 +78,59 @@ module Sass
       # Non-destructively extends this selector with the extensions specified in a hash
       # (which should come from {Sass::Tree::Visitors::Cssize}).
       #
-      # @overload do_extend(extends, parent_directives)
-      #   @param extends [Sass::Util::SubsetMap{Selector::Simple =>
-      #                                         Sass::Tree::Visitors::Cssize::Extend}]
-      #     The extensions to perform on this selector
-      #   @param parent_directives [Array<Sass::Tree::DirectiveNode>]
-      #     The directives containing this selector.
+      # @param extends [Sass::Util::SubsetMap{Selector::Simple =>
+      #                                       Sass::Tree::Visitors::Cssize::Extend}]
+      #   The extensions to perform on this selector
+      # @param parent_directives [Array<Sass::Tree::DirectiveNode>]
+      #   The directives containing this selector.
+      # @param replace [Boolean]
+      #   Whether to replace the original selector entirely or include
+      #   it in the result.
+      # @param seen [Set<Array<Selector::Simple>>]
+      #   The set of simple sequences that are currently being replaced.
+      # @param original [Boolean]
+      #   Whether this is the original selector being extended, as opposed to
+      #   the result of a previous extension that's being re-extended.
       # @return [Array<Sequence>] A list of selectors generated
       #   by extending this selector with `extends`.
       #   These correspond to a {CommaSequence}'s {CommaSequence#members members array}.
       # @see CommaSequence#do_extend
-      def do_extend(extends, parent_directives, seen = Set.new)
+      def do_extend(extends, parent_directives, replace, seen, original)
         extended_not_expanded = members.map do |sseq_or_op|
           next [[sseq_or_op]] unless sseq_or_op.is_a?(SimpleSequence)
-          extended = sseq_or_op.do_extend(extends, parent_directives, seen)
-          choices = extended.map {|seq| seq.members}
-          choices.unshift([sseq_or_op]) unless extended.any? {|seq| seq.superselector?(sseq_or_op)}
-          choices
+          extended = sseq_or_op.do_extend(extends, parent_directives, replace, seen)
+
+          # The First Law of Extend says that the generated selector should have
+          # specificity greater than or equal to that of the original selector.
+          # In order to ensure that, we record the original selector's
+          # (`extended.first`) original specificity.
+          extended.first.add_sources!([self]) if original && !has_placeholder?
+
+          extended.map {|seq| seq.members}
         end
         weaves = Sass::Util.paths(extended_not_expanded).map {|path| weave(path)}
         trim(weaves).map {|p| Sequence.new(p)}
+      end
+
+      # Unifies this with another selector sequence to produce a selector
+      # that matches (a subset of) the intersection of the two inputs.
+      #
+      # @param other [Sequence]
+      # @return [CommaSequence, nil] The unified selector, or nil if unification failed.
+      # @raise [Sass::SyntaxError] If this selector cannot be unified.
+      #   This will only ever occur when a dynamic selector,
+      #   such as {Parent} or {Interpolation}, is used in unification.
+      #   Since these selectors should be resolved
+      #   by the time extension and unification happen,
+      #   this exception will only ever be raised as a result of programmer error
+      def unify(other)
+        base = members.last
+        other_base = other.members.last
+        return unless base.is_a?(SimpleSequence) && other_base.is_a?(SimpleSequence)
+        return unless (unified = other_base.unify(base))
+
+        woven = weave([members[0...-1], other.members[0...-1] + [unified]])
+        CommaSequence.new(woven.map {|w| Sequence.new(w)})
       end
 
       # Returns whether or not this selector matches all elements
@@ -106,22 +139,15 @@ module Sass
       # @example
       #   (.foo).superselector?(.foo.bar) #=> true
       #   (.foo).superselector?(.bar) #=> false
-      #   (.bar .foo).superselector?(.foo) #=> false
-      # @param sseq [SimpleSequence]
+      # @param cseq [Sequence]
       # @return [Boolean]
-      def superselector?(sseq)
-        return false unless members.size == 1
-        members.last.superselector?(sseq)
+      def superselector?(seq)
+        _superselector?(members, seq.members)
       end
 
-      # @see Simple#to_a
-      def to_a
-        ary = @members.map do |seq_or_op|
-          seq_or_op.is_a?(SimpleSequence) ? seq_or_op.to_a : seq_or_op
-        end
-        ary = Sass::Util.intersperse(ary, " ").flatten.compact
-        ary = Sass::Util.replace_subseq(ary, ["\n", " "], ["\n"])
-        Sass::Util.replace_subseq(ary, [" ", "\n"], ["\n"])
+      # @see AbstractSequence#to_s
+      def to_s
+        @members.join(" ").gsub(/ ?\n ?/, "\n")
       end
 
       # Returns a string representation of the sequence.
@@ -139,6 +165,35 @@ module Sass
       # @param sources [Set<Sequence>]
       def add_sources!(sources)
         members.map! {|m| m.is_a?(SimpleSequence) ? m.with_more_sources(sources) : m}
+      end
+
+      # Converts the subject operator "!", if it exists, into a ":has()"
+      # selector.
+      #
+      # @retur [Sequence]
+      def subjectless
+        pre_subject = []
+        has = []
+        subject = nil
+        members.each do |sseq_or_op|
+          if subject
+            has << sseq_or_op
+          elsif sseq_or_op.is_a?(String) || !sseq_or_op.subject?
+            pre_subject << sseq_or_op
+          else
+            subject = sseq_or_op.dup
+            subject.members = sseq_or_op.members.dup
+            subject.subject = false
+            has = []
+          end
+        end
+
+        return self unless subject
+
+        unless has.empty?
+          subject.members << Pseudo.new(:class, 'has', nil, CommaSequence.new([Sequence.new(has)]))
+        end
+        Sequence.new(pre_subject + [subject])
       end
 
       private
@@ -159,6 +214,7 @@ module Sass
         prefixes = [[]]
 
         path.each do |current|
+          next if current.empty?
           current = current.dup
           last_current = [current.pop]
           prefixes = Sass::Util.flatten(prefixes.map do |prefix|
@@ -292,7 +348,7 @@ module Sass
             elsif sel2.superselector?(sel1)
               res.unshift sel1, '~'
             else
-              merged = sel1.unify(sel2.members, sel2.subject?)
+              merged = sel1.unify(sel2)
               res.unshift [
                 [sel1, '~', sel2, '~'],
                 [sel2, '~', sel1, '~'],
@@ -309,7 +365,7 @@ module Sass
             if tilde_sel.superselector?(plus_sel)
               res.unshift plus_sel, '+'
             else
-              merged = plus_sel.unify(tilde_sel.members, tilde_sel.subject?)
+              merged = plus_sel.unify(tilde_sel)
               res.unshift [
                 [tilde_sel, '~', plus_sel, '+'],
                 ([merged, '+'] if merged)
@@ -322,7 +378,7 @@ module Sass
             res.unshift sel1, op1
             seq2.push sel2, op2
           elsif op1 == op2
-            merged = sel1.unify(sel2.members, sel2.subject?)
+            merged = sel1.unify(sel2)
             return unless merged
             res.unshift merged, op1
           else
@@ -412,12 +468,12 @@ module Sass
           seq1.first.is_a?(String) || seq2.first.is_a?(String)
         # More complex selectors are never superselectors of less complex ones
         return if seq1.size > seq2.size
-        return seq1.first.superselector?(seq2.last) if seq1.size == 1
+        return seq1.first.superselector?(seq2.last, seq2[0...-1]) if seq1.size == 1
 
         _, si = Sass::Util.enum_with_index(seq2).find do |e, i|
           return if i == seq2.size - 1
           next if e.is_a?(String)
-          seq1.first.superselector?(e)
+          seq1.first.superselector?(e, seq2[0...i])
         end
         return unless si
 
@@ -475,7 +531,15 @@ module Sass
         # separate sequences should limit the quadratic behavior.
         seqses.each_with_index do |seqs1, i|
           result[i] = seqs1.reject do |seq1|
-            max_spec = _sources(seq1).map {|seq| seq.specificity}.max || 0
+            # The maximum specificity of the sources that caused [seq1] to be
+            # generated. In order for [seq1] to be removed, there must be
+            # another selector that's a superselector of it *and* that has
+            # specificity greater or equal to this.
+            max_spec = _sources(seq1).map do |seq|
+              spec = seq.specificity
+              spec.is_a?(Range) ? spec.max : spec
+            end.max || 0
+
             result.any? do |seqs2|
               next if seqs1.equal?(seqs2)
               # Second Law of Extend: the specificity of a generated selector
@@ -483,7 +547,11 @@ module Sass
               # selector.
               #
               # See https://github.com/nex3/sass/issues/324.
-              seqs2.any? {|seq2| _specificity(seq2) >= max_spec && _superselector?(seq2, seq1)}
+              seqs2.any? do |seq2|
+                spec2 = _specificity(seq2)
+                spec2 = spec2.begin if spec2.is_a?(Range)
+                spec2 >= max_spec && _superselector?(seq2, seq1)
+              end
             end
           end
         end

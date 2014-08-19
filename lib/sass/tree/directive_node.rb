@@ -43,7 +43,13 @@ module Sass::Tree
 
     # @return [String] The name of the directive, including `@`.
     def name
-      value.first.gsub(/ .*$/, '')
+      @name ||= value.first.gsub(/ .*$/, '')
+    end
+
+    # Strips out any vendor prefixes and downcases the directive name.
+    # @return [String] The normalized name of the directive.
+    def normalized_name
+      @normalized_name ||= name.gsub(/^(@)(?:-[a-zA-Z0-9]+-)?/, '\1').downcase
     end
 
     def bubbles?

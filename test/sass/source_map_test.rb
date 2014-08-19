@@ -3,12 +3,12 @@
 require File.dirname(__FILE__) + '/../test_helper'
 require File.dirname(__FILE__) + '/test_helper'
 
-class SourcemapTest < Test::Unit::TestCase
+class SourcemapTest < MiniTest::Test
   def test_to_json_requires_args
     _, sourcemap = render_with_sourcemap('')
-    assert_raise(ArgumentError) {sourcemap.to_json({})}
-    assert_raise(ArgumentError) {sourcemap.to_json({:css_path => 'foo'})}
-    assert_raise(ArgumentError) {sourcemap.to_json({:sourcemap_path => 'foo'})}
+    assert_raises(ArgumentError) {sourcemap.to_json({})}
+    assert_raises(ArgumentError) {sourcemap.to_json({:css_path => 'foo'})}
+    assert_raises(ArgumentError) {sourcemap.to_json({:sourcemap_path => 'foo'})}
   end
 
   def test_simple_mapping_scss
@@ -54,6 +54,32 @@ CSS
 "version": 3,
 "mappings": "AAAA,CAAC;EACC,GAAG,EAAE,GAAG;;EAEP,SAAS,EAAC,IAAI",
 "sources": ["test_simple_mapping_sass_inline.sass"],
+"names": [],
+"file": "test.css"
+}
+JSON
+  end
+
+  def test_simple_mapping_with_file_uris
+    uri = Sass::Util.file_uri_from_path(Sass::Util.absolute_path(filename_for_test(:scss)))
+    assert_parses_with_sourcemap <<SCSS, <<CSS, <<JSON, :sourcemap => :file
+a {
+  foo: bar;
+/* SOME COMMENT */
+  font-size: 12px;
+}
+SCSS
+a {
+  foo: bar;
+  /* SOME COMMENT */
+  font-size: 12px; }
+
+/*# sourceMappingURL=test.css.map */
+CSS
+{
+"version": 3,
+"mappings": "AAAA,CAAE;EACA,GAAG,EAAE,GAAG;;EAER,SAAS,EAAE,IAAI",
+"sources": ["#{uri}"],
 "names": [],
 "file": "test.css"
 }
@@ -156,15 +182,15 @@ JSON
     end
 
     def test_different_charset_than_encoding_scss
-      assert_parses_with_sourcemap(<<SCSS.force_encoding("IBM866"), <<CSS.force_encoding("IBM866"), <<JSON)
+      assert_parses_with_sourcemap(<<SCSS.force_encoding("IBM866"), <<CSS, <<JSON)
 @charset "IBM866";
 f\x86\x86 {
   \x86: b;
 }
 SCSS
-@charset "IBM866";
-f\x86\x86 {
-  \x86: b; }
+@charset "UTF-8";
+fЖЖ {
+  Ж: b; }
 
 /*# sourceMappingURL=test.css.map */
 CSS
@@ -179,14 +205,14 @@ JSON
     end
 
     def test_different_charset_than_encoding_sass
-      assert_parses_with_sourcemap(<<SASS.force_encoding("IBM866"), <<CSS.force_encoding("IBM866"), <<JSON, :syntax => :sass)
+      assert_parses_with_sourcemap(<<SASS.force_encoding("IBM866"), <<CSS, <<JSON, :syntax => :sass)
 @charset "IBM866"
 f\x86\x86
   \x86: b
 SASS
-@charset "IBM866";
-f\x86\x86 {
-  \x86: b; }
+@charset "UTF-8";
+fЖЖ {
+  Ж: b; }
 
 /*# sourceMappingURL=test.css.map */
 CSS
@@ -443,8 +469,8 @@ CSS
   {{7}}border-width{{/7}}: {{8}}3px{{/8}}
 SASS
 {{1}}.error, .seriousError{{/1}} {
-  {{2}}border{{/2}}: {{3}}1px red{{/3}};
-  {{4}}background-color{{/4}}: {{5}}#ffdddd{{/5}}; }
+  {{2}}border{{/2}}: {{3}}1px #f00{{/3}};
+  {{4}}background-color{{/4}}: {{5}}#fdd{{/5}}; }
 
 {{6}}.seriousError{{/6}} {
   {{7}}border-width{{/7}}: {{8}}3px{{/8}}; }
@@ -632,9 +658,9 @@ SCSS
   {{22}}border-style{{/22}}: {{23}}dashed{{/23}}; }
 
 {{24}}.shadows{{/24}} {
-  {{25}}-moz-box-shadow{{/25}}: {{26}}0px 4px 5px #666666, 2px 6px 10px #999999{{/26}};
-  {{27}}-webkit-box-shadow{{/27}}: {{28}}0px 4px 5px #666666, 2px 6px 10px #999999{{/28}};
-  {{29}}box-shadow{{/29}}: {{30}}0px 4px 5px #666666, 2px 6px 10px #999999{{/30}}; }
+  {{25}}-moz-box-shadow{{/25}}: {{26}}0px 4px 5px #666, 2px 6px 10px #999{{/26}};
+  {{27}}-webkit-box-shadow{{/27}}: {{28}}0px 4px 5px #666, 2px 6px 10px #999{{/28}};
+  {{29}}box-shadow{{/29}}: {{30}}0px 4px 5px #666, 2px 6px 10px #999{{/30}}; }
 
 /*# sourceMappingURL=test.css.map */
 CSS
@@ -675,7 +701,7 @@ SASS
 {{1}}.page-title{{/1}} {
   {{2}}font-size{{/2}}: {{3}}20px{{/3}};
   {{4}}font-weight{{/4}}: {{5}}bold{{/5}};
-  {{6}}color{{/6}}: {{7}}red{{/7}};
+  {{6}}color{{/6}}: {{7}}#ff0000{{/7}};
   {{8}}padding{{/8}}: {{9}}4px{{/9}}; }
 
 {{10}}p{{/10}} {
@@ -689,9 +715,9 @@ SASS
   {{22}}border-style{{/22}}: {{23}}dashed{{/23}}; }
 
 {{24}}.shadows{{/24}} {
-  {{25}}-moz-box-shadow{{/25}}: {{26}}0px 4px 5px #666666, 2px 6px 10px #999999{{/26}};
-  {{27}}-webkit-box-shadow{{/27}}: {{28}}0px 4px 5px #666666, 2px 6px 10px #999999{{/28}};
-  {{29}}box-shadow{{/29}}: {{30}}0px 4px 5px #666666, 2px 6px 10px #999999{{/30}}; }
+  {{25}}-moz-box-shadow{{/25}}: {{26}}0px 4px 5px #666, 2px 6px 10px #999{{/26}};
+  {{27}}-webkit-box-shadow{{/27}}: {{28}}0px 4px 5px #666, 2px 6px 10px #999{{/28}};
+  {{29}}box-shadow{{/29}}: {{30}}0px 4px 5px #666, 2px 6px 10px #999{{/30}}; }
 
 /*# sourceMappingURL=test.css.map */
 CSS
@@ -775,12 +801,12 @@ SCSS
     interpolated = engine.to_tree.children.
       first.children.
       first.value.children[1]
-    assert_equal interpolated.to_sass, "123"
+    assert_equal interpolated.to_sass, "\#{123}"
     range = interpolated.source_range
     assert_equal 3, range.start_pos.line
-    assert_equal 14, range.start_pos.offset
+    assert_equal 12, range.start_pos.offset
     assert_equal 3, range.end_pos.line
-    assert_equal 17, range.end_pos.offset
+    assert_equal 18, range.end_pos.offset
   end
 
   def test_sources_array_is_uri_escaped
@@ -907,7 +933,7 @@ MESSAGE
     rendered, sourcemap = render_with_sourcemap(source, options)
     css_path = options[:output] || "test.css"
     sourcemap_path = Sass::Util.sourcemap_name(css_path)
-    rendered_json = sourcemap.to_json(:css_path => css_path, :sourcemap_path => sourcemap_path)
+    rendered_json = sourcemap.to_json(:css_path => css_path, :sourcemap_path => sourcemap_path, :type => options[:sourcemap])
 
     assert_equal css.rstrip, rendered.rstrip
     assert_equal sourcemap_json.rstrip, rendered_json

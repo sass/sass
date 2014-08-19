@@ -1,11 +1,6 @@
 dir = File.dirname(__FILE__)
 $LOAD_PATH.unshift dir unless $LOAD_PATH.include?(dir)
 
-# This is necessary to set so that the Haml code that tries to load Sass
-# knows that Sass is indeed loading,
-# even if there's some crazy autoload stuff going on.
-SASS_BEGUN_TO_LOAD = true unless defined?(SASS_BEGUN_TO_LOAD)
-
 require 'sass/version'
 
 # The module that contains everything Sass-related:

@@ -4,7 +4,7 @@ require File.dirname(__FILE__) + '/test_helper'
 require 'mock_importer'
 require 'sass/plugin'
 
-class ImporterTest < Test::Unit::TestCase
+class ImporterTest < MiniTest::Test
 
   class FruitImporter < Sass::Importers::Base
     def find(name, context = nil)
@@ -225,11 +225,11 @@ SCSS
 JSON
   end
 
-  def test_source_map_with_only_css_uri_can_have_no_public_url_without_warning
+  def test_source_map_with_only_css_uri_can_have_no_public_url
     ephemeral_importer = NoPublicUrlImporter.new
     mock_importer = MockImporter.new
     def mock_importer.public_url(name, sourcemap_directory = nil)
-      "css_uri"
+      "source_uri"
     end
 
     options = {
@@ -248,28 +248,26 @@ JSON
 }
 SCSS
 
-    assert_warning("") do
-      css_output, sourcemap = engine.render_with_sourcemap('sourcemap_uri')
-      assert_equal <<CSS.strip, css_output.strip
+    css_output, sourcemap = engine.render_with_sourcemap('sourcemap_uri')
+    assert_equal <<CSS.strip, css_output.strip
 .orange {
   color: orange; }
 
 /*# sourceMappingURL=sourcemap_uri */
 CSS
-      map = sourcemap.to_json(:css_uri => 'css_uri')
-      assert_equal <<JSON.strip, map
+    map = sourcemap.to_json(:css_uri => 'css_uri')
+    assert_equal <<JSON.strip, map
 {
 "version": 3,
 "mappings": "AACA,OAAQ",
-"sources": ["css_uri"],
+"sources": ["source_uri"],
 "names": [],
 "file": "css_uri"
 }
 JSON
-    end
   end
 
-  def test_source_map_with_only_css_uri_doesnt_support_filesystem_importer
+  def test_source_map_with_only_css_uri_falls_back_to_file_uris
     file_system_importer = Sass::Importers::Filesystem.new('.')
     options = {
       :filename => filename_for_test(:scss),
@@ -284,13 +282,19 @@ SCSS
 
     _, sourcemap = engine.render_with_sourcemap('http://1.example.com/style.map')
 
-    assert_warning(<<WARNING) {sourcemap.to_json(:css_uri => 'css_uri')}
-WARNING: Couldn't determine public URL for "#{filename_for_test(:scss)}" while generating sourcemap.
-  Without a public URL, there's nothing for the source map to link to.
-WARNING
+    uri = Sass::Util.file_uri_from_path(Sass::Util.absolute_path(filename_for_test(:scss)))
+    assert_equal <<JSON.strip, sourcemap.to_json(:css_uri => 'css_uri')
+{
+"version": 3,
+"mappings": "AAAA,IAAK;EAAC,CAAC,EAAE,CAAC",
+"sources": ["#{uri}"],
+"names": [],
+"file": "css_uri"
+}
+JSON
   end
 
-  def test_source_map_with_css_uri_and_css_path_doesnt_support_filesystem_importer
+  def test_source_map_with_css_uri_and_css_path_falls_back_to_file_uris
     file_system_importer = Sass::Importers::Filesystem.new('.')
     options = {
       :filename => filename_for_test(:scss),
@@ -305,10 +309,16 @@ SCSS
 
     _, sourcemap = engine.render_with_sourcemap('http://1.example.com/style.map')
 
-    assert_warning(<<WARNING) {sourcemap.to_json(:css_uri => 'css_uri', :css_path => 'css_path')}
-WARNING: Couldn't determine public URL for "#{filename_for_test(:scss)}" while generating sourcemap.
-  Without a public URL, there's nothing for the source map to link to.
-WARNING
+    uri = Sass::Util.file_uri_from_path(Sass::Util.absolute_path(filename_for_test(:scss)))
+    assert_equal <<JSON.strip, sourcemap.to_json(:css_uri => 'css_uri', :css_path => 'css_path')
+{
+"version": 3,
+"mappings": "AAAA,IAAK;EAAC,CAAC,EAAE,CAAC",
+"sources": ["#{uri}"],
+"names": [],
+"file": "css_uri"
+}
+JSON
   end
 
   def test_source_map_with_css_uri_and_sourcemap_path_supports_filesystem_importer
@@ -397,6 +407,6 @@ MESSAGE
 
   def test_absolute_files_across_template_locations
     importer = Sass::Importers::Filesystem.new(absolutize 'templates')
-    assert_not_nil importer.mtime(absolutize('more_templates/more1.sass'), {})
+    refute_nil importer.mtime(absolutize('more_templates/more1.sass'), {})
   end
 end

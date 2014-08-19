@@ -6,7 +6,7 @@ require 'sass/scss/css_parser'
 # These tests just test the parsing of CSS
 # (both standard and any hacks we intend to support).
 # Tests of SCSS-specific behavior go in scss_test.rb.
-class ScssCssTest < Test::Unit::TestCase
+class ScssCssTest < MiniTest::Test
   include ScssTestHelper
 
   def test_basic_scss
@@ -499,10 +499,24 @@ SCSS
 
   def test_import_directive
     assert_parses '@import "foo.css";'
-    assert_parses "@import 'foo.css';"
     assert_parses '@import url("foo.css");'
     assert_parses "@import url('foo.css');"
     assert_parses '@import url(foo.css);'
+
+    assert_equal <<CSS, render(<<SCSS)
+@import "foo.css";
+CSS
+@import 'foo.css';
+SCSS
+  end
+
+  def test_import_directive_with_backslash_newline
+    assert_equal <<CSS, render(<<SCSS)
+@import "foobar.css";
+CSS
+@import "foo\\
+bar.css";
+SCSS
   end
 
   def test_string_import_directive_with_media
@@ -659,13 +673,10 @@ SCSS
   0% {
     top: 0;
     left: 0; }
-
   30% {
     top: 50px; }
-
   68%, 72% {
     left: 50px; }
-
   100% {
     top: 100px;
     left: 100%; } }
@@ -688,6 +699,8 @@ SCSS
     assert_selector_parses('E:not(s)')
     assert_selector_parses('E:not(s1, s2)')
     assert_selector_parses('E:matches(s1, s2)')
+    assert_selector_parses('E:has(s1, s2)')
+    assert_selector_parses('E:has(> s1, > s2)')
     assert_selector_parses('E.warning')
     assert_selector_parses('E#myid')
     assert_selector_parses('E[foo]')
@@ -738,20 +751,22 @@ SCSS
     assert_selector_parses('E:last-of-type')
     assert_selector_parses('E:nth-last-of-type(n)')
     assert_selector_parses('E:only-of-type')
-    assert_selector_parses('E:nth-match(n of selector)')
-    assert_selector_parses('E:nth-last-match(n of selector)')
-    assert_selector_parses('E:column(selector)')
-    assert_selector_parses('E:nth-column(n)')
-    assert_selector_parses('E:nth-last-column(n)')
+    assert_selector_parses('E:nth-child(n of selector)')
+    assert_selector_parses('E:nth-last-child(n of selector)')
+    assert_selector_parses('E:nth-child(n)')
+    assert_selector_parses('E:nth-last-child(n)')
     assert_selector_parses('E F')
     assert_selector_parses('E > F')
     assert_selector_parses('E + F')
     assert_selector_parses('E ~ F')
     assert_selector_parses('E /foo/ F')
-    assert_selector_parses('E! > F')
+    silence_warnings {assert_selector_parses('E! > F')}
 
     assert_selector_parses('E /ns|foo/ F')
-    assert_selector_parses('E /*|foo/ F')
+
+    # From http://dev.w3.org/csswg/css-scoping-1/
+    assert_selector_parses('E:host(s)')
+    assert_selector_parses('E:host-context(s)')
   end
 
   # Taken from http://dev.w3.org/csswg/selectors4/#overview, but without element
@@ -760,6 +775,8 @@ SCSS
     assert_selector_parses(':not(s)')
     assert_selector_parses(':not(s1, s2)')
     assert_selector_parses(':matches(s1, s2)')
+    assert_selector_parses(':has(s1, s2)')
+    assert_selector_parses(':has(> s1, > s2)')
     assert_selector_parses('.warning')
     assert_selector_parses('#myid')
     assert_selector_parses('[foo]')
@@ -810,11 +827,14 @@ SCSS
     assert_selector_parses(':last-of-type')
     assert_selector_parses(':nth-last-of-type(n)')
     assert_selector_parses(':only-of-type')
-    assert_selector_parses(':nth-match(n of selector)')
-    assert_selector_parses(':nth-last-match(n of selector)')
-    assert_selector_parses(':column(selector)')
-    assert_selector_parses(':nth-column(n)')
-    assert_selector_parses(':nth-last-column(n)')
+    assert_selector_parses(':nth-child(n of selector)')
+    assert_selector_parses(':nth-last-child(n of selector)')
+    assert_selector_parses(':nth-child(n)')
+    assert_selector_parses(':nth-last-child(n)')
+
+    # From http://dev.w3.org/csswg/css-scoping-1/
+    assert_selector_parses(':host(s)')
+    assert_selector_parses(':host-context(s)')
   end
 
   def test_attribute_selectors_with_identifiers
@@ -854,10 +874,13 @@ SCSS
   def test_selectors_containing_selectors
     assert_selector_can_contain_selectors(':not(<sel>)')
     assert_selector_can_contain_selectors(':current(<sel>)')
-    assert_selector_can_contain_selectors(':nth-match(n of <sel>)')
-    assert_selector_can_contain_selectors(':nth-last-match(n of <sel>)')
-    assert_selector_can_contain_selectors(':column(<sel>)')
+    assert_selector_can_contain_selectors(':nth-child(n of <sel>)')
+    assert_selector_can_contain_selectors(':nth-last-child(n of <sel>)')
     assert_selector_can_contain_selectors(':-moz-any(<sel>)')
+    assert_selector_can_contain_selectors(':has(<sel>)')
+    assert_selector_can_contain_selectors(':has(+ <sel>)')
+    assert_selector_can_contain_selectors(':host(<sel>)')
+    assert_selector_can_contain_selectors(':host-context(<sel>)')
   end
 
   def assert_selector_can_contain_selectors(sel)
@@ -914,11 +937,11 @@ SCSS
   end
 
   def test_expression_fallback_selectors
-    assert_selector_parses('0%')
-    assert_selector_parses('60%')
-    assert_selector_parses('100%')
-    assert_selector_parses('12px')
-    assert_selector_parses('"foo"')
+    assert_directive_parses('0%')
+    assert_directive_parses('60%')
+    assert_directive_parses('100%')
+    assert_directive_parses('12px')
+    assert_directive_parses('"foo"')
   end
 
   def test_functional_pseudo_selectors
@@ -953,6 +976,29 @@ SCSS
     assert_equal "E > F {\n  a: b; }\n", render("E>F { a: b;} ")
     assert_equal "E ~ F {\n  a: b; }\n", render("E~F { a: b;} ")
     assert_equal "E + F {\n  a: b; }\n", render("E+F { a: b;} ")
+  end
+
+  def test_subject_selector_deprecation
+    assert_warning(<<WARNING) {render(".foo .bar! .baz {a: b}")}
+DEPRECATION WARNING on line 1, column 1:
+The subject selector operator "!" is deprecated and will be removed in a future release.
+This operator has been replaced by ":has()" in the CSS spec.
+For example: .foo .bar:has(.baz)
+WARNING
+
+    assert_warning(<<WARNING) {render(".foo .bar! > .baz {a: b}")}
+DEPRECATION WARNING on line 1, column 1:
+The subject selector operator "!" is deprecated and will be removed in a future release.
+This operator has been replaced by ":has()" in the CSS spec.
+For example: .foo .bar:has(> .baz)
+WARNING
+
+    assert_warning(<<WARNING) {render(".foo .bar! {a: b}")}
+DEPRECATION WARNING on line 1, column 1:
+The subject selector operator "!" is deprecated and will be removed in a future release.
+This operator has been replaced by ":has()" in the CSS spec.
+For example: .foo .bar
+WARNING
   end
 
   ## Errors
@@ -1038,6 +1084,18 @@ SCSS
   rescue Sass::SyntaxError => e
     assert_equal 'Invalid CSS after "foo {bar": expected ":", was "}"', e.message
     assert_equal 1, e.sass_line
+  end
+
+  def test_newline_in_property_value
+    assert_equal(<<CSS, render(<<SCSS))
+.foo {
+  bar: "bazbang"; }
+CSS
+.foo {
+  bar: "baz\\
+bang";
+}
+SCSS
   end
 
   ## Regressions
@@ -1133,6 +1191,18 @@ SCSS
   def assert_selector_parses(selector)
     assert_parses <<SCSS
 #{selector} {
+  a: b; }
+SCSS
+
+    assert_parses <<SCSS
+:not(#{selector}) {
+  a: b; }
+SCSS
+  end
+
+  def assert_directive_parses(param)
+    assert_parses <<SCSS
+@keyframes #{param} {
   a: b; }
 SCSS
   end

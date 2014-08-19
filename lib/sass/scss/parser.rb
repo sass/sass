@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'set'
 
 module Sass
@@ -180,7 +181,7 @@ module Sass
 
       DIRECTIVES = Set[:mixin, :include, :function, :return, :debug, :warn, :for,
         :each, :while, :if, :else, :extend, :import, :media, :charset, :content,
-        :_moz_document, :at_root]
+        :_moz_document, :at_root, :error]
 
       PREFIXED_DIRECTIVES = Set[:supports]
 
@@ -196,10 +197,7 @@ module Sass
           return dir
         end
 
-        # Most at-rules take expressions (e.g. @import),
-        # but some (e.g. @page) take selector-like arguments.
-        # Some take no arguments at all.
-        val = expr || selector
+        val = almost_any_value
         val = val ? ["@#{name} "] + Sass::Util.strip_string_array(val) : ["@#{name}"]
         directive_body(val, start_pos)
       end
@@ -222,7 +220,7 @@ module Sass
       end
 
       def prefixed_directive(name, start_pos)
-        sym = name.gsub(/^-[a-z0-9]+-/i, '').gsub('-', '_').to_sym
+        sym = deprefix(name).gsub('-', '_').to_sym
         PREFIXED_DIRECTIVES.include?(sym) && send("#{sym}_directive", name, start_pos)
       end
 
@@ -355,10 +353,12 @@ module Sass
       end
 
       def extend_directive(start_pos)
-        selector, selector_range = expr!(:selector_sequence)
+        selector_start_pos = source_position
+        @expected = "selector"
+        selector = Sass::Util.strip_string_array(expr!(:almost_any_value))
         optional = tok(OPTIONAL)
         ss
-        node(Sass::Tree::ExtendNode.new(selector, !!optional, selector_range), start_pos)
+        node(Sass::Tree::ExtendNode.new(selector, !!optional, range(selector_start_pos)), start_pos)
       end
 
       def import_directive(start_pos)
@@ -376,7 +376,7 @@ module Sass
 
       def import_arg
         start_pos = source_position
-        return unless (str = tok(STRING)) || (uri = tok?(/url\(/i))
+        return unless (str = string) || (uri = tok?(/url\(/i))
         if uri
           str = sass_script(:parse_string)
           ss
@@ -384,16 +384,15 @@ module Sass
           ss
           return node(Tree::CssImportNode.new(str, media.to_a), start_pos)
         end
-
-        path = @scanner[1] || @scanner[2]
         ss
 
         media = media_query_list
-        if path =~ %r{^(https?:)?//} || media || use_css_import?
-          return node(Sass::Tree::CssImportNode.new(str, media.to_a), start_pos)
+        if str =~ %r{^(https?:)?//} || media || use_css_import?
+          return node(Sass::Tree::CssImportNode.new(
+              Sass::Script::Value::String.quote(str), media.to_a), start_pos)
         end
 
-        node(Sass::Tree::ImportNode.new(path.strip), start_pos)
+        node(Sass::Tree::ImportNode.new(str.strip), start_pos)
       end
 
       def use_css_import?; false; end
@@ -476,8 +475,7 @@ module Sass
       alias_method :at_root_query, :query_expr
 
       def charset_directive(start_pos)
-        tok! STRING
-        name = @scanner[1] || @scanner[2]
+        name = expr!(:string)
         ss
         node(Sass::Tree::CharsetNode.new(name), start_pos)
       end
@@ -532,6 +530,10 @@ module Sass
           ss
         end
         arr
+      end
+
+      def error_directive(start_pos)
+        node(Sass::Tree::ErrorNode.new(sass_script(:parse)), start_pos)
       end
 
       # http://www.w3.org/TR/css3-conditional/
@@ -629,10 +631,9 @@ module Sass
 
       def ruleset
         start_pos = source_position
-        rules, source_range = selector_sequence
-        return unless rules
+        return unless (rules = almost_any_value)
         block(node(
-          Sass::Tree::RuleNode.new(rules.flatten.compact, source_range), start_pos), :ruleset)
+          Sass::Tree::RuleNode.new(rules, range(start_pos)), start_pos), :ruleset)
       end
 
       def block(node, context)
@@ -666,323 +667,112 @@ module Sass
         child_or_array.has_children
       end
 
-      # This is a nasty hack, and the only place in the parser
-      # that requires a large amount of backtracking.
-      # The reason is that we can't figure out if certain strings
-      # are declarations or rulesets with fixed finite lookahead.
-      # For example, "foo:bar baz baz baz..." could be either a property
-      # or a selector.
+      # When parsing the contents of a ruleset, it can be difficult to tell
+      # declarations apart from nested rulesets. Since we don't thoroughly parse
+      # selectors until after resolving interpolation, we can share a bunch of
+      # the parsing of the two, but we need to disambiguate them first. We use
+      # the following criteria:
       #
-      # To handle this, we simply check if it works as a property
-      # (which is the most common case)
-      # and, if it doesn't, try it as a ruleset.
+      # * If the entity doesn't start with an identifier followed by a colon,
+      #   it's a selector. There are some additional mostly-unimportant cases
+      #   here to support various declaration hacks.
       #
-      # We could eke some more efficiency out of this
-      # by handling some easy cases (first token isn't an identifier,
-      # no colon after the identifier, whitespace after the colon),
-      # but I'm not sure the gains would be worth the added complexity.
+      # * If the colon is followed by another colon, it's a selector.
+      #
+      # * Otherwise, if the colon is followed by anything other than
+      #   interpolation or a character that's valid as the beginning of an
+      #   identifier, it's a declaration.
+      #
+      # * If the colon is followed by interpolation or a valid identifier, try
+      #   parsing it as a declaration value. If this fails, backtrack and parse
+      #   it as a selector.
+      #
+      # * If the declaration value value valid but is followed by "{", backtrack
+      #   and parse it as a selector anyway. This ensures that ".foo:bar {" is
+      #   always parsed as a selector and never as a property with nested
+      #   properties beneath it.
       def declaration_or_ruleset
-        old_use_property_exception, @use_property_exception =
-          @use_property_exception, false
-        decl_err = catch_error do
-          decl = declaration
-          unless decl && decl.has_children
-            # We want an exception if it's not there,
-            # but we don't want to consume if it is
-            tok!(/[;}]/) unless tok?(/[;}]/)
-          end
-          return decl
-        end
-
-        ruleset_err = catch_error {return ruleset}
-        rethrow(@use_property_exception ? decl_err : ruleset_err)
-      ensure
-        @use_property_exception = old_use_property_exception
-      end
-
-      def selector_sequence
         start_pos = source_position
-        if (sel = tok(STATIC_SELECTOR, true))
-          return [sel], range(start_pos)
-        end
+        declaration = try_declaration
 
-        rules = []
-        v = selector
-        return unless v
-        rules.concat v
-
-        ws = ''
-        while tok(/,/)
-          ws << str {ss}
-          if (v = selector)
-            rules << ',' << ws
-            rules.concat v
-            ws = ''
-          end
-        end
-        return rules, range(start_pos)
-      end
-
-      def selector
-        sel = _selector
-        return unless sel
-        sel.to_a
-      end
-
-      def selector_comma_sequence
-        sel = _selector
-        return unless sel
-        selectors = [sel]
-        ws = ''
-        while tok(/,/)
-          ws << str {ss}
-          if (sel = _selector)
-            selectors << sel
-            if ws.include?("\n")
-              selectors[-1] = Selector::Sequence.new(["\n"] + selectors.last.members)
-            end
-            ws = ''
-          end
-        end
-        Selector::CommaSequence.new(selectors)
-      end
-
-      def _selector
-        # The combinator here allows the "> E" hack
-        val = combinator || simple_selector_sequence
-        return unless val
-        nl = str {ss}.include?("\n")
-        res = []
-        res << val
-        res << "\n" if nl
-
-        while (val = combinator || simple_selector_sequence)
-          res << val
-          res << "\n" if str {ss}.include?("\n")
-        end
-        Selector::Sequence.new(res.compact)
-      end
-
-      def combinator
-        tok(PLUS) || tok(GREATER) || tok(TILDE) || reference_combinator
-      end
-
-      def reference_combinator
-        return unless tok(/\//)
-        res = ['/']
-        ns, name = expr!(:qualified_name)
-        res << ns << '|' if ns
-        res << name << tok!(/\//)
-        res = res.flatten
-        res = res.join '' if res.all? {|e| e.is_a?(String)}
-        res
-      end
-
-      def simple_selector_sequence
-        # Returning expr by default allows for stuff like
-        # http://www.w3.org/TR/css3-animations/#keyframes-
-
-        start_pos = source_position
-        e = element_name || id_selector ||
-          class_selector || placeholder_selector || attrib || pseudo ||
-          parent_selector || interpolation_selector
-        return expr(!:allow_var) unless e
-        res = [e]
-
-        # The tok(/\*/) allows the "E*" hack
-        while (v = id_selector || class_selector || placeholder_selector ||
-                   attrib || pseudo || interpolation_selector ||
-                   (tok(/\*/) && Selector::Universal.new(nil)))
-          res << v
-        end
-
-        pos = @scanner.pos
-        line = @line
-        if (sel = str? {simple_selector_sequence})
-          @scanner.pos = pos
-          @line = line
-          begin
-            # If we see "*E", don't force a throw because this could be the
-            # "*prop: val" hack.
-            expected('"{"') if res.length == 1 && res[0].is_a?(Selector::Universal)
-            throw_error {expected('"{"')}
-          rescue Sass::SyntaxError => e
-            e.message << "\n\n\"#{sel}\" may only be used at the beginning of a compound selector."
-            raise e
-          end
-        end
-
-        Selector::SimpleSequence.new(res, tok(/!/), range(start_pos))
-      end
-
-      def parent_selector
-        return unless tok(/&/)
-        Selector::Parent.new(interp_ident(NAME) || [])
-      end
-
-      def class_selector
-        return unless tok(/\./)
-        @expected = "class name"
-        Selector::Class.new(merge(expr!(:interp_ident)))
-      end
-
-      def id_selector
-        return unless tok(/#(?!\{)/)
-        @expected = "id name"
-        Selector::Id.new(merge(expr!(:interp_name)))
-      end
-
-      def placeholder_selector
-        return unless tok(/%/)
-        @expected = "placeholder name"
-        Selector::Placeholder.new(merge(expr!(:interp_ident)))
-      end
-
-      def element_name
-        ns, name = Sass::Util.destructure(qualified_name(:allow_star_name))
-        return unless ns || name
-
-        if name == '*'
-          Selector::Universal.new(merge(ns))
+        if declaration.nil?
+          return unless (selector = almost_any_value)
+        elsif declaration.is_a?(Array)
+          selector = declaration
         else
-          Selector::Element.new(merge(name), merge(ns))
-        end
-      end
-
-      def qualified_name(allow_star_name = false)
-        name = interp_ident || tok(/\*/) || (tok?(/\|/) && "")
-        return unless name
-        return nil, name unless tok(/\|/)
-
-        return name, expr!(:interp_ident) unless allow_star_name
-        @expected = "identifier or *"
-        return name, interp_ident || tok!(/\*/)
-      end
-
-      def interpolation_selector
-        if (script = interpolation)
-          Selector::Interpolation.new(script)
-        end
-      end
-
-      def attrib
-        return unless tok(/\[/)
-        ss
-        ns, name = attrib_name!
-        ss
-
-        op = tok(/=/) ||
-             tok(INCLUDES) ||
-             tok(DASHMATCH) ||
-             tok(PREFIXMATCH) ||
-             tok(SUFFIXMATCH) ||
-             tok(SUBSTRINGMATCH)
-        if op
-          @expected = "identifier or string"
-          ss
-          val = interp_ident || expr!(:interp_string)
-          ss
-        end
-        flags = interp_ident || interp_string
-        tok!(/\]/)
-
-        Selector::Attribute.new(merge(name), merge(ns), op, merge(val), merge(flags))
-      end
-
-      def attrib_name!
-        if (name_or_ns = interp_ident)
-          # E, E|E
-          if tok(/\|(?!=)/)
-            ns = name_or_ns
-            name = interp_ident
-          else
-            name = name_or_ns
-          end
-        else
-          # *|E or |E
-          ns = [tok(/\*/) || ""]
-          tok!(/\|/)
-          name = expr!(:interp_ident)
-        end
-        return ns, name
-      end
-
-      def pseudo
-        s = tok(/::?/)
-        return unless s
-        @expected = "pseudoclass or pseudoelement"
-        name = expr!(:interp_ident)
-        if tok(/\(/)
-          ss
-          arg = expr!(:pseudo_arg)
-          while tok(/,/)
-            arg << ',' << str {ss}
-            arg.concat expr!(:pseudo_arg)
-          end
-          tok!(/\)/)
-        end
-        Selector::Pseudo.new(s == ':' ? :class : :element, merge(name), merge(arg))
-      end
-
-      def pseudo_arg
-        # In the CSS spec, every pseudo-class/element either takes a pseudo
-        # expression or a selector comma sequence as an argument. However, we
-        # don't want to have to know which takes which, so we handle both at
-        # once.
-        #
-        # However, there are some ambiguities between the two. For instance, "n"
-        # could start a pseudo expression like "n+1", or it could start a
-        # selector like "n|m". In order to handle this, we must regrettably
-        # backtrack.
-        expr, sel = nil, nil
-        pseudo_err = catch_error do
-          expr = pseudo_expr
-          next if tok?(/[,)]/)
-          expr = nil
-          expected '")"'
+          # Declaration should be a PropNode.
+          return declaration
         end
 
-        return expr if expr
-        sel_err = catch_error {sel = selector}
-        return sel if sel
-        rethrow pseudo_err if pseudo_err
-        rethrow sel_err if sel_err
-        nil
-      end
-
-      def pseudo_expr_token
-        tok(PLUS) || tok(/[-*]/) || tok(NUMBER) || interp_string || tok(IDENT) || interpolation
-      end
-
-      def pseudo_expr
-        e = pseudo_expr_token
-        return unless e
-        res = [e, str {ss}]
-        while (e = pseudo_expr_token)
-          res << e << str {ss}
+        if (additional_selector = almost_any_value)
+          selector << additional_selector
         end
-        res
+
+        block(node(
+          Sass::Tree::RuleNode.new(merge(selector), range(start_pos)), start_pos), :ruleset)
       end
 
-      def declaration
-        # This allows the "*prop: val", ":prop: val", and ".prop: val" hacks
+      # Tries to parse a declaration, and returns the value parsed so far if it
+      # fails.
+      #
+      # This has three possible return types. It can return `nil`, indicating
+      # that parsing failed completely and the scanner hasn't moved forward at
+      # all. It can return an Array, indicating that parsing failed after
+      # consuming some text (possibly containing interpolation), which is
+      # returned. Or it can return a PropNode, indicating that parsing
+      # succeeded.
+      def try_declaration
+        # This allows the "*prop: val", ":prop: val", "#prop: val", and ".prop:
+        # val" hacks.
         name_start_pos = source_position
         if (s = tok(/[:\*\.]|\#(?!\{)/))
-          @use_property_exception = s !~ /[\.\#]/
-          name = [s, str {ss}, *expr!(:interp_ident)]
+          name = [s, str {ss}]
+          return name unless (ident = interp_ident)
+          name << ident
         else
-          name = interp_ident
-          return unless name
-          name = [name] if name.is_a?(String)
+          return unless (name = interp_ident)
+          name = Array(name)
         end
+
         if (comment = tok(COMMENT))
           name << comment
         end
         name_end_pos = source_position
-        ss
 
-        tok!(/:/)
-        value_start_pos, space, value = value!
+        mid = [str {ss}]
+        return name + mid unless tok(/:/)
+        mid << ':'
+        return name + mid + [':'] if tok(/:/)
+        mid << str {ss}
+        post_colon_whitespace = !mid.last.empty?
+        could_be_selector = !post_colon_whitespace && (tok?(IDENT_START) || tok?(INTERP_START))
+
+        value_start_pos = source_position
+        value = nil
+        error = catch_error do
+          value = value!
+          if tok?(/\{/)
+            # Properties that are ambiguous with selectors can't have additional
+            # properties nested beneath them.
+            tok!(/;/) if could_be_selector
+          elsif !tok?(/[;{}]/)
+            # We want an exception if there's no valid end-of-property character
+            # exists, but we don't want to consume it if it does.
+            tok!(/[;{}]/)
+          end
+        end
+
+        if error
+          rethrow error unless could_be_selector
+
+          # If the value would be followed by a semicolon, it's definitely
+          # supposed to be a property, not a selector.
+          additional_selector = almost_any_value
+          rethrow error if tok?(/;/)
+
+          return name + mid + (additional_selector || [])
+        end
+
         value_end_pos = source_position
         ss
         require_block = tok?(/\{/)
@@ -993,19 +783,84 @@ module Sass
         node.value_source_range = range(value_start_pos, value_end_pos)
 
         return node unless require_block
-        nested_properties! node, space
+        nested_properties! node
+      end
+
+      # This production is similar to the CSS [`<any-value>`][any-value]
+      # production, but as the name implies, not quite the same. It's meant to
+      # consume values that could be a selector, an expression, or a combination
+      # of both. It respects strings and comments and supports interpolation. It
+      # will consume up to "{", "}", ";", or "!".
+      #
+      # [any-value]: http://dev.w3.org/csswg/css-variables/#typedef-any-value
+      #
+      # Values consumed by this production will usually be parsed more
+      # thoroughly once interpolation has been resolved.
+      def almost_any_value
+        return unless (tok = almost_any_value_token)
+        sel = [tok]
+        while (tok = almost_any_value_token)
+          sel << tok
+        end
+        merge(sel)
+      end
+
+      def almost_any_value_token
+        tok(%r{
+          (
+            (?!url\()
+            [^"/\#!;\{\}] # "
+          |
+            /(?![/*])
+          |
+            \#(?!\{)
+          |
+            !(?![a-z]) # TODO: never consume "!" when issue 1126 is fixed.
+          )+
+        }xi) || tok(COMMENT) || tok(SINGLE_LINE_COMMENT) || interp_string || interp_uri ||
+                interpolation(:warn_for_color)
+      end
+
+      def declaration
+        # This allows the "*prop: val", ":prop: val", "#prop: val", and ".prop:
+        # val" hacks.
+        name_start_pos = source_position
+        if (s = tok(/[:\*\.]|\#(?!\{)/))
+          name = [s, str {ss}, *expr!(:interp_ident)]
+        else
+          return unless (name = interp_ident)
+          name = Array(name)
+        end
+
+        if (comment = tok(COMMENT))
+          name << comment
+        end
+        name_end_pos = source_position
+        ss
+
+        tok!(/:/)
+        ss
+        value_start_pos = source_position
+        value = value!
+        value_end_pos = source_position
+        ss
+        require_block = tok?(/\{/)
+
+        node = node(Sass::Tree::PropNode.new(name.flatten.compact, value, :new),
+                    name_start_pos, value_end_pos)
+        node.name_source_range = range(name_start_pos, name_end_pos)
+        node.value_source_range = range(value_start_pos, value_end_pos)
+
+        return node unless require_block
+        nested_properties! node
       end
 
       def value!
-        space = !str {ss}.empty?
-        value_start_pos = source_position
-        @use_property_exception ||= space || !tok?(IDENT)
-
         if tok?(/\{/)
           str = Sass::Script::Tree::Literal.new(Sass::Script::Value::String.new(""))
           str.line = source_position.line
           str.source_range = range(source_position)
-          return value_start_pos, true, str
+          return str
         end
 
         start_pos = source_position
@@ -1018,18 +873,12 @@ module Sass
           str = Sass::Script::Tree::Literal.new(Sass::Script::Value::String.new(val.strip))
           str.line = start_pos.line
           str.source_range = range(start_pos)
-          return value_start_pos, space, str
+          return str
         end
-        return value_start_pos, space, sass_script(:parse)
+        sass_script(:parse)
       end
 
-      def nested_properties!(node, space)
-        err(<<MESSAGE) unless space
-Invalid CSS: a space is required between a property and its definition
-when it has other properties nested beneath it.
-MESSAGE
-
-        @use_property_exception = true
+      def nested_properties!(node)
         @expected = 'expression (e.g. 1px, bold) or "{"'
         block(node, :property)
       end
@@ -1083,9 +932,14 @@ MESSAGE
         var
       end
 
-      def interpolation
+      def interpolation(warn_for_color = false)
         return unless tok(INTERP_START)
-        sass_script(:parse_interpolated)
+        sass_script(:parse_interpolated, warn_for_color)
+      end
+
+      def string
+        return unless tok(STRING)
+        Sass::Script::Value::String.value(@scanner[1] || @scanner[2])
       end
 
       def interp_string
@@ -1112,10 +966,10 @@ MESSAGE
       end
 
       def interp_ident(start = IDENT)
-        val = tok(start) || interpolation || tok(IDENT_HYPHEN_INTERP, true)
+        val = tok(start) || interpolation(:warn_for_color) || tok(IDENT_HYPHEN_INTERP, true)
         return unless val
         res = [val]
-        while (val = tok(NAME) || interpolation)
+        while (val = tok(NAME) || interpolation(:warn_for_color))
           res << val
         end
         res
@@ -1126,10 +980,6 @@ MESSAGE
         return id if id
         var = var_expr
         return [var] if var
-      end
-
-      def interp_name
-        interp_ident NAME
       end
 
       def str
@@ -1196,25 +1046,26 @@ MESSAGE
         :media_expr => "media expression (e.g. (min-device-width: 800px))",
         :at_root_query => "@at-root query (e.g. (without: media))",
         :at_root_directive_list => '* or identifier',
-        :pseudo_arg => "expression (e.g. fr, 2n+1)",
+        :pseudo_args => "expression (e.g. fr, 2n+1)",
         :interp_ident => "identifier",
-        :interp_name => "identifier",
         :qualified_name => "identifier",
         :expr => "expression (e.g. 1px, bold)",
-        :_selector => "selector",
         :selector_comma_sequence => "selector",
-        :simple_selector_sequence => "selector",
+        :string => "string",
         :import_arg => "file to import (string or url())",
         :moz_document_function => "matching function (e.g. url-prefix(), domain())",
         :supports_condition => "@supports condition (e.g. (display: flexbox))",
         :supports_condition_in_parens => "@supports condition (e.g. (display: flexbox))",
+        :a_n_plus_b => "An+B expression",
+        :keyframes_selector_component => "from, to, or a percentage",
+        :keyframes_selector => "keyframes selector (e.g. 10%)"
       }
 
       TOK_NAMES = Sass::Util.to_hash(Sass::SCSS::RX.constants.map do |c|
         [Sass::SCSS::RX.const_get(c), c.downcase]
       end).merge(
         IDENT => "identifier",
-        /[;}]/ => '";"',
+        /[;{}]/ => '";"',
         /\b(without|with)\b/ => '"with" or "without"'
       )
 
@@ -1347,6 +1198,11 @@ MESSAGE
           end
           res
         end
+      end
+
+      # Remove a vendor prefix from `str`.
+      def deprefix(str)
+        str.gsub(/^-[a-zA-Z0-9]+-/, '')
       end
     end
   end

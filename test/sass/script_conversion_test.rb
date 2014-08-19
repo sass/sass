@@ -3,7 +3,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 require 'sass/engine'
 
-class SassScriptConversionTest < Test::Unit::TestCase
+class SassScriptConversionTest < MiniTest::Test
   def test_bool
     assert_renders "true"
     assert_renders "false"
@@ -13,9 +13,8 @@ class SassScriptConversionTest < Test::Unit::TestCase
     assert_renders "#abcdef"
     assert_renders "blue"
     assert_renders "rgba(0, 1, 2, 0.2)"
-
-    assert_equal "#aabbcc", render("#abc")
-    assert_equal "blue", render("#0000ff")
+    assert_renders "#abc"
+    assert_renders "#0000ff"
   end
 
   def test_number
@@ -107,6 +106,10 @@ class SassScriptConversionTest < Test::Unit::TestCase
   def test_list_in_map
     assert_renders "(foo: bar baz)"
     assert_renders "(foo: (bar, baz), bip: bop)"
+  end
+
+  def test_selector
+    assert_renders "&"
   end
 
   def self.test_precedence(outer, inner)

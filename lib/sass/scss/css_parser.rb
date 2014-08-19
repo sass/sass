@@ -11,7 +11,7 @@ module Sass
 
       def placeholder_selector; nil; end
       def parent_selector; nil; end
-      def interpolation; nil; end
+      def interpolation(warn_for_color = false); nil; end
       def use_css_import?; true; end
 
       def block_child(context)
@@ -25,8 +25,14 @@ module Sass
         end
       end
 
-      def nested_properties!(node, space)
+      def nested_properties!(node)
         expected('expression (e.g. 1px, bold)')
+      end
+
+      def ruleset
+        start_pos = source_position
+        return unless (selector = selector_comma_sequence)
+        block(node(Sass::Tree::RuleNode.new(selector, range(start_pos)), start_pos), :ruleset)
       end
 
       @sass_script_parser = Class.new(Sass::Script::CssParser)

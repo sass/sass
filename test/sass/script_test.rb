@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
 require File.dirname(__FILE__) + '/../test_helper'
 require 'sass/engine'
 
@@ -17,34 +18,59 @@ module Sass::Script::Functions
   include Sass::Script::Functions::UserFunctions
 end
 
-class SassScriptTest < Test::Unit::TestCase
+class SassScriptTest < MiniTest::Test
   include Sass::Script
 
-  def test_color_checks_input
-    assert_raise_message(ArgumentError, "Blue value -1 must be between 0 and 255") {Sass::Script::Value::Color.new([1, 2, -1])}
-    assert_raise_message(ArgumentError, "Red value 256 must be between 0 and 255") {Sass::Script::Value::Color.new([256, 2, 3])}
+  def test_color_clamps_input
+    assert_equal 0, Sass::Script::Value::Color.new([1, 2, -1]).blue
+    assert_equal 255, Sass::Script::Value::Color.new([256, 2, 3]).red
   end
 
-  def test_color_checks_rgba_input
-    assert_raise_message(ArgumentError, "Alpha channel 1.1 must be between 0 and 1") {Sass::Script::Value::Color.new([1, 2, 3, 1.1])}
-    assert_raise_message(ArgumentError, "Alpha channel -0.1 must be between 0 and 1") {Sass::Script::Value::Color.new([1, 2, 3, -0.1])}
+  def test_color_clamps_rgba_input
+    assert_equal 1, Sass::Script::Value::Color.new([1, 2, 3, 1.1]).alpha
+    assert_equal 0, Sass::Script::Value::Color.new([1, 2, 3, -0.1]).alpha
   end
 
   def test_string_escapes
     assert_equal "'", resolve("\"'\"")
     assert_equal '"', resolve("\"\\\"\"")
-    assert_equal "\\\\", resolve("\"\\\\\"")
-    assert_equal "\\02fa", resolve("\"\\02fa\"")
+    assert_equal "\\", resolve("\"\\\\\"")
+    assert_equal "☃", resolve("\"\\2603\"")
+    assert_equal "☃f", resolve("\"\\2603 f\"")
+    assert_equal "☃x", resolve("\"\\2603x\"")
+    assert_equal "\\2603", resolve("\"\\\\2603\"")
 
-    assert_equal "'", resolve("'\\''")
-    assert_equal '"', resolve("'\"'")
-    assert_equal "\\\\", resolve("'\\\\'")
-    assert_equal "\\02fa", resolve("'\\02fa'")
+    # U+FFFD is the replacement character, "�".
+    assert_equal [0xFFFD].pack("U"), resolve("\"\\0\"")
+    assert_equal [0xFFFD].pack("U"), resolve("\"\\FFFFFF\"")
+    assert_equal [0xFFFD].pack("U"), resolve("\"\\D800\"")
+    assert_equal [0xD7FF].pack("U"), resolve("\"\\D7FF\"")
+    assert_equal [0xFFFD].pack("U"), resolve("\"\\DFFF\"")
+    assert_equal [0xE000].pack("U"), resolve("\"\\E000\"")
+  end
+
+  def test_string_escapes_are_resolved_before_operators
+    assert_equal "true", resolve('"abc" == "\61\62\63"')
+  end
+
+  def test_string_quote
+    assert_equal '"foo"', resolve_quoted('"foo"')
+    assert_equal "'f\"oo'", resolve_quoted('"f\"oo"')
+    assert_equal "\"f'oo\"", resolve_quoted("'f\\'oo'")
+    assert_equal "\"f'o\\\"o\"", resolve_quoted("'f\\'o\"o'")
+    assert_equal '"foo bar"', resolve_quoted('"foo\20 bar"')
+    assert_equal '"foo\a bar"', resolve_quoted('"foo\a bar"')
+    assert_equal '"x\ay"', resolve_quoted('"x\a y"')
+    assert_equal '"\a  "', resolve_quoted('"\a\20"')
+    assert_equal '"\a abcdef"', resolve_quoted('"\a abcdef"')
+    assert_equal '"☃abcdef"', resolve_quoted('"\2603 abcdef"')
+    assert_equal '"\\\\"', resolve_quoted('"\\\\"')
+    assert_equal '"foobar"', resolve_quoted("\"foo\\\nbar\"")
   end
 
   def test_color_names
     assert_equal "white", resolve("white")
-    assert_equal "white", resolve("#ffffff")
+    assert_equal "#ffffff", resolve("#ffffff")
     assert_equal "#fffffe", resolve("white - #000001")
     assert_equal "transparent", resolve("transparent")
     assert_equal "transparent", resolve("rgba(0, 0, 0, 0)")
@@ -93,7 +119,7 @@ class SassScriptTest < Test::Unit::TestCase
     assert_equal "#123", resolve("#112233", :style => :compressed)
     assert_equal "#000", resolve("black", :style => :compressed)
     assert_equal "red", resolve("#f00", :style => :compressed)
-    assert_equal "blue", resolve("#00f", :style => :compressed)
+    assert_equal "blue", resolve("blue", :style => :compressed)
     assert_equal "navy", resolve("#000080", :style => :compressed)
     assert_equal "navy #fff", resolve("#000080 white", :style => :compressed)
     assert_equal "This color is #fff", resolve('"This color is #{ white }"', :style => :compressed)
@@ -180,6 +206,11 @@ class SassScriptTest < Test::Unit::TestCase
     assert_equal "foo1bar5baz4bang", resolve('\'foo#{1 + "bar#{2 + 3}baz" + 4}bang\'')
   end
 
+  def test_interpolation_with_newline
+    assert_equal "\nbang", resolve('"#{"\a "}bang"')
+    assert_equal "\n\nbang", resolve('"#{"\a "}\a bang"')
+  end
+
   def test_rule_interpolation
     assert_equal(<<CSS, render(<<SASS))
 foo bar baz bang {
@@ -255,8 +286,8 @@ SASS
     assert_equal eval('1 2 3.0'), eval('1 2 3')
     assert_equal eval('1, 2, 3.0'), eval('1, 2, 3')
     assert_equal eval('(1 2), (3, 4), (5 6)'), eval('(1 2), (3, 4), (5 6)')
-    assert_not_equal eval('1, 2, 3'), eval('1 2 3')
-    assert_not_equal eval('1'), eval('"1"')
+    refute_equal eval('1, 2, 3'), eval('1 2 3')
+    refute_equal eval('1'), eval('"1"')
   end
 
   def test_booleans
@@ -316,6 +347,7 @@ SASS
     assert_equal '"foo", "bar"', resolve("'foo' , 'bar'")
     assert_equal "true, 1", resolve('true , 1')
     assert_equal "foobar", resolve('"foo" + "bar"')
+    assert_equal "\nfoo\nxyz", resolve('"\a foo" + "\axyz"')
     assert_equal "true1", resolve('true + 1')
     assert_equal '"foo"-"bar"', resolve("'foo' - 'bar'")
     assert_equal "true-1", resolve('true - 1')
@@ -430,6 +462,36 @@ SASS
     assert_equal "true", resolve("1.1cm == 11mm")
   end
 
+  def test_length_units
+    assert_equal "2.54", resolve("(1in/1cm)")
+    assert_equal "2.3622", resolve("(1cm/1pc)")
+    assert_equal "4.23333", resolve("(1pc/1mm)")
+    assert_equal "2.83465", resolve("(1mm/1pt)")
+    assert_equal "1.33333", resolve("(1pt/1px)")
+    assert_equal "0.01042", resolve("(1px/1in)")
+  end
+
+  def test_angle_units
+    assert_equal "1.11111", resolve("(1deg/1grad)")
+    assert_equal "0.01571", resolve("(1grad/1rad)")
+    assert_equal "0.15915", resolve("(1rad/1turn)")
+    assert_equal "360", resolve("(1turn/1deg)")
+  end
+
+  def test_time_units
+    assert_equal "1000", resolve("(1s/1ms)")
+  end
+
+  def test_frequency_units
+    assert_equal "0.001", resolve("(1Hz/1kHz)")
+  end
+
+  def test_resolution_units
+    assert_equal "2.54", resolve("(1dpi/1dpcm)")
+    assert_equal "37.79528", resolve("(1dpcm/1dppx)")
+    assert_equal "0.01042", resolve("(1dppx/1dpi)")
+  end
+
   def test_operations_have_options
     assert_equal "Options defined!", resolve("assert_options(1 + 1)")
     assert_equal "Options defined!", resolve("assert_options('bar' + 'baz')")
@@ -462,22 +524,22 @@ SASS
     assert_equal "0.5", resolve("$var", {}, env("var" => eval("1px/2px")))
   end
 
-  def test_colors_with_wrong_number_of_digits
+  def test_non_ident_colors_with_wrong_number_of_digits
     assert_raise_message(Sass::SyntaxError,
-      "Colors must have either three or six digits: '#0'") {eval("#0")}
+      'Invalid CSS after "": expected expression (e.g. 1px, bold), was "#1"') {eval("#1")}
     assert_raise_message(Sass::SyntaxError,
-      "Colors must have either three or six digits: '#12'") {eval("#12")}
+      'Invalid CSS after "": expected expression (e.g. 1px, bold), was "#12"') {eval("#12")}
     assert_raise_message(Sass::SyntaxError,
-      "Colors must have either three or six digits: '#abcd'") {eval("#abcd")}
+      'Invalid CSS after "": expected expression (e.g. 1px, bold), was "#1234"') {eval("#1234")}
     assert_raise_message(Sass::SyntaxError,
-      "Colors must have either three or six digits: '#abcdE'") {eval("#abcdE")}
-    assert_raise_message(Sass::SyntaxError,
-      "Colors must have either three or six digits: '#abcdEFA'") {eval("#abcdEFA")}
+      'Invalid CSS after "": expected expression (e.g. 1px, bold), was "#12345"') {eval("#12345")}
+    assert_raise_message(Sass::SyntaxError, 'Invalid CSS after "": expected expression (e.g. ' \
+      '1px, bold), was "#1234567"') {eval("#1234567")}
   end
 
   def test_case_insensitive_color_names
-    assert_equal "blue", resolve("BLUE")
-    assert_equal "red", resolve("rEd")
+    assert_equal "BLUE", resolve("BLUE")
+    assert_equal "rEd", resolve("rEd")
     assert_equal "#7f4000", resolve("mix(GrEeN, ReD)")
   end
 
@@ -523,7 +585,7 @@ SASS
     assert_raise_message(Sass::SyntaxError, 'Duplicate key 2px in map (2px: bar, 1px + 1px: baz).') do
       eval("(2px: bar, 1px + 1px: baz)")
     end
-    assert_raise_message(Sass::SyntaxError, 'Duplicate key #0000ff in map (blue: bar, blue: baz).') do
+    assert_raise_message(Sass::SyntaxError, 'Duplicate key #0000ff in map (blue: bar, #00f: baz).') do
       eval("(blue: bar, #00f: baz)")
     end
   end
@@ -558,7 +620,7 @@ SASS
     return if RUBY_PLATFORM =~ /java/
 
     # Don't validate the message; it's different on Rubinius.
-    assert_raise(ArgumentError) {resolve("arg-error()")}
+    assert_raises(ArgumentError) {resolve("arg-error()")}
   end
 
   def test_shallow_argument_error_unwrapped
@@ -570,49 +632,37 @@ SASS
     assert_equal "true", resolve("$ie or $undef", {}, env('ie' => Sass::Script::Value::Bool.new(true)))
   end
 
-  def test_setting_global_variable_locally_warns
-    assert_warning(<<WARNING) {assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))}
-DEPRECATION WARNING on line 4 of test_setting_global_variable_locally_warns_inline.scss:
-Assigning to global variable "$var" by default is deprecated.
-In future versions of Sass, this will create a new local variable.
-If you want to assign to the global variable, use "$var: x !global" instead.
-Note that this will be incompatible with Sass 3.2.
-WARNING
-.foo {
-  a: x; }
+  def test_selector
+    env = Sass::Environment.new
+    assert_equal "true", resolve("& == null", {}, env)
 
-.bar {
-  b: x; }
-CSS
-$var: 1;
+    env.selector = selector('.foo.bar .baz.bang, .bip.bop')
+    assert_equal ".foo.bar .baz.bang, .bip.bop", resolve("&", {}, env)
+    assert_equal ".foo.bar .baz.bang", resolve("nth(&, 1)", {}, env)
+    assert_equal ".bip.bop", resolve("nth(&, 2)", {}, env)
+    assert_equal ".foo.bar", resolve("nth(nth(&, 1), 1)", {}, env)
+    assert_equal ".baz.bang", resolve("nth(nth(&, 1), 2)", {}, env)
+    assert_equal ".bip.bop", resolve("nth(nth(&, 2), 1)", {}, env)
+    assert_equal "string", resolve("type-of(nth(nth(&, 1), 1))", {}, env)
 
-.foo {
-  $var: x;
-  a: $var;
-}
-
-.bar {
-  b: $var;
-}
-SCSS
+    env.selector = selector('.foo > .bar')
+    assert_equal ".foo > .bar", resolve("&", {}, env)
+    assert_equal ".foo > .bar", resolve("nth(&, 1)", {}, env)
+    assert_equal ".foo", resolve("nth(nth(&, 1), 1)", {}, env)
+    assert_equal ">", resolve("nth(nth(&, 1), 2)", {}, env)
+    assert_equal ".bar", resolve("nth(nth(&, 1), 3)", {}, env)
   end
 
-  def test_setting_global_variable_locally_warns_only_once
-    assert_warning(<<WARNING) {assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))}
-DEPRECATION WARNING on line 3 of test_setting_global_variable_locally_warns_only_once_inline.scss:
-Assigning to global variable "$var" by default is deprecated.
-In future versions of Sass, this will create a new local variable.
-If you want to assign to the global variable, use "$var: x !global" instead.
-Note that this will be incompatible with Sass 3.2.
-WARNING
-CSS
-$var: 1;
-
-@mixin foo {$var: x}
-@include foo;
-@include foo;
-@include foo;
-SCSS
+  def test_selector_with_newlines
+    env = Sass::Environment.new
+    env.selector = selector(".foo.bar\n.baz.bang,\n\n.bip.bop")
+    assert_equal ".foo.bar .baz.bang, .bip.bop", resolve("&", {}, env)
+    assert_equal ".foo.bar .baz.bang", resolve("nth(&, 1)", {}, env)
+    assert_equal ".bip.bop", resolve("nth(&, 2)", {}, env)
+    assert_equal ".foo.bar", resolve("nth(nth(&, 1), 1)", {}, env)
+    assert_equal ".baz.bang", resolve("nth(nth(&, 1), 2)", {}, env)
+    assert_equal ".bip.bop", resolve("nth(nth(&, 2), 1)", {}, env)
+    assert_equal "string", resolve("type-of(nth(nth(&, 1), 1))", {}, env)
   end
 
   def test_setting_global_variable_globally
@@ -637,7 +687,7 @@ $var: 2;
 SCSS
   end
 
-  def test_setting_global_variable_with_flag
+  def test_setting_global_variable_locally
     assert_no_warning {assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))}
 .bar {
   a: x;
@@ -663,7 +713,7 @@ $var3: 3;
 SCSS
   end
 
-  def test_setting_global_variable_with_flag_and_default
+  def test_setting_global_variable_locally_with_default
     assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))
 .bar {
   a: 1;
@@ -688,6 +738,106 @@ $var1: 1;
 SCSS
   end
 
+  def test_setting_local_variable
+    assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))
+.a {
+  value: inside; }
+
+.b {
+  value: outside; }
+CSS
+$var: outside;
+
+.a {
+  $var: inside;
+  value: $var;
+}
+
+.b {
+  value: $var;
+}
+SCSS
+  end
+
+  def test_setting_local_variable_from_inner_scope
+    assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))
+.a .b {
+  value: inside; }
+.a .c {
+  value: inside; }
+CSS
+.a {
+  $var: outside;
+
+  .b {
+    $var: inside;
+    value: $var;
+  }
+
+  .c {
+    value: $var;
+  }
+}
+SCSS
+  end
+
+  def test_color_format_is_preserved_by_default
+    assert_equal "blue", resolve("blue")
+    assert_equal "bLuE", resolve("bLuE")
+    assert_equal "#00f", resolve("#00f")
+    assert_equal "blue #00F", resolve("blue #00F")
+    assert_equal "blue", resolve("nth(blue #00F, 1)")
+    assert_equal "#00F", resolve("nth(blue #00F, 2)")
+  end
+
+  def test_color_format_isnt_always_preserved_in_compressed_style
+    assert_equal "red", resolve("red", :style => :compressed)
+    assert_equal "red", resolve("#f00", :style => :compressed)
+    assert_equal "red red", resolve("red #f00", :style => :compressed)
+    assert_equal "red", resolve("nth(red #f00, 2)", :style => :compressed)
+  end
+
+  def test_color_format_is_sometimes_preserved_in_compressed_style
+    assert_equal "ReD", resolve("ReD", :style => :compressed)
+    assert_equal "blue", resolve("blue", :style => :compressed)
+    assert_equal "#00f", resolve("#00f", :style => :compressed)
+  end
+
+  def test_color_format_isnt_preserved_when_modified
+    assert_equal "magenta", resolve("#f00 + #00f")
+  end
+
+  def test_ids
+    assert_equal "#foo", resolve("#foo")
+    assert_equal "#abcd", resolve("#abcd")
+    assert_equal "#abc-def", resolve("#abc-def")
+    assert_equal "#abc_def", resolve("#abc_def")
+    assert_equal "#uvw-xyz", resolve("#uvw-xyz")
+    assert_equal "#uvw_xyz", resolve("#uvw_xyz")
+    assert_equal "#uvwxyz", resolve("#uvw + xyz")
+  end
+
+  def test_scientific_notation
+    assert_equal "2000", resolve("2e3")
+    assert_equal "2000", resolve("2E3")
+    assert_equal "2000", resolve("2e+3")
+    assert_equal "2000em", resolve("2e3em")
+    assert_equal "25000000000", resolve("2.5e10")
+    assert_equal "0.1234", resolve("1234e-4")
+    assert_equal "12.34", resolve("1.234e1")
+  end
+
+  def test_identifier_units
+    assert_equal "5-foo", resolve("2-foo + 3-foo")
+    assert_equal "5-foo-", resolve("2-foo- + 3-foo-")
+    assert_equal "5-\\u2603", resolve("2-\\u2603 + 3-\\u2603")
+  end
+
+  def test_backslash_newline_in_string
+    assert_equal 'foobar', resolve("\"foo\\\nbar\"")
+    assert_equal 'foobar', resolve("'foo\\\nbar'")
+  end
+
   def test_unclosed_special_fun
     assert_raise_message(Sass::SyntaxError, 'Invalid CSS after "calc(foo()": expected ")", was ""') do
       resolve("calc(foo()")
@@ -707,6 +857,25 @@ SCSS
 
   # Regression Tests
 
+  def test_repeatedly_modified_color
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  link-color: #161C14;
+  link-color-hover: black;
+  link-color-tap: rgba(22, 28, 20, 0.3); }
+CSS
+$green: #161C14
+$link-color: $green
+$link-color-hover: darken($link-color, 10%)
+$link-color-tap: rgba($green, 0.3)
+
+a
+  link-color: $link-color
+  link-color-hover: $link-color-hover
+  link-color-tap: $link-color-tap
+SASS
+  end
+
   def test_inspect_divided_numbers
     assert_equal "1px/2px", resolve("inspect(1px/2px)")
     assert_equal "0.5", resolve("inspect((1px/2px))")
@@ -714,6 +883,7 @@ SCSS
 
   def test_minus_without_whitespace
     assert_equal "5px", resolve("15px-10px")
+    assert_equal "5px-", resolve("15px--10px-")
   end
 
   def test_minus_preceded_by_comment
@@ -831,6 +1001,13 @@ SASS
     val = eval(str, opts, environment)
     assert_kind_of Sass::Script::Value::Base, val
     val.is_a?(Sass::Script::Value::String) ? val.value : val.to_s
+  end
+
+  def resolve_quoted(str, opts = {}, environment = env)
+    munge_filename opts
+    val = eval(str, opts, environment)
+    assert_kind_of Sass::Script::Value::Base, val
+    val.to_s
   end
 
   def assert_unquoted(str, opts = {}, environment = env)

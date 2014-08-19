@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-require 'test/unit'
+require 'minitest/autorun'
 require File.dirname(__FILE__) + '/../test_helper'
 require File.dirname(__FILE__) + '/test_helper'
 require 'sass/script'
@@ -19,6 +19,12 @@ module Sass::Script::Functions
     Sass::Script::Value::String.new("only-kw-args(" + kwargs.keys.map {|a| a.to_s}.sort.join(", ") + ")")
   end
   declare :only_kw_args, [], :var_kwargs => true
+
+  def deprecated_arg_fn(arg1, arg2, arg3 = nil)
+    Sass::Script::Value::List.new([arg1, arg2, arg3 || Sass::Script::Value::Null.new], :space)
+  end
+  declare :deprecated_arg_fn, [:arg1, :arg2, :arg3], :deprecated => [:arg_1, :arg_2, :arg3]
+  declare :deprecated_arg_fn, [:arg1, :arg2], :deprecated => [:arg_1, :arg_2]
 end
 
 module Sass::Script::Functions::UserFunctions
@@ -45,7 +51,7 @@ module Sass::Script::Functions
   include Sass::Script::Functions::UserFunctions
 end
 
-class SassFunctionTest < Test::Unit::TestCase
+class SassFunctionTest < MiniTest::Test
   # Tests taken from:
   #   http://www.w3.org/Style/CSS/Test/CSS3/Color/20070927/html4/t040204-hsl-h-rotating-b.htm
   #   http://www.w3.org/Style/CSS/Test/CSS3/Color/20070927/html4/t040204-hsl-values-b.htm
@@ -84,9 +90,9 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal "#33cccc", evaluate("hsl($hue: 180, $saturation: 60%, $lightness: 50%)")
   end
 
-  def test_hsl_checks_bounds
-    assert_error_message("Saturation -114 must be between 0% and 100% for `hsl'", "hsl(10, -114, 12)");
-    assert_error_message("Lightness 256% must be between 0% and 100% for `hsl'", "hsl(10, 10, 256%)");
+  def test_hsl_clamps_bounds
+    assert_equal("#1f1f1f", evaluate("hsl(10, -114, 12)"))
+    assert_equal("white", evaluate("hsl(10, 10, 256%)"))
   end
 
   def test_hsl_checks_types
@@ -102,11 +108,11 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal "rgba(51, 204, 204, 0.4)", evaluate("hsla($hue: 180, $saturation: 60%, $lightness: 50%, $alpha: 0.4)")
   end
 
-  def test_hsla_checks_bounds
-    assert_error_message("Saturation -114 must be between 0% and 100% for `hsla'", "hsla(10, -114, 12, 1)");
-    assert_error_message("Lightness 256% must be between 0% and 100% for `hsla'", "hsla(10, 10, 256%, 0)");
-    assert_error_message("Alpha channel -0.1 must be between 0 and 1 for `hsla'", "hsla(10, 10, 10, -0.1)");
-    assert_error_message("Alpha channel 1.1 must be between 0 and 1 for `hsla'", "hsla(10, 10, 10, 1.1)");
+  def test_hsla_clamps_bounds
+    assert_equal("#1f1f1f", evaluate("hsla(10, -114, 12, 1)"))
+    assert_equal("rgba(255, 255, 255, 0)", evaluate("hsla(10, 10, 256%, 0)"))
+    assert_equal("rgba(28, 24, 23, 0)", evaluate("hsla(10, 10, 10, -0.1)"))
+    assert_equal("#1c1817", evaluate("hsla(10, 10, 10, 1.1)"))
   end
 
   def test_hsla_checks_types
@@ -123,12 +129,6 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("50%",  evaluate("percentage($number: 0.5)"))
   end
 
-  def test_percentage_deprecated_arg_name
-    assert_warning(<<WARNING) {assert_equal("50%", evaluate("percentage($value: 0.5)"))}
-DEPRECATION WARNING: The `$value' argument for `percentage()' has been renamed to `$number'.
-WARNING
-  end
-
   def test_percentage_checks_types
     assert_error_message("$number: 25px is not a unitless number for `percentage'", "percentage(25px)")
     assert_error_message("$number: #cccccc is not a unitless number for `percentage'", "percentage(#ccc)")
@@ -142,12 +142,6 @@ WARNING
     assert_equal("5px", evaluate("round($number: 5.49px)"))
   end
 
-  def test_round_deprecated_arg_name
-    assert_warning(<<WARNING) {assert_equal("5px", evaluate("round($value: 5.49px)"))}
-DEPRECATION WARNING: The `$value' argument for `round()' has been renamed to `$number'.
-WARNING
-  end
-
   def test_round_checks_types
     assert_error_message("$value: #cccccc is not a number for `round'", "round(#ccc)")
   end
@@ -156,12 +150,6 @@ WARNING
     assert_equal("4",   evaluate("floor(4.8)"))
     assert_equal("4px", evaluate("floor(4.8px)"))
     assert_equal("4px", evaluate("floor($number: 4.8px)"))
-  end
-
-  def test_floor_deprecated_arg_name
-    assert_warning(<<WARNING) {assert_equal("4px", evaluate("floor($value: 4.8px)"))}
-DEPRECATION WARNING: The `$value' argument for `floor()' has been renamed to `$number'.
-WARNING
   end
 
   def test_floor_checks_types
@@ -174,12 +162,6 @@ WARNING
     assert_equal("5px", evaluate("ceil($number: 4.8px)"))
   end
 
-  def test_ceil_deprecated_arg_name
-    assert_warning(<<WARNING) {assert_equal("5px", evaluate("ceil($value: 4.8px)"))}
-DEPRECATION WARNING: The `$value' argument for `ceil()' has been renamed to `$number'.
-WARNING
-  end
-
   def test_ceil_checks_types
     assert_error_message("$value: \"a\" is not a number for `ceil'", "ceil(\"a\")")
   end
@@ -190,12 +172,6 @@ WARNING
     assert_equal("5",   evaluate("abs(5)"))
     assert_equal("5px", evaluate("abs(5px)"))
     assert_equal("5px", evaluate("abs($number: 5px)"))
-  end
-
-  def test_abs_deprecated_arg_name
-    assert_warning(<<WARNING) {assert_equal("5px", evaluate("abs($value: 5px)"))}
-DEPRECATION WARNING: The `$value' argument for `abs()' has been renamed to `$number'.
-WARNING
   end
 
   def test_abs_checks_types
@@ -236,26 +212,18 @@ WARNING
     assert_equal("springgreen", evaluate("rgb(0%, 100%, 50%)"))
   end
 
-  def test_rgb_tests_bounds
-    assert_error_message("$red: Color value 256 must be between 0 and 255 for `rgb'",
-      "rgb(256, 1, 1)")
-    assert_error_message("$green: Color value 256 must be between 0 and 255 for `rgb'",
-      "rgb(1, 256, 1)")
-    assert_error_message("$blue: Color value 256 must be between 0 and 255 for `rgb'",
-      "rgb(1, 1, 256)")
-    assert_error_message("$green: Color value 256 must be between 0 and 255 for `rgb'",
-      "rgb(1, 256, 257)")
-    assert_error_message("$red: Color value -1 must be between 0 and 255 for `rgb'",
-      "rgb(-1, 1, 1)")
+  def test_rgb_clamps_bounds
+    assert_equal("#ff0101", evaluate("rgb(256, 1, 1)"))
+    assert_equal("#01ff01", evaluate("rgb(1, 256, 1)"))
+    assert_equal("#0101ff", evaluate("rgb(1, 1, 256)"))
+    assert_equal("#01ffff", evaluate("rgb(1, 256, 257)"))
+    assert_equal("#000101", evaluate("rgb(-1, 1, 1)"))
   end
 
-  def test_rgb_test_percent_bounds
-    assert_error_message("$red: Color value 100.1% must be between 0% and 100% for `rgb'",
-      "rgb(100.1%, 0, 0)")
-    assert_error_message("$green: Color value -0.1% must be between 0% and 100% for `rgb'",
-      "rgb(0, -0.1%, 0)")
-    assert_error_message("$blue: Color value 101% must be between 0% and 100% for `rgb'",
-      "rgb(0, 0, 101%)")
+  def test_rgb_clamps_percent_bounds
+    assert_equal("red", evaluate("rgb(100.1%, 0, 0)"))
+    assert_equal("black", evaluate("rgb(0, -0.1%, 0)"))
+    assert_equal("blue", evaluate("rgb(0, 0, 101%)"))
   end
 
   def test_rgb_tests_types
@@ -271,21 +239,14 @@ WARNING
     assert_equal("rgba(0, 255, 127, 0)", evaluate("rgba($red: 0, $green: 255, $blue: 127, $alpha: 0)"))
   end
 
-  def test_rgba_tests_bounds
-    assert_error_message("$red: Color value 256 must be between 0 and 255 for `rgba'",
-      "rgba(256, 1, 1, 0.3)")
-    assert_error_message("$green: Color value 256 must be between 0 and 255 for `rgba'",
-      "rgba(1, 256, 1, 0.3)")
-    assert_error_message("$blue: Color value 256 must be between 0 and 255 for `rgba'",
-      "rgba(1, 1, 256, 0.3)")
-    assert_error_message("$green: Color value 256 must be between 0 and 255 for `rgba'",
-      "rgba(1, 256, 257, 0.3)")
-    assert_error_message("$red: Color value -1 must be between 0 and 255 for `rgba'",
-      "rgba(-1, 1, 1, 0.3)")
-    assert_error_message("Alpha channel -0.2 must be between 0 and 1 for `rgba'",
-      "rgba(1, 1, 1, -0.2)")
-    assert_error_message("Alpha channel 1.2 must be between 0 and 1 for `rgba'",
-      "rgba(1, 1, 1, 1.2)")
+  def test_rgba_clamps_bounds
+    assert_equal("rgba(255, 1, 1, 0.3)", evaluate("rgba(256, 1, 1, 0.3)"))
+    assert_equal("rgba(1, 255, 1, 0.3)", evaluate("rgba(1, 256, 1, 0.3)"))
+    assert_equal("rgba(1, 1, 255, 0.3)", evaluate("rgba(1, 1, 256, 0.3)"))
+    assert_equal("rgba(1, 255, 255, 0.3)", evaluate("rgba(1, 256, 257, 0.3)"))
+    assert_equal("rgba(0, 1, 1, 0.3)", evaluate("rgba(-1, 1, 1, 0.3)"))
+    assert_equal("rgba(1, 1, 1, 0)", evaluate("rgba(1, 1, 1, -0.2)"))
+    assert_equal("#010101", evaluate("rgba(1, 1, 1, 1.2)"))
   end
 
   def test_rgba_tests_types
@@ -840,32 +801,6 @@ WARNING
     assert_equal("rgba(255, 0, 0, 0)", evaluate("mix($color1: transparentize(#f00, 1), $color2: #00f, $weight: 100%)"))
   end
 
-  def test_mix_deprecated_arg_name
-    assert_warning <<WARNING do
-DEPRECATION WARNING: The `$color-1' argument for `mix()' has been renamed to `$color1'.
-DEPRECATION WARNING: The `$color-2' argument for `mix()' has been renamed to `$color2'.
-WARNING
-      assert_equal("rgba(255, 0, 0, 0)",
-        evaluate("mix($color-1: transparentize(#f00, 1), $color-2: #00f, $weight: 100%)"))
-    end
-
-    assert_warning <<WARNING do
-DEPRECATION WARNING: The `$color-1' argument for `mix()' has been renamed to `$color1'.
-DEPRECATION WARNING: The `$color-2' argument for `mix()' has been renamed to `$color2'.
-WARNING
-      assert_equal("rgba(0, 0, 255, 0.5)",
-        evaluate("mix($color-1: transparentize(#f00, 1), $color-2: #00f)"))
-    end
-
-    assert_warning <<WARNING do
-DEPRECATION WARNING: The `$color_1' argument for `mix()' has been renamed to `$color1'.
-DEPRECATION WARNING: The `$color_2' argument for `mix()' has been renamed to `$color2'.
-WARNING
-      assert_equal("rgba(0, 0, 255, 0.5)",
-        evaluate("mix($color_1: transparentize(#f00, 1), $color_2: #00f)"))
-    end
-  end
-
   def test_mix_tests_types
     assert_error_message("$color1: \"foo\" is not a color for `mix'", "mix(\"foo\", #f00, 10%)")
     assert_error_message("$color2: \"foo\" is not a color for `mix'", "mix(#f00, \"foo\", 10%)")
@@ -1085,22 +1020,6 @@ MSG
     assert_equal(%Q{false}, evaluate("comparable($number1: 100px, $number2: 3em)"))
   end
 
-  def test_comparable_deprecated_arg_name
-    assert_warning <<WARNING do
-DEPRECATION WARNING: The `$number-1' argument for `comparable()' has been renamed to `$number1'.
-DEPRECATION WARNING: The `$number-2' argument for `comparable()' has been renamed to `$number2'.
-WARNING
-      assert_equal("false", evaluate("comparable($number-1: 100px, $number-2: 3em)"))
-    end
-
-    assert_warning <<WARNING do
-DEPRECATION WARNING: The `$number_1' argument for `comparable()' has been renamed to `$number1'.
-DEPRECATION WARNING: The `$number_2' argument for `comparable()' has been renamed to `$number2'.
-WARNING
-      assert_equal("false", evaluate("comparable($number_1: 100px, $number_2: 3em)"))
-    end
-  end
-
   def test_comparable_checks_types
     assert_error_message("$number1: #ff0000 is not a number for `comparable'", "comparable(#f00, 1px)")
     assert_error_message("$number2: #ff0000 is not a number for `comparable'", "comparable(1px, #f00)")
@@ -1258,76 +1177,17 @@ WARNING
   end
 
   def test_index
+    null = Sass::Script::Value::Null.new
     assert_equal("1", evaluate("index(1px solid blue, 1px)"))
     assert_equal("2", evaluate("index(1px solid blue, solid)"))
     assert_equal("3", evaluate("index(1px solid blue, #00f)"))
     assert_equal("1", evaluate("index(1px, 1px)"))
-    assert_equal("false", evaluate("index(1px solid blue, 1em)"))
-    assert_equal("false", evaluate("index(1px solid blue, notfound)"))
-    assert_equal("false", evaluate("index(1px, #00f)"))
+    assert_equal(null, perform("index(1px solid blue, 1em)"))
+    assert_equal(null, perform("index(1px solid blue, notfound)"))
+    assert_equal(null, perform("index(1px, #00f)"))
 
     assert_equal("1", evaluate("index((foo: bar, bar: baz), (foo bar))"))
-    assert_equal("false", evaluate("index((foo: bar, bar: baz), (foo: bar))"))
-  end
-
-  def test_index_deprecation_warning
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: The return value of index() will change from "false" to
-"null" in future versions of Sass. For compatibility, avoid using "== false" on
-the return value. For example, instead of "@if index(...) == false", just write
-"@if not index(...)".
-WARNING
-      assert_equal("true", evaluate("index(1, 2 3 4) == false"))
-    end
-
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: The return value of index() will change from "false" to
-"null" in future versions of Sass. For compatibility, avoid using "!= null" on
-the return value.
-WARNING
-      assert_equal("true", evaluate("index(1, 2 3 4) != null"))
-    end
-
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: The return value of index() will change from "false" to
-"null" in future versions of Sass. For compatibility, avoid using "== false" on
-the return value. For example, instead of "@if index(...) == false", just write
-"@if not index(...)".
-WARNING
-      assert_equal("true", evaluate("false == index(1, 2 3 4)"))
-    end
-
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: The return value of index() will change from "false" to
-"null" in future versions of Sass. For compatibility, avoid using "!= null" on
-the return value.
-WARNING
-      assert_equal("true", evaluate("null != index(1, 2 3 4)"))
-    end
-  end
-
-  def test_index_deprecation_warning_is_only_emitted_once_per_call
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: The return value of index() will change from "false" to
-"null" in future versions of Sass. For compatibility, avoid using "== false" on
-the return value. For example, instead of "@if index(...) == false", just write
-"@if not index(...)".
-        on line 3 of test_index_deprecation_warning_is_only_emitted_once_per_call_inline.scss
-DEPRECATION WARNING: The return value of index() will change from "false" to
-"null" in future versions of Sass. For compatibility, avoid using "== false" on
-the return value. For example, instead of "@if index(...) == false", just write
-"@if not index(...)".
-        on line 6 of test_index_deprecation_warning_is_only_emitted_once_per_call_inline.scss
-WARNING
-      render(<<SCSS)
-@for $i from 1 to 10 {
-  $var1: index(1, 2 3 4);
-  $var2: $var1 == false;
-  $var3: $var1 != null;
-}
-$var4: index(1, 2 3 4) == false;
-SCSS
-    end
+    assert_equal(null, perform("index((foo: bar, bar: baz), (foo: bar))"))
   end
 
   def test_list_separator
@@ -1447,7 +1307,7 @@ SCSS
     50.times do
       last_id, current_id = current_id, evaluate("unique-id()")
       assert_match(/u[a-z0-9]{8}/, current_id)
-      assert_not_equal last_id, current_id
+      refute_equal last_id, current_id
     end
   end
 
@@ -1456,16 +1316,6 @@ SCSS
     assert_equal "2", evaluate("map-get((foo: 1, bar: 2), bar)")
     assert_equal "null", perform("map-get((foo: 1, bar: 2), baz)").to_sass
     assert_equal "null", perform("map-get((), foo)").to_sass
-  end
-
-  def test_map_get_deprecation_warning
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: Passing lists of pairs to map-get is deprecated and will
-be removed in future versions of Sass. Use Sass maps instead. For details, see
-http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
-WARNING
-      assert_equal "1", evaluate("map-get((foo 1) (bar 2), foo)")
-    end
   end
 
   def test_map_get_checks_type
@@ -1481,26 +1331,6 @@ WARNING
       perform("map-merge((foo: 1, bar: 2), ())").to_sass)
   end
 
-  def test_map_merge_deprecation_warning
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: Passing lists of pairs to map-merge is deprecated and will
-be removed in future versions of Sass. Use Sass maps instead. For details, see
-http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
-WARNING
-      assert_equal("(foo: 1, bar: 2, baz: 3)",
-        perform("map-merge((foo 1, bar 2), (baz: 3))").to_sass)
-    end
-
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: Passing lists of pairs to map-merge is deprecated and will
-be removed in future versions of Sass. Use Sass maps instead. For details, see
-http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
-WARNING
-      assert_equal("(baz: 3, foo: 1, bar: 2)",
-        perform("map-merge((baz: 3), (foo 1, bar 2))").to_sass)
-    end
-  end
-
   def test_map_merge_checks_type
     assert_error_message("$map1: 12 is not a map for `map-merge'", "map-merge(12, (foo: 1))")
     assert_error_message("$map2: 12 is not a map for `map-merge'", "map-merge((foo: 1), 12)")
@@ -1509,18 +1339,12 @@ WARNING
   def test_map_remove
     assert_equal("(foo: 1, baz: 3)",
       perform("map-remove((foo: 1, bar: 2, baz: 3), bar)").to_sass)
+    assert_equal("(foo: 1, baz: 3)",
+      perform("map-remove($map: (foo: 1, bar: 2, baz: 3), $key: bar)").to_sass)
+    assert_equal("()",
+      perform("map-remove((foo: 1, bar: 2, baz: 3), foo, bar, baz)").to_sass)
     assert_equal("()", perform("map-remove((), foo)").to_sass)
-  end
-
-  def test_map_remove_deprecation_warning
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: Passing lists of pairs to map-remove is deprecated and will
-be removed in future versions of Sass. Use Sass maps instead. For details, see
-http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
-WARNING
-      assert_equal("(foo: 1, baz: 3)",
-        perform("map-remove((foo 1, bar 2, baz 3), bar)").to_sass)
-    end
+    assert_equal("()", perform("map-remove((), foo, bar)").to_sass)
   end
 
   def test_map_remove_checks_type
@@ -1531,17 +1355,6 @@ WARNING
     assert_equal("foo, bar",
       perform("map-keys((foo: 1, bar: 2))").to_sass)
     assert_equal("()", perform("map-keys(())").to_sass)
-  end
-
-  def test_map_keys_deprecation_warning
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: Passing lists of pairs to map-keys is deprecated and will
-be removed in future versions of Sass. Use Sass maps instead. For details, see
-http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
-WARNING
-      assert_equal("foo, bar",
-        perform("map-keys((foo 1, bar 2))").to_sass)
-    end
   end
 
   def test_map_keys_checks_type
@@ -1555,16 +1368,6 @@ WARNING
     assert_equal("()", perform("map-values(())").to_sass)
   end
 
-  def test_map_values_deprecation_warning
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: Passing lists of pairs to map-values is deprecated and will
-be removed in future versions of Sass. Use Sass maps instead. For details, see
-http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
-WARNING
-      assert_equal("1, 2", perform("map-values((foo 1, bar 2))").to_sass)
-    end
-  end
-
   def test_map_values_checks_type
     assert_error_message("$map: 12 is not a map for `map-values'", "map-values(12)")
   end
@@ -1573,16 +1376,6 @@ WARNING
     assert_equal "true", evaluate("map-has-key((foo: 1, bar: 1), foo)")
     assert_equal "false", evaluate("map-has-key((foo: 1, bar: 1), baz)")
     assert_equal "false", evaluate("map-has-key((), foo)")
-  end
-
-  def test_map_has_key_deprecation_warning
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING: Passing lists of pairs to map-has-key is deprecated and will
-be removed in future versions of Sass. Use Sass maps instead. For details, see
-http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
-WARNING
-      assert_equal("true", evaluate("map-has-key((foo 1, bar 1), foo)"))
-    end
   end
 
   def test_map_has_key_checks_type
@@ -1839,7 +1632,255 @@ SCSS
     if Sass::Script::Functions.instance_variable_defined?("@random_number_generator")
       Sass::Script::Functions.send(:remove_instance_variable, "@random_number_generator")
     end
-    assert_not_equal evaluate("random()"), evaluate("random()")
+    refute_equal evaluate("random()"), evaluate("random()")
+  end
+
+  def test_deprecated_arg_names
+    assert_warning <<WARNING do
+DEPRECATION WARNING: The `$arg-1' argument for `deprecated-arg-fn()' has been renamed to `$arg1'.
+DEPRECATION WARNING: The `$arg-2' argument for `deprecated-arg-fn()' has been renamed to `$arg2'.
+WARNING
+      assert_equal("1 2 3",
+        evaluate("deprecated-arg-fn($arg-1: 1, $arg-2: 2, $arg3: 3)"))
+    end
+
+    assert_warning <<WARNING do
+DEPRECATION WARNING: The `$arg-1' argument for `deprecated-arg-fn()' has been renamed to `$arg1'.
+DEPRECATION WARNING: The `$arg-2' argument for `deprecated-arg-fn()' has been renamed to `$arg2'.
+WARNING
+      assert_equal("1 2",
+        evaluate("deprecated-arg-fn($arg-1: 1, $arg-2: 2)"))
+    end
+
+    assert_warning <<WARNING do
+DEPRECATION WARNING: The `$arg_1' argument for `deprecated-arg-fn()' has been renamed to `$arg1'.
+DEPRECATION WARNING: The `$arg_2' argument for `deprecated-arg-fn()' has been renamed to `$arg2'.
+WARNING
+      assert_equal("1 2",
+        evaluate("deprecated-arg-fn($arg_1: 1, $arg_2: 2)"))
+    end
+  end
+
+  def test_non_deprecated_arg_names
+    assert_equal("1 2 3", evaluate("deprecated-arg-fn($arg1: 1, $arg2: 2, $arg3: 3)"))
+    assert_equal("1 2", evaluate("deprecated-arg-fn($arg1: 1, $arg2: 2)"))
+  end
+
+  ## Selector Functions
+
+  def test_selector_argument_parsing
+    assert_equal("true", evaluate("selector-parse('.foo') == (join(('.foo',), (), space),)"))
+    assert_equal("true", evaluate("selector-parse('.foo .bar') == ('.foo' '.bar',)"))
+    assert_equal("true",
+      evaluate("selector-parse('.foo .bar, .baz .bang') == ('.foo' '.bar', '.baz' '.bang')"))
+
+    assert_equal(".foo %bar", evaluate("selector-parse('.foo %bar')"))
+
+    assert_equal("true",
+      evaluate("selector-parse(('.foo', '.bar')) == selector-parse('.foo, .bar')"))
+    assert_equal("true",
+      evaluate("selector-parse('.foo' '.bar') == selector-parse('.foo .bar')"))
+
+    assert_equal("true", evaluate("selector-parse(('.foo' '.bar', '.baz' '.bang')) == " +
+        "selector-parse('.foo .bar, .baz .bang')"))
+    assert_equal("true", evaluate("selector-parse(('.foo .bar', '.baz .bang')) == " +
+        "selector-parse('.foo .bar, .baz .bang')"))
+
+    # This may throw an error in the future.
+    assert_equal("true", evaluate("selector-parse(('.foo, .bar' '.baz, .bang')) == " +
+        "selector-parse('.foo, .bar .baz, .bang')"))
+  end
+
+  def test_selector_argument_validation
+    assert_error_message("$selector: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-parse'", "selector-parse(12)")
+    assert_error_message("$selector: (((\".foo\" \".bar\"), \".baz\") (\".bang\", \".qux\")) is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-parse'",
+      "selector-parse(('.foo' '.bar', '.baz') ('.bang', '.qux'))")
+    assert_error_message("$selector: \".#\" is not a valid selector: Invalid CSS after \".\": " +
+      "expected class name, was \"#\" for `selector-parse'", "selector-parse('.#')")
+    assert_error_message("$selector: \"&.foo\" is not a valid selector: Invalid CSS after \"\": " +
+      "expected selector, was \"&.foo\" for `selector-parse'", "selector-parse('&.foo')")
+  end
+
+  def test_selector_nest
+    assert_equal(".foo", evaluate("selector-nest('.foo')"))
+    assert_equal(".foo .bar", evaluate("selector-nest('.foo', '.bar')"))
+    assert_equal(".foo .bar .baz", evaluate("selector-nest('.foo', '.bar', '.baz')"))
+    assert_equal(".a .foo .b .bar", evaluate("selector-nest('.a .foo', '.b .bar')"))
+    assert_equal(".foo.bar", evaluate("selector-nest('.foo', '&.bar')"))
+    assert_equal(".baz .foo.bar", evaluate("selector-nest('.foo', '&.bar', '.baz &')"))
+  end
+
+  def test_selector_nest_checks_types
+    assert_error_message("$selectors: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-nest'",
+      "selector-nest(12)")
+    assert_error_message("$selectors: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-nest'",
+      "selector-nest('.foo', 12)")
+  end
+
+  def test_selector_nest_argument_validation
+    assert_error_message("$selectors: At least one selector must be passed for `selector-nest'",
+      "selector-nest()")
+  end
+
+  def test_selector_append
+    assert_equal(".foo.bar", evaluate("selector-append('.foo', '.bar')"))
+    assert_equal(".a .foo.b .bar", evaluate("selector-append('.a .foo', '.b .bar')"))
+    assert_equal(".foo-suffix", evaluate("selector-append('.foo', '-suffix')"))
+    assert_equal(".foo.bar, .foo-suffix", evaluate("selector-append('.foo', '.bar, -suffix')"))
+    assert_equal(".foo--suffix", evaluate("selector-append('.foo', '--suffix')"))
+    assert_equal(".foo.bar, .foo--suffix", evaluate("selector-append('.foo', '.bar, --suffix')"))
+  end
+
+  def test_selector_append_checks_types
+    assert_error_message("$selectors: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-append'",
+      "selector-append(12)")
+    assert_error_message("$selectors: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-append'",
+      "selector-append('.foo', 12)")
+  end
+
+  def test_selector_append_errors
+    assert_error_message("$selectors: At least one selector must be passed for `selector-append'",
+      "selector-append()")
+    assert_error_message("Can't append \"> .bar\" to \".foo\" for `selector-append'",
+      "selector-append('.foo', '> .bar')")
+    assert_error_message("Can't append \"*.bar\" to \".foo\" for `selector-append'",
+      "selector-append('.foo', '*.bar')")
+    assert_error_message("Can't append \"ns|suffix\" to \".foo\" for `selector-append'",
+      "selector-append('.foo', 'ns|suffix')")
+  end
+
+  def test_selector_extend
+    assert_equal(".foo .x, .foo .a .bar, .a .foo .bar",
+      evaluate("selector-extend('.foo .x', '.x', '.a .bar')"))
+    assert_equal(".foo .x, .foo .bang, .x.bar, .bar.bang",
+      evaluate("selector-extend('.foo .x, .x.bar', '.x', '.bang')"))
+    assert_equal(".y .x, .foo .x, .y .foo, .foo .foo",
+      evaluate("selector-extend('.y .x', '.x, .y', '.foo')"))
+    assert_equal(".foo .x, .foo .bar, .foo .bang",
+      evaluate("selector-extend('.foo .x', '.x', '.bar, .bang')"))
+    assert_equal(".foo.x, .foo",
+      evaluate("selector-extend('.foo.x', '.x', '.foo')"))
+  end
+
+  def test_selector_extend_checks_types
+    assert_error_message("$selector: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-extend'",
+      "selector-extend(12, '.foo', '.bar')")
+    assert_error_message("$extendee: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-extend'",
+      "selector-extend('.foo', 12, '.bar')")
+    assert_error_message("$extender: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-extend'",
+      "selector-extend('.foo', '.bar', 12)")
+  end
+
+  def test_selector_extend_errors
+    assert_error_message("Can't extend .bar .baz: can't extend nested selectors for " +
+      "`selector-extend'", "selector-extend('.foo', '.bar .baz', '.bang')")
+    assert_error_message("Can't extend >: invalid selector for `selector-extend'",
+      "selector-extend('.foo', '>', '.bang')")
+    assert_error_message(".bang > can't extend: invalid selector for `selector-extend'",
+      "selector-extend('.foo', '.bar', '.bang >')")
+  end
+
+  def test_selector_replace
+    assert_equal(".bar", evaluate("selector-replace('.foo', '.foo', '.bar')"))
+    assert_equal(".foo.baz", evaluate("selector-replace('.foo.bar', '.bar', '.baz')"))
+    assert_equal(".a .foo.baz", evaluate("selector-replace('.foo.bar', '.bar', '.a .baz')"))
+    assert_equal(".foo.bar", evaluate("selector-replace('.foo.bar', '.baz.bar', '.qux')"))
+    assert_equal(".bar.qux", evaluate("selector-replace('.foo.bar.baz', '.foo.baz', '.qux')"))
+
+    assert_equal(":not(.bar)", evaluate("selector-replace(':not(.foo)', '.foo', '.bar')"))
+    assert_equal(".bar", evaluate("selector-replace(':not(.foo)', ':not(.foo)', '.bar')"))
+  end
+
+  def test_selector_replace_checks_types
+    assert_error_message("$selector: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-replace'",
+      "selector-replace(12, '.foo', '.bar')")
+    assert_error_message("$original: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-replace'",
+      "selector-replace('.foo', 12, '.bar')")
+    assert_error_message("$replacement: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-replace'",
+      "selector-replace('.foo', '.bar', 12)")
+  end
+
+  def test_selector_replace_errors
+    assert_error_message("Can't extend .bar .baz: can't extend nested selectors for " +
+      "`selector-replace'", "selector-replace('.foo', '.bar .baz', '.bang')")
+    assert_error_message("Can't extend >: invalid selector for `selector-replace'",
+      "selector-replace('.foo', '>', '.bang')")
+    assert_error_message(".bang > can't extend: invalid selector for `selector-replace'",
+      "selector-replace('.foo', '.bar', '.bang >')")
+  end
+
+  def test_selector_unify
+    assert_equal(".foo", evaluate("selector-unify('.foo', '.foo')"))
+    assert_equal(".foo.bar", evaluate("selector-unify('.foo', '.bar')"))
+    assert_equal(".foo.bar.baz", evaluate("selector-unify('.foo.bar', '.bar.baz')"))
+    assert_equal(".a .b .foo.bar, .b .a .foo.bar", evaluate("selector-unify('.a .foo', '.b .bar')"))
+    assert_equal(".a .foo.bar", evaluate("selector-unify('.a .foo', '.a .bar')"))
+    assert_equal("", evaluate("selector-unify('p', 'a')"))
+    assert_equal("", evaluate("selector-unify('.foo >', '.bar')"))
+    assert_equal("", evaluate("selector-unify('.foo', '.bar >')"))
+    assert_equal(".foo.baz, .foo.bang, .bar.baz, .bar.bang",
+      evaluate("selector-unify('.foo, .bar', '.baz, .bang')"))
+  end
+
+  def test_selector_unify_checks_types
+    assert_error_message("$selector1: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-unify'",
+      "selector-unify(12, '.foo')")
+    assert_error_message("$selector2: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `selector-unify'",
+      "selector-unify('.foo', 12)")
+  end
+
+  def test_simple_selectors
+    assert_equal('(.foo,)', evaluate("inspect(simple-selectors('.foo'))"))
+    assert_equal('.foo, .bar', evaluate("inspect(simple-selectors('.foo.bar'))"))
+    assert_equal('.foo, .bar, :pseudo("flip, flap")',
+      evaluate("inspect(simple-selectors('.foo.bar:pseudo(\"flip, flap\")'))"))
+  end
+
+  def test_simple_selectors_checks_types
+    assert_error_message("$selector: 12 is not a string for `simple-selectors'",
+      "simple-selectors(12)")
+  end
+
+  def test_simple_selectors_errors
+    assert_error_message("$selector: \".foo .bar\" is not a compound selector for `simple-selectors'",
+      "simple-selectors('.foo .bar')")
+    assert_error_message("$selector: \".foo,.bar\" is not a compound selector for `simple-selectors'",
+      "simple-selectors('.foo,.bar')")
+    assert_error_message("$selector: \".#\" is not a valid selector: Invalid CSS after \".\": " +
+      "expected class name, was \"#\" for `simple-selectors'", "simple-selectors('.#')")
+  end
+
+  def test_is_superselector
+    assert_equal("true", evaluate("is-superselector('.foo', '.foo.bar')"))
+    assert_equal("false", evaluate("is-superselector('.foo.bar', '.foo')"))
+    assert_equal("true", evaluate("is-superselector('.foo', '.foo')"))
+    assert_equal("true", evaluate("is-superselector('.bar', '.foo .bar')"))
+    assert_equal("false", evaluate("is-superselector('.foo .bar', '.bar')"))
+    assert_equal("true", evaluate("is-superselector('.foo .bar', '.foo > .bar')"))
+    assert_equal("false", evaluate("is-superselector('.foo > .bar', '.foo .bar')"))
+  end
+
+  def test_is_superselector_checks_types
+    assert_error_message("$super: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `is-superselector'",
+      "is-superselector(12, '.foo')")
+    assert_error_message("$sub: 12 is not a valid selector: it must be a string,\n" +
+      "a list of strings, or a list of lists of strings for `is-superselector'",
+      "is-superselector('.foo', 12)")
   end
 
   ## Regression Tests

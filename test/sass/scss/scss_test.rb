@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 require File.dirname(__FILE__) + '/test_helper'
 
-class ScssTest < Test::Unit::TestCase
+class ScssTest < MiniTest::Test
   include ScssTestHelper
 
   ## One-Line Comments
@@ -113,6 +113,14 @@ foo {a: b}
 bar {c: d}
 SCSS
     end
+  end
+
+  def test_error_directive
+    assert_raise_message(Sass::SyntaxError, "hello world!") {render(<<SCSS)}
+foo {a: b}
+@error "hello world!";
+bar {c: d}
+SCSS
   end
 
   def test_warn_directive
@@ -536,11 +544,17 @@ foo :baz {
   c: d; }
 foo bang:bop {
   e: f; }
+foo ::qux {
+  g: h; }
+foo zap::fblthp {
+  i: j; }
 CSS
 foo {
   .bar {a: b}
   :baz {c: d}
-  bang:bop {e: f}}
+  bang:bop {e: f}
+  ::qux {g: h}
+  zap::fblthp {i: j}}
 SCSS
   end
 
@@ -645,7 +659,7 @@ SCSS
   end
 
   def test_parent_selector_with_subject
-    assert_equal <<CSS, render(<<SCSS)
+    silence_warnings {assert_equal <<CSS, render(<<SCSS)}
 bar foo.baz! .bip {
   a: b; }
 
@@ -799,16 +813,25 @@ SCSS
   def test_no_namespace_properties_without_space_even_when_its_unambiguous
     render(<<SCSS)
 foo {
-  bar:1px {
+  bar:baz calc(1 + 2) {
     bip: bop }}
 SCSS
     assert(false, "Expected syntax error")
   rescue Sass::SyntaxError => e
-    assert_equal <<MESSAGE, e.message
-Invalid CSS: a space is required between a property and its definition
-when it has other properties nested beneath it.
-MESSAGE
+    assert_equal 'Invalid CSS after "bar:baz calc": expected selector, was "(1 + 2)"', e.message
     assert_equal 2, e.sass_line
+  end
+
+  def test_namespace_properties_without_space_allowed_for_non_identifier
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  bar: 1px;
+    bar-bip: bop; }
+CSS
+foo {
+  bar:1px {
+    bip: bop }}
+SCSS
   end
 
   ## Mixins
@@ -909,13 +932,10 @@ SCSS
   0% {
     top: 0;
     left: 0; }
-
   30% {
     top: 50px; }
-
   68%, 72% {
     left: 50px; }
-
   100% {
     top: 100px;
     left: 100%; } }
@@ -926,7 +946,7 @@ CSS
 
 @include keyframes {
   0% {top: 0; left: 0}
-  30% {top: 50px}
+  \#{"30%"} {top: 50px}
   68%, 72% {left: 50px}
   100% {top: 100px; left: 100%}
 }
@@ -1914,10 +1934,10 @@ SCSS
 
   def test_basic_selector_interpolation
     assert_equal <<CSS, render(<<SCSS)
-foo 3 baz {
+foo ab baz {
   a: b; }
 CSS
-foo \#{1 + 2} baz {a: b}
+foo \#{'a' + 'b'} baz {a: b}
 SCSS
     assert_equal <<CSS, render(<<SCSS)
 foo.bar baz {
@@ -2043,7 +2063,7 @@ SCSS
   end
 
   def test_parent_selector_with_parent_and_subject
-    assert_equal <<CSS, render(<<SCSS)
+    silence_warnings {assert_equal <<CSS, render(<<SCSS)}
 bar foo.baz! .bip {
   c: d; }
 CSS
@@ -2213,6 +2233,69 @@ $domain: "sass-lang.com";
      foo\#{'ba' + 'r'}baz {
   .foo {a: b}
 }
+SCSS
+  end
+
+  def test_color_interpolation_warning_in_selector
+    assert_warning(<<WARNING) {assert_equal <<CSS, render(<<SCSS)}
+WARNING on line 1, column 4 of #{filename_for_test(:scss)}:
+You probably don't mean to use the color value `blue' in interpolation here.
+It may end up represented as #0000ff, which will likely produce invalid CSS.
+Always quote color names when using them as strings (for example, "blue").
+If you really want to use the color value here, use `"" + blue'.
+WARNING
+fooblue {
+  a: b; }
+CSS
+foo\#{blue} {a: b}
+SCSS
+  end
+
+  def test_color_interpolation_warning_in_directive
+    assert_warning(<<WARNING) {assert_equal <<CSS, render(<<SCSS)}
+WARNING on line 1, column 12 of #{filename_for_test(:scss)}:
+You probably don't mean to use the color value `blue' in interpolation here.
+It may end up represented as #0000ff, which will likely produce invalid CSS.
+Always quote color names when using them as strings (for example, "blue").
+If you really want to use the color value here, use `"" + blue'.
+WARNING
+@fblthp fooblue {
+  a: b; }
+CSS
+@fblthp foo\#{blue} {a: b}
+SCSS
+  end
+
+  def test_color_interpolation_warning_in_property_name
+    assert_warning(<<WARNING) {assert_equal <<CSS, render(<<SCSS)}
+WARNING on line 1, column 8 of #{filename_for_test(:scss)}:
+You probably don't mean to use the color value `blue' in interpolation here.
+It may end up represented as #0000ff, which will likely produce invalid CSS.
+Always quote color names when using them as strings (for example, "blue").
+If you really want to use the color value here, use `"" + blue'.
+WARNING
+foo {
+  a-blue: b; }
+CSS
+foo {a-\#{blue}: b}
+SCSS
+  end
+
+  def test_no_color_interpolation_warning_in_property_value
+    assert_no_warning {assert_equal <<CSS, render(<<SCSS)}
+foo {
+  a: b-blue; }
+CSS
+foo {a: b-\#{blue}}
+SCSS
+  end
+
+  def test_no_color_interpolation_warning_for_nameless_color
+    assert_no_warning {assert_equal <<CSS, render(<<SCSS)}
+foo-#abcdef {
+  a: b; }
+CSS
+foo-\#{#abcdef} {a: b}
 SCSS
   end
 
@@ -2878,6 +2961,214 @@ CSS
 SCSS
   end
 
+  def test_at_root_without_keyframes_in_keyframe_rule
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: b; }
+CSS
+@keyframes identifier {
+  0% {
+    @at-root (without: keyframes) {
+      .foo {a: b}
+    }
+  }
+}
+SCSS
+  end
+
+  def test_at_root_without_rule_in_keyframe_rule
+    assert_equal <<CSS, render(<<SCSS)
+@keyframes identifier {
+  0% {
+    a: b; } }
+CSS
+@keyframes identifier {
+  0% {
+    @at-root (without: rule) {a: b}
+  }
+}
+SCSS
+  end
+
+  ## Selector Script
+
+  def test_selector_script
+    assert_equal(<<CSS, render(<<SCSS))
+.foo .bar {
+  content: ".foo .bar"; }
+CSS
+.foo .bar {
+  content: "\#{&}";
+}
+SCSS
+  end
+
+  def test_nested_selector_script
+    assert_equal(<<CSS, render(<<SCSS))
+.foo .bar {
+  content: ".foo .bar"; }
+CSS
+.foo {
+  .bar {
+    content: "\#{&}";
+  }
+}
+SCSS
+  end
+
+  def test_nested_selector_script_with_outer_comma_selector
+    assert_equal(<<CSS, render(<<SCSS))
+.foo .baz, .bar .baz {
+  content: ".foo .baz, .bar .baz"; }
+CSS
+.foo, .bar {
+  .baz {
+    content: "\#{&}";
+  }
+}
+SCSS
+  end
+
+  def test_nested_selector_script_with_inner_comma_selector
+    assert_equal(<<CSS, render(<<SCSS))
+.foo .bar, .foo .baz {
+  content: ".foo .bar, .foo .baz"; }
+CSS
+.foo {
+  .bar, .baz {
+    content: "\#{&}";
+  }
+}
+SCSS
+  end
+
+  def test_selector_script_through_mixin
+    assert_equal(<<CSS, render(<<SCSS))
+.foo {
+  content: ".foo"; }
+CSS
+@mixin mixin {
+  content: "\#{&}";
+}
+
+.foo {
+  @include mixin;
+}
+SCSS
+  end
+
+  def test_selector_script_through_content
+    assert_equal(<<CSS, render(<<SCSS))
+.foo {
+  content: ".foo"; }
+CSS
+@mixin mixin {
+  @content;
+}
+
+.foo {
+  @include mixin {
+    content: "\#{&}";
+  }
+}
+SCSS
+  end
+
+  def test_selector_script_through_function
+    assert_equal(<<CSS, render(<<SCSS))
+.foo {
+  content: ".foo"; }
+CSS
+@function fn() {
+  @return "\#{&}";
+}
+
+.foo {
+  content: fn();
+}
+SCSS
+  end
+
+  def test_selector_script_through_media
+    assert_equal(<<CSS, render(<<SCSS))
+.foo {
+  content: "outer"; }
+  @media screen {
+    .foo .bar {
+      content: ".foo .bar"; } }
+CSS
+.foo {
+  content: "outer";
+  @media screen {
+    .bar {
+      content: "\#{&}";
+    }
+  }
+}
+SCSS
+  end
+
+  def test_selector_script_save_and_reuse
+    assert_equal(<<CSS, render(<<SCSS))
+.bar {
+  content: ".foo"; }
+CSS
+$var: null;
+.foo {
+  $var: & !global;
+}
+
+.bar {
+  content: "\#{$var}";
+}
+SCSS
+  end
+
+  def test_selector_script_with_at_root
+    assert_equal(<<CSS, render(<<SCSS))
+.foo-bar {
+  a: b; }
+CSS
+.foo {
+  @at-root \#{&}-bar {
+    a: b;
+  }
+}
+SCSS
+  end
+
+  def test_multi_level_at_root_with_inner_selector_script
+    assert_equal <<CSS, render(<<SCSS)
+.bar {
+  a: b; }
+CSS
+.foo {
+  @at-root .bar {
+    @at-root \#{&} {
+      a: b;
+    }
+  }
+}
+SCSS
+  end
+
+  def test_at_root_with_at_root_through_mixin
+    assert_equal(<<CSS, render(<<SCSS))
+.bar-baz {
+  a: b; }
+CSS
+@mixin foo {
+  .bar {
+    @at-root \#{&}-baz {
+      a: b;
+    }
+  }
+}
+
+@include foo;
+SCSS
+  end
+
   # See https://github.com/sass/sass/issues/1294
   def test_extend_top_leveled_by_at_root
     render(<<SCSS)
@@ -2923,6 +3214,29 @@ SCSS
   end
 
   ## Errors
+
+  def test_keyframes_rule_outside_of_keyframes
+    render <<SCSS
+0% {
+  top: 0; }
+SCSS
+    assert(false, "Expected syntax error")
+  rescue Sass::SyntaxError => e
+    assert_equal 'Invalid CSS after "": expected selector, was "0%"', e.message
+    assert_equal 1, e.sass_line
+  end
+
+  def test_selector_rule_in_keyframes
+    render <<SCSS
+@keyframes identifier {
+  .foo {
+    top: 0; } }
+SCSS
+    assert(false, "Expected syntax error")
+  rescue Sass::SyntaxError => e
+    assert_equal 'Invalid CSS after "": expected keyframes selector (e.g. 10%), was ".foo"', e.message
+    assert_equal 2, e.sass_line
+  end
 
   def test_nested_mixin_def_is_scoped
     render <<SCSS
@@ -2978,7 +3292,7 @@ foo {
 SCSS
     assert(false, "Expected syntax error")
   rescue Sass::SyntaxError => e
-    assert_equal 'Invalid CSS after "  .bar:baz ": expected "{", was "<fail>; }"', e.message
+    assert_equal 'Invalid CSS after "  .bar:baz <fail>": expected expression (e.g. 1px, bold), was "; }"', e.message
     assert_equal 2, e.sass_line
   end
 
@@ -3088,7 +3402,7 @@ SCSS
 
   def test_parent_in_mid_selector_error
     assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
-Invalid CSS after "  .foo": expected "{", was "&.bar {a: b}"
+Invalid CSS after ".foo": expected "{", was "&.bar"
 
 "&.bar" may only be used at the beginning of a compound selector.
 MESSAGE
@@ -3100,7 +3414,7 @@ SCSS
 
   def test_parent_after_selector_error
     assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
-Invalid CSS after "  .foo.bar": expected "{", was "& {a: b}"
+Invalid CSS after ".foo.bar": expected "{", was "&"
 
 "&" may only be used at the beginning of a compound selector.
 MESSAGE
@@ -3112,7 +3426,7 @@ SCSS
 
   def test_double_parent_selector_error
     assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
-Invalid CSS after "  &": expected "{", was "& {a: b}"
+Invalid CSS after "&": expected "{", was "&"
 
 "&" may only be used at the beginning of a compound selector.
 MESSAGE
@@ -3178,6 +3492,36 @@ Invalid CSS after "": expected media query list, was ""
 MESSAGE
 @media \#{""} {
   foo {a: b}
+}
+SCSS
+  end
+
+  def test_newline_in_property_value
+    assert_equal(<<CSS, render(<<SCSS))
+.foo {
+  bar: "bazbang"; }
+CSS
+.foo {
+  $var: "baz\\
+bang";
+  bar: $var;
+}
+SCSS
+  end
+
+  def test_raw_newline_warning
+    assert_warning(<<MESSAGE.rstrip) {assert_equal(<<CSS, render(<<SCSS))}
+DEPRECATION WARNING on line 2, column 9 of #{filename_for_test :scss}:
+Unescaped multiline strings are deprecated and will be removed in a future version of Sass.
+To include a newline in a string, use "\\a" or "\\a " as in CSS.
+MESSAGE
+.foo {
+  bar: "baz\\a bang"; }
+CSS
+.foo {
+  $var: "baz
+bang";
+  bar: $var;
 }
 SCSS
   end

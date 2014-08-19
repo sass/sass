@@ -36,13 +36,19 @@ module Sass
       # which signals the end of an interpolated segment,
       # it returns rather than throwing an error.
       #
+      # @param warn_for_color [Boolean] Whether raw color values passed to
+      #   interoplation should cause a warning.
       # @return [Script::Tree::Node] The root node of the parse tree
       # @raise [Sass::SyntaxError] if the expression isn't valid SassScript
-      def parse_interpolated
+      def parse_interpolated(warn_for_color = false)
+        # Start two characters back to compensate for #{
+        start_pos = Sass::Source::Position.new(line, offset - 2)
         expr = assert_expr :expr
         assert_tok :end_interpolation
+        expr = Sass::Script::Tree::Interpolation.new(
+          nil, expr, nil, !:wb, !:wa, !:originally_text, warn_for_color)
         expr.options = @options
-        expr
+        node(expr, start_pos)
       rescue Sass::SyntaxError => e
         e.modify_backtrace :line => @lexer.line, :filename => @options[:filename]
         raise e
@@ -340,7 +346,8 @@ RUBY
         e = first
         while (interp = try_tok(:begin_interpolation))
           wb = @lexer.whitespace?(interp)
-          mid = parse_interpolated
+          mid = assert_expr :expr
+          assert_tok :end_interpolation
           wa = @lexer.whitespace?
           e = node(
             Script::Tree::Interpolation.new(e, mid, space, wb, wa),
@@ -382,7 +389,7 @@ RUBY
 
         name = @lexer.next
         if (color = Sass::Script::Value::Color::COLOR_NAMES[name.value.downcase])
-          literal_node(Sass::Script::Value::Color.new(color), name.source_range)
+          literal_node(Sass::Script::Value::Color.new(color, name.value), name.source_range)
         elsif name.value == "true"
           literal_node(Sass::Script::Value::Bool.new(true), name.source_range)
         elsif name.value == "false"
@@ -522,7 +529,8 @@ RUBY
         return number unless first
         str = literal_node(first.value, first.source_range)
         return str unless try_tok(:begin_interpolation)
-        mid = parse_interpolated
+        mid = assert_expr :expr
+        assert_tok :end_interpolation
         last = assert_expr(:string)
         node(Tree::StringInterpolation.new(str, mid, last), first.source_range.start_pos)
       end

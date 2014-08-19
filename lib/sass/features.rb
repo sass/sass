@@ -4,7 +4,14 @@ module Sass
   # by providing a feature name.
   module Features
     # This is the set of features that can be detected.
+    #
+    # When this is updated, the documentation of `feature-exists()` should be
+    # updated as well.
     KNOWN_FEATURES = Set[*%w{
+      global-variable-shadowing
+      extend-selector-pseudoclass
+      units-level-3
+      at-error
     }]
 
     # Check if a feature exists by name. This is used to implement

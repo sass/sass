@@ -53,18 +53,99 @@ module Sass
       #   The extensions to perform on this selector
       # @param parent_directives [Array<Sass::Tree::DirectiveNode>]
       #   The directives containing this selector.
+      # @param replace [Boolean]
+      #   Whether to replace the original selector entirely or include
+      #   it in the result.
+      # @param seen [Set<Array<Selector::Simple>>]
+      #   The set of simple sequences that are currently being replaced.
+      # @param original [Boolean]
+      #   Whether this is the original selector being extended, as opposed to
+      #   the result of a previous extension that's being re-extended.
       # @return [CommaSequence] A copy of this selector,
       #   with extensions made according to `extends`
-      def do_extend(extends, parent_directives)
+      def do_extend(extends, parent_directives = [], replace = false, seen = Set.new,
+          original = true)
         CommaSequence.new(members.map do |seq|
-          extended = seq.do_extend(extends, parent_directives)
-          # First Law of Extend: the result of extending a selector should
-          # always contain the base selector.
-          #
-          # See https://github.com/nex3/sass/issues/324.
-          extended.unshift seq unless seq.has_placeholder? || extended.include?(seq)
-          extended
+          seq.do_extend(extends, parent_directives, replace, seen, original)
         end.flatten)
+      end
+
+      # Returns whether or not this selector matches all elements
+      # that the given selector matches (as well as possibly more).
+      #
+      # @example
+      #   (.foo).superselector?(.foo.bar) #=> true
+      #   (.foo).superselector?(.bar) #=> false
+      # @param cseq [CommaSequence]
+      # @return [Boolean]
+      def superselector?(cseq)
+        cseq.members.all? {|seq1| members.any? {|seq2| seq2.superselector?(seq1)}}
+      end
+
+      # Populates a subset map that can then be used to extend
+      # selectors. This registers an extension with this selector as
+      # the extender and `extendee` as the extendee.
+      #
+      # @param extends [Sass::Util::SubsetMap{Selector::Simple =>
+      #                                       Sass::Tree::Visitors::Cssize::Extend}]
+      #   The subset map representing the extensions to perform.
+      # @param extendee [CommaSequence] The selector being extended.
+      # @param extend_node [Sass::Tree::ExtendNode]
+      #   The node that caused this extension.
+      # @param parent_directives [Array<Sass::Tree::DirectiveNode>]
+      #   The parent directives containing `extend_node`.
+      # @raise [Sass::SyntaxError] if this extension is invalid.
+      def populate_extends(extends, extendee, extend_node = nil, parent_directives = [])
+        extendee.members.each do |seq|
+          if seq.members.size > 1
+            raise Sass::SyntaxError.new("Can't extend #{seq}: can't extend nested selectors")
+          end
+
+          sseq = seq.members.first
+          if !sseq.is_a?(Sass::Selector::SimpleSequence)
+            raise Sass::SyntaxError.new("Can't extend #{seq}: invalid selector")
+          elsif sseq.members.any? {|ss| ss.is_a?(Sass::Selector::Parent)}
+            raise Sass::SyntaxError.new("Can't extend #{seq}: can't extend parent selectors")
+          end
+
+          sel = sseq.members
+          members.each do |member|
+            unless member.members.last.is_a?(Sass::Selector::SimpleSequence)
+              raise Sass::SyntaxError.new("#{member} can't extend: invalid selector")
+            end
+
+            extends[sel] = Sass::Tree::Visitors::Cssize::Extend.new(
+              member, sel, extend_node, parent_directives, :not_found)
+          end
+        end
+      end
+
+      # Unifies this with another comma selector to produce a selector
+      # that matches (a subset of) the intersection of the two inputs.
+      #
+      # @param other [CommaSequence]
+      # @return [CommaSequence, nil] The unified selector, or nil if unification failed.
+      # @raise [Sass::SyntaxError] If this selector cannot be unified.
+      #   This will only ever occur when a dynamic selector,
+      #   such as {Parent} or {Interpolation}, is used in unification.
+      #   Since these selectors should be resolved
+      #   by the time extension and unification happen,
+      #   this exception will only ever be raised as a result of programmer error
+      def unify(other)
+        results = members.map {|seq1| other.members.map {|seq2| seq1.unify(seq2)}}.flatten.compact
+        results.empty? ? nil : CommaSequence.new(results.map {|cseq| cseq.members}.flatten)
+      end
+
+      # Returns a SassScript representation of this selector.
+      #
+      # @return [Sass::Script::Value::List]
+      def to_sass_script
+        Sass::Script::Value::List.new(members.map do |seq|
+          Sass::Script::Value::List.new(seq.members.map do |component|
+            next if component == "\n"
+            Sass::Script::Value::String.new(component.to_s)
+          end.compact, :space)
+        end, :comma)
       end
 
       # Returns a string representation of the sequence.
@@ -75,10 +156,9 @@ module Sass
         members.map {|m| m.inspect}.join(", ")
       end
 
-      # @see Simple#to_a
-      def to_a
-        arr = Sass::Util.intersperse(@members.map {|m| m.to_a}, ", ").flatten
-        Sass::Util.replace_subseq(arr, [", ", "\n"], [",\n"])
+      # @see AbstractSequence#to_s
+      def to_s
+        @members.join(", ").gsub(", \n", ",\n")
       end
 
       private

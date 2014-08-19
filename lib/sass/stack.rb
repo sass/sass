@@ -107,12 +107,6 @@ module Sass
       end.join("\n")
     end
 
-    def deep_copy
-      stack = Stack.new
-      stack.frames.replace frames
-      stack
-    end
-
     private
 
     def with_frame(filename, line, type, name = nil)

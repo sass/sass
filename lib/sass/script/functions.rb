@@ -193,8 +193,8 @@ module Sass::Script
   # \{#map_merge map-merge($map1, $map2)}
   # : Merges two maps together into a new map.
   #
-  # \{#map_remove map-remove($map, $key)}
-  # : Returns a new map with a key removed.
+  # \{#map_remove map-remove($map, $keys...)}
+  # : Returns a new map with keys removed.
   #
   # \{#map_keys map-keys($map)}
   # : Returns a list of all keys in a map.
@@ -207,6 +207,48 @@ module Sass::Script
   #
   # \{#keywords keywords($args)}
   # : Returns the keywords passed to a function that takes variable arguments.
+  #
+  # ## Selector Functions
+  #
+  # Selector functions are very liberal in the formats they support
+  # for selector arguments. They can take a plain string, a list of
+  # lists as returned by `&` or anything in between:
+  #
+  # * A plain sring, such as `".foo .bar, .baz .bang"`.
+  # * A space-separated list of strings such as `(".foo" ".bar")`.
+  # * A comma-separated list of strings such as `(".foo .bar", ".baz .bang")`.
+  # * A comma-separated list of space-separated lists of strings such
+  #   as `((".foo" ".bar"), (".baz" ".bang"))`.
+  #
+  # In general, selector functions allow placeholder selectors
+  # (`%foo`) but disallow parent-reference selectors (`&`).
+  #
+  # \{#selector_nest selector-nest($selectors...)}
+  # : Nests selector beneath one another like they would be nested in the
+  #   stylesheet.
+  #
+  # \{#selector_append selector-append($selectors...)}
+  # : Appends selectors to one another without spaces in between.
+  #
+  # \{#selector_extend selector-extend($selector, $extendee, $extender)}
+  # : Extends `$extendee` with `$extender` within `$selector`.
+  #
+  # \{#selector_replace selector-replace($selector, $original, $replacement)}
+  # : Replaces `$original` with `$replacement` within `$selector`.
+  #
+  # \{#selector_unify selector-unify($selector1, $selector2)}
+  # : Unifies two selectors to produce a selector that matches
+  #   elements matched by both.
+  #
+  # \{#is_superselector is-superselector($super, $sub)}
+  # : Returns whether `$super` matches all the elements `$sub` does, and
+  #   possibly more.
+  #
+  # \{#simple_selectors simple-selectors($selector)}
+  # : Returns the simple selectors that comprise a compound selector.
+  #
+  # \{#selector_parse selector-parse($selector)}
+  # : Parses a selector into the format returned by `&`.
   #
   # ## Introspection Functions
   #
@@ -477,7 +519,7 @@ module Sass::Script
       def assert_type(value, type, name = nil)
         klass = Sass::Script::Value.const_get(type)
         return if value.is_a?(klass)
-        return if value.is_a?(Sass::Script::Value::List) && type == :Map && value.is_pseudo_map?
+        return if value.is_a?(Sass::Script::Value::List) && type == :Map && value.value.empty?
         err = "#{value.inspect} is not a #{TYPE_NAMES[type] || type.to_s.downcase}"
         err = "$#{name.to_s.gsub('_', '-')}: " + err if name
         raise ArgumentError.new(err)
@@ -586,14 +628,17 @@ module Sass::Script
 
       color_attrs = [[red, :red], [green, :green], [blue, :blue]].map do |(c, name)|
         if c.is_unit?("%")
-          v = Sass::Util.check_range("$#{name}: Color value", 0..100, c, '%')
-          v * 255 / 100.0
+          c.value * 255 / 100.0
         elsif c.unitless?
-          Sass::Util.check_range("$#{name}: Color value", 0..255, c)
+          c.value
         else
           raise ArgumentError.new("Expected #{c} to be unitless or have a unit of % but got #{c}")
         end
       end
+
+      # Don't store the string representation for function-created colors, both
+      # because it's not very useful and because some functions aren't supported
+      # on older browsers.
       Sass::Script::Value::Color.new(color_attrs)
     end
     declare :rgb, [:red, :green, :blue]
@@ -637,7 +682,6 @@ module Sass::Script
         assert_type color, :Color, :color
         assert_type alpha, :Number, :alpha
 
-        Sass::Util.check_range('Alpha channel', 0..1, alpha)
         color.with(:alpha => alpha.value)
       when 4
         red, green, blue, alpha = args
@@ -695,12 +739,13 @@ module Sass::Script
       assert_type lightness, :Number, :lightness
       assert_type alpha, :Number, :alpha
 
-      Sass::Util.check_range('Alpha channel', 0..1, alpha)
-
       h = hue.value
-      s = Sass::Util.check_range('Saturation', 0..100, saturation, '%')
-      l = Sass::Util.check_range('Lightness', 0..100, lightness, '%')
+      s = saturation.value
+      l = lightness.value
 
+      # Don't store the string representation for function-created colors, both
+      # because it's not very useful and because some functions aren't supported
+      # on older browsers.
       Sass::Script::Value::Color.new(
         :hue => h, :saturation => s, :lightness => l, :alpha => alpha.value)
     end
@@ -1194,12 +1239,27 @@ module Sass::Script
     #   same time
     def change_color(color, kwargs)
       assert_type color, :Color, :color
-      with = Sass::Util.to_hash(%w[red green blue hue saturation lightness alpha].map do |name|
+      with = Sass::Util.map_hash(
+        'red' => ['Red value', 0..255],
+        'green' => ['Green value', 0..255],
+        'blue' => ['Blue value', 0..255],
+        'hue' => [],
+        'saturation' => ['Saturation', 0..100, '%'],
+        'lightness' => ['Lightness', 0..100, '%'],
+        'alpha' => ['Alpha channel', 0..1]
+      ) do |name, (desc, range, unit)|
         val = kwargs.delete(name)
         next unless val
         assert_type val, :Number, name
-        [name.to_sym, val.value]
-      end)
+
+        if range
+          val = Sass::Util.check_range(desc, range, val, unit)
+        else
+          val = val.value
+        end
+
+        [name.to_sym, val]
+      end
 
       unless kwargs.empty?
         name, val = kwargs.to_a.first
@@ -1269,8 +1329,8 @@ module Sass::Script
       rgba << color1.alpha * p + color2.alpha * (1 - p)
       rgb_color(*rgba)
     end
-    declare :mix, [:color1, :color2], :deprecated => [:color_1, :color_2]
-    declare :mix, [:color1, :color2, :weight], :deprecated => [:color_1, :color_2, :weight]
+    declare :mix, [:color1, :color2]
+    declare :mix, [:color1, :color2, :weight]
 
     # Converts a color to grayscale. This is identical to `desaturate(color,
     # 100%)`.
@@ -1528,6 +1588,21 @@ module Sass::Script
 
     # Returns whether a feature exists in the current Sass runtime.
     #
+    # The following features are supported:
+    #
+    # * `global-variable-shadowing` indicates that a local variable will shadow
+    #   a global variable unless `!global` is used.
+    #
+    # * `extend-selector-pseudoclass` indicates that `@extend` will reach into
+    #   selector pseudoclasses like `:not`.
+    #
+    # * `units-level-3` indicates full support for unit arithmetic using units
+    #   defined in the [Values and Units Level 3][] spec.
+    #
+    # [Values and Units Level 3]: http://www.w3.org/TR/css3-values/
+    #
+    # * `at-error` indicates that the Sass `@error` directive is supported.
+    #
     # @example
     #   feature-exists(some-feature-that-exists) => true
     #   feature-exists(what-is-this-i-dont-know) => false
@@ -1593,7 +1668,7 @@ module Sass::Script
       assert_type number2, :Number, :number2
       bool(number1.comparable_to?(number2))
     end
-    declare :comparable, [:number1, :number2], :deprecated => [:number_1, :number_2]
+    declare :comparable, [:number1, :number2]
 
     # Converts a unitless number to a percentage.
     #
@@ -1610,7 +1685,7 @@ module Sass::Script
       end
       number(number.value * 100, '%')
     end
-    declare :percentage, [:number], :deprecated => [:value]
+    declare :percentage, [:number]
 
     # Rounds a number to the nearest whole number.
     #
@@ -1624,7 +1699,7 @@ module Sass::Script
     def round(number)
       numeric_transformation(number) {|n| n.round}
     end
-    declare :round, [:number], :deprecated => [:value]
+    declare :round, [:number]
 
     # Rounds a number up to the next whole number.
     #
@@ -1638,7 +1713,7 @@ module Sass::Script
     def ceil(number)
       numeric_transformation(number) {|n| n.ceil}
     end
-    declare :ceil, [:number], :deprecated => [:value]
+    declare :ceil, [:number]
 
     # Rounds a number down to the previous whole number.
     #
@@ -1652,7 +1727,7 @@ module Sass::Script
     def floor(number)
       numeric_transformation(number) {|n| n.floor}
     end
-    declare :floor, [:number], :deprecated => [:value]
+    declare :floor, [:number]
 
     # Returns the absolute value of a number.
     #
@@ -1666,7 +1741,7 @@ module Sass::Script
     def abs(number)
       numeric_transformation(number) {|n| n.abs}
     end
-    declare :abs, [:number], :deprecated => [:value]
+    declare :abs, [:number]
 
     # Finds the minimum of several numbers. This function takes any number of
     # arguments.
@@ -1894,8 +1969,7 @@ module Sass::Script
     #   1-based index of `$value` in `$list`, or `null`
     def index(list, value)
       index = list.to_a.index {|e| e.eq(value).to_bool}
-      return number(index + 1) if index
-      Sass::Script::Value::DeprecatedFalse.new(environment)
+      index ? number(index + 1) : null
     end
     declare :index, [:list, :value]
 
@@ -1929,7 +2003,7 @@ module Sass::Script
     # @raise [ArgumentError] if `$map` is not a map
     def map_get(map, key)
       assert_type map, :Map, :map
-      to_h(map)[key] || null
+      map.to_h[key] || null
     end
     declare :map_get, [:map, :key]
 
@@ -1953,27 +2027,28 @@ module Sass::Script
     def map_merge(map1, map2)
       assert_type map1, :Map, :map1
       assert_type map2, :Map, :map2
-      map(to_h(map1).merge(to_h(map2)))
+      map(map1.to_h.merge(map2.to_h))
     end
     declare :map_merge, [:map1, :map2]
 
-    # Returns a new map with a key removed.
+    # Returns a new map with keys removed.
     #
     # @example
     #   map-remove(("foo": 1, "bar": 2), "bar") => ("foo": 1)
+    #   map-remove(("foo": 1, "bar": 2, "baz": 3), "bar", "baz") => ("foo": 1)
     #   map-remove(("foo": 1, "bar": 2), "baz") => ("foo": 1, "bar": 2)
-    # @overload map_remove($map, $key)
-    #   @param $map [Sass::Script::Value::Map]
-    #   @param $key [Sass::Script::Value::Base]
+    # @overload map_remove($map, $keys...)
+    #   @param $map  [Sass::Script::Value::Map]
+    #   @param $keys [[Sass::Script::Value::Base]]
     # @return [Sass::Script::Value::Map]
     # @raise [ArgumentError] if `$map` is not a map
-    def map_remove(map, key)
+    def map_remove(map, *keys)
       assert_type map, :Map, :map
-      hash = to_h(map).dup
-      hash.delete key
+      hash = map.to_h.dup
+      hash.delete_if {|key, _| keys.include?(key)}
       map(hash)
     end
-    declare :map_remove, [:map, :key]
+    declare :map_remove, [:map, :key], :var_args => true
 
     # Returns a list of all keys in a map.
     #
@@ -1985,7 +2060,7 @@ module Sass::Script
     # @raise [ArgumentError] if `$map` is not a map
     def map_keys(map)
       assert_type map, :Map, :map
-      list(to_h(map).keys, :comma)
+      list(map.to_h.keys, :comma)
     end
     declare :map_keys, [:map]
 
@@ -2001,7 +2076,7 @@ module Sass::Script
     # @raise [ArgumentError] if `$map` is not a map
     def map_values(map)
       assert_type map, :Map, :map
-      list(to_h(map).values, :comma)
+      list(map.to_h.values, :comma)
     end
     declare :map_values, [:map]
 
@@ -2017,7 +2092,7 @@ module Sass::Script
     # @raise [ArgumentError] if `$map` is not a map
     def map_has_key(map, key)
       assert_type map, :Map, :map
-      bool(to_h(map).has_key?(key))
+      bool(map.to_h.has_key?(key))
     end
     declare :map_has_key, [:map, :key]
 
@@ -2251,6 +2326,281 @@ module Sass::Script
     declare :random, []
     declare :random, [:limit]
 
+    # Parses a user-provided selector into a list of lists of strings
+    # as returned by `&`.
+    #
+    # @example
+    #   selector-parse(".foo .bar, .baz .bang") => ('.foo' '.bar', '.baz' '.bang')
+    #
+    # @overload selector_parse($selector)
+    #   @param $selector [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The selector to parse. This can be either a string, a list of
+    #     strings, or a list of lists of strings as returned by `&`.
+    #   @return [Sass::Script::Value::List]
+    #     A list of lists of strings representing `$selector`. This is
+    #     in the same format as a selector returned by `&`.
+    def selector_parse(selector)
+      parse_selector(selector, :selector).to_sass_script
+    end
+    declare :selector_parse, [:selector]
+
+    # Return a new selector with all selectors in `$selectors` nested beneath
+    # one another as though they had been nested in the stylesheet as
+    # `$selector1 { $selector2 { ... } }`.
+    #
+    # Unlike most selector functions, `selector-nest` allows the
+    # parent selector `&` to be used in any selector but the first.
+    #
+    # @example
+    #   selector-nest(".foo", ".bar", ".baz") => .foo .bar .baz
+    #   selector-nest(".a .foo", ".b .bar") => .a .foo .b .bar
+    #   selector-nest(".foo", "&.bar") => .foo.bar
+    #
+    # @overload selector_nest($selectors...)
+    #   @param $selectors [[Sass::Script::Value::String, Sass::Script::Value::List]]
+    #     The selectors to nest. At least one selector must be passed. Each of
+    #     these can be either a string, a list of strings, or a list of lists of
+    #     strings as returned by `&`.
+    #   @return [Sass::Script::Value::List]
+    #     A list of lists of strings representing the result of nesting
+    #     `$selectors`. This is in the same format as a selector returned by
+    #     `&`.
+    def selector_nest(*selectors)
+      if selectors.empty?
+        raise ArgumentError.new("$selectors: At least one selector must be passed")
+      end
+
+      parsed = [parse_selector(selectors.first, :selectors)]
+      parsed += selectors[1..-1].map {|sel| parse_selector(sel, :selectors, !!:parse_parent_ref)}
+      parsed.inject {|result, child| child.resolve_parent_refs(result)}.to_sass_script
+    end
+    declare :selector_nest, [], :var_args => true
+
+    # Return a new selector with all selectors in `$selectors` appended one
+    # another as though they had been nested in the stylesheet as `$selector1 {
+    # &$selector2 { ... } }`.
+    #
+    # @example
+    #   selector-append(".foo", ".bar", ".baz") => .foo.bar.baz
+    #   selector-append(".a .foo", ".b .bar") => "a .foo.b .bar"
+    #   selector-append(".foo", "-suffix") => ".foo-suffix"
+    #
+    # @overload selector_append($selectors...)
+    #   @param $selectors [[Sass::Script::Value::String, Sass::Script::Value::List]]
+    #     The selectors to append. At least one selector must be passed. Each of
+    #     these can be either a string, a list of strings, or a list of lists of
+    #     strings as returned by `&`.
+    #   @return [Sass::Script::Value::List]
+    #     A list of lists of strings representing the result of appending
+    #     `$selectors`. This is in the same format as a selector returned by
+    #     `&`.
+    #   @raise [ArgumentError] if a selector could not be appended.
+    def selector_append(*selectors)
+      if selectors.empty?
+        raise ArgumentError.new("$selectors: At least one selector must be passed")
+      end
+
+      selectors.map {|sel| parse_selector(sel, :selectors)}.inject do |parent, child|
+        child.members.each do |seq|
+          sseq = seq.members.first
+          unless sseq.is_a?(Sass::Selector::SimpleSequence)
+            raise ArgumentError.new("Can't append \"#{seq}\" to \"#{parent}\"")
+          end
+
+          base = sseq.base
+          case base
+          when Sass::Selector::Universal
+            raise ArgumentError.new("Can't append \"#{seq}\" to \"#{parent}\"")
+          when Sass::Selector::Element
+            unless base.namespace.nil?
+              raise ArgumentError.new("Can't append \"#{seq}\" to \"#{parent}\"")
+            end
+            sseq.members[0] = Sass::Selector::Parent.new(base.name)
+          else
+            sseq.members.unshift Sass::Selector::Parent.new
+          end
+        end
+        child.resolve_parent_refs(parent)
+      end.to_sass_script
+    end
+    declare :selector_append, [], :var_args => true
+
+    # Returns a new version of `$selector` with `$extendee` extended
+    # with `$extender`. This works just like the result of
+    #
+    #     $selector { ... }
+    #     $extender { @extend $extendee }
+    #
+    # @example
+    #   selector-extend(".a .b", ".b", ".foo .bar") => .a .b, .a .foo .bar, .foo .a .bar
+    #
+    # @overload selector_extend($selector, $extendee, $extender)
+    #   @param $selector [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The selector within which `$extendee` is extended with
+    #     `$extender`. This can be either a string, a list of strings,
+    #     or a list of lists of strings as returned by `&`.
+    #   @param $extendee [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The selector being extended. This can be either a string, a
+    #     list of strings, or a list of lists of strings as returned
+    #     by `&`.
+    #   @param $extender [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The selector being injected into `$selector`. This can be
+    #     either a string, a list of strings, or a list of lists of
+    #     strings as returned by `&`.
+    #   @return [Sass::Script::Value::List]
+    #     A list of lists of strings representing the result of the
+    #     extension. This is in the same format as a selector returned
+    #     by `&`.
+    #   @raise [ArgumentError] if the extension fails
+    def selector_extend(selector, extendee, extender)
+      selector = parse_selector(selector, :selector)
+      extendee = parse_selector(extendee, :extendee)
+      extender = parse_selector(extender, :extender)
+
+      extends = Sass::Util::SubsetMap.new
+      begin
+        extender.populate_extends(extends, extendee)
+        selector.do_extend(extends).to_sass_script
+      rescue Sass::SyntaxError => e
+        raise ArgumentError.new(e.to_s)
+      end
+    end
+    declare :selector_extend, [:selector, :extendee, :extender]
+
+    # Replaces all instances of `$original` with `$replacement` in `$selector`
+    #
+    # This works by using `@extend` and throwing away the original
+    # selector. This means that it can be used to do very advanced
+    # replacements; see the examples below.
+    #
+    # @example
+    #   selector-replace(".foo .bar", ".bar", ".baz") => ".foo .baz"
+    #   selector-replace(".foo.bar.baz", ".foo.baz", ".qux") => ".bar.qux"
+    #
+    # @overload selector_replace($selector, $original, $replacement)
+    #   @param $selector [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The selector within which `$original` is replaced with
+    #     `$replacement`. This can be either a string, a list of
+    #     strings, or a list of lists of strings as returned by `&`.
+    #   @param $original [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The selector being replaced. This can be either a string, a
+    #     list of strings, or a list of lists of strings as returned
+    #     by `&`.
+    #   @param $replacement [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The selector that `$original` is being replaced with. This
+    #     can be either a string, a list of strings, or a list of
+    #     lists of strings as returned by `&`.
+    #   @return [Sass::Script::Value::List]
+    #     A list of lists of strings representing the result of the
+    #     extension. This is in the same format as a selector returned
+    #     by `&`.
+    #   @raise [ArgumentError] if the replacement fails
+    def selector_replace(selector, original, replacement)
+      selector = parse_selector(selector, :selector)
+      original = parse_selector(original, :original)
+      replacement = parse_selector(replacement, :replacement)
+
+      extends = Sass::Util::SubsetMap.new
+      begin
+        replacement.populate_extends(extends, original)
+        selector.do_extend(extends, [], !!:replace).to_sass_script
+      rescue Sass::SyntaxError => e
+        raise ArgumentError.new(e.to_s)
+      end
+    end
+    declare :selector_replace, [:selector, :original, :replacement]
+
+    # Unifies two selectors into a single selector that matches only
+    # elements matched by both input selectors. Returns `null` if
+    # there is no such selector.
+    #
+    # Like the selector unification done for `@extend`, this doesn't
+    # guarantee that the output selector will match *all* elements
+    # matched by both input selectors. For example, if `.a .b` is
+    # unified with `.x .y`, `.a .x .b.y, .x .a .b.y` will be returned,
+    # but `.a.x .b.y` will not. This avoids exponential output size
+    # while matching all elements that are likely to exist in
+    # practice.
+    #
+    # @example
+    #   selector-unify(".a", ".b") => .a.b
+    #   selector-unify(".a .b", ".x .y") => .a .x .b.y, .x .a .b.y
+    #   selector-unify(".a.b", ".b.c") => .a.b.c
+    #   selector-unify("#a", "#b") => null
+    #
+    # @overload selector_unify($selector1, $selector2)
+    #   @param $selector1 [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The first selector to be unified. This can be either a
+    #     string, a list of strings, or a list of lists of strings as
+    #     returned by `&`.
+    #   @param $selector2 [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The second selector to be unified. This can be either a
+    #     string, a list of strings, or a list of lists of strings as
+    #     returned by `&`.
+    #   @return [Sass::Script::Value::List, Sass::Script::Value::Null]
+    #     A list of lists of strings representing the result of the
+    #     unification, or null if no unification exists. This is in
+    #     the same format as a selector returned by `&`.
+    def selector_unify(selector1, selector2)
+      selector1 = parse_selector(selector1, :selector1)
+      selector2 = parse_selector(selector2, :selector2)
+      return null unless (unified = selector1.unify(selector2))
+      unified.to_sass_script
+    end
+    declare :selector_unify, [:selector1, :selector2]
+
+    # Returns the [simple
+    # selectors](http://dev.w3.org/csswg/selectors4/#simple) that
+    # comprise the compound selector `$selector`.
+    #
+    # Note that `$selector` **must be** a [compound
+    # selector](http://dev.w3.org/csswg/selectors4/#compound). That
+    # means it cannot contain commas or spaces. It also means that
+    # unlike other selector functions, this takes only strings, not
+    # lists.
+    #
+    # @example
+    #   simple-selectors(".foo.bar") => ".foo", ".bar"
+    #   simple-selectors(".foo.bar.baz") => ".foo", ".bar", ".baz"
+    #
+    # @overload simple_selectors($selector)
+    #   @param $selector [Sass::Script::Value::String]
+    #     The compound selector whose simple selectors will be extracted.
+    #   @return [Sass::Script::Value::List]
+    #     A list of simple selectors in the compound selector.
+    def simple_selectors(selector)
+      selector = parse_compound_selector(selector, :selector)
+      list(selector.members.map {|simple| unquoted_string(simple.to_s)}, :comma)
+    end
+    declare :simple_selectors, [:selector]
+
+    # Returns whether `$super` is a superselector of `$sub`. This means that
+    # `$super` matches all the elements that `$sub` matches, as well as possibly
+    # additional elements. In general, simpler selectors tend to be
+    # superselectors of more complex oned.
+    #
+    # @example
+    #   is-superselector(".foo", ".foo.bar") => true
+    #   is-superselector(".foo.bar", ".foo") => false
+    #   is-superselector(".bar", ".foo .bar") => true
+    #   is-superselector(".foo .bar", ".bar") => false
+    #
+    # @overload is_superselector($super, $sub)
+    #   @param $super [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The potential superselector. This can be either a string, a list of
+    #     strings, or a list of lists of strings as returned by `&`.
+    #   @param $sub [Sass::Script::Value::String, Sass::Script::Value::List]
+    #     The potential subselector. This can be either a string, a list of
+    #     strings, or a list of lists of strings as returned by `&`.
+    #   @return [Sass::Script::Value::Bool]
+    #     Whether `$selector1` is a superselector of `$selector2`.
+    def is_superselector(sup, sub)
+      sup = parse_selector(sup, :super)
+      sub = parse_selector(sub, :sub)
+      bool(sup.superselector?(sub))
+    end
+    declare :is_superselector, [:super, :sub]
+
     private
 
     # This method implements the pattern of transforming a numeric value into
@@ -2270,23 +2620,7 @@ module Sass::Script
       assert_type amount, :Number, :amount
       Sass::Util.check_range('Amount', range, amount, units)
 
-      # TODO: is it worth restricting here,
-      # or should we do so in the Color constructor itself,
-      # and allow clipping in rgb() et al?
-      color.with(attr => Sass::Util.restrict(
-          color.send(attr).send(op, amount.value), range))
-    end
-
-    def to_h(obj)
-      return obj.to_h unless obj.is_a?(Sass::Script::Value::List) && obj.needs_map_warning?
-
-      fn_name = Sass::Util.caller_info.last.gsub('_', '-')
-      Sass::Util.sass_warn <<WARNING + environment.stack.to_s.gsub(/^/, '        ')
-DEPRECATION WARNING: Passing lists of pairs to #{fn_name} is deprecated and will
-be removed in future versions of Sass. Use Sass maps instead. For details, see
-http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
-WARNING
-      obj.to_h
+      color.with(attr => color.send(attr).send(op, amount.value))
     end
   end
 end

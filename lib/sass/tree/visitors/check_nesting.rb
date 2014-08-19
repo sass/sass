@@ -123,7 +123,7 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
 
   VALID_FUNCTION_CHILDREN = [
     Sass::Tree::CommentNode,  Sass::Tree::DebugNode, Sass::Tree::ReturnNode,
-    Sass::Tree::VariableNode, Sass::Tree::WarnNode
+    Sass::Tree::VariableNode, Sass::Tree::WarnNode, Sass::Tree::ErrorNode
   ] + CONTROL_NODES
   def invalid_function_child?(parent, child)
     unless is_any_of?(child, VALID_FUNCTION_CHILDREN)
@@ -140,9 +140,8 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
     end
   end
 
-  VALID_PROP_PARENTS = [Sass::Tree::RuleNode, Sass::Tree::PropNode,
-                        Sass::Tree::MixinDefNode, Sass::Tree::DirectiveNode,
-                        Sass::Tree::MixinNode]
+  VALID_PROP_PARENTS = [Sass::Tree::RuleNode, Sass::Tree::KeyframeRuleNode, Sass::Tree::PropNode,
+                        Sass::Tree::MixinDefNode, Sass::Tree::DirectiveNode, Sass::Tree::MixinNode]
   def invalid_prop_parent?(parent, child)
     unless is_any_of?(parent, VALID_PROP_PARENTS)
       "Properties are only allowed within rules, directives, mixin includes, or other properties." +

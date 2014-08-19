@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/../test_helper'
 
-class ValueHelpersTest < Test::Unit::TestCase
+class ValueHelpersTest < MiniTest::Test
   include Sass::Script
   include Sass::Script::Value::Helpers
 
@@ -51,10 +51,8 @@ class ValueHelpersTest < Test::Unit::TestCase
     assert_equal 0.5, color_with_alpha.alpha
   end
 
-  def test_hex_color_alpha_enforces_0_to_1
-    assert_raises ArgumentError do
-      hex_color("FF007F", 50)
-    end
+  def test_hex_color_alpha_clamps_0_to_1
+    assert_equal 1, hex_color("FF007F", 50).alpha
   end
 
   def test_hsl_color_without_alpha
@@ -132,14 +130,14 @@ class ValueHelpersTest < Test::Unit::TestCase
     l = list(number(1, "px"), hex_color("#f71"), :space)
     l.options = {}
     assert_kind_of Sass::Script::Value::List, l
-    assert_equal "1px #ff7711", l.to_sass
+    assert_equal "1px #f71", l.to_sass
   end
 
   def test_comma_list
     l = list(number(1, "px"), hex_color("#f71"), :comma)
     l.options = {}
     assert_kind_of Sass::Script::Value::List, l
-    assert_equal "1px, #ff7711", l.to_sass
+    assert_equal "1px, #f71", l.to_sass
   end
 
   def test_missing_list_type

@@ -3,8 +3,8 @@ module Sass
     # The abstract parent class of the various selector sequence classes.
     #
     # All subclasses should implement a `members` method that returns an array
-    # of object that respond to `#line=` and `#filename=`, as well as a `to_a`
-    # method that returns an array of strings and script nodes.
+    # of object that respond to `#line=` and `#filename=`, as well as a `to_s`
+    # method that returns the string representation of the selector.
     class AbstractSequence
       # The line of the Sass template on which this selector was declared.
       #
@@ -62,22 +62,26 @@ module Sass
       # Whether or not this selector sequence contains a placeholder selector.
       # Checks recursively.
       def has_placeholder?
-        @has_placeholder ||=
-          members.any? {|m| m.is_a?(AbstractSequence) ? m.has_placeholder? : m.is_a?(Placeholder)}
+        @has_placeholder ||= members.any? do |m|
+          next m.has_placeholder? if m.is_a?(AbstractSequence)
+          next m.selector && m.selector.has_placeholder? if m.is_a?(Pseudo)
+          m.is_a?(Placeholder)
+        end
       end
 
-      # Converts the selector into a string. This is the standard selector
-      # string, along with any SassScript interpolation that may exist.
+      # Returns the selector string.
       #
       # @return [String]
       def to_s
-        to_a.map {|e| e.is_a?(Sass::Script::Tree::Node) ? "\#{#{e.to_sass}}" : e}.join
+        Sass::Util.abstract(self)
       end
 
-      # Returns the specificity of the selector as an integer. The base is given
-      # by {Sass::Selector::SPECIFICITY_BASE}.
+      # Returns the specificity of the selector.
       #
-      # @return [Fixnum]
+      # The base is given by {Sass::Selector::SPECIFICITY_BASE}. This can be a
+      # number or a range representing possible specificities.
+      #
+      # @return [Fixnum, Range]
       def specificity
         _specificity(members)
       end
@@ -85,9 +89,20 @@ module Sass
       protected
 
       def _specificity(arr)
-        spec = 0
-        arr.map {|m| spec += m.is_a?(String) ? 0 : m.specificity}
-        spec
+        min = 0
+        max = 0
+        arr.each do |m|
+          next if m.is_a?(String)
+          spec = m.specificity
+          if spec.is_a?(Range)
+            min += spec.begin
+            max += spec.end
+          else
+            min += spec
+            max += spec
+          end
+        end
+        min == max ? min : (min..max)
       end
     end
   end

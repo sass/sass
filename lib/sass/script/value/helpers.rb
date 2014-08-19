@@ -121,7 +121,114 @@ module Sass::Script::Value
     end
     alias_method :identifier, :unquoted_string
 
+    # Parses a user-provided selector.
+    #
+    # @param value [Sass::Script::Value::String, Sass::Script::Value::List]
+    #   The selector to parse. This can be either a string, a list of
+    #   strings, or a list of lists of strings as returned by `&`.
+    # @param name [Symbol, nil]
+    #   If provided, the name of the selector argument. This is used
+    #   for error reporting.
+    # @param allow_parent_ref [Boolean]
+    #   Whether the parsed selector should allow parent references.
+    # @return [Sass::Selector::CommaSequence] The parsed selector.
+    # @throw [ArgumentError] if the parse failed for any reason.
+    def parse_selector(value, name = nil, allow_parent_ref = false)
+      str = normalize_selector(value, name)
+      begin
+        Sass::SCSS::StaticParser.new(str, nil, nil, 1, 1, allow_parent_ref).parse_selector
+      rescue Sass::SyntaxError => e
+        err = "#{value.inspect} is not a valid selector: #{e}"
+        err = "$#{name.to_s.gsub('_', '-')}: #{err}" if name
+        raise ArgumentError.new(err)
+      end
+    end
+
+    # Parses a user-provided complex selector.
+    #
+    # A complex selector can contain combinators but cannot contain commas.
+    #
+    # @param value [Sass::Script::Value::String, Sass::Script::Value::List]
+    #   The selector to parse. This can be either a string or a list of
+    #   strings.
+    # @param name [Symbol, nil]
+    #   If provided, the name of the selector argument. This is used
+    #   for error reporting.
+    # @param allow_parent_ref [Boolean]
+    #   Whether the parsed selector should allow parent references.
+    # @return [Sass::Selector::Sequence] The parsed selector.
+    # @throw [ArgumentError] if the parse failed for any reason.
+    def parse_complex_selector(value, name = nil, allow_parent_ref = false)
+      selector = parse_selector(value, name, allow_parent_ref)
+      return seq if selector.members.length == 1
+
+      err = "#{value.inspect} is not a complex selector"
+      err = "$#{name.to_s.gsub('_', '-')}: #{err}" if name
+      raise ArgumentError.new(err)
+    end
+
+    # Parses a user-provided compound selector.
+    #
+    # A compound selector cannot contain combinators or commas.
+    #
+    # @param value [Sass::Script::Value::String] The selector to parse.
+    # @param name [Symbol, nil]
+    #   If provided, the name of the selector argument. This is used
+    #   for error reporting.
+    # @param allow_parent_ref [Boolean]
+    #   Whether the parsed selector should allow parent references.
+    # @return [Sass::Selector::SimpleSequence] The parsed selector.
+    # @throw [ArgumentError] if the parse failed for any reason.
+    def parse_compound_selector(value, name = nil, allow_parent_ref = false)
+      assert_type value, :String, name
+      selector = parse_selector(value, name, allow_parent_ref)
+      seq = selector.members.first
+      sseq = seq.members.first
+      if selector.members.length == 1 && seq.members.length == 1 &&
+          sseq.is_a?(Sass::Selector::SimpleSequence)
+        return sseq
+      end
+
+      err = "#{value.inspect} is not a compound selector"
+      err = "$#{name.to_s.gsub('_', '-')}: #{err}" if name
+      raise ArgumentError.new(err)
+    end
+
     private
+
+    # Converts a user-provided selector into string form or throws an
+    # ArgumentError if it's in an invalid format.
+    def normalize_selector(value, name)
+      if (str = selector_to_str(value))
+        return str
+      end
+
+      err = "#{value.inspect} is not a valid selector: it must be a string,\n" +
+        "a list of strings, or a list of lists of strings"
+      err = "$#{name.to_s.gsub('_', '-')}: #{err}" if name
+      raise ArgumentError.new(err)
+    end
+
+    # Converts a user-provided selector into string form or returns
+    # `nil` if it's in an invalid format.
+    def selector_to_str(value)
+      return value.value if value.is_a?(Sass::Script::String)
+      return unless value.is_a?(Sass::Script::List)
+
+      if value.separator == :comma
+        return value.to_a.map do |complex|
+          next complex.value if complex.is_a?(Sass::Script::String)
+          return unless complex.is_a?(Sass::Script::List) && complex.separator == :space
+          return unless (str = selector_to_str(complex))
+          str
+        end.join(', ')
+      end
+
+      value.to_a.map do |compound|
+        return unless compound.is_a?(Sass::Script::String)
+        compound.value
+      end.join(' ')
+    end
 
     # @private
     VALID_UNIT = /#{Sass::SCSS::RX::NMSTART}#{Sass::SCSS::RX::NMCHAR}|%*/

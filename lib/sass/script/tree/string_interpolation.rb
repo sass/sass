@@ -81,7 +81,7 @@ module Sass::Script::Tree
       before = @before.perform(environment)
       res << before.value
       mid = @mid.perform(environment)
-      res << (mid.is_a?(Sass::Script::Value::String) ? mid.value : mid.to_s)
+      res << (mid.is_a?(Sass::Script::Value::String) ? mid.value : mid.to_s(:quote => :none))
       res << @after.perform(environment).value
       opts(Sass::Script::Value::String.new(res, before.type))
     end

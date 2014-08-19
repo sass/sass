@@ -43,11 +43,16 @@ module Sass
       end
 
       def pseudo_elements
-        @pseudo_elements ||= (members - [base]).
-          select {|sel| sel.is_a?(Pseudo) && sel.type == :element}
+        @pseudo_elements ||= members.select {|sel| sel.is_a?(Pseudo) && sel.type == :element}
       end
 
-      # Returns the non-base, non-pseudo-class selectors in this sequence.
+      def selector_pseudo_classes
+        @selector_pseudo_classes ||= members.
+          select {|sel| sel.is_a?(Pseudo) && sel.type == :class && sel.selector}.
+          group_by {|sel| sel.normalized_name}
+      end
+
+      # Returns the non-base, non-pseudo-element selectors in this sequence.
       #
       # @return [Set<Simple>]
       def rest
@@ -86,18 +91,18 @@ module Sass
           return CommaSequence.new([Sequence.new([self])])
         end
 
-        return super_cseq if @members.size == 1 && parent.suffix.empty?
+        return super_cseq if @members.size == 1 && parent.suffix.nil?
 
         CommaSequence.new(super_cseq.members.map do |super_seq|
           members = super_seq.members.dup
           newline = members.pop if members.last == "\n"
           unless members.last.is_a?(SimpleSequence)
             raise Sass::SyntaxError.new("Invalid parent selector for \"#{self}\": \"" +
-              super_seq.to_a.join + '"')
+              super_seq.to_s + '"')
           end
 
           parent_sub = members.last.members
-          unless parent.suffix.empty?
+          unless parent.suffix.nil?
             parent_sub = parent_sub.dup
             parent_sub[-1] = parent_sub.last.dup
             case parent_sub.last
@@ -108,17 +113,17 @@ module Sass
                 parent_sub.last.name + parent.suffix,
                 parent_sub.last.namespace)
             when Sass::Selector::Pseudo
-              if parent_sub.last.arg
+              if parent_sub.last.arg || parent_sub.last.selector
                 raise Sass::SyntaxError.new("Invalid parent selector for \"#{self}\": \"" +
-                  super_seq.to_a.join + '"')
+                  super_seq.to_s + '"')
               end
-              parent_sub[-1] = parent_sub.last.class.new(
+              parent_sub[-1] = Sass::Selector::Pseudo.new(
                 parent_sub.last.type,
                 parent_sub.last.name + parent.suffix,
-                nil)
+                nil, nil)
             else
               raise Sass::SyntaxError.new("Invalid parent selector for \"#{self}\": \"" +
-                super_seq.to_a.join + '"')
+                super_seq.to_s + '"')
             end
           end
 
@@ -131,16 +136,35 @@ module Sass
       # Non-destructively extends this selector with the extensions specified in a hash
       # (which should come from {Sass::Tree::Visitors::Cssize}).
       #
-      # @overload do_extend(extends, parent_directives)
-      #   @param extends [{Selector::Simple =>
-      #                    Sass::Tree::Visitors::Cssize::Extend}]
-      #     The extensions to perform on this selector
-      #   @param parent_directives [Array<Sass::Tree::DirectiveNode>]
-      #     The directives containing this selector.
+      # @param extends [{Selector::Simple =>
+      #                  Sass::Tree::Visitors::Cssize::Extend}]
+      #   The extensions to perform on this selector
+      # @param parent_directives [Array<Sass::Tree::DirectiveNode>]
+      #   The directives containing this selector.
+      # @param seen [Set<Array<Selector::Simple>>]
+      #   The set of simple sequences that are currently being replaced.
+      # @param original [Boolean]
+      #   Whether this is the original selector being extended, as opposed to
+      #   the result of a previous extension that's being re-extended.
       # @return [Array<Sequence>] A list of selectors generated
       #   by extending this selector with `extends`.
       # @see CommaSequence#do_extend
-      def do_extend(extends, parent_directives, seen = Set.new)
+      def do_extend(extends, parent_directives, replace, seen)
+        seen_with_pseudo_selectors = seen.dup
+
+        modified_original = false
+        members = Sass::Util.enum_with_index(self.members).map do |sel, i|
+          next sel unless sel.is_a?(Pseudo) && sel.selector
+          next sel if seen.include?([sel])
+          extended = sel.selector.do_extend(extends, parent_directives, replace, seen, !:original)
+          next sel if extended == sel.selector
+          extended.members.reject! {|seq| seq.has_placeholder?}
+          modified_original = true
+          result = sel.with_selector(extended)
+          seen_with_pseudo_selectors << [result]
+          result
+        end
+
         groups = Sass::Util.group_by_to_a(extends[members.to_set]) {|ex| ex.extender}
         groups.map! do |seq, group|
           sels = group.map {|e| e.target}.flatten
@@ -149,7 +173,7 @@ module Sass
 
           self_without_sel = Sass::Util.array_minus(members, sels)
           group.each {|e| e.result = :failed_to_unify unless e.result == :succeeded}
-          unified = seq.members.last.unify(self_without_sel, subject?)
+          unified = seq.members.last.unify(SimpleSequence.new(self_without_sel, subject?))
           next unless unified
           group.each {|e| e.result = :succeeded}
           group.each {|e| check_directives_match!(e, parent_directives)}
@@ -159,19 +183,30 @@ module Sass
         end
         groups.compact!
         groups.map! do |sels, seq|
-          seen.include?(sels) ? [] : seq.do_extend(extends, parent_directives, seen + [sels])
+          next [] if seen.include?(sels)
+          seq.do_extend(
+            extends, parent_directives, !:replace, seen_with_pseudo_selectors + [sels], !:original)
         end
         groups.flatten!
+
+        if modified_original || !replace || groups.empty?
+          # First Law of Extend: the result of extending a selector should
+          # (almost) always contain the base selector.
+          #
+          # See https://github.com/nex3/sass/issues/324.
+          original = Sequence.new([SimpleSequence.new(members, @subject, source_range)])
+          original.add_sources! sources
+          groups.unshift original
+        end
         groups.uniq!
         groups
       end
 
-      # Unifies this selector with another {SimpleSequence}'s
-      # {SimpleSequence#members members array}, returning another `SimpleSequence`
-      # that matches both this selector and the input selector.
+      # Unifies this selector with another {SimpleSequence}, returning
+      # another `SimpleSequence` that is a subselector of both input
+      # selectors.
       #
-      # @param sels [Array<Simple>] A {SimpleSequence}'s {SimpleSequence#members members array}
-      # @param other_subject [Boolean] Whether the other {SimpleSequence} being merged is a subject.
+      # @param other [SimpleSequence]
       # @return [SimpleSequence, nil] A {SimpleSequence} matching both `sels` and this selector,
       #   or `nil` if this is impossible (e.g. unifying `#foo` and `#bar`)
       # @raise [Sass::SyntaxError] If this selector cannot be unified.
@@ -180,13 +215,13 @@ module Sass
       #   Since these selectors should be resolved
       #   by the time extension and unification happen,
       #   this exception will only ever be raised as a result of programmer error
-      def unify(sels, other_subject)
-        sseq = members.inject(sels) do |member, sel|
+      def unify(other)
+        sseq = members.inject(other.members) do |member, sel|
           return unless member
           sel.unify(member)
         end
         return unless sseq
-        SimpleSequence.new(sseq, other_subject || subject?)
+        SimpleSequence.new(sseq, other.subject? || subject?)
       end
 
       # Returns whether or not this selector matches all elements
@@ -195,17 +230,44 @@ module Sass
       # @example
       #   (.foo).superselector?(.foo.bar) #=> true
       #   (.foo).superselector?(.bar) #=> false
-      # @param sseq [SimpleSequence]
+      # @param their_sseq [SimpleSequence]
+      # @param parents [Array<SimpleSequence, String>] The parent selectors of `their_sseq`, if any.
       # @return [Boolean]
-      def superselector?(sseq)
-        (base.nil? || base.eql?(sseq.base)) &&
-          pseudo_elements.eql?(sseq.pseudo_elements) &&
-          rest.subset?(sseq.rest)
+      def superselector?(their_sseq, parents = [])
+        return false unless base.nil? || base.eql?(their_sseq.base)
+        return false unless pseudo_elements.eql?(their_sseq.pseudo_elements)
+        our_spcs = selector_pseudo_classes
+        their_spcs = their_sseq.selector_pseudo_classes
+
+        # Some psuedo-selectors can be subselectors of non-pseudo selectors.
+        # Pull those out here so we can efficiently check against them below.
+        their_subselector_pseudos = %w[matches any nth-child nth-last-child].
+          map {|name| their_spcs[name] || []}.flatten
+
+        # If `self`'s non-pseudo simple selectors aren't a subset of `their_sseq`'s,
+        # it's definitely not a superselector. This also considers being matched
+        # by `:matches` or `:any`.
+        return false unless rest.all? do |our_sel|
+          next true if our_sel.is_a?(Pseudo) && our_sel.selector
+          next true if their_sseq.rest.include?(our_sel)
+          their_subselector_pseudos.any? do |their_pseudo|
+            their_pseudo.selector.members.all? do |their_seq|
+              next false unless their_seq.members.length == 1
+              their_sseq = their_seq.members.first
+              next false unless their_sseq.is_a?(SimpleSequence)
+              their_sseq.rest.include?(our_sel)
+            end
+          end
+        end
+
+        our_spcs.all? do |name, pseudos|
+          pseudos.all? {|pseudo| pseudo.superselector?(their_sseq, parents)}
+        end
       end
 
-      # @see Simple#to_a
-      def to_a
-        res = @members.map {|sel| sel.to_a}.flatten
+      # @see Simple#to_s
+      def to_s
+        res = @members.join
         res << '!' if subject?
         res
       end
@@ -215,7 +277,9 @@ module Sass
       #
       # @return [String]
       def inspect
-        members.map {|m| m.inspect}.join
+        res = members.map {|m| m.inspect}.join
+        res << '!' if subject?
+        res
       end
 
       # Return a copy of this simple sequence with `sources` merged into the

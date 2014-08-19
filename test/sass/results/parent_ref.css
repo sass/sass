@@ -1,5 +1,5 @@
-a { color: black; }
-a:hover { color: red; }
+a { color: #000; }
+a:hover { color: #f00; }
 
 p, div { width: 100em; }
 p foo, div foo { width: 10em; }

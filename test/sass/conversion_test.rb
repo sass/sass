@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/../test_helper'
 
-class ConversionTest < Test::Unit::TestCase
+class ConversionTest < MiniTest::Test
   def test_basic
     assert_renders <<SASS, <<SCSS
 foo bar
@@ -584,6 +584,19 @@ foo
 SASS
 foo {
   @debug 12px;
+  bar: baz;
+}
+SCSS
+  end
+
+  def test_error
+    assert_renders <<SASS, <<SCSS
+foo
+  @error "oh no!"
+  bar: baz
+SASS
+foo {
+  @error "oh no!";
   bar: baz;
 }
 SCSS
@@ -1815,6 +1828,39 @@ SASS
 
 .foo {
   a: foo($list..., $map...);
+}
+SCSS
+  end
+
+  def test_keyframes
+    assert_renders(<<SASS, <<SCSS)
+@keyframes identifier
+  0%
+    top: 0
+    left: 0
+  30%
+    top: 50px
+  68%, 72%
+    left: 50px
+  100%
+    top: 100px
+    left: 100%
+SASS
+@keyframes identifier {
+  0% {
+    top: 0;
+    left: 0;
+  }
+  30% {
+    top: 50px;
+  }
+  68%, 72% {
+    left: 50px;
+  }
+  100% {
+    top: 100px;
+    left: 100%;
+  }
 }
 SCSS
   end

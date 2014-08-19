@@ -18,7 +18,7 @@ module Sass
         end
 
         return unless scan(STRING)
-        string_value = (@scanner[1] || @scanner[2]).gsub(/\\(['"])/, '\1')
+        string_value = Sass::Script::Value::String.value(@scanner[1] || @scanner[2])
         value = Script::Value::String.new(string_value, :string)
         [:string, value]
       end

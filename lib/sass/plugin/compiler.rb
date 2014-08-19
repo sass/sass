@@ -251,7 +251,7 @@ module Sass::Plugin
           name = Sass::Util.pathname(file).relative_path_from(
             Sass::Util.pathname(template_location.to_s)).to_s
           css = css_filename(name, css_location)
-          sourcemap = Sass::Util.sourcemap_name(css) if engine_options[:sourcemap]
+          sourcemap = Sass::Util.sourcemap_name(css) unless engine_options[:sourcemap] == :none
           files << [file, css, sourcemap]
         end
       end
@@ -342,6 +342,8 @@ module Sass::Plugin
     def engine_options(additional_options = {})
       opts = options.merge(additional_options)
       opts[:load_paths] = load_paths(opts)
+      options[:sourcemap] = :auto if options[:sourcemap] == true
+      options[:sourcemap] = :none if options[:sourcemap] == false
       opts
     end
 
@@ -486,12 +488,14 @@ module Sass::Plugin
       rescue StandardError => e
         compilation_error_occured = true
         run_compilation_error e, filename, css, sourcemap
-        rendered = Sass::SyntaxError.exception_to_css(e, options)
+        raise e unless options[:full_exception]
+        rendered = Sass::SyntaxError.exception_to_css(e, options[:line] || 1)
       end
 
       write_file(css, rendered)
       if mapping
-        write_file(sourcemap, mapping.to_json(:css_path => css, :sourcemap_path => sourcemap))
+        write_file(sourcemap, mapping.to_json(
+            :css_path => css, :sourcemap_path => sourcemap, :type => options[:sourcemap]))
       end
       run_updated_stylesheet(filename, css, sourcemap) unless compilation_error_occured
     end

@@ -60,15 +60,20 @@ module Sass::Tree
     # @return [String]
     attr_accessor :stack_trace
 
-    # @param rule [Array<String, Sass::Script::Tree::Node>]
+    # @param rule [Array<String, Sass::Script::Tree::Node>, Sass::Selector::CommaSequence]
+    #   The CSS rule, either unparsed or parsed.
     # @param selector_source_range [Sass::Source::Range]
-    #   The CSS rule. See \{#rule}
     def initialize(rule, selector_source_range = nil)
-      merged = Sass::Util.merge_adjacent_strings(rule)
-      @rule = Sass::Util.strip_string_array(merged)
+      if rule.is_a?(Sass::Selector::CommaSequence)
+        @rule = [rule.to_s]
+        @parsed_rules = rule
+      else
+        merged = Sass::Util.merge_adjacent_strings(rule)
+        @rule = Sass::Util.strip_string_array(merged)
+        try_to_parse_non_interpolated_rules
+      end
       @selector_source_range = selector_source_range
       @tabs = 0
-      try_to_parse_non_interpolated_rules
       super()
     end
 
@@ -130,7 +135,7 @@ module Sass::Tree
       if @rule.all? {|t| t.kind_of?(String)}
         # We don't use real filename/line info because we don't have it yet.
         # When we get it, we'll set it on the parsed rules if possible.
-        parser = Sass::SCSS::StaticParser.new(@rule.join.strip, '', nil, 1)
+        parser = Sass::SCSS::StaticParser.new(@rule.join.strip, nil, nil, 1)
         # rubocop:disable RescueModifier
         @parsed_rules = parser.parse_selector rescue nil
         # rubocop:enable RescueModifier

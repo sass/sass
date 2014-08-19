@@ -16,6 +16,11 @@ class Sass::Tree::Visitors::DeepCopy < Sass::Tree::Visitors::Base
     yield
   end
 
+  def visit_error(node)
+    node.expr = node.expr.deep_copy
+    yield
+  end
+
   def visit_each(node)
     node.list = node.list.deep_copy
     yield

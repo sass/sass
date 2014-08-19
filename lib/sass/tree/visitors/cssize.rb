@@ -123,29 +123,8 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
 
   # Registers an extension in the `@extends` subset map.
   def visit_extend(node)
-    node.resolved_selector.members.each do |seq|
-      if seq.members.size > 1
-        raise Sass::SyntaxError.new("Can't extend #{seq.to_a.join}: can't extend nested selectors")
-      end
-
-      sseq = seq.members.first
-      if !sseq.is_a?(Sass::Selector::SimpleSequence)
-        raise Sass::SyntaxError.new("Can't extend #{seq.to_a.join}: invalid selector")
-      elsif sseq.members.any? {|ss| ss.is_a?(Sass::Selector::Parent)}
-        raise Sass::SyntaxError.new("Can't extend #{seq.to_a.join}: can't extend parent selectors")
-      end
-
-      sel = sseq.members
-      parent.resolved_rules.members.each do |member|
-        unless member.members.last.is_a?(Sass::Selector::SimpleSequence)
-          raise Sass::SyntaxError.new("#{member} can't extend: invalid selector")
-        end
-
-        parent_directives = @parents.select {|p| p.is_a?(Sass::Tree::DirectiveNode)}
-        @extends[sel] = Extend.new(member, sel, node, parent_directives, :not_found)
-      end
-    end
-
+    parent.resolved_rules.populate_extends(@extends, node.resolved_selector, node,
+      @parents.select {|p| p.is_a?(Sass::Tree::DirectiveNode)})
     []
   end
 
@@ -232,6 +211,14 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
     rules
   end
 
+  def visit_keyframerule(node)
+    return node unless node.has_children
+
+    yield
+
+    debubble(node.children, node)
+  end
+
   # Bubbles a directive up through RuleNodes.
   def visit_directive(node)
     return node unless node.has_children
@@ -249,7 +236,8 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
       child.node.resolved_value == node.resolved_value
     end
 
-    if directive_exists
+    # We know empty @keyframes directives do nothing.
+    if directive_exists || node.name == '@keyframes'
       []
     else
       empty_node = node.dup

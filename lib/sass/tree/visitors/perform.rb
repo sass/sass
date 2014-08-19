@@ -207,6 +207,17 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     []
   end
 
+  # Throws the expression as an error.
+  def visit_error(node)
+    res = node.expr.perform(@environment)
+    if res.is_a?(Sass::Script::Value::String)
+      res = res.value
+    else
+      res = res.to_sass
+    end
+    raise Sass::SyntaxError.new(res)
+  end
+
   # Runs the child nodes once for each value in the list.
   def visit_each(node)
     list = node.list.perform(@environment)
@@ -377,18 +388,31 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # Runs SassScript interpolation in the selector,
   # and then parses the result into a {Sass::Selector::CommaSequence}.
   def visit_rule(node)
-    old_at_root_without_rule, @at_root_without_rule = @at_root_without_rule, false
+    old_at_root_without_rule = @at_root_without_rule
     parser = Sass::SCSS::StaticParser.new(run_interp(node.rule),
       node.filename, node.options[:importer], node.line)
-    node.parsed_rules ||= parser.parse_selector
-    node.resolved_rules = node.parsed_rules.resolve_parent_refs(
-      @environment.selector, !old_at_root_without_rule)
-    node.stack_trace = @environment.stack.to_s if node.options[:trace_selectors]
-    with_environment Sass::Environment.new(@environment, node.options) do
-      @environment.selector = node.resolved_rules
-      node.children = node.children.map {|c| visit(c)}.flatten
+    if @in_keyframes
+      keyframe_rule_node = Sass::Tree::KeyframeRuleNode.new(parser.parse_keyframes_selector)
+      keyframe_rule_node.options = node.options
+      keyframe_rule_node.line = node.line
+      keyframe_rule_node.filename = node.filename
+      keyframe_rule_node.source_range = node.source_range
+      with_environment Sass::Environment.new(@environment, node.options) do
+        keyframe_rule_node.children = node.children.map {|c| visit(c)}.flatten
+      end
+      keyframe_rule_node
+    else
+      @at_root_without_rule = false
+      node.parsed_rules ||= parser.parse_selector
+      node.resolved_rules = node.parsed_rules.resolve_parent_refs(
+        @environment.selector, !old_at_root_without_rule)
+      node.stack_trace = @environment.stack.to_s if node.options[:trace_selectors]
+      with_environment Sass::Environment.new(@environment, node.options) do
+        @environment.selector = node.resolved_rules
+        node.children = node.children.map {|c| visit(c)}.flatten
+      end
+      node
     end
-    node
   ensure
     @at_root_without_rule = old_at_root_without_rule
   end
@@ -405,36 +429,24 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     end
 
     old_at_root_without_rule = @at_root_without_rule
+    old_in_keyframes = @in_keyframes
     @at_root_without_rule = true if node.exclude?('rule')
+    @in_keyframes = false if node.exclude?('keyframes')
     yield
   ensure
+    @in_keyframes = old_in_keyframes
     @at_root_without_rule = old_at_root_without_rule
   end
 
   # Loads the new variable value into the environment.
   def visit_variable(node)
     env = @environment
-    identifier = [node.name, node.filename, node.line]
-    if node.global
-      env = env.global_env
-    elsif env.parent && env.is_var_global?(node.name) &&
-        !env.global_env.global_warning_given.include?(identifier)
-      env.global_env.global_warning_given.add(identifier)
-      var_expr = "$#{node.name}: #{node.expr.to_sass(env.options)} !global"
-      var_expr << " !default" if node.guarded
-      location = "on line #{node.line}"
-      location << " of #{node.filename}" if node.filename
-      Sass::Util.sass_warn <<WARNING
-DEPRECATION WARNING #{location}:
-Assigning to global variable "$#{node.name}" by default is deprecated.
-In future versions of Sass, this will create a new local variable.
-If you want to assign to the global variable, use "#{var_expr}" instead.
-Note that this will be incompatible with Sass 3.2.
-WARNING
+    env = env.global_env if node.global
+    if node.guarded
+      var = env.var(node.name)
+      return [] if var && !var.null?
     end
 
-    var = env.var(node.name)
-    return [] if node.guarded && var && !var.null?
     val = node.expr.perform(@environment)
     if node.expr.source_range
       val.source_range = node.expr.source_range
@@ -466,10 +478,13 @@ WARNING
 
   def visit_directive(node)
     node.resolved_value = run_interp(node.value)
+    old_in_keyframes, @in_keyframes = @in_keyframes, node.normalized_name == "@keyframes"
     with_environment Sass::Environment.new(@environment) do
       node.children = node.children.map {|c| visit(c)}.flatten
       node
     end
+  ensure
+    @in_keyframes = old_in_keyframes
   end
 
   def visit_media(node)
@@ -500,10 +515,7 @@ WARNING
   def run_interp_no_strip(text)
     text.map do |r|
       next r if r.is_a?(String)
-      val = r.perform(@environment)
-      # Interpolated strings should never render with quotes
-      next val.value if val.is_a?(Sass::Script::Value::String)
-      val.to_s
+      r.perform(@environment).to_s(:quote => :none)
     end.join
   end
 

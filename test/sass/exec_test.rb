@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 require 'sass/util/test'
 require 'tmpdir'
 
-class ExecTest < Test::Unit::TestCase
+class ExecTest < MiniTest::Test
   include Sass::Util::Test
 
   def setup
@@ -19,7 +19,7 @@ class ExecTest < Test::Unit::TestCase
     src = get_path("src.scss")
     dest = get_path("dest.css")
     write(src, ".ruleset { margin: 0 }")
-    assert(exec(*%w[scss -t expanded --unix-newlines].push(src, dest)))
+    assert(exec(*%w[scss --sourcemap=none -t expanded --unix-newlines].push(src, dest)))
     assert_equal(".ruleset {\n  margin: 0;\n}\n", read(dest))
   end
 

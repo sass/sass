@@ -231,7 +231,6 @@ Available options are:
   and at the top of the page (in supported browsers).
   Otherwise, an exception will be raised in the Ruby code.
   Defaults to false in production mode, true otherwise.
-  Only has meaning within Rack, Ruby on Rails, or Merb.
 
 {#template_location-option} `:template_location`
 : A path to the root sass template directory for your application.
@@ -295,14 +294,17 @@ Available options are:
   Defaults to {Sass::Importers::Filesystem}.
 
 {#sourcemap-option} `:sourcemap`
-: When set to true, causes Sass to generate standard JSON [source maps][]
-  alongside its compiled CSS files. These source maps tell the browser how to
-  find the Sass styles that caused each CSS style to be generated. Sass assumes
-  that the source stylesheets will be made available on whatever server you're
-  using, and that their relative location will be the same as it is on the local
-  filesystem. If this isn't the case, you'll need to make a custom class that
-  extends \{Sass::Importers::Base} or \{Sass::Importers::Filesystem} and
-  overrides \{Sass::Importers::Base#public\_url `#public_url`}.
+: Controls how sourcemaps are generated. These sourcemaps tell the browser how
+  to find the Sass styles that caused each CSS style to be generated. This has
+  three valid values: **`:auto`** uses relative URIs where possible, assuming
+  that that the source stylesheets will be made available on whatever server
+  you're using, and that their relative location will be the same as it is on
+  the local filesystem. If a relative URI is unavailable, a "file:" URI is used
+  instead. **`:file`** always uses "file:" URIs, which will work locally but
+  can't be deployed to a remote server. **`:inline`** includes the full source
+  text in the sourcemap, which is maximally portable but can create very large
+  sourcemap files. Finally, **`:none`** causes no sourcemaps to be generated at
+  all.
 
 {#line_numbers-option} `:line_numbers`
 : When set to true, causes the line number and file
@@ -349,45 +351,25 @@ like the `sass` program but it defaults to assuming the syntax is SCSS.
 
 ### Encodings
 
-When running on Ruby 1.9 and later, Sass is aware of the character encoding of documents.
-By default, Sass assumes that all stylesheets are encoded
-using whatever coding system your operating system defaults to.
-For many users this will be `UTF-8`, the de facto standard for the web.
-For some users, though, it may be a more local encoding.
+When running on Ruby 1.9 and later, Sass is aware of the character encoding of
+documents. Sass follows the [CSS spec][syntax level 3] to determine the encoding
+of a stylesheet, and falls back to the Ruby string encoding. This means that it
+first checks the Unicode byte order mark, then the `@charset` declaration, then
+the Ruby string encoding. If none of these are set, it will assume the document
+is in UTF-8.
 
-If you want to use a different encoding for your stylesheet
-than your operating system default,
-you can use the `@charset` declaration just like in CSS.
-Add `@charset "encoding-name";` at the beginning of the stylesheet
-(before any whitespace or comments)
-and Sass will interpret it as the given encoding.
-Note that whatever encoding you use, it must be convertible to Unicode.
+[syntax level 3]: http://www.w3.org/TR/2013/WD-css-syntax-3-20130919/#determine-the-fallback-encoding
 
-Sass will also respect any Unicode BOMs and non-ASCII-compatible Unicode encodings
-[as specified by the CSS spec](http://www.w3.org/TR/CSS2/syndata.html#charset),
-although this is *not* the recommended way
-to specify the character set for a document.
-Note that Sass does not support the obscure `UTF-32-2143`,
-`UTF-32-3412`, `EBCDIC`, `IBM1026`, and `GSM 03.38` encodings,
-since Ruby does not have support for them
-and they're highly unlikely to ever be used in practice.
+To explicitly specify the encoding of your stylesheet, use a `@charset`
+declaration just like in CSS. Add `@charset "encoding-name";` at the beginning
+of the stylesheet (before any whitespace or comments) and Sass will interpret it
+as the given encoding. Note that whatever encoding you use, it must be
+convertible to Unicode.
 
-#### Output Encoding
-
-In general, Sass will try to encode the output stylesheet
-using the same encoding as the input stylesheet.
-In order for it to do this, though, the input stylesheet must have a `@charset` declaration;
-otherwise, Sass will default to encoding the output stylesheet as `UTF-8`.
-In addition, it will add a `@charset` declaration to the output
-if it's not plain ASCII.
-
-When other stylesheets with `@charset` declarations are `@import`ed,
-Sass will convert them to the same encoding as the main stylesheet.
-
-Note that Ruby 1.8 does not have good support for character encodings,
-and so Sass behaves somewhat differently when running under it than under Ruby 1.9 and later.
-In Ruby 1.8, Sass simply uses the first `@charset` declaration in the stylesheet
-or any of the other stylesheets it `@import`s.
+Sass will always encode its output as UTF-8. It will include a `@charset`
+declaration if and only if the output file contains non-ASCII characters. In
+compressed mode, a UTF-8 byte order mark is used in place of a `@charset`
+declaration.
 
 ## CSS Extensions
 
@@ -644,10 +626,29 @@ You can then refer to them in properties:
       width: $width;
     }
 
-Variables are only available within the level of nested selectors
-where they're defined.
-If they're defined outside of any nested selectors,
-they're available everywhere.
+Variables are only available within the level of nested selectors where they're
+defined. If they're defined outside of any nested selectors, they're available
+everywhere. They can also be defined with the `!global` flag, in which case
+they're also available everywhere. For example:
+
+    #main {
+      $width: 5em !global;
+      width: $width;
+    }
+
+    #sidebar {
+      width: $width;
+    }
+
+is compiled to:
+
+    #main {
+      width: 5em;
+    }
+
+    #sidebar {
+      width: 5em;
+    }
 
 ### Data Types
 
@@ -1109,6 +1110,37 @@ is compiled to:
 
     p {
       font: 12px/30px; }
+
+### `&` in SassScript {#parent-script}
+
+Just like when it's used [in selectors](#parent-selector), `&` in SassScript
+refers to the current parent selector. It's a comma-separated list of
+space-separated lists. For example:
+
+    .foo.bar .baz.bang, .bip.qux {
+      $selector: &;
+    }
+
+The value of `$selector` is now `((".foo.bar" ".baz.bang"), ".bip.qux")`. The
+compound selectors are quoted here to indicate that they're strings, but in
+reality they would be unquoted. Even if the parent selector doesn't contain a
+comma or a space, `&` will always have two levels of nesting, so it can be
+accessed consistently.
+
+If there is no parent selector, the value of `&` will be null. This means you
+can use it in a mixin to detect whether a parent selector exists:
+
+    @mixin does-parent-exist {
+      @if & {
+        &:hover {
+          color: red;
+        }
+      } else {
+        a {
+          color: red;
+        }
+      }
+    }
 
 ### Variable Defaults: `!default`
 
@@ -1868,6 +1900,24 @@ Usage Example:
       }
       position: relative; left: $x; top: $y;
     }
+
+### `@error`
+
+The `@error` directive throws the value of a SassScript expression as a fatal
+error, including a nice stack trace. It's useful for validating arguments to
+mixins and functions. For example:
+
+    @mixin adjust-location($x, $y) {
+      @if unitless($x) {
+        @error "$x may not be unitless, was #{$x}.";
+      }
+      @if unitless($y) {
+        @error "$y may not be unitless, was #{$y}.";
+      }
+      position: relative; left: $x; top: $y;
+    }
+
+There is currently no way to catch errors.
 
 ## Control Directives & Expressions
 

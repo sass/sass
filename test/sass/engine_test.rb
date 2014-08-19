@@ -17,6 +17,11 @@ module Sass::Script::Functions::UserFunctions
     return Sass::Script::Value::Null.new
   end
 
+  def set_a_global_variable(name, value)
+    environment.set_global_var(name.value, value)
+    return Sass::Script::Value::Null.new
+  end
+
   def get_a_variable(name)
     environment.var(name.value) || Sass::Script::Value::String.new("undefined")
   end
@@ -26,7 +31,7 @@ module Sass::Script::Functions
   include Sass::Script::Functions::UserFunctions
 end
 
-class SassEngineTest < Test::Unit::TestCase
+class SassEngineTest < MiniTest::Test
   FAKE_FILE_NAME = __FILE__.gsub(/rb$/,"sass")
   # A map of erroneous Sass documents to the error messages they should produce.
   # The error messages may be arrays;
@@ -68,8 +73,8 @@ MSG
     "$a: 1b >= 2c" => "Incompatible units: 'c' and 'b'.",
     "a\n  b: 1b * 2c" => "2b*c isn't a valid CSS value.",
     "a\n  b: 1b % 2c" => "Incompatible units: 'c' and 'b'.",
-    "$a: 2px + #ccc" => "Cannot add a number with units (2px) to a color (#cccccc).",
-    "$a: #ccc + 2px" => "Cannot add a number with units (2px) to a color (#cccccc).",
+    "$a: 2px + #ccc" => "Cannot add a number with units (2px) to a color (#ccc).",
+    "$a: #ccc + 2px" => "Cannot add a number with units (2px) to a color (#ccc).",
     "& a\n  :b c" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 1],
     "a\n  :b\n    c" => "Illegal nesting: Only properties may be nested beneath properties.",
     "$a: b\n  :c d\n" => "Illegal nesting: Nothing may be nested beneath variable declarations.",
@@ -141,6 +146,8 @@ MSG
     '@while' => "Invalid while directive '@while': expected expression.",
     '@debug' => "Invalid debug directive '@debug': expected expression.",
     %Q{@debug "a message"\n  "nested message"} => "Illegal nesting: Nothing may be nested beneath debug directives.",
+    '@error' => "Invalid error directive '@error': expected expression.",
+    %Q{@error "a message"\n  "nested message"} => "Illegal nesting: Nothing may be nested beneath error directives.",
     '@warn' => "Invalid warn directive '@warn': expected expression.",
     %Q{@warn "a message"\n  "nested message"} => "Illegal nesting: Nothing may be nested beneath warn directives.",
     "/* foo\n    bar\n  baz" => "Inconsistent indentation: previous line was indented by 4 spaces, but this line was indented by 2 spaces.",
@@ -526,9 +533,9 @@ ERR
     opts = {:full_exception => true, :line => 362}
     render(("a\n  b: c\n" * 10) + "d\n  e:\n" + ("f\n  g: h\n" * 10), opts)
   rescue Sass::SyntaxError => e
-    assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e, opts).split("\n")[0..15].join("\n"))
+    assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e, opts[:line]).split("\n")[0..15].join("\n"))
 /*
-Syntax error: Invalid property: "e:" (no value).
+Error: Invalid property: "e:" (no value).
         on line 383 of test_exception_css_with_offset_inline.sass
 
 378: a
@@ -548,8 +555,7 @@ CSS
   end
 
   def test_exception_css_with_mixins
-    opts = {:full_exception => true}
-    render(<<SASS, opts)
+    render(<<SASS, :full_exception => true)
 =error-mixin($a)
   color: $a * 1em * 1px
 
@@ -560,9 +566,9 @@ CSS
   +outer-mixin(12)
 SASS
   rescue Sass::SyntaxError => e
-    assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e, opts).split("\n")[0..13].join("\n"))
+    assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e).split("\n")[0..13].join("\n"))
 /*
-Syntax error: 12em*px isn't a valid CSS value.
+Error: 12em*px isn't a valid CSS value.
         on line 2 of test_exception_css_with_mixins_inline.sass, in `error-mixin'
         from line 5 of test_exception_css_with_mixins_inline.sass, in `outer-mixin'
         from line 8 of test_exception_css_with_mixins_inline.sass
@@ -580,8 +586,7 @@ CSS
   end
 
   def test_cssize_exception_css
-    opts = {:full_exception => true}
-    render(<<SASS, opts)
+    render(<<SASS, :full_exception => true)
 .filler
   stuff: "stuff!"
 
@@ -591,9 +596,9 @@ a: b
   a: b
 SASS
   rescue Sass::SyntaxError => e
-    assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e, opts).split("\n")[0..11].join("\n"))
+    assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e).split("\n")[0..11].join("\n"))
 /*
-Syntax error: Properties are only allowed within rules, directives, mixin includes, or other properties.
+Error: Properties are only allowed within rules, directives, mixin includes, or other properties.
         on line 4 of test_cssize_exception_css_inline.sass
 
 1: .filler
@@ -613,12 +618,12 @@ CSS
   end
 
   def test_http_import
-    assert_equal("@import url(http://fonts.googleapis.com/css?family=Droid+Sans);\n",
+    assert_equal("@import \"http://fonts.googleapis.com/css?family=Droid+Sans\";\n",
       render("@import \"http://fonts.googleapis.com/css?family=Droid+Sans\""))
   end
 
   def test_protocol_relative_import
-    assert_equal("@import url(//fonts.googleapis.com/css?family=Droid+Sans);\n",
+    assert_equal("@import \"//fonts.googleapis.com/css?family=Droid+Sans\";\n",
       render("@import \"//fonts.googleapis.com/css?family=Droid+Sans\""))
   end
 
@@ -702,12 +707,12 @@ ERR
   def test_import_in_rule
     assert_equal(<<CSS, render(<<SASS, :load_paths => [File.dirname(__FILE__) + '/templates/']))
 .foo #foo {
-  background-color: #bbaaff; }
+  background-color: #baf; }
 
 .bar {
   a: b; }
   .bar #foo {
-    background-color: #bbaaff; }
+    background-color: #baf; }
 CSS
 .foo
   @import partial
@@ -1026,7 +1031,6 @@ SASS
 @-webkit-keyframes warm {
   from {
     color: black; }
-
   to {
     color: red; } }
 CSS
@@ -1130,7 +1134,13 @@ SASS
   end
 
   def test_default_values_for_mixin_arguments
-    assert_equal("white {\n  color: white; }\n\nblack {\n  color: black; }\n", render(<<SASS))
+    assert_equal(<<CSS, render(<<SASS))
+white {
+  color: #FFF; }
+
+black {
+  color: #000; }
+CSS
 =foo($a: #FFF)
   :color $a
 white
@@ -1140,17 +1150,17 @@ black
 SASS
     assert_equal(<<CSS, render(<<SASS))
 one {
-  color: white;
+  color: #fff;
   padding: 1px;
   margin: 4px; }
 
 two {
-  color: white;
+  color: #fff;
   padding: 2px;
   margin: 5px; }
 
 three {
-  color: white;
+  color: #fff;
   padding: 2px;
   margin: 3px; }
 CSS
@@ -1168,17 +1178,17 @@ three
 SASS
     assert_equal(<<CSS, render(<<SASS))
 one {
-  color: white;
+  color: #fff;
   padding: 1px;
   margin: 4px; }
 
 two {
-  color: white;
+  color: #fff;
   padding: 2px;
   margin: 5px; }
 
 three {
-  color: white;
+  color: #fff;
   padding: 2px;
   margin: 3px; }
 CSS
@@ -1383,7 +1393,7 @@ CSS
 $variable: 0
 bar
   $local: 10
-  -no-op: set-a-variable(variable, 5)
+  -no-op: set-a-global-variable(variable, 5)
   a: $variable
 SASS
   end
@@ -1617,31 +1627,6 @@ a
 SASS
   end
 
-  def test_variable_scope
-    silence_warnings {assert_equal(<<CSS, render(<<SASS))}
-a {
-  b-1: c;
-  b-2: c;
-  d: 12; }
-
-b {
-  d: 17; }
-CSS
-$i: 12
-a
-  @for $i from 1 through 2
-    b-\#{$i}: c
-  d: $i
-
-=foo
-  $i: 17
-
-b
-  +foo
-  d: $i
-SASS
-  end
-
   def test_hyphen_underscore_insensitive_variables
     assert_equal(<<CSS, render(<<SASS))
 d {
@@ -1684,7 +1669,7 @@ SASS
   end
 
   def test_argument_error
-    assert_raise(Sass::SyntaxError) { render("a\n  b: hsl(1)") }
+    assert_raises(Sass::SyntaxError) { render("a\n  b: hsl(1)") }
   end
 
   def test_comments_at_the_top_of_a_document
@@ -2029,10 +2014,10 @@ $var: "bar"
 SASS
   end
 
-  def test_interpolation_doesnt_deep_unquote_strings
+  def test_interpolation_deep_unquotes_strings
     assert_equal(<<CSS, render(<<SASS))
 .foo {
-  a: "bar" "baz"; }
+  a: bar baz; }
 CSS
 .foo
   a: \#{"bar" "baz"}
@@ -2898,145 +2883,6 @@ CSS
 SASS
   end
 
-  # Encodings
-
-  unless Sass::Util.ruby1_8?
-    def test_encoding_error
-      render("foo\nbar\nb\xFEaz".force_encoding("utf-8"))
-      assert(false, "Expected exception")
-    rescue Sass::SyntaxError => e
-      assert_equal(3, e.sass_line)
-      assert_equal('Invalid UTF-8 character "\xFE"', e.message)
-    end
-
-    def test_ascii_incompatible_encoding_error
-      template = "foo\nbar\nb_z".encode("utf-16le")
-      template[9] = "\xFE".force_encoding("utf-16le")
-      render(template)
-      assert(false, "Expected exception")
-    rescue Sass::SyntaxError => e
-      assert_equal(3, e.sass_line)
-      assert_equal('Invalid UTF-16LE character "\xFE"', e.message)
-    end
-
-    def test_same_charset_as_encoding
-      assert_renders_encoded(<<CSS, <<SASS)
-@charset "UTF-8";
-fóó {
-  a: b; }
-CSS
-@charset "utf-8"
-fóó
-  a: b
-SASS
-    end
-
-    def test_different_charset_than_encoding
-      assert_renders_encoded(<<CSS.force_encoding("IBM866"), <<SASS)
-@charset "IBM866";
-fóó {
-  a: b; }
-CSS
-@charset "ibm866"
-fóó
-  a: b
-SASS
-    end
-
-    def test_different_encoding_than_system
-      assert_renders_encoded(<<CSS.encode("IBM866"), <<SASS.encode("IBM866"))
-@charset "IBM866";
-тАЬ {
-  a: b; }
-CSS
-тАЬ
-  a: b
-SASS
-    end
-
-    def test_multibyte_charset
-      assert_renders_encoded(<<CSS.encode("UTF-16LE"), <<SASS.encode("UTF-16LE").force_encoding("UTF-8"))
-@charset "UTF-16LE";
-fóó {
-  a: b; }
-CSS
-@charset "utf-16le"
-fóó
-  a: b
-SASS
-    end
-
-    def test_multibyte_charset_without_endian_specifier
-      assert_renders_encoded(<<CSS.encode("UTF-32BE"), <<SASS.encode("UTF-32BE").force_encoding("UTF-8"))
-@charset "UTF-32BE";
-fóó {
-  a: b; }
-CSS
-@charset "utf-32"
-fóó
-  a: b
-SASS
-    end
-
-    def test_utf8_bom
-      assert_renders_encoded(<<CSS, <<SASS.force_encoding("BINARY"))
-@charset "UTF-8";
-fóó {
-  a: b; }
-CSS
-\uFEFFfóó
-  a: b
-SASS
-    end
-
-    def test_utf16le_bom
-      assert_renders_encoded(<<CSS.encode("UTF-16LE"), <<SASS.encode("UTF-16LE").force_encoding("BINARY"))
-@charset "UTF-16LE";
-fóó {
-  a: b; }
-CSS
-\uFEFFfóó
-  a: b
-SASS
-    end
-
-    def test_utf32be_bom
-      assert_renders_encoded(<<CSS.encode("UTF-32BE"), <<SASS.encode("UTF-32BE").force_encoding("BINARY"))
-@charset "UTF-32BE";
-fóó {
-  a: b; }
-CSS
-\uFEFFfóó
-  a: b
-SASS
-    end
-
-    # Encoding Regression Test
-
-    def test_multibyte_prop_name
-      assert_equal(<<CSS, render(<<SASS))
-@charset "UTF-8";
-#bar {
-  cölor: blue; }
-CSS
-#bar
-  cölor: blue
-SASS
-    end
-
-    def test_multibyte_and_interpolation
-      assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))
-#bar {
-  background: a 0%; }
-CSS
-#bar {
-  // 
-  background: \#{a} 0%;
-}
-SCSS
-    end
-  end
-
   def test_original_filename_set
     importer = MockImporter.new
     importer.add_import("imported", "div{color:red}")
@@ -3287,6 +3133,13 @@ test_debug_inspects_sass_objects_inline.scss:1 DEBUG: (a: 1, b: 2)
 END
   end
 
+  def test_error_throws_sass_objects
+    assert_raise_message(Sass::SyntaxError, "(a: 1, b: 2)") {render("@error (a: 1, b: 2)")}
+    assert_raise_message(Sass::SyntaxError, "(a: 1, b: 2)") do
+      render("$map: (a: 1, b: 2); @error $map", :syntax => :scss)
+    end
+  end
+
   def test_default_arg_before_splat
     assert_equal <<CSS, render(<<SASS, :syntax => :scss)
 .foo-positional {
@@ -3312,6 +3165,90 @@ CSS
 .foo-keywords {
   @include foo($c: c, $d: d);
 }
+SASS
+  end
+
+  def test_keyframes
+    assert_equal <<CSS, render(<<SASS)
+@keyframes identifier {
+  0% {
+    top: 0;
+    left: 0; }
+  30% {
+    top: 50px; }
+  68%, 72% {
+    left: 50px; }
+  100% {
+    top: 100px;
+    left: 100%; } }
+CSS
+@keyframes identifier
+  0%
+    top: 0
+    left: 0
+  \#{"30%"}
+    top: 50px
+  68%, 72%
+    left: 50px
+  100%
+    top: 100px
+    left: 100%
+SASS
+  end
+
+  def test_prefixed_keyframes
+    assert_equal <<CSS, render(<<SASS)
+@-moz-keyframes identifier {
+  0% {
+    top: 0;
+    left: 0; }
+  30% {
+    top: 50px; }
+  68%, 72% {
+    left: 50px; }
+  100% {
+    top: 100px;
+    left: 100%; } }
+CSS
+@-moz-keyframes identifier
+  0%
+    top: 0
+    left: 0
+  \#{"30%"}
+    top: 50px
+  68%, 72%
+    left: 50px
+  100%
+    top: 100px
+    left: 100%
+SASS
+  end
+
+  def test_uppercase_keyframes
+    assert_equal <<CSS, render(<<SASS)
+@KEYFRAMES identifier {
+  0% {
+    top: 0;
+    left: 0; }
+  30% {
+    top: 50px; }
+  68%, 72% {
+    left: 50px; }
+  100% {
+    top: 100px;
+    left: 100%; } }
+CSS
+@KEYFRAMES identifier
+  0%
+    top: 0
+    left: 0
+  \#{"30%"}
+    top: 50px
+  68%, 72%
+    left: 50px
+  100%
+    top: 100px
+    left: 100%
 SASS
   end
 
