@@ -1,4 +1,4 @@
-# Sass [![Gem Version](https://badge.fury.io/rb/sass.png)](http://badge.fury.io/rb/sass) [![Inline docs](http://inch-pages.github.io/github/nex3/sass.png)](http://inch-pages.github.io/github/nex3/sass)
+# Sass [![Gem Version](https://badge.fury.io/rb/sass.png)](http://badge.fury.io/rb/sass) [![Inline docs](http://inch-ci.org/github/nex3/sass.png)](http://inch-ci.org/github/nex3/sass)
 
 **Sass makes CSS fun again**. Sass is an extension of CSS3,
 adding nested rules, variables, mixins, selector inheritance, and more.
