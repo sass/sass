@@ -133,7 +133,7 @@ adding multiple suffixes to the same parent selector. For example:
 
 * Sass now follows the [CSS Syntax Level 3][encodings level 3]
   specification for determining a stylesheet's encoding. In addition,
-  it not only emits UTF-8 CSS rather than trying to match the source
+  it now only emits UTF-8 CSS rather than trying to match the source
   encoding.
 
 [encodings level 3]: http://www.w3.org/TR/2013/WD-css-syntax-3-20130919/#determine-the-fallback-encoding
