@@ -3528,6 +3528,19 @@ SCSS
 
   # Regression
 
+  def test_attribute_selector_in_selector_pseudoclass
+    # Even though this is plain CSS, it only failed when given to the SCSS
+    # parser.
+    assert_equal(<<CSS, render(<<SCSS))
+[href^='http://'] {
+  color: red; }
+CSS
+[href^='http://'] {
+  color: red;
+}
+SCSS
+  end
+
   def test_top_level_unknown_directive_in_at_root
     assert_equal(<<CSS, render(<<SCSS))
 @fblthp {

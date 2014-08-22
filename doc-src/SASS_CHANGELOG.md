@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.4.1 (Unreleased)
+
+* Fix a parsing bug with attribute selectors containing single quotes.
+
 ## 3.4.0 (18 August 2014)
 
 ### Using `&` in SassScript
