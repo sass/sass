@@ -222,7 +222,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def visit_each(node)
     list = node.list.perform(@environment)
 
-    with_environment Sass::Environment.new(@environment) do
+    with_environment Sass::SemiGlobalEnvironment.new(@environment) do
       list.to_a.map do |value|
         if node.vars.length == 1
           @environment.set_local_var(node.vars.first, value)
@@ -256,7 +256,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     direction = from.to_i > to.to_i ? -1 : 1
     range = Range.new(direction * from.to_i, direction * to.to_i, node.exclusive)
 
-    with_environment Sass::Environment.new(@environment) do
+    with_environment Sass::SemiGlobalEnvironment.new(@environment) do
       range.map do |i|
         @environment.set_local_var(node.var,
           Sass::Script::Value::Number.new(direction * i,
@@ -279,8 +279,9 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # otherwise, tries the else nodes.
   def visit_if(node)
     if node.expr.nil? || node.expr.perform(@environment).to_bool
-      yield
-      node.children
+      with_environment Sass::SemiGlobalEnvironment.new(@environment) do
+        node.children.map {|c| visit(c)}
+      end.flatten
     elsif node.else
       visit(node.else)
     else
@@ -471,7 +472,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # Runs the child nodes until the continuation expression becomes false.
   def visit_while(node)
     children = []
-    with_environment Sass::Environment.new(@environment) do
+    with_environment Sass::SemiGlobalEnvironment.new(@environment) do
       children += node.children.map {|c| visit(c)} while node.expr.perform(@environment).to_bool
     end
     children.flatten

@@ -188,4 +188,21 @@ module Sass
       @content ||= env.is_a?(ReadOnlyEnvironment) ? env : ReadOnlyEnvironment.new(env, env.options)
     end
   end
+
+  # An environment that can write to in-scope global variables, but doesn't
+  # create new variables in the global scope. Useful for top-level control
+  # directives.
+  class SemiGlobalEnvironment < Environment
+    def try_set_var(name, value)
+      @vars ||= {}
+      if @vars.include?(name)
+        @vars[name] = value
+        true
+      elsif @parent
+        @parent.try_set_var(name, value)
+      else
+        false
+      end
+    end
+  end
 end

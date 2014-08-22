@@ -18,6 +18,10 @@
 
 * Properly handle `--sourcemap=none` with `--update`.
 
+* Top-level control structures can assign to global variables without needing
+  `!global`. Variables first defined in these structures will still be local
+  without `!global`.
+
 ## 3.4.0 (18 August 2014)
 
 ### Using `&` in SassScript
