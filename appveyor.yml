@@ -1,0 +1,48 @@
+# see: http://www.appveyor.com/docs/build-configuration
+
+init:
+  - git config --global core.autocrlf input
+
+clone_folder: c:\projects\sass
+
+# list some environment info
+install:
+  - ps: Get-Date
+  - ruby -v
+  - gem -v
+  - gem list bundler
+  - bundle install
+
+# any building is done during test using rake
+build: off
+
+# run rake
+test_script:
+  - ps: Write-Host "Getting ready to test..." -ForegroundColor Magenta
+  - cd C:\projects\sass
+  - bundle exec rake
+
+after_test:
+  - ps: Get-Date
+
+on_success:
+  - ps: Write-Host "Done testing (SUCCESS)" -ForegroundColor Green
+  
+on_failure:
+  - ps: Write-Host "Done testing (FAILURE)" -ForegroundColor Red
+
+environment:
+
+  # by specifying these two platforms (x64/x86) we get a 1x2 build matrix with 
+  #    the specified environment settings. However the build still uses the stock Ruby
+  matrix:
+  - platform: x64
+    MATHN: true
+    RUBOCOP: false
+    
+  - platform: x86
+    MATHN: false
+    RUBOCOP: false
+
+matrix:
+  fast_finish: false
