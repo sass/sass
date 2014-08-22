@@ -333,8 +333,8 @@ SCSS
   end
 
   def test_extend_into_not
-    assert_extends(':not(.foo)', '.x {@extend .foo}', ':not(.foo, .x)')
-    assert_extends(':not(.foo.bar)', '.x {@extend .bar}', ':not(.foo.bar, .foo.x)')
+    assert_extends(':not(.foo)', '.x {@extend .foo}', ':not(.foo):not(.x)')
+    assert_extends(':not(.foo.bar)', '.x {@extend .bar}', ':not(.foo.bar):not(.foo.x)')
     assert_extends(
       ':not(.foo.bar, .baz.bar)',
       '.x {@extend .bar}',
@@ -362,7 +362,7 @@ SCSS
   end
 
   def test_complex_extend_into_pseudoclass
-    assert_extends(':not(.bar)', '.x .y {@extend .bar}', ':not(.bar, .x .y)')
+    assert_extends(':not(.bar)', '.x .y {@extend .bar}', ':not(.bar):not(.x .y)')
     assert_extends(':matches(.bar)', '.x .y {@extend .bar}', ':matches(.bar, .x .y)')
     assert_extends(':current(.bar)', '.x .y {@extend .bar}', ':current(.bar, .x .y)')
     assert_extends(':has(.bar)', '.x .y {@extend .bar}', ':has(.bar, .x .y)')
@@ -458,7 +458,7 @@ SCSS
 
   def test_extend_into_not_and_normal_extend
     assert_equal <<CSS, render(<<SCSS)
-.x:not(.y, .bar), .foo:not(.y, .bar) {
+.x:not(.y):not(.bar), .foo:not(.y):not(.bar) {
   a: b; }
 CSS
 .x:not(.y) {a: b}

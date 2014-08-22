@@ -161,9 +161,9 @@ module Sass
           extended.members.reject! {|seq| seq.has_placeholder?}
           modified_original = true
           result = sel.with_selector(extended)
-          seen_with_pseudo_selectors << [result]
+          result.each {|new_sel| seen_with_pseudo_selectors << [new_sel]}
           result
-        end
+        end.flatten
 
         groups = Sass::Util.group_by_to_a(extends[members.to_set]) {|ex| ex.extender}
         groups.map! do |seq, group|

@@ -7,6 +7,8 @@
 
 * Fix `--watch`.
 
+* Don't generate `:not()` selectors that contain more than one complex selector.
+
 * Fix a parsing bug with attribute selectors containing single quotes.
 
 * Don't put rulesets inside `@keyframes` directives when bubbling them up to the
