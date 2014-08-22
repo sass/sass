@@ -222,7 +222,11 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
   # Bubbles a directive up through RuleNodes.
   def visit_directive(node)
     return node unless node.has_children
-    return bubble(node) if parent.is_a?(Sass::Tree::RuleNode)
+    if parent.is_a?(Sass::Tree::RuleNode)
+      # @keyframes shouldn't include the rule nodes, so we manually create a
+      # bubble that doesn't have the parent's contents for them.
+      return node.normalized_name == '@keyframes' ? Bubble.new(node) : bubble(node)
+    end
 
     yield
 

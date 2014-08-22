@@ -715,6 +715,26 @@ CSS
 SCSS
   end
 
+  def test_keyframe_bubbling
+    assert_equal(<<CSS, render(<<SCSS, :style => :nested))
+@keyframes spin {
+  0% {
+    transform: rotate(0deg); } }
+@-webkit-keyframes spin {
+  0% {
+    transform: rotate(0deg); } }
+CSS
+.foo {
+  @keyframes spin {
+    0% {transform: rotate(0deg)}
+  }
+  @-webkit-keyframes spin {
+    0% {transform: rotate(0deg)}
+  }
+}
+SCSS
+  end
+
   ## Namespace Properties
 
   def test_namespace_properties
