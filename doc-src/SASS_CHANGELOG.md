@@ -10,6 +10,8 @@
 * Don't put rulesets inside `@keyframes` directives when bubbling them up to the
   top level.
 
+* Properly handle `@keyframes` rules that contain no properties.
+
 ## 3.4.0 (18 August 2014)
 
 ### Using `&` in SassScript

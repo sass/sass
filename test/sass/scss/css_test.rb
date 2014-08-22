@@ -690,6 +690,20 @@ CSS
 SCSS
   end
 
+  def test_keyframes_with_empty_rules
+    assert_equal <<CSS, render(<<SCSS)
+@keyframes identifier {
+  50% {
+    background-color: black; } }
+CSS
+@keyframes identifier {
+  0% {}
+  50% {background-color: black}
+  100% {}
+}
+SCSS
+  end
+
   ## Selectors
 
   # Taken from http://dev.w3.org/csswg/selectors4/#overview

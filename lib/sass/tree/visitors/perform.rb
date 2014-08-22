@@ -397,6 +397,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
       keyframe_rule_node.line = node.line
       keyframe_rule_node.filename = node.filename
       keyframe_rule_node.source_range = node.source_range
+      keyframe_rule_node.has_children = node.has_children
       with_environment Sass::Environment.new(@environment, node.options) do
         keyframe_rule_node.children = node.children.map {|c| visit(c)}.flatten
       end
