@@ -5,6 +5,8 @@
 
 ## 3.4.1 (Unreleased)
 
+* Fix `--watch`.
+
 * Fix a parsing bug with attribute selectors containing single quotes.
 
 * Don't put rulesets inside `@keyframes` directives when bubbling them up to the
