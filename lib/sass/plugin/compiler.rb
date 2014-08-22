@@ -238,10 +238,12 @@ module Sass::Plugin
     #   of the directories being updated.
     def file_list(individual_files = [])
       files = individual_files.map do |tuple|
-        if tuple.size < 3
+        if engine_options[:sourcemap] == :none
+          tuple[0..1]
+        elsif tuple.size < 3
           [tuple[0], tuple[1], Sass::Util.sourcemap_name(tuple[1])]
         else
-          tuple
+          tuple.dup
         end
       end
 

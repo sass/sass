@@ -14,6 +14,8 @@
 
 * Properly handle `@keyframes` rules that contain no properties.
 
+* Properly handle `--sourcemap=none` with `--update`.
+
 ## 3.4.0 (18 August 2014)
 
 ### Using `&` in SassScript
