@@ -33,6 +33,7 @@ module Sass::Plugin
     # @param opts [{Symbol => Object}]
     #   See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
     def initialize(opts = {})
+      @watched_files = Set.new
       options.merge!(opts)
     end
 
@@ -294,7 +295,9 @@ module Sass::Plugin
 
       directories = watched_paths
       individual_files.each do |(source, _, _)|
-        directories << File.dirname(File.expand_path(source))
+        source = File.expand_path(source)
+        @watched_files << source
+        directories << File.dirname(source)
       end
       directories = remove_redundant_directories(directories)
 
@@ -524,7 +527,7 @@ module Sass::Plugin
     end
 
     def watched_file?(file)
-      normalized_load_paths.find {|lp| lp.watched_file?(file)}
+      @watched_files.include?(file) || normalized_load_paths.any? {|lp| lp.watched_file?(file)}
     end
 
     def watched_paths

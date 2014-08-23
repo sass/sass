@@ -260,7 +260,6 @@ MESSAGE
     def watch_or_update
       require 'sass/plugin'
       Sass::Plugin.options.merge! @options[:for_engine]
-      (Sass::Plugin.options[:load_paths] ||= []) << '.'
       Sass::Plugin.options[:unix_newlines] = @options[:unix_newlines]
       Sass::Plugin.options[:poll] = @options[:poll]
       Sass::Plugin.options[:sourcemap] = @options[:sourcemap]
