@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.4.1 (Unreleased)
+## 3.4.1 (22 August 2014)
 
 * Fix `--watch`.
 
