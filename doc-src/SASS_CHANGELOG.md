@@ -18,6 +18,9 @@
 
 * Properly handle `--sourcemap=none` with `--update`.
 
+* Silence "template deleted" notifications for templates that weren't being
+  watched.
+
 * Top-level control structures can assign to global variables without needing
   `!global`. Variables first defined in these structures will still be local
   without `!global`.

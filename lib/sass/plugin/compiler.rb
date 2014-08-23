@@ -440,6 +440,7 @@ module Sass::Plugin
       end
 
       removed.uniq.each do |f|
+        next unless watched_file?(f)
         run_template_deleted(relative_to_pwd(f))
         if (files = individual_files.find {|(source, _, _)| File.expand_path(source) == f})
           recompile_required = true
