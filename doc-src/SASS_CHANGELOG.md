@@ -7,6 +7,8 @@
 
 * Properly detect the output format from the output filename for `sass-convert`.
 
+* Properly parse interpolation immediately following a string.
+
 ## 3.4.1 (22 August 2014)
 
 * Fix `--watch`.

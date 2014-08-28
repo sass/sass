@@ -497,7 +497,7 @@ RUBY
         first = try_tok(:special_fun)
         return paren unless first
         str = literal_node(first.value, first.source_range)
-        return str unless try_tok(:begin_interpolation)
+        return str unless try_tok(:string_interpolation)
         mid = parse_interpolated
         last = assert_expr(:special_fun)
         node(Tree::Interpolation.new(str, mid, last, false, false),
@@ -528,7 +528,7 @@ RUBY
         first = try_tok(:string)
         return number unless first
         str = literal_node(first.value, first.source_range)
-        return str unless try_tok(:begin_interpolation)
+        return str unless try_tok(:string_interpolation)
         mid = assert_expr :expr
         assert_tok :end_interpolation
         last = assert_expr(:string)

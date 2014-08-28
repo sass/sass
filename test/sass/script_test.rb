@@ -963,6 +963,11 @@ SCSS
 
   # Regression Tests
 
+  def test_interpolation_after_string
+    assert_equal '"foobar" 2', resolve('"foobar" #{2}')
+    assert_equal "calc(1 + 2) 3", resolve('calc(1 + 2) #{3}')
+  end
+
   def test_repeatedly_modified_color
     assert_equal(<<CSS, render(<<SASS))
 a {
