@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.4.2 (Unreleased)
+
+* Properly detect the output format from the output filename for `sass-convert`.
+
 ## 3.4.1 (22 August 2014)
 
 * Fix `--watch`.
