@@ -18,4 +18,4 @@ else
 end
 
 gem 'rubyforge', :group => :development
-gem 'minitest', :group => :test
+gem 'minitest', '>= 5.0.0', '< 6.0.0', :group => :test
