@@ -296,7 +296,7 @@ module Sass::Plugin
       directories = watched_paths
       individual_files.each do |(source, _, _)|
         source = File.expand_path(source)
-        @watched_files << source
+        @watched_files << Sass::Util.realpath(source).to_s
         directories << File.dirname(source)
       end
       directories = remove_redundant_directories(directories)

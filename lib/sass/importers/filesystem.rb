@@ -13,6 +13,7 @@ module Sass
       #   This importer will import files relative to this path.
       def initialize(root)
         @root = File.expand_path(root)
+        @real_root = Sass::Util.realpath(@root).to_s
         @same_name_warnings = Set.new
       end
 
@@ -60,8 +61,9 @@ module Sass
 
       # @see Base#watched_file?
       def watched_file?(filename)
-        filename =~ /\.s[ac]ss$/ &&
-          filename.start_with?(root + File::SEPARATOR)
+        # Check against the root with symlinks resolved, since Listen
+        # returns fully-resolved paths.
+        filename =~ /\.s[ac]ss$/ && filename.start_with?(@real_root + File::SEPARATOR)
       end
 
       def public_url(name, sourcemap_directory)

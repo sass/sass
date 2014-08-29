@@ -9,6 +9,8 @@
 
 * Properly parse interpolation immediately following a string.
 
+* Fix `--watch` for symlinked files and directories.
+
 ## 3.4.1 (22 August 2014)
 
 * Fix `--watch`.

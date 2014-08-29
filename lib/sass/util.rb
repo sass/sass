@@ -661,6 +661,15 @@ module Sass
       pathname(path.cleanpath.to_s)
     end
 
+    # Returns `path` with all symlinks resolved.
+    #
+    # @param path [String, Pathname]
+    # @return [Pathanme]
+    def realpath(path)
+      path = Pathname.new(path) unless path.is_a?(Pathname)
+      pathname(path.realpath.to_s)
+    end
+
     # Converts `path` to a "file:" URI. This handles Windows paths correctly.
     #
     # @param path [String, Pathname]
