@@ -5,11 +5,15 @@ init:
 
 clone_folder: c:\projects\sass
 
+version: "{build}"
+
 # list some environment info
 install:
   - ps: Get-Date
+  - ps: $env:Path = $env:RUBYPATH + "\bin;" + $env:Path
   - ruby -v
   - gem -v
+  - gem install bundler
   - gem list bundler
   - bundle install
 
@@ -33,16 +37,36 @@ on_failure:
 
 environment:
 
-  # by specifying these two platforms (x64/x86) we get a 1x2 build matrix with 
-  #    the specified environment settings. However the build still uses the stock Ruby
   matrix:
-  - platform: x64
+  - myEnv: 193-mathn-true
     MATHN: true
     RUBOCOP: false
-    
-  - platform: x86
+    RUBYPATH: C:\Ruby193
+  
+  - myEnv: 193-mathn-false
     MATHN: false
     RUBOCOP: false
+    RUBYPATH: C:\Ruby193
+
+  - myEnv: 200-mathn-true
+    MATHN: true
+    RUBOCOP: false
+    RUBYPATH: C:\Ruby200
+  
+  - myEnv: 200-mathn-false
+    MATHN: false
+    RUBOCOP: false
+    RUBYPATH: C:\Ruby200
+
+  - myEnv: 200-mathn-true-x64
+    MATHN: true
+    RUBOCOP: false
+    RUBYPATH: C:\Ruby200-x64
+  
+  - myEnv: 200-mathn-false-x64
+    MATHN: false
+    RUBOCOP: false
+    RUBYPATH: C:\Ruby200-x64
 
 matrix:
   fast_finish: false
