@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.4.2 (Unreleased)
+## 3.4.2 (28 August 2014)
 
 * Properly detect the output format from the output filename for `sass-convert`.
 
