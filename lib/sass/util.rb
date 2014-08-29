@@ -667,7 +667,13 @@ module Sass
     # @return [Pathanme]
     def realpath(path)
       path = Pathname.new(path) unless path.is_a?(Pathname)
-      pathname(path.realpath.to_s)
+      pathname(begin
+                 path.realpath
+               rescue SystemCallError
+                 # If [path] doesn't actually exist, don't bail, just
+                 # return the original.
+                 path
+               end.to_s)
     end
 
     # Converts `path` to a "file:" URI. This handles Windows paths correctly.
