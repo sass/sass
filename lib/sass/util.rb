@@ -687,10 +687,11 @@ module Sass
     # @return [String]
     def file_uri_from_path(path)
       path = path.to_s if path.is_a?(Pathname)
+      path = path.tr('\\', '/') if windows?
       path = Sass::Util.escape_uri(path)
       return path.start_with?('/') ? "file://" + path : path unless windows?
       return "file:///" + path.tr("\\", "/") if path =~ /^[a-zA-Z]:[\/\\]/
-      return "file://" + path.tr("\\", "/") if path =~ /\\\\[^\\]+\\[^\\\/]+/
+      return "file:" + path.tr("\\", "/") if path =~ /\\\\[^\\]+\\[^\\\/]+/
       path.tr("\\", "/")
     end
 
