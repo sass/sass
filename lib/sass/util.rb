@@ -695,6 +695,21 @@ module Sass
       path.tr("\\", "/")
     end
 
+    # Retries a filesystem operation if it fails on Windows. Windows
+    # has weird and flaky locking rules that can cause operations to fail.
+    #
+    # @yield [] The filesystem operation.
+    def retry_on_windows
+      return yield unless windows?
+
+      begin
+        yield
+      rescue SystemCallError
+        sleep 0.1
+        yield
+      end
+    end
+
     # Prepare a value for a destructuring assignment (e.g. `a, b =
     # val`). This works around a performance bug when using
     # ActiveSupport, and only needs to be called when `val` is likely
