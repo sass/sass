@@ -667,13 +667,18 @@ module Sass
     # @return [Pathanme]
     def realpath(path)
       path = Pathname.new(path) unless path.is_a?(Pathname)
-      pathname(begin
-                 path.realpath
-               rescue SystemCallError
-                 # If [path] doesn't actually exist, don't bail, just
-                 # return the original.
-                 path
-               end.to_s)
+
+      # Explicitly DON'T run #pathname here. We don't want to convert
+      # to Windows directory separators because we're comparing these
+      # against the paths returned by Listen, which use forward
+      # slashes everywhere.
+      begin
+        path.realpath
+      rescue SystemCallError
+        # If [path] doesn't actually exist, don't bail, just
+        # return the original.
+        path
+      end
     end
 
     # Converts `path` to a "file:" URI. This handles Windows paths correctly.

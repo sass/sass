@@ -7,6 +7,8 @@
 
 * Don't crash when a non-existent directory is on the load path.
 
+* Fix `--watch` on Windows.
+
 ## 3.4.2 (28 August 2014)
 
 * Properly detect the output format from the output filename for `sass-convert`.
