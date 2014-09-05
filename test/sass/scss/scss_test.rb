@@ -1529,6 +1529,17 @@ SCSS
 SCSS
   end
 
+  def test_mixin_splat_too_many_args
+    assert_warning(<<WARNING) {render <<SCSS}
+WARNING: Mixin foo takes 2 arguments but 4 were passed.
+        on line 2 of #{filename_for_test(:scss)}
+This will be an error in future versions of Sass.
+WARNING
+@mixin foo($a, $b) {}
+@include foo((1, 2, 3, 4)...);
+SCSS
+  end
+
   def test_function_var_args
     assert_equal <<CSS, render(<<SCSS)
 .foo {
@@ -1947,6 +1958,17 @@ MESSAGE
 }
 
 .foo {val: foo((12: 1)...)}
+SCSS
+  end
+
+  def test_function_splat_too_many_args
+    assert_warning(<<WARNING) {render <<SCSS}
+WARNING: Function foo takes 2 arguments but 4 were passed.
+        on line 2 of #{filename_for_test(:scss)}
+This will be an error in future versions of Sass.
+WARNING
+@function foo($a, $b) {@return null}
+$var: foo((1, 2, 3, 4)...);
 SCSS
   end
 

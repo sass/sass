@@ -9,6 +9,10 @@
 
 * Fix `--watch` on Windows.
 
+* Passing too many arguments to a function via `...` is now a warning rather
+  than silently discarding additional arguments. In future versions of Sass,
+  this will become an error.
+
 ## 3.4.2 (28 August 2014)
 
 * Properly detect the output format from the output filename for `sass-convert`.

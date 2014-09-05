@@ -11,7 +11,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     # @api private
     # @comment
     #   rubocop:disable MethodLength
-    def perform_arguments(callable, args, splat)
+    def perform_arguments(callable, args, splat, environment)
       desc = "#{callable.type.capitalize} #{callable.name}"
       downcase_desc = "#{callable.type} #{callable.name}"
 
@@ -41,18 +41,24 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
       # raising happens in the ensure clause at the end of this function.
       return if keyword_exception && !callable.splat
 
-      if args.size > callable.args.size && !callable.splat
-        takes = callable.args.size
-        passed = args.size
-        raise Sass::SyntaxError.new(
-          "#{desc} takes #{takes} argument#{'s' unless takes == 1} " +
-          "but #{passed} #{passed == 1 ? 'was' : 'were'} passed.")
-      end
-
       splat_sep = :comma
       if splat
         args += splat.to_a
         splat_sep = splat.separator
+      end
+
+      if args.size > callable.args.size && !callable.splat
+        extra_args_because_of_splat = splat && args.size - splat.to_a.size <= callable.args.size
+
+        takes = callable.args.size
+        passed = args.size
+        message = "#{desc} takes #{takes} argument#{'s' unless takes == 1} " +
+          "but #{passed} #{passed == 1 ? 'was' : 'were'} passed."
+        raise Sass::SyntaxError.new(message) unless extra_args_because_of_splat
+        # TODO: when the deprecation period is over, make this an error.
+        Sass::Util.sass_warn("WARNING: #{message}\n" +
+          environment.stack.to_s.gsub(/^/m, " " * 8) + "\n" +
+          "This will be an error in future versions of Sass.")
       end
 
       env = Sass::Environment.new(callable.environment)
@@ -339,7 +345,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
       keywords = Sass::Util.map_vals(node.keywords) {|v| v.perform(@environment)}
       splat = self.class.perform_splat(node.splat, keywords, node.kwarg_splat, @environment)
 
-      self.class.perform_arguments(mixin, args, splat) do |env|
+      self.class.perform_arguments(mixin, args, splat, @environment) do |env|
         env.caller = Sass::Environment.new(@environment)
         env.content = [node.children, @environment] if node.has_children
 
