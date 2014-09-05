@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.4.3 (Unreleased)
+## 3.4.3 (4 September 2014)
 
 * Don't crash when a non-existent directory is on the load path.
 
