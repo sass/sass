@@ -47,7 +47,7 @@ class MiniTest::Test
 
   def clean_up_sassc
     path = File.dirname(__FILE__) + "/../.sass-cache"
-    FileUtils.rm_r(path) if File.exist?(path)
+    Sass::Util.retry_on_windows {FileUtils.rm_r(path) if File.exist?(path)}
   end
 
   def assert_warning(message)
