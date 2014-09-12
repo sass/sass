@@ -704,6 +704,27 @@ CSS
 SCSS
   end
 
+  def test_keyframes_with_custom_identifiers
+    assert_equal <<CSS, render(<<SCSS)
+@-skrollr-keyframes identifier {
+  center-top {
+    left: 100%; }
+  top-bottom {
+    left: 0%; } }
+CSS
+@-skrollr-keyframes identifier {
+  center-top {
+    left: 100%;
+  }
+
+  top-bottom {
+    left: 0%;
+  }
+}
+
+SCSS
+  end
+
   ## Selectors
 
   # Taken from http://dev.w3.org/csswg/selectors4/#overview

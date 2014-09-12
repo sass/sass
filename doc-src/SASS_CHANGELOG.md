@@ -8,6 +8,9 @@
 * Produce more useful error messages when paths have incompatible encodings on
   Windows.
 
+* Allow `@keyframes` selectors to use arbitrary identifiers to support libraries
+  like Skrollr.
+
 ## 3.4.3 (4 September 2014)
 
 * Don't crash when a non-existent directory is on the load path.

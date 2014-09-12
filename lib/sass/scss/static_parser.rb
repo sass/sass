@@ -358,7 +358,7 @@ MESSAGE
       end
 
       def keyframes_selector_component
-        tok(/from|to/i) || tok(PERCENTAGE)
+        tok(IDENT) || tok(PERCENTAGE)
       end
 
       @sass_script_parser = Class.new(Sass::Script::CssParser)
