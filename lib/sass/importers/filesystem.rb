@@ -68,15 +68,14 @@ module Sass
 
       def public_url(name, sourcemap_directory)
         file_pathname = Sass::Util.cleanpath(Sass::Util.absolute_path(name, @root))
-        if sourcemap_directory.nil?
+        return Sass::Util.file_uri_from_path(file_pathname) if sourcemap_directory.nil?
+
+        sourcemap_pathname = Sass::Util.cleanpath(sourcemap_directory)
+        begin
+          Sass::Util.file_uri_from_path(
+            Sass::Util.relative_path_from(file_pathname, sourcemap_pathname))
+        rescue ArgumentError # when a relative path cannot be constructed
           Sass::Util.file_uri_from_path(file_pathname)
-        else
-          sourcemap_pathname = Sass::Util.cleanpath(sourcemap_directory)
-          begin
-            Sass::Util.file_uri_from_path(file_pathname.relative_path_from(sourcemap_pathname))
-          rescue ArgumentError # when a relative path cannot be constructed
-            Sass::Util.file_uri_from_path(file_pathname)
-          end
         end
       end
 

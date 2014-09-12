@@ -664,7 +664,7 @@ module Sass
     # Returns `path` with all symlinks resolved.
     #
     # @param path [String, Pathname]
-    # @return [Pathanme]
+    # @return [Pathname]
     def realpath(path)
       path = Pathname.new(path) unless path.is_a?(Pathname)
 
@@ -679,6 +679,28 @@ module Sass
         # return the original.
         path
       end
+    end
+
+    # Returns `path` relative to `from`.
+    #
+    # This is like `Pathname#relative_path_from` except it accepts both strings
+    # and pathnames, it handles Windows path separators correctly, and it throws
+    # an error rather than crashing if the paths use different encodings
+    # (https://github.com/ruby/ruby/pull/713).
+    #
+    # @param path [String, Pathname]
+    # @param from [String, Pathname]
+    # @return [Pathname?]
+    def relative_path_from(path, from)
+      pathname(path.to_s).relative_path_from(pathname(from.to_s))
+    rescue NoMethodError => e
+      raise e unless e.name == :zero?
+
+      # Work around https://github.com/ruby/ruby/pull/713.
+      path = path.to_s
+      from = from.to_s
+      raise ArgumentError("Incompatible path encodings: #{path.inspect} is #{path.encoding}, " +
+        "#{from.inspect} is #{from.encoding}")
     end
 
     # Converts `path` to a "file:" URI. This handles Windows paths correctly.

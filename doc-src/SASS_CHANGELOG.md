@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.4.4 (Unreleased)
+
+* Produce more useful error messages when paths have incompatible encodings on
+  Windows.
+
 ## 3.4.3 (4 September 2014)
 
 * Don't crash when a non-existent directory is on the load path.

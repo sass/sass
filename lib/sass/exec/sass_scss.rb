@@ -370,8 +370,8 @@ MSG
       input.close if input.is_a?(File)
 
       if @options[:sourcemap] != :none && @options[:sourcemap_filename]
-        relative_sourcemap_path = Sass::Util.pathname(@options[:sourcemap_filename]).
-          relative_path_from(Sass::Util.pathname(@options[:output_filename]).dirname)
+        relative_sourcemap_path = Sass::Util.relative_path_from(
+          @options[:sourcemap_filename], Sass::Util.pathname(@options[:output_filename]).dirname)
         rendered, mapping = engine.render_with_sourcemap(relative_sourcemap_path.to_s)
         write_output(rendered, output)
         write_output(mapping.to_json(

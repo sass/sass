@@ -251,8 +251,7 @@ module Sass::Plugin
       template_location_array.each do |template_location, css_location|
         Sass::Util.glob(File.join(template_location, "**", "[^_]*.s[ca]ss")).sort.each do |file|
           # Get the relative path to the file
-          name = Sass::Util.pathname(file).relative_path_from(
-            Sass::Util.pathname(template_location.to_s)).to_s
+          name = Sass::Util.relative_path_from(file, template_location).to_s
           css = css_filename(name, css_location)
           sourcemap = Sass::Util.sourcemap_name(css) unless engine_options[:sourcemap] == :none
           files << [file, css, sourcemap]
@@ -558,7 +557,7 @@ module Sass::Plugin
     end
 
     def relative_to_pwd(f)
-      Sass::Util.pathname(f).relative_path_from(Sass::Util.pathname(Dir.pwd)).to_s
+      Sass::Util.relative_path_from(f, Dir.pwd).to_s
     rescue ArgumentError # when a relative path cannot be computed
       f
     end
