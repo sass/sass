@@ -351,6 +351,23 @@ foo
 SASS
   end
 
+  def test_preserves_triple_slash_comments
+    assert_renders <<SASS, <<SCSS
+/// foo
+/// bar
+foo
+  /// bip bop
+  /// beep boop
+SASS
+/// foo
+/// bar
+foo {
+  /// bip bop
+  /// beep boop
+}
+SCSS
+  end
+
   def test_loud_comments
     assert_renders <<SASS, <<SCSS
 /* foo
@@ -465,6 +482,23 @@ foo
     toil trouble
        gorp
 SASS
+  end
+
+  def test_preserves_double_star_comments
+    assert_renders <<SASS, <<SCSS
+/** foo
+ *  bar
+foo
+  /** bip bop
+   *  beep boop
+SASS
+/** foo
+ *  bar */
+foo {
+  /** bip bop
+   *  beep boop */
+}
+SCSS
   end
 
   def test_loud_comments_with_weird_indentation

@@ -11,6 +11,9 @@
 * Allow `@keyframes` selectors to use arbitrary identifiers to support libraries
   like Skrollr.
 
+* `sass-convert` now preserves double-star mutliline comments (e.g.
+  `/** foo */`).
+
 ## 3.4.3 (4 September 2014)
 
 * Don't crash when a non-existent directory is on the load path.
