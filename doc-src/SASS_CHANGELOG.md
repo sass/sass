@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.4.4 (Unreleased)
+## 3.4.4 (12 September 2014)
 
 * Produce more useful error messages when paths have incompatible encodings on
   Windows.
