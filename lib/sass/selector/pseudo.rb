@@ -54,7 +54,7 @@ module Sass
       # @return [Array<Simple>]
       def with_selector(new_selector)
         result = Pseudo.new(syntactic_type, name, arg,
-          CommaSequence.new(new_selector.members.map do |seq|
+          CommaSequence.new(new_selector.members.flat_map do |seq|
             next seq unless seq.members.length == 1
             sseq = seq.members.first
             next seq unless sseq.is_a?(SimpleSequence) && sseq.members.length == 1
@@ -85,7 +85,7 @@ module Sass
             else
               []
             end
-          end.flatten))
+          end))
 
         # Older browsers support :not but only with a single complex selector.
         # In order to support those browsers, we break up the contents of a :not

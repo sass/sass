@@ -531,7 +531,7 @@ module Sass::Plugin
     end
 
     def watched_paths
-      @watched_paths ||= normalized_load_paths.map {|lp| lp.directories_to_watch}.compact.flatten
+      @watched_paths ||= normalized_load_paths.flat_map {|lp| lp.directories_to_watch}.compact
     end
 
     def normalized_load_paths

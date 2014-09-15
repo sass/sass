@@ -98,7 +98,7 @@ end
 
 desc "Install Sass as a gem. Use SUDO=1 to install with sudo."
 task :install => [:package] do
-  gem  = RUBY_PLATFORM =~ /java/  ? 'jgem' : 'gem' 
+  gem  = RUBY_PLATFORM =~ /java/  ? 'jgem' : 'gem'
   sh %{#{'sudo ' if ENV["SUDO"]}#{gem} install --no-ri pkg/sass-#{get_version}}
 end
 
@@ -228,7 +228,7 @@ OPTS
       list.exclude('lib/sass/plugin/rails.rb')
     end.to_a
     t.options << '--incremental' if Rake.application.top_level_tasks.include?('redoc')
-    t.options += FileList.new(scope('yard/*.rb')).to_a.map {|f| ['-e', f]}.flatten
+    t.options += FileList.new(scope('yard/*.rb')).to_a.flat_map {|f| ['-e', f]}
     files = FileList.new(scope('doc-src/*')).to_a.sort_by {|s| s.size} + %w[MIT-LICENSE VERSION]
     t.options << '--files' << files.join(',')
     t.options << '--template-path' << scope('yard')
@@ -310,7 +310,7 @@ END
     file = File.read(scope("test/sass/templates/#{file || 'complex'}.sass"))
     result = RubyProf.profile { times.times { Sass::Engine.new(file).render } }
 
-    RubyProf.const_get("#{(ENV['OUTPUT'] || 'Flat').capitalize}Printer").new(result).print 
+    RubyProf.const_get("#{(ENV['OUTPUT'] || 'Flat').capitalize}Printer").new(result).print
   end
 rescue LoadError; end
 

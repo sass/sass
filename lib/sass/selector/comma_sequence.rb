@@ -65,9 +65,9 @@ module Sass
       #   with extensions made according to `extends`
       def do_extend(extends, parent_directives = [], replace = false, seen = Set.new,
           original = true)
-        CommaSequence.new(members.map do |seq|
+        CommaSequence.new(members.flat_map do |seq|
           seq.do_extend(extends, parent_directives, replace, seen, original)
-        end.flatten)
+        end)
       end
 
       # Returns whether or not this selector matches all elements
@@ -132,8 +132,8 @@ module Sass
       #   by the time extension and unification happen,
       #   this exception will only ever be raised as a result of programmer error
       def unify(other)
-        results = members.map {|seq1| other.members.map {|seq2| seq1.unify(seq2)}}.flatten.compact
-        results.empty? ? nil : CommaSequence.new(results.map {|cseq| cseq.members}.flatten)
+        results = members.flat_map {|seq1| other.members.map {|seq2| seq1.unify(seq2)}}.compact
+        results.empty? ? nil : CommaSequence.new(results.flat_map {|cseq| cseq.members})
       end
 
       # Returns a SassScript representation of this selector.
