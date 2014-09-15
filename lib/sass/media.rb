@@ -22,7 +22,7 @@ module Sass::Media
     # @param other [QueryList]
     # @return [QueryList?] The merged list, or nil if there is no intersection.
     def merge(other)
-      new_queries = queries.map {|q1| other.queries.map {|q2| q1.merge(q2)}}.flatten.compact
+      new_queries = queries.flat_map {|q1| other.queries.map {|q2| q1.merge(q2)}}.compact
       return if new_queries.empty?
       QueryList.new(new_queries)
     end

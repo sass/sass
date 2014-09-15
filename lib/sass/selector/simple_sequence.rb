@@ -167,7 +167,7 @@ module Sass
 
         groups = Sass::Util.group_by_to_a(extends[members.to_set]) {|ex| ex.extender}
         groups.map! do |seq, group|
-          sels = group.map {|e| e.target}.flatten
+          sels = group.flat_map {|e| e.target}
           # If A {@extend B} and C {...},
           # seq is A, sels is B, and self is C
 
@@ -242,7 +242,7 @@ module Sass
         # Some psuedo-selectors can be subselectors of non-pseudo selectors.
         # Pull those out here so we can efficiently check against them below.
         their_subselector_pseudos = %w[matches any nth-child nth-last-child].
-          map {|name| their_spcs[name] || []}.flatten
+          flat_map {|name| their_spcs[name] || []}
 
         # If `self`'s non-pseudo simple selectors aren't a subset of `their_sseq`'s,
         # it's definitely not a superselector. This also considers being matched

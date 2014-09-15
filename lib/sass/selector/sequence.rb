@@ -68,10 +68,10 @@ module Sass
           next [sseq_or_op] unless sseq_or_op.is_a?(SimpleSequence)
           sseq_or_op.resolve_parent_refs(super_cseq).members
         end).map do |path|
-          Sequence.new(path.map do |seq_or_op|
+          Sequence.new(path.flat_map do |seq_or_op|
             next seq_or_op unless seq_or_op.is_a?(Sequence)
             seq_or_op.members
-          end.flatten)
+          end)
         end)
       end
 
