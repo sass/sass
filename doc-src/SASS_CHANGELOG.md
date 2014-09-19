@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.4.5 (Unreleased)
+
+* Fix `sass-convert --recursive`.
+
 ## 3.4.4 (12 September 2014)
 
 * Produce more useful error messages when paths have incompatible encodings on
