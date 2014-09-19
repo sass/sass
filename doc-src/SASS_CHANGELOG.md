@@ -7,6 +7,9 @@
 
 * Fix `sass-convert --recursive`.
 
+* When using `sass --watch`, imported stylesheets within the working directory
+  will be watched for changes. This matches the behavior of Sass 3.3.
+
 ## 3.4.4 (12 September 2014)
 
 * Produce more useful error messages when paths have incompatible encodings on
