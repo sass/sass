@@ -10,6 +10,11 @@
 * When using `sass --watch`, imported stylesheets within the working directory
   will be watched for changes. This matches the behavior of Sass 3.3.
 
+* Set exit code 65, indicating a [data error][], when the compiler fails due to
+  a Sass error.
+
+[data error]: http://www.freebsd.org/cgi/man.cgi?query=sysexits
+
 ## 3.4.4 (12 September 2014)
 
 * Produce more useful error messages when paths have incompatible encodings on
