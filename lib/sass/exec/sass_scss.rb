@@ -294,7 +294,11 @@ MSG
       # on the load path. We should remove this when we can look for directories
       # to watch by traversing the import graph.
       class << Sass::Plugin.compiler
+        # We have to use a class var to make this visible to #watched_file? and
+        # #watched_paths.
+        # rubocop:disable ClassVars
         @@working_directory = Sass::Util.realpath('.').to_s
+        # rubocop:ensable ClassVars
 
         def watched_file?(file)
           super(file) ||
