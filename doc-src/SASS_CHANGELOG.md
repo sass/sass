@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.4.5 (Unreleased)
+## 3.4.5 (19 September 2014)
 
 * Fix `sass-convert --recursive`.
 
