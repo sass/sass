@@ -405,6 +405,15 @@ MESSAGE
     File.join(fixture_dir, path)
   end
 
+  def test_filesystem_importer_eql
+    importer = Sass::Importers::Filesystem.new('.')
+    assert importer.eql?(Sass::Importers::Filesystem.new('.'))
+    assert importer.eql?(ReversedExtImporter.new('.'))
+    assert !importer.eql?(Sass::Importers::Filesystem.new('foo'))
+    assert !importer.eql?(nil)
+    assert !importer.eql?('foo')
+  end
+
   def test_absolute_files_across_template_locations
     importer = Sass::Importers::Filesystem.new(absolutize 'templates')
     refute_nil importer.mtime(absolutize('more_templates/more1.sass'), {})
