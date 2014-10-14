@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.4.6 (Unreleased)
+
+* Fix exception on `Sass::Importers::Filesystem#eql?`.
+
 ## 3.4.5 (19 September 2014)
 
 * Fix `sass-convert --recursive`.
