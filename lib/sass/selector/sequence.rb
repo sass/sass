@@ -52,9 +52,7 @@ module Sass
       def resolve_parent_refs(super_cseq, implicit_parent)
         members = @members.dup
         nl = (members.first == "\n" && members.shift)
-        contains_parent_ref = members.any? do |seq_or_op|
-          seq_or_op.is_a?(SimpleSequence) && seq_or_op.members.first.is_a?(Parent)
-        end
+        contains_parent_ref = contains_parent_ref?
         return CommaSequence.new([self]) if !implicit_parent && !contains_parent_ref
 
         unless contains_parent_ref
@@ -73,6 +71,19 @@ module Sass
             seq_or_op.members
           end.flatten)
         end)
+      end
+
+      # Returns whether there's a {Parent} selector anywhere in this sequence.
+      #
+      # @return [Boolean]
+      def contains_parent_ref?
+        members.any? do |sseq_or_op|
+          next false unless sseq_or_op.is_a?(SimpleSequence)
+          next true if sseq_or_op.members.first.is_a?(Parent)
+          sseq_or_op.members.any? do |sel|
+            sel.is_a?(Pseudo) && sel.selector && sel.selector.contains_parent_ref?
+          end
+        end
       end
 
       # Non-destructively extends this selector with the extensions specified in a hash

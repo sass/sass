@@ -86,9 +86,14 @@ module Sass
       # @return [CommaSequence] This selector, with parent references resolved
       # @raise [Sass::SyntaxError] If a parent selector is invalid
       def resolve_parent_refs(super_cseq)
+        resolved_members = @members.map do |sel|
+          next sel unless sel.is_a?(Pseudo) && sel.selector
+          sel.with_selector(sel.selector.resolve_parent_refs(super_cseq, !:implicit_parent))
+        end
+
         # Parent selector only appears as the first selector in the sequence
-        unless (parent = @members.first).is_a?(Parent)
-          return CommaSequence.new([Sequence.new([self])])
+        unless (parent = resolved_members.first).is_a?(Parent)
+          return CommaSequence.new([Sequence.new([SimpleSequence.new(resolved_members, subject?)])])
         end
 
         return super_cseq if @members.size == 1 && parent.suffix.nil?

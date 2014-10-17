@@ -3570,6 +3570,24 @@ SCSS
 
   # Regression
 
+  def test_parent_selector_in_function_pseudo_selector
+    assert_equal <<CSS, render(<<SCSS)
+.bar:not(.foo) {
+  a: b; }
+
+.qux:nth-child(2n of .baz .bang) {
+  c: d; }
+CSS
+.foo {
+  .bar:not(&) {a: b}
+}
+
+.baz .bang {
+  .qux:nth-child(2n of &) {c: d}
+}
+SCSS
+  end
+
   def test_attribute_selector_in_selector_pseudoclass
     # Even though this is plain CSS, it only failed when given to the SCSS
     # parser.
