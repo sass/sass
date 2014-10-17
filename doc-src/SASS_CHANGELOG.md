@@ -7,6 +7,8 @@
 
 * Parent selectors now work in selector pseudoclasses (for example, `:not(&)`).
 
+* `@for` loops no longer crash when one bound is an integer-like float.
+
 ## 3.4.5 (19 September 2014)
 
 * Fix `sass-convert --recursive`.

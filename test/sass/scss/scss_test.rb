@@ -3570,6 +3570,34 @@ SCSS
 
   # Regression
 
+  def test_for_directive_with_float_bounds
+    assert_equal(<<CSS, render(<<SCSS))
+.a {
+  b: 0;
+  b: 1;
+  b: 2;
+  b: 3;
+  b: 4;
+  b: 5; }
+CSS
+.a {
+  @for $i from 0.0 through 5.0 {b: $i}
+}
+SCSS
+
+    assert_raise_message(Sass::SyntaxError, "0.5 is not an integer.") {render(<<SCSS)}
+.a {
+  @for $i from 0.5 through 5.0 {b: $i}
+}
+SCSS
+
+    assert_raise_message(Sass::SyntaxError, "5.5 is not an integer.") {render(<<SCSS)}
+.a {
+  @for $i from 0.0 through 5.5 {b: $i}
+}
+SCSS
+  end
+
   def test_parent_selector_in_function_pseudo_selector
     assert_equal <<CSS, render(<<SCSS)
 .bar:not(.foo) {
