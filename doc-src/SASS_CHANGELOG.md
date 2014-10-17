@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.4.6 (Unreleased)
+## 3.4.6 (16 October 2014)
 
 * Parent selectors now work in selector pseudoclasses (for example, `:not(&)`).
 
