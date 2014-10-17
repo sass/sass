@@ -9,6 +9,8 @@
 
 * `@for` loops no longer crash when one bound is an integer-like float.
 
+* Fix exception on `Sass::Importers::Filesystem#eql?`.
+
 ## 3.4.5 (19 September 2014)
 
 * Fix `sass-convert --recursive`.

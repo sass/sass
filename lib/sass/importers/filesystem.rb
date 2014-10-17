@@ -51,7 +51,7 @@ module Sass
       end
 
       def eql?(other)
-        root.eql?(other.root)
+        !other.nil? && other.respond_to?(:root) && root.eql?(other.root)
       end
 
       # @see Base#directories_to_watch
