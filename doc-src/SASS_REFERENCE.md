@@ -1579,7 +1579,7 @@ since `.attention` is defined later than `.error`.
 
 Multiple extends can also be written using a comma-separated list of selectors.
 For example, `@extend .error, .attention`
-is the same as `@extend .error; @extend.attention`.
+is the same as `@extend .error; @extend .attention`.
 
 #### Chaining Extends
 
