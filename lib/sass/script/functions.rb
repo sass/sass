@@ -1287,7 +1287,7 @@ module Sass::Script
     #   @param $color1 [Sass::Script::Value::Color]
     #   @param $color2 [Sass::Script::Value::Color]
     #   @param $weight [Sass::Script::Value::Number] The relative weight of each
-    #     color. Closer to `0%` gives more weight to `$color`, closer to `100%`
+    #     color. Closer to `0%` gives more weight to `$color1`, closer to `100%`
     #     gives more weight to `$color2`
     # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if `$weight` is out of bounds or any parameter is
