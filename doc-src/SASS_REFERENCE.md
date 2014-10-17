@@ -1800,24 +1800,32 @@ the document, rather than being nested beneath their parent selectors. It can
 either be used with a single inline selector:
 
     .parent {
+      ...
       @at-root .child { ... }
     }
 
-or with a block containing multiple selectors:
+Which would produce:
+
+    .parent { ... }
+    .child { ... }
+
+Or it can be used with a block containing multiple selectors:
 
     .parent {
+      ...
       @at-root {
         .child1 { ... }
         .child2 { ... }
       }
+      .step-child { ... }
     }
 
-These produce, respectively:
+Which would output the following:
 
     .parent { ... }
-
     .child1 { ... }
     .child2 { ... }
+    .parent .step-child { ... }
 
 #### `@at-root (without: ...)` and `@at-root (with: ...)`
 
