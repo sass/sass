@@ -165,7 +165,7 @@ module Sass
           next sel if extended == sel.selector
           extended.members.reject! {|seq| seq.has_placeholder?}
           modified_original = true
-          result = sel.with_selector(extended)
+          result = sel.with_selector_and_to_array(extended)
           result.each {|new_sel| seen_with_pseudo_selectors << [new_sel]}
           result
         end.flatten

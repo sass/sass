@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.4.7 (tbc)
+
+* Fixed a bug introduced in 3.4.6 where `:not` selectors were causing a
+compilation error.
+
 ## 3.4.6 (16 October 2014)
 
 * Parent selectors now work in selector pseudoclasses (for example, `:not(&)`).
