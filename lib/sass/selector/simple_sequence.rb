@@ -89,7 +89,7 @@ module Sass
         resolved_members = @members.map do |sel|
           next sel unless sel.is_a?(Pseudo) && sel.selector
           sel.with_selector(sel.selector.resolve_parent_refs(super_cseq, !:implicit_parent))
-        end
+        end.flatten
 
         # Parent selector only appears as the first selector in the sequence
         unless (parent = resolved_members.first).is_a?(Parent)

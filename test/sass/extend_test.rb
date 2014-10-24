@@ -514,6 +514,18 @@ CSS
 SCSS
   end
 
+  def test_nested_pseudo_selectors
+    assert_equal <<CSS, render(<<SCSS)
+.foo .bar:not(.baz), .bang .bar:not(.baz) {
+  a: b; }
+CSS
+.foo {
+  .bar:not(.baz) {a: b}
+}
+.bang {@extend .foo}
+SCSS
+  end
+
   ## Long Extendees
 
   def test_long_extendee
