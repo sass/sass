@@ -490,8 +490,15 @@ module Sass
 
         if seq1[1].is_a?(String)
           return unless seq2[si + 1].is_a?(String)
+
           # .foo ~ .bar is a superselector of .foo + .bar
           return unless seq1[1] == "~" ? seq2[si + 1] != ">" : seq1[1] == seq2[si + 1]
+
+          # .foo > .baz is not a superselector of .foo > .bar > .baz or .foo >
+          # .bar .baz, despite the fact that .baz is a superselector of .bar >
+          # .baz and .bar .baz. Same goes for + and ~.
+          return if seq1.length == 3 && seq2.length > 3
+
           return _superselector?(seq1[2..-1], seq2[si + 2..-1])
         elsif seq2[si + 1].is_a?(String)
           return unless seq2[si + 1] == ">"
