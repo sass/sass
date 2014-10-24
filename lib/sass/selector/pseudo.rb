@@ -51,9 +51,9 @@ module Sass
       # Returns a copy of this with \{#selector} set to \{#new\_selector}.
       #
       # @param new_selector [CommaSequence]
-      # @return [Array<Simple>]
+      # @return [CommaSequence]
       def with_selector(new_selector)
-        result = Pseudo.new(syntactic_type, name, arg,
+        Pseudo.new(syntactic_type, name, arg,
           CommaSequence.new(new_selector.members.map do |seq|
             next seq unless seq.members.length == 1
             sseq = seq.members.first
@@ -86,10 +86,16 @@ module Sass
               []
             end
           end.flatten))
+      end
 
-        # Older browsers support :not but only with a single complex selector.
-        # In order to support those browsers, we break up the contents of a :not
-        # unless it originally contained a selector list.
+      # Older browsers support :not but only with a single complex selector.
+      # In order to support those browsers, we break up the contents of a :not
+      # unless it originally contained a selector list.
+      #
+      # @param extended [CommaSequence]
+      # @return [Array<Simple>]
+      def with_selector_and_to_array(extended)
+        result = with_selector(extended)
         return [result] unless normalized_name == 'not'
         return [result] if selector.members.length > 1
         result.selector.members.map do |seq|
