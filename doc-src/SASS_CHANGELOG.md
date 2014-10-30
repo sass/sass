@@ -10,6 +10,8 @@
 * `@extend` resolution and `is-superselector()` no longer consider `.foo > .baz`
   to be a superselector of `.foo > .bar > .baz`.
 
+* Update documentation for `set-nth`
+
 ## 3.4.6 (16 October 2014)
 
 * Parent selectors now work in selector pseudoclasses (for example, `:not(&)`).

@@ -170,6 +170,9 @@ module Sass::Script
   # \{#nth nth($list, $n)}
   # : Returns a specific item in a list.
   #
+  # \{#length set-nth($list, $n, $value)}
+  # : Replaces the nth item in a list.
+  #
   # \{#join join($list1, $list2, \[$separator\])}
   # : Joins together two lists into one.
   #
