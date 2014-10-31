@@ -2304,7 +2304,7 @@ is compiled to:
 #### Keyword Arguments
 
 Mixins can also be included using explicit keyword arguments.
-For instance, we the above example could be written as:
+For instance, the above example could be written as:
 
     p { @include sexy-border($color: blue); }
     h1 { @include sexy-border($color: blue, $width: 2in); }
