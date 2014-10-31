@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.4.7 (Unreleased)
+## 3.4.7 (31 October 2014)
 
 * Stop crashing when extending selector pseudoclasses such as `:not()`.
 
