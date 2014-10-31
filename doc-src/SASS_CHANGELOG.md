@@ -12,6 +12,13 @@
 
 * Update documentation for `set-nth`
 
+### Deprecations -- Must Read!
+
+* Sass will now print a warning when `==` is used for numbers when one
+  number doesn't have units, the other does, and their numeric values
+  are equal. In the future, unitless numbers will never be equal to
+  numbers with units.
+
 ## 3.4.6 (16 October 2014)
 
 * Parent selectors now work in selector pseudoclasses (for example, `:not(&)`).
