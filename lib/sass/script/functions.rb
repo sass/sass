@@ -2174,15 +2174,10 @@ module Sass::Script
     #   @param $name [String] The name of the function to call.
     def call(name, *args)
       assert_type name, :String, :name
+
       kwargs = args.last.is_a?(Hash) ? args.pop : {}
-      funcall = Sass::Script::Tree::Funcall.new(
-        name.value,
-        args.map {|a| Sass::Script::Tree::Literal.new(a)},
-        Sass::Util.map_vals(kwargs) {|v| Sass::Script::Tree::Literal.new(v)},
-        nil,
-        nil)
-      funcall.options = options
-      perform(funcall)
+      environment.run_function(
+        self, name.value, Sass::Script::Value::ArgList.new(args, kwargs, :comma))
     end
     declare :call, [:name], :var_args => true, :var_kwargs => true
 

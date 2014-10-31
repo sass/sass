@@ -57,6 +57,12 @@ module Sass::Script::Tree
 
     protected
 
+    def _to_sexp(visitor)
+      s(:call, sass(:Script, :Value, :List), :new,
+          s(:array, *elements.map {|e| e.to_sexp(visitor)}),
+          s(:lit, separator))
+    end
+
     def _perform(environment)
       list = Sass::Script::Value::List.new(
         elements.map {|e| e.perform(environment)},

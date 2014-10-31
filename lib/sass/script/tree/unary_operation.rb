@@ -52,6 +52,21 @@ module Sass::Script::Tree
 
     protected
 
+    def _to_sexp(visitor)
+      operator = :"unary_#{@operator}"
+      value_var = visitor.environment.unique_ident(:value)
+
+      s(:rescue,
+        s(:lasgn, value_var, @operand.to_sexp(visitor)),
+        s(:call, s(:lvar, value_var), operator),
+        resbody(s(:const, :NoMethodError), :_s_error,
+          s(:if, s(:call, chain(s(:lvar, :_s_error), :name, :to_s), :==, s(:lit, operator.to_s)),
+              sass_error(s(:dstr, "Undefined unary operation \"#{@operator} ",
+                           s(:evstr, s(:lvar, value_var)),
+                           s(:str, "\"."))),
+            s(:call, nil, :raise, s(:lvar, :_s_error)))))
+    end
+
     # Evaluates the operation.
     #
     # @param environment [Sass::Environment] The environment in which to evaluate the SassScript

@@ -48,6 +48,13 @@ module Sass::Script::Value
         map {|e| e.to_s(opts)}.join(sep_str)
     end
 
+    def to_s_compressed(opts = {})
+      raise Sass::SyntaxError.new("() isn't a valid CSS value.") if value.empty?
+      value.
+        reject {|e| e.is_a?(Null) || e.is_a?(List) && e.value.empty?}.
+        map {|e| e.to_s_compressed(opts)}.join(sep_str(:compressed))
+    end
+
     # @see Value#to_sass
     def to_sass(opts = {})
       return "()" if value.empty?
@@ -59,7 +66,7 @@ module Sass::Script::Value
         end
       end
       return "(#{members.first},)" if members.length == 1 && separator == :comma
-      members.join(sep_str(nil))
+      members.join(sep_str)
     end
 
     # @see Value#to_h
@@ -70,7 +77,7 @@ module Sass::Script::Value
 
     # @see Value#inspect
     def inspect
-      "(#{value.map {|e| e.inspect}.join(sep_str(nil))})"
+      "(#{value.map {|e| e.inspect}.join(sep_str)})"
     end
 
     # Asserts an index is within the list.
@@ -104,9 +111,9 @@ module Sass::Script::Value
       element.operator == :minus || element.operator == :plus
     end
 
-    def sep_str(opts = options)
+    def sep_str(compressed = false)
       return ' ' if separator == :space
-      return ',' if opts && opts[:style] == :compressed
+      return ',' if compressed
       ', '
     end
   end

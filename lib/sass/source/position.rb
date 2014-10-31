@@ -1,5 +1,9 @@
+require 'sass/util/sexp'
+
 module Sass::Source
   class Position
+    include Sass::Util::Sexp
+
     # The one-based line of the document associated with the position.
     #
     # @return [Fixnum]
@@ -34,6 +38,10 @@ module Sass::Source
         else
           str.length - str.rindex("\n") - 1
         end)
+    end
+
+    def to_sexp
+      s(:call, sass(:Source, :Position), :new, s(:lit, line), s(:lit, offset))
     end
   end
 end

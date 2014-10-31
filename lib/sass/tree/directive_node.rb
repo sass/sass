@@ -35,9 +35,11 @@ module Sass::Tree
 
     # @param value [String] See \{#resolved_value}
     # @return [DirectiveNode]
-    def self.resolved(value)
+    def self.resolved(value, has_children, line)
       node = new([value])
       node.resolved_value = value
+      node.has_children = has_children
+      node.line = line
       node
     end
 

@@ -338,6 +338,48 @@ module Sass
       minuend.select {|e| set.include?(e)}
     end
 
+    def bsearch(array)
+      return array.bsearch {|x| yield(x)} if ruby_geq_2?
+
+      # From backports. License:
+      #
+      # Copyright (c) 2009 Marc-Andre Lafortune
+      # 
+      # Permission is hereby granted, free of charge, to any person obtaining
+      # a copy of this software and associated documentation files (the
+      # "Software"), to deal in the Software without restriction, including
+      # without limitation the rights to use, copy, modify, merge, publish,
+      # distribute, sublicense, and/or sell copies of the Software, and to
+      # permit persons to whom the Software is furnished to do so, subject to
+      # the following conditions:
+      # 
+      # The above copyright notice and this permission notice shall be
+      # included in all copies or substantial portions of the Software.
+      # 
+      # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+      # EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+      # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+      # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+      # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      from = 0
+      to   = array.size - 1
+      satisfied = nil
+      while from <= to do
+        midpoint = (from + to).div(2)
+        result = yield(cur = array[midpoint])
+        satisfied = cur if result
+
+        if result
+          to = midpoint - 1
+        else
+          from = midpoint + 1
+        end
+      end
+      satisfied
+    end
+
     # Returns the maximum of `val1` and `val2`. We use this over \{Array.max} to
     # avoid unnecessary garbage collection.
     def max(val1, val2)
@@ -784,6 +826,14 @@ module Sass
     def ruby1_9_2?
       return @ruby1_9_2 if defined?(@ruby1_9_2)
       @ruby1_9_2 = RUBY_VERSION_COMPONENTS == [1, 9, 2]
+    end
+
+    # Whether or not this is running under Ruby 2.0 or greater.
+    #
+    # @return [Boolean]
+    def ruby_geq_2?
+      return @ruby2 if defined?(@ruby2)
+      @ruby2 = RUBY_VERSION_COMPONENTS[0] >= 2
     end
 
     # Wehter or not this is running under JRuby 1.6 or lower.

@@ -39,11 +39,11 @@ module Sass::Tree
     # @param args [Array<Script::Tree::Node>] See \{#args}
     # @param splat [Script::Tree::Node] See \{#splat}
     # @param kwarg_splat [Script::Tree::Node] See \{#kwarg_splat}
-    # @param keywords [Sass::Util::NormalizedMap<Script::Tree::Node>] See \{#keywords}
+    # @param keywords [Hash<String, Script::Tree::Node>] See \{#keywords}
     def initialize(name, args, keywords, splat, kwarg_splat)
       @name = name
       @args = args
-      @keywords = keywords
+      @keywords = Sass::Util::NormalizedMap.new(keywords)
       @splat = splat
       @kwarg_splat = kwarg_splat
       super()

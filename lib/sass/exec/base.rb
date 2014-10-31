@@ -15,28 +15,7 @@ module Sass::Exec
     # @see #parse
     def parse!
       # rubocop:disable RescueException
-      begin
         parse
-      rescue Exception => e
-        # Exit code 65 indicates invalid data per
-        # http://www.freebsd.org/cgi/man.cgi?query=sysexits. Setting it via
-        # at_exit is a bit of a hack, but it allows us to rethrow when --trace
-        # is active and get both the built-in exception formatting and the
-        # correct exit code.
-        at_exit {exit 65} if e.is_a?(Sass::SyntaxError)
-
-        raise e if @options[:trace] || e.is_a?(SystemExit)
-
-        if e.is_a?(Sass::SyntaxError)
-          $stderr.puts e.sass_backtrace_str("standard input")
-        else
-          $stderr.print "#{e.class}: " unless e.class == RuntimeError
-          $stderr.puts e.message.to_s
-        end
-        $stderr.puts "  Use --trace for backtrace."
-
-        exit 1
-      end
       exit 0
       # rubocop:enable RescueException
     end

@@ -38,6 +38,7 @@ require 'sass/tree/visitors/cssize'
 require 'sass/tree/visitors/extend'
 require 'sass/tree/visitors/convert'
 require 'sass/tree/visitors/to_css'
+require 'sass/tree/visitors/to_sexp'
 require 'sass/tree/visitors/deep_copy'
 require 'sass/tree/visitors/set_options'
 require 'sass/tree/visitors/check_nesting'
@@ -51,6 +52,8 @@ require 'sass/importers'
 require 'sass/shared'
 require 'sass/media'
 require 'sass/supports'
+require 'sass/ruby_mapper'
+require 'sass/ruby2ruby'
 
 module Sass
   # A Sass mixin or function.
@@ -80,6 +83,17 @@ module Sass
   # `type`: `String`
   # : The user-friendly name of the type of the callable.
   Callable = Struct.new(:name, :args, :splat, :environment, :tree, :has_content, :type)
+
+  class IVarCallable < Callable
+    def initialize(ivar, name, args, splat, has_content, type)
+      super(name, args, splat, nil, nil, has_content, type)
+      @ivar = ivar
+    end
+
+    def run(context, args)
+      context.instance_variable_get(@ivar).call(*args)
+    end
+  end
 
   # This class handles the parsing and compilation of the Sass template.
   # Example usage:
@@ -393,6 +407,7 @@ ERR
         root = Sass::SCSS::Parser.new(@template, @options[:filename], @options[:importer]).parse
       else
         root = Tree::RootNode.new(@template)
+        root.line = 1
         append_children(root, tree(tabulate(@template)).first, true)
       end
 

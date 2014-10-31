@@ -358,8 +358,6 @@ SCSS
   def test_ms_short_filter_syntax
     assert_parses <<SCSS
 foo {
-  filter: alpha(opacity=20);
-  filter: alpha(opacity=20, enabled=true);
   filter: blaznicate(foo=bar, baz=bang bip, bart=#fa4600); }
 SCSS
   end
@@ -1015,21 +1013,21 @@ SCSS
 
   def test_subject_selector_deprecation
     assert_warning(<<WARNING) {render(".foo .bar! .baz {a: b}")}
-DEPRECATION WARNING on line 1, column 1:
+DEPRECATION WARNING on line 1, column 1 of test_subject_selector_deprecation_inline.sass:
 The subject selector operator "!" is deprecated and will be removed in a future release.
 This operator has been replaced by ":has()" in the CSS spec.
 For example: .foo .bar:has(.baz)
 WARNING
 
     assert_warning(<<WARNING) {render(".foo .bar! > .baz {a: b}")}
-DEPRECATION WARNING on line 1, column 1:
+DEPRECATION WARNING on line 1, column 1 of test_subject_selector_deprecation_inline.sass:
 The subject selector operator "!" is deprecated and will be removed in a future release.
 This operator has been replaced by ":has()" in the CSS spec.
 For example: .foo .bar:has(> .baz)
 WARNING
 
     assert_warning(<<WARNING) {render(".foo .bar! {a: b}")}
-DEPRECATION WARNING on line 1, column 1:
+DEPRECATION WARNING on line 1, column 1 of test_subject_selector_deprecation_inline.sass:
 The subject selector operator "!" is deprecated and will be removed in a future release.
 This operator has been replaced by ":has()" in the CSS spec.
 For example: .foo .bar
@@ -1243,8 +1241,10 @@ SCSS
   end
 
   def render(scss, options = {})
+    munge_filename options
+    options = Sass::Engine.normalize_options(options)
     tree = Sass::SCSS::CssParser.new(scss, options[:filename], nil).parse
-    tree.options = Sass::Engine::DEFAULT_OPTIONS.merge(options)
+    tree.options = options
     tree.render
   end
 end

@@ -46,6 +46,13 @@ module Sass::Script::Tree
 
     protected
 
+    def _to_sexp(visitor)
+      s(:call, sass(:Script, :Value, :Map), :from_array,
+        s(:array, *pairs.map do |(k, v)|
+          s(:array, k.to_sexp(visitor), v.to_sexp(visitor))
+        end))
+    end
+
     # @see Node#_perform
     def _perform(environment)
       keys = Set.new

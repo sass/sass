@@ -3,6 +3,8 @@ module Sass::Script::Tree
   #
   # Use \{#perform} to evaluate a parse tree.
   class Node
+    include Sass::Util::Sexp
+
     # The options hash for this node.
     #
     # @return [{Symbol => Object}]
@@ -73,6 +75,10 @@ module Sass::Script::Tree
     # @return [Node]
     def deep_copy
       Sass::Util.abstract(self)
+    end
+
+    def to_sexp(visitor)
+      visitor.line_info(self, _to_sexp(visitor))
     end
 
     protected

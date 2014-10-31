@@ -559,10 +559,10 @@ module Sass::Script::Value
     #
     # @return [String] The string representation
     def to_s(opts = {})
-      return smallest if options[:style] == :compressed
+      return smallest if _options[:style] == :compressed
       return representation if representation
       return name if name
-      alpha? ? rgba_str : hex_str
+      alpha? ? rgba_str(_options) : hex_str
     end
     alias_method :to_sass, :to_s
 
@@ -570,7 +570,7 @@ module Sass::Script::Value
     #
     # @return [String] The hex value
     def inspect
-      alpha? ? rgba_str : hex_str
+      alpha? ? rgba_str({}) : hex_str
     end
 
     # Returns the color's name, if it has one.
@@ -580,16 +580,23 @@ module Sass::Script::Value
       COLOR_NAMES_REVERSE[rgba]
     end
 
+    def to_sexp
+      s(:call, sass(:Script, :Value, :Color), :new,
+        lit(@attrs.merge(:representation => representation)), s(:nil), s(:true))
+    end
+
     private
 
     def smallest
-      small_explicit_str = alpha? ? rgba_str : hex_str.gsub(/^#(.)\1(.)\2(.)\3$/, '#\1\2\3')
+      small_explicit_str = alpha? ?
+        rgba_str(:style => :compressed) :
+        hex_str.gsub(/^#(.)\1(.)\2(.)\3$/, '#\1\2\3')
       [representation, COLOR_NAMES_REVERSE[rgba], small_explicit_str].
           compact.min_by {|str| str.size}
     end
 
-    def rgba_str
-      split = options[:style] == :compressed ? ',' : ', '
+    def rgba_str(opts)
+      split = opts[:style] == :compressed ? ',' : ', '
       "rgba(#{rgb.join(split)}#{split}#{Number.round(alpha)})"
     end
 

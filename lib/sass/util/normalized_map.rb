@@ -13,7 +13,10 @@ module Sass
         @key_strings = {}
         @map = Util.ruby1_8? ? OrderedHash.new : {}
 
-        map.each {|key, value| self[key] = value} if map
+        if map
+          map = map.as_stored if map.is_a?(NormalizedMap)
+          map.each {|key, value| self[key] = value}
+        end
       end
 
       # Specifies how to transform the key.
@@ -97,6 +100,7 @@ module Sass
       def dup
         d = super
         d.send(:instance_variable_set, "@map", @map.dup)
+        d.send(:instance_variable_set, "@key_strings", @key_strings.dup)
         d
       end
 
@@ -107,6 +111,11 @@ module Sass
       def update(map)
         map = map.as_stored if map.is_a?(NormalizedMap)
         map.each {|k, v| self[k] = v}
+        self
+      end
+
+      def merge(map)
+        dup.update(map)
       end
 
       def method_missing(method, *args, &block)

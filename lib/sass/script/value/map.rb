@@ -12,7 +12,29 @@ module Sass::Script::Value
     #
     # @param hash [Hash<Node, Node>]
     def initialize(hash)
-      super(Sass::Util.ordered_hash(hash))
+      super(Sass::Util.ordered_hash(*hash))
+    end
+
+    def self.from_array(array)
+      keys = Set.new
+      array.each do |(k, _)|
+        if keys.include?(k)
+          raise Sass::SyntaxError.new("Duplicate key #{k.inspect} in map #{to_sass}.")
+        end
+        keys << k
+      end
+      new(array)
+    end
+
+    def self.from_array(array)
+      keys = Set.new
+      array.each do |(k, _)|
+        if keys.include?(k)
+          raise Sass::SyntaxError.new("Duplicate key #{k.inspect} in map #{to_sass}.")
+        end
+        keys << k
+      end
+      new(array)
     end
 
     # @see Value#options=

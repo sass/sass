@@ -143,7 +143,7 @@ module Sass::Script::Value
       elsif other.is_a? Color
         other.times(self)
       else
-        raise NoMethodError.new(nil, :times)
+        super
       end
     end
 
@@ -174,13 +174,13 @@ module Sass::Script::Value
     #
     # @param other [Number] The right-hand side of the operator
     # @return [Number] This number modulo the other
-    # @raise [NoMethodError] if `other` is an invalid type
+    # @raise [Sass::SyntaxError] if `other` is an invalid type
     # @raise [Sass::UnitConversionError] if `other` has incompatible units
     def mod(other)
       if other.is_a?(Number)
         operate(other, :%)
       else
-        raise NoMethodError.new(nil, :mod)
+        super
       end
     end
 
@@ -219,9 +219,9 @@ module Sass::Script::Value
     #
     # @param other [Number] The right-hand side of the operator
     # @return [Boolean] Whether this number is greater than the other
-    # @raise [NoMethodError] if `other` is an invalid type
+    # @raise [Sass::SyntaxError] if `other` is an invalid type
     def gt(other)
-      raise NoMethodError.new(nil, :gt) unless other.is_a?(Number)
+      super unless other.is_a?(Number)
       operate(other, :>)
     end
 
@@ -229,9 +229,9 @@ module Sass::Script::Value
     #
     # @param other [Number] The right-hand side of the operator
     # @return [Boolean] Whether this number is greater than or equal to the other
-    # @raise [NoMethodError] if `other` is an invalid type
+    # @raise [Sass::SyntaxError] if `other` is an invalid type
     def gte(other)
-      raise NoMethodError.new(nil, :gte) unless other.is_a?(Number)
+      super unless other.is_a?(Number)
       operate(other, :>=)
     end
 
@@ -239,9 +239,9 @@ module Sass::Script::Value
     #
     # @param other [Number] The right-hand side of the operator
     # @return [Boolean] Whether this number is less than the other
-    # @raise [NoMethodError] if `other` is an invalid type
+    # @raise [Sass::SyntaxError] if `other` is an invalid type
     def lt(other)
-      raise NoMethodError.new(nil, :lt) unless other.is_a?(Number)
+      super unless other.is_a?(Number)
       operate(other, :<)
     end
 
@@ -249,9 +249,9 @@ module Sass::Script::Value
     #
     # @param other [Number] The right-hand side of the operator
     # @return [Boolean] Whether this number is less than or equal to the other
-    # @raise [NoMethodError] if `other` is an invalid type
+    # @raise [Sass::SyntaxError] if `other` is an invalid type
     def lte(other)
-      raise NoMethodError.new(nil, :lte) unless other.is_a?(Number)
+      super unless other.is_a?(Number)
       operate(other, :<=)
     end
 
@@ -371,6 +371,13 @@ module Sass::Script::Value
         rv << @denominator_units.sort.join("*")
       end
       rv
+    end
+
+    def to_sexp
+      s(:call, sass(:Script, :Value, :Number), :new,
+        s(:lit, value),
+        lit(@numerator_units),
+        lit(@denominator_units))
     end
 
     private

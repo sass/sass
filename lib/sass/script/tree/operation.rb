@@ -55,6 +55,28 @@ module Sass::Script::Tree
 
     protected
 
+    def _to_sexp(visitor)
+      if @operator != :and && @operator != :or
+        return s(:call, @operand1.to_sexp(visitor), @operator, @operand2.to_sexp(visitor))
+      end
+
+      block = s(:block)
+      value1_var = visitor.environment.unique_ident(:value1)
+      block << s(:lasgn, value1_var, @operand1.to_sexp(visitor))
+
+      if @operator == :and
+        block << s(:if, s(:call, s(:lvar, value1_var), :to_bool),
+                     @operand2.to_sexp(visitor),
+                   s(:lvar, value1_var))
+      else # @operator == :or
+        block << s(:if, s(:call, s(:lvar, value1_var), :to_bool),
+                     s(:lvar, value1_var),
+                   @operand2.to_sexp(visitor))
+      end
+
+      return block
+    end
+
     # Evaluates the operation.
     #
     # @param environment [Sass::Environment] The environment in which to evaluate the SassScript

@@ -87,6 +87,38 @@ module Sass::Script::Tree
 
     protected
 
+    def _to_sexp(visitor)
+      block = s(:block)
+      if @before
+        before_var = visitor.environment.unique_ident(:before)
+        block << s(:lasgn, before_var, @before.to_sexp(visitor))
+      end
+      mid_var = visitor.environment.unique_ident(:mid)
+      block << s(:lasgn, mid_var, @mid.to_sexp(visitor))
+      if @after
+        after_var = visitor.environment.unique_ident(:after)
+        block << s(:lasgn, after_var, @after.to_sexp(visitor))
+      end
+
+      if @warn_for_color
+        location = "line #{line}, column #{source_range.start_pos.offset}"
+        location << " of #{filename}" if filename
+        alternative = Operation.new(Sass::Script::Value::String.new("", :string), @mid, :plus)
+        block << s(:call, sass(:Script, :Helpers), :maybe_warn_for_color,
+                   s(:lvar, mid_var),
+                   s(:str, location),
+                   s(:str, alternative.to_sass))
+      end
+
+      interp = s(:dstr, "")
+      interp << s(:evstr, s(:lvar, before_var)) if @before
+      interp << s(:str, ' ') if @before && @whitespace_before
+      interp << s(:evstr, visitor.unquoted(s(:lvar, mid_var)))
+      interp << s(:str, ' ') if @after && @whitespace_after
+      interp << s(:evstr, s(:lvar, after_var)) if @after
+      block << s(:call, sass(:Script, :Value, :String), :new, interp)
+    end
+
     # Evaluates the interpolation.
     #
     # @param environment [Sass::Environment] The environment in which to evaluate the SassScript

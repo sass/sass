@@ -31,5 +31,9 @@ module Sass::Script::Value
       @value.to_s
     end
     alias_method :to_sass, :to_s
+
+    def to_sexp
+      sass(:Script, :Value, :Bool, to_bool ? :TRUE : :FALSE)
+    end
   end
 end

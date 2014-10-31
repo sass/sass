@@ -37,6 +37,10 @@ module Sass::Script::Tree
 
     protected
 
+    def _to_sexp(visitor)
+      value.to_sexp
+    end
+
     def _perform(environment)
       value.source_range = source_range
       value

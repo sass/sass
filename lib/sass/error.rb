@@ -49,6 +49,8 @@ module Sass
     # @return [String]
     attr_accessor :sass_template
 
+    attr_writer :backtrace
+
     # @param msg [String] The error message
     # @param attrs [{Symbol => Object}] The information in the backtrace entry.
     #   See \{#sass\_backtrace}
@@ -124,6 +126,7 @@ module Sass
     #
     # @return [Array<String>]
     def backtrace
+      return @backtrace if @backtrace
       return nil if super.nil?
       return super if sass_backtrace.all? {|h| h.empty?}
       sass_backtrace.map do |h|

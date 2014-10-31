@@ -3,6 +3,8 @@ source "https://rubygems.org"
 gemspec
 
 gem 'rake'
+gem 'ruby2ruby', '~> 2.1'
+gem 'sexp_processor', '~> 4.4'
 
 # Pin this version since Rubocop occasionally adds new cops in
 # incremental releases and we don't want out builds going red because

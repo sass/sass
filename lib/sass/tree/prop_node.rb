@@ -52,6 +52,12 @@ module Sass::Tree
     # @return [Sass::Source::Range]
     attr_accessor :value_source_range
 
+    # The syntax originally used to define this property. `:new` means the colon
+    # comes after the name, `:old` means it doesn't.
+    #
+    # @return [Symbol]
+    attr_accessor :prop_syntax
+
     # @param name [Array<String, Sass::Script::Tree::Node>] See \{#name}
     # @param value [Sass::Script::Tree::Node] See \{#value}
     # @param prop_syntax [Symbol] `:new` if this property uses `a: b`-style syntax,
@@ -63,6 +69,19 @@ module Sass::Tree
       @tabs = 0
       @prop_syntax = prop_syntax
       super()
+    end
+
+    def self.resolved(name, value, name_source_range, value_source_range, prop_syntax)
+      prop = new([name.to_s],
+        Sass::Script::Tree::Literal.new(Sass::Script::Value::String.new(value)),
+        :new)
+      prop.resolved_name = name
+      prop.resolved_value = value
+      prop.name_source_range = name_source_range
+      prop.line = prop.name_source_range.start_pos.line
+      prop.value_source_range = value_source_range
+      prop.prop_syntax = prop_syntax
+      prop
     end
 
     # Compares the names and values of two properties.

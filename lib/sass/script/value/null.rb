@@ -30,6 +30,26 @@ module Sass::Script::Value
       ''
     end
 
+    def single_eq(other)
+      invalid_binary_op(:single_eq, other)
+    end
+
+    def plus(other)
+      invalid_binary_op(:plus, other)
+    end
+
+    def minus(other)
+      invalid_binary_op(:minus, other)
+    end
+
+    def div(other)
+      invalid_binary_op(:div, other)
+    end
+
+    def times(other)
+      invalid_binary_op(:times, other)
+    end
+
     def to_sass(opts = {})
       'null'
     end
@@ -39,6 +59,16 @@ module Sass::Script::Value
     # @return [String]
     def inspect
       'null'
+    end
+
+    def to_sexp
+      sass(:Script, :Value, :Null, :NULL)
+    end
+
+    private
+
+    def invalid_binary_op(operator, other)
+      raise Sass::SyntaxError.new("Invalid null operation: \"null #{operator} #{other.inspect}\".")
     end
   end
 end

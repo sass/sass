@@ -34,6 +34,13 @@ module Sass::Tree
       super()
     end
 
+    def self.resolved(value, type, line)
+      node = new([value], type)
+      node.resolved_value = value
+      node.line = line
+      node
+    end
+
     # Compares the contents of two comments.
     #
     # @param other [Object] The object to compare with

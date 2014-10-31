@@ -39,6 +39,14 @@ module Sass::Script::Tree
 
     protected
 
+    def _to_sexp(visitor)
+      if var = visitor.environment.var_variable(name)
+        var(var)
+      else
+        sass_error(s(:str, "Undefined variable: \"$#{name}\"."))
+      end
+    end
+
     # Evaluates the variable.
     #
     # @param environment [Sass::Environment] The environment in which to evaluate the SassScript

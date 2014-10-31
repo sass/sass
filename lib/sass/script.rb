@@ -1,4 +1,5 @@
 require 'sass/scss/rx'
+require 'sass/script/helpers'
 
 module Sass
   # SassScript is code that's embedded in Sass documents

@@ -133,7 +133,7 @@ class Sass::Tree::Visitors::SetOptions < Sass::Tree::Visitors::Base
   end
 
   def visit_supports(node)
-    node.condition.options = @options
+    #node.condition.options = @options
     yield
   end
 end

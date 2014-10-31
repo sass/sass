@@ -39,5 +39,13 @@ module Sass::Tree
       @selector_source_range = selector_source_range
       super()
     end
+
+    def self.resolved(selector, optional, selector_source_range, line)
+      node = new([selector.to_s], optional, selector_source_range)
+      node.resolved_selector = selector
+      node.selector_source_range = selector_source_range
+      node.line = line
+      node
+    end
   end
 end

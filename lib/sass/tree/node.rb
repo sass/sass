@@ -161,7 +161,7 @@ module Sass
       # @return [String] The resulting CSS
       # @see Sass::Tree
       def css
-        Sass::Tree::Visitors::ToCss.new.visit(self)
+        with_thread_options {Sass::Tree::Visitors::ToCss.new.visit(self)}
       end
 
       # Computes the CSS corresponding to this static CSS tree, along with
@@ -225,6 +225,18 @@ module Sass
       end
 
       protected
+
+      # Runs a block with this node's options as a thread-local variable.
+      def with_thread_options
+        # TODO: This is a huge hack. There's got to be a better way
+        # to expose this information to Color when it's converted to
+        # a string.
+        old_options = Thread.current[:options]
+        Thread.current[:options] = @options
+        yield
+      ensure
+        Thread.current[:options] = old_options
+      end
 
       # @see Sass::Shared.balance
       # @raise [Sass::SyntaxError] if the brackets aren't balanced

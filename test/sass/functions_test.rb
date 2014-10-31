@@ -28,12 +28,6 @@ module Sass::Script::Functions
 end
 
 module Sass::Script::Functions::UserFunctions
-  def call_options_on_new_value
-    str = Sass::Script::Value::String.new("foo")
-    str.options[:foo]
-    str
-  end
-
   def user_defined
     Sass::Script::Value::String.new("I'm a user-defined string!")
   end
@@ -645,11 +639,11 @@ WARNING
       "adjust-color(blue, $hoo: 260deg)")
     assert_error_message("Cannot specify HSL and RGB values for a color at the same time for `adjust-color'",
       "adjust-color(blue, $hue: 120deg, $red: 10)");
-    assert_error_message("10px is not a keyword argument for `adjust_color'",
+    assert_error_message("10px is not a keyword argument for `adjust-color'",
       "adjust-color(blue, 10px)")
-    assert_error_message("10px is not a keyword argument for `adjust_color'",
+    assert_error_message("10px is not a keyword argument for `adjust-color'",
       "adjust-color(blue, 10px, 20px)")
-    assert_error_message("10px is not a keyword argument for `adjust_color'",
+    assert_error_message("10px is not a keyword argument for `adjust-color'",
       "adjust-color(blue, 10px, $hue: 180deg)")
   end
 
@@ -733,7 +727,7 @@ WARNING
     assert_error_message("Unknown argument $hue (80%) for `scale-color'", "scale-color(blue, $hue: 80%)")
 
     # Non-keyword arg
-    assert_error_message("10px is not a keyword argument for `scale_color'", "scale-color(blue, 10px)")
+    assert_error_message("10px is not a keyword argument for `scale-color'", "scale-color(blue, 10px)")
 
     # HSL/RGB
     assert_error_message("Cannot specify HSL and RGB values for a color at the same time for `scale-color'",
@@ -798,7 +792,7 @@ WARNING
     assert_error_message("Unknown argument $hoo (80%) for `change-color'", "change-color(blue, $hoo: 80%)")
 
     # Non-keyword arg
-    assert_error_message("10px is not a keyword argument for `change_color'", "change-color(blue, 10px)")
+    assert_error_message("10px is not a keyword argument for `change-color'", "change-color(blue, 10px)")
 
     # HSL/RGB
     assert_error_message("Cannot specify HSL and RGB values for a color at the same time for `change-color'",
@@ -986,15 +980,6 @@ WARNING
   def test_user_defined_function_using_environment
     environment = env('variable' => Sass::Script::Value::String.new('The variable'))
     assert_equal("The variable", evaluate("fetch_the_variable()", environment))
-  end
-
-  def test_options_on_new_values_fails
-    assert_error_message(<<MSG, "call-options-on-new-value()")
-The #options attribute is not set on this Sass::Script::Value::String.
-  This error is probably occurring because #to_s was called
-  on this value within a custom Sass function without first
-  setting the #options attribute.
-MSG
   end
 
   def test_type_of
@@ -1290,7 +1275,7 @@ SCSS
     evaluate("no-kw-args($fake: value)")
     flunk("Expected exception")
   rescue Sass::SyntaxError => e
-    assert_equal("Function no_kw_args doesn't support keyword arguments", e.message)
+    assert_equal("Function no-kw-args doesn't support keyword arguments", e.message)
   end
 
   def test_keyword_args_with_missing_argument
@@ -1935,7 +1920,17 @@ WARNING
   end
 
   def perform(value, environment = env)
-    Sass::Script::Parser.parse(value, 0, 0).perform(environment)
+    options = Sass::Engine.normalize_options(Sass::Engine::DEFAULT_OPTIONS)
+    to_sexp = Sass::Tree::Visitors::ToSexp.new(options)
+    # TODO: this is a hack
+    to_sexp.environment = Sass::Environment.new
+    sexp = Sass::Script::Parser.parse(value, 0, 0).to_sexp(to_sexp)
+    ruby = Sass::Ruby2Ruby.new.process(sexp)
+    mapper = Sass::RubyMapper.new(ruby)
+    environment = Sass::Environment.new(
+      nil, options, mapper, to_sexp.fn_signatures, to_sexp.mx_signatures)
+    eval_context = Sass::Script::Functions::EvaluationContext.new(environment)
+    eval_context.instance_eval(ruby)
   end
 
   def render(sass, options = {})

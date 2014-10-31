@@ -71,6 +71,23 @@ module Sass::Script::Tree
 
     protected
 
+    def _to_sexp(visitor)
+      before_var = visitor.environment.unique_ident(:before)
+      mid_var = visitor.environment.unique_ident(:mid)
+      after_var = visitor.environment.unique_ident(:after)
+
+      # TODO: make multiple interpolations in one string look the same
+      # in the generated Ruby. Also, @before is always a string
+      # literal, so we should just have it be a Ruby string in
+      # StringInterpolation.
+      s(:call, sass(:Script, :Value, :String), :new,
+        s(:dstr, "",
+          s(:evstr, s(:call, @before.to_sexp(visitor), :value)),
+          s(:evstr, visitor.unquoted(@mid.to_sexp(visitor))),
+          s(:evstr, s(:call, @after.to_sexp(visitor), :value))),
+        s(:lit, :string))
+    end
+
     # Evaluates the interpolation.
     #
     # @param environment [Sass::Environment] The environment in which to evaluate the SassScript

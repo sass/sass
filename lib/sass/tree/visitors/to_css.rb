@@ -357,7 +357,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   private
 
   def debug_info_rule(debug_info, options)
-    node = Sass::Tree::DirectiveNode.resolved("@media -sass-debug-info")
+    node = Sass::Tree::DirectiveNode.resolved("@media -sass-debug-info", false, 0)
     Sass::Util.hash_to_a(debug_info.map {|k, v| [k.to_s, v.to_s]}).each do |k, v|
       rule = Sass::Tree::RuleNode.new([""])
       rule.resolved_rules = Sass::Selector::CommaSequence.new(

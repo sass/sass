@@ -114,6 +114,90 @@ module Sass::Script::Tree
 
     protected
 
+    def _to_sexp(visitor)
+      if Sass::Script::Functions.callable?(ruby_name)
+        if (signature = Sass::Script::Functions.signature(
+              ruby_name.to_sym, args.size, keywords.size))
+          # A splat may contain keyword arguments, so we fall back on
+          # dynamic function resolution to ensure that they're matched
+          # with the right Ruby arguments.
+          return ruby_function_call(visitor, signature) unless splat
+        elsif !keywords.empty? || kwarg_splat
+          return sass_error(s(:str, "Function #{name} doesn't support keyword arguments"))
+        else
+          return simple_ruby_function_call(visitor)
+        end
+      end
+
+      variable, function = visitor.environment.fn_variable(name)
+      return visitor.run_callable(variable, function, self, "function #{name}")
+    end
+
+    def ruby_function_call(visitor, signature)
+      # If the user passes more non-keyword args than the function expects,
+      # but it does expect keyword args, Ruby's arg handling won't raise an error.
+      # Since we don't want to make functions think about this,
+      # we'll handle it for them here.
+      if signature.var_kwargs && !signature.var_args && args.size > signature.args.size
+        # TODO: evaluate other args for side effects
+        return sass_error(s(:dstr, '',
+          s(:evstr, to_string(args[signature.args.size].to_sexp(visitor))),
+          s(:str, " is not a keyword argument for `#{name}'")))
+      elsif keywords.empty? && !kwarg_splat
+        return simple_ruby_function_call(visitor)
+      end
+
+      argnames = signature.args[args.size..-1] || []
+      deprecated_argnames = (signature.deprecated && signature.deprecated[args.size..-1]) || []
+      arg_sexps = args.map do |arg|
+        arg.to_sexp(visitor)
+      end + argnames.zip(deprecated_argnames).map do |(argname, deprecated_argname)|
+        if keywords.has_key?(argname)
+          keywords.delete(argname).to_sexp(visitor)
+        elsif deprecated_argname && keywords.has_key?(deprecated_argname)
+          deprecated_argname = keywords.denormalize(deprecated_argname)
+          s(:block,
+            s(:call, sass(:Util), :sass_warn,
+              s(:str, "DEPRECATION WARNING: The `$#{deprecated_argname}' argument for " +
+                      "`#{@name}()' has been renamed to `$#{argname}'.")),
+            keywords.delete(deprecated_argname).to_sexp(visitor))
+        else
+          sass_error(s(:str, "Function #{name} requires an argument named $#{argname}."))
+        end
+      end
+
+      if keywords.size > 0
+        if signature.var_kwargs
+          # Don't pass a NormalizedMap to a Ruby function.
+          arg_sexps << s(:hash,
+            *Sass::Util.flatten(keywords.map {|k, v| [s(:lit, k), v.to_sexp(visitor)]}, 1))
+        else
+          argname = keywords.keys.sort.first
+          if signature.args.include?(argname)
+            return sass_error(s(:str,
+              "Function #{name} was passed argument $#{argname} both by position and by name."))
+          else
+            return sass_error("Function #{name} doesn't have an argument named $#{argname}.")
+          end
+        end
+      end
+
+      s(:rescue, s(:call, s(:self), ruby_name, *arg_sexps),
+        resbody(s(:const, :ArgumentError), :_s_error,
+          s(:call, sass(:Script, :Helpers), :reformat_argument_error,
+            s(:str, ruby_name), s(:str, name), s(:lvar, :_s_error))))
+    end
+
+    def simple_ruby_function_call(visitor)
+      call = s(:call, s(:self), ruby_name, *args.map {|a| a.to_sexp(visitor)})
+      # TODO: throw an error if the splat contains kwargs
+      call << s(:splat, s(:call, splat.to_sexp(visitor), :to_a)) if splat
+      s(:rescue, call,
+        resbody(s(:const, :ArgumentError), :_s_error,
+          s(:call, sass(:Script, :Helpers), :reformat_argument_error,
+            s(:str, ruby_name), s(:str, name), s(:lvar, :_s_error))))
+    end
+
     # Evaluates the function call.
     #
     # @param environment [Sass::Environment] The environment in which to evaluate the SassScript
@@ -250,57 +334,6 @@ module Sass::Script::Tree
         end
         val
       end
-    end
-
-    def reformat_argument_error(e)
-      message = e.message
-
-      # If this is a legitimate Ruby-raised argument error, re-raise it.
-      # Otherwise, it's an error in the user's stylesheet, so wrap it.
-      if Sass::Util.rbx?
-        # Rubinius has a different error report string than vanilla Ruby. It
-        # also doesn't put the actual method for which the argument error was
-        # thrown in the backtrace, nor does it include `send`, so we look for
-        # `_perform`.
-        if e.message =~ /^method '([^']+)': given (\d+), expected (\d+)/
-          error_name, given, expected = $1, $2, $3
-          raise e if error_name != ruby_name || e.backtrace[0] !~ /:in `_perform'$/
-          message = "wrong number of arguments (#{given} for #{expected})"
-        end
-      elsif Sass::Util.jruby?
-        if Sass::Util.jruby1_6?
-          should_maybe_raise = e.message =~ /^wrong number of arguments \((\d+) for (\d+)\)/ &&
-            # The one case where JRuby does include the Ruby name of the function
-            # is manually-thrown ArgumentErrors, which are indistinguishable from
-            # legitimate ArgumentErrors. We treat both of these as
-            # Sass::SyntaxErrors even though it can hide Ruby errors.
-            e.backtrace[0] !~ /:in `(block in )?#{ruby_name}'$/
-        else
-          should_maybe_raise =
-            e.message =~ /^wrong number of arguments calling `[^`]+` \((\d+) for (\d+)\)/
-          given, expected = $1, $2
-        end
-
-        if should_maybe_raise
-          # JRuby 1.7 includes __send__ before send and _perform.
-          trace = e.backtrace.dup
-          raise e if !Sass::Util.jruby1_6? && trace.shift !~ /:in `__send__'$/
-
-          # JRuby (as of 1.7.2) doesn't put the actual method
-          # for which the argument error was thrown in the backtrace, so we
-          # detect whether our send threw an argument error.
-          if !(trace[0] =~ /:in `send'$/ && trace[1] =~ /:in `_perform'$/)
-            raise e
-          elsif !Sass::Util.jruby1_6?
-            # JRuby 1.7 doesn't use standard formatting for its ArgumentErrors.
-            message = "wrong number of arguments (#{given} for #{expected})"
-          end
-        end
-      elsif e.message =~ /^wrong number of arguments \(\d+ for \d+\)/ &&
-          e.backtrace[0] !~ /:in `(block in )?#{ruby_name}'$/
-        raise e
-      end
-      raise Sass::SyntaxError.new("#{message} for `#{name}'")
     end
   end
 end

@@ -1,5 +1,9 @@
+require 'sass/util/sexp'
+
 module Sass::Source
   class Range
+    include Sass::Util::Sexp
+
     # The starting position of the range in the document (inclusive).
     #
     # @return [Sass::Source::Position]
@@ -36,6 +40,14 @@ module Sass::Source
     # @return [String] A string representation of the source range.
     def inspect
       "(#{start_pos.inspect} to #{end_pos.inspect}#{" in #{@file}" if @file})"
+    end
+
+    def to_sexp
+      s(:call, sass(:Source, :Range), :new,
+        start_pos.to_sexp,
+        end_pos.to_sexp,
+        lit(file),
+        s(:lvar, :_s_importer))
     end
   end
 end
