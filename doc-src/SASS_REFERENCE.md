@@ -1089,10 +1089,11 @@ Since the named arguments are variable names, underscores and dashes can be used
 See {Sass::Script::Functions} for a full listing of Sass functions and their argument names,
 as well as instructions on defining your own in Ruby.
 
-### Interpolation: `#{}` {#interpolation_}
+### Interpolation: `#{}`
+{#interpolation_}
 
 You can also use SassScript variables in selectors
-and property names using #{} interpolation syntax:
+and property names using `#{}` interpolation syntax:
 
     $name: foo;
     $attr: border;
