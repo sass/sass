@@ -742,7 +742,7 @@ WARNING
       # $red_color: red;
       var_lhs_length = 1 + name.length # 1 stands for '$'
 
-      value = multiline_value ? "(#{line.children.map(&:text).join})" : value
+      value = multiline_value ? "(#{line.children.map(&:text).join("\n")})" : value
       index = line.text.index(value, line.offset + var_lhs_length) || 0
       expr = parse_script(value, :offset => to_parser_offset(line.offset + index))
 

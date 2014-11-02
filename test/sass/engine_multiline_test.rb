@@ -88,6 +88,20 @@ $foo:
 SASS
   end
 
+  def test_multiline_sassscript_errors
+    assert_raise_message(Sass::SyntaxError,
+      "Invalid CSS after \"foo-bar )\": expected expression (e.g. 1px, bold), was \")\"") do
+      render(<<SASS)
+$foo:
+  valid-syntax
+  foo-bar )
+
+.debug
+  inspect: inspect($foo)
+SASS
+    end
+  end
+
   private
 
   def render(sass, options = {})
