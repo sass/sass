@@ -48,6 +48,46 @@ $foo:
 SASS
   end
 
+  def test_single_line_list
+    assert_equal(<<CSS, render(<<SASS))
+.debug {
+  inspect: 1, 2; }
+CSS
+$foo: 1, 2
+
+.debug
+  inspect: inspect($foo)
+SASS
+  end
+
+  def test_indented_single_line_list
+    assert_equal(<<CSS, render(<<SASS))
+.debug {
+  inspect: 1, 2; }
+CSS
+$foo:
+  1, 2
+
+.debug
+  inspect: inspect($foo)
+SASS
+  end
+
+  def test_multiline_list
+    assert_equal(<<CSS, render(<<SASS))
+.debug {
+  inspect: "one", 2, "three"; }
+CSS
+$foo:
+  "one",
+  2,
+  "three"
+
+.debug
+  inspect: inspect($foo)
+SASS
+  end
+
   private
 
   def render(sass, options = {})
