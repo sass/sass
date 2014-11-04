@@ -726,10 +726,12 @@ WARNING
 
     def parse_variable(line)
       name, value, flags = line.text.scan(Script::MATCH)[0]
-      raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath variable declarations.",
-        :line => @line + 1) unless line.children.empty?
+      multiline_value    = line.children.any?
+
       raise SyntaxError.new("Invalid variable: \"#{line.text}\".",
-        :line => @line) unless name && value
+        :line => @line) unless name && (multiline_value || value)
+      raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath variable declarations.",
+        :line => @line + 1) unless multiline_value ^ value
       flags = flags ? flags.split(/\s+/) : []
       if (invalid_flag = flags.find {|f| f != '!default' && f != '!global'})
         raise SyntaxError.new("Invalid flag \"#{invalid_flag}\".", :line => @line)
@@ -739,6 +741,8 @@ WARNING
       # otherwise we end up with the offset equal to the value index inside the name:
       # $red_color: red;
       var_lhs_length = 1 + name.length # 1 stands for '$'
+
+      value = multiline_value ? "(#{line.children.map(&:text).join("\n")})" : value
       index = line.text.index(value, line.offset + var_lhs_length) || 0
       expr = parse_script(value, :offset => to_parser_offset(line.offset + index))
 
