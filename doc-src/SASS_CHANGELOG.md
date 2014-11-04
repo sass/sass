@@ -3,6 +3,12 @@
 * Table of contents
 {:toc}
 
+## 3.4.8 (Unreleased)
+
+* When `@extending` selectors inside `:not()`, don't add a complex
+  selector where none existed before to avoid breaking selectors on
+  browsers that don't support that.
+
 ## 3.4.7 (31 October 2014)
 
 * Stop crashing when extending selector pseudoclasses such as `:not()`.

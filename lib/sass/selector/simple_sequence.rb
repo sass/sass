@@ -164,6 +164,20 @@ module Sass
           extended = sel.selector.do_extend(extends, parent_directives, replace, seen, !:original)
           next sel if extended == sel.selector
           extended.members.reject! {|seq| seq.has_placeholder?}
+
+          # For `:not()`, we usually want to get rid of any complex
+          # selectors becuase that will cause the selector to fail to
+          # parse on all browsers at time of writing. We can keep them
+          # if either the original selector had a complex selector, or
+          # the result of extending has only complex selectors,
+          # because either way we aren't breaking anything that isn't
+          # already broken.
+          if sel.normalized_name == 'not' &&
+              (sel.selector.members.none? {|seq| seq.members.length > 1} &&
+               extended.members.any? {|seq| seq.members.length == 1})
+            extended.members.reject! {|seq| seq.members.length > 1}
+          end
+
           modified_original = true
           result = sel.with_selector(extended)
           result.each {|new_sel| seen_with_pseudo_selectors << [new_sel]}

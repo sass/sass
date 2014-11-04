@@ -362,7 +362,21 @@ SCSS
   end
 
   def test_complex_extend_into_pseudoclass
-    assert_extends(':not(.bar)', '.x .y {@extend .bar}', ':not(.bar):not(.x .y)')
+    # Unlike other selectors, we don't allow complex selectors to be
+    # added to `:not` if they weren't there before. At time of
+    # writing, most browsers don't support that and will throw away
+    # the entire selector if it exists.
+    #assert_extends(':not(.bar)', '.x .y {@extend .bar}', ':not(.bar)')
+
+    # If the `:not()` already has a complex selector, we won't break
+    # anything by adding a new one.
+    assert_extends(':not(.baz .bar)', '.x .y {@extend .bar}',
+      ':not(.baz .bar):not(.baz .x .y):not(.x .baz .y)')
+
+    # If the `:not()` would only contain complex selectors, there's no
+    # harm in letting it continue to exist.
+    assert_extends(':not(%bar)', '.x .y {@extend %bar}', ':not(.x .y)')
+
     assert_extends(':matches(.bar)', '.x .y {@extend .bar}', ':matches(.bar, .x .y)')
     assert_extends(':current(.bar)', '.x .y {@extend .bar}', ':current(.bar, .x .y)')
     assert_extends(':has(.bar)', '.x .y {@extend .bar}', ':has(.bar, .x .y)')
