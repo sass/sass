@@ -25,12 +25,7 @@ module Sass
       # @raise [Sass::SyntaxError] If a parent selector is invalid
       def resolve_parent_refs(super_cseq, implicit_parent = true)
         if super_cseq.nil?
-          if @members.any? do |sel|
-               sel.members.any? do |sel_or_op|
-                 sel_or_op.is_a?(SimpleSequence) &&
-                   sel_or_op.members.any? {|ssel| ssel.is_a?(Parent)}
-               end
-             end
+          if contains_parent_ref?
             raise Sass::SyntaxError.new(
               "Base-level rules cannot contain the parent-selector-referencing character '&'.")
           end
@@ -40,6 +35,13 @@ module Sass
         CommaSequence.new(Sass::Util.flatten_vertically(@members.map do |seq|
           seq.resolve_parent_refs(super_cseq, implicit_parent).members
         end))
+      end
+
+      # Returns whether there's a {Parent} selector anywhere in this sequence.
+      #
+      # @return [Boolean]
+      def contains_parent_ref?
+        @members.any? {|sel| sel.contains_parent_ref?}
       end
 
       # Non-destrucively extends this selector with the extensions specified in a hash

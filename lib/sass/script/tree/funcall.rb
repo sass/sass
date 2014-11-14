@@ -241,7 +241,7 @@ module Sass::Script::Tree
     end
 
     def perform_sass_fn(function, args, splat, environment)
-      Sass::Tree::Visitors::Perform.perform_arguments(function, args, splat) do |env|
+      Sass::Tree::Visitors::Perform.perform_arguments(function, args, splat, environment) do |env|
         env.caller = Sass::Environment.new(environment)
 
         val = catch :_sass_return do

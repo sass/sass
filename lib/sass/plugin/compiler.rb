@@ -33,6 +33,7 @@ module Sass::Plugin
     # @param opts [{Symbol => Object}]
     #   See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
     def initialize(opts = {})
+      @watched_files = Set.new
       options.merge!(opts)
     end
 
@@ -238,18 +239,19 @@ module Sass::Plugin
     #   of the directories being updated.
     def file_list(individual_files = [])
       files = individual_files.map do |tuple|
-        if tuple.size < 3
+        if engine_options[:sourcemap] == :none
+          tuple[0..1]
+        elsif tuple.size < 3
           [tuple[0], tuple[1], Sass::Util.sourcemap_name(tuple[1])]
         else
-          tuple
+          tuple.dup
         end
       end
 
       template_location_array.each do |template_location, css_location|
         Sass::Util.glob(File.join(template_location, "**", "[^_]*.s[ca]ss")).sort.each do |file|
           # Get the relative path to the file
-          name = Sass::Util.pathname(file).relative_path_from(
-            Sass::Util.pathname(template_location.to_s)).to_s
+          name = Sass::Util.relative_path_from(file, template_location).to_s
           css = css_filename(name, css_location)
           sourcemap = Sass::Util.sourcemap_name(css) unless engine_options[:sourcemap] == :none
           files << [file, css, sourcemap]
@@ -292,7 +294,9 @@ module Sass::Plugin
 
       directories = watched_paths
       individual_files.each do |(source, _, _)|
-        directories << File.dirname(File.expand_path(source))
+        source = File.expand_path(source)
+        @watched_files << Sass::Util.realpath(source).to_s
+        directories << File.dirname(source)
       end
       directories = remove_redundant_directories(directories)
 
@@ -435,6 +439,7 @@ module Sass::Plugin
       end
 
       removed.uniq.each do |f|
+        next unless watched_file?(f)
         run_template_deleted(relative_to_pwd(f))
         if (files = individual_files.find {|(source, _, _)| File.expand_path(source) == f})
           recompile_required = true
@@ -522,7 +527,7 @@ module Sass::Plugin
     end
 
     def watched_file?(file)
-      normalized_load_paths.find {|lp| lp.watched_file?(file)}
+      @watched_files.include?(file) || normalized_load_paths.any? {|lp| lp.watched_file?(file)}
     end
 
     def watched_paths
@@ -552,7 +557,7 @@ module Sass::Plugin
     end
 
     def relative_to_pwd(f)
-      Sass::Util.pathname(f).relative_path_from(Sass::Util.pathname(Dir.pwd)).to_s
+      Sass::Util.relative_path_from(f, Dir.pwd).to_s
     rescue ArgumentError # when a relative path cannot be computed
       f
     end

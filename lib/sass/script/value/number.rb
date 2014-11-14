@@ -289,7 +289,7 @@ module Sass::Script::Value
     # @raise [Sass::SyntaxError] if the number isn't an integer
     def to_i
       super unless int?
-      value
+      value.to_i
     end
 
     # @return [Boolean] Whether or not this number is an integer.

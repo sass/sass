@@ -418,8 +418,12 @@ MESSAGE
       def op
         op = scan(REGULAR_EXPRESSIONS[:op])
         return unless op
-        @interpolation_stack << nil if op == :begin_interpolation
-        [OPERATORS[op]]
+        name = OPERATORS[op]
+        if name == :begin_interpolation && !@interpolation_stack.empty?
+          [:string_interpolation]
+        else
+          [name]
+        end
       end
 
       def raw(rx)

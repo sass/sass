@@ -715,6 +715,26 @@ CSS
 SCSS
   end
 
+  def test_keyframe_bubbling
+    assert_equal(<<CSS, render(<<SCSS, :style => :nested))
+@keyframes spin {
+  0% {
+    transform: rotate(0deg); } }
+@-webkit-keyframes spin {
+  0% {
+    transform: rotate(0deg); } }
+CSS
+.foo {
+  @keyframes spin {
+    0% {transform: rotate(0deg)}
+  }
+  @-webkit-keyframes spin {
+    0% {transform: rotate(0deg)}
+  }
+}
+SCSS
+  end
+
   ## Namespace Properties
 
   def test_namespace_properties
@@ -1509,6 +1529,17 @@ SCSS
 SCSS
   end
 
+  def test_mixin_splat_too_many_args
+    assert_warning(<<WARNING) {render <<SCSS}
+WARNING: Mixin foo takes 2 arguments but 4 were passed.
+        on line 2 of #{filename_for_test(:scss)}
+This will be an error in future versions of Sass.
+WARNING
+@mixin foo($a, $b) {}
+@include foo((1, 2, 3, 4)...);
+SCSS
+  end
+
   def test_function_var_args
     assert_equal <<CSS, render(<<SCSS)
 .foo {
@@ -1927,6 +1958,17 @@ MESSAGE
 }
 
 .foo {val: foo((12: 1)...)}
+SCSS
+  end
+
+  def test_function_splat_too_many_args
+    assert_warning(<<WARNING) {render <<SCSS}
+WARNING: Function foo takes 2 arguments but 4 were passed.
+        on line 2 of #{filename_for_test(:scss)}
+This will be an error in future versions of Sass.
+WARNING
+@function foo($a, $b) {@return null}
+$var: foo((1, 2, 3, 4)...);
 SCSS
   end
 
@@ -3527,6 +3569,65 @@ SCSS
   end
 
   # Regression
+
+  def test_for_directive_with_float_bounds
+    assert_equal(<<CSS, render(<<SCSS))
+.a {
+  b: 0;
+  b: 1;
+  b: 2;
+  b: 3;
+  b: 4;
+  b: 5; }
+CSS
+.a {
+  @for $i from 0.0 through 5.0 {b: $i}
+}
+SCSS
+
+    assert_raise_message(Sass::SyntaxError, "0.5 is not an integer.") {render(<<SCSS)}
+.a {
+  @for $i from 0.5 through 5.0 {b: $i}
+}
+SCSS
+
+    assert_raise_message(Sass::SyntaxError, "5.5 is not an integer.") {render(<<SCSS)}
+.a {
+  @for $i from 0.0 through 5.5 {b: $i}
+}
+SCSS
+  end
+
+  def test_parent_selector_in_function_pseudo_selector
+    assert_equal <<CSS, render(<<SCSS)
+.bar:not(.foo) {
+  a: b; }
+
+.qux:nth-child(2n of .baz .bang) {
+  c: d; }
+CSS
+.foo {
+  .bar:not(&) {a: b}
+}
+
+.baz .bang {
+  .qux:nth-child(2n of &) {c: d}
+}
+SCSS
+  end
+
+  def test_attribute_selector_in_selector_pseudoclass
+    # Even though this is plain CSS, it only failed when given to the SCSS
+    # parser.
+    assert_equal(<<CSS, render(<<SCSS))
+[href^='http://'] {
+  color: red; }
+CSS
+[href^='http://'] {
+  color: red;
+}
+SCSS
+  end
 
   def test_top_level_unknown_directive_in_at_root
     assert_equal(<<CSS, render(<<SCSS))

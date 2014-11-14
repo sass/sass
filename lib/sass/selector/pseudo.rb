@@ -51,40 +51,50 @@ module Sass
       # Returns a copy of this with \{#selector} set to \{#new\_selector}.
       #
       # @param new_selector [CommaSequence]
-      # @return [CommaSequence]
+      # @return [Array<Simple>]
       def with_selector(new_selector)
-        Pseudo.new(syntactic_type, name, arg, CommaSequence.new(new_selector.members.map do |seq|
-          next seq unless seq.members.length == 1
-          sseq = seq.members.first
-          next seq unless sseq.is_a?(SimpleSequence) && sseq.members.length == 1
-          sel = sseq.members.first
-          next seq unless sel.is_a?(Pseudo) && sel.selector
+        result = Pseudo.new(syntactic_type, name, arg,
+          CommaSequence.new(new_selector.members.map do |seq|
+            next seq unless seq.members.length == 1
+            sseq = seq.members.first
+            next seq unless sseq.is_a?(SimpleSequence) && sseq.members.length == 1
+            sel = sseq.members.first
+            next seq unless sel.is_a?(Pseudo) && sel.selector
 
-          case normalized_name
-          when 'not'
-            # In theory, if there's a nested :not its contents should be
-            # unified with the return value. For example, if :not(.foo)
-            # extends .bar, :not(.bar) should become .foo:not(.bar). However,
-            # this is a narrow edge case and supporting it properly would make
-            # this code and the code calling it a lot more complicated, so
-            # it's not supported for now.
-            next [] unless sel.normalized_name == 'matches'
-            sel.selector.members
-          when 'matches', 'any', 'current', 'nth-child', 'nth-last-child'
-            # As above, we could theoretically support :not within :matches, but
-            # doing so would require this method and its callers to handle much
-            # more complex cases that likely aren't worth the pain.
-            next [] unless sel.name == name && sel.arg == arg
-            sel.selector.members
-          when 'has', 'host', 'host-context'
-            # We can't expand nested selectors here, because each layer adds an
-            # additional layer of semantics. For example, `:has(:has(img))`
-            # doesn't match `<div><img></div>` but `:has(img)` does.
-            sel
-          else
-            []
-          end
-        end.flatten))
+            case normalized_name
+            when 'not'
+              # In theory, if there's a nested :not its contents should be
+              # unified with the return value. For example, if :not(.foo)
+              # extends .bar, :not(.bar) should become .foo:not(.bar). However,
+              # this is a narrow edge case and supporting it properly would make
+              # this code and the code calling it a lot more complicated, so
+              # it's not supported for now.
+              next [] unless sel.normalized_name == 'matches'
+              sel.selector.members
+            when 'matches', 'any', 'current', 'nth-child', 'nth-last-child'
+              # As above, we could theoretically support :not within :matches, but
+              # doing so would require this method and its callers to handle much
+              # more complex cases that likely aren't worth the pain.
+              next [] unless sel.name == name && sel.arg == arg
+              sel.selector.members
+            when 'has', 'host', 'host-context'
+              # We can't expand nested selectors here, because each layer adds an
+              # additional layer of semantics. For example, `:has(:has(img))`
+              # doesn't match `<div><img></div>` but `:has(img)` does.
+              sel
+            else
+              []
+            end
+          end.flatten))
+
+        # Older browsers support :not but only with a single complex selector.
+        # In order to support those browsers, we break up the contents of a :not
+        # unless it originally contained a selector list.
+        return [result] unless normalized_name == 'not'
+        return [result] if selector.members.length > 1
+        result.selector.members.map do |seq|
+          Pseudo.new(syntactic_type, name, arg, CommaSequence.new([seq]))
+        end
       end
 
       # The type of the selector. `:class` if this is a pseudoclass selector,

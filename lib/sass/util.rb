@@ -410,7 +410,7 @@ module Sass
     def caller_info(entry = nil)
       # JRuby evaluates `caller` incorrectly when it's in an actual default argument.
       entry ||= caller[1]
-      info = entry.scan(/^(.*?):(-?.*?)(?::.*`(.+)')?$/).first
+      info = entry.scan(/^((?:[A-Za-z]:)?.*?):(-?.*?)(?::.*`(.+)')?$/).first
       info[1] = info[1].to_i
       # This is added by Rubinius to designate a block, but we don't care about it.
       info[2].sub!(/ \{\}\Z/, '') if info[2]
@@ -661,17 +661,75 @@ module Sass
       pathname(path.cleanpath.to_s)
     end
 
+    # Returns `path` with all symlinks resolved.
+    #
+    # @param path [String, Pathname]
+    # @return [Pathname]
+    def realpath(path)
+      path = Pathname.new(path) unless path.is_a?(Pathname)
+
+      # Explicitly DON'T run #pathname here. We don't want to convert
+      # to Windows directory separators because we're comparing these
+      # against the paths returned by Listen, which use forward
+      # slashes everywhere.
+      begin
+        path.realpath
+      rescue SystemCallError
+        # If [path] doesn't actually exist, don't bail, just
+        # return the original.
+        path
+      end
+    end
+
+    # Returns `path` relative to `from`.
+    #
+    # This is like `Pathname#relative_path_from` except it accepts both strings
+    # and pathnames, it handles Windows path separators correctly, and it throws
+    # an error rather than crashing if the paths use different encodings
+    # (https://github.com/ruby/ruby/pull/713).
+    #
+    # @param path [String, Pathname]
+    # @param from [String, Pathname]
+    # @return [Pathname?]
+    def relative_path_from(path, from)
+      pathname(path.to_s).relative_path_from(pathname(from.to_s))
+    rescue NoMethodError => e
+      raise e unless e.name == :zero?
+
+      # Work around https://github.com/ruby/ruby/pull/713.
+      path = path.to_s
+      from = from.to_s
+      raise ArgumentError("Incompatible path encodings: #{path.inspect} is #{path.encoding}, " +
+        "#{from.inspect} is #{from.encoding}")
+    end
+
     # Converts `path` to a "file:" URI. This handles Windows paths correctly.
     #
     # @param path [String, Pathname]
     # @return [String]
     def file_uri_from_path(path)
       path = path.to_s if path.is_a?(Pathname)
+      path = path.tr('\\', '/') if windows?
       path = Sass::Util.escape_uri(path)
       return path.start_with?('/') ? "file://" + path : path unless windows?
       return "file:///" + path.tr("\\", "/") if path =~ /^[a-zA-Z]:[\/\\]/
-      return "file://" + path.tr("\\", "/") if path =~ /\\\\[^\\]+\\[^\\\/]+/
+      return "file:" + path.tr("\\", "/") if path =~ /\\\\[^\\]+\\[^\\\/]+/
       path.tr("\\", "/")
+    end
+
+    # Retries a filesystem operation if it fails on Windows. Windows
+    # has weird and flaky locking rules that can cause operations to fail.
+    #
+    # @yield [] The filesystem operation.
+    def retry_on_windows
+      return yield unless windows?
+
+      begin
+        yield
+      rescue SystemCallError
+        sleep 0.1
+        yield
+      end
     end
 
     # Prepare a value for a destructuring assignment (e.g. `a, b =

@@ -3,6 +3,84 @@
 * Table of contents
 {:toc}
 
+## 3.4.7 (Unreleased)
+
+* Stop crashing when extending selector pseudoclasses such as `:not()`.
+
+* `@extend` resolution and `is-superselector()` no longer consider `.foo > .baz`
+  to be a superselector of `.foo > .bar > .baz`.
+
+## 3.4.6 (16 October 2014)
+
+* Parent selectors now work in selector pseudoclasses (for example, `:not(&)`).
+
+* `@for` loops no longer crash when one bound is an integer-like float.
+
+* Fix exception on `Sass::Importers::Filesystem#eql?`.
+
+## 3.4.5 (19 September 2014)
+
+* Fix `sass-convert --recursive`.
+
+* When using `sass --watch`, imported stylesheets within the working directory
+  will be watched for changes. This matches the behavior of Sass 3.3.
+
+* Set exit code 65, indicating a [data error][], when the compiler fails due to
+  a Sass error.
+
+[data error]: http://www.freebsd.org/cgi/man.cgi?query=sysexits
+
+## 3.4.4 (12 September 2014)
+
+* Produce more useful error messages when paths have incompatible encodings on
+  Windows.
+
+* Allow `@keyframes` selectors to use arbitrary identifiers to support libraries
+  like Skrollr.
+
+* `sass-convert` now preserves double-star mutliline comments (e.g.
+  `/** foo */`).
+
+## 3.4.3 (4 September 2014)
+
+* Don't crash when a non-existent directory is on the load path.
+
+* Fix `--watch` on Windows.
+
+* Passing too many arguments to a function via `...` is now a warning rather
+  than silently discarding additional arguments. In future versions of Sass,
+  this will become an error.
+
+## 3.4.2 (28 August 2014)
+
+* Properly detect the output format from the output filename for `sass-convert`.
+
+* Properly parse interpolation immediately following a string.
+
+* Fix `--watch` for symlinked files and directories.
+
+## 3.4.1 (22 August 2014)
+
+* Fix `--watch`.
+
+* Don't generate `:not()` selectors that contain more than one complex selector.
+
+* Fix a parsing bug with attribute selectors containing single quotes.
+
+* Don't put rulesets inside `@keyframes` directives when bubbling them up to the
+  top level.
+
+* Properly handle `@keyframes` rules that contain no properties.
+
+* Properly handle `--sourcemap=none` with `--update`.
+
+* Silence "template deleted" notifications for templates that weren't being
+  watched.
+
+* Top-level control structures can assign to global variables without needing
+  `!global`. Variables first defined in these structures will still be local
+  without `!global`.
+
 ## 3.4.0 (18 August 2014)
 
 ### Using `&` in SassScript
@@ -32,7 +110,7 @@ can use it in a mixin to detect whether a parent selector exists:
         &:hover {
           color: red;
         }
-      } else {
+      } @else {
         a {
           color: red;
         }
@@ -133,7 +211,7 @@ adding multiple suffixes to the same parent selector. For example:
 
 * Sass now follows the [CSS Syntax Level 3][encodings level 3]
   specification for determining a stylesheet's encoding. In addition,
-  it not only emits UTF-8 CSS rather than trying to match the source
+  it now only emits UTF-8 CSS rather than trying to match the source
   encoding.
 
 [encodings level 3]: http://www.w3.org/TR/2013/WD-css-syntax-3-20130919/#determine-the-fallback-encoding

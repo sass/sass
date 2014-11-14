@@ -289,6 +289,27 @@ File #{@args[1]} #{err}.
 MSG
       end
 
+      # Watch the working directory for changes without adding it to the load
+      # path. This preserves the pre-3.4 behavior when the working directory was
+      # on the load path. We should remove this when we can look for directories
+      # to watch by traversing the import graph.
+      class << Sass::Plugin.compiler
+        # We have to use a class var to make this visible to #watched_file? and
+        # #watched_paths.
+        # rubocop:disable ClassVars
+        @@working_directory = Sass::Util.realpath('.').to_s
+        # rubocop:ensable ClassVars
+
+        def watched_file?(file)
+          super(file) ||
+            (file =~ /\.s[ac]ss$/ && file.start_with?(@@working_directory + File::SEPARATOR))
+        end
+
+        def watched_paths
+          @watched_paths ||= super + [@@working_directory]
+        end
+      end
+
       dirs, files = @args.map {|name| split_colon_path(name)}.
         partition {|i, _| File.directory? i}
       files.map! do |from, to|
@@ -370,8 +391,8 @@ MSG
       input.close if input.is_a?(File)
 
       if @options[:sourcemap] != :none && @options[:sourcemap_filename]
-        relative_sourcemap_path = Sass::Util.pathname(@options[:sourcemap_filename]).
-          relative_path_from(Sass::Util.pathname(@options[:output_filename]).dirname)
+        relative_sourcemap_path = Sass::Util.relative_path_from(
+          @options[:sourcemap_filename], Sass::Util.pathname(@options[:output_filename]).dirname)
         rendered, mapping = engine.render_with_sourcemap(relative_sourcemap_path.to_s)
         write_output(rendered, output)
         write_output(mapping.to_json(
@@ -384,8 +405,7 @@ MSG
       end
     rescue Sass::SyntaxError => e
       write_output(Sass::SyntaxError.exception_to_css(e), output) if output.is_a?(String)
-      raise e if @options[:trace]
-      raise e.sass_backtrace_str("standard input")
+      raise e
     ensure
       output.close if output.is_a? File
     end

@@ -55,6 +55,25 @@ class SuperselectorTest < MiniTest::Test
   def test_descendant_is_superselector_of_child
     assert_strict_superselector '.foo .bar', '.foo > .bar.baz'
     assert_strict_superselector '.foo .bar', '.foo.baz > .bar'
+    assert_strict_superselector '.foo .baz', '.foo > .bar > .baz'
+  end
+
+  def test_child_isnt_superselector_of_longer_child
+    refute_superselector '.foo > .baz', '.foo > .bar > .baz'
+    refute_superselector '.foo > .baz', '.foo > .bar .baz'
+  end
+
+  def test_following_sibling_isnt_superselector_of_longer_following_sibling
+    refute_superselector '.foo + .baz', '.foo + .bar + .baz'
+    refute_superselector '.foo + .baz', '.foo + .bar .baz'
+  end
+
+  def test_sibling_isnt_superselector_of_longer_sibling
+    # This actually is a superselector, but it's a very narrow edge case and
+    # detecting it is very difficult and may be exponential in the worst case.
+    refute_superselector '.foo ~ .baz', '.foo ~ .bar ~ .baz'
+
+    refute_superselector '.foo ~ .baz', '.foo ~ .bar .baz'
   end
 
   def test_matches_is_superselector_of_constituent_selectors

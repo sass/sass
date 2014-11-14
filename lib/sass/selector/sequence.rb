@@ -52,9 +52,7 @@ module Sass
       def resolve_parent_refs(super_cseq, implicit_parent)
         members = @members.dup
         nl = (members.first == "\n" && members.shift)
-        contains_parent_ref = members.any? do |seq_or_op|
-          seq_or_op.is_a?(SimpleSequence) && seq_or_op.members.first.is_a?(Parent)
-        end
+        contains_parent_ref = contains_parent_ref?
         return CommaSequence.new([self]) if !implicit_parent && !contains_parent_ref
 
         unless contains_parent_ref
@@ -73,6 +71,19 @@ module Sass
             seq_or_op.members
           end.flatten)
         end)
+      end
+
+      # Returns whether there's a {Parent} selector anywhere in this sequence.
+      #
+      # @return [Boolean]
+      def contains_parent_ref?
+        members.any? do |sseq_or_op|
+          next false unless sseq_or_op.is_a?(SimpleSequence)
+          next true if sseq_or_op.members.first.is_a?(Parent)
+          sseq_or_op.members.any? do |sel|
+            sel.is_a?(Pseudo) && sel.selector && sel.selector.contains_parent_ref?
+          end
+        end
       end
 
       # Non-destructively extends this selector with the extensions specified in a hash
@@ -479,8 +490,15 @@ module Sass
 
         if seq1[1].is_a?(String)
           return unless seq2[si + 1].is_a?(String)
+
           # .foo ~ .bar is a superselector of .foo + .bar
           return unless seq1[1] == "~" ? seq2[si + 1] != ">" : seq1[1] == seq2[si + 1]
+
+          # .foo > .baz is not a superselector of .foo > .bar > .baz or .foo >
+          # .bar .baz, despite the fact that .baz is a superselector of .bar >
+          # .baz and .bar .baz. Same goes for + and ~.
+          return if seq1.length == 3 && seq2.length > 3
+
           return _superselector?(seq1[2..-1], seq2[si + 2..-1])
         elsif seq2[si + 1].is_a?(String)
           return unless seq2[si + 1] == ">"

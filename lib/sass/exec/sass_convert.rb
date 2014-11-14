@@ -162,7 +162,7 @@ END
     end
 
     def process_directory
-      unless (input = @options[:input] = @args.shift)
+      unless @options[:input] = @args.shift
         raise "Error: directory required when using --recursive."
       end
 
@@ -207,15 +207,15 @@ END
           puts_action :create, :green, output
         end
 
-        input = open_file(f)
-        process_file(input, output)
+        process_file(f, output)
       end
     end
 
     def process_file(input, output)
-      if input.is_a?(File)
+      input_path, output_path = path_for(input), path_for(output)
+      if input_path
         @options[:from] ||=
-          case input.path
+          case input_path
           when /\.scss$/; :scss
           when /\.sass$/; :sass
           when /\.less$/; raise "sass-convert no longer supports LessCSS."
@@ -225,9 +225,9 @@ END
         raise "Error: the --in-place option requires a filename."
       end
 
-      if output.is_a?(File)
+      if output_path
         @options[:to] ||=
-          case output.path
+          case output_path
           when /\.scss$/; :scss
           when /\.sass$/; :sass
           end
@@ -243,15 +243,15 @@ END
             require 'sass/css'
             Sass::CSS.new(input.read, @options[:for_tree]).render(@options[:to])
           else
-            if input.is_a?(File)
-              Sass::Engine.for_file(input.path, @options[:for_engine])
+            if input_path
+              Sass::Engine.for_file(input_path, @options[:for_engine])
             else
               Sass::Engine.new(input.read, @options[:for_engine])
             end.to_tree.send("to_#{@options[:to]}", @options[:for_tree])
           end
         end
 
-      output = input.path if @options[:in_place]
+      output = input_path if @options[:in_place]
       write_output(out, output)
     rescue Sass::SyntaxError => e
       raise e if @options[:trace]
@@ -259,6 +259,11 @@ END
       raise "Error on line #{e.sass_line}#{file}: #{e.message}\n  Use --trace for backtrace"
     rescue LoadError => err
       handle_load_error(err)
+    end
+
+    def path_for(file)
+      return file.path if file.is_a?(File)
+      return file if file.is_a?(String)
     end
   end
 end

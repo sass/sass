@@ -29,8 +29,8 @@ class SassPluginTest < MiniTest::Test
   @@cache_store = Sass::CacheStores::Memory.new
 
   def setup
-    FileUtils.mkdir_p tempfile_loc
-    FileUtils.mkdir_p tempfile_loc(nil,"more_")
+    Sass::Util.retry_on_windows {FileUtils.mkdir_p tempfile_loc}
+    Sass::Util.retry_on_windows {FileUtils.mkdir_p tempfile_loc(nil,"more_")}
     set_plugin_opts
     check_for_updates!
     reset_mtimes
@@ -39,8 +39,8 @@ class SassPluginTest < MiniTest::Test
   def teardown
     clean_up_sassc
     Sass::Plugin.reset!
-    FileUtils.rm_r tempfile_loc
-    FileUtils.rm_r tempfile_loc(nil,"more_")
+    Sass::Util.retry_on_windows {FileUtils.rm_r tempfile_loc}
+    Sass::Util.retry_on_windows {FileUtils.rm_r tempfile_loc(nil,"more_")}
   end
 
   @@templates.each do |name|
@@ -501,7 +501,9 @@ WARNING
     Sass::Plugin::StalenessChecker.dependencies_cache = {}
     atime = Time.now
     mtime = Time.now - 5
-    Dir["{#{template_loc},#{tempfile_loc}}/**/*.{css,sass,scss}"].each {|f| File.utime(atime, mtime, f)}
+    Dir["{#{template_loc},#{tempfile_loc}}/**/*.{css,sass,scss}"].each do |f|
+      Sass::Util.retry_on_windows {File.utime(atime, mtime, f)}
+    end
   end
 
   def template_loc(name = nil, prefix = nil)

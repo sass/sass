@@ -781,6 +781,112 @@ CSS
 SCSS
   end
 
+  def test_if_can_assign_to_global_variables
+    assert_equal <<CSS, render(<<SCSS, :syntax => :scss)
+.a {
+  b: 2; }
+CSS
+$var: 1;
+@if true {$var: 2}
+.a {b: $var}
+SCSS
+  end
+
+  def test_else_can_assign_to_global_variables
+    assert_equal <<CSS, render(<<SCSS, :syntax => :scss)
+.a {
+  b: 2; }
+CSS
+$var: 1;
+@if false {}
+@else {$var: 2}
+.a {b: $var}
+SCSS
+  end
+
+  def test_for_can_assign_to_global_variables
+    assert_equal <<CSS, render(<<SCSS, :syntax => :scss)
+.a {
+  b: 2; }
+CSS
+$var: 1;
+@for $i from 1 to 2 {$var: 2}
+.a {b: $var}
+SCSS
+  end
+
+  def test_each_can_assign_to_global_variables
+    assert_equal <<CSS, render(<<SCSS, :syntax => :scss)
+.a {
+  b: 2; }
+CSS
+$var: 1;
+@each $a in 1 {$var: 2}
+.a {b: $var}
+SCSS
+  end
+
+  def test_while_can_assign_to_global_variables
+    assert_equal <<CSS, render(<<SCSS, :syntax => :scss)
+.a {
+  b: 2; }
+CSS
+$var: 1;
+@while $var != 2 {$var: 2}
+.a {b: $var}
+SCSS
+  end
+
+  def test_if_doesnt_leak_local_variables
+    assert_raise_message(Sass::SyntaxError, 'Undefined variable: "$var".') do
+      render(<<SCSS, :syntax => :scss)
+@if true {$var: 1}
+.a {b: $var}
+SCSS
+    end
+  end
+
+  def test_else_doesnt_leak_local_variables
+    assert_raise_message(Sass::SyntaxError, 'Undefined variable: "$var".') do
+      render(<<SCSS, :syntax => :scss)
+@if false {}
+@else {$var: 1}
+.a {b: $var}
+SCSS
+    end
+  end
+
+  def test_for_doesnt_leak_local_variables
+    assert_raise_message(Sass::SyntaxError, 'Undefined variable: "$var".') do
+      render(<<SCSS, :syntax => :scss)
+@for $i from 1 to 2 {$var: 1}
+.a {b: $var}
+SCSS
+    end
+  end
+
+  def test_each_doesnt_leak_local_variables
+    assert_raise_message(Sass::SyntaxError, 'Undefined variable: "$var".') do
+      render(<<SCSS, :syntax => :scss)
+@each $a in 1 {$var: 1}
+.a {b: $var}
+SCSS
+    end
+  end
+
+  def test_while_doesnt_leak_local_variables
+    assert_raise_message(Sass::SyntaxError, 'Undefined variable: "$var".') do
+      render(<<SCSS, :syntax => :scss)
+$iter: true;
+@while $iter {
+  $var: 1;
+  $iter: false;
+}
+.a {b: $var}
+SCSS
+    end
+  end
+
   def test_color_format_is_preserved_by_default
     assert_equal "blue", resolve("blue")
     assert_equal "bLuE", resolve("bLuE")
@@ -856,6 +962,11 @@ SCSS
   end
 
   # Regression Tests
+
+  def test_interpolation_after_string
+    assert_equal '"foobar" 2', resolve('"foobar" #{2}')
+    assert_equal "calc(1 + 2) 3", resolve('calc(1 + 2) #{3}')
+  end
 
   def test_repeatedly_modified_color
     assert_equal(<<CSS, render(<<SASS))

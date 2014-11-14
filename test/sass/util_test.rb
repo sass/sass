@@ -280,10 +280,12 @@ class UtilTest < MiniTest::Test
   def test_caller_info
     assert_equal(["/tmp/foo.rb", 12, "fizzle"], caller_info("/tmp/foo.rb:12: in `fizzle'"))
     assert_equal(["/tmp/foo.rb", 12, nil], caller_info("/tmp/foo.rb:12"))
+    assert_equal(["C:/tmp/foo.rb", 12, nil], caller_info("C:/tmp/foo.rb:12"))
     assert_equal(["(sass)", 12, "blah"], caller_info("(sass):12: in `blah'"))
     assert_equal(["", 12, "boop"], caller_info(":12: in `boop'"))
     assert_equal(["/tmp/foo.rb", -12, "fizzle"], caller_info("/tmp/foo.rb:-12: in `fizzle'"))
     assert_equal(["/tmp/foo.rb", 12, "fizzle"], caller_info("/tmp/foo.rb:12: in `fizzle {}'"))
+    assert_equal(["C:/tmp/foo.rb", 12, "fizzle"], caller_info("C:/tmp/foo.rb:12: in `fizzle {}'"))
 
     info = nested_caller_info_fn
     assert_equal(__FILE__, info[0])
@@ -426,6 +428,8 @@ WARNING
       end
       threads.each {|t| t.join}
     end
+  ensure
+    Sass::Util.retry_on_windows {File.delete filename if File.exist?(filename)}
   end
 
   def test_atomic_write_permissions

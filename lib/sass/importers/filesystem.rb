@@ -13,6 +13,7 @@ module Sass
       #   This importer will import files relative to this path.
       def initialize(root)
         @root = File.expand_path(root)
+        @real_root = Sass::Util.realpath(@root).to_s
         @same_name_warnings = Set.new
       end
 
@@ -50,7 +51,7 @@ module Sass
       end
 
       def eql?(other)
-        root.eql?(other.root)
+        !other.nil? && other.respond_to?(:root) && root.eql?(other.root)
       end
 
       # @see Base#directories_to_watch
@@ -60,21 +61,21 @@ module Sass
 
       # @see Base#watched_file?
       def watched_file?(filename)
-        filename =~ /\.s[ac]ss$/ &&
-          filename.start_with?(root + File::SEPARATOR)
+        # Check against the root with symlinks resolved, since Listen
+        # returns fully-resolved paths.
+        filename =~ /\.s[ac]ss$/ && filename.start_with?(@real_root + File::SEPARATOR)
       end
 
       def public_url(name, sourcemap_directory)
         file_pathname = Sass::Util.cleanpath(Sass::Util.absolute_path(name, @root))
-        if sourcemap_directory.nil?
+        return Sass::Util.file_uri_from_path(file_pathname) if sourcemap_directory.nil?
+
+        sourcemap_pathname = Sass::Util.cleanpath(sourcemap_directory)
+        begin
+          Sass::Util.file_uri_from_path(
+            Sass::Util.relative_path_from(file_pathname, sourcemap_pathname))
+        rescue ArgumentError # when a relative path cannot be constructed
           Sass::Util.file_uri_from_path(file_pathname)
-        else
-          sourcemap_pathname = Sass::Util.cleanpath(sourcemap_directory)
-          begin
-            Sass::Util.file_uri_from_path(file_pathname.relative_path_from(sourcemap_pathname))
-          rescue ArgumentError # when a relative path cannot be constructed
-            Sass::Util.file_uri_from_path(file_pathname)
-          end
         end
       end
 
@@ -200,6 +201,11 @@ WARNING
       def _find(dir, name, options)
         full_filename, syntax = Sass::Util.destructure(find_real_file(dir, name, options))
         return unless full_filename && File.readable?(full_filename)
+
+        # TODO: this preserves historical behavior, but it's possible
+        # :filename should be either normalized to the native format
+        # or consistently URI-format.
+        full_filename = full_filename.tr("\\", "/") if Sass::Util.windows?
 
         options[:syntax] = syntax
         options[:filename] = full_filename

@@ -1130,8 +1130,9 @@ WARNING
 
       return "/* */" if content.empty?
       content.last.gsub!(/ ?\*\/ *$/, '')
+      first = content.shift unless removed_first
       content.map! {|l| l.gsub!(/^\*( ?)/, '\1') || (l.empty? ? "" : " ") + l}
-      content.first.gsub!(/^ /, '') unless removed_first
+      content.unshift first unless removed_first
       if silent
         "/*" + content.join("\n *") + " */"
       else
