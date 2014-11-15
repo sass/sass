@@ -482,8 +482,7 @@ module Sass::Script
       include Value::Helpers
 
       # The human-readable names for [Sass::Script::Value::Base]. The default is
-      # just the downcased name of the type. The default is the downcased type
-      # name.
+      # just the downcased name of the type.
       TYPE_NAMES = {:ArgList => 'variable argument list'}
 
       # The environment for this function. This environment's
@@ -499,10 +498,23 @@ module Sass::Script
       # @return [{Symbol => Object}]
       attr_reader :options
 
+      # The line on which the current function was called.
+      #
+      # @return [Fixnum]
+      attr_reader :line
+
       # @param environment [Environment] See \{#environment}
       def initialize(environment)
         @environment = environment
         @options = environment.options
+        @line = line
+      end
+
+      # The path to the file in which the current function was called.
+      #
+      # @return [String?]
+      def filename
+        @options[:filename]
       end
 
       # Asserts that the type of a given SassScript value
@@ -652,11 +664,11 @@ module Sass::Script
     #
     # @overload rgba($red, $green, $blue, $alpha)
     #   @param $red [Sass::Script::Value::Number] The amount of red in the
-    #     color. Must be between 0 and 255 inclusive
+    #     color. Must be between 0 and 255 inclusive or 0% and 100% inclusive
     #   @param $green [Sass::Script::Value::Number] The amount of green in the
-    #     color. Must be between 0 and 255 inclusive
+    #     color. Must be between 0 and 255 inclusive or 0% and 100% inclusive
     #   @param $blue [Sass::Script::Value::Number] The amount of blue in the
-    #     color. Must be between 0 and 255 inclusive
+    #     color. Must be between 0 and 255 inclusive or 0% and 100% inclusive
     #   @param $alpha [Sass::Script::Value::Number] The opacity of the color.
     #     Must be between 0 and 1 inclusive
     #   @return [Sass::Script::Value::Color]
@@ -684,6 +696,7 @@ module Sass::Script
 
         assert_type color, :Color, :color
         assert_type alpha, :Number, :alpha
+        check_alpha_unit alpha, 'rgba'
 
         color.with(:alpha => alpha.value)
       when 4
@@ -741,6 +754,7 @@ module Sass::Script
       assert_type saturation, :Number, :saturation
       assert_type lightness, :Number, :lightness
       assert_type alpha, :Number, :alpha
+      check_alpha_unit alpha, 'hsla'
 
       h = hue.value
       s = saturation.value
@@ -2624,6 +2638,23 @@ module Sass::Script
       Sass::Util.check_range('Amount', range, amount, units)
 
       color.with(attr => color.send(attr).send(op, amount.value))
+    end
+
+    def check_alpha_unit(alpha, function)
+      return if alpha.unitless?
+
+      if alpha.is_unit?("%")
+        Sass::Util.sass_warn(<<WARNING)
+DEPRECATION WARNING: Passing a percentage as the alpha value to #{function}() will be
+interpreted differently in future versions of Sass. For now, use #{alpha.value} instead.
+WARNING
+      else
+        frame = environment.stack.frames.last
+        Sass::Util.sass_warn(<<WARNING)
+DEPRECATION WARNING: Passing a number with units as the alpha value to #{function}() is
+deprecated and will be an error in future versions of Sass. Use #{alpha.value} instead.
+WARNING
+      end
     end
   end
 end

@@ -9,6 +9,13 @@
   selector where none existed before to avoid breaking selectors on
   browsers that don't support that.
 
+* Add a deprecation warning for passing numbers with units to the alpha
+  arguments to `rgba()` and `hsla()`. In a future release, a percentage will be
+  interpreted according to [the spec][alpha value] and other units will produce
+  errors.
+
+[alpha value]: http://dev.w3.org/csswg/css-color/#typedef-alpha-value
+
 ## 3.4.7 (31 October 2014)
 
 [Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.4.7).
