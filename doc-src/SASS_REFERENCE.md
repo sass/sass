@@ -663,7 +663,7 @@ is compiled to:
 
 ### Data Types
 
-SassScript supports six main data types:
+SassScript supports seven main data types:
 
 * numbers (e.g. `1.2`, `13`, `10px`)
 * strings of text, with and without quotes (e.g. `"foo"`, `'bar'`, `baz`)
