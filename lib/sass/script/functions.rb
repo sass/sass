@@ -498,23 +498,10 @@ module Sass::Script
       # @return [{Symbol => Object}]
       attr_reader :options
 
-      # The line on which the current function was called.
-      #
-      # @return [Fixnum]
-      attr_reader :line
-
       # @param environment [Environment] See \{#environment}
       def initialize(environment)
         @environment = environment
         @options = environment.options
-        @line = line
-      end
-
-      # The path to the file in which the current function was called.
-      #
-      # @return [String?]
-      def filename
-        @options[:filename]
       end
 
       # Asserts that the type of a given SassScript value
@@ -2649,7 +2636,6 @@ DEPRECATION WARNING: Passing a percentage as the alpha value to #{function}() wi
 interpreted differently in future versions of Sass. For now, use #{alpha.value} instead.
 WARNING
       else
-        frame = environment.stack.frames.last
         Sass::Util.sass_warn(<<WARNING)
 DEPRECATION WARNING: Passing a number with units as the alpha value to #{function}() is
 deprecated and will be an error in future versions of Sass. Use #{alpha.value} instead.
