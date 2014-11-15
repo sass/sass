@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 3.4.8 (Unreleased)
+## 3.4.8 (14 November 2014)
+
+[Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.4.8).
 
 * When `@extending` selectors inside `:not()`, don't add a complex
   selector where none existed before to avoid breaking selectors on
