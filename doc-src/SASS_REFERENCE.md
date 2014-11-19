@@ -2405,7 +2405,7 @@ get directly passed through to the wrapped mixin. For example:
 ### Passing Content Blocks to a Mixin {#mixin-content}
 
 It is possible to pass a block of styles to the mixin for placement within the styles included by
-the mixin. The styles will appear at the location of any `@content` directives found within the mixin. This makes is possible to define abstractions relating to the construction of
+the mixin. The styles will appear at the location of any `@content` directives found within the mixin. This makes it possible to define abstractions relating to the construction of
 selectors and directives.
 
 For example:
