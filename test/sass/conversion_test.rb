@@ -1678,7 +1678,7 @@ SCSS
   end
 
   def test_extend_with_optional
-    assert_scss_to_sass <<SASS, <<SCSS
+    assert_renders <<SASS, <<SCSS
 foo
   @extend .bar !optional
 SASS

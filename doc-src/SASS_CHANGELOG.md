@@ -8,6 +8,8 @@
 * Properly handle interpolation within `calc()` and similar functions
   with `sass-convert`.
 
+* Properly handle conversion of `@extend` with `!optional` to SCSS.
+
 ## 3.4.8 (14 November 2014)
 
 [Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.4.8).
