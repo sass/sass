@@ -274,7 +274,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
       "#{tab_str}@at-root #{query_interp_to_src(node.query)}#{yield}"
     elsif node.children.length == 1 && node.children.first.is_a?(Sass::Tree::RuleNode)
       rule = node.children.first
-      "#{tab_str}@at-root #{selector_to_src(rule.rule)}#{visit_children(rule)}"
+      "#{tab_str}@at-root #{selector_to_src(rule.rule).lstrip}#{visit_children(rule)}"
     else
       "#{tab_str}@at-root#{yield}"
     end

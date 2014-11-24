@@ -10,6 +10,8 @@
 
 * Properly handle conversion of `@extend` with `!optional` to SCSS.
 
+* Properly handle conversion of `@at-root` with a selector to SCSS.
+
 ## 3.4.8 (14 November 2014)
 
 [Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.4.8).

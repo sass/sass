@@ -1807,7 +1807,7 @@ SCSS
   end
 
   def test_at_root_with_selector
-    assert_scss_to_sass <<SASS, <<SCSS
+    assert_renders <<SASS, <<SCSS
 .foo
   @at-root .bar
     a: b
