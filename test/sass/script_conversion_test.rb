@@ -261,6 +261,11 @@ RUBY
     assert_renders 'flabnabbit($foo #{1 + "foo"}#{2 + "bar"} $baz)'
   end
 
+  def test_interpolation_in_string_function
+    assert_renders 'calc(#{1 + "foo"})'
+    assert_renders 'calc(foo#{1 + "foo"}baz)'
+  end
+
   def test_interpolation_near_operators
     assert_renders '#{1 + 2} , #{3 + 4}'
     assert_renders '#{1 + 2}, #{3 + 4}'
