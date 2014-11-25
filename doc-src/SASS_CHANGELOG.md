@@ -5,12 +5,16 @@
 
 ## 3.4.9 (Unreleased)
 
+* Fix an incompatibility with listen 2.7.12 and later.
+
 * Properly handle interpolation within `calc()` and similar functions
   with `sass-convert`.
 
 * Properly handle conversion of `@extend` with `!optional` to SCSS.
 
 * Properly handle conversion of `@at-root` with a selector to SCSS.
+
+* Don't crash on selectors containing escape codes.
 
 ## 3.4.8 (14 November 2014)
 
