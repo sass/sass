@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 3.4.9 (Unreleased)
+## 3.4.9 (24 November 2014)
+
+[Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.4.9).
 
 * Fix an incompatibility with listen 2.7.12 and later.
 
