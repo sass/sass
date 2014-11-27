@@ -552,21 +552,6 @@ module Sass
       version_geq(ActionPack::VERSION::STRING, version)
     end
 
-    # Returns whether this environment is using Listen
-    # version 2.0.0 or greater.
-    #
-    # @return [Boolean]
-    def listen_geq_2?
-      return @listen_geq_2 unless @listen_geq_2.nil?
-      @listen_geq_2 =
-        begin
-          require 'listen/version'
-          version_geq(::Listen::VERSION, '2.0.0')
-        rescue LoadError
-          false
-        end
-    end
-
     # Returns an ActionView::Template* class.
     # In pre-3.0 versions of Rails, most of these classes
     # were of the form `ActionView::TemplateFoo`,
@@ -1267,44 +1252,6 @@ module Sass
       # presumably due to an error during write
       tmpfile.close if tmpfile
       tmpfile.unlink if tmpfile
-    end
-
-    def load_listen!
-      if defined?(gem)
-        begin
-          gem 'listen', '>= 1.1.0', '< 3.0.0'
-          require 'listen'
-        rescue Gem::LoadError
-          dir = scope("vendor/listen/lib")
-          $LOAD_PATH.unshift dir
-          begin
-            require 'listen'
-          rescue LoadError => e
-            if version_geq(RUBY_VERSION, "1.9.3")
-              version_constraint = "~> 2.7"
-            else
-              version_constraint = "~> 1.1"
-            end
-            e.message << "\n" <<
-              "Run \"gem install listen --version '#{version_constraint}'\" to get it."
-            raise e
-          end
-        end
-      else
-        begin
-          require 'listen'
-        rescue LoadError => e
-          dir = scope("vendor/listen/lib")
-          if $LOAD_PATH.include?(dir)
-            raise e unless File.exist?(scope(".git"))
-            e.message << "\n" <<
-              'Run "git submodule update --init" to get the bundled version.'
-          else
-            $LOAD_PATH.unshift dir
-            retry
-          end
-        end
-      end
     end
 
     private

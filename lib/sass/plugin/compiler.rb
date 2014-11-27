@@ -5,6 +5,7 @@ require 'sass'
 require 'sass/callbacks'
 require 'sass/plugin/configuration'
 require 'sass/plugin/staleness_checker'
+require 'listen/compat/wrapper'
 
 module Sass::Plugin
   # The Compiler class handles compilation of multiple files and/or directories,
@@ -298,14 +299,12 @@ module Sass::Plugin
         @watched_files << Sass::Util.realpath(source).to_s
         directories << File.dirname(source)
       end
+
       directories = remove_redundant_directories(directories)
 
-      # A Listen version prior to 2.0 will write a test file to a directory to
-      # see if a watcher supports watching that directory. That breaks horribly
-      # on read-only directories, so we filter those out.
-      unless Sass::Util.listen_geq_2?
-        directories = directories.select {|d| File.directory?(d) && File.writable?(d)}
-      end
+      # The native windows listener is much slower than the polling option, according to
+      # https://github.com/nex3/sass/commit/a3031856b22bc834a5417dedecb038b7be9b9e3e
+      poll = @options[:poll] || Sass::Util.windows?
 
       # TODO: Keep better track of what depends on what
       # so we don't have to run a global update every time anything changes.
@@ -313,29 +312,13 @@ module Sass::Plugin
       # a deprecated feature is removed. It may be removed without warning.
       listener_args = directories +
                       Array(options[:additional_watch_paths]) +
-                      [{:relative_paths => false}]
+                      [{:relative_paths => false, :force_polling => poll}]
 
-      # The native windows listener is much slower than the polling option, according to
-      # https://github.com/nex3/sass/commit/a3031856b22bc834a5417dedecb038b7be9b9e3e
-      poll = @options[:poll] || Sass::Util.windows?
-      if poll && Sass::Util.listen_geq_2?
-        # In Listen 2.0.0 and on, :force_polling is an option. In earlier
-        # versions, it's a method on the listener (called below).
-        listener_args.last[:force_polling] = true
-      end
-
-      listener = create_listener(*listener_args) do |modified, added, removed|
+      listener = Listen::Compat::Wrapper.create
+      listener.listen(*listener_args) do |modified, added, removed|
         on_file_changed(individual_files, modified, added, removed)
         yield(modified, added, removed) if block_given?
       end
-
-      if poll && !Sass::Util.listen_geq_2?
-        # In Listen 2.0.0 and on, :force_polling is an option (set above). In
-        # earlier versions, it's a method on the listener.
-        listener.force_polling(true)
-      end
-
-      listen_to(listener)
     end
 
     # Non-destructively modifies \{#options} so that default values are properly set,
@@ -383,30 +366,6 @@ module Sass::Plugin
     end
 
     private
-
-    def create_listener(*args, &block)
-      Sass::Util.load_listen!
-      if Sass::Util.listen_geq_2?
-        # Work around guard/listen#243.
-        options = args.pop if args.last.is_a?(Hash)
-        args.map do |dir|
-          Listen.to(dir, options, &block)
-        end
-      else
-        Listen::Listener.new(*args, &block)
-      end
-    end
-
-    def listen_to(listener)
-      if Sass::Util.listen_geq_2?
-        listener.map {|l| l.start}
-        sleep
-      else
-        listener.start!
-      end
-    rescue Interrupt
-      # Squelch Interrupt for clean exit from Listen::Listener
-    end
 
     def remove_redundant_directories(directories)
       dedupped = []
