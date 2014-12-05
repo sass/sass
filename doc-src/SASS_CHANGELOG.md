@@ -7,6 +7,9 @@
 
 * `inspect()` no longer adds extra parentheses to nested maps.
 
+* Update the documentation of the `random()` function to accurate reflect its
+  behavior.
+
 ## 3.4.9 (24 November 2014)
 
 [Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.4.9).

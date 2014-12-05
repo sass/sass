@@ -2310,7 +2310,7 @@ module Sass::Script
     #   Return a decimal between 0 and 1, inclusive of 0 but not 1.
     #   @return [Sass::Script::Value::Number] A decimal value.
     # @overload random($limit)
-    #   Return an integer between 1 and `$limit`, inclusive of 1 but not `$limit`.
+    #   Return an integer between 1 and `$limit`, inclusive of both 1 and `$limit`.
     #   @param $limit [Sass::Script::Value::Number] The maximum of the random integer to be
     #     returned, a positive integer.
     #   @return [Sass::Script::Value::Number] An integer.
