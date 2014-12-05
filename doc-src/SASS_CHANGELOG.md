@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 4.0.0 (Unreleased)
+
+* Combine ids and `:root` when unifying selectors with `@extend` and selector
+  functions.
+
 ## 3.4.9 (Unreleased)
 
 * Update the documentation of the `random()` function to accurate reflect its

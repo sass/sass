@@ -14,6 +14,14 @@ module Sass
       # @return [String, nil]
       attr_accessor :filename
 
+      # Whether only one instance of this simple selector is allowed in a given
+      # complex selector.
+      #
+      # @return [Boolean]
+      def unique?
+        false
+      end
+
       # @see #to_s
       #
       # @return [String]
