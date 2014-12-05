@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.4.9 (Unreleased)
+
+* Update the documentation of the `random()` function to accurate reflect its
+  behavior.
+
 ## 3.4.8 (14 November 2014)
 
 [Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.4.8).
