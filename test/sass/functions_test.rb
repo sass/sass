@@ -122,6 +122,20 @@ class SassFunctionTest < MiniTest::Test
     assert_error_message("$alpha: \"foo\" is not a number for `hsla'", "hsla(10, 10, 10, \"foo\")");
   end
 
+  def test_hsla_percent_warning
+    assert_warning(<<WARNING) {evaluate("hsla(180, 60%, 50%, 40%)")}
+DEPRECATION WARNING: Passing a percentage as the alpha value to hsla() will be
+interpreted differently in future versions of Sass. For now, use 40 instead.
+WARNING
+  end
+
+  def test_hsla_unit_warning
+    assert_warning(<<WARNING) {evaluate("hsla(180, 60%, 50%, 40em)")}
+DEPRECATION WARNING: Passing a number with units as the alpha value to hsla() is
+deprecated and will be an error in future versions of Sass. Use 40 instead.
+WARNING
+  end
+
   def test_percentage
     assert_equal("50%",  evaluate("percentage(.5)"))
     assert_equal("100%", evaluate("percentage(1)"))
@@ -272,6 +286,20 @@ class SassFunctionTest < MiniTest::Test
     assert_error_message("wrong number of arguments (1 for 4) for `rgba'", "rgba(blue)");
     assert_error_message("wrong number of arguments (3 for 4) for `rgba'", "rgba(1, 2, 3)");
     assert_error_message("wrong number of arguments (5 for 4) for `rgba'", "rgba(1, 2, 3, 0.4, 5)");
+  end
+
+  def test_rgba_percent_warning
+    assert_warning(<<WARNING) {evaluate("rgba(1, 2, 3, 40%)")}
+DEPRECATION WARNING: Passing a percentage as the alpha value to rgba() will be
+interpreted differently in future versions of Sass. For now, use 40 instead.
+WARNING
+  end
+
+  def test_rgba_unit_warning
+    assert_warning(<<WARNING) {evaluate("rgba(1, 2, 3, 40em)")}
+DEPRECATION WARNING: Passing a number with units as the alpha value to rgba() is
+deprecated and will be an error in future versions of Sass. Use 40 instead.
+WARNING
   end
 
   def test_red

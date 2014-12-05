@@ -79,11 +79,23 @@ module Sass::Script::Tree
       end
 
       begin
-        opts(value1.send(@operator, value2))
+        result = opts(value1.send(@operator, value2))
       rescue NoMethodError => e
         raise e unless e.name.to_s == @operator.to_s
         raise Sass::SyntaxError.new("Undefined operation: \"#{value1} #{@operator} #{value2}\".")
       end
+
+      if @operator == :eq && value1.is_a?(Sass::Script::Value::Number) &&
+          value2.is_a?(Sass::Script::Value::Number) && result == Sass::Script::Value::Bool::TRUE &&
+          value1.unitless? != value2.unitless?
+        Sass::Util.sass_warn <<WARNING
+DEPRECATION WARNING on line #{line}#{" of #{filename}" if filename}:
+The result of `#{value1} == #{value2}` will be `false` in future releases of Sass.
+Unitless numbers will no longer be equal to the same numbers with units.
+WARNING
+      end
+
+      result
     end
 
     private
