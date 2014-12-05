@@ -464,7 +464,7 @@ module Sass::Plugin
 
       if recompile_required
         # In case a file we're watching is removed and then recreated we
-        # prune out the non-existant files here.
+        # prune out the non-existent files here.
         watched_files_remaining = individual_files.select {|(source, _, _)| File.exist?(source)}
         update_stylesheets(watched_files_remaining)
       end
@@ -491,7 +491,7 @@ module Sass::Plugin
           rendered = engine.render
         end
       rescue StandardError => e
-        compilation_error_occured = true
+        compilation_error_occurred = true
         run_compilation_error e, filename, css, sourcemap
         raise e unless options[:full_exception]
         rendered = Sass::SyntaxError.exception_to_css(e, options[:line] || 1)
@@ -502,7 +502,7 @@ module Sass::Plugin
         write_file(sourcemap, mapping.to_json(
             :css_path => css, :sourcemap_path => sourcemap, :type => options[:sourcemap]))
       end
-      run_updated_stylesheet(filename, css, sourcemap) unless compilation_error_occured
+      run_updated_stylesheet(filename, css, sourcemap) unless compilation_error_occurred
     end
 
     def write_file(fileName, content)
