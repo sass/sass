@@ -144,7 +144,11 @@ module Sass::Script::Tree
           s(:evstr, to_string(args[signature.args.size].to_sexp(visitor))),
           s(:str, " is not a keyword argument for `#{name}'")))
       elsif keywords.empty? && !kwarg_splat
-        return simple_ruby_function_call(visitor)
+        if signature.macro
+          return Sass::Script::Functions.send(ruby_name, visitor, *args.map {|a| a.to_sexp(visitor)})
+        else
+          return simple_ruby_function_call(visitor)
+        end
       end
 
       argnames = signature.args[args.size..-1] || []
@@ -162,7 +166,7 @@ module Sass::Script::Tree
                       "`#{@name}()' has been renamed to `$#{argname}'.")),
             keywords.delete(deprecated_argname).to_sexp(visitor))
         else
-          sass_error(s(:str, "Function #{name} requires an argument named $#{argname}."))
+          sass_error(s(:str, "Function #{name} requires an argument named $#{argname}"))
         end
       end
 
@@ -175,12 +179,16 @@ module Sass::Script::Tree
           argname = keywords.keys.sort.first
           if signature.args.include?(argname)
             return sass_error(s(:str,
-              "Function #{name} was passed argument $#{argname} both by position and by name."))
+              "Function #{name} was passed argument $#{argname} both by position and by name"))
           else
-            return sass_error("Function #{name} doesn't have an argument named $#{argname}.")
+            return sass_error(s(:str,
+              "Function #{name} doesn't have an argument named $#{argname}"))
           end
         end
       end
+
+      
+      return Sass::Script::Functions.send(ruby_name, visitor, *arg_sexps) if signature.macro
 
       s(:rescue, s(:call, s(:self), ruby_name, *arg_sexps),
         resbody(s(:const, :ArgumentError), :_s_error,

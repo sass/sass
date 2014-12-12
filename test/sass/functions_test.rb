@@ -1461,8 +1461,7 @@ SCSS
   def test_call_with_dynamic_name
     assert_equal(
       evaluate("lighten($color: blue, $amount: 5%)"),
-      evaluate("call($fn, $color: blue, $amount: 5%)",
-        env("fn" => Sass::Script::String.new("lighten"))))
+      evaluate("call('lig' + 'hten', $color: blue, $amount: 5%)"))
   end
 
   def test_call_uses_local_scope
@@ -1930,6 +1929,7 @@ WARNING
     environment = Sass::Environment.new(
       nil, options, mapper, to_sexp.fn_signatures, to_sexp.mx_signatures)
     eval_context = Sass::Script::Functions::EvaluationContext.new(environment)
+    (class << eval_context; self; end).send(:define_method, :_s_env) {environment}
     eval_context.instance_eval(ruby)
   end
 

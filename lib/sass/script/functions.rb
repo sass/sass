@@ -356,11 +356,9 @@ module Sass::Script
     # A class representing a Sass function signature.
     #
     # @attr args [Array<String>] The names of the arguments to the function.
-    # @attr delayed_args [Array<String>] The names of the arguments whose evaluation should be
-    #   delayed.
     # @attr var_args [Boolean] Whether the function takes a variable number of arguments.
     # @attr var_kwargs [Boolean] Whether the function takes an arbitrary set of keyword arguments.
-    Signature = Struct.new(:args, :delayed_args, :var_args, :var_kwargs, :deprecated)
+    Signature = Struct.new(:args, :var_args, :var_kwargs, :macro, :deprecated)
 
     # Declare a Sass signature for a Ruby-defined function.
     # This includes the names of the arguments,
@@ -397,25 +395,17 @@ module Sass::Script
     #   In addition, if this is true and `:var_args` is not,
     #   Sass will ensure that the last argument passed is a hash.
     def self.declare(method_name, args, options = {})
-      delayed_args = []
-      args = args.map do |a|
-        a = a.to_s
-        if a[0] == ?&
-          a = a[1..-1]
-          delayed_args << a
-        end
-        a
-      end
+      args = args.map {|a| a.to_s}
       # We don't expose this functionality except to certain builtin methods.
-      if delayed_args.any? && method_name != :if
-        raise ArgumentError.new("Delayed arguments are not allowed for method #{method_name}")
+      if options[:macro] && method_name != :if
+        raise ArgumentError.new("Method #{method_name} may not be a macro")
       end
       @signatures[method_name] ||= []
       @signatures[method_name] << Signature.new(
         args,
-        delayed_args,
         options[:var_args],
         options[:var_kwargs],
+        options[:macro],
         options[:deprecated] && options[:deprecated].map {|a| a.to_s})
     end
 
@@ -2134,13 +2124,14 @@ module Sass::Script
     #   @param $if-false [Sass::Script::Tree::Node]
     # @return [Sass::Script::Value::Base] `$if-true` or `$if-false`
     def if(condition, if_true, if_false)
-      if condition.to_bool
-        perform(if_true)
-      else
-        perform(if_false)
-      end
+      condition ? if_true : if_false
     end
-    declare :if, [:condition, :"&if_true", :"&if_false"]
+    declare :if, [:condition, :if_true, :if_false], :macro => true
+
+    # @private
+    def self.if(visitor, condition, if_true, if_false)
+      s(:if, s(:call, condition, :to_bool), if_true, if_false)
+    end
 
     # Returns a unique CSS identifier. The identifier is returned as an unquoted
     # string. The identifier returned is only guaranteed to be unique within the
