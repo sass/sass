@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 # -*- coding: utf-8 -*-
 require File.dirname(__FILE__) + '/../test_helper'
+require File.dirname(__FILE__) + '/test_helper'
 require 'sass/engine'
 
 module Sass::Script::Functions::UserFunctions
@@ -127,8 +128,8 @@ class SassScriptTest < MiniTest::Test
   end
 
   def test_compressed_comma
-    # assert_equal "foo,bar,baz", resolve("foo, bar, baz", :style => :compressed)
-    # assert_equal "foo,#baf,baz", resolve("foo, #baf, baz", :style => :compressed)
+    assert_equal "foo,bar,baz", resolve("foo, bar, baz", :style => :compressed)
+    assert_equal "foo,#baf,baz", resolve("foo, #baf, baz", :style => :compressed)
     assert_equal "foo,#baf,red", resolve("foo, #baf, #f00", :style => :compressed)
   end
 
@@ -236,7 +237,7 @@ SASS
   end
 
   def test_inaccessible_functions
-    assert_equal "send(to_s)", resolve("send(to_s)", :line => 2)
+    assert_equal "send(to_s)", resolve("send(to_s)")
     assert_equal "public_instance_methods()", resolve("public_instance_methods()")
   end
 
@@ -263,9 +264,34 @@ SASS
   end
 
   def test_dynamic_url
-    assert_equal "url(foo-bar)", resolve("url($foo)", {}, env('foo' => Sass::Script::Value::String.new("foo-bar")))
-    assert_equal "url(foo-bar baz)", resolve("url($foo $bar)", {}, env('foo' => Sass::Script::Value::String.new("foo-bar"), 'bar' => Sass::Script::Value::String.new("baz")))
-    assert_equal "url(foo baz)", resolve("url(foo $bar)", {}, env('bar' => Sass::Script::Value::String.new("baz")))
+    assert_equal <<CSS, render(<<SCSS)
+a {
+  b: url(foo-bar); }
+CSS
+$foo: foo-bar
+a
+  b: url($foo)
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+a {
+  b: url(foo-bar baz); }
+CSS
+$foo: foo-bar
+$bar: baz
+a
+  b: url($foo $bar)
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+a {
+  b: url(foo baz); }
+CSS
+$bar: baz
+a
+  b: url(foo $bar)
+SCSS
+
     assert_equal "url(foo bar)", resolve("url(foo    bar)")
   end
 
@@ -277,7 +303,14 @@ SASS
   end
 
   def test_hyphenated_variables
-    assert_equal("a-b", resolve("$a-b", {}, env("a-b" => Sass::Script::Value::String.new("a-b"))))
+    assert_equal(<<CSS, render(<<SCSS))
+a {
+  b: a-b; }
+CSS
+$a-b: a-b;
+a
+  b: $a-b
+SCSS
   end
 
   def test_ruby_equality
@@ -407,8 +440,6 @@ SASS
   end
 
   def test_equals
-    assert_equal("true", resolve('"foo" == $foo', {},
-        env("foo" => Sass::Script::Value::String.new("foo"))))
     assert_equal "true", resolve("1 == 1.0")
     assert_equal "true", resolve("false != true")
     assert_equal "false", resolve("1em == 1px")
@@ -524,9 +555,32 @@ WARNING
   end
 
   def test_slash_divides_with_variable
-    assert_equal "0.5", resolve("$var/2px", {}, env("var" => eval("1px")))
-    assert_equal "0.5", resolve("1px/$var", {}, env("var" => eval("2px")))
-    assert_equal "0.5", resolve("$var", {}, env("var" => eval("1px/2px")))
+    assert_equal <<CSS, resolve(<<SASS)
+a {
+  b: 0.5; }
+CSS
+$var: 1px
+a
+  b: $var/2px
+SASS
+
+    assert_equal <<CSS, resolve(<<SASS)
+a {
+  b: 0.5; }
+CSS
+$var: 2px
+a
+  b: 1px/$var
+SASS
+
+    assert_equal <<CSS, resolve(<<SASS)
+a {
+  b: 0.5; }
+CSS
+$var: 1px/2px
+a
+  b: $var
+SASS
   end
 
   def test_non_ident_colors_with_wrong_number_of_digits
@@ -581,13 +635,13 @@ WARNING
     assert_raise_message(Sass::SyntaxError, 'Duplicate key "foo" in map (foo: bar, foo: baz).') do
       eval("(foo: bar, foo: baz)")
     end
-    assert_raise_message(Sass::SyntaxError, 'Duplicate key "foo" in map (foo: bar, fo + o: baz).') do
+    assert_raise_message(Sass::SyntaxError, 'Duplicate key "foo" in map (foo: bar, foo: baz).') do
       eval("(foo: bar, fo + o: baz)")
     end
     assert_raise_message(Sass::SyntaxError, 'Duplicate key "foo" in map (foo: bar, "foo": baz).') do
       eval("(foo: bar, 'foo': baz)")
     end
-    assert_raise_message(Sass::SyntaxError, 'Duplicate key 2px in map (2px: bar, 1px + 1px: baz).') do
+    assert_raise_message(Sass::SyntaxError, 'Duplicate key 2px in map (2px: bar, 2px: baz).') do
       eval("(2px: bar, 1px + 1px: baz)")
     end
     assert_raise_message(Sass::SyntaxError, 'Duplicate key #0000ff in map (blue: bar, #00f: baz).') do
@@ -633,41 +687,54 @@ WARNING
   end
 
   def test_boolean_ops_short_circuit
-    assert_equal "false", resolve("$ie and $ie <= 7", {}, env('ie' => Sass::Script::Value::Bool.new(false)))
-    assert_equal "true", resolve("$ie or $undef", {}, env('ie' => Sass::Script::Value::Bool.new(true)))
+    assert_equal <<CSS, render(<<SASS)
+a {
+  b: false; }
+CSS
+$ie: false
+a
+  b: $ie and $ie <= 7
+SASS
+
+    assert_equal <<CSS, render(<<SASS)
+a {
+  b: true; }
+CSS
+$ie: true
+a
+  b: $ie or $undef
+SASS
   end
 
   def test_selector
-    env = Sass::Environment.new
-    assert_equal "true", resolve("& == null", {}, env)
+    assert_equal "true", resolve("& == null")
 
-    env.selector = selector('.foo.bar .baz.bang, .bip.bop')
-    assert_equal ".foo.bar .baz.bang, .bip.bop", resolve("&", {}, env)
-    assert_equal ".foo.bar .baz.bang", resolve("nth(&, 1)", {}, env)
-    assert_equal ".bip.bop", resolve("nth(&, 2)", {}, env)
-    assert_equal ".foo.bar", resolve("nth(nth(&, 1), 1)", {}, env)
-    assert_equal ".baz.bang", resolve("nth(nth(&, 1), 2)", {}, env)
-    assert_equal ".bip.bop", resolve("nth(nth(&, 2), 1)", {}, env)
-    assert_equal "string", resolve("type-of(nth(nth(&, 1), 1))", {}, env)
+    selector = selector('.foo.bar .baz.bang, .bip.bop')
+    assert_equal ".foo.bar .baz.bang, .bip.bop", resolve("&", :selector => selector)
+    assert_equal ".foo.bar .baz.bang", resolve("nth(&, 1)", :selector => selector)
+    assert_equal ".bip.bop", resolve("nth(&, 2)", :selector => selector)
+    assert_equal ".foo.bar", resolve("nth(nth(&, 1), 1)", :selector => selector)
+    assert_equal ".baz.bang", resolve("nth(nth(&, 1), 2)", :selector => selector)
+    assert_equal ".bip.bop", resolve("nth(nth(&, 2), 1)", :selector => selector)
+    assert_equal "string", resolve("type-of(nth(nth(&, 1), 1))", :selector => selector)
 
-    env.selector = selector('.foo > .bar')
-    assert_equal ".foo > .bar", resolve("&", {}, env)
-    assert_equal ".foo > .bar", resolve("nth(&, 1)", {}, env)
-    assert_equal ".foo", resolve("nth(nth(&, 1), 1)", {}, env)
-    assert_equal ">", resolve("nth(nth(&, 1), 2)", {}, env)
-    assert_equal ".bar", resolve("nth(nth(&, 1), 3)", {}, env)
+    selector = selector('.foo > .bar')
+    assert_equal ".foo > .bar", resolve("&", :selector => selector)
+    assert_equal ".foo > .bar", resolve("nth(&, 1)", :selector => selector)
+    assert_equal ".foo", resolve("nth(nth(&, 1), 1)", :selector => selector)
+    assert_equal ">", resolve("nth(nth(&, 1), 2)", :selector => selector)
+    assert_equal ".bar", resolve("nth(nth(&, 1), 3)", :selector => selector)
   end
 
   def test_selector_with_newlines
-    env = Sass::Environment.new
-    env.selector = selector(".foo.bar\n.baz.bang,\n\n.bip.bop")
-    assert_equal ".foo.bar .baz.bang, .bip.bop", resolve("&", {}, env)
-    assert_equal ".foo.bar .baz.bang", resolve("nth(&, 1)", {}, env)
-    assert_equal ".bip.bop", resolve("nth(&, 2)", {}, env)
-    assert_equal ".foo.bar", resolve("nth(nth(&, 1), 1)", {}, env)
-    assert_equal ".baz.bang", resolve("nth(nth(&, 1), 2)", {}, env)
-    assert_equal ".bip.bop", resolve("nth(nth(&, 2), 1)", {}, env)
-    assert_equal "string", resolve("type-of(nth(nth(&, 1), 1))", {}, env)
+    selector = selector(".foo.bar\n.baz.bang,\n\n.bip.bop")
+    assert_equal ".foo.bar .baz.bang, .bip.bop", resolve("&", :selector => selector)
+    assert_equal ".foo.bar .baz.bang", resolve("nth(&, 1)", :selector => selector)
+    assert_equal ".bip.bop", resolve("nth(&, 2)", :selector => selector)
+    assert_equal ".foo.bar", resolve("nth(nth(&, 1), 1)", :selector => selector)
+    assert_equal ".baz.bang", resolve("nth(nth(&, 1), 2)", :selector => selector)
+    assert_equal ".bip.bop", resolve("nth(nth(&, 2), 1)", :selector => selector)
+    assert_equal "string", resolve("type-of(nth(nth(&, 1), 1))", :selector => selector)
   end
 
   def test_setting_global_variable_globally
@@ -739,6 +806,33 @@ $var1: 1;
   a: $var1;
   b: $var2;
   c: $var3;
+}
+SCSS
+  end
+
+  def test_setting_global_variable_locally_with_local
+    assert_no_warning {assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))}
+.foo {
+  one: a;
+  two: b; }
+
+.bar {
+  one: x;
+  two: y; }
+CSS
+.foo {
+  $var1: a;
+  $var1: x !global;
+  $var2: y !global;
+  $var2: b;
+
+  one: $var1;
+  two: $var2
+}
+
+.bar {
+  one: $var1;
+  two: $var2;
 }
 SCSS
   end
@@ -1112,50 +1206,37 @@ SASS
 
   private
 
-  def resolve(str, opts = {}, environment = env)
-    munge_filename opts
-    val = eval(str, opts, environment)
+  def resolve(str, opts = {})
+    val = eval(str, opts)
     assert_kind_of Sass::Script::Value::Base, val
-    val.is_a?(Sass::Script::Value::String) ? val.value : val.to_s
+    val.is_a?(Sass::Script::Value::String) ? val.value : with_thread_options(opts) {val.to_s}
   end
 
-  def resolve_quoted(str, opts = {}, environment = env)
-    munge_filename opts
-    val = eval(str, opts, environment)
+  def resolve_quoted(str, opts = {})
+    val = eval(str, opts)
     assert_kind_of Sass::Script::Value::Base, val
     val.to_s
   end
 
-  def assert_unquoted(str, opts = {}, environment = env)
-    munge_filename opts
-    val = eval(str, opts, environment)
+  def assert_unquoted(str, opts = {})
+    val = eval(str, opts)
     assert_kind_of Sass::Script::Value::String, val
     assert_equal :identifier, val.type
   end
 
-  def assert_quoted(str, opts = {}, environment = env)
-    munge_filename opts
-    val = eval(str, opts, environment)
+  def assert_quoted(str, opts = {})
+    val = eval(str, opts)
     assert_kind_of Sass::Script::Value::String, val
     assert_equal :string, val.type
   end
 
-  def eval(str, opts = {}, environment = env)
-    munge_filename opts
-    Sass::Script.parse(str, opts.delete(:line) || 1,
-      opts.delete(:offset) || 0, opts).
-      perform(Sass::Environment.new(environment, opts))
+  def eval(str, opts = {})
+    eval_sass_script(str, opts)
   end
 
   def render(sass, options = {})
     munge_filename options
     Sass::Engine.new(sass, options).render
-  end
-
-  def env(hash = {})
-    env = Sass::Environment.new
-    hash.each {|k, v| env.set_var(k, v)}
-    env
   end
 
   def selector(str)

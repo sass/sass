@@ -48,13 +48,6 @@ module Sass::Script::Value
         map {|e| e.to_s(opts)}.join(sep_str)
     end
 
-    def to_s_compressed(opts = {})
-      raise Sass::SyntaxError.new("() isn't a valid CSS value.") if value.empty?
-      value.
-        reject {|e| e.is_a?(Null) || e.is_a?(List) && e.value.empty?}.
-        map {|e| e.to_s_compressed(opts)}.join(sep_str(:compressed))
-    end
-
     # @see Value#to_sass
     def to_sass(opts = {})
       return "()" if value.empty?
@@ -111,9 +104,9 @@ module Sass::Script::Value
       element.operator == :minus || element.operator == :plus
     end
 
-    def sep_str(compressed = false)
+    def sep_str
       return ' ' if separator == :space
-      return ',' if compressed
+      return ',' if _options[:style] == :compressed
       ', '
     end
   end

@@ -366,16 +366,15 @@ class Sass::Tree::Visitors::ToSexp < Sass::Tree::Visitors::Base
   end
 
   def visit_variable(node)
-    old_var_var = @environment.var_variable(node.name)
-    var_var = old_var_var ||
+    var_var =
       if node.global
-        @environment.declare_global_var(node.name)
+        @environment.assign_global_var(node.name)
       else
-        @environment.declare_var(node.name)
+        @environment.assign_var(node.name)
       end
 
     sexp = asgn(var_var, node.expr.to_sexp(self))
-    return sexp unless node.guarded && old_var_var
+    return sexp unless node.guarded
 
     s(:if, s(:or, s(:call, var(var_var), :nil?), s(:call, var(var_var), :null?)), sexp)
   end

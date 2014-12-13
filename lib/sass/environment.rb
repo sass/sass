@@ -148,12 +148,18 @@ module Sass
 
     def declare_var(name)
       return set_local_var(name, unique_ident("var_#{name}")) unless global?
-
-      ident = global_env.set_local_var(name, consistent_ident("var_#{name}"))
+      ident = set_local_var(name, consistent_ident("var_#{name}"))
       return "@#{ident}"
     end
 
-    def declare_global_var(name)
+    def assign_var(name)
+      old_var_var = var_variable(name)
+      return old_var_var if old_var_var && is_var_global?(name) == semi_global?
+      declare_var(name)
+    end
+
+    def assign_global_var(name)
+      return var_variable(name) if is_var_global?(name)
       global_env.declare_var(name)
     end
 
@@ -162,6 +168,10 @@ module Sass
     # @return [Boolean]
     def global?
       @parent.nil?
+    end
+
+    def semi_global?
+      global?
     end
 
     # The environment of the caller of this environment's mixin or function.
@@ -447,16 +457,8 @@ module Sass
   # create new variables in the global scope. Useful for top-level control
   # directives.
   class SemiGlobalEnvironment < Environment
-    def try_set_var(name, value)
-      @vars ||= {}
-      if @vars.include?(name)
-        @vars[name] = value
-        true
-      elsif @parent
-        @parent.try_set_var(name, value)
-      else
-        false
-      end
+    def semi_global?
+      global? || @parent.semi_global?
     end
   end
 end
