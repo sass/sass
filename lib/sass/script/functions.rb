@@ -1372,7 +1372,7 @@ module Sass::Script
     #   @param $color [Sass::Script::Value::Color]
     # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if `$color` isn't a color
-    def invert(color)
+    def invert(color, percentage = "0%")
       if color.is_a?(Sass::Script::Value::Number)
         return identifier("invert(#{color})")
       end
