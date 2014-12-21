@@ -77,7 +77,7 @@ module Sass::Script
   # \{#complement complement($color)}
   # : Returns the complement of a color.
   #
-  # \{#invert invert($color)}
+  # \{#invert invert($color, \[$percentage\])}
   # : Returns the inverse of a color.
   #
   # ## Opacity Functions
@@ -1372,18 +1372,24 @@ module Sass::Script
     #   @param $color [Sass::Script::Value::Color]
     # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if `$color` isn't a color
-    def invert(color, percentage = "0%")
+    def invert(color, percentage = "100%" )
       if color.is_a?(Sass::Script::Value::Number)
         return identifier("invert(#{color})")
       end
+      upper = ( percentage.to_i.to_f / 100.to_f ).to_f * 255.to_f
+      red = (upper - color.red).abs.to_i
+      green = (upper - color.green).abs.to_i
+      blue = (upper - color.blue).abs.to_i
 
       assert_type color, :Color, :color
+ 
       color.with(
-        :red => (255 - color.red),
-        :green => (255 - color.green),
-        :blue => (255 - color.blue))
+        :red => red,
+        :green => green,
+        :blue => blue)
     end
     declare :invert, [:color]
+    declare :invert, [:color, :percentage]
 
     # Removes quotes from a string. If the string is already unquoted, this will
     # return it unmodified.
