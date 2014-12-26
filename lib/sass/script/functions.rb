@@ -1374,7 +1374,7 @@ module Sass::Script
     #   color
     # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if `$color` isn't a color
-    def invert(color, percentage = number(100) )
+    def invert(color, percentage = number(100))
       if color.is_a?(Sass::Script::Value::Number)
         return identifier("invert(#{color})")
       end
@@ -1385,7 +1385,7 @@ module Sass::Script
         :green => (255 - color.green),
         :blue => (255 - color.blue))
 
-      mix( inv, color, percentage )
+      mix(inv, color, percentage)
     end
     declare :invert, [:color]
     declare :invert, [:color, :percentage]
