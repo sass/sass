@@ -57,7 +57,7 @@ module Sass::Script::Value
 
       to_sass = lambda do |value|
         if value.is_a?(Map) || (value.is_a?(List) && value.separator == :comma)
-          "(#{value.to_sass(opts)})"
+          "#{value.to_sass(opts)}"
         else
           value.to_sass(opts)
         end
