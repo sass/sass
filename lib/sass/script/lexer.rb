@@ -27,6 +27,7 @@ module Sass
       #
       # @return [Fixnum]
       def line
+        @tok ||= nil
         return @line unless @tok
         @tok.source_range.start_pos.line
       end

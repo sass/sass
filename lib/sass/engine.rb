@@ -1142,6 +1142,7 @@ WARNING
     end
 
     def parse_interp(text, offset = 0)
+      @filename ||= nil
       self.class.parse_interp(text, @line, offset, :filename => @filename)
     end
 

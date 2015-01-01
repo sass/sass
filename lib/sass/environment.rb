@@ -117,7 +117,7 @@ module Sass
     # @return [Selector::CommaSequence?] The current selector, with any
     #   nesting fully resolved.
     def selector
-      @selector || (@caller && @caller.selector) || (@parent && @parent.selector)
+      @selector ||= (@caller && @caller.selector) || (@parent && @parent.selector)
     end
 
     # The top-level Environment object.
@@ -131,7 +131,7 @@ module Sass
     #
     # @return [Sass::Stack]
     def stack
-      @stack || global_env.stack
+      @stack ||= global_env.stack
     end
   end
 
