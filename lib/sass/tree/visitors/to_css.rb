@@ -39,7 +39,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   # Associate all output produced in a block with a given node. Used for source
   # mapping.
   def for_node(node, attr_prefix = nil)
-    return yield unless @source_mapping
+    return yield unless instance_variable_defined?(:@source_mapping)
     start_pos = Sass::Source::Position.new(@line, @offset)
     yield
 
