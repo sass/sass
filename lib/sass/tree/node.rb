@@ -110,7 +110,7 @@ module Sass
       #
       # @return [String]
       def filename
-        @filename || (@options && @options[:filename])
+        @filename ||= (@options && @options[:filename])
       end
 
       # Appends a child to the node.
