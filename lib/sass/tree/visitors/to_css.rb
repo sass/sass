@@ -71,6 +71,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   # Add `s` to the output string and update the line and offset information
   # accordingly.
   def output(s)
+    @lstrip ||= nil
     if @lstrip
       s = s.gsub(/\A\s+/, "")
       @lstrip = false
