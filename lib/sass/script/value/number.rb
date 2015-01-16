@@ -30,7 +30,7 @@ module Sass::Script::Value
     # This is only non-nil when the original value should be used as the CSS value,
     # as in `font: 1px/2px`.
     #
-    # @return [Boolean, nil]
+    # @return [String, nil]
     attr_accessor :original
 
     def self.precision
@@ -54,15 +54,17 @@ module Sass::Script::Value
     # Used so we don't allocate two new arrays for each new number.
     NO_UNITS  = []
 
+    # @overload initialize(value, numerator_units = NO_UNITS, denominator_units = NO_UNITS)
     # @param value [Numeric] The value of the number
     # @param numerator_units [::String, Array<::String>] See \{#numerator\_units}
     # @param denominator_units [::String, Array<::String>] See \{#denominator\_units}
-    def initialize(value, numerator_units = NO_UNITS, denominator_units = NO_UNITS)
+    def initialize(value, numerator_units = NO_UNITS, denominator_units = NO_UNITS, original = nil)
       numerator_units = [numerator_units] if numerator_units.is_a?(::String)
       denominator_units = [denominator_units] if denominator_units.is_a?(::String)
       super(value)
       @numerator_units = numerator_units
       @denominator_units = denominator_units
+      @original = original
       normalize!
     end
 
@@ -377,7 +379,8 @@ module Sass::Script::Value
       s(:call, sass(:Script, :Value, :Number), :new,
         s(:lit, value),
         lit(@numerator_units),
-        lit(@denominator_units))
+        lit(@denominator_units),
+        lit(@original))
     end
 
     private

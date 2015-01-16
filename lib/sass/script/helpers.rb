@@ -2,6 +2,14 @@ module Sass
   module Script
     module Helpers
       class << self
+        def without_original(value)
+          # TODO(nweiz): see if we can detect this ahead of time.
+          return value unless value.is_a?(Sass::Script::Value::Number)
+          value = value.dup
+          value.original = nil
+          value
+        end
+
         def arg_hash(map)
           Sass::Util::NormalizedMap.new(Sass::Util.map_keys(map.to_h) do |key|
             next key.value if key.is_a?(Sass::Script::Value::String)

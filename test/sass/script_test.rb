@@ -555,7 +555,7 @@ WARNING
   end
 
   def test_slash_divides_with_variable
-    assert_equal <<CSS, resolve(<<SASS)
+    assert_equal <<CSS, render(<<SASS)
 a {
   b: 0.5; }
 CSS
@@ -564,7 +564,7 @@ a
   b: $var/2px
 SASS
 
-    assert_equal <<CSS, resolve(<<SASS)
+    assert_equal <<CSS, render(<<SASS)
 a {
   b: 0.5; }
 CSS
@@ -573,7 +573,7 @@ a
   b: 1px/$var
 SASS
 
-    assert_equal <<CSS, resolve(<<SASS)
+    assert_equal <<CSS, render(<<SASS)
 a {
   b: 0.5; }
 CSS

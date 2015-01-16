@@ -121,16 +121,21 @@ module Sass::Script::Tree
           # A splat may contain keyword arguments, so we fall back on
           # dynamic function resolution to ensure that they're matched
           # with the right Ruby arguments.
-          return ruby_function_call(visitor, signature) unless splat
+          unless splat
+            return s(:call, sass(:Script, :Helpers), :without_original,
+              ruby_function_call(visitor, signature))
+          end
         elsif !keywords.empty? || kwarg_splat
           return sass_error(s(:str, "Function #{name} doesn't support keyword arguments"))
         else
-          return simple_ruby_function_call(visitor)
+          return s(:call, sass(:Script, :Helpers), :without_original,
+            simple_ruby_function_call(visitor))
         end
       end
 
       variable, function = visitor.environment.fn_variable(name)
-      return visitor.run_callable(variable, function, self, "function #{name}")
+      return s(:call, sass(:Script, :Helpers), :without_original,
+        visitor.run_callable(variable, function, self, "function #{name}"))
     end
 
     def ruby_function_call(visitor, signature)

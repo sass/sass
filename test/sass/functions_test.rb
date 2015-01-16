@@ -980,7 +980,7 @@ WARNING
   def test_user_defined_function_using_environment
     skip "Needs environment refactor"
 
-    assert_equal(<<CSS, render(<<SASS)
+    assert_equal(<<CSS, render(<<SASS))
 a {
   b: The variable; }
 CSS

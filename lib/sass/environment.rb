@@ -230,11 +230,15 @@ module Sass
       if callable.nil?
         ruby_name = name.tr('-', '_')
         if Sass::Script::Functions.callable?(ruby_name)
-          return run_ruby_function(context, name, ruby_name, splat)
+          return Sass::Script::Helpers.without_original(
+            run_ruby_function(context, name, ruby_name, splat))
         end
       end
 
-      return run_callable(context, callable, splat) if callable
+      if callable
+        return Sass::Script::Helpers.without_original(run_callable(context, callable, splat))
+      end
+
       # TODO: throw an error if splat has keywords.
       Sass::Script::Value::String.new("#{name}(#{splat.to_a.join(', ')})")
     end
