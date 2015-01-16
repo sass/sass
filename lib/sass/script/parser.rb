@@ -498,7 +498,8 @@ RUBY
         return paren unless first
         str = literal_node(first.value, first.source_range)
         return str unless try_tok(:string_interpolation)
-        mid = parse_interpolated
+        mid = assert_expr :expr
+        assert_tok :end_interpolation
         last = assert_expr(:special_fun)
         node(Tree::Interpolation.new(str, mid, last, false, false),
             first.source_range.start_pos)

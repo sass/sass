@@ -3570,6 +3570,13 @@ SCSS
 
   # Regression
 
+  def test_escape_in_selector
+    assert_equal(<<CSS, render(".\\!foo {a: b}"))
+.\\!foo {
+  a: b; }
+CSS
+  end
+
   def test_for_directive_with_float_bounds
     assert_equal(<<CSS, render(<<SCSS))
 .a {

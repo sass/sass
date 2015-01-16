@@ -801,12 +801,12 @@ SCSS
     interpolated = engine.to_tree.children.
       first.children.
       first.value.children[1]
-    assert_equal interpolated.to_sass, "\#{123}"
+    assert_equal "123", interpolated.to_sass
     range = interpolated.source_range
     assert_equal 3, range.start_pos.line
-    assert_equal 12, range.start_pos.offset
+    assert_equal 14, range.start_pos.offset
     assert_equal 3, range.end_pos.line
-    assert_equal 18, range.end_pos.offset
+    assert_equal 17, range.end_pos.offset
   end
 
   def test_sources_array_is_uri_escaped

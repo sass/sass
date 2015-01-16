@@ -56,7 +56,7 @@ module Sass::Script::Value
       return "()" if value.empty?
 
       to_sass = lambda do |value|
-        if value.is_a?(Map) || (value.is_a?(List) && value.separator == :comma)
+        if value.is_a?(List) && value.separator == :comma
           "(#{value.to_sass(opts)})"
         else
           value.to_sass(opts)

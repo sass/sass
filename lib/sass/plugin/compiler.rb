@@ -399,7 +399,8 @@ module Sass::Plugin
 
     def listen_to(listener)
       if Sass::Util.listen_geq_2?
-        listener.map {|l| l.start}.each {|thread| thread.join}
+        listener.map {|l| l.start}
+        sleep
       else
         listener.start!
       end

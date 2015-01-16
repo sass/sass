@@ -10,10 +10,27 @@
 
 * Add a `$weight` parameter to `invert()`.
 
-## 3.4.9 (Unreleased)
+## 3.4.10 (Unreleased)
+
+* `inspect()` no longer adds extra parentheses to nested maps.
 
 * Update the documentation of the `random()` function to accurate reflect its
   behavior.
+
+## 3.4.9 (24 November 2014)
+
+[Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.4.9).
+
+* Fix an incompatibility with listen 2.7.12 and later.
+
+* Properly handle interpolation within `calc()` and similar functions
+  with `sass-convert`.
+
+* Properly handle conversion of `@extend` with `!optional` to SCSS.
+
+* Properly handle conversion of `@at-root` with a selector to SCSS.
+
+* Don't crash on selectors containing escape codes.
 
 ## 3.4.8 (14 November 2014)
 

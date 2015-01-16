@@ -808,6 +808,8 @@ module Sass
       def almost_any_value_token
         tok(%r{
           (
+            \\.
+          |
             (?!url\()
             [^"'/\#!;\{\}] # "
           |

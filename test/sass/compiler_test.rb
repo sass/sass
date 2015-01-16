@@ -47,7 +47,11 @@ class CompilerTest < MiniTest::Test
 
     # used for Listen >= 2.0
     def start
-      @thread = Thread.new {@run_during_start.call(self) if @run_during_start}
+      parent = Thread.current
+      @thread = Thread.new do
+        @run_during_start.call(self) if @run_during_start
+        parent.raise Interrupt
+      end
     end
 
     def stop

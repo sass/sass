@@ -30,8 +30,7 @@ SCSS
   end
 
   def test_empty_directive
-    assert_scss_to_sass "@media screen", "@media screen {}"
-    assert_scss_to_scss "@media screen {}"
+    assert_renders "@media screen", "@media screen {}"
   end
 
   def test_empty_control_directive
@@ -287,7 +286,15 @@ foo bar {
 }
 SCSS
 
-    assert_sass_to_scss <<SCSS, <<SASS
+    assert_renders <<SASS, <<SCSS
+// foo
+// bar
+//   baz
+// bang
+
+foo bar
+  a: b
+SASS
 // foo
 // bar
 //   baz
@@ -297,14 +304,6 @@ foo bar {
   a: b;
 }
 SCSS
-// foo
-// bar
-//   baz
-// bang
-
-foo bar
-  a: b
-SASS
   end
 
   def test_nested_silent_comments
@@ -1275,26 +1274,7 @@ SCSS
   end
 
   def test_media_with_expressions
-    assert_sass_to_scss <<SCSS, <<SASS
-$media1: screen;
-$media2: print;
-$var: -webkit-min-device-pixel-ratio;
-$val: 20;
-
-@media \#{$media1} and ($var + "-foo": $val + 5), only \#{$media2} {
-  a: b;
-}
-SCSS
-$media1: screen
-$media2: print
-$var: -webkit-min-device-pixel-ratio
-$val: 20
-
-@media \#{$media1} and ($var + "-foo": $val + 5), only \#{$media2}
-  a: b
-SASS
-
-    assert_scss_to_sass <<SASS, <<SCSS
+    assert_renders <<SASS, <<SCSS
 $media1: screen
 $media2: print
 $var: -webkit-min-device-pixel-ratio
@@ -1315,14 +1295,14 @@ SCSS
   end
 
   def test_media_with_feature
-    assert_sass_to_scss <<SCSS, <<SASS
+    assert_renders <<SASS, <<SCSS
+@media screen and (-webkit-transform-3d)
+  a: b
+SASS
 @media screen and (-webkit-transform-3d) {
   a: b;
 }
 SCSS
-@media screen and (-webkit-transform-3d)
-  a: b
-SASS
   end
 
   def test_supports_with_expressions
@@ -1678,7 +1658,7 @@ SCSS
   end
 
   def test_extend_with_optional
-    assert_scss_to_sass <<SASS, <<SCSS
+    assert_renders <<SASS, <<SCSS
 foo
   @extend .bar !optional
 SASS
@@ -1689,7 +1669,7 @@ SCSS
   end
 
   def test_mixin_var_args
-    assert_scss_to_sass <<SASS, <<SCSS
+    assert_renders <<SASS, <<SCSS
 =foo($args...)
   a: b
 
@@ -1716,7 +1696,7 @@ SCSS
   end
 
   def test_mixin_var_kwargs
-    assert_scss_to_sass <<SASS, <<SCSS
+    assert_renders <<SASS, <<SCSS
 =foo($a: b, $c: d)
   a: $a
   c: $c
@@ -1738,7 +1718,7 @@ SCSS
   end
 
   def test_function_var_args
-    assert_scss_to_sass <<SASS, <<SCSS
+    assert_renders <<SASS, <<SCSS
 @function foo($args...)
   @return foo
 
@@ -1765,7 +1745,7 @@ SCSS
   end
 
   def test_function_var_kwargs
-    assert_scss_to_sass <<SASS, <<SCSS
+    assert_renders <<SASS, <<SCSS
 @function foo($a: b, $c: d)
   @return foo
 
@@ -1785,7 +1765,7 @@ SCSS
   end
 
   def test_at_root
-    assert_scss_to_sass <<SASS, <<SCSS
+    assert_renders <<SASS, <<SCSS
 .foo
   @at-root
     .bar
@@ -1807,7 +1787,7 @@ SCSS
   end
 
   def test_at_root_with_selector
-    assert_scss_to_sass <<SASS, <<SCSS
+    assert_renders <<SASS, <<SCSS
 .foo
   @at-root .bar
     a: b
@@ -1821,7 +1801,7 @@ SCSS
   end
 
   def test_at_root_without
-    assert_scss_to_sass <<SASS, <<SCSS
+    assert_renders <<SASS, <<SCSS
 .foo
   @at-root (without: media rule)
     a: b
@@ -1835,7 +1815,7 @@ SCSS
   end
 
   def test_at_root_with
-    assert_scss_to_sass <<SASS, <<SCSS
+    assert_renders <<SASS, <<SCSS
 .foo
   @at-root (with: media rule)
     a: b
@@ -1849,7 +1829,7 @@ SCSS
   end
 
   def test_function_var_kwargs_with_list
-    assert_scss_to_sass <<SASS, <<SCSS
+    assert_renders <<SASS, <<SCSS
 @function foo($a: b, $c: d)
   @return $a, $c
 
@@ -1918,12 +1898,13 @@ SCSS
   end
 
   def test_media_query_with_expr
-    assert_scss_to_sass <<SASS, <<SCSS
+    assert_renders <<SASS, <<SCSS
 @media foo and (bar: baz)
   a: b
 SASS
 @media foo and (bar: baz) {
-  a: b; }
+  a: b;
+}
 SCSS
   end
 
