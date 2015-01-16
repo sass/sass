@@ -10,6 +10,13 @@
 * Update the documentation of the `random()` function to accurate reflect its
   behavior.
 
+### Deprecations -- Must Read!
+
+* Passing a non-string value to the `unquote()` function didn't do
+  anything useful and is now deprecated. In future, this function will
+  follow its documentation and emit an error if a non-string value is
+  passed.
+
 ## 3.4.9 (24 November 2014)
 
 [Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.4.9).

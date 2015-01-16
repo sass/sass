@@ -1397,11 +1397,16 @@ module Sass::Script
     # @return [Sass::Script::Value::String]
     # @raise [ArgumentError] if `$string` isn't a string
     def unquote(string)
-      if string.is_a?(Sass::Script::Value::String) && string.type != :identifier
-        identifier(string.value)
-      else
-        string
+      unless string.is_a?(Sass::Script::Value::String)
+        Sass::Util.sass_warn(<<MESSAGE)
+DEPRECATION WARNING: Passing #{string.to_sass}, a non-string value, to unquote()
+will be an error in future versions of Sass.
+MESSAGE
+        return string
       end
+
+      return string if string.type == :identifier
+      identifier(string.value)
     end
     declare :unquote, [:string]
 
