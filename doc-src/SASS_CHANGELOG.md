@@ -8,6 +8,8 @@
 * Combine ids and `:root` when unifying selectors with `@extend` and selector
   functions.
 
+* Add a `$weight` parameter to `invert()`.
+
 ## 3.4.9 (Unreleased)
 
 * Update the documentation of the `random()` function to accurate reflect its
