@@ -1621,6 +1621,9 @@ SCSS
     assert_equal "null", evaluate("inspect(null)")
     assert_equal "1px null 3px", evaluate("inspect(1px null 3px)")
     assert_equal "(a: 1, b: 2)", evaluate("inspect((a: 1, b: 2))")
+    assert_equal "(a: 1, b: (c: 2))", evaluate("inspect((a: 1, b: (c: 2)))")
+    assert_equal "(a: 1, b: (2, 3))", evaluate("inspect((a: 1, b: (2, 3)))")
+    assert_equal "(a: 1, b: 2 3)", evaluate("inspect((a: 1, b: 2 3))")
   end
 
   def test_random
