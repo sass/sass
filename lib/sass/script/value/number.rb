@@ -202,7 +202,16 @@ module Sass::Script::Value
       rescue Sass::UnitConversionError
         return Bool::FALSE
       end
-      Bool.new(this.value == other.value)
+
+      result = this.value == other.value
+      if result && unitless? != other.unitless?
+        Sass::Util.sass_warn <<WARNING
+DEPRECATION WARNING: The result of `#{self} == #{other}` will be `false` in future releases of Sass.
+Unitless numbers will no longer be equal to the same numbers with units.
+WARNING
+      end
+
+      Bool.new(result)
     end
 
     def hash

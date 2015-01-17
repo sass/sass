@@ -492,8 +492,7 @@ SCSS
     assert_equal "true", resolve("1.1cm == 11mm")
 
     assert_warning(<<WARNING) {assert_equal "true", resolve("1 == 1cm")}
-DEPRECATION WARNING on line 1 of test_operator_unit_conversion_inline.sass:
-The result of `1 == 1cm` will be `false` in future releases of Sass.
+DEPRECATION WARNING: The result of `1 == 1cm` will be `false` in future releases of Sass.
 Unitless numbers will no longer be equal to the same numbers with units.
 WARNING
   end
