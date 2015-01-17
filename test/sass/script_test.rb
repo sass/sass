@@ -303,13 +303,13 @@ SCSS
   end
 
   def test_hyphenated_variables
-    assert_equal(<<CSS, render(<<SCSS))
+    assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))
 a {
   b: a-b; }
 CSS
 $a-b: a-b;
-a
-  b: $a-b
+a {
+  b: $a-b; }
 SCSS
   end
 
