@@ -1005,6 +1005,76 @@ bar {
 SASS
   end
 
+  def test_disallowed_function_names
+    assert_warning(<<WARNING) {render(<<SCSS)}
+DEPRECATION WARNING on line 1 of test_disallowed_function_names_inline.scss:
+Naming a function "calc" is disallowed and will be an error in future versions of Sass.
+This name conflicts with an existing CSS function with special parse rules.
+WARNING
+@function calc() {}
+SCSS
+
+    assert_warning(<<WARNING) {render(<<SCSS)}
+DEPRECATION WARNING on line 1 of test_disallowed_function_names_inline.scss:
+Naming a function "-my-calc" is disallowed and will be an error in future versions of Sass.
+This name conflicts with an existing CSS function with special parse rules.
+WARNING
+@function -my-calc() {}
+SCSS
+
+    assert_warning(<<WARNING) {render(<<SCSS)}
+DEPRECATION WARNING on line 1 of test_disallowed_function_names_inline.scss:
+Naming a function "element" is disallowed and will be an error in future versions of Sass.
+This name conflicts with an existing CSS function with special parse rules.
+WARNING
+@function element() {}
+SCSS
+
+    assert_warning(<<WARNING) {render(<<SCSS)}
+DEPRECATION WARNING on line 1 of test_disallowed_function_names_inline.scss:
+Naming a function "-my-element" is disallowed and will be an error in future versions of Sass.
+This name conflicts with an existing CSS function with special parse rules.
+WARNING
+@function -my-element() {}
+SCSS
+
+    assert_warning(<<WARNING) {render(<<SCSS)}
+DEPRECATION WARNING on line 1 of test_disallowed_function_names_inline.scss:
+Naming a function "expression" is disallowed and will be an error in future versions of Sass.
+This name conflicts with an existing CSS function with special parse rules.
+WARNING
+@function expression() {}
+SCSS
+
+    assert_warning(<<WARNING) {render(<<SCSS)}
+DEPRECATION WARNING on line 1 of test_disallowed_function_names_inline.scss:
+Naming a function "url" is disallowed and will be an error in future versions of Sass.
+This name conflicts with an existing CSS function with special parse rules.
+WARNING
+@function url() {}
+SCSS
+  end
+
+  def test_allowed_function_names
+    assert_no_warning {assert_equal(<<CSS, render(<<SCSS))}
+.a {
+  b: c; }
+CSS
+@function -my-expression() {@return c}
+
+.a {b: -my-expression()}
+SCSS
+
+    assert_no_warning {assert_equal(<<CSS, render(<<SCSS))}
+.a {
+  b: c; }
+CSS
+@function -my-url() {@return c}
+
+.a {b: -my-url()}
+SCSS
+  end
+
   ## Var Args
 
   def test_mixin_var_args

@@ -895,6 +895,12 @@ WARNING
     assert_equal('foo', evaluate('unquote("foo")'))
     assert_equal('foo', evaluate('unquote(foo)'))
     assert_equal('foo', evaluate('unquote($string: foo)'))
+    assert_warning <<MESSAGE do
+DEPRECATION WARNING: Passing blue, a non-string value, to unquote()
+will be an error in future versions of Sass.
+MESSAGE
+      assert_equal('blue', evaluate('unquote(blue)'))
+    end
   end
 
   def test_quote

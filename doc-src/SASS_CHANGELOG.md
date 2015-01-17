@@ -10,12 +10,27 @@
 
 * Add a `$weight` parameter to `invert()`.
 
-## 3.4.10 (Unreleased)
+## 3.4.10
+
+[Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.4.10).
 
 * `inspect()` no longer adds extra parentheses to nested maps.
 
 * Update the documentation of the `random()` function to accurate reflect its
   behavior.
+
+### Deprecations -- Must Read!
+
+* Passing a non-string value to the `unquote()` function didn't do
+  anything useful and is now deprecated. In future, this function will
+  follow its documentation and emit an error if a non-string value is
+  passed.
+
+* Defining a function named `calc`, `element`, `expression`, or `url`
+  (or the former two with a vendor-style prefix) is now deprecated.
+  These functions were already shadowed by CSS functions with special
+  parsing rules, and so were impossible to use anyway. In the future,
+  attempting to define these functions will throw an error.
 
 ## 3.4.9 (24 November 2014)
 
