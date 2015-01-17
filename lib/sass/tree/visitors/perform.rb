@@ -275,6 +275,16 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # Loads the function into the environment.
   def visit_function(node)
     env = Sass::Environment.new(@environment, node.options)
+
+    if node.normalized_name == 'calc' || node.normalized_name == 'element' ||
+        node.name == 'expression' || node.name == 'url'
+      Sass::Util.sass_warn <<WARNING
+DEPRECATION WARNING on line #{node.line}#{" of #{node.filename}" if node.filename}:
+Naming a function "#{node.name}" is disallowed and will be an error in future versions of Sass.
+This name conflicts with an existing CSS function with special parse rules.
+WARNING
+    end
+
     @environment.set_local_function(node.name,
       Sass::Callable.new(node.name, node.args, node.splat, env,
                          node.children, !:has_content, "function"))
