@@ -6,9 +6,9 @@ module Sass::Script::Tree
     # Interpolation in a string is of the form `"before #{mid} after"`,
     # where `before` and `after` may include more interpolation.
     #
-    # @param before [Node] The string before the interpolation
+    # @param before [Literal<String>] The string before the interpolation
     # @param mid [Node] The SassScript within the interpolation
-    # @param after [Node] The string after the interpolation
+    # @param after [Literal<String>, StringInterpolation] The string after the interpolation
     def initialize(before, mid, after)
       @before = before
       @mid = mid
@@ -85,7 +85,7 @@ module Sass::Script::Tree
           s(:evstr, s(:call, @before.to_sexp(visitor), :value)),
           s(:evstr, visitor.unquoted(@mid.to_sexp(visitor))),
           s(:evstr, s(:call, @after.to_sexp(visitor), :value))),
-        s(:lit, :string))
+        s(:lit, @before.value.type))
     end
 
     # Evaluates the interpolation.
