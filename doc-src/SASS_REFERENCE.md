@@ -52,6 +52,9 @@ using the `sass-convert` command line tool:
 
     # Convert SCSS to Sass
     $ sass-convert style.scss style.sass
+    
+Note that this command does *not* generate CSS files. For that, use
+the `sass` command described elsewhere.
 
 ## Using Sass
 
