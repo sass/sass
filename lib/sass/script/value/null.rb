@@ -46,8 +46,28 @@ module Sass::Script::Value
       invalid_binary_op(:div, other)
     end
 
+    def mod(other)
+      invalid_binary_op(:mod, other)
+    end
+
     def times(other)
       invalid_binary_op(:times, other)
+    end
+
+    def gt(other)
+      invalid_binary_op(:gt, other)
+    end
+
+    def gte(other)
+      invalid_binary_op(:gte, other)
+    end
+
+    def lt(other)
+      invalid_binary_op(:lt, other)
+    end
+
+    def lte(other)
+      invalid_binary_op(:lte, other)
     end
 
     def to_sass(opts = {})

@@ -71,6 +71,7 @@ module Sass::Script::Value
 
     # @see Value#plus
     def plus(other)
+      assert_not_null :plus, other
       other_value = if other.is_a?(Sass::Script::Value::String)
                       other.value
                     else

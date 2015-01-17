@@ -86,6 +86,7 @@ module Sass::Script::Value
     # @return [Script::Value::String] A string containing both values
     #   separated by `"="`
     def single_eq(other)
+      assert_not_null :single_eq, other
       Sass::Script::Value::String.new("#{to_s}=#{other.to_s}")
     end
 
@@ -95,6 +96,7 @@ module Sass::Script::Value
     # @return [Script::Value::String] A string containing both values
     #   without any separation
     def plus(other)
+      assert_not_null :plus, other
       type = other.is_a?(Sass::Script::Value::String) ? other.type : :identifier
       Sass::Script::Value::String.new(to_s(:quote => :none) + other.to_s(:quote => :none), type)
     end
@@ -105,6 +107,7 @@ module Sass::Script::Value
     # @return [Script::Value::String] A string containing both values
     #   separated by `"-"`
     def minus(other)
+      assert_not_null :minus, other
       Sass::Script::Value::String.new("#{to_s}-#{other.to_s}")
     end
 
@@ -114,6 +117,7 @@ module Sass::Script::Value
     # @return [Script::Value::String] A string containing both values
     #   separated by `"/"`
     def div(other)
+      assert_not_null :div, other
       Sass::Script::Value::String.new("#{to_s}/#{other.to_s}")
     end
 
@@ -122,6 +126,7 @@ module Sass::Script::Value
     # @param other [Value] The right-hand side of the operator
     # @raise [Script::SyntaxError] An error explaining that this operation is unsupported.
     def times(other)
+      assert_not_null :times, other
       undefined(:times, other)
     end
 
@@ -130,6 +135,7 @@ module Sass::Script::Value
     # @param other [Value] The right-hand side of the operator
     # @raise [Script::SyntaxError] An error explaining that this operation is unsupported.
     def mod(other)
+      assert_not_null :mod, other
       undefined(:mod, other)
     end
 
@@ -138,6 +144,7 @@ module Sass::Script::Value
     # @param other [Value] The right-hand side of the operator
     # @raise [Script::SyntaxError] An error explaining that this operation is unsupported.
     def gt(other)
+      assert_not_null :gt, other
       undefined(:gt, other)
     end
 
@@ -146,6 +153,7 @@ module Sass::Script::Value
     # @param other [Value] The right-hand side of the operator
     # @raise [Script::SyntaxError] An error explaining that this operation is unsupported.
     def gte(other)
+      assert_not_null :gte, other
       undefined(:gte, other)
     end
 
@@ -154,6 +162,7 @@ module Sass::Script::Value
     # @param other [Value] The right-hand side of the operator
     # @raise [Script::SyntaxError] An error explaining that this operation is unsupported.
     def lt(other)
+      assert_not_null :lt, other
       undefined(:lt, other)
     end
 
@@ -162,6 +171,7 @@ module Sass::Script::Value
     # @param other [Value] The right-hand side of the operator
     # @raise [Script::SyntaxError] An error explaining that this operation is unsupported.
     def lte(other)
+      assert_not_null :lte, other
       undefined(:lte, other)
     end
 
@@ -275,6 +285,11 @@ module Sass::Script::Value
     end
 
     protected
+
+    def assert_not_null(operator, other)
+      return unless other.is_a?(Sass::Script::Value::Null)
+      raise Sass::SyntaxError.new("Invalid null operation: \"#{inspect} #{operator} null\".")
+    end
 
     # Evaluates the value.
     #
