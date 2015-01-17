@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 3.4.10 (Unreleased)
+## 3.4.10
+
+[Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.4.10).
 
 * `inspect()` no longer adds extra parentheses to nested maps.
 
