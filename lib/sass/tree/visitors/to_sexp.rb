@@ -377,8 +377,11 @@ class Sass::Tree::Visitors::ToSexp < Sass::Tree::Visitors::Base
         @environment.assign_var(node.name)
       end
 
-    sexp = asgn(var_var, s(:call, sass(:Script, :Helpers), :without_original,
-      node.expr.to_sexp(self)))
+    sexp = s(:block,
+      asgn(var_var, s(:call, sass(:Script, :Helpers), :without_original,
+          node.expr.to_sexp(self))),
+      s(:attrasgn, var(var_var), :source_range=,
+        (node.expr.source_range || node.source_range).to_sexp))
     return sexp unless node.guarded
 
     s(:if, s(:or, s(:call, var(var_var), :nil?), s(:call, var(var_var), :null?)), sexp)
