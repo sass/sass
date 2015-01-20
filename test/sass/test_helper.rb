@@ -21,6 +21,7 @@ class MiniTest::Test
     environment.selector = options[:selector]
     eval_context = Sass::Script::Functions::EvaluationContext.new(environment)
     (class << eval_context; self; end).send(:define_method, :_s_env) {environment}
+    (class << eval_context; self; end).send(:define_method, :_s_importer) {nil}
     with_thread_options(options) {eval_context.instance_eval(ruby)}
   end
 
