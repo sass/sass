@@ -1012,6 +1012,8 @@ SCSS
   end
 
   def test_subject_selector_deprecation
+    skip "Irrelevant deprecation."
+
     assert_warning(<<WARNING) {render(".foo .bar! .baz {a: b}")}
 DEPRECATION WARNING on line 1, column 1 of test_subject_selector_deprecation_inline.sass:
 The subject selector operator "!" is deprecated and will be removed in a future release.
