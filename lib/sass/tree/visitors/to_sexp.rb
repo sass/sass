@@ -417,7 +417,8 @@ class Sass::Tree::Visitors::ToSexp < Sass::Tree::Visitors::Base
     s(:block,
       add_node(s(:lasgn, media_var, s(:call, sass(:Tree, :MediaNode), :resolved,
                                       parse(node, node.query, :parse_media_query_list),
-                                      s(:lit, node.line)))),
+                                      s(:lit, node.line),
+                                      node.source_range.to_sexp))),
       with_parent(media_var) {yield})
   end
 

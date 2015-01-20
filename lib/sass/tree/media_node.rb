@@ -27,10 +27,11 @@ module Sass::Tree
       super('')
     end
 
-    def self.resolved(resolved, line)
+    def self.resolved(resolved, line, source_range)
       node = new([])
       node.resolved_query = resolved
       node.line = line
+      node.source_range = source_range
       node
     end
 
