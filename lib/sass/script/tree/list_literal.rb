@@ -58,14 +58,16 @@ module Sass::Script::Tree
     protected
 
     def _to_sexp(visitor)
+      value_sexp = s(:call, sass(:Script, :Value, :List), :new,
+        s(:array, *elements.map {|e| e.to_sexp(visitor)}),
+        s(:lit, separator))
+      return value_sexp unless source_range
+
       value_var = visitor.environment.unique_ident(:value)
       # TODO: Call actual constructors here.
       # TODO: Over the long term, stop associating source ranges with every value.
       s(:block,
-        s(:lasgn, value_var,
-          s(:call, sass(:Script, :Value, :List), :new,
-            s(:array, *elements.map {|e| e.to_sexp(visitor)}),
-            s(:lit, separator))),
+        s(:lasgn, value_var, value_sexp),
         s(:attrasgn, s(:lvar, value_var), :source_range=, source_range.to_sexp),
         s(:lvar, value_var))
     end

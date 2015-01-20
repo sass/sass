@@ -38,7 +38,10 @@ module Sass::Script::Tree
     protected
 
     def _to_sexp(visitor)
+      return value.to_sexp unless source_range
+
       value_var = visitor.environment.unique_ident(:value)
+
       # TODO: Call actual constructors here.
       # TODO: Over the long term, stop associating source ranges with every value.
       s(:block,
