@@ -275,12 +275,16 @@ class Sass::Tree::Visitors::ToSexp < Sass::Tree::Visitors::Base
   end
 
   def visit_prop(node)
-    node_sexp = s(:call, sass(:Tree, :PropNode), :resolved,
-      interp(node.name),
-      to_string(node.value.to_sexp(self)),
-      node.name_source_range.to_sexp,
-      node.value_source_range.to_sexp,
-      s(:lit, node.prop_syntax))
+    value_var = @environment.unique_ident(:value)
+    node_sexp = s(:block,
+      s(:lasgn, value_var, node.value.to_sexp(self)),
+      s(:call, sass(:Tree, :PropNode), :resolved,
+        interp(node.name),
+        to_string(s(:lvar, value_var)),
+        node.name_source_range.to_sexp,
+        s(:or, s(:call, s(:lvar, value_var), :source_range),
+               node.value_source_range.to_sexp),
+        s(:lit, node.prop_syntax)))
 
     return add_node(node_sexp) unless node.has_children
 
