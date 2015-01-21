@@ -688,13 +688,13 @@ class Sass::Tree::Visitors::ToSexp < Sass::Tree::Visitors::Base
   def handle_import_loop!(node)
     msg = "An @import loop has been found:"
     if node.filename == node.imported_file.options[:filename]
-      raise Sass::SyntaxError.new("#{msg} #{node.filename} imports itself")
+      return sass_error(s(:str, "#{msg} #{node.filename} imports itself"))
     end
 
     files = @import_stack + [node.imported_file.options[:filename]]
     msg << "\n" << Sass::Util.enum_cons(files, 2).map do |m1, m2|
       "    #{m1} imports #{m2}"
     end.join("\n")
-    raise Sass::SyntaxError.new(msg)
+    return sass_error(s(:str, msg))
   end
 end
