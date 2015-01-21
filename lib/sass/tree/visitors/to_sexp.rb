@@ -241,7 +241,7 @@ class Sass::Tree::Visitors::ToSexp < Sass::Tree::Visitors::Base
           :file => filename, :name => :nil, :type => :nil)
       rescue Sass::SyntaxError => e
         @root << s(:block,
-          s(:comment, "\n#-s- file: #{e.sass_filename}, line: #{e.sass_line}"),
+          s(:comment, "\n#-s- file: #{filename}, line: #{e.sass_line}"),
           s(:defn, method_name, s(:args, :_s_env),
             sass_error(s(:str, e.message))))
       ensure
