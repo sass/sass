@@ -42,6 +42,7 @@ END
         if @args.size == 1
           @args = split_colon_path(@args.first)
         else
+          @fake_update = true
           @options[:update] = true
         end
       end
@@ -312,6 +313,16 @@ MSG
 
       dirs, files = @args.map {|name| split_colon_path(name)}.
         partition {|i, _| File.directory? i}
+
+      if @fake_update && !dirs.empty?
+        # Issue 1602.
+        Sass::Util.sass_warn <<WARNING.strip
+DEPRECATION WARNING: Compiling directories without --update or --watch is
+deprecated and won't work in future versions of Sass. Instead use:
+  #{@default_syntax} --update #{@args}
+WARNING
+      end
+
       files.map! do |from, to|
         to ||= from.gsub(/\.[^.]*?$/, '.css')
         sourcemap = Sass::Util.sourcemap_name(to) if @options[:sourcemap]

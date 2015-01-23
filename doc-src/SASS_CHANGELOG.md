@@ -7,6 +7,12 @@
 
 * Parent selectors used both outside and inside a pseudo selector
   (e.g. `&:not(&--foo)`) now compile correctly.
+  
+### Deprecations -- Must Read!
+
+* Compiling directories on the command line without using either
+  `--watch` or `--update` is deprecated. This only worked
+  inconsistently before.
 
 ## 3.4.10
 
