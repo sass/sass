@@ -29,6 +29,10 @@ class MockImporter < Sass::Importers::Base
     @name
   end
 
+  def public_url(name, sourcemap_directory = nil)
+    "source_uri"
+  end
+
   # Methods for testing
 
   def add_import(uri, contents, syntax = :scss, mtime = Time.now - 10)

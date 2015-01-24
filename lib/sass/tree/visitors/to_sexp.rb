@@ -13,9 +13,15 @@ class Sass::Tree::Visitors::ToSexp < Sass::Tree::Visitors::Base
     @import_stack = []
     @fn_signatures = Sass::Util::NormalizedMap.new
     @mx_signatures = Sass::Util::NormalizedMap.new
+
+    importers = @options[:load_paths]
+    if @options[:importer] && !importers.include?(@options[:importer])
+      importers << @options[:importer]
+    end
+
     @importer_vars = Sass::Util.to_hash(
-      Sass::Util.enum_with_index(options[:load_paths]).map do |(importer, i)|
-        [importer, :"@_s_importer_0#{i}"]
+      Sass::Util.enum_with_index(importers).map do |importer, i|
+        [importer, :"@_s_importer_#{i}"]
       end)
     @root = s(:block)
   end

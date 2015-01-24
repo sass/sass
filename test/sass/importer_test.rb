@@ -228,9 +228,6 @@ JSON
   def test_source_map_with_only_css_uri_can_have_no_public_url
     ephemeral_importer = NoPublicUrlImporter.new
     mock_importer = MockImporter.new
-    def mock_importer.public_url(name, sourcemap_directory = nil)
-      "source_uri"
-    end
 
     options = {
       :filename => filename_for_test,
