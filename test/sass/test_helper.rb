@@ -16,10 +16,10 @@ class MiniTest::Test
     sexp = Sass::Script::Parser.parse(str, 0, 0).to_sexp(to_sexp)
     ruby = Sass::Ruby2Ruby.new.process(sexp)
     mapper = Sass::RubyMapper.new(ruby)
-    environment = Sass::Environment.new(
-      nil, options, mapper, to_sexp.fn_signatures, to_sexp.mx_signatures)
+    environment = Sass::RuntimeEnvironment.new(options)
     environment.selector = options[:selector]
-    eval_context = Sass::Script::Functions::EvaluationContext.new(environment)
+    eval_context = Sass::Script::Functions::EvaluationContext.new(
+      environment, mapper, to_sexp.fn_signatures, to_sexp.mx_signatures)
     (class << eval_context; self; end).send(:define_method, :_s_env) {environment}
     (class << eval_context; self; end).send(:define_method, :_s_importer) {nil}
     with_thread_options(options) {eval_context.instance_eval(ruby)}

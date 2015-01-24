@@ -46,8 +46,10 @@ module Sass
           #puts ruby
           mapper = RubyMapper.new(ruby)
 
-          environment = Environment.new(nil, @options, mapper, to_sexp.fn_signatures, to_sexp.mx_signatures)
-          eval_context = Sass::Script::Functions::EvaluationContext.new(environment)
+          environment = RuntimeEnvironment.new(@options)
+          eval_context = Sass::Script::Functions::EvaluationContext.new(
+            environment, mapper, to_sexp.fn_signatures, to_sexp.mx_signatures)
+          environment.context = eval_context
           eval_context.instance_eval(ruby)
           begin
             result = eval_context._s_entrypoint(environment)

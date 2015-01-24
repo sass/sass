@@ -1417,7 +1417,8 @@ SCSS
   end
 
   def test_assert_unit
-    ctx = Sass::Script::Functions::EvaluationContext.new(Sass::Environment.new(nil, {}))
+    ctx = Sass::Script::Functions::EvaluationContext.new(
+      Sass::RuntimeEnvironment.new({}), nil, nil, nil)
     ctx.assert_unit Sass::Script::Value::Number.new(10, ["px"], []), "px"
     ctx.assert_unit Sass::Script::Value::Number.new(10, [], []), nil
 

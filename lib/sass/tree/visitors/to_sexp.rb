@@ -516,9 +516,9 @@ class Sass::Tree::Visitors::ToSexp < Sass::Tree::Visitors::Base
         args, keywords, s(:lit, :comma))
       arg_list = s(:call, arg_list, :merge, call.splat.to_sexp(self)) if call.splat
 
-      block << s(:call, s(:lvar, :_s_env),
+      block << s(:call, s(:self),
         call.is_a?(Sass::Script::Tree::Funcall) ? :run_function : :run_mixin,
-        s(:self), s(:str, call.name.to_s), arg_list)
+        s(:str, call.name.to_s), arg_list)
       return line_info(call, block)
     end
 

@@ -1372,17 +1372,6 @@ bar
 SASS
   end
 
-  def test_user_defined_function_variable_scope
-    render(<<SASS)
-bar
-  -no-op: set-a-variable(variable, 5)
-  a: $variable
-SASS
-    flunk("Exception not raised for test_user_defined_function_variable_scope")
-  rescue Sass::SyntaxError => e
-    assert_equal('Undefined variable: "$variable".', e.message)
-  end
-
   def test_user_defined_function_can_change_global_variable
     skip("TODO: fix this")
     assert_equal(<<CSS, render(<<SASS))
