@@ -1072,6 +1072,8 @@ is compiled to:
 
     p {
       color: #ff0000; }
+      
+See {Sass::Script::Functions this page} for a full list of available functions.
 
 #### Keyword Arguments
 
