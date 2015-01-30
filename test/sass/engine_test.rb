@@ -1377,7 +1377,6 @@ SASS
   end
 
   def test_user_defined_function_can_change_global_variable
-    skip("TODO: fix this")
     assert_equal(<<CSS, render(<<SASS))
 bar {
   a: 5; }
