@@ -7,6 +7,9 @@
 
 * Parent selectors used both outside and inside a pseudo selector
   (e.g. `&:not(&--foo)`) now compile correctly.
+
+* Interpolation in a multiline indented-syntax selector is no longer
+  omitted.
   
 ### Deprecations -- Must Read!
 

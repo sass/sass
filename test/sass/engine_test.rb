@@ -2457,6 +2457,18 @@ SASS
 
   # Regression tests
 
+  def test_interpolation_in_multiline_selector
+    assert_equal(<<CSS, render(<<SASS))
+.foo,
+.bar {
+  a: b; }
+CSS
+.foo,
+\#{".bar"}
+  a: b
+SASS
+  end
+
   def test_list_separator_with_arg_list
     assert_equal(<<CSS, render(<<SASS))
 .test {
