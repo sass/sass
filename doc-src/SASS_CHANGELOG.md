@@ -10,6 +10,8 @@
 
 * Interpolation in a multiline indented-syntax selector is no longer
   omitted.
+
+* Add a stack trace to the `unquote()` deprecation warning.
   
 ### Deprecations -- Must Read!
 
