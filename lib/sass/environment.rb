@@ -109,14 +109,6 @@ module Sass
       "_s_#{(name || 'i').to_s.gsub(/[^a-zA-Z0-9_]/, '_')}_#{@ident_count}"
     end
 
-    def consistent_ident(name)
-      escaped = name.to_s.gsub(/[^a-zA-Z0-9]/) do |c|
-        next "__" if c == "_" || c == "-"
-        "_" + c.ord.to_s(16)
-      end
-      "_sc_#{escaped}"
-    end
-
     def fn_variable(name)
       ident, function = fn(name)
       return unless ident
@@ -148,7 +140,7 @@ module Sass
 
     def declare_var(name)
       return set_local_var(name, unique_ident("var_#{name}")) unless global?
-      ident = set_local_var(name, consistent_ident("var_#{name}"))
+      ident = set_local_var(name, Sass::Util.consistent_ident("var_#{name}"))
       return "@#{ident}"
     end
 
@@ -222,25 +214,6 @@ module Sass
     # @return [Sass::Stack]
     def stack
       mapper.stack_for Kernel.caller
-    end
-
-    def run_function(context, name, splat)
-      callable = fn_signatures[name]
-
-      if callable.nil?
-        ruby_name = name.tr('-', '_')
-        if Sass::Script::Functions.callable?(ruby_name)
-          return Sass::Script::Helpers.without_original(
-            run_ruby_function(context, name, ruby_name, splat))
-        end
-      end
-
-      if callable
-        return Sass::Script::Helpers.without_original(run_callable(context, callable, splat))
-      end
-
-      # TODO: throw an error if splat has keywords.
-      Sass::Script::Value::String.new("#{name}(#{splat.to_a.join(', ')})")
     end
 
     def run_mixin(context, name, splat)
@@ -427,11 +400,6 @@ module Sass
     # function
     # Sass::Callable
     inherited_hash_writer :function
-
-    def set_global_var(name, value)
-      # TODO: each environment should have a context instance.
-      #context.instance_variable_set("@" + consistent_ident("var_#{name}"), value)
-    end
   end
 
   # A read-only wrapper for a lexical environment for SassScript.

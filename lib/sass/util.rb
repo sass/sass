@@ -459,6 +459,14 @@ module Sass
       info
     end
 
+    def consistent_ident(name)
+      escaped = name.to_s.gsub(/[^a-zA-Z0-9]/) do |c|
+        next "__" if c == "_" || c == "-"
+        "_" + c.ord.to_s(16)
+      end
+      "_sc_#{escaped}"
+    end
+
     # Returns whether one version string represents a more recent version than another.
     #
     # @param v1 [String] A version string.
