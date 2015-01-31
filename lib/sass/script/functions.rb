@@ -1406,9 +1406,10 @@ module Sass::Script
     # @raise [ArgumentError] if `$string` isn't a string
     def unquote(string)
       unless string.is_a?(Sass::Script::Value::String)
-        Sass::Util.sass_warn(<<MESSAGE)
+        Sass::Util.sass_warn(<<MESSAGE.strip)
 DEPRECATION WARNING: Passing #{string.to_sass}, a non-string value, to unquote()
 will be an error in future versions of Sass.
+#{environment.stack.to_s.gsub(/^/, ' ' * 8)}
 MESSAGE
         return string
       end

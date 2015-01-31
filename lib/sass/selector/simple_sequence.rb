@@ -133,9 +133,9 @@ module Sass
           end
 
           Sequence.new(members[0...-1] +
-            [SimpleSequence.new(parent_sub + @members[1..-1], subject?)] +
+            [SimpleSequence.new(parent_sub + resolved_members[1..-1], subject?)] +
             [newline].compact)
-        end)
+          end)
       end
 
       # Non-destructively extends this selector with the extensions specified in a hash

@@ -10,6 +10,22 @@
 
 * Add a `$weight` parameter to `invert()`.
 
+## 3.4.11 (Unreleased)
+
+* Parent selectors used both outside and inside a pseudo selector
+  (e.g. `&:not(&--foo)`) now compile correctly.
+
+* Interpolation in a multiline indented-syntax selector is no longer
+  omitted.
+
+* Add a stack trace to the `unquote()` deprecation warning.
+  
+### Deprecations -- Must Read!
+
+* Compiling directories on the command line without using either
+  `--watch` or `--update` is deprecated. This only worked
+  inconsistently before.
+
 ## 3.4.10
 
 [Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.4.10).
