@@ -867,18 +867,34 @@ WARNING
 
   def test_invert
     assert_equal("#112233", evaluate("invert(#edc)"))
+    assert_equal("#d7cabc", evaluate("invert(#edc, 10%)"))
     assert_equal("rgba(245, 235, 225, 0.5)", evaluate("invert(rgba(10, 20, 30, 0.5))"))
+    assert_equal("rgba(33, 41, 49, 0.5)", evaluate("invert(rgba(10, 20, 30, 0.5), 10%)"))
     assert_equal("invert(20%)", evaluate("invert(20%)"))
   end
 
   def test_invert_tests_types
     assert_error_message("$color: \"foo\" is not a color for `invert'", "invert(\"foo\")")
+    assert_error_message("$weight: \"foo\" is not a number for `invert'", "invert(#edc, \"foo\")")
+  end
+
+  def test_invert_tests_bounds
+    assert_error_message("Weight -0.001 must be between 0% and 100% for `invert'",
+      "invert(#edc, -0.001)")
+    assert_error_message("Weight 100.001 must be between 0% and 100% for `invert'",
+      "invert(#edc, 100.001)")
   end
 
   def test_unquote
     assert_equal('foo', evaluate('unquote("foo")'))
     assert_equal('foo', evaluate('unquote(foo)'))
     assert_equal('foo', evaluate('unquote($string: foo)'))
+    assert_warning <<MESSAGE do
+DEPRECATION WARNING: Passing blue, a non-string value, to unquote()
+will be an error in future versions of Sass.
+MESSAGE
+      assert_equal('blue', evaluate('unquote(blue)'))
+    end
   end
 
   def test_quote
@@ -1624,6 +1640,9 @@ SCSS
     assert_equal "null", evaluate("inspect(null)")
     assert_equal "1px null 3px", evaluate("inspect(1px null 3px)")
     assert_equal "(a: 1, b: 2)", evaluate("inspect((a: 1, b: 2))")
+    assert_equal "(a: 1, b: (c: 2))", evaluate("inspect((a: 1, b: (c: 2)))")
+    assert_equal "(a: 1, b: (2, 3))", evaluate("inspect((a: 1, b: (2, 3)))")
+    assert_equal "(a: 1, b: 2 3)", evaluate("inspect((a: 1, b: 2 3))")
   end
 
   def test_random

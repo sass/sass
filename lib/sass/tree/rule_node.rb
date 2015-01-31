@@ -142,14 +142,15 @@ module Sass::Tree
     private
 
     def try_to_parse_non_interpolated_rules
-      if @rule.all? {|t| t.kind_of?(String)}
-        # We don't use real filename/line info because we don't have it yet.
-        # When we get it, we'll set it on the parsed rules if possible.
-        parser = Sass::SCSS::StaticParser.new(@rule.join.strip, nil, nil, 1)
-        # rubocop:disable RescueModifier
-        @parsed_rules = parser.parse_selector rescue nil
-        # rubocop:enable RescueModifier
-      end
+      @parsed_rules = nil
+      return unless @rule.all? {|t| t.kind_of?(String)}
+
+      # We don't use real filename/line info because we don't have it yet.
+      # When we get it, we'll set it on the parsed rules if possible.
+      parser = Sass::SCSS::StaticParser.new(@rule.join.strip, nil, nil, 1)
+      # rubocop:disable RescueModifier
+      @parsed_rules = parser.parse_selector rescue nil
+      # rubocop:enable RescueModifier
     end
   end
 end

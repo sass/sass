@@ -1005,6 +1005,76 @@ bar {
 SASS
   end
 
+  def test_disallowed_function_names
+    assert_warning(<<WARNING) {render(<<SCSS)}
+DEPRECATION WARNING on line 1 of test_disallowed_function_names_inline.scss:
+Naming a function "calc" is disallowed and will be an error in future versions of Sass.
+This name conflicts with an existing CSS function with special parse rules.
+WARNING
+@function calc() {}
+SCSS
+
+    assert_warning(<<WARNING) {render(<<SCSS)}
+DEPRECATION WARNING on line 1 of test_disallowed_function_names_inline.scss:
+Naming a function "-my-calc" is disallowed and will be an error in future versions of Sass.
+This name conflicts with an existing CSS function with special parse rules.
+WARNING
+@function -my-calc() {}
+SCSS
+
+    assert_warning(<<WARNING) {render(<<SCSS)}
+DEPRECATION WARNING on line 1 of test_disallowed_function_names_inline.scss:
+Naming a function "element" is disallowed and will be an error in future versions of Sass.
+This name conflicts with an existing CSS function with special parse rules.
+WARNING
+@function element() {}
+SCSS
+
+    assert_warning(<<WARNING) {render(<<SCSS)}
+DEPRECATION WARNING on line 1 of test_disallowed_function_names_inline.scss:
+Naming a function "-my-element" is disallowed and will be an error in future versions of Sass.
+This name conflicts with an existing CSS function with special parse rules.
+WARNING
+@function -my-element() {}
+SCSS
+
+    assert_warning(<<WARNING) {render(<<SCSS)}
+DEPRECATION WARNING on line 1 of test_disallowed_function_names_inline.scss:
+Naming a function "expression" is disallowed and will be an error in future versions of Sass.
+This name conflicts with an existing CSS function with special parse rules.
+WARNING
+@function expression() {}
+SCSS
+
+    assert_warning(<<WARNING) {render(<<SCSS)}
+DEPRECATION WARNING on line 1 of test_disallowed_function_names_inline.scss:
+Naming a function "url" is disallowed and will be an error in future versions of Sass.
+This name conflicts with an existing CSS function with special parse rules.
+WARNING
+@function url() {}
+SCSS
+  end
+
+  def test_allowed_function_names
+    assert_no_warning {assert_equal(<<CSS, render(<<SCSS))}
+.a {
+  b: c; }
+CSS
+@function -my-expression() {@return c}
+
+.a {b: -my-expression()}
+SCSS
+
+    assert_no_warning {assert_equal(<<CSS, render(<<SCSS))}
+.a {
+  b: c; }
+CSS
+@function -my-url() {@return c}
+
+.a {b: -my-url()}
+SCSS
+  end
+
   ## Var Args
 
   def test_mixin_var_args
@@ -3551,6 +3621,43 @@ bang";
 SCSS
   end
 
+  # Regression
+
+  def test_escape_in_selector
+    assert_equal(<<CSS, render(".\\!foo {a: b}"))
+.\\!foo {
+  a: b; }
+CSS
+  end
+
+  def test_for_directive_with_float_bounds
+    assert_equal(<<CSS, render(<<SCSS))
+.a {
+  b: 0;
+  b: 1;
+  b: 2;
+  b: 3;
+  b: 4;
+  b: 5; }
+CSS
+.a {
+  @for $i from 0.0 through 5.0 {b: $i}
+}
+SCSS
+
+    assert_raise_message(Sass::SyntaxError, "0.5 is not an integer.") {render(<<SCSS)}
+.a {
+  @for $i from 0.5 through 5.0 {b: $i}
+}
+SCSS
+
+    assert_raise_message(Sass::SyntaxError, "5.5 is not an integer.") {render(<<SCSS)}
+.a {
+  @for $i from 0.0 through 5.5 {b: $i}
+}
+SCSS
+  end
+
   def test_parent_selector_in_function_pseudo_selector
     assert_equal <<CSS, render(<<SCSS)
 .bar:not(.foo) {
@@ -3565,6 +3672,31 @@ CSS
 
 .baz .bang {
   .qux:nth-child(2n of &) {c: d}
+}
+SCSS
+  end
+
+  def test_parent_selector_in_and_out_of_function_pseudo_selector
+    # Regression test for https://github.com/sass/sass/issues/1464#issuecomment-70352288
+    assert_equal(<<CSS, render(<<SCSS))
+.a:not(.a-b) {
+  x: y; }
+CSS
+.a {
+  &:not(&-b) {
+    x: y;
+  }
+}
+SCSS
+
+    assert_equal(<<CSS, render(<<SCSS))
+.a:nth-child(2n of .a-b) {
+  x: y; }
+CSS
+.a {
+  &:nth-child(2n of &-b) {
+    x: y;
+  }
 }
 SCSS
   end

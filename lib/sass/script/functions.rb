@@ -77,7 +77,7 @@ module Sass::Script
   # \{#complement complement($color)}
   # : Returns the complement of a color.
   #
-  # \{#invert invert($color)}
+  # \{#invert invert($color, \[$weight\])}
   # : Returns the inverse of a color.
   #
   # ## Opacity Functions
@@ -1527,20 +1527,28 @@ module Sass::Script
     #
     # @overload invert($color)
     #   @param $color [Sass::Script::Value::Color]
+    # @overload invert($color, $weight: 100%)
+    #   @param $color [Sass::Script::Value::Color]
+    #   @param $weight [Sass::Script::Value::Number] The relative weight of the
+    #     color color's inverse
     # @return [Sass::Script::Value::Color]
-    # @raise [ArgumentError] if `$color` isn't a color
-    def invert(color)
+    # @raise [ArgumentError] if `$color` isn't a color or `$weight`
+    #   isn't a percentage between 0% and 100%
+    def invert(color, weight = number(100))
       if color.is_a?(Sass::Script::Value::Number)
         return identifier("invert(#{color})")
       end
 
       assert_type color, :Color, :color
-      color.with(
+      inv = color.with(
         :red => (255 - color.red),
         :green => (255 - color.green),
         :blue => (255 - color.blue))
+
+      mix(inv, color, weight)
     end
     declare :invert, [:color]
+    declare :invert, [:color, :weight]
 
     # Removes quotes from a string. If the string is already unquoted, this will
     # return it unmodified.
@@ -1554,11 +1562,17 @@ module Sass::Script
     # @return [Sass::Script::Value::String]
     # @raise [ArgumentError] if `$string` isn't a string
     def unquote(string)
-      if string.is_a?(Sass::Script::Value::String) && string.type != :identifier
-        identifier(string.value)
-      else
-        string
+      unless string.is_a?(Sass::Script::Value::String)
+        Sass::Util.sass_warn(<<MESSAGE.strip)
+DEPRECATION WARNING: Passing #{string.to_sass}, a non-string value, to unquote()
+will be an error in future versions of Sass.
+#{environment.stack.to_s.gsub(/^/, ' ' * 8)}
+MESSAGE
+        return string
       end
+
+      return string if string.type == :identifier
+      identifier(string.value)
     end
     declare :unquote, [:string]
 

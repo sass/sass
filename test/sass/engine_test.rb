@@ -2050,21 +2050,21 @@ SASS
   end
 
   def test_warn_with_imports
-    skip "Should work via rake test"
+    prefix = Sass::Util.cleanpath(File.dirname(__FILE__)).to_s
     expected_warning = <<WARN
 WARNING: In the main file
-         on line 1 of #{File.dirname(__FILE__)}/templates/warn.sass
+         on line 1 of #{prefix}/templates/warn.sass
 
 WARNING: Imported
-         on line 1 of #{File.dirname(__FILE__)}/templates/warn_imported.sass
-         from line 2 of #{File.dirname(__FILE__)}/templates/warn.sass
+         on line 1 of #{prefix}/templates/warn_imported.sass
+         from line 2 of #{prefix}/templates/warn.sass
 
 WARNING: In an imported mixin
-         on line 4 of #{File.dirname(__FILE__)}/templates/warn_imported.sass, in `emits-a-warning'
-         from line 3 of #{File.dirname(__FILE__)}/templates/warn.sass
+         on line 4 of #{prefix}/templates/warn_imported.sass, in `emits-a-warning'
+         from line 3 of #{prefix}/templates/warn.sass
 WARN
     assert_warning expected_warning do
-      renders_correctly "warn", :style => :compact, :load_paths => [File.dirname(__FILE__) + "/templates"]
+      renders_correctly "warn", :style => :compact, :load_paths => ["#{prefix}/templates"]
     end
   end
 
@@ -2448,6 +2448,18 @@ SASS
   end
 
   # Regression tests
+
+  def test_interpolation_in_multiline_selector
+    assert_equal(<<CSS, render(<<SASS))
+.foo,
+.bar {
+  a: b; }
+CSS
+.foo,
+\#{".bar"}
+  a: b
+SASS
+  end
 
   def test_list_separator_with_arg_list
     assert_equal(<<CSS, render(<<SASS))
@@ -3279,7 +3291,8 @@ SASS
   end
 
   def filename(name, type)
-    File.dirname(__FILE__) + "/#{type == 'sass' ? 'templates' : 'results'}/#{name}.#{type}"
+    path = File.dirname(__FILE__) + "/#{type == 'sass' ? 'templates' : 'results'}/#{name}.#{type}"
+    Sass::Util.cleanpath(path).to_s
   end
 
   def sassc_path(template)

@@ -1011,6 +1011,12 @@ SCSS
     assert_equal "E + F {\n  a: b; }\n", render("E+F { a: b;} ")
   end
 
+  def test_escapes_in_selectors
+    assert_selector_parses('.\!foo')
+    assert_selector_parses('.\66 foo')
+    assert_selector_parses('.\21 foo')
+  end
+
   def test_subject_selector_deprecation
     skip "Irrelevant deprecation."
 

@@ -8,10 +8,60 @@
 * Combine ids and `:root` when unifying selectors with `@extend` and selector
   functions.
 
-## 3.4.9 (Unreleased)
+* Add a `$weight` parameter to `invert()`.
+
+## 3.4.11 (Unreleased)
+
+* Parent selectors used both outside and inside a pseudo selector
+  (e.g. `&:not(&--foo)`) now compile correctly.
+
+* Interpolation in a multiline indented-syntax selector is no longer
+  omitted.
+
+* Add a stack trace to the `unquote()` deprecation warning.
+  
+### Deprecations -- Must Read!
+
+* Compiling directories on the command line without using either
+  `--watch` or `--update` is deprecated. This only worked
+  inconsistently before.
+
+## 3.4.10
+
+[Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.4.10).
+
+* `inspect()` no longer adds extra parentheses to nested maps.
 
 * Update the documentation of the `random()` function to accurate reflect its
   behavior.
+
+### Deprecations -- Must Read!
+
+* Passing a non-string value to the `unquote()` function didn't do
+  anything useful and is now deprecated. In future, this function will
+  follow its documentation and emit an error if a non-string value is
+  passed.
+
+* Defining a function named `calc`, `element`, `expression`, or `url`
+  (or the former two with a vendor-style prefix) is now deprecated.
+  These functions were already shadowed by CSS functions with special
+  parsing rules, and so were impossible to use anyway. In the future,
+  attempting to define these functions will throw an error.
+
+## 3.4.9 (24 November 2014)
+
+[Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.4.9).
+
+* Fix an incompatibility with listen 2.7.12 and later.
+
+* Properly handle interpolation within `calc()` and similar functions
+  with `sass-convert`.
+
+* Properly handle conversion of `@extend` with `!optional` to SCSS.
+
+* Properly handle conversion of `@at-root` with a selector to SCSS.
+
+* Don't crash on selectors containing escape codes.
 
 ## 3.4.8 (14 November 2014)
 

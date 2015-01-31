@@ -204,7 +204,7 @@ module Sass::Script::Value
     #
     # @overload initialize(attrs)
     #   The attributes are specified as a hash. This hash must contain either
-    #   `:hue`, `:saturation`, and `:value` keys, or `:red`, `:green`, and
+    #   `:hue`, `:saturation`, and `:lightness` keys, or `:red`, `:green`, and
     #   `:blue` keys. It cannot contain both HSL and RGB keys. It may also
     #   optionally contain an `:alpha` key, and a `:representation` key
     #   indicating the original representation of the color that the user wrote

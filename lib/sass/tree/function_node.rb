@@ -20,6 +20,12 @@ module Sass
       # @return [Script::Tree::VariableNode?]
       attr_accessor :splat
 
+      # Strips out any vendor prefixes.
+      # @return [String] The normalized name of the directive.
+      def normalized_name
+        @normalized_name ||= name.gsub(/^(?:-[a-zA-Z0-9]+-)?/, '\1')
+      end
+
       # @param name [String] The function name
       # @param args [Array<(Script::Tree::VariableNode, Script::Tree::Node)>]
       #   The arguments for the function.

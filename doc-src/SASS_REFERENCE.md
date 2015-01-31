@@ -52,6 +52,9 @@ using the `sass-convert` command line tool:
 
     # Convert SCSS to Sass
     $ sass-convert style.scss style.sass
+    
+Note that this command does *not* generate CSS files. For that, use
+the `sass` command described elsewhere.
 
 ## Using Sass
 
@@ -663,7 +666,7 @@ is compiled to:
 
 ### Data Types
 
-SassScript supports six main data types:
+SassScript supports seven main data types:
 
 * numbers (e.g. `1.2`, `13`, `10px`)
 * strings of text, with and without quotes (e.g. `"foo"`, `'bar'`, `baz`)
@@ -2405,7 +2408,7 @@ get directly passed through to the wrapped mixin. For example:
 ### Passing Content Blocks to a Mixin {#mixin-content}
 
 It is possible to pass a block of styles to the mixin for placement within the styles included by
-the mixin. The styles will appear at the location of any `@content` directives found within the mixin. This makes is possible to define abstractions relating to the construction of
+the mixin. The styles will appear at the location of any `@content` directives found within the mixin. This makes it possible to define abstractions relating to the construction of
 selectors and directives.
 
 For example:
