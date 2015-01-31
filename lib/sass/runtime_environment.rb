@@ -20,7 +20,7 @@ module Sass
     end
 
     def global?
-      raise NotImplementedError.new("RuntimeEnvironment#global? is not yet implemented.")
+      true
     end
 
     def caller
@@ -32,11 +32,11 @@ module Sass
     end
 
     def var(name)
-      raise NotImplementedError.new("RuntimeEnvironment#var is not yet implemented.")
+      @context.instance_variable_get("@" + Sass::Util.consistent_ident("var_#{name}"))
     end
 
     def is_var_global?(name)
-      raise NotImplementedError.new("RuntimeEnvironment#is_var_global? is not yet implemented.")
+      !var(name).nil?
     end
 
     def set_global_var(name, value)

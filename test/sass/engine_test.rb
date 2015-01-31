@@ -1390,7 +1390,6 @@ SASS
   end
 
   def test_user_defined_function_cannot_read_local_variable
-    skip("TODO: fix this")
     assert_equal(<<CSS, render(<<SASS))
 bar {
   global: 0;
