@@ -886,6 +886,8 @@ WARNING
   end
 
   def test_unquote
+    skip "Deprecation"
+
     assert_equal('foo', evaluate('unquote("foo")'))
     assert_equal('foo', evaluate('unquote(foo)'))
     assert_equal('foo', evaluate('unquote($string: foo)'))
