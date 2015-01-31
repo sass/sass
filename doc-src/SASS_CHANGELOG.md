@@ -12,6 +12,10 @@
   omitted.
 
 * Add a stack trace to the `unquote()` deprecation warning.
+
+* When converting a space-separated list with `sass-convert`, add
+  parentheses when they make it easier to read even if they aren't
+  strictly required.
   
 ### Deprecations -- Must Read!
 
