@@ -1990,13 +1990,11 @@ foo
     ok: -$foo
     comma: 10px, -$foo
     needs-parens: 10px (-$foo)
-    no-parens: a 50px + 60px b
 SASS
 foo {
     ok: -$foo;
     comma: 10px, -$foo;
     needs-parens: 10px (-$foo);
-    no-parens: a 50px + 60px b;
 }
 SCSS
   end
