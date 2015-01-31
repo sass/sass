@@ -1006,6 +1006,8 @@ SASS
   end
 
   def test_disallowed_function_names
+    skip "Deprecation; will be changed."
+
     assert_warning(<<WARNING) {render(<<SCSS)}
 DEPRECATION WARNING on line 1 of test_disallowed_function_names_inline.scss:
 Naming a function "calc" is disallowed and will be an error in future versions of Sass.
