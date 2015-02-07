@@ -996,15 +996,14 @@ MESSAGE
   end
 
   def test_user_defined_function_using_environment
-    skip "Needs environment refactor"
-
     assert_equal(<<CSS, render(<<SASS))
 a {
   b: The variable; }
 CSS
-$variable: The variable
-a
-  b: fetch_the_variable()
+$variable: The variable;
+a {
+  b: fetch_the_variable();
+}
 SASS
   end
 
@@ -1492,7 +1491,7 @@ SCSS
   end
 
   def test_call_uses_local_scope
-    skip "Needs environment refactor"
+    skip "Needs local function access"
 
     assert_equal <<CSS, render(<<SCSS)
 .first-scope {
@@ -1527,7 +1526,7 @@ SCSS
   end
 
   def test_variable_exists
-    skip "Needs environment refactor"
+    skip "Needs local variable access"
 
     assert_equal <<CSS, render(<<SCSS)
 .test {
@@ -1590,7 +1589,7 @@ SCSS
   end
 
   def test_function_exists
-    skip "Needs environment refactor"
+    skip "Needs function access"
 
     # built-ins
     assert_equal "true", evaluate("function-exists(lighten)")
@@ -1615,7 +1614,7 @@ SCSS
   end
 
   def test_mixin_exists
-    skip "Needs environment refactor"
+    skip "Needs mixin access"
 
     assert_equal "false", evaluate("mixin-exists(foo)")
     # with named argument
