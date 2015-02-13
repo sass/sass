@@ -7,6 +7,9 @@
 
 * Non-string interpolation within string interpolation is now parsed correctly.
 
+* `random()` now returns the correct result if it has an integer value
+  but a float representation.
+
 ## 3.4.11 (30 January 2015)
 
 [Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.4.11).

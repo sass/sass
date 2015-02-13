@@ -1471,10 +1471,10 @@ MESSAGE
       assert_type insert, :String, :insert
       assert_integer index, :index
       assert_unit index, nil, :index
-      insertion_point = if index.value > 0
-                          [index.value - 1, original.value.size].min
+      insertion_point = if index.to_i > 0
+                          [index.to_i - 1, original.value.size].min
                         else
-                          [index.value, -original.value.size - 1].max
+                          [index.to_i, -original.value.size - 1].max
                         end
       result = original.value.dup.insert(insertion_point, insert.value)
       Sass::Script::Value::String.new(result, original.type)
@@ -2325,10 +2325,10 @@ MESSAGE
       generator = Sass::Script::Functions.random_number_generator
       if limit
         assert_integer limit, "limit"
-        if limit.value < 1
+        if limit.to_i < 1
           raise ArgumentError.new("$limit #{limit} must be greater than or equal to 1")
         end
-        number(1 + generator.rand(limit.value))
+        number(1 + generator.rand(limit.to_i))
       else
         number(generator.rand)
       end
