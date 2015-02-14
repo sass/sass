@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 3.4.12 (Unreleased)
+## 3.4.12 (13 February 2015)
+
+[Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.4.12).
 
 * Non-string interpolation within string interpolation is now parsed correctly.
 
