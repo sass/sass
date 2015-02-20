@@ -56,6 +56,10 @@ IfUnlessModifier:
 IndentationConsistency:
   # We use indentation to convey meaning more often than we screw it up.
   Enabled: false
+IndentationWidth:
+  Enabled: false
+BlockAlignment:
+  Enabled: false
 Lambda:
   # We are a 1.8 compatible project still.
   Enabled: false
