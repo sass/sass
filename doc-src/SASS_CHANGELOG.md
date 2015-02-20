@@ -10,7 +10,22 @@
 
 * Add a `$weight` parameter to `invert()`.
 
-## 3.4.11 (Unreleased)
+## 3.4.13 (Unreleased)
+
+* Be clearer in the reference about hyphen/underscore equivalence.
+
+## 3.4.12 (13 February 2015)
+
+[Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.4.12).
+
+* Non-string interpolation within string interpolation is now parsed correctly.
+
+* `random()` now returns the correct result if it has an integer value
+  but a float representation.
+
+## 3.4.11 (30 January 2015)
+
+[Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.4.11).
 
 * Parent selectors used both outside and inside a pseudo selector
   (e.g. `&:not(&--foo)`) now compile correctly.
@@ -19,6 +34,10 @@
   omitted.
 
 * Add a stack trace to the `unquote()` deprecation warning.
+
+* When converting a space-separated list with `sass-convert`, add
+  parentheses when they make it easier to read even if they aren't
+  strictly required.
   
 ### Deprecations -- Must Read!
 
@@ -26,7 +45,7 @@
   `--watch` or `--update` is deprecated. This only worked
   inconsistently before.
 
-## 3.4.10
+## 3.4.10 (16 January 2015)
 
 [Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.4.10).
 

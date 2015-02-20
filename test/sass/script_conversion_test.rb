@@ -76,6 +76,26 @@ class SassScriptConversionTest < MiniTest::Test
     assert_renders "null"
   end
 
+  def test_space_list
+    assert_renders "foo bar baz"
+    assert_renders "foo (bar baz) bip"
+    assert_renders "foo (bar, baz) bip"
+  end
+
+  def test_comma_list
+    assert_renders "foo, bar, baz"
+    assert_renders "foo, (bar, baz), bip"
+    assert_renders "foo, bar baz, bip"
+  end
+
+  def test_space_list_adds_parens_for_clarity
+    assert_renders "(1 + 1) (2 / 4) (3 * 5)"
+  end
+
+  def test_comma_list_doesnt_add_parens
+    assert_renders "1 + 1, 2 / 4, 3 * 5"
+  end
+
   def test_empty_list
     assert_renders "()"
   end
@@ -221,8 +241,8 @@ RUBY
     assert_renders "$foo or ($bar $baz)"
     assert_renders "($foo $bar) or $baz"
 
-    assert_equal "$foo $bar or $baz", render("$foo ($bar or $baz)")
-    assert_equal "$foo or $bar $baz", render("($foo or $bar) $baz")
+    assert_renders "$foo ($bar or $baz)"
+    assert_renders "($foo or $bar) $baz"
 
     assert_equal "$foo ($bar $baz)", render("$foo ($bar $baz)")
     assert_equal "($foo $bar) $baz", render("($foo $bar) $baz")

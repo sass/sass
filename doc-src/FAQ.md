@@ -29,7 +29,7 @@ from your Sass functions.
 
 # You still haven't answered my question!
 
-Sorry! Try looking at the [Sass](http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html) reference,
-If you can't find an answer there,
-feel free to ask in `#sass` on irc.freenode.net
-or send an email to the [mailing list](http://groups.google.com/group/sass-lang).
+Sorry! Try looking at the [Sass](http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html)
+reference, If you can't find an answer there, feel free to ask in [`#sass` on
+irc.freenode.net](http://webchat.freenode.net/) or send an email to the [mailing
+list](http://groups.google.com/group/sass-lang).

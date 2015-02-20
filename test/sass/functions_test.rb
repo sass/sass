@@ -1674,6 +1674,14 @@ SCSS
     assert_error_message("Expected $limit to be an integer but got 1.5 for `random'", "random(1.5)")
   end
 
+  # Regression test for #1638.
+  def test_random_with_float_integer_limit
+    result = perform("random(1.0)")
+    assert_kind_of Sass::Script::Number, result
+    assert result.value >= 0, "Random number was below 0"
+    assert result.value <= 1, "Random number was above 1"
+  end
+
   # This could *possibly* fail, but exceedingly unlikely
   def test_random_is_semi_unique
     if Sass::Script::Functions.instance_variable_defined?("@random_number_generator")
