@@ -3925,6 +3925,22 @@ CSS
 SCSS
   end
 
+  def test_keyword_arg_scope
+    assert_equal <<CSS, render(<<SCSS)
+.mixed {
+  arg1: default;
+  arg2: non-default; }
+CSS
+$arg1: default;
+$arg2: default;
+@mixin a-mixin($arg1: $arg1, $arg2: $arg2) {
+  arg1: $arg1;
+  arg2: $arg2;
+}
+.mixed { @include a-mixin($arg2: non-default); }
+SCSS
+  end
+
   def test_passing_required_args_as_a_keyword_arg
     assert_equal <<CSS, render(<<SCSS)
 .mixed {
