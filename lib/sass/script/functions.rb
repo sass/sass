@@ -217,7 +217,7 @@ module Sass::Script
   # for selector arguments. They can take a plain string, a list of
   # lists as returned by `&` or anything in between:
   #
-  # * A plain sring, such as `".foo .bar, .baz .bang"`.
+  # * A plain string, such as `".foo .bar, .baz .bang"`.
   # * A space-separated list of strings such as `(".foo" ".bar")`.
   # * A comma-separated list of strings such as `(".foo .bar", ".baz .bang")`.
   # * A comma-separated list of space-separated lists of strings such
