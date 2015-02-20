@@ -455,6 +455,7 @@ class Sass::Tree::Visitors::ToSexp < Sass::Tree::Visitors::Base
   def declare_callable(name, node)
     # Wrap this in a new environment to make sure the args aren't considered
     # global.
+    outer_environment = @environment
     with_environment(Sass::Environment.new(@environment)) do
       args = node.args.map do |(arg, default)|
         arg_name = @environment.declare_var(arg.name)
@@ -474,7 +475,8 @@ class Sass::Tree::Visitors::ToSexp < Sass::Tree::Visitors::Base
       body = s(:block)
       node.args.each do |(arg, default)|
         next unless default
-        body << or_asgn(@environment.var_variable(arg.name), default.to_sexp(self))
+        body << or_asgn(@environment.var_variable(arg.name),
+          with_environment(outer_environment) {default.to_sexp(self)})
       end
       body << yield
 
