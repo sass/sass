@@ -43,7 +43,12 @@ module Sass::Script::Tree
       if var = visitor.environment.var_variable(name)
         var(var)
       else
-        sass_error(s(:str, "Undefined variable: \"$#{name}\"."))
+        var_var = visitor.environment.unique_ident(:var)
+        s(:block,
+          s(:lasgn, var_var, var("@" + Sass::Util.consistent_ident("var_#{name}"))),
+          s(:if, s(:not, s(:lvar, var_var)),
+            sass_error(s(:str, "Undefined variable: \"$#{name}\"."))),
+          s(:lvar, var_var))
       end
     end
 
