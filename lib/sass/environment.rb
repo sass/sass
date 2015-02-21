@@ -112,7 +112,7 @@ module Sass
 
     def var_variable(name)
       # Global variables may be defined non-lexically and still be accessible.
-      return "@" + Sass::Util.consistent_ident("var_#{name}") unless (ident = var(name))
+      return unless (ident = var(name))
       return is_var_global?(name) ? "@#{ident}" : ident
     end
 
