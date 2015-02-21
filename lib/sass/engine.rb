@@ -57,45 +57,6 @@ require 'sass/ruby_mapper'
 require 'sass/ruby2ruby'
 
 module Sass
-  # A Sass mixin or function.
-  #
-  # `name`: `String`
-  # : The name of the mixin/function.
-  #
-  # `args`: `Array<(Script::Tree::Node, Script::Tree::Node)>`
-  # : The arguments for the mixin/function.
-  #   Each element is a tuple containing the variable node of the argument
-  #   and the parse tree for the default value of the argument.
-  #
-  # `splat`: `Script::Tree::Node?`
-  # : The variable node of the splat argument for this callable, or null.
-  #
-  # `environment`: {Sass::Environment}
-  # : The environment in which the mixin/function was defined.
-  #   This is captured so that the mixin/function can have access
-  #   to local variables defined in its scope.
-  #
-  # `tree`: `Array<Tree::Node>`
-  # : The parse tree for the mixin/function.
-  #
-  # `has_content`: `Boolean`
-  # : Whether the callable accepts a content block.
-  #
-  # `type`: `String`
-  # : The user-friendly name of the type of the callable.
-  Callable = Struct.new(:name, :args, :splat, :environment, :tree, :has_content, :type)
-
-  class IVarCallable < Callable
-    def initialize(ivar, name, args, splat, has_content, type)
-      super(name, args, splat, nil, nil, has_content, type)
-      @ivar = ivar
-    end
-
-    def run(context, args)
-      context.instance_variable_get(@ivar).call(*args)
-    end
-  end
-
   # This class handles the parsing and compilation of the Sass template.
   # Example usage:
   #

@@ -87,15 +87,16 @@ module Sass
     end
 
     def fn_variable(name)
-      ident, function = fn(name)
+      ident, function = mx(name)
       return unless ident
       ident = "@#{ident}" if is_fn_global?(name)
       return ident, function
     end
 
     def declare_fn(name, function)
-      ident = set_local_fn(name, [unique_ident("fn_#{name}"), function]).first
-      global? ? "@#{ident}" : ident
+      return set_local_fn(name, [unique_ident("fn_#{name}"), function]) unless global?
+      ident = set_local_fn(name, [Sass::Util.consistent_ident("fn_#{name}"), function]).first
+      return "@#{ident}"
     end
 
     def mx_variable(name)
@@ -106,12 +107,12 @@ module Sass
     end
 
     def declare_mx(name, mixin)
-      ident = set_local_mx(name, [unique_ident("mx_#{name}"), mixin]).first
-      global? ? "@#{ident}" : ident
+      return set_local_mx(name, [unique_ident("mx_#{name}"), mixin]) unless global?
+      ident = set_local_mx(name, [Sass::Util.consistent_ident("mx_#{name}"), mixin]).first
+      return "@#{ident}"
     end
 
     def var_variable(name)
-      # Global variables may be defined non-lexically and still be accessible.
       return unless (ident = var(name))
       return is_var_global?(name) ? "@#{ident}" : ident
     end

@@ -489,11 +489,9 @@ module Sass::Script
       attr_reader :options
 
       # @param environment [Environment] See \{#environment}
-      def initialize(environment, mapper, functions, mixins)
+      def initialize(environment, mapper)
         @environment = environment
         @mapper = mapper
-        @functions = functions
-        @mixins = mixins
         @options = environment.options
       end
 
@@ -568,10 +566,8 @@ module Sass::Script
       end
 
       # @private
-      def run_function(name, splat)
-        callable = @functions[name]
-
-        if callable.nil?
+      def run_function(name, splat, closure, signature)
+        unless closure
           ruby_name = name.tr('-', '_')
           if Sass::Script::Functions.callable?(ruby_name)
             return Sass::Script::Helpers.without_original(
@@ -580,7 +576,8 @@ module Sass::Script
         end
 
         if callable
-          return Sass::Script::Helpers.without_original(run_callable(callable, splat))
+          return Sass::Script::Helpers.without_original(
+            run_callable(name, splat, closure, signature, 'function'))
         end
 
         # TODO: throw an error if splat has keywords.
@@ -588,29 +585,29 @@ module Sass::Script
       end
 
       # @private
-      def run_mixin(name, splat)
-        callable = @mixins[name]
-        return run_callable(callable, splat) if callable
+      def run_mixin(name, splat, closure, signature)
+        return run_callable(name, splat, closure, signature, 'mixin') if closure
         raise Sass::SyntaxError.new("Undefined mixin '#{name}'.")
       end
 
       # @private
-      def run_callable(callable, splat)
+      def run_callable(name, splat, closure, signature, type)
         # TODO: test all calling convention stuff twice, once for static
         # and once for dynamic calls.
-        desc = "#{callable.type.capitalize} #{callable.name}"
-        downcase_desc = "#{callable.type} #{callable.name}"
+        desc = "#{type.capitalize} #{name}"
+        downcase_desc = "#{type} #{name}"
 
         # All keywords are contained in splat.keywords for consistency,
         # even if there were no splats passed in.
         keywords = splat.keywords_safe
 
+        defn_args, defn_splat = signature
         begin
           unless keywords.empty?
             unknown_args = Sass::Util.array_minus(keywords.keys,
-              callable.args.map {|var| var && var.first.underscored_name}.compact)
-            if callable.splat && unknown_args.include?(callable.splat.underscored_name)
-              raise Sass::SyntaxError.new("Argument $#{callable.splat.name} of #{downcase_desc} " +
+              defn_args.map {|var| var.first.gsub(/-/, "_")}.compact)
+            if defn_splat && unknown_args.include?(defn_splat.gsub(/-/, "_"))
+              raise Sass::SyntaxError.new("Argument $#{defn_splat} of #{downcase_desc} " +
                                           "cannot be used as a named argument.")
             elsif unknown_args.any?
               description = unknown_args.length > 1 ? 'the following arguments:' : 'an argument named'
@@ -623,15 +620,15 @@ module Sass::Script
 
         # If there's no splat, raise the keyword exception immediately. The actual
         # raising happens in the ensure clause at the end of this function.
-        return if keyword_exception && !callable.splat
+        return if keyword_exception && !defn_splat
 
         args = splat.to_a
         splat_sep = splat.separator
 
-        if args.size > callable.args.size && !callable.splat
-          extra_args_because_of_splat = splat && args.size - splat.to_a.size <= callable.args.size
+        if args.size > defn_args.size && !defn_splat
+          extra_args_because_of_splat = splat && args.size - splat.to_a.size <= defn_args.size
 
-          takes = callable.args.size
+          takes = defn_args.size
           passed = args.size
           message = "#{desc} takes #{takes} argument#{'s' unless takes == 1} " +
             "but #{passed} #{passed == 1 ? 'was' : 'were'} passed."
@@ -642,31 +639,28 @@ module Sass::Script
             "This will be an error in future versions of Sass.")
         end
 
-        ruby_args = callable.args.zip(args[0...callable.args.length]).map do |(var, default), value|
-          # var will be nil for Ruby functions without declared signatures.
-          next value if var.nil?
-
-          if value && keywords.has_key?(var.name)
-            raise Sass::SyntaxError.new("#{desc} was passed argument $#{var.name} " +
+        ruby_args = defn_args.zip(args[0...defn_args.length]).map do |(var, has_default), value|
+          if value && keywords.has_key?(var)
+            raise Sass::SyntaxError.new("#{desc} was passed argument $#{var} " +
                                         "both by position and by name.")
           end
 
-          value ||= keywords.delete(var.name)
+          value ||= keywords.delete(var)
 
           # If there's a default value, it'll actually be assigned in the function body.
-          unless value || default
-            raise Sass::SyntaxError.new("#{desc} is missing argument #{var.inspect}.")
+          unless value || has_default
+            raise Sass::SyntaxError.new("#{desc} is missing argument $#{var}.")
           end
           value
         end
 
-        if callable.splat
-          rest = args[callable.args.length..-1] || []
+        if defn_splat
+          rest = args[defn_args.length..-1] || []
           arg_list = Sass::Script::Value::ArgList.new(rest, keywords, splat_sep)
           ruby_args << arg_list
         end
 
-        callable.run(self, ruby_args)
+        closure.call(*ruby_args)
       rescue StandardError => e
       ensure
         # If there's a keyword exception, we don't want to throw it immediately,

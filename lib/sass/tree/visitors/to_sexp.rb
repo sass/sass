@@ -11,8 +11,6 @@ class Sass::Tree::Visitors::ToSexp < Sass::Tree::Visitors::Base
     @options = options
     @imports = {}
     @import_stack = []
-    @fn_signatures = Sass::Util::NormalizedMap.new
-    @mx_signatures = Sass::Util::NormalizedMap.new
 
     importers = @options[:load_paths]
     if @options[:importer] && !importers.include?(@options[:importer])
@@ -183,16 +181,18 @@ class Sass::Tree::Visitors::ToSexp < Sass::Tree::Visitors::Base
 
   def visit_function(node)
     var = @environment.declare_fn(node.name, node)
+    block = s(:block)
     if var.start_with?("@")
-      @fn_signatures[node.name] =
-        Sass::IVarCallable.new(var, node.name, node.args, node.splat, false, 'function')
+      block << s(:iasgn, "@" + Sass::Util.consistent_ident("fnsig_#{node.name}"),
+        lit([node.args.map {|(var, default)| [var.name, !!default]}, node.splat.name]))
     end
-    declare_callable(var, node) do
+    block << declare_callable(var, node) do
       s(:iter, s(:call, nil, :catch, s(:lit, :_s_return)), s(:args),
         s(:block,
           yield,
           sass_error(s(:str, "Function #{node.name} finished without @return"))))
     end
+    block
   end
 
   def visit_if(node)
@@ -260,12 +260,15 @@ class Sass::Tree::Visitors::ToSexp < Sass::Tree::Visitors::Base
 
   def visit_mixindef(node)
     var = @environment.declare_mx(node.name, node)
+    block = s(:block)
     if var.start_with?("@")
-      @mx_signatures[node.name] =
-        Sass::IVarCallable.new(var, node.name, node.args, node.splat, node.has_content, 'mixin')
+      block << s(:iasgn, "@" + Sass::Util.consistent_ident("mxsig_#{node.name}"), lit([
+        node.args.map {|(var, default)| [var.name, !!default]},
+        node.splat && node.splat.name
+      ]))
     end
-
-    declare_callable(var, node) {yield}
+    block << declare_callable(var, node) {yield}
+    block
   end
 
   def visit_mixin(node)
@@ -518,9 +521,13 @@ class Sass::Tree::Visitors::ToSexp < Sass::Tree::Visitors::Base
         args, keywords, s(:lit, :comma))
       arg_list = s(:call, arg_list, :merge, call.splat.to_sexp(self)) if call.splat
 
+      tag = call.is_a?(Sass::Script::Tree::Funcall) ? "fn" : "mx"
       block << s(:call, s(:self),
         call.is_a?(Sass::Script::Tree::Funcall) ? :run_function : :run_mixin,
-        s(:str, call.name.to_s), arg_list)
+        s(:str, call.name.to_s),
+        arg_list,
+        s(:ivar, "@" + Sass::Util.consistent_ident("#{tag}_#{call.name}")),
+        s(:ivar, "@" + Sass::Util.consistent_ident("#{tag}sig_#{call.name}")))
       return line_info(call, block)
     end
 

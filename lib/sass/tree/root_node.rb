@@ -43,12 +43,11 @@ module Sass
           sexp = PrettifyProcessor.new.process(sexp)
           #pp sexp
           ruby = Sass::Ruby2Ruby.new.process(sexp)
-          #puts ruby
+          puts ruby
           mapper = RubyMapper.new(ruby)
 
           environment = RuntimeEnvironment.new(@options)
-          eval_context = Sass::Script::Functions::EvaluationContext.new(
-            environment, mapper, to_sexp.fn_signatures, to_sexp.mx_signatures)
+          eval_context = Sass::Script::Functions::EvaluationContext.new(environment, mapper)
           environment.context = eval_context
           eval_context.instance_eval(ruby)
           begin
