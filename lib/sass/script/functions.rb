@@ -652,7 +652,11 @@ module Sass::Script
           end
 
           value ||= keywords.delete(var.name)
-          raise Sass::SyntaxError.new("#{desc} is missing argument #{var.inspect}.") unless value
+
+          # If there's a default value, it'll actually be assigned in the function body.
+          unless value || default
+            raise Sass::SyntaxError.new("#{desc} is missing argument #{var.inspect}.")
+          end
           value
         end
 
