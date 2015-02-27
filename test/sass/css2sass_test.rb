@@ -263,6 +263,38 @@ SASS
 CSS
   end
 
+  def test_keyframes
+    assert_equal(<<SASS, css2sass(<<CSS))
+@keyframes dash
+  from
+    stroke-dasharray: 1,200
+    stroke-dashoffset: 0
+
+  50%
+    stroke-dasharray: 89,200
+    stroke-dashoffset: -35
+
+  to
+    stroke-dasharray: 89,200
+    stroke-dashoffset: -124
+SASS
+@keyframes dash {
+  from {
+    stroke-dasharray: 1,200;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 89,200;
+    stroke-dashoffset: -35;
+  }
+  to {
+    stroke-dasharray: 89,200;
+    stroke-dashoffset: -124;
+  }
+}
+CSS
+  end
+
   # Regressions
 
   def test_nesting_with_matching_property

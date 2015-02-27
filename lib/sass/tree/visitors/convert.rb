@@ -280,6 +280,10 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
     end
   end
 
+  def visit_keyframerule(node)
+    "#{tab_str}#{node.resolved_value}#{yield}\n"
+  end
+
   private
 
   def interp_to_src(interp)

@@ -7,6 +7,8 @@
 
 * Be clearer in the reference about hyphen/underscore equivalence.
 
+* `@keyframes` rules are now converted from CSS properly.
+
 ## 3.4.12 (13 February 2015)
 
 [Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.4.12).
