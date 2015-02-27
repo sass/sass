@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 3.4.13 (Unreleased)
+## 3.4.13 (26 February 2015)
+
+[Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.4.13).
 
 * Be clearer in the reference about hyphen/underscore equivalence.
 
