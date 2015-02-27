@@ -503,6 +503,16 @@ CSS
 SCSS
   end
 
+  def test_root_only_allowed_at_root
+    assert_extends(':root .foo', '.bar .baz {@extend .foo}',
+      ':root .foo, :root .bar .baz')
+    assert_extends('.foo:root .bar', '.baz:root .bang {@extend .bar}',
+      '.foo:root .bar, .baz.foo:root .bang')
+    assert_extends('html:root .bar', 'xml:root .bang {@extend .bar}', 'html:root .bar')
+    assert_extends('.foo:root > .bar .x', '.baz:root .bang .y {@extend .x}',
+      '.foo:root > .bar .x, .baz.foo:root > .bar .bang .y')
+  end
+
   def test_comma_extendee
     assert_equal <<CSS, render(<<SCSS)
 .foo, .baz {
