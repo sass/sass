@@ -9,6 +9,8 @@
 
 * `@keyframes` rules are now converted from CSS properly.
 
+* Extending a selector that contains a non-final pseudo-class no longer crashes.
+
 ## 3.4.12 (13 February 2015)
 
 [Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.4.12).

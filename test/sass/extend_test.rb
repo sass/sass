@@ -1338,6 +1338,16 @@ SCSS
 
   # Regression Tests
 
+  def test_extend_with_middle_pseudo
+    assert_equal(<<CSS, render(<<SCSS))
+.btn:active.focus, :active.focus:before {
+  a: b; }
+CSS
+.btn:active.focus {a: b}
+:before {@extend .btn}
+SCSS
+  end
+
   def test_extend_parent_selector_suffix
     assert_equal <<CSS, render(<<SCSS)
 .a-b, .c {
