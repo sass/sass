@@ -1243,7 +1243,7 @@ SCSS
 
   def assert_directive_parses(param)
     assert_parses <<SCSS
-@keyframes #{param} {
+@unknown #{param} {
   a: b; }
 SCSS
   end
