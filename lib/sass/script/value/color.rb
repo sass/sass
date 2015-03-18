@@ -382,7 +382,7 @@ module Sass::Script::Value
     # @return [Array<Fixnum>] A frozen four-element array of the hue,
     #   saturation, lightness, and alpha values (respectively) of the color
     def hsla
-      [hue, saturation, lightness].freeze
+      [hue, saturation, lightness, alpha].freeze
     end
 
     # The SassScript `==` operation.
