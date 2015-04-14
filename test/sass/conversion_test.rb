@@ -43,6 +43,7 @@ foo bar
   baz bang
     baz: bang
     bip: bop
+
   blat: boo
 SASS
 foo bar {
@@ -50,6 +51,7 @@ foo bar {
     baz: bang;
     bip: bop;
   }
+
   blat: boo;
 }
 SCSS
@@ -674,6 +676,7 @@ foo
   @foo #bar "baz"
     #blat
       a: b
+
     .bang
       c: d
       e: f
@@ -685,6 +688,7 @@ foo {
     #blat {
       a: b;
     }
+
     .bang {
       c: d;
       e: f;
@@ -701,11 +705,14 @@ SCSS
 foo
   @foo #bar "baz"
     g: h
+
     #blat
       a: b
+
     .bang
       c: d
       e: f
+
     i: j
 
   bar: baz
@@ -713,13 +720,16 @@ SASS
 foo {
   @foo #bar "baz" {
     g: h;
+
     #blat {
       a: b;
     }
+
     .bang {
       c: d;
       e: f;
     }
+
     i: j;
   }
 
@@ -1565,6 +1575,7 @@ foo bar
     baz bang
         baz: bang
         bip: bop
+
     blat: boo
 SASS
 foo bar {
@@ -1572,6 +1583,7 @@ foo bar {
         baz: bang;
         bip: bop;
     }
+
     blat: boo;
 }
 SCSS
@@ -1581,6 +1593,7 @@ foo bar
 	baz bang
 		baz: bang
 		bip: bop
+
 	blat: boo
 SASS
 foo bar {
@@ -1588,6 +1601,7 @@ foo bar {
 		baz: bang;
 		bip: bop;
 	}
+
 	blat: boo;
 }
 SCSS
@@ -1598,6 +1612,7 @@ foo bar {
         baz: bang;
         bip: bop;
     }
+
     blat: boo;
 }
 SCSS
@@ -1605,6 +1620,7 @@ foo bar
   baz bang
     baz: bang
     bip: bop
+
   blat: boo
 SASS
 
@@ -1614,6 +1630,7 @@ foo bar {
 		baz: bang;
 		bip: bop;
 	}
+
 	blat: boo;
 }
 SCSS
@@ -1621,6 +1638,7 @@ foo bar
   baz bang
     baz: bang
     bip: bop
+
   blat: boo
 SASS
 
@@ -1629,6 +1647,7 @@ foo bar
     baz bang
         baz: bang
         bip: bop
+
     blat: boo
 SASS
 foo bar {
@@ -1636,6 +1655,7 @@ foo bar {
     baz: bang;
     bip: bop;
   }
+
   blat: boo;
 }
 SCSS
@@ -1645,6 +1665,7 @@ foo bar
 	baz bang
 		baz: bang
 		bip: bop
+
 	blat: boo
 SASS
 foo bar {
@@ -1652,6 +1673,7 @@ foo bar {
     baz: bang;
     bip: bop;
   }
+
   blat: boo;
 }
 SCSS
@@ -1770,6 +1792,7 @@ SCSS
   @at-root
     .bar
       a: b
+
     .baz
       c: d
 SASS
@@ -1778,6 +1801,7 @@ SASS
     .bar {
       a: b;
     }
+
     .baz {
       c: d;
     }
@@ -1852,10 +1876,13 @@ SCSS
   0%
     top: 0
     left: 0
+
   30%
     top: 50px
+
   68%, 72%
     left: 50px
+
   100%
     top: 100px
     left: 100%
@@ -1865,12 +1892,15 @@ SASS
     top: 0;
     left: 0;
   }
+
   30% {
     top: 50px;
   }
+
   68%, 72% {
     left: 50px;
   }
+
   100% {
     top: 100px;
     left: 100%;

@@ -23,10 +23,19 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   def visit_children(parent)
     @tabs += 1
     return @format == :sass ? "\n" : " {}\n" if parent.children.empty?
+
+    res = Sass::Util.enum_cons(parent.children + [nil], 2).map do |child, nxt|
+      if nxt && (child.is_a?(Sass::Tree::RuleNode) || nxt.is_a?(Sass::Tree::RuleNode))
+        visit(child) + "\n"
+      else
+        visit(child)
+      end
+    end.join.rstrip + "\n"
+
     if @format == :sass
-      "\n"  + super.join.rstrip + "\n"
+      "\n"  + res.rstrip + "\n"
     else
-      " {\n" + super.join.rstrip + "\n#{ @tab_chars * (@tabs - 1)}}\n"
+      " {\n" + res.rstrip + "\n#{ @tab_chars * (@tabs - 1)}}\n"
     end
   ensure
     @tabs -= 1
