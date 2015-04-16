@@ -283,7 +283,7 @@ module Sass::Script::Value
       green = $2.ljust(2, $2).to_i(16)
       blue  = $3.ljust(2, $3).to_i(16)
 
-      hex_string = '##{hex_string}' unless hex_string[0] == ?#
+      hex_string = "##{hex_string}" unless hex_string[0] == ?#
       attrs = {:red => red, :green => green, :blue => blue, :representation => hex_string}
       attrs[:alpha] = alpha if alpha
       new(attrs)
