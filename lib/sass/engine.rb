@@ -157,7 +157,7 @@ module Sass
     # @api public
     DEFAULT_OPTIONS = {
       :style => :nested,
-      :load_paths => ['.'],
+      :load_paths => [],
       :cache => true,
       :cache_location => './.sass-cache',
       :syntax => :sass,
