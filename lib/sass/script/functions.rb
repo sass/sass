@@ -1398,6 +1398,13 @@ module Sass::Script
     # @raise [ArgumentError] if `$string` isn't a string
     def unquote(string)
       unless string.is_a?(Sass::Script::Value::String)
+        # Don't warn multiple times for the same source line.
+        $_sass_warned_for_unquote ||= Set.new
+        frame = environment.stack.frames.last
+        key = [frame.filename, frame.line] if frame
+        return string if frame && $_sass_warned_for_unquote.include?(key)
+        $_sass_warned_for_unquote << key if frame
+
         Sass::Util.sass_warn(<<MESSAGE.strip)
 DEPRECATION WARNING: Passing #{string.to_sass}, a non-string value, to unquote()
 will be an error in future versions of Sass.

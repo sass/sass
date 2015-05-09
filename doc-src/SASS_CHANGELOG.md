@@ -7,6 +7,9 @@
 
 * Further avoid race conditions when caching.
 
+* Only emit one warning for each line that uses the deprecated form of
+  `unquote()`.
+
 ## 3.4.13 (26 February 2015)
 
 [Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.4.13).
