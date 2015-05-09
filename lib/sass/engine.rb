@@ -84,7 +84,7 @@ module Sass
   # This class handles the parsing and compilation of the Sass template.
   # Example usage:
   #
-  #     template = File.load('stylesheets/sassy.sass')
+  #     template = File.read('stylesheets/sassy.sass')
   #     sass_engine = Sass::Engine.new(template)
   #     output = sass_engine.render
   #     puts output
