@@ -57,10 +57,6 @@ module Sass
 
         lines = ["File to import not found or unreadable: #{@imported_filename}."]
 
-        if @options[:importer]
-          lines << "Relative to #{@options[:filename]}"
-        end
-
         if paths.size == 1
           lines << "Load path: #{paths.first}"
         elsif !paths.empty?
