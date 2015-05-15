@@ -55,13 +55,18 @@ module Sass
           return f if f
         end
 
-        message = "File to import not found or unreadable: #{@imported_filename}.\n"
-        if paths.size == 1
-          message << "Load path: #{paths.first}"
-        else
-          message << "Load paths:\n  " << paths.join("\n  ")
+        lines = ["File to import not found or unreadable: #{@imported_filename}."]
+
+        if @options[:importer]
+          lines << "Relative to #{@options[:filename]}"
         end
-        raise SyntaxError.new(message)
+
+        if paths.size == 1
+          lines << "Load path: #{paths.first}"
+        elsif !paths.empty?
+          lines << "Load paths:\n  #{paths.join("\n  ")}"
+        end
+        raise SyntaxError.new(lines.join("\n"))
       rescue SyntaxError => e
         raise SyntaxError.new(e.message, :line => line, :filename => @filename)
       end
