@@ -220,10 +220,10 @@ WARNING
   end
 
   def test_rgb_percent
-    assert_equal("#123456", evaluate("rgb(7.1%, 20.4%, 34%)"))
+    assert_equal("#123457", evaluate("rgb(7.1%, 20.4%, 34%)"))
     assert_equal("#beaded", evaluate("rgb(74.7%, 173, 93%)"))
     assert_equal("#beaded", evaluate("rgb(190, 68%, 237)"))
-    assert_equal("springgreen", evaluate("rgb(0%, 100%, 50%)"))
+    assert_equal("#00ff80", evaluate("rgb(0%, 100%, 50%)"))
   end
 
   def test_rgb_clamps_bounds
@@ -813,11 +813,11 @@ WARNING
   end
 
   def test_mix
-    assert_equal("#7f007f", evaluate("mix(#f00, #00f)"))
-    assert_equal("#7f7f7f", evaluate("mix(#f00, #0ff)"))
-    assert_equal("#7f9055", evaluate("mix(#f70, #0aa)"))
-    assert_equal("#3f00bf", evaluate("mix(#f00, #00f, 25%)"))
-    assert_equal("rgba(63, 0, 191, 0.75)", evaluate("mix(rgba(255, 0, 0, 0.5), #00f)"))
+    assert_equal("purple", evaluate("mix(#f00, #00f)"))
+    assert_equal("gray", evaluate("mix(#f00, #0ff)"))
+    assert_equal("#809155", evaluate("mix(#f70, #0aa)"))
+    assert_equal("#4000bf", evaluate("mix(#f00, #00f, 25%)"))
+    assert_equal("rgba(64, 0, 191, 0.75)", evaluate("mix(rgba(255, 0, 0, 0.5), #00f)"))
     assert_equal("red", evaluate("mix(#f00, #00f, 100%)"))
     assert_equal("blue", evaluate("mix(#f00, #00f, 0%)"))
     assert_equal("rgba(255, 0, 0, 0.5)", evaluate("mix(#f00, transparentize(#00f, 1))"))

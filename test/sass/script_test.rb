@@ -558,7 +558,7 @@ WARNING
   def test_case_insensitive_color_names
     assert_equal "BLUE", resolve("BLUE")
     assert_equal "rEd", resolve("rEd")
-    assert_equal "#7f4000", resolve("mix(GrEeN, ReD)")
+    assert_equal "#804000", resolve("mix(GrEeN, ReD)")
   end
 
   def test_empty_list
