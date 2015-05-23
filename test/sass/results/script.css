@@ -3,7 +3,7 @@
 
 #plus { num-num: 7; num-num-un: 25em; num-num-un2: 23em; num-num-neg: 9.87; num-str: 100px; num-col: #b7b7b7; num-perc: 31%; str-str: "hi there"; str-str2: "hi there"; str-col: "14em solid #123"; str-num: "times: 13"; col-num: #ff7c9e; col-col: #5173ff; }
 
-#minus { num-num: 900; col-num: #f9f9f4; col-col: #000035; unary-num: -1; unary-const: 10; unary-paren: -11; unary-two: 12; unary-many: 12; unary-crazy: -15; }
+#minus { num-num: 900; col-num: #fafaf5; col-col: #000035; unary-num: -1; unary-const: 10; unary-paren: -11; unary-two: 12; unary-many: 12; unary-crazy: -15; }
 
 #times { num-num: 7; num-col: #7496b8; col-num: #092345; col-col: #243648; }
 
