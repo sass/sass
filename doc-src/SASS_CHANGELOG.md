@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.4.14 (Unreleased)
+## 3.4.14 (22 May 2015)
 
 * Further avoid race conditions when caching.
 
