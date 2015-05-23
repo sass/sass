@@ -12,6 +12,9 @@
 
 * Stop parsing and emitting invalid `@supports` directives.
 
+* Add a deprecation warning for using `!=` to compare a number with units to a
+  number without. Such a warning already existed for `==`.
+
 ## 3.4.13 (26 February 2015)
 
 [Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.4.13).

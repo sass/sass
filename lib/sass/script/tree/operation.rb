@@ -85,12 +85,19 @@ module Sass::Script::Tree
         raise Sass::SyntaxError.new("Undefined operation: \"#{value1} #{@operator} #{value2}\".")
       end
 
-      if @operator == :eq && value1.is_a?(Sass::Script::Value::Number) &&
-          value2.is_a?(Sass::Script::Value::Number) && result == Sass::Script::Value::Bool::TRUE &&
-          value1.unitless? != value2.unitless?
+      if (@operator == :eq || @operator == :neq) && value1.is_a?(Sass::Script::Value::Number) &&
+         value2.is_a?(Sass::Script::Value::Number) && value1.unitless? != value2.unitless? &&
+         result == (if @operator == :eq
+                      Sass::Script::Value::Bool::TRUE
+                    else
+                      Sass::Script::Value::Bool::FALSE
+                    end)
+
+        operation = "#{value1} #{@operator == :eq ? '==' : '!='} #{value2}"
+        future_value = @operator == :neq
         Sass::Util.sass_warn <<WARNING
 DEPRECATION WARNING on line #{line}#{" of #{filename}" if filename}:
-The result of `#{value1} == #{value2}` will be `false` in future releases of Sass.
+The result of `#{operation}` will be `#{future_value}` in future releases of Sass.
 Unitless numbers will no longer be equal to the same numbers with units.
 WARNING
       end
