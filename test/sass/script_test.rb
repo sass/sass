@@ -31,6 +31,11 @@ class SassScriptTest < MiniTest::Test
     assert_equal 0, Sass::Script::Value::Color.new([1, 2, 3, -0.1]).alpha
   end
 
+  def test_color_from_hex
+    assert_equal Sass::Script::Value::Color.new([0,0,0]), Sass::Script::Value::Color.from_hex('000000')
+    assert_equal Sass::Script::Value::Color.new([0,0,0]), Sass::Script::Value::Color.from_hex('#000000')
+  end
+
   def test_string_escapes
     assert_equal "'", resolve("\"'\"")
     assert_equal '"', resolve("\"\\\"\"")

@@ -283,7 +283,7 @@ module Sass::Script::Value
       green = $2.ljust(2, $2).to_i(16)
       blue  = $3.ljust(2, $3).to_i(16)
 
-      hex_string = '##{hex_string}' unless hex_string[0] == ?#
+      hex_string = "##{hex_string}" unless hex_string[0] == ?#
       attrs = {:red => red, :green => green, :blue => blue, :representation => hex_string}
       attrs[:alpha] = alpha if alpha
       new(attrs)
@@ -382,7 +382,7 @@ module Sass::Script::Value
     # @return [Array<Fixnum>] A frozen four-element array of the hue,
     #   saturation, lightness, and alpha values (respectively) of the color
     def hsla
-      [hue, saturation, lightness].freeze
+      [hue, saturation, lightness, alpha].freeze
     end
 
     # The SassScript `==` operation.
