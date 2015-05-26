@@ -29,7 +29,7 @@ is an extension of the syntax of CSS3.
 This means that every valid CSS3 stylesheet
 is a valid SCSS file with the same meaning.
 In addition, SCSS understands most CSS hacks
-and vendor-specific syntax, such as [IE's old `filter` syntax](http://msdn.microsoft.com/library/ms530752.aspx).
+and vendor-specific syntax, such as [IE's old `filter` syntax](http://msdn.microsoft.com/en-US/library/ms530752.aspx).
 This syntax is enhanced with the Sass features described below.
 Files using this syntax have the `.scss` extension.
 
