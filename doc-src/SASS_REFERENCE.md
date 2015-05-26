@@ -29,7 +29,7 @@ is an extension of the syntax of CSS3.
 This means that every valid CSS3 stylesheet
 is a valid SCSS file with the same meaning.
 In addition, SCSS understands most CSS hacks
-and vendor-specific syntax, such as [IE's old `filter` syntax](http://msdn.microsoft.com/en-us/library/ms533754%28VS.85%29.aspx).
+and vendor-specific syntax, such as [IE's old `filter` syntax](https://msdn.microsoft.com/library/ms530752.aspx).
 This syntax is enhanced with the Sass features described below.
 Files using this syntax have the `.scss` extension.
 
@@ -52,7 +52,7 @@ using the `sass-convert` command line tool:
 
     # Convert SCSS to Sass
     $ sass-convert style.scss style.sass
-    
+
 Note that this command does *not* generate CSS files. For that, use
 the `sass` command described elsewhere.
 
@@ -1076,7 +1076,7 @@ is compiled to:
 
     p {
       color: #ff0000; }
-      
+
 See {Sass::Script::Functions this page} for a full list of available functions.
 
 #### Keyword Arguments
