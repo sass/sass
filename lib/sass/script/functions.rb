@@ -1057,7 +1057,7 @@ module Sass::Script
     # @raise [ArgumentError] if `$color` isn't a color
     def ie_hex_str(color)
       assert_type color, :Color, :color
-      alpha = (color.alpha * 255).round.to_s(16).rjust(2, '0')
+      alpha = Sass::Util.round(color.alpha * 255).to_s(16).rjust(2, '0')
       identifier("##{alpha}#{color.send(:hex_str)[1..-1]}".upcase)
     end
     declare :ie_hex_str, [:color]
@@ -1716,7 +1716,7 @@ MESSAGE
     # @return [Sass::Script::Value::Number]
     # @raise [ArgumentError] if `$number` isn't a number
     def round(number)
-      numeric_transformation(number) {|n| n.round}
+      numeric_transformation(number) {|n| Sass::Util.round(n)}
     end
     declare :round, [:number]
 

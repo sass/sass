@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.4.15 (Unreleased)
+
+* Further improve rounding for various numeric operations.
+
 ## 3.4.14 (22 May 2015)
 
 * Further avoid race conditions when caching.

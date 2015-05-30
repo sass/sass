@@ -232,7 +232,7 @@ module Sass::Script::Value
           raise ArgumentError.new("Color.new(array) expects a three- or four-element array")
         end
 
-        red, green, blue = attrs[0...3].map {|c| c.round}
+        red, green, blue = attrs[0...3].map {|c| Sass::Util.round(c)}
         @attrs = {:red => red, :green => green, :blue => blue}
         @attrs[:alpha] = attrs[3] ? attrs[3].to_f : 1
         @representation = representation
@@ -258,7 +258,7 @@ module Sass::Script::Value
 
       [:red, :green, :blue].each do |k|
         next if @attrs[k].nil?
-        @attrs[k] = Sass::Util.restrict(@attrs[k].round, 0..255)
+        @attrs[k] = Sass::Util.restrict(Sass::Util.round(@attrs[k]), 0..255)
       end
 
       [:saturation, :lightness].each do |k|
@@ -632,7 +632,7 @@ module Sass::Script::Value
         hue_to_rgb(m1, m2, h + 1.0 / 3),
         hue_to_rgb(m1, m2, h),
         hue_to_rgb(m1, m2, h - 1.0 / 3)
-      ].map {|c| (c * 0xff).round}
+      ].map {|c| Sass::Util.round(c * 0xff)}
     end
 
     def hue_to_rgb(m1, m2, h)
