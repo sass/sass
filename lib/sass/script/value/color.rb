@@ -607,7 +607,7 @@ module Sass::Script::Value
 
       result = []
       (0...3).each do |i|
-        res = rgb[i].send(operation, other_num ? other.value : other.rgb[i])
+        res = rgb[i].to_f.send(operation, other_num ? other.value : other.rgb[i])
         result[i] = [[res, 255].min, 0].max
       end
 

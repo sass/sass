@@ -10,6 +10,8 @@
 * Be more explicit in the function documentation about functions being
   immutable.
 
+* Improve rounding in operator-based color operations.
+
 ## 3.4.14 (22 May 2015)
 
 * Further avoid race conditions when caching.
