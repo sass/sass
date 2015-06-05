@@ -162,6 +162,9 @@ module Sass::Script
   #
   # ## List Functions {#list-functions}
   #
+  # Lists in Sass are immutable; all list functions return a new list rather
+  # than updating the existing list in-place.
+  #
   # All list functions work for maps as well, treating them as lists of pairs.
   #
   # \{#length length($list)}
@@ -189,6 +192,9 @@ module Sass::Script
   # : Returns the separator of a list.
   #
   # ## Map Functions {#map-functions}
+  #
+  # Maps in Sass are immutable; all map functions return a new map rather than
+  # updating the existing map in-place.
   #
   # \{#map_get map-get($map, $key)}
   # : Returns the value in a map associated with a given key.
@@ -1879,6 +1885,9 @@ MESSAGE
     # list. If both lists have fewer than two items, spaces are used for the
     # resulting list.
     #
+    # Like all list functions, `join()` returns a new list rather than modifying
+    # its arguments in place.
+    #
     # @example
     #   join(10px 20px, 30px 40px) => 10px 20px 30px 40px
     #   join((blue, red), (#abc, #def)) => blue, red, #abc, #def
@@ -1911,6 +1920,9 @@ MESSAGE
     #
     # Unless the `$separator` argument is passed, if the list had only one item,
     # the resulting list will be space-separated.
+    #
+    # Like all list functions, `append()` returns a new list rather than
+    # modifying its argument in place.
     #
     # @example
     #   append(10px 20px, 30px) => 10px 20px 30px
@@ -2035,6 +2047,9 @@ MESSAGE
     # same order as in `$map1`. New keys from `$map2` will be placed at the end
     # of the map.
     #
+    # Like all map functions, `map-merge()` returns a new map rather than
+    # modifying its arguments in place.
+    #
     # @example
     #   map-merge(("foo": 1), ("bar": 2)) => ("foo": 1, "bar": 2)
     #   map-merge(("foo": 1, "bar": 2), ("bar": 3)) => ("foo": 1, "bar": 3)
@@ -2051,6 +2066,9 @@ MESSAGE
     declare :map_merge, [:map1, :map2]
 
     # Returns a new map with keys removed.
+    #
+    # Like all map functions, `map-merge()` returns a new map rather than
+    # modifying its arguments in place.
     #
     # @example
     #   map-remove(("foo": 1, "bar": 2), "bar") => ("foo": 1)

@@ -7,6 +7,9 @@
 
 * Further improve rounding for various numeric operations.
 
+* Be more explicit in the function documentation about functions being
+  immutable.
+
 ## 3.4.14 (22 May 2015)
 
 * Further avoid race conditions when caching.
