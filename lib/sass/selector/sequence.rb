@@ -10,7 +10,7 @@ module Sass
       # @return [Fixnum]
       def line=(line)
         members.each {|m| m.line = line if m.is_a?(SimpleSequence)}
-        line
+        @line = line
       end
 
       # Sets the name of the file in which this selector was declared,
