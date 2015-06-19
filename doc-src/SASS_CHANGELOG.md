@@ -12,6 +12,14 @@
 
 * Improve rounding in operator-based color operations.
 
+### Deprecations -- Must Read!
+
+* When using `--stdin` with the `sass` or `scss` executables, importing relative
+  to the working directory is deprecated. Having the working directory on the
+  load path was deprecated in 3.3 and removed in 3.4, but due to an oversight
+  the deprecation process never happened for files read over standard input in
+  particular. This is the first step of that process.
+
 ## 3.4.14 (22 May 2015)
 
 * Further avoid race conditions when caching.

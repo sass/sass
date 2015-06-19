@@ -174,6 +174,9 @@ MESSAGE
               'Read input from standard input instead of an input file.',
               'This is the default if no input file is specified.') do
         @options[:input] = $stdin
+
+        # See issue 1745
+        (@options[:for_engine][:load_paths] ||= []) << ::Sass::Importers::DeprecatedPath.new(".")
       end
 
       encoding_option(opts)
