@@ -680,7 +680,6 @@ SASS
   def test_nonexistent_import
     assert_raise_message(Sass::SyntaxError, <<ERR.rstrip) do
 File to import not found or unreadable: nonexistent.sass.
-Load path: #{Dir.pwd}
 ERR
       render("@import nonexistent.sass")
     end
@@ -689,7 +688,6 @@ ERR
   def test_nonexistent_extensionless_import
     assert_raise_message(Sass::SyntaxError, <<ERR.rstrip) do
 File to import not found or unreadable: nonexistent.
-Load path: #{Dir.pwd}
 ERR
       render("@import nonexistent")
     end

@@ -3,6 +3,37 @@
 * Table of contents
 {:toc}
 
+## 3.4.15 (Unreleased)
+
+* Further improve rounding for various numeric operations.
+
+* Be more explicit in the function documentation about functions being
+  immutable.
+
+* Improve rounding in operator-based color operations.
+
+### Deprecations -- Must Read!
+
+* When using `--stdin` with the `sass` or `scss` executables, importing relative
+  to the working directory is deprecated. Having the working directory on the
+  load path was deprecated in 3.3 and removed in 3.4, but due to an oversight
+  the deprecation process never happened for files read over standard input in
+  particular. This is the first step of that process.
+
+## 3.4.14 (22 May 2015)
+
+* Further avoid race conditions when caching.
+
+* Only emit one warning for each line that uses the deprecated form of
+  `unquote()`.
+
+* Stop parsing and emitting invalid `@supports` directives.
+
+* Add a deprecation warning for using `!=` to compare a number with units to a
+  number without. Such a warning already existed for `==`.
+
+* Improve rounding of the results of color operations.
+
 ## 3.4.13 (26 February 2015)
 
 [Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.4.13).

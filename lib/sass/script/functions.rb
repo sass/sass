@@ -162,6 +162,9 @@ module Sass::Script
   #
   # ## List Functions {#list-functions}
   #
+  # Lists in Sass are immutable; all list functions return a new list rather
+  # than updating the existing list in-place.
+  #
   # All list functions work for maps as well, treating them as lists of pairs.
   #
   # \{#length length($list)}
@@ -189,6 +192,9 @@ module Sass::Script
   # : Returns the separator of a list.
   #
   # ## Map Functions {#map-functions}
+  #
+  # Maps in Sass are immutable; all map functions return a new map rather than
+  # updating the existing map in-place.
   #
   # \{#map_get map-get($map, $key)}
   # : Returns the value in a map associated with a given key.
@@ -1057,7 +1063,7 @@ module Sass::Script
     # @raise [ArgumentError] if `$color` isn't a color
     def ie_hex_str(color)
       assert_type color, :Color, :color
-      alpha = (color.alpha * 255).round.to_s(16).rjust(2, '0')
+      alpha = Sass::Util.round(color.alpha * 255).to_s(16).rjust(2, '0')
       identifier("##{alpha}#{color.send(:hex_str)[1..-1]}".upcase)
     end
     declare :ie_hex_str, [:color]
@@ -1398,6 +1404,15 @@ module Sass::Script
     # @raise [ArgumentError] if `$string` isn't a string
     def unquote(string)
       unless string.is_a?(Sass::Script::Value::String)
+        # Don't warn multiple times for the same source line.
+        # rubocop:disable GlobalVars
+        $_sass_warned_for_unquote ||= Set.new
+        frame = environment.stack.frames.last
+        key = [frame.filename, frame.line] if frame
+        return string if frame && $_sass_warned_for_unquote.include?(key)
+        $_sass_warned_for_unquote << key if frame
+        # rubocop:enable GlobalVars
+
         Sass::Util.sass_warn(<<MESSAGE.strip)
 DEPRECATION WARNING: Passing #{string.to_sass}, a non-string value, to unquote()
 will be an error in future versions of Sass.
@@ -1707,7 +1722,7 @@ MESSAGE
     # @return [Sass::Script::Value::Number]
     # @raise [ArgumentError] if `$number` isn't a number
     def round(number)
-      numeric_transformation(number) {|n| n.round}
+      numeric_transformation(number) {|n| Sass::Util.round(n)}
     end
     declare :round, [:number]
 
@@ -1870,6 +1885,9 @@ MESSAGE
     # list. If both lists have fewer than two items, spaces are used for the
     # resulting list.
     #
+    # Like all list functions, `join()` returns a new list rather than modifying
+    # its arguments in place.
+    #
     # @example
     #   join(10px 20px, 30px 40px) => 10px 20px 30px 40px
     #   join((blue, red), (#abc, #def)) => blue, red, #abc, #def
@@ -1902,6 +1920,9 @@ MESSAGE
     #
     # Unless the `$separator` argument is passed, if the list had only one item,
     # the resulting list will be space-separated.
+    #
+    # Like all list functions, `append()` returns a new list rather than
+    # modifying its argument in place.
     #
     # @example
     #   append(10px 20px, 30px) => 10px 20px 30px
@@ -2026,6 +2047,9 @@ MESSAGE
     # same order as in `$map1`. New keys from `$map2` will be placed at the end
     # of the map.
     #
+    # Like all map functions, `map-merge()` returns a new map rather than
+    # modifying its arguments in place.
+    #
     # @example
     #   map-merge(("foo": 1), ("bar": 2)) => ("foo": 1, "bar": 2)
     #   map-merge(("foo": 1, "bar": 2), ("bar": 3)) => ("foo": 1, "bar": 3)
@@ -2042,6 +2066,9 @@ MESSAGE
     declare :map_merge, [:map1, :map2]
 
     # Returns a new map with keys removed.
+    #
+    # Like all map functions, `map-merge()` returns a new map rather than
+    # modifying its arguments in place.
     #
     # @example
     #   map-remove(("foo": 1, "bar": 2), "bar") => ("foo": 1)

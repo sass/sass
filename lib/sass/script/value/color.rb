@@ -232,7 +232,7 @@ module Sass::Script::Value
           raise ArgumentError.new("Color.new(array) expects a three- or four-element array")
         end
 
-        red, green, blue = attrs[0...3].map {|c| c.to_i}
+        red, green, blue = attrs[0...3].map {|c| Sass::Util.round(c)}
         @attrs = {:red => red, :green => green, :blue => blue}
         @attrs[:alpha] = attrs[3] ? attrs[3].to_f : 1
         @representation = representation
@@ -258,7 +258,7 @@ module Sass::Script::Value
 
       [:red, :green, :blue].each do |k|
         next if @attrs[k].nil?
-        @attrs[k] = Sass::Util.restrict(@attrs[k].to_i, 0..255)
+        @attrs[k] = Sass::Util.restrict(Sass::Util.round(@attrs[k]), 0..255)
       end
 
       [:saturation, :lightness].each do |k|
@@ -283,7 +283,7 @@ module Sass::Script::Value
       green = $2.ljust(2, $2).to_i(16)
       blue  = $3.ljust(2, $3).to_i(16)
 
-      hex_string = '##{hex_string}' unless hex_string[0] == ?#
+      hex_string = "##{hex_string}" unless hex_string[0] == ?#
       attrs = {:red => red, :green => green, :blue => blue, :representation => hex_string}
       attrs[:alpha] = alpha if alpha
       new(attrs)
@@ -382,7 +382,7 @@ module Sass::Script::Value
     # @return [Array<Fixnum>] A frozen four-element array of the hue,
     #   saturation, lightness, and alpha values (respectively) of the color
     def hsla
-      [hue, saturation, lightness].freeze
+      [hue, saturation, lightness, alpha].freeze
     end
 
     # The SassScript `==` operation.
@@ -607,7 +607,7 @@ module Sass::Script::Value
 
       result = []
       (0...3).each do |i|
-        res = rgb[i].send(operation, other_num ? other.value : other.rgb[i])
+        res = rgb[i].to_f.send(operation, other_num ? other.value : other.rgb[i])
         result[i] = [[res, 255].min, 0].max
       end
 
@@ -632,7 +632,7 @@ module Sass::Script::Value
         hue_to_rgb(m1, m2, h + 1.0 / 3),
         hue_to_rgb(m1, m2, h),
         hue_to_rgb(m1, m2, h - 1.0 / 3)
-      ].map {|c| (c * 0xff).round}
+      ].map {|c| Sass::Util.round(c * 0xff)}
     end
 
     def hue_to_rgb(m1, m2, h)

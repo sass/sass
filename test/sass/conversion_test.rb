@@ -1321,7 +1321,7 @@ $query: "(feature1: val)"
 $feature: feature2
 $val: val
 
-@supports \#{$query} and ($feature: $val) or (not ($feature + 3: $val + 4))
+@supports (\#{$query} and ($feature: $val)) or (not ($feature + 3: $val + 4))
   foo
     a: b
 SASS
@@ -1329,7 +1329,7 @@ $query: "(feature1: val)";
 $feature: feature2;
 $val: val;
 
-@supports \#{$query} and ($feature: $val) or (not ($feature + 3: $val + 4)) {
+@supports (\#{$query} and ($feature: $val)) or (not ($feature + 3: $val + 4)) {
   foo {
     a: b;
   }

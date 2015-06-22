@@ -84,7 +84,7 @@ module Sass
   # This class handles the parsing and compilation of the Sass template.
   # Example usage:
   #
-  #     template = File.load('stylesheets/sassy.sass')
+  #     template = File.read('stylesheets/sassy.sass')
   #     sass_engine = Sass::Engine.new(template)
   #     output = sass_engine.render
   #     puts output
@@ -157,7 +157,7 @@ module Sass
     # @api public
     DEFAULT_OPTIONS = {
       :style => :nested,
-      :load_paths => ['.'],
+      :load_paths => [],
       :cache => true,
       :cache_location => './.sass-cache',
       :syntax => :sass,
@@ -190,6 +190,16 @@ module Sass
       options[:load_paths] = (options[:load_paths] + Sass.load_paths).map do |p|
         next p unless p.is_a?(String) || (defined?(Pathname) && p.is_a?(Pathname))
         options[:filesystem_importer].new(p.to_s)
+      end
+
+      # Remove any deprecated importers if the location is imported explicitly
+      options[:load_paths].reject! do |importer|
+        importer.is_a?(Sass::Importers::DeprecatedPath) &&
+          options[:load_paths].find do |other_importer|
+            other_importer.is_a?(Sass::Importers::Filesystem) &&
+              other_importer != importer &&
+              other_importer.root == importer.root
+          end
       end
 
       # Backwards compatibility

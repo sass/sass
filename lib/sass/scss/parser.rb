@@ -562,7 +562,9 @@ module Sass
       def supports_operator
         cond = supports_condition_in_parens
         return unless cond
-        while (op = tok(/and|or/i))
+        re = /and|or/i
+        while (op = tok(re))
+          re = /#{op}/i
           ss
           cond = Sass::Supports::Operator.new(
             cond, expr!(:supports_condition_in_parens), op)
@@ -584,11 +586,6 @@ module Sass
           tok!(/\)/); ss
           Sass::Supports::Declaration.new(name, value)
         end
-      end
-
-      def supports_declaration_condition
-        return unless tok(/\(/); ss
-        supports_declaration_body
       end
 
       def supports_interpolation

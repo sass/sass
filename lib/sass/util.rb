@@ -138,6 +138,17 @@ module Sass
       [[value, range.first].max, range.last].min
     end
 
+    # Like [Fixnum.round], but leaves rooms for slight floating-point
+    # differences.
+    #
+    # @param value [Numeric]
+    # @return [Numeric]
+    def round(value)
+      # If the number is within epsilon of X.5, round up.
+      return value.ceil if (value % 1) - 0.5 > -0.00001
+      value.round
+    end
+
     # Concatenates all strings that are adjacent in an array,
     # while leaving other elements as they are.
     #

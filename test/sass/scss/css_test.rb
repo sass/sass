@@ -634,14 +634,14 @@ SCSS
 
   def test_supports
     assert_equal <<CSS, render(<<SCSS)
-@supports (a: b) and (c: d) or (not (d: e)) and ((not (f: g)) or (not ((h: i) and (j: k)))) {
+@supports (((a: b) and (c: d)) or (not (d: e))) and ((not (f: g)) or (not ((h: i) and (j: k)))) {
   .foo {
     a: b; } }
 @supports (a: b) {
   .foo {
     a: b; } }
 CSS
-@supports (a: b) and (c: d) or (not (d: e)) and ((not (f: g)) or (not ((h: i) and (j: k)))) {
+@supports (((a: b) and (c: d)) or (not (d: e))) and ((not (f: g)) or (not ((h: i) and (j: k)))) {
   .foo {
     a: b;
   }
@@ -653,13 +653,38 @@ CSS
   }
 }
 SCSS
+  end
 
+  def test_supports_with_prefix
     assert_equal <<CSS, render(<<SCSS)
-@-prefix-supports (a: b) and (c: d) or (not (d: e)) and ((not (f: g)) or (not ((h: i) and (j: k)))) {
+@-prefix-supports (((a: b) and (c: d)) or (not (d: e))) and ((not (f: g)) or (not ((h: i) and (j: k)))) {
   .foo {
     a: b; } }
 CSS
-@-prefix-supports (a: b) and (c: d) or (not (d: e)) and ((not (f: g)) or (not ((h: i) and (j: k)))) {
+@-prefix-supports (((a: b) and (c: d)) or (not (d: e))) and ((not (f: g)) or (not ((h: i) and (j: k)))) {
+  .foo {
+    a: b;
+  }
+}
+SCSS
+  end
+
+  def test_supports_allows_similar_operators_without_parens
+    assert_equal <<CSS, render(<<SCSS)
+@supports (a: b) and (c: d) and (e: f) {
+  .foo {
+    a: b; } }
+@supports (a: b) or (c: d) or (e: f) {
+  .foo {
+    a: b; } }
+CSS
+@supports (a: b) and (c: d) and (e: f) {
+  .foo {
+    a: b;
+  }
+}
+
+@supports (a: b) or (c: d) or (e: f) {
   .foo {
     a: b;
   }
