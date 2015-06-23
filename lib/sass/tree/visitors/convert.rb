@@ -25,11 +25,16 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
     return @format == :sass ? "\n" : " {}\n" if parent.children.empty?
 
     res = Sass::Util.enum_cons(parent.children + [nil], 2).map do |child, nxt|
-      if nxt && (child.is_a?(Sass::Tree::RuleNode) || nxt.is_a?(Sass::Tree::RuleNode))
-        visit(child) + "\n"
-      else
-        visit(child)
-      end
+      visit(child) +
+        if nxt &&
+            (child.is_a?(Sass::Tree::CommentNode) && child.line + child.lines + 1 == nxt.line) ||
+            (child.is_a?(Sass::Tree::VariableNode) && nxt.is_a?(Sass::Tree::VariableNode) &&
+              child.line + 1 == nxt.line) ||
+            (child.is_a?(Sass::Tree::PropNode) && nxt.is_a?(Sass::Tree::PropNode))
+          ""
+        else
+          "\n"
+        end
     end.join.rstrip + "\n"
 
     if @format == :sass
@@ -113,7 +118,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
     res = "#{tab_str}#{interp_to_src(node.value)}"
     res.gsub!(/^@import \#\{(.*)\}([^}]*)$/, '@import \1\2')
     return res + "#{semi}\n" unless node.has_children
-    res + yield + "\n"
+    res + yield
   end
 
   def visit_each(node)
@@ -290,7 +295,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   end
 
   def visit_keyframerule(node)
-    "#{tab_str}#{node.resolved_value}#{yield}\n"
+    "#{tab_str}#{node.resolved_value}#{yield}"
   end
 
   private
