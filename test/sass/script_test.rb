@@ -31,6 +31,11 @@ class SassScriptTest < MiniTest::Test
     assert_equal 0, Sass::Script::Value::Color.new([1, 2, 3, -0.1]).alpha
   end
 
+  def test_color_from_hex
+    assert_equal Sass::Script::Value::Color.new([0,0,0]), Sass::Script::Value::Color.from_hex('000000')
+    assert_equal Sass::Script::Value::Color.new([0,0,0]), Sass::Script::Value::Color.from_hex('#000000')
+  end
+
   def test_string_escapes
     assert_equal "'", resolve("\"'\"")
     assert_equal '"', resolve("\"\\\"\"")
@@ -204,6 +209,13 @@ class SassScriptTest < MiniTest::Test
     assert_equal "foo2bar", resolve('\'foo#{1 + 1}bar\'')
     assert_equal "foo2bar", resolve('"foo#{1 + 1}bar"')
     assert_equal "foo1bar5baz4bang", resolve('\'foo#{1 + "bar#{2 + 3}baz" + 4}bang\'')
+  end
+
+  def test_interpolation_in_interpolation
+    assert_equal 'foo', resolve('#{#{foo}}')
+    assert_equal 'foo', resolve('"#{#{foo}}"')
+    assert_equal 'foo', resolve('#{"#{foo}"}')
+    assert_equal 'foo', resolve('"#{"#{foo}"}"')
   end
 
   def test_interpolation_with_newline
@@ -465,6 +477,12 @@ DEPRECATION WARNING on line 1 of test_operator_unit_conversion_inline.sass:
 The result of `1 == 1cm` will be `false` in future releases of Sass.
 Unitless numbers will no longer be equal to the same numbers with units.
 WARNING
+
+    assert_warning(<<WARNING) {assert_equal "false", resolve("1 != 1cm")}
+DEPRECATION WARNING on line 1 of test_operator_unit_conversion_inline.sass:
+The result of `1 != 1cm` will be `true` in future releases of Sass.
+Unitless numbers will no longer be equal to the same numbers with units.
+WARNING
   end
 
   def test_length_units
@@ -545,7 +563,7 @@ WARNING
   def test_case_insensitive_color_names
     assert_equal "BLUE", resolve("BLUE")
     assert_equal "rEd", resolve("rEd")
-    assert_equal "#7f4000", resolve("mix(GrEeN, ReD)")
+    assert_equal "#804000", resolve("mix(GrEeN, ReD)")
   end
 
   def test_empty_list

@@ -301,8 +301,10 @@ SCSS
   end
 
   def test_root_unification
-    assert_unification('.foo:root .bar', '.baz:root .qux {@extend .bar}',
-        '.foo:root .bar, .baz.foo:root .qux')
+    assert_extends(
+      ".foo:root .bar",
+      ".baz:root .qux {@extend .bar}",
+      ".foo:root .bar, .baz.foo:root .qux")
   end
 
   def test_not_remains_at_end_of_selector
@@ -511,6 +513,16 @@ CSS
 .foo {@extend .x}
 .bar {@extend .foo}
 SCSS
+  end
+
+  def test_root_only_allowed_at_root
+    assert_extends(':root .foo', '.bar .baz {@extend .foo}',
+      ':root .foo, :root .bar .baz')
+    assert_extends('.foo:root .bar', '.baz:root .bang {@extend .bar}',
+      '.foo:root .bar, .baz.foo:root .bang')
+    assert_extends('html:root .bar', 'xml:root .bang {@extend .bar}', 'html:root .bar')
+    assert_extends('.foo:root > .bar .x', '.baz:root .bang .y {@extend .x}',
+      '.foo:root > .bar .x, .baz.foo:root > .bar .bang .y')
   end
 
   def test_comma_extendee
@@ -1347,6 +1359,16 @@ SCSS
   end
 
   # Regression Tests
+
+  def test_extend_with_middle_pseudo
+    assert_equal(<<CSS, render(<<SCSS))
+.btn:active.focus, :active.focus:before {
+  a: b; }
+CSS
+.btn:active.focus {a: b}
+:before {@extend .btn}
+SCSS
+  end
 
   def test_extend_parent_selector_suffix
     assert_equal <<CSS, render(<<SCSS)

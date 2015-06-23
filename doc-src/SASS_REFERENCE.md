@@ -29,7 +29,7 @@ is an extension of the syntax of CSS3.
 This means that every valid CSS3 stylesheet
 is a valid SCSS file with the same meaning.
 In addition, SCSS understands most CSS hacks
-and vendor-specific syntax, such as [IE's old `filter` syntax](http://msdn.microsoft.com/en-us/library/ms533754%28VS.85%29.aspx).
+and vendor-specific syntax, such as [IE's old `filter` syntax](http://msdn.microsoft.com/en-us/library/ms530752.aspx).
 This syntax is enhanced with the Sass features described below.
 Files using this syntax have the `.scss` extension.
 
@@ -52,7 +52,7 @@ using the `sass-convert` command line tool:
 
     # Convert SCSS to Sass
     $ sass-convert style.scss style.sass
-    
+
 Note that this command does *not* generate CSS files. For that, use
 the `sass` command described elsewhere.
 
@@ -664,6 +664,10 @@ is compiled to:
       width: 5em;
     }
 
+For historical reasons, variable names (and all other Sass identifiers) can use
+hyphens and underscores interchangeably. For example, if you define a variable
+called `$main-width`, you can access it as `$main_width`, and vice versa.
+
 ### Data Types
 
 SassScript supports seven main data types:
@@ -1072,6 +1076,8 @@ is compiled to:
 
     p {
       color: #ff0000; }
+
+See {Sass::Script::Functions this page} for a full list of available functions.
 
 #### Keyword Arguments
 
@@ -2182,6 +2188,10 @@ For example:
       * html & { height: 1px }
     }
 
+For historical reasons, mixin names (and all other Sass identifiers) can use
+hyphens and underscores interchangeably. For example, if you define a mixin
+called `add-column`, you can include it as `add_column`, and vice versa.
+
 ### Including a Mixin: `@include` {#including_a_mixin}
 
 Mixins are included in the document
@@ -2512,6 +2522,10 @@ and so that readers of your stylesheets know they are not part of Sass or CSS. F
 
 User-defined functions also support [variable arguments](#variable_arguments)
 in the same way as mixins.
+
+For historical reasons, function names (and all other Sass identifiers) can use
+hyphens and underscores interchangeably. For example, if you define a function
+called `grid-width`, you can use it as `grid_width`, and vice versa.
 
 ## Output Style
 

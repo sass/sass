@@ -10,7 +10,7 @@ module Sass
       # @return [Fixnum]
       def line=(line)
         members.each {|m| m.line = line if m.is_a?(SimpleSequence)}
-        line
+        @line = line
       end
 
       # Sets the name of the file in which this selector was declared,
@@ -260,10 +260,22 @@ module Sass
         return [seq1] if seq2.empty?
 
         seq1, seq2 = seq1.dup, seq2.dup
-        init = merge_initial_ops(seq1, seq2)
-        return unless init
-        fin = merge_final_ops(seq1, seq2)
-        return unless fin
+        return unless (init = merge_initial_ops(seq1, seq2))
+        return unless (fin = merge_final_ops(seq1, seq2))
+
+        # Make sure there's only one root selector in the output.
+        root1 = has_root?(seq1.first) && seq1.shift
+        root2 = has_root?(seq2.first) && seq2.shift
+        if root1 && root2
+          return unless (root = root1.unify(root2))
+          seq1.unshift root
+          seq2.unshift root
+        elsif root1
+          seq2.unshift root1
+        elsif root2
+          seq1.unshift root2
+        end
+
         seq1 = group_selectors(seq1)
         seq2 = group_selectors(seq2)
         lcs = Sass::Util.lcs(seq2, seq1) do |s1, s2|
@@ -277,6 +289,7 @@ module Sass
         end
 
         diff = [[init]]
+
         until lcs.empty?
           diff << chunks(seq1, seq2) {|s| parent_superselector?(s.first, lcs.first)} << [lcs.shift]
           seq1.shift
@@ -639,6 +652,11 @@ module Sass
           next choices.first if choices.size == 1 && !choices.include?(' ')
           "(#{choices.join ', '})"
         end.join ' '
+      end
+
+      def has_root?(sseq)
+        sseq.is_a?(SimpleSequence) &&
+          sseq.members.any? {|sel| sel.is_a?(Pseudo) && sel.normalized_name == "root"}
       end
     end
   end

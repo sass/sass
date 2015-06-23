@@ -2296,14 +2296,14 @@ SCSS
 
   def test_supports_with_expressions
     assert_equal <<CSS, render(<<SCSS)
-@supports (feature1: val) and (feature2: val) or (not (feature23: val4)) {
+@supports ((feature1: val) and (feature2: val)) or (not (feature23: val4)) {
   foo {
     a: b; } }
 CSS
 $query: "(feature1: val)";
 $feature: feature2;
 $val: val;
-@supports \#{$query} and ($feature: $val) or (not ($feature + 3: $val + 4)) {
+@supports (\#{$query} and ($feature: $val)) or (not ($feature + 3: $val + 4)) {
   foo {a: b}
 }
 SCSS
@@ -3693,6 +3693,31 @@ CSS
 SCSS
   end
 
+  def test_parent_selector_in_and_out_of_function_pseudo_selector
+    # Regression test for https://github.com/sass/sass/issues/1464#issuecomment-70352288
+    assert_equal(<<CSS, render(<<SCSS))
+.a:not(.a-b) {
+  x: y; }
+CSS
+.a {
+  &:not(&-b) {
+    x: y;
+  }
+}
+SCSS
+
+    assert_equal(<<CSS, render(<<SCSS))
+.a:nth-child(2n of .a-b) {
+  x: y; }
+CSS
+.a {
+  &:nth-child(2n of &-b) {
+    x: y;
+  }
+}
+SCSS
+  end
+
   def test_attribute_selector_in_selector_pseudoclass
     # Even though this is plain CSS, it only failed when given to the SCSS
     # parser.
@@ -3897,6 +3922,22 @@ CSS
   arg2: $arg2;
 }
 .mixed { @include a-mixin(foo, $arg2: non-default-val2); }
+SCSS
+  end
+
+  def test_keyword_arg_scope
+    assert_equal <<CSS, render(<<SCSS)
+.mixed {
+  arg1: default;
+  arg2: non-default; }
+CSS
+$arg1: default;
+$arg2: default;
+@mixin a-mixin($arg1: $arg1, $arg2: $arg2) {
+  arg1: $arg1;
+  arg2: $arg2;
+}
+.mixed { @include a-mixin($arg2: non-default); }
 SCSS
   end
 

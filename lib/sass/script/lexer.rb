@@ -198,7 +198,8 @@ module Sass
 
       # @return [Boolean] Whether or not there's more source text to lex.
       def done?
-        whitespace unless after_interpolation? && @interpolation_stack.last
+        return if @next_tok
+        whitespace unless after_interpolation? && !@interpolation_stack.empty?
         @scanner.eos? && @tok.nil?
       end
 
@@ -235,6 +236,11 @@ module Sass
       private
 
       def read_token
+        if (tok = @next_tok)
+          @next_tok = nil
+          return tok
+        end
+
         return if done?
         start_pos = source_position
         value = token
@@ -293,9 +299,9 @@ MESSAGE
         end
 
         if @scanner[2] == '#{' # '
-          @scanner.pos -= 2 # Don't actually consume the #{
-          @offset -= 2
           @interpolation_stack << [:string, re]
+          start_pos = Sass::Source::Position.new(@line, @offset - 2)
+          @next_tok = Token.new(:string_interpolation, range(start_pos), @scanner.pos - 2)
         end
         str =
           if re == :uri
@@ -392,9 +398,9 @@ MESSAGE
           else
             raise "[BUG] Unreachable" unless @scanner[1] == '#{' # '
             str.slice!(-2..-1)
-            @scanner.pos -= 2 # Don't actually consume the #{
-            @offset -= 2
             @interpolation_stack << [:special_fun, parens]
+            start_pos = Sass::Source::Position.new(@line, @offset - 2)
+            @next_tok = Token.new(:string_interpolation, range(start_pos), @scanner.pos - 2)
           end
 
           return [:special_fun, Sass::Script::Value::String.new(str)]
@@ -419,11 +425,8 @@ MESSAGE
         op = scan(REGULAR_EXPRESSIONS[:op])
         return unless op
         name = OPERATORS[op]
-        if name == :begin_interpolation && !@interpolation_stack.empty?
-          [:string_interpolation]
-        else
-          [name]
-        end
+        @interpolation_stack << nil if name == :begin_interpolation
+        [name]
       end
 
       def raw(rx)

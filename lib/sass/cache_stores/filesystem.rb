@@ -17,12 +17,12 @@ module Sass
       # @see Base#\_retrieve
       def _retrieve(key, version, sha)
         return unless File.readable?(path_to(key))
-        File.open(path_to(key), "rb") do |f|
-          if f.readline("\n").strip == version && f.readline("\n").strip == sha
-            return f.read
-          end
-        end
         begin
+          File.open(path_to(key), "rb") do |f|
+            if f.readline("\n").strip == version && f.readline("\n").strip == sha
+              return f.read
+            end
+          end
           File.unlink path_to(key)
         rescue Errno::ENOENT
           # Already deleted. Race condition?

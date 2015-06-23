@@ -10,7 +10,81 @@
 
 * Add a `$weight` parameter to `invert()`.
 
-## 3.4.10
+## 3.4.15 (22 June 2015)
+
+* Further improve rounding for various numeric operations.
+
+* Be more explicit in the function documentation about functions being
+  immutable.
+
+* Improve rounding in operator-based color operations.
+
+### Deprecations -- Must Read!
+
+* When using `--stdin` with the `sass` or `scss` executables, importing relative
+  to the working directory is deprecated. Having the working directory on the
+  load path was deprecated in 3.3 and removed in 3.4, but due to an oversight
+  the deprecation process never happened for files read over standard input in
+  particular. This is the first step of that process.
+
+## 3.4.14 (22 May 2015)
+
+* Further avoid race conditions when caching.
+
+* Only emit one warning for each line that uses the deprecated form of
+  `unquote()`.
+
+* Stop parsing and emitting invalid `@supports` directives.
+
+* Add a deprecation warning for using `!=` to compare a number with units to a
+  number without. Such a warning already existed for `==`.
+
+* Improve rounding of the results of color operations.
+
+## 3.4.13 (26 February 2015)
+
+[Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.4.13).
+
+* Be clearer in the reference about hyphen/underscore equivalence.
+
+* `@keyframes` rules are now converted from CSS properly.
+
+* Extending a selector that contains a non-final pseudo-class no longer crashes.
+
+* When `@extending`, only a single `:root` element will be retained.
+
+## 3.4.12 (13 February 2015)
+
+[Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.4.12).
+
+* Non-string interpolation within string interpolation is now parsed correctly.
+
+* `random()` now returns the correct result if it has an integer value
+  but a float representation.
+
+## 3.4.11 (30 January 2015)
+
+[Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.4.11).
+
+* Parent selectors used both outside and inside a pseudo selector
+  (e.g. `&:not(&--foo)`) now compile correctly.
+
+* Interpolation in a multiline indented-syntax selector is no longer
+  omitted.
+
+* Add a stack trace to the `unquote()` deprecation warning.
+
+* When converting a space-separated list with `sass-convert`, add
+  parentheses when they make it easier to read even if they aren't
+  strictly required.
+  
+### Deprecations -- Must Read!
+
+* Compiling directories on the command line without using either
+  `--watch` or `--update` is deprecated. This only worked
+  inconsistently before.
+
+## 3.4.10 (16 January 2015)
 
 [Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.4.10).
 

@@ -1311,7 +1311,7 @@ $query: "(feature1: val)"
 $feature: feature2
 $val: val
 
-@supports \#{$query} and ($feature: $val) or (not ($feature + 3: $val + 4))
+@supports (\#{$query} and ($feature: $val)) or (not ($feature + 3: $val + 4))
   foo
     a: b
 SASS
@@ -1319,7 +1319,7 @@ $query: "(feature1: val)";
 $feature: feature2;
 $val: val;
 
-@supports \#{$query} and ($feature: $val) or (not ($feature + 3: $val + 4)) {
+@supports (\#{$query} and ($feature: $val)) or (not ($feature + 3: $val + 4)) {
   foo {
     a: b;
   }
@@ -1990,13 +1990,11 @@ foo
     ok: -$foo
     comma: 10px, -$foo
     needs-parens: 10px (-$foo)
-    no-parens: a 50px + 60px b
 SASS
 foo {
     ok: -$foo;
     comma: 10px, -$foo;
     needs-parens: 10px (-$foo);
-    no-parens: a 50px + 60px b;
 }
 SCSS
   end

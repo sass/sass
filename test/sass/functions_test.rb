@@ -220,10 +220,10 @@ WARNING
   end
 
   def test_rgb_percent
-    assert_equal("#123456", evaluate("rgb(7.1%, 20.4%, 34%)"))
+    assert_equal("#123457", evaluate("rgb(7.1%, 20.4%, 34%)"))
     assert_equal("#beaded", evaluate("rgb(74.7%, 173, 93%)"))
     assert_equal("#beaded", evaluate("rgb(190, 68%, 237)"))
-    assert_equal("springgreen", evaluate("rgb(0%, 100%, 50%)"))
+    assert_equal("#00ff80", evaluate("rgb(0%, 100%, 50%)"))
   end
 
   def test_rgb_clamps_bounds
@@ -813,11 +813,11 @@ WARNING
   end
 
   def test_mix
-    assert_equal("#7f007f", evaluate("mix(#f00, #00f)"))
-    assert_equal("#7f7f7f", evaluate("mix(#f00, #0ff)"))
-    assert_equal("#7f9055", evaluate("mix(#f70, #0aa)"))
-    assert_equal("#3f00bf", evaluate("mix(#f00, #00f, 25%)"))
-    assert_equal("rgba(63, 0, 191, 0.75)", evaluate("mix(rgba(255, 0, 0, 0.5), #00f)"))
+    assert_equal("purple", evaluate("mix(#f00, #00f)"))
+    assert_equal("gray", evaluate("mix(#f00, #0ff)"))
+    assert_equal("#809155", evaluate("mix(#f70, #0aa)"))
+    assert_equal("#4000bf", evaluate("mix(#f00, #00f, 25%)"))
+    assert_equal("rgba(64, 0, 191, 0.75)", evaluate("mix(rgba(255, 0, 0, 0.5), #00f)"))
     assert_equal("red", evaluate("mix(#f00, #00f, 100%)"))
     assert_equal("blue", evaluate("mix(#f00, #00f, 0%)"))
     assert_equal("rgba(255, 0, 0, 0.5)", evaluate("mix(#f00, transparentize(#00f, 1))"))
@@ -873,9 +873,9 @@ WARNING
 
   def test_invert
     assert_equal("#112233", evaluate("invert(#edc)"))
-    assert_equal("#d7cabc", evaluate("invert(#edc, 10%)"))
+    assert_equal("#d8cabd", evaluate("invert(#edc, 10%)"))
     assert_equal("rgba(245, 235, 225, 0.5)", evaluate("invert(rgba(10, 20, 30, 0.5))"))
-    assert_equal("rgba(33, 41, 49, 0.5)", evaluate("invert(rgba(10, 20, 30, 0.5), 10%)"))
+    assert_equal("rgba(34, 42, 50, 0.5)", evaluate("invert(rgba(10, 20, 30, 0.5), 10%)"))
     assert_equal("invert(20%)", evaluate("invert(20%)"))
   end
 
@@ -1672,6 +1672,14 @@ SCSS
 
   def test_random_with_non_integer_limit
     assert_error_message("Expected $limit to be an integer but got 1.5 for `random'", "random(1.5)")
+  end
+
+  # Regression test for #1638.
+  def test_random_with_float_integer_limit
+    result = perform("random(1.0)")
+    assert_kind_of Sass::Script::Number, result
+    assert result.value >= 0, "Random number was below 0"
+    assert result.value <= 1, "Random number was above 1"
   end
 
   # This could *possibly* fail, but exceedingly unlikely
