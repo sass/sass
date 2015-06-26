@@ -24,18 +24,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
     @tabs += 1
     return @format == :sass ? "\n" : " {}\n" if parent.children.empty?
 
-    res = Sass::Util.enum_cons(parent.children + [nil], 2).map do |child, nxt|
-      visit(child) +
-        if nxt &&
-            (child.is_a?(Sass::Tree::CommentNode) && child.line + child.lines + 1 == nxt.line) ||
-            (child.is_a?(Sass::Tree::VariableNode) && nxt.is_a?(Sass::Tree::VariableNode) &&
-              child.line + 1 == nxt.line) ||
-            (child.is_a?(Sass::Tree::PropNode) && nxt.is_a?(Sass::Tree::PropNode))
-          ""
-        else
-          "\n"
-        end
-    end.join.rstrip + "\n"
+    res = visit_rule_level(parent.children)
 
     if @format == :sass
       "\n"  + res.rstrip + "\n"
@@ -48,20 +37,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
 
   # Ensures proper spacing between top-level nodes.
   def visit_root(node)
-    Sass::Util.enum_cons(node.children + [nil], 2).map do |child, nxt|
-      visit(child) +
-        if nxt &&
-            (child.is_a?(Sass::Tree::CommentNode) &&
-              child.line + child.lines + 1 == nxt.line) ||
-            (child.is_a?(Sass::Tree::ImportNode) && nxt.is_a?(Sass::Tree::ImportNode) &&
-              child.line + 1 == nxt.line) ||
-            (child.is_a?(Sass::Tree::VariableNode) && nxt.is_a?(Sass::Tree::VariableNode) &&
-              child.line + 1 == nxt.line)
-          ""
-        else
-          "\n"
-        end
-    end.join.rstrip + "\n"
+    visit_rule_level(node.children)
   end
 
   def visit_charset(node)
@@ -299,6 +275,25 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   end
 
   private
+
+  # Visit rule-level nodes and return their conversion with appropriate
+  # whitespace added.
+  def visit_rule_level(nodes)
+    Sass::Util.enum_cons(nodes + [nil], 2).map do |child, nxt|
+      visit(child) +
+        if nxt &&
+            (child.is_a?(Sass::Tree::CommentNode) && child.line + child.lines + 1 == nxt.line) ||
+            (child.is_a?(Sass::Tree::ImportNode) && nxt.is_a?(Sass::Tree::ImportNode) &&
+              child.line + 1 == nxt.line) ||
+            (child.is_a?(Sass::Tree::VariableNode) && nxt.is_a?(Sass::Tree::VariableNode) &&
+              child.line + 1 == nxt.line) ||
+            (child.is_a?(Sass::Tree::PropNode) && nxt.is_a?(Sass::Tree::PropNode))
+          ""
+        else
+          "\n"
+        end
+    end.join.rstrip + "\n"
+  end
 
   def interp_to_src(interp)
     interp.map {|r| r.is_a?(String) ? r : r.to_sass(@options)}.join
