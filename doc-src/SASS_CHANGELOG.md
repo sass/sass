@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.4.16 (Unreleased)
+
+* When converting from Sass to SCSS or vice versa, double-space around nested
+  rules the same as around top-level rules.
+
 ## 3.4.15 (22 June 2015)
 
 * Further improve rounding for various numeric operations.

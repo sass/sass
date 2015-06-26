@@ -24,10 +24,13 @@ SASS
     assert_equal(<<SASS, css2sass(<<CSS))
 li
   display: none
+
   a
     text-decoration: none
+
     span
       color: yellow
+
     &:hover
       text-decoration: underline
 SASS
@@ -117,6 +120,7 @@ span.turkey
 
 #overhere
   bored: sorta
+
   /*                  it's for a good
    * cause
   better_than: thread_pools
@@ -168,12 +172,16 @@ CSS
     assert_equal(<<SASS, css2sass(<<CSS))
 hello
   parent: true
+
   there
     parent: false
+
   who
     hoo: false
+
   why
     y: true
+
   when
     wen: nao
 
@@ -229,6 +237,7 @@ CSS
     assert_equal(<<SASS, css2sass(<<CSS))
 \\:focus
   a: b
+
   \\:foo
     bar: baz
 SASS
@@ -243,14 +252,17 @@ CSS
   .bar!
     .baz
       a: b
+
     .bip
       c: d
+
   .bar .bonk
     e: f
 
 .flip!
   &.bar
     a: b
+
   &.baz
     c: d
 SASS
@@ -301,11 +313,13 @@ CSS
     assert_equal(<<SASS, css2sass(<<CSS))
 ul
   width: 10px
+
   div
     width: 20px
 
 article
   width: 10px
+
   p
     width: 20px
 SASS
@@ -328,6 +342,7 @@ CSS
     assert_equal(<<SASS, css2sass(<<CSS))
 a
   color: red
+
   > b
 SASS
 a {color: red}
@@ -378,6 +393,7 @@ CSS
 .foo >
   .bar
     a: b
+
   .baz
     c: d
 SASS
@@ -389,6 +405,7 @@ CSS
 .foo
   &::bar
     a: b
+
   &::baz
     c: d
 SASS
