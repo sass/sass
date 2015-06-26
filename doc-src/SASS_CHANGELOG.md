@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.4.15 (Unreleased)
+## 3.4.15 (22 June 2015)
 
 * Further improve rounding for various numeric operations.
 
