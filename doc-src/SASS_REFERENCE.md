@@ -884,6 +884,43 @@ is compiled to:
     p {
       font: 12px/30px; }
 
+##### Subtraction and `-`
+{#subtraction-and-hyphen}
+
+CSS allows `-` to appear in identifiers. SassScript must support this syntax,
+and also allow `-` to be used for subtraction. To ensure that a `-` is
+interpreted as subtraction, keep it spaced out from the operands. For example:
+
+    p {
+      margin: 20px-10px;         // Plain CSS, no subtraction
+      padding: 20px - 10px 40px; // hyphen is spaced out, does subtraction
+    }
+
+is compiled to:
+
+    p {
+      margin: 10px;
+      padding: 10px 40px; }
+
+However, outside of property values, `-` characters not wrapped with whitespace
+may be interpreted as subtraction. For example:
+
+    $margin: 20px-10px;
+
+    @if 2px-2px == 0px {
+      p {
+        margin: $margin;
+      }
+    }
+
+is compiled to:
+
+    p {
+      margin: 10px; }
+
+It is best to always wrap `-` with whitespace when subtracting, to avoid any
+surprises.
+
 #### Color Operations
 
 All arithmetic operations are supported for color values,
