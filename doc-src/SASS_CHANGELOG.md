@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.4.16 (Unreleased)
+## 3.4.16 (10 July 2015)
 
 * When converting from Sass to SCSS or vice versa, double-space around nested
   rules the same as around top-level rules.
