@@ -10,6 +10,9 @@
 
 * Compatibility with listen 3.
 
+* Parse a minus operator with no surrounding whitespace (e.g. 20px-10px) the
+  same regardless of whether it's being used in a static property.
+
 ## 3.4.15 (22 June 2015)
 
 * Further improve rounding for various numeric operations.
