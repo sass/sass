@@ -883,6 +883,41 @@ is compiled to:
     p {
       font: 12px/30px; }
 
+##### Subtraction, Negative Numbers, and `-`
+{#subtraction}
+
+There are a number of different things `-` can mean in CSS and in Sass. It can
+be a subtraction operator (as in `5px - 3px`), the beginning of a negative
+number (as in `-3px`), a unary negation operator (as in `-$var`), or part of an
+identifier (as in `font-weight`). Most of the time, it's clear which is which,
+but there are some tricky cases. As a general rule, you're safest if:
+
+* You always include spaces on both sides of `-` when subtracting.
+* You include a space before `-` but not after for a negative number or a unary
+  negation.
+* You wrap a unary negation in parentheses if it's in a space-separated list, as
+  in `10px (-$var)`.
+
+The different meanings of `-` take precedence in the following order:
+
+1. A `-` as part of an identifier. This means that `a-1` is an unquoted string
+   with value `"a-1"`. The only exception are units; Sass normally allows any
+   valid identifier to be used as an identifier, but identifiers may not contain
+   a hyphen followed by a digit. This means that `5px-3px` is the same as `5px -
+   3px`.
+
+2. A `-` between two numbers with no whitespace. This indicates subtraction, so
+   `1-2` is the same as `1 - 2`.
+
+3. A `-` at the beginning of a literal number. This indicates a negative number,
+   so `1 -2` is a list containing `1` and `-2`.
+
+4. A `-` between two numbers regardless of whitespace. This indicates
+   subtraction, so `1 -$var` are the same as `1 - $var`.
+
+5. A `-` before a value. This indicates the unary negation operator; that is,
+   the operator that takes a number and returns its negative.
+
 #### Color Operations
 
 All arithmetic operations are supported for color values,
