@@ -338,7 +338,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
 
       with_tabs(tabs) do
         node.children.each_with_index do |child, i|
-          output(separator) if i > 0
+          output(separator) if i > 0 && @result[-1, 1] != separator
           visit(child)
         end
       end
