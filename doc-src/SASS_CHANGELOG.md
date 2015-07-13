@@ -8,6 +8,9 @@
 * When converting from Sass to SCSS or vice versa, double-space around nested
   rules the same as around top-level rules.
 
+* Fix up some edge cases where extra semicolons could be added to unknown
+  directives in compressed mode.
+
 ## 3.4.15 (22 June 2015)
 
 * Further improve rounding for various numeric operations.

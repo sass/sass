@@ -310,6 +310,7 @@ WARNING
   def visit_import(node)
     if (path = node.css_import?)
       resolved_node = Sass::Tree::CssImportNode.resolved("url(#{path})")
+      resolved_node.options = node.options
       resolved_node.source_range = node.source_range
       return resolved_node
     end

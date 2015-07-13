@@ -3263,6 +3263,54 @@ CSS
 SASS
   end
 
+  def test_compressed_unknown_directive
+    assert_equal(<<CSS, render(<<SASS, :style => :compressed))
+x{@foo;a:b;@bar}
+CSS
+x
+  @foo
+  a: b
+  @bar
+SASS
+  end
+
+  def test_compressed_unknown_directive_in_directive
+    assert_equal(<<CSS, render(<<SASS, :style => :compressed))
+@x{@foo;a:b;@bar}
+CSS
+@x
+  @foo
+  a: b
+  @bar
+SASS
+  end
+
+  def test_compressed_unknown_directive_with_children_in_directive
+    assert_equal(<<CSS, render(<<SASS, :style => :compressed))
+@x{@foo{a:b}c:d;@bar{e:f}}
+CSS
+@x
+  @foo
+    a: b
+  c: d
+  @bar
+    e: f
+SASS
+  end
+
+  def test_compressed_rule_in_directive
+    assert_equal(<<CSS, render(<<SASS, :style => :compressed))
+@x{foo{a:b}c:d;bar{e:f}}
+CSS
+@x
+  foo
+    a: b
+  c: d
+  bar
+    e: f
+SASS
+  end
+
   private
 
   def assert_hash_has(hash, expected)

@@ -171,7 +171,11 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     if !node.has_children || node.children.empty?
       output(tab_str)
       for_node(node) {output(node.resolved_value)}
-      output(!node.has_children ? ";" : " {}")
+      if node.style == :compressed
+        output("{}") if node.has_children
+      else
+        output(node.has_children ? " {}" : ";")
+      end
       return
     end
 
@@ -181,18 +185,18 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     output(node.style == :compressed ? "{" : " {")
     output(node.style == :compact ? ' ' : "\n") if node.style != :compressed
 
-    was_prop = false
+    had_children = true
     first = true
     node.children.each do |child|
       next if child.invisible?
       if node.style == :compact
         if child.is_a?(Sass::Tree::PropNode)
-          with_tabs(first || was_prop ? 0 : @tabs + 1) do
+          with_tabs(first || !had_children ? 0 : @tabs + 1) do
             visit(child)
             output(' ')
           end
         else
-          if was_prop
+          unless had_children
             erase! 1
             output "\n"
           end
@@ -206,12 +210,12 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
           rstrip!
           output "\n"
         end
-        was_prop = child.is_a?(Sass::Tree::PropNode)
+        had_children = child.has_children
         first = false
       elsif node.style == :compressed
-        output(was_prop ? ";" : "")
+        output(had_children ? "" : ";")
         with_tabs(0) {visit(child)}
-        was_prop = child.is_a?(Sass::Tree::PropNode)
+        had_children = child.has_children
       else
         with_tabs(@tabs + 1) {visit(child)}
         output "\n"
