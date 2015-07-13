@@ -3263,6 +3263,18 @@ CSS
 SASS
   end
 
+  def test_compressed_unknown_directive_semicolons
+    assert_equal(<<RESULT, render(<<SOURCE, :style => :compressed))
+foo{@foo;a:b;@bar;}
+RESULT
+foo
+  @foo
+  a: b
+  @bar
+
+SOURCE
+  end
+
   private
 
   def assert_hash_has(hash, expected)
