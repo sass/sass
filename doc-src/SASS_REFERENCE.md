@@ -2003,6 +2003,9 @@ the one that it will return -- this allows you to refer to variables
 that may not be defined or to have calculations that would otherwise
 cause an error (E.g. divide by zero).
 
+    if(true, 1px, 2px) => 1px
+    if(false, 1px, 2px) => 2px
+
 ### `@if`
 
 The `@if` directive takes a SassScript expression
