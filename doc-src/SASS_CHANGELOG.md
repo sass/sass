@@ -8,6 +8,9 @@
 * Fix up some edge cases where extra semicolons could be added to unknown
   directives in compressed mode.
 
+* Make `is-superselector("a > c d", "a > b c d")` return `false`. This also
+  fixes some related `@extend` behavior.
+
 ## 3.4.16 (10 July 2015)
 
 * When converting from Sass to SCSS or vice versa, double-space around nested
