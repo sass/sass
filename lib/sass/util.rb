@@ -571,6 +571,9 @@ module Sass
       return @listen_geq_2 unless @listen_geq_2.nil?
       @listen_geq_2 =
         begin
+          # Make sure we're loading listen/version from the same place that
+          # we're loading listen itself.
+          load_listen!
           require 'listen/version'
           version_geq(::Listen::VERSION, '2.0.0')
         rescue LoadError
@@ -1292,7 +1295,7 @@ module Sass
             require 'listen'
           rescue LoadError => e
             if version_geq(RUBY_VERSION, "1.9.3")
-              version_constraint = "~> 2.7"
+              version_constraint = "~> 3.0"
             else
               version_constraint = "~> 1.1"
             end
