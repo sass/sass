@@ -1297,6 +1297,16 @@ foo {
   a: 1px / 2px;
 }
 SCSS
+
+    # Regression test for issue 1787
+    assert_renders <<SASS, <<SCSS
+foo
+  a: 1px / 2px 3px
+SASS
+foo {
+  a: 1px / 2px 3px;
+}
+SCSS
   end
 
   def test_directive_with_interpolation

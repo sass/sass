@@ -11,6 +11,8 @@
 * Make `is-superselector("a > c d", "a > b c d")` return `false`. This also
   fixes some related `@extend` behavior.
 
+* In `sass-convert`, ensure that literal `/`es are preserved.
+
 ## 3.4.16 (10 July 2015)
 
 * When converting from Sass to SCSS or vice versa, double-space around nested
