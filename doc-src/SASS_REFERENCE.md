@@ -846,7 +846,8 @@ These cover the vast majority of cases where division is actually used.
 They are:
 
 1. If the value, or any part of it, is stored in a variable or returned by a function.
-2. If the value is surrounded by parentheses.
+2. If the value is surrounded by parentheses, unless those parentheses are
+   outside a list and the value is inside.
 3. If the value is used as part of another arithmetic expression.
 
 For example:
@@ -858,6 +859,7 @@ For example:
       width: round(1.5)/2;        // Uses a function, does division
       height: (500px/2);          // Uses parentheses, does division
       margin-left: 5px + 8px/2px; // Uses +, does division
+      font: (italic bold 10px/8px); // In a list, parentheses don't count
     }
 
 is compiled to:

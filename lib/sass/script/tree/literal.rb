@@ -35,6 +35,10 @@ module Sass::Script::Tree
       value.inspect
     end
 
+    def force_division!
+      value.original = nil if value.is_a?(Sass::Script::Value::Number)
+    end
+
     protected
 
     def _perform(environment)

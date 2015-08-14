@@ -547,6 +547,13 @@ WARNING
     assert_equal "0.5", resolve("$var", {}, env("var" => eval("1px/2px")))
   end
 
+  # Regression test for issue 1786.
+  def test_slash_division_within_list
+    assert_equal "1 1/2 1/2", resolve("(1 1/2 1/2)")
+    assert_equal "1/2 1/2", resolve("(1/2 1/2)")
+    assert_equal "1/2", resolve("(1/2,)")
+  end
+
   def test_non_ident_colors_with_wrong_number_of_digits
     assert_raise_message(Sass::SyntaxError,
       'Invalid CSS after "": expected expression (e.g. 1px, bold), was "#1"') {eval("#1")}

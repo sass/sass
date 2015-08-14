@@ -507,15 +507,12 @@ RUBY
 
       def paren
         return variable unless try_tok(:lparen)
-        was_in_parens = @in_parens
-        @in_parens = true
         start_pos = source_position
         e = map
+        e.force_division! if e
         end_pos = source_position
         assert_tok(:rparen)
-        return e || node(Sass::Script::Tree::ListLiteral.new([], nil), start_pos, end_pos)
-      ensure
-        @in_parens = was_in_parens
+        e || node(Sass::Script::Tree::ListLiteral.new([], nil), start_pos, end_pos)
       end
 
       def variable
@@ -540,7 +537,7 @@ RUBY
         tok = try_tok(:number)
         return selector unless tok
         num = tok.value
-        num.original = num.to_s unless @in_parens
+        num.original = num.to_s
         literal_node(num, tok.source_range.start_pos)
       end
 

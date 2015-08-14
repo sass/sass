@@ -11,6 +11,9 @@
 * Make `is-superselector("a > c d", "a > b c d")` return `false`. This also
   fixes some related `@extend` behavior.
 
+* A `/` in a parenthesized list is consistently treated as a plain `/` unless it
+  meets the criteria for being treated as division.
+
 * In `sass-convert`, ensure that literal `/`es are preserved.
 
 ## 3.4.16 (10 July 2015)

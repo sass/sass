@@ -52,6 +52,10 @@ module Sass::Script::Tree
       "(#{elements.map {|e| e.inspect}.join(separator == :space ? ' ' : ', ')})"
     end
 
+    def force_division!
+      # Do nothing. Lists prevent division propagation.
+    end
+
     protected
 
     def _perform(environment)
