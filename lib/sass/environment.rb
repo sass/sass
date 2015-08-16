@@ -32,7 +32,7 @@ module Sass
       def inherited_hash_writer(name)
         class_eval <<-RUBY, __FILE__, __LINE__ + 1
           def set_#{name}(name, value)
-            name = name.tr('_', '-')
+            name = name.tr('_'.freeze, '-'.freeze)
             @#{name}s[name] = value unless try_set_#{name}(name, value)
           end
 

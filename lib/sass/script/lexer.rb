@@ -438,9 +438,9 @@ MESSAGE
       def scan(re)
         str = @scanner.scan(re)
         return unless str
-        c = str.count("\n")
+        c = str.count("\n".freeze)
         @line += c
-        @offset = (c == 0 ? @offset + str.size : str.size - str.rindex("\n"))
+        @offset = (c == 0 ? @offset + str.size : str.size - str.rindex("\n".freeze))
         str
       end
 

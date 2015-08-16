@@ -55,10 +55,10 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   def erase!(chars)
     return if chars == 0
     str = @result.slice!(-chars..-1)
-    newlines = str.count("\n")
+    newlines = str.count("\n".freeze)
     if newlines > 0
       @line -= newlines
-      @offset = @result[@result.rindex("\n") || 0..-1].size
+      @offset = @result[@result.rindex("\n".freeze) || 0..-1].size
     else
       @offset -= chars
     end
@@ -284,8 +284,8 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
         next if seq.has_placeholder?
         rule_part = seq.to_s
         if node.style == :compressed
-          rule_part.gsub!(/([^,])\s*\n\s*/m, '\1 ')
-          rule_part.gsub!(/\s*([,+>])\s*/m, '\1')
+          rule_part.gsub!(/([^,])\s*\n\s*/m, '\1 '.freeze)
+          rule_part.gsub!(/\s*([,+>])\s*/m, '\1'.freeze)
           rule_part.strip!
         end
         rule_part

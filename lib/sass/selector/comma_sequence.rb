@@ -160,7 +160,7 @@ module Sass
 
       # @see AbstractSequence#to_s
       def to_s
-        @members.join(", ").gsub(", \n", ",\n")
+        @members.join(', '.freeze).gsub(", \n".freeze, ",\n".freeze)
       end
 
       private

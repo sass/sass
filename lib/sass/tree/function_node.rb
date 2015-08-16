@@ -23,7 +23,7 @@ module Sass
       # Strips out any vendor prefixes.
       # @return [String] The normalized name of the directive.
       def normalized_name
-        @normalized_name ||= name.gsub(/^(?:-[a-zA-Z0-9]+-)?/, '\1')
+        @normalized_name ||= name.gsub(/^(?:-[a-zA-Z0-9]+-)?/, '\1'.freeze)
       end
 
       # @param name [String] The function name

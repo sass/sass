@@ -158,7 +158,7 @@ module Sass
 
       # @see AbstractSequence#to_s
       def to_s
-        @members.join(" ").gsub(/ ?\n ?/, "\n")
+        @members.join(' '.freeze).gsub(/ ?\n ?/, "\n".freeze)
       end
 
       # Returns a string representation of the sequence.
@@ -166,7 +166,7 @@ module Sass
       #
       # @return [String]
       def inspect
-        members.map {|m| m.inspect}.join(" ")
+        members.map {|m| m.inspect}.join(' '.freeze)
       end
 
       # Add to the {SimpleSequence#sources} sets of the child simple sequences.

@@ -84,7 +84,7 @@ module Sass
       # If a full uri is passed, this removes the root from it
       # otherwise returns the name unchanged
       def remove_root(name)
-        if name.index(@root + "/") == 0
+        if name.index(@root + '/'.freeze) == 0
           name[(@root.length + 1)..-1]
         else
           name
@@ -122,7 +122,7 @@ module Sass
         end
 
         # JRuby chokes when trying to import files from JARs when the path starts with './'.
-        ret.map {|f, s| [f.sub(/^\.\//, ''), s]}
+        ret.map {|f, s| [f.sub(/^\.\//, ''.freeze), s]}
       end
 
       def escape_glob_characters(name)
@@ -189,7 +189,7 @@ WARNING
       def split(name)
         extension = nil
         dirname, basename = File.dirname(name), File.basename(name)
-        if basename =~ /^(.*)\.(#{extensions.keys.map {|e| Regexp.escape(e)}.join('|')})$/
+        if basename =~ /^(.*)\.(#{extensions.keys.map {|e| Regexp.escape(e)}.join('|'.freeze)})$/
           basename = $1
           extension = $2
         end

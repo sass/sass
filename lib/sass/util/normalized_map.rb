@@ -20,7 +20,7 @@ module Sass
       #
       # This can be overridden to create other normalization behaviors.
       def normalize(key)
-        key.tr("-", "_")
+        key.tr('-'.freeze, '_'.freeze)
       end
 
       # Returns the version of `key` as it was stored before

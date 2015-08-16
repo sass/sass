@@ -247,7 +247,7 @@ module Sass::Script::Value
         raise ArgumentError.new("Malformed unit string: #{unit_string}")
       end
       numerator_units = num_over_denominator[0].split(/ *\* */)
-      denominator_units = (num_over_denominator[1] || "").split(/ *\* */)
+      denominator_units = (num_over_denominator[1] || ''.freeze).split(/ *\* */)
       [[numerator_units, "numerator"], [denominator_units, "denominator"]].each do |units, name|
         if unit_string =~ /\// && units.size == 0
           raise ArgumentError.new("Malformed unit string: #{unit_string}")

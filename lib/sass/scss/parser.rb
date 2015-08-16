@@ -108,7 +108,7 @@ module Sass
           if @template.is_a?(StringScanner)
             @template
           else
-            Sass::Util::MultibyteStringScanner.new(@template.gsub("\r", ""))
+            Sass::Util::MultibyteStringScanner.new(@template.gsub("\r".freeze, ''.freeze))
           end
       end
 

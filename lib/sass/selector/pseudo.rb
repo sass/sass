@@ -109,7 +109,7 @@ module Sass
       #
       # @return [String]
       def normalized_name
-        @normalized_name ||= name.gsub(/^-[a-zA-Z0-9]+-/, '')
+        @normalized_name ||= name.gsub(/^-[a-zA-Z0-9]+-/, ''.freeze)
       end
 
       # @see Selector#to_s

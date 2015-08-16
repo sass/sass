@@ -279,7 +279,7 @@ module Sass::Script::Value
       # Ruby will occasionally print in scientific notation if the number is
       # small enough. That's technically valid CSS, but it's not well-supported
       # and confusing.
-      str = ("%0.#{self.class.precision}f" % value).gsub(/0*$/, '') if str.include?('e')
+      str = ("%0.#{self.class.precision}f" % value).gsub(/0*$/, ''.freeze) if str.include?('e'.freeze)
 
       unitless? ? str : "#{str}#{unit_str}"
     end
@@ -365,10 +365,10 @@ module Sass::Script::Value
     # numerator_unit1 * numerator_unit2 / denominator_unit1 * denominator_unit2
     # @return [String] a string that represents the units in this number
     def unit_str
-      rv = @numerator_units.sort.join("*")
+      rv = @numerator_units.sort.join('*'.freeze)
       if @denominator_units.any?
-        rv << "/"
-        rv << @denominator_units.sort.join("*")
+        rv << '/'.freeze
+        rv << @denominator_units.sort.join('*'.freeze)
       end
       rv
     end
