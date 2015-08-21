@@ -308,6 +308,7 @@ RUBY
           end
           return list unless (e = interpolation)
           list.elements << e
+          list.source_range.end_pos = list.elements.last.source_range.end_pos
         end
         list
       end

@@ -809,6 +809,17 @@ SCSS
     assert_equal 17, range.end_pos.offset
   end
 
+  def test_list_source_range
+    engine = Sass::Engine.new(<<-SCSS, :cache => false, :syntax => :scss)
+@each $a, $b in (1, 2), (2, 4), (3, 6) { }
+SCSS
+    list = engine.to_tree.children.first.list
+    assert_equal 1, list.source_range.start_pos.line
+    assert_equal 1, list.source_range.end_pos.line
+    assert_equal 16, list.source_range.start_pos.offset
+    assert_equal 38, list.source_range.end_pos.offset
+  end
+
   def test_sources_array_is_uri_escaped
     map = Sass::Source::Map.new
     importer = Sass::Importers::Filesystem.new('.')
