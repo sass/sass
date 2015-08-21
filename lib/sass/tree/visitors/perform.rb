@@ -193,7 +193,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def visit_comment(node)
     return [] if node.invisible?
     node.resolved_value = run_interp_no_strip(node.value)
-    node.resolved_value.gsub!(/\\([\\#])/, '\1')
+    node.resolved_value.gsub!(/\\([\\#])/, '\1'.freeze)
     node
   end
 
@@ -480,8 +480,8 @@ WARNING
   def visit_warn(node)
     res = node.expr.perform(@environment)
     res = res.value if res.is_a?(Sass::Script::Value::String)
-    msg = "WARNING: #{res}\n         "
-    msg << @environment.stack.to_s.gsub("\n", "\n         ") << "\n"
+    msg = "WARNING: #{res}\n         ".freeze
+    msg << @environment.stack.to_s.gsub("\n".freeze, "\n         ".freeze) << "\n".freeze
     Sass::Util.sass_warn msg
     []
   end

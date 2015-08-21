@@ -911,7 +911,7 @@ module Sass
 
       begin
         # If the string is valid, preprocess it according to section 3.3 of CSS Syntax Level 3.
-        return str.encode("UTF-8").gsub(/\r\n?|\f/, "\n").tr("\u0000", "�"), str.encoding
+        return str.encode("UTF-8").gsub(/\r\n?|\f/, "\n".freeze).tr("\u0000", '�'.freeze), str.encoding
       rescue EncodingError
         find_encoding_error(str)
       end

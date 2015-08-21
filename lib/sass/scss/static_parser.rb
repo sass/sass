@@ -111,14 +111,14 @@ module Sass
         # The combinator here allows the "> E" hack
         val = combinator || simple_selector_sequence
         return unless val
-        nl = str {ss}.include?("\n")
+        nl = str {ss}.include?("\n".freeze)
         res = []
         res << val
         res << "\n" if nl
 
         while (val = combinator || simple_selector_sequence)
           res << val
-          res << "\n" if str {ss}.include?("\n")
+          res << "\n".freeze if str {ss}.include?("\n".freeze)
         end
         seq = Selector::Sequence.new(res.compact)
 

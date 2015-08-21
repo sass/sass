@@ -156,13 +156,13 @@ module Sass::Script::Tree
     # it with a cross-browser implementation for functions that require vendor prefixes
     # in the generated css.
     def to_value(args)
-      Sass::Script::Value::String.new("#{name}(#{args.join(', ')})")
+      Sass::Script::Value::String.new("#{name}(#{args.join(', '.freeze)})")
     end
 
     private
 
     def ruby_name
-      @ruby_name ||= @name.tr('-', '_')
+      @ruby_name ||= @name.tr('-'.freeze, '_'.freeze)
     end
 
     def perform_arg(argument, environment, name)

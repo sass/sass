@@ -879,7 +879,7 @@ module Sass::Script
              a.value =~ /^[a-zA-Z]+\s*=/
          end
         # Support the proprietary MS alpha() function
-        return identifier("alpha(#{args.map {|a| a.to_s}.join(", ")})")
+        return identifier("alpha(#{args.map {|a| a.to_s}.join(", ".freeze)})")
       end
 
       raise ArgumentError.new("wrong number of arguments (#{args.size} for 1)") if args.size != 1
@@ -1607,7 +1607,7 @@ MESSAGE
     # @return [Sass::Script::Value::String] The unquoted string name of the
     #   value's type
     def type_of(value)
-      identifier(value.class.name.gsub(/Sass::Script::Value::/, '').downcase)
+      identifier(value.class.name.gsub(/Sass::Script::Value::/, ''.freeze).downcase)
     end
     declare :type_of, [:value]
 

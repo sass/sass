@@ -31,7 +31,7 @@ module Sass::Media
     #
     # @return [String]
     def to_css
-      queries.map {|q| q.to_css}.join(', ')
+      queries.map {|q| q.to_css}.join(', '.freeze)
     end
 
     # Returns the Sass/SCSS code for the media query list.
