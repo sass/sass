@@ -178,6 +178,8 @@ MSG
     "& foo\n  bar: baz\n  blat: bang" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 1],
     "a\n  b: c\n& foo\n  bar: baz\n  blat: bang" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 3],
     "@" => "Invalid directive: '@'.",
+    "$r: 20em * #ccc" => ["Cannot multiply a number with units (20em) to a color (#ccc).", 1],
+    "$r: #ccc / 1em" => ["Cannot divide a number with units (1em) to a color (#ccc).", 1],
   }
 
   def teardown
