@@ -194,6 +194,16 @@ module Sass::Script::Value
       raise ArgumentError.new(err)
     end
 
+    # Returns true when the literal is a string containing a calc()
+    #
+    # @param literal [Sass::Script::Value::Base] The value to check
+    # @return boolean
+    def calc?(literal)
+      if literal.is_a?(Sass::Script::Value::String)
+        literal.value =~ /calc\(/
+      end
+    end
+
     private
 
     # Converts a user-provided selector into string form or throws an
