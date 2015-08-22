@@ -694,7 +694,7 @@ module Sass::Script
         if calc?(alpha)
           unquoted_string("rgba(#{color.red}, #{color.green}, #{color.blue}, #{alpha})")
         else
-          assert_type alpha, :Number, :alpha 
+          assert_type alpha, :Number, :alpha
           check_alpha_unit alpha, 'rgba'
           color.with(:alpha => alpha.value)
         end
