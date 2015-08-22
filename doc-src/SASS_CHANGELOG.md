@@ -3,10 +3,18 @@
 * Table of contents
 {:toc}
 
-## 3.4.17 (Unreleased)
+## 3.4.17 (21 August 2015)
+
+* Allow passing calc values to rgb/hsl color constructors.
+
+* The source map end character for lists now correctly uses the end of
+  the list instead of the end of the first element in the list.
 
 * Fix up some edge cases where extra semicolons could be added to unknown
   directives in compressed mode.
+
+* If you try to do a stupid color operation with a stupid value, the
+  error message will now be less stupid than it was.
 
 * Make `is-superselector("a > c d", "a > b c d")` return `false`. This also
   fixes some related `@extend` behavior.
