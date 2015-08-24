@@ -38,7 +38,7 @@ EndAlignment:
   # Our alignment style differs significantly
   # and this doesn't seem to be a big deal.
   Enabled: false
-FavorSprintf:
+FormatString:
   # We like the string % operator.
   Enabled: false
 HandleExceptions:
@@ -47,7 +47,7 @@ HandleExceptions:
 HashSyntax:
   # We are a 1.8 compatable project still.
   Enabled: false
-HashMethods:
+DeprecatedHashMethods:
   # has_xxx? reads better.
   Enabled: false
 IfUnlessModifier:
@@ -102,9 +102,11 @@ SingleLineBlockParams:
 SingleLineMethods:
   # We like single line methods for simple methods.
   Enabled: false
-SpaceAroundBlockBraces:
-  # We prefer "foo {|arg| body}".
-  EnforcedStyle: no_space_inside_braces
+# We prefer "foo {|arg| body}".
+SpaceBeforeBlockBraces:
+  EnforcedStyle: space
+SpaceInsideBlockBraces:
+  EnforcedStyle: no_space
   SpaceBeforeBlockParameters: false
 SpaceInsideHashLiteralBraces:
   EnforcedStyle: no_space
