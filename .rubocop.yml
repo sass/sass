@@ -65,7 +65,7 @@ Lambda:
   Enabled: false
 LineLength:
   Enabled: true
-  Max: 100
+  Max: 110
 Loop:
   # This isn't a big deal.
   Enabled: false
