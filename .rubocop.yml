@@ -1,3 +1,5 @@
+inherit_from: .rubocop_todo.yml
+
 AccessorMethodName:
   # We have good reasons for choosing our method names.
   Enabled: false
