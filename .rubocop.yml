@@ -1,19 +1,43 @@
 inherit_from: .rubocop_todo.yml
 
+Lint/BlockAlignment:
+  Enabled: false
+Lint/EndAlignment:
+  # Our alignment style differs significantly
+  # and this doesn't seem to be a big deal.
+  Enabled: false
+Lint/HandleExceptions:
+  # We legitimately ignore exceptions in some cases and this is easy to catch in code review.
+  Enabled: false
+Lint/Loop:
+  # This isn't a big deal.
+  Enabled: false
+
+Metrics/BlockNesting:
+  # We'll catch this in code review. There are some legitimate uses.
+  Enabled: false
+Metrics/ClassLength:
+  # It's not worth bending over backwards to avoid long classes.
+  Enabled: false
+Metrics/CyclomaticComplexity:
+  # It's difficult to reason about what will reduce cyclomatic complexity.
+  Enabled: false
+Metrics/LineLength:
+  Enabled: true
+  Max: 110
+Metrics/MethodLength:
+  # TODO: This max should actually be 25 but that will require significant refactoring.
+  Max: 50
+  CountComments: false
+
 Style/AccessorMethodName:
   # We have good reasons for choosing our method names.
   Enabled: false
 Style/AlignParameters:
   # Natalie doesn't like to align parameters to the method call.
   Enabled: false
-Metrics/BlockNesting:
-  # We'll catch this in code review. There are some legitimate uses.
-  Enabled: false
 Style/CharacterLiteral:
   # Character literals are pretty useful when working with text like we do.
-  Enabled: false
-Metrics/ClassLength:
-  # It's not worth bending over backwards to avoid long classes.
   Enabled: false
 Style/CollectionMethods:
   PreferredMethods:
@@ -21,8 +45,8 @@ Style/CollectionMethods:
     reduce: 'inject'
     detect: 'find'
     find_all: 'select'
-Metrics/CyclomaticComplexity:
-  # It's difficult to reason about what will reduce cyclomatic complexity.
+Style/DeprecatedHashMethods:
+  # has_xxx? reads better.
   Enabled: false
 Style/Documentation:
   # TODO: We need to add a bunch of docs before we can enable this.
@@ -36,21 +60,11 @@ Style/EmptyLineBetweenDefs:
 Style/Encoding:
   # We use utf-8 comments when utf-8 characters are in use.
   Enabled: false
-Lint/EndAlignment:
-  # Our alignment style differs significantly
-  # and this doesn't seem to be a big deal.
-  Enabled: false
 Style/FormatString:
   # We like the string % operator.
   Enabled: false
-Lint/HandleExceptions:
-  # We legitimately ignore exceptions in some cases and this is easy to catch in code review.
-  Enabled: false
 Style/HashSyntax:
   # We are a 1.8 compatable project still.
-  Enabled: false
-Style/DeprecatedHashMethods:
-  # has_xxx? reads better.
   Enabled: false
 Style/IfUnlessModifier:
   # We don't feel strongly about this.
@@ -60,21 +74,9 @@ Style/IndentationConsistency:
   Enabled: false
 Style/IndentationWidth:
   Enabled: false
-Lint/BlockAlignment:
-  Enabled: false
 Style/Lambda:
   # We are a 1.8 compatible project still.
   Enabled: false
-Metrics/LineLength:
-  Enabled: true
-  Max: 110
-Lint/Loop:
-  # This isn't a big deal.
-  Enabled: false
-Metrics/MethodLength:
-  # TODO: This max should actually be 25 but that will require significant refactoring.
-  Max: 50
-  CountComments: false
 Style/ModuleFunction:
   # The module_function declaration makes methods private so it means you can't use the module as a module.
   Enabled: false
