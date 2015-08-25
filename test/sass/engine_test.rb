@@ -3313,6 +3313,16 @@ CSS
 SASS
   end
 
+  def test_import_two_css_files_issue_1806
+    assert_equal(<<CSS, render(<<SASS, :syntax => :scss, :style => :compressed))
+@import url(\"foo.css\");@import url(\"bar.css\");@import url(\"baz.css\")
+CSS
+@import url("foo.css");
+@import url("bar.css");
+@import url("baz.css");
+SASS
+  end
+
   private
 
   def assert_hash_has(hash, expected)
