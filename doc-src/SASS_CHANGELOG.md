@@ -3,6 +3,12 @@
 * Table of contents
 {:toc}
 
+## 3.4.18 (25 August 2015)
+
+* A fix in 3.4.17 to address unecessary semi-colons in compressed mode
+  was too aggressive and removed some that *were* necessary. This is now
+  fixed.
+
 ## 3.4.17 (21 August 2015)
 
 * Allow passing calc values to rgb/hsl color constructors.
