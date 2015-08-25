@@ -1,130 +1,130 @@
 inherit_from: .rubocop_todo.yml
 
-AccessorMethodName:
+Style/AccessorMethodName:
   # We have good reasons for choosing our method names.
   Enabled: false
-AlignParameters:
+Style/AlignParameters:
   # Natalie doesn't like to align parameters to the method call.
   Enabled: false
-BlockNesting:
+Metrics/BlockNesting:
   # We'll catch this in code review. There are some legitimate uses.
   Enabled: false
-CharacterLiteral:
+Style/CharacterLiteral:
   # Character literals are pretty useful when working with text like we do.
   Enabled: false
-ClassLength:
+Metrics/ClassLength:
   # It's not worth bending over backwards to avoid long classes.
   Enabled: false
-CollectionMethods:
+Style/CollectionMethods:
   PreferredMethods:
     collect: 'map'
     reduce: 'inject'
     detect: 'find'
     find_all: 'select'
-CyclomaticComplexity:
+Metrics/CyclomaticComplexity:
   # It's difficult to reason about what will reduce cyclomatic complexity.
   Enabled: false
-Documentation:
+Style/Documentation:
   # TODO: We need to add a bunch of docs before we can enable this.
   Enabled: false
-DotPosition:
+Style/DotPosition:
   # This check doesn't want chained method invocation to end with a dot.
   # But we like to do that.
   Enabled: false
-EmptyLineBetweenDefs:
+Style/EmptyLineBetweenDefs:
   AllowAdjacentOneLineDefs: true
-Encoding:
+Style/Encoding:
   # We use utf-8 comments when utf-8 characters are in use.
   Enabled: false
-EndAlignment:
+Lint/EndAlignment:
   # Our alignment style differs significantly
   # and this doesn't seem to be a big deal.
   Enabled: false
-FormatString:
+Style/FormatString:
   # We like the string % operator.
   Enabled: false
-HandleExceptions:
+Lint/HandleExceptions:
   # We legitimately ignore exceptions in some cases and this is easy to catch in code review.
   Enabled: false
-HashSyntax:
+Style/HashSyntax:
   # We are a 1.8 compatable project still.
   Enabled: false
-DeprecatedHashMethods:
+Style/DeprecatedHashMethods:
   # has_xxx? reads better.
   Enabled: false
-IfUnlessModifier:
+Style/IfUnlessModifier:
   # We don't feel strongly about this.
   Enabled: false
-IndentationConsistency:
+Style/IndentationConsistency:
   # We use indentation to convey meaning more often than we screw it up.
   Enabled: false
-IndentationWidth:
+Style/IndentationWidth:
   Enabled: false
-BlockAlignment:
+Lint/BlockAlignment:
   Enabled: false
-Lambda:
+Style/Lambda:
   # We are a 1.8 compatible project still.
   Enabled: false
-LineLength:
+Metrics/LineLength:
   Enabled: true
   Max: 110
-Loop:
+Lint/Loop:
   # This isn't a big deal.
   Enabled: false
-MethodLength:
+Metrics/MethodLength:
   # TODO: This max should actually be 25 but that will require significant refactoring.
   Max: 50
   CountComments: false
-ModuleFunction:
+Style/ModuleFunction:
   # The module_function declaration makes methods private so it means you can't use the module as a module.
   Enabled: false
-ParenthesesAroundCondition:
+Style/ParenthesesAroundCondition:
   AllowSafeAssignment: true
-PerlBackrefs:
+Style/PerlBackrefs:
   # We like perl backrefs.
   Enabled: false
-PredicateName:
+Style/PredicateName:
   # We have good reasons for choosing our method names.
   Enabled: false
-RaiseArgs:
+Style/RaiseArgs:
   # We prefer "raise Exception.new(msg)".
   EnforcedStyle: compact
-RedundantReturn:
+Style/RedundantReturn:
   # We allow explicit returns for multiple return values.
   AllowMultipleReturnValues: true
-Semicolon:
+Style/Semicolon:
   # Makes a good line separator
   Enabled: false
-SignalException:
+Style/SignalException:
   # We like saying raise.
   Enabled: false
-SingleLineBlockParams:
+Style/SingleLineBlockParams:
   # We have good reasons for choosing our argument names.
   Enabled: false
-SingleLineMethods:
+Style/SingleLineMethods:
   # We like single line methods for simple methods.
   Enabled: false
 # We prefer "foo {|arg| body}".
-SpaceBeforeBlockBraces:
+Style/SpaceBeforeBlockBraces:
   EnforcedStyle: space
-SpaceInsideBlockBraces:
+Style/SpaceInsideBlockBraces:
   EnforcedStyle: no_space
   SpaceBeforeBlockParameters: false
-SpaceInsideHashLiteralBraces:
+Style/SpaceInsideHashLiteralBraces:
   EnforcedStyle: no_space
-StringLiterals:
+Style/StringLiterals:
   # They say to not use double quoted strings unless there is interpolation.
   # While this gives a marginal parse time speedup, it makes working with
   # strings annoying.
   Enabled: false
-TrailingComma:
+Style/TrailingComma:
   Enabled: false
-TrivialAccessors:
+Style/TrivialAccessors:
   AllowPredicates: true
   ExactNameMatch: true
-WhenThen:
+Style/WhenThen:
   # We like semi-colons.
   Enabled: false
-WhileUntilModifier:
+Style/WhileUntilModifier:
   # We don't feel strongly about this.
   Enabled: false
