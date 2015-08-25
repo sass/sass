@@ -51,6 +51,10 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     @source_mapping.add(source_range, target_range)
   end
 
+  def ends_with?(str)
+    @result.end_with?(str)
+  end
+
   # Move the output cursor back `chars` characters.
   def erase!(chars)
     return if chars == 0
@@ -124,6 +128,9 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
       end
     end
     rstrip!
+    if node.style == :compressed && ends_with?(";")
+      erase! 1
+    end
     return "" if @result.empty?
 
     output "\n"
@@ -171,10 +178,10 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     if !node.has_children || node.children.empty?
       output(tab_str)
       for_node(node) {output(node.resolved_value)}
-      if node.style == :compressed
-        output("{}") if node.has_children
-      else
-        output(node.has_children ? " {}" : ";")
+      if node.has_children
+        output("#{' ' unless node.style == :compressed}{}")
+      elsif node.children.empty?
+        output(";")
       end
       return
     end
@@ -213,7 +220,9 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
         had_children = child.has_children
         first = false
       elsif node.style == :compressed
-        output(had_children ? "" : ";")
+        unless had_children
+          output(";") unless ends_with?(";")
+        end
         with_tabs(0) {visit(child)}
         had_children = child.has_children
       else
@@ -222,6 +231,9 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
       end
     end
     rstrip!
+    if node.style == :compressed && ends_with?(";")
+      erase! 1
+    end
     if node.style == :expanded
       output("\n#{tab_str}")
     elsif node.style != :compressed
@@ -342,9 +354,17 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
 
       with_tabs(tabs) do
         node.children.each_with_index do |child, i|
-          output(separator) if i > 0
+          if i > 0
+            if separator.start_with?(";") && ends_with?(";")
+              erase! 1
+            end
+            output(separator)
+          end
           visit(child)
         end
+      end
+      if node.style == :compressed && ends_with?(";")
+        erase! 1
       end
 
       output(end_props)
