@@ -78,7 +78,6 @@ MSG
     "& a\n  :b c" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 1],
     "a\n  :b\n    c" => "Illegal nesting: Only properties may be nested beneath properties.",
     "$a: b\n  :c d\n" => "Illegal nesting: Nothing may be nested beneath variable declarations.",
-    "$a: b\n  :c d\n" => "Illegal nesting: Nothing may be nested beneath variable declarations.",
     "@import templates/basic\n  foo" => "Illegal nesting: Nothing may be nested beneath import directives.",
     "foo\n  @import foo.css" => "CSS import directives may only be used at the root of a document.",
     "@if true\n  @import foo" => "Import directives may not be used within control directives or mixins.",
