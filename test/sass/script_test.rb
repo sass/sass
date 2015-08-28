@@ -118,6 +118,33 @@ class SassScriptTest < MiniTest::Test
     assert_equal "rgba(10, 1, 0, 0.12346)", resolve("rgba(10.0, 1.23456789, 0.0, 0.1234567)")
   end
 
+  def test_rgb_calc
+    assert_equal "rgb(calc(255 - 5), 0, 0)", resolve("rgb(calc(255 - 5), 0, 0)")
+  end
+
+  def test_rgba_calc
+    assert_equal "rgba(calc(255 - 5), 0, 0, 0.1)",
+      resolve("rgba(calc(255 - 5), 0, 0, 0.1)")
+    assert_equal "rgba(127, 0, 0, calc(0.1 + 0.5))",
+      resolve("rgba(127, 0, 0, calc(0.1 + 0.5))")
+  end
+
+  def test_rgba_shorthand_calc
+    assert_equal "rgba(255, 0, 0, calc(0.1 + 0.5))",
+      resolve("rgba(red, calc(0.1 + 0.5))")
+  end
+
+  def test_hsl_calc
+    assert_equal "hsl(calc(360 * 5 / 6), 50%, 50%)", resolve("hsl(calc(360 * 5 / 6), 50%, 50%)")
+  end
+
+  def test_hsla_calc
+    assert_equal "hsla(calc(360 * 5 / 6), 50%, 50%, 0.1)",
+      resolve("hsla(calc(360 * 5 / 6), 50%, 50%, 0.1)")
+    assert_equal "hsla(270, 50%, 50%, calc(0.1 + 0.1))",
+      resolve("hsla(270, 50%, 50%, calc(0.1 + 0.1))")
+  end
+
   def test_compressed_colors
     assert_equal "#123456", resolve("#123456", :style => :compressed)
     assert_equal "rgba(1,2,3,0.5)", resolve("rgba(1, 2, 3, 0.5)", :style => :compressed)
@@ -545,6 +572,13 @@ WARNING
     assert_equal "0.5", resolve("$var/2px", {}, env("var" => eval("1px")))
     assert_equal "0.5", resolve("1px/$var", {}, env("var" => eval("2px")))
     assert_equal "0.5", resolve("$var", {}, env("var" => eval("1px/2px")))
+  end
+
+  # Regression test for issue 1786.
+  def test_slash_division_within_list
+    assert_equal "1 1/2 1/2", resolve("(1 1/2 1/2)")
+    assert_equal "1/2 1/2", resolve("(1/2 1/2)")
+    assert_equal "1/2", resolve("(1/2,)")
   end
 
   def test_non_ident_colors_with_wrong_number_of_digits
@@ -1126,6 +1160,13 @@ SASS
     assert_equal "Infinity", resolve("(1.0/0.0)")
     assert_equal "-Infinity", resolve("(-1.0/0.0)")
     assert_equal "NaN", resolve("(0.0/0.0)")
+  end
+
+  def test_equality_uses_an_epsilon
+    # At least on my machine, this calculation introduces a floating point error:
+    # 29.0 / 7 * 7
+    # => 29.000000000000004
+    assert_equal "true", resolve("29 == (29 / 7 * 7)")
   end
 
   private

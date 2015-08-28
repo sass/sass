@@ -10,6 +10,49 @@
 
 * Add a `$weight` parameter to `invert()`.
 
+## 3.4.19 (UNRELEASED)
+
+* Sass numeric equality now better handles float-point errors. Any
+  numbers that are within `1 / (10 ^ (precision + 1))` of each other are
+  now considered equal.
+
+## 3.4.18 (25 August 2015)
+
+* A fix in 3.4.17 to address unecessary semi-colons in compressed mode
+  was too aggressive and removed some that *were* necessary. This is now
+  fixed.
+
+## 3.4.17 (21 August 2015)
+
+* Allow passing calc values to rgb/hsl color constructors.
+
+* The source map end character for lists now correctly uses the end of
+  the list instead of the end of the first element in the list.
+
+* Fix up some edge cases where extra semicolons could be added to unknown
+  directives in compressed mode.
+
+* If you try to do a stupid color operation with a stupid value, the
+  error message will now be less stupid than it was.
+
+* Make `is-superselector("a > c d", "a > b c d")` return `false`. This also
+  fixes some related `@extend` behavior.
+
+* A `/` in a parenthesized list is consistently treated as a plain `/` unless it
+  meets the criteria for being treated as division.
+
+* In `sass-convert`, ensure that literal `/`es are preserved.
+
+## 3.4.16 (10 July 2015)
+
+* When converting from Sass to SCSS or vice versa, double-space around nested
+  rules the same as around top-level rules.
+
+* Compatibility with listen 3.
+
+* Parse a minus operator with no surrounding whitespace (e.g. 20px-10px) the
+  same regardless of whether it's being used in a static property.
+
 ## 3.4.15 (22 June 2015)
 
 * Further improve rounding for various numeric operations.

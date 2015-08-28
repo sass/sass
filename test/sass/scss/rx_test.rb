@@ -141,6 +141,10 @@ class ScssRxTest < MiniTest::Test
     assert_equal "foo\\00007fbar", Sass::SCSS::RX.escape_ident("foo\177bar")
   end
 
+  def test_no_static_hyphenated_units
+    assert_no_match STATIC_VALUE, "20px-20px"
+  end
+
   private
 
   def assert_match(rx, str)

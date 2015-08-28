@@ -28,12 +28,8 @@ module Sass::Script::Tree
     # @see Value#to_sass
     def to_sass(opts = {})
       return "()" if elements.empty?
-      precedence = Sass::Script::Parser.precedence_of(separator)
       members = elements.map do |v|
-        if v.is_a?(ListLiteral) && Sass::Script::Parser.precedence_of(v.separator) <= precedence ||
-            separator == :space && v.is_a?(UnaryOperation) &&
-              (v.operator == :minus || v.operator == :plus) ||
-            separator == :space && v.is_a?(Operation)
+        if element_needs_parens?(v)
           "(#{v.to_sass(opts)})"
         else
           v.to_sass(opts)
@@ -56,6 +52,10 @@ module Sass::Script::Tree
       "(#{elements.map {|e| e.inspect}.join(separator == :space ? ' ' : ', ')})"
     end
 
+    def force_division!
+      # Do nothing. Lists prevent division propagation.
+    end
+
     protected
 
     def _perform(environment)
@@ -68,6 +68,32 @@ module Sass::Script::Tree
     end
 
     private
+
+    # Returns whether an element in the list should be wrapped in parentheses
+    # when serialized to Sass.
+    def element_needs_parens?(element)
+      if element.is_a?(ListLiteral)
+        return Sass::Script::Parser.precedence_of(element.separator) <=
+               Sass::Script::Parser.precedence_of(separator)
+      end
+
+      return false unless separator == :space
+
+      if element.is_a?(UnaryOperation)
+        return element.operator == :minus || element.operator == :plus
+      end
+
+      return false unless element.is_a?(Operation)
+      return true unless element.operator == :div
+      !(is_literal_number?(element.operand1) && is_literal_number?(element.operand2))
+    end
+
+    # Returns whether a value is a number literal that shouldn't be divided.
+    def is_literal_number?(value)
+      value.is_a?(Literal) &&
+        value.value.is_a?((Sass::Script::Value::Number)) &&
+        !value.value.original.nil?
+    end
 
     def sep_str(opts = options)
       return ' ' if separator == :space

@@ -630,6 +630,9 @@ module Sass::Script
     # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if any parameter is the wrong type or out of bounds
     def rgb(red, green, blue)
+      if calc?(red) || calc?(green) || calc?(blue)
+        return unquoted_string("rgb(#{red}, #{green}, #{blue})")
+      end
       assert_type red, :Number, :red
       assert_type green, :Number, :green
       assert_type blue, :Number, :blue
@@ -688,13 +691,20 @@ module Sass::Script
         color, alpha = args
 
         assert_type color, :Color, :color
-        assert_type alpha, :Number, :alpha
-        check_alpha_unit alpha, 'rgba'
-
-        color.with(:alpha => alpha.value)
+        if calc?(alpha)
+          unquoted_string("rgba(#{color.red}, #{color.green}, #{color.blue}, #{alpha})")
+        else
+          assert_type alpha, :Number, :alpha
+          check_alpha_unit alpha, 'rgba'
+          color.with(:alpha => alpha.value)
+        end
       when 4
         red, green, blue, alpha = args
-        rgba(rgb(red, green, blue), alpha)
+        if calc?(red) || calc?(green) || calc?(blue) || calc?(alpha)
+          unquoted_string("rgba(#{red}, #{green}, #{blue}, #{alpha})")
+        else
+          rgba(rgb(red, green, blue), alpha)
+        end
       else
         raise ArgumentError.new("wrong number of arguments (#{args.size} for 4)")
       end
@@ -719,7 +729,11 @@ module Sass::Script
     # @raise [ArgumentError] if `$saturation` or `$lightness` are out of bounds
     #   or any parameter is the wrong type
     def hsl(hue, saturation, lightness)
-      hsla(hue, saturation, lightness, number(1))
+      if calc?(hue) || calc?(saturation) || calc?(lightness)
+        unquoted_string("hsl(#{hue}, #{saturation}, #{lightness})")
+      else
+        hsla(hue, saturation, lightness, number(1))
+      end
     end
     declare :hsl, [:hue, :saturation, :lightness]
 
@@ -743,6 +757,9 @@ module Sass::Script
     # @raise [ArgumentError] if `$saturation`, `$lightness`, or `$alpha` are out
     #   of bounds or any parameter is the wrong type
     def hsla(hue, saturation, lightness, alpha)
+      if calc?(hue) || calc?(saturation) || calc?(lightness) || calc?(alpha)
+        return unquoted_string("hsla(#{hue}, #{saturation}, #{lightness}, #{alpha})")
+      end
       assert_type hue, :Number, :hue
       assert_type saturation, :Number, :saturation
       assert_type lightness, :Number, :lightness

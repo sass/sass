@@ -43,6 +43,7 @@ foo bar
   baz bang
     baz: bang
     bip: bop
+
   blat: boo
 SASS
 foo bar {
@@ -50,6 +51,7 @@ foo bar {
     baz: bang;
     bip: bop;
   }
+
   blat: boo;
 }
 SCSS
@@ -310,17 +312,21 @@ SCSS
     assert_renders <<SASS, <<SCSS
 foo
   bar: baz
+
   // bip bop
   // beep boop
   bang: bizz
+
   // bubble bubble
   // toil trouble
 SASS
 foo {
   bar: baz;
+
   // bip bop
   // beep boop
   bang: bizz;
+
   // bubble bubble
   // toil trouble
 }
@@ -329,10 +335,12 @@ SCSS
     assert_sass_to_scss <<SCSS, <<SASS
 foo {
   bar: baz;
+
   // bip bop
   // beep boop
   //   bap blimp
   bang: bizz;
+
   // bubble bubble
   // toil trouble
   //    gorp
@@ -340,10 +348,12 @@ foo {
 SCSS
 foo
   bar: baz
+
   // bip bop
      beep boop
        bap blimp
   bang: bizz
+
   // bubble bubble
     toil trouble
        gorp
@@ -443,17 +453,21 @@ SCSS
     assert_renders <<SASS, <<SCSS
 foo
   bar: baz
+
   /* bip bop
    * beep boop
   bang: bizz
+
   /* bubble bubble
    * toil trouble
 SASS
 foo {
   bar: baz;
+
   /* bip bop
    * beep boop */
   bang: bizz;
+
   /* bubble bubble
    * toil trouble */
 }
@@ -462,10 +476,12 @@ SCSS
     assert_sass_to_scss <<SCSS, <<SASS
 foo {
   bar: baz;
+
   /* bip bop
    * beep boop
    *   bap blimp */
   bang: bizz;
+
   /* bubble bubble
    * toil trouble
    *    gorp */
@@ -473,10 +489,12 @@ foo {
 SCSS
 foo
   bar: baz
+
   /* bip bop
      beep boop
        bap blimp
   bang: bizz
+
   /* bubble bubble
     toil trouble
        gorp
@@ -613,10 +631,12 @@ SASS
     assert_renders <<SASS, <<SCSS
 foo
   @debug 12px
+
   bar: baz
 SASS
 foo {
   @debug 12px;
+
   bar: baz;
 }
 SCSS
@@ -626,10 +646,12 @@ SCSS
     assert_renders <<SASS, <<SCSS
 foo
   @error "oh no!"
+
   bar: baz
 SASS
 foo {
   @error "oh no!";
+
   bar: baz;
 }
 SCSS
@@ -639,10 +661,12 @@ SCSS
     assert_renders <<SASS, <<SCSS
 foo
   @foo #bar "baz"
+
   bar: baz
 SASS
 foo {
   @foo #bar "baz";
+
   bar: baz;
 }
 SCSS
@@ -674,6 +698,7 @@ foo
   @foo #bar "baz"
     #blat
       a: b
+
     .bang
       c: d
       e: f
@@ -685,6 +710,7 @@ foo {
     #blat {
       a: b;
     }
+
     .bang {
       c: d;
       e: f;
@@ -701,11 +727,14 @@ SCSS
 foo
   @foo #bar "baz"
     g: h
+
     #blat
       a: b
+
     .bang
       c: d
       e: f
+
     i: j
 
   bar: baz
@@ -713,13 +742,16 @@ SASS
 foo {
   @foo #bar "baz" {
     g: h;
+
     #blat {
       a: b;
     }
+
     .bang {
       c: d;
       e: f;
     }
+
     i: j;
   }
 
@@ -741,6 +773,7 @@ SCSS
 foo
   @for $a from $b to $c
     a: b
+
   @for $c from 1 to 16
     d: e
     f: g
@@ -749,6 +782,7 @@ foo {
   @for $a from $b to $c {
     a: b;
   }
+
   @for $c from 1 to 16 {
     d: e;
     f: g;
@@ -762,6 +796,7 @@ SCSS
 foo
   @while flaz($a + $b)
     a: b
+
   @while 1
     d: e
     f: g
@@ -770,6 +805,7 @@ foo {
   @while flaz($a + $b) {
     a: b;
   }
+
   @while 1 {
     d: e;
     f: g;
@@ -783,6 +819,7 @@ SCSS
 foo
   @if $foo or $bar
     a: b
+
   @if $baz
     d: e
   @else if $bang
@@ -794,6 +831,7 @@ foo {
   @if $foo or $bar {
     a: b;
   }
+
   @if $baz {
     d: e;
   }
@@ -939,10 +977,12 @@ SCSS
     assert_renders <<SASS, <<SCSS
 .foo
   @extend .bar
+
   @extend .baz:bang
 SASS
 .foo {
   @extend .bar;
+
   @extend .baz:bang;
 }
 SCSS
@@ -1041,10 +1081,12 @@ SASS
     assert_renders <<SASS, <<SCSS
 foo
   +foo-bar
+
   a: blip
 SASS
 foo {
   @include foo-bar;
+
   a: blip;
 }
 SCSS
@@ -1054,10 +1096,12 @@ SCSS
     assert_renders <<SASS, <<SCSS
 foo
   +foo-bar(12px, "blaz")
+
   a: blip
 SASS
 foo {
   @include foo-bar(12px, "blaz");
+
   a: blip;
 }
 SCSS
@@ -1067,12 +1111,16 @@ SCSS
     assert_renders <<SASS, <<SCSS
 foo
   +foo-bar(12px, "blaz", $blip: blap, $bloop: blop)
+
   +foo-bar($blip: blap, $bloop: blop)
+
   a: blip
 SASS
 foo {
   @include foo-bar(12px, "blaz", $blip: blap, $bloop: blop);
+
   @include foo-bar($blip: blap, $bloop: blop);
+
   a: blip;
 }
 SCSS
@@ -1082,10 +1130,12 @@ SCSS
     assert_renders <<SASS, <<SCSS
 foo
   +foo-bar($a-b_c: val)
+
   a: blip
 SASS
 foo {
   @include foo-bar($a-b_c: val);
+
   a: blip;
 }
 SCSS
@@ -1095,10 +1145,12 @@ SCSS
     assert_renders <<SASS, <<SCSS
 @function foo()
   $var: 1 + 1
+
   @return $var
 SASS
 @function foo() {
   $var: 1 + 1;
+
   @return $var;
 }
 SCSS
@@ -1138,12 +1190,14 @@ $var1: 12px + 15px
 
 foo
   $var2: flaz(#abcdef)
+
   val: $var1 $var2
 SASS
 $var1: 12px + 15px;
 
 foo {
   $var2: flaz(#abcdef);
+
   val: $var1 $var2;
 }
 SCSS
@@ -1155,12 +1209,14 @@ $var1: 12px + 15px !default
 
 foo
   $var2: flaz(#abcdef) !default
+
   val: $var1 $var2
 SASS
 $var1: 12px + 15px !default;
 
 foo {
   $var2: flaz(#abcdef) !default;
+
   val: $var1 $var2;
 }
 SCSS
@@ -1239,6 +1295,16 @@ foo
 SASS
 foo {
   a: 1px / 2px;
+}
+SCSS
+
+    # Regression test for issue 1787
+    assert_renders <<SASS, <<SCSS
+foo
+  a: 1px / 2px 3px
+SASS
+foo {
+  a: 1px / 2px 3px;
 }
 SCSS
   end
@@ -1428,7 +1494,9 @@ SCSS
 
 div {
   foo: under-scored-fn($under-scored-var + "before\#{$another-under-scored-var}after");
+
   @include under-scored-mixin($passed-arg);
+
   selector-\#{$under-scored-interp}: bold;
 }
 
@@ -1468,7 +1536,9 @@ $color: blue
 =context($class, $color: red)
   .\#{$class}
     background-color: $color
+
     @content
+
     border-color: $color
 
 +context(parent)
@@ -1480,7 +1550,9 @@ $color: blue;
 @mixin context($class, $color: red) {
   .\#{$class} {
     background-color: $color;
+
     @content;
+
     border-color: $color;
   }
 }
@@ -1565,6 +1637,7 @@ foo bar
     baz bang
         baz: bang
         bip: bop
+
     blat: boo
 SASS
 foo bar {
@@ -1572,6 +1645,7 @@ foo bar {
         baz: bang;
         bip: bop;
     }
+
     blat: boo;
 }
 SCSS
@@ -1581,6 +1655,7 @@ foo bar
 	baz bang
 		baz: bang
 		bip: bop
+
 	blat: boo
 SASS
 foo bar {
@@ -1588,6 +1663,7 @@ foo bar {
 		baz: bang;
 		bip: bop;
 	}
+
 	blat: boo;
 }
 SCSS
@@ -1598,6 +1674,7 @@ foo bar {
         baz: bang;
         bip: bop;
     }
+
     blat: boo;
 }
 SCSS
@@ -1605,6 +1682,7 @@ foo bar
   baz bang
     baz: bang
     bip: bop
+
   blat: boo
 SASS
 
@@ -1614,6 +1692,7 @@ foo bar {
 		baz: bang;
 		bip: bop;
 	}
+
 	blat: boo;
 }
 SCSS
@@ -1621,6 +1700,7 @@ foo bar
   baz bang
     baz: bang
     bip: bop
+
   blat: boo
 SASS
 
@@ -1629,6 +1709,7 @@ foo bar
     baz bang
         baz: bang
         bip: bop
+
     blat: boo
 SASS
 foo bar {
@@ -1636,6 +1717,7 @@ foo bar {
     baz: bang;
     bip: bop;
   }
+
   blat: boo;
 }
 SCSS
@@ -1645,6 +1727,7 @@ foo bar
 	baz bang
 		baz: bang
 		bip: bop
+
 	blat: boo
 SASS
 foo bar {
@@ -1652,6 +1735,7 @@ foo bar {
     baz: bang;
     bip: bop;
   }
+
   blat: boo;
 }
 SCSS
@@ -1678,6 +1762,7 @@ SCSS
 
 .foo
   +foo($list...)
+
   +bar(1, $list...)
 SASS
 @mixin foo($args...) {
@@ -1690,6 +1775,7 @@ SASS
 
 .foo {
   @include foo($list...);
+
   @include bar(1, $list...);
 }
 SCSS
@@ -1703,6 +1789,7 @@ SCSS
 
 .foo
   +foo($list..., $map...)
+
   +foo(pos, $list..., $kwd: val, $map...)
 SASS
 @mixin foo($a: b, $c: d) {
@@ -1712,6 +1799,7 @@ SASS
 
 .foo {
   @include foo($list..., $map...);
+
   @include foo(pos, $list..., $kwd: val, $map...);
 }
 SCSS
@@ -1770,6 +1858,7 @@ SCSS
   @at-root
     .bar
       a: b
+
     .baz
       c: d
 SASS
@@ -1778,6 +1867,7 @@ SASS
     .bar {
       a: b;
     }
+
     .baz {
       c: d;
     }
@@ -1852,10 +1942,13 @@ SCSS
   0%
     top: 0
     left: 0
+
   30%
     top: 50px
+
   68%, 72%
     left: 50px
+
   100%
     top: 100px
     left: 100%
@@ -1865,12 +1958,15 @@ SASS
     top: 0;
     left: 0;
   }
+
   30% {
     top: 50px;
   }
+
   68%, 72% {
     left: 50px;
   }
+
   100% {
     top: 100px;
     left: 100%;

@@ -598,11 +598,27 @@ module Sass::Script::Value
       "##{red}#{green}#{blue}"
     end
 
+    def operation_name(operation)
+      case operation
+      when :+
+        "add"
+      when :-
+        "subtract"
+      when :*
+        "multiply"
+      when :/
+        "divide"
+      when :%
+        "modulo"
+      end
+    end
+
     def piecewise(other, operation)
       other_num = other.is_a? Number
       if other_num && !other.unitless?
         raise Sass::SyntaxError.new(
-          "Cannot add a number with units (#{other}) to a color (#{self}).")
+          "Cannot #{operation_name(operation)} a number with units (#{other}) to a color (#{self})."
+        )
       end
 
       result = []

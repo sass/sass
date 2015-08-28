@@ -178,6 +178,8 @@ MSG
     "& foo\n  bar: baz\n  blat: bang" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 1],
     "a\n  b: c\n& foo\n  bar: baz\n  blat: bang" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 3],
     "@" => "Invalid directive: '@'.",
+    "$r: 20em * #ccc" => ["Cannot multiply a number with units (20em) to a color (#ccc).", 1],
+    "$r: #ccc / 1em" => ["Cannot divide a number with units (1em) to a color (#ccc).", 1],
   }
 
   def teardown
@@ -3260,6 +3262,64 @@ CSS
   100%
     top: 100px
     left: 100%
+SASS
+  end
+
+  def test_compressed_unknown_directive
+    assert_equal(<<CSS, render(<<SASS, :style => :compressed))
+x{@foo;a:b;@bar}
+CSS
+x
+  @foo
+  a: b
+  @bar
+SASS
+  end
+
+  def test_compressed_unknown_directive_in_directive
+    assert_equal(<<CSS, render(<<SASS, :style => :compressed))
+@x{@foo;a:b;@bar}
+CSS
+@x
+  @foo
+  a: b
+  @bar
+SASS
+  end
+
+  def test_compressed_unknown_directive_with_children_in_directive
+    assert_equal(<<CSS, render(<<SASS, :style => :compressed))
+@x{@foo{a:b}c:d;@bar{e:f}}
+CSS
+@x
+  @foo
+    a: b
+  c: d
+  @bar
+    e: f
+SASS
+  end
+
+  def test_compressed_rule_in_directive
+    assert_equal(<<CSS, render(<<SASS, :style => :compressed))
+@x{foo{a:b}c:d;bar{e:f}}
+CSS
+@x
+  foo
+    a: b
+  c: d
+  bar
+    e: f
+SASS
+  end
+
+  def test_import_two_css_files_issue_1806
+    assert_equal(<<CSS, render(<<SASS, :syntax => :scss, :style => :compressed))
+@import url(\"foo.css\");@import url(\"bar.css\");@import url(\"baz.css\")
+CSS
+@import url("foo.css");
+@import url("bar.css");
+@import url("baz.css");
 SASS
   end
 

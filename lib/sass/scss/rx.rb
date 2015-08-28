@@ -96,8 +96,13 @@ module Sass
 
       IMPORTANT = /!#{W}important/i
 
+      # A unit is like an IDENT, but disallows a hyphen followed by a digit.
+      # This allows "1px-2px" to be interpreted as subtraction rather than "1"
+      # with the unit "px-2px". It also allows "%".
+      UNIT = /-?#{NMSTART}(?:[a-zA-Z0-9_]|#{NONASCII}|#{ESCAPE}|-(?!\d))*|%/
+
       UNITLESS_NUMBER = /(?:[0-9]+|[0-9]*\.[0-9]+)(?:[eE][+-]?\d+)?/
-      NUMBER = /#{UNITLESS_NUMBER}(?:#{IDENT}|%)?/
+      NUMBER = /#{UNITLESS_NUMBER}(?:#{UNIT})?/
       PERCENTAGE = /#{UNITLESS_NUMBER}%/
 
       URI = /url\(#{W}(?:#{STRING}|#{URL})#{W}\)/i
@@ -122,11 +127,6 @@ module Sass
       ANY = /:(-[-\w]+-)?any\(/i
       OPTIONAL = /!#{W}optional/i
       IDENT_START = /-|#{NMSTART}/
-
-      # A unit is like an IDENT, but disallows a hyphen followed by a digit.
-      # This allows "1px-2px" to be interpreted as subtraction rather than "1"
-      # with the unit "px-2px". It also allows "%".
-      UNIT = /-?#{NMSTART}(?:[a-zA-Z0-9_]|#{NONASCII}|#{ESCAPE}|-(?!\d))*|%/
 
       IDENT_HYPHEN_INTERP = /-(#\{)/
       STRING1_NOINTERP = /\"((?:[^\n\r\f\\"#]|#(?!\{)|#{ESCAPE})*)\"/

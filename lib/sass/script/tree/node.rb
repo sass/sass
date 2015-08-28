@@ -75,6 +75,12 @@ module Sass::Script::Tree
       Sass::Util.abstract(self)
     end
 
+    # Forces any division operations with number literals in this expression to
+    # do real division, rather than returning strings.
+    def force_division!
+      children.each {|c| c.force_division!}
+    end
+
     protected
 
     # Converts underscores to dashes if the :dasherize option is set.
