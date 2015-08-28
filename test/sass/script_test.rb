@@ -1162,6 +1162,13 @@ SASS
     assert_equal "NaN", resolve("(0.0/0.0)")
   end
 
+  def test_equality_uses_an_epsilon
+    # At least on my machine, this calculation introduces a floating point error:
+    # 29.0 / 7 * 7
+    # => 29.000000000000004
+    assert_equal "true", resolve("29 == (29 / 7 * 7)")
+  end
+
   private
 
   def resolve(str, opts = {}, environment = env)

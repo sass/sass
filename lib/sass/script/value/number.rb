@@ -43,12 +43,20 @@ module Sass::Script::Value
     def self.precision=(digits)
       @precision = digits.round
       @precision_factor = 10.0**@precision
+      @epsilon = 1 / (@precision_factor * 10)
     end
 
     # the precision factor used in numeric output
     # it is derived from the `precision` method.
     def self.precision_factor
       @precision_factor ||= 10.0**precision
+    end
+
+    # Used in checking equality of floating point numbers. Any
+    # numbers within an `epsilon` of each other are considered functionally equal.
+    # The value for epsilon is one tenth of the current numeric precision.
+    def self.epsilon
+      @epsilon ||= 1 / (precision_factor * 10)
     end
 
     # Used so we don't allocate two new arrays for each new number.
@@ -200,7 +208,7 @@ module Sass::Script::Value
       rescue Sass::UnitConversionError
         return Bool::FALSE
       end
-      Bool.new(this.value == other.value)
+      Bool.new(basically_equal?(this.value, other.value))
     end
 
     def hash
@@ -211,7 +219,7 @@ module Sass::Script::Value
     # Hash-equality must be transitive, so it just compares the exact value,
     # numerator units, and denominator units.
     def eql?(other)
-      value == other.value && numerator_units == other.numerator_units &&
+      basically_equal?(value, other.value) && numerator_units == other.numerator_units &&
         denominator_units == other.denominator_units
     end
 
@@ -294,7 +302,7 @@ module Sass::Script::Value
 
     # @return [Boolean] Whether or not this number is an integer.
     def int?
-      value % 1 == 0.0
+      basically_equal?(value % 1, 0.0)
     end
 
     # @return [Boolean] Whether or not this number has no units.
@@ -376,10 +384,22 @@ module Sass::Script::Value
     private
 
     # @private
+    # @see Sass::Script::Number.basically_equal?
+    def basically_equal?(num1, num2)
+      self.class.basically_equal?(num1, num2)
+    end
+
+    # Checks whether two numbers are within an epsilon of each other.
+    # @return [Boolean]
+    def self.basically_equal?(num1, num2)
+      (num1 - num2).abs < epsilon
+    end
+
+    # @private
     def self.round(num)
       if num.is_a?(Float) && (num.infinite? || num.nan?)
         num
-      elsif num % 1 == 0.0
+      elsif basically_equal?(num % 1, 0.0)
         num.to_i
       else
         ((num * precision_factor).round / precision_factor).to_f
