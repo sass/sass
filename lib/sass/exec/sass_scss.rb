@@ -392,7 +392,6 @@ WARNING
         (@options[:for_engine][:load_paths] ||= []) << ::Sass::Importers::DeprecatedPath.new(".")
       end
 
-
       @options[:for_engine][:syntax] ||= :scss if input.is_a?(File) && input.path =~ /\.scss$/
       @options[:for_engine][:syntax] ||= @default_syntax
       engine =
