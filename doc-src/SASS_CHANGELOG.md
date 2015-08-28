@@ -3,6 +3,12 @@
 * Table of contents
 {:toc}
 
+## 3.4.19 (UNRELEASED)
+
+* Sass numeric equality now better handles float-point errors. Any
+  numbers that are within `1 / (10 ^ (precision + 1))` of each other are
+  now considered equal.
+
 ## 3.4.18 (25 August 2015)
 
 * A fix in 3.4.17 to address unecessary semi-colons in compressed mode
