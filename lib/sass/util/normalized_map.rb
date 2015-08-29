@@ -1,5 +1,4 @@
 require 'delegate'
-require 'sass/util'
 
 module Sass
   module Util
