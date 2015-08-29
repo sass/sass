@@ -1,9 +1,9 @@
 # Intro to SCSS for Sass Users
 
 Sass 3 introduces a new syntax known as SCSS
-which is fully compatible with the syntax of CSS3,
+which is fully compatible with the syntax of CSS,
 while still supporting the full power of Sass.
-This means that every valid CSS3 stylesheet
+This means that every valid CSS stylesheet
 is a valid SCSS file with the same meaning.
 In addition, SCSS understands most CSS hacks
 and vendor-specific syntax, such as [IE's old `filter` syntax](http://msdn.microsoft.com/en-us/library/ms532847%28v=vs.85%29.aspx#Defining_Visual_Filt).
