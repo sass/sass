@@ -206,20 +206,6 @@ class UtilTest < MiniTest::Test
     assert_equal(98, ord("bar"))
   end
 
-  def test_flatten
-    assert_equal([1, 2, 3], flatten([1, 2, 3], 0))
-    assert_equal([1, 2, 3], flatten([1, 2, 3], 1))
-    assert_equal([1, 2, 3], flatten([1, 2, 3], 2))
-
-    assert_equal([[1, 2], 3], flatten([[1, 2], 3], 0))
-    assert_equal([1, 2, 3], flatten([[1, 2], 3], 1))
-    assert_equal([1, 2, 3], flatten([[1, 2], 3], 2))
-
-    assert_equal([[[1], 2], [3], 4], flatten([[[1], 2], [3], 4], 0))
-    assert_equal([[1], 2, 3, 4], flatten([[[1], 2], [3], 4], 1))
-    assert_equal([1, 2, 3, 4], flatten([[[1], 2], [3], 4], 2))
-  end
-
   def test_flatten_vertically
     assert_equal([1, 2, 3], flatten_vertically([1, 2, 3]))
     assert_equal([1, 3, 5, 2, 4, 6], flatten_vertically([[1, 2], [3, 4], [5, 6]]))

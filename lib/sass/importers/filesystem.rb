@@ -150,8 +150,7 @@ module Sass
             full_path.gsub!(REDUNDANT_DIRECTORY, File::SEPARATOR)
             [Sass::Util.cleanpath(full_path).to_s, s]
           end
-        end
-        found = Sass::Util.flatten(found, 1)
+        end.flatten(1)
         return if found.empty?
 
         if found.size > 1 && !@same_name_warnings.include?(found.first.first)

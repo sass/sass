@@ -276,7 +276,7 @@ module Sass
     #     #  [2, 4, 5]]
     def paths(arrs)
       arrs.inject([[]]) do |paths, arr|
-        flatten(arr.map {|e| paths.map {|path| path + [e]}}, 1)
+        arr.map {|e| paths.map {|path| path + [e]}}.flatten(1)
       end
     end
 
@@ -841,7 +841,7 @@ module Sass
       end
 
       return Hash[pairs_or_hash] unless ruby1_8?
-      (pairs_or_hash.is_a?(NormalizedMap) ? NormalizedMap : OrderedHash)[*flatten(pairs_or_hash, 1)]
+      (pairs_or_hash.is_a?(NormalizedMap) ? NormalizedMap : OrderedHash)[*pairs_or_hash.flatten(1)]
     end
 
     unless ruby1_8?
@@ -985,17 +985,6 @@ module Sass
     # @return [Fixnum] The ASCII code of `c`.
     def ord(c)
       ruby1_8? ? c[0] : c.ord
-    end
-
-    # Flattens the first `n` nested arrays in a cross-version manner.
-    #
-    # @param arr [Array] The array to flatten
-    # @param n [Fixnum] The number of levels to flatten
-    # @return [Array] The flattened array
-    def flatten(arr, n)
-      return arr.flatten(n) unless ruby1_8_6?
-      return arr if n == 0
-      arr.inject([]) {|res, e| e.is_a?(Array) ? res.concat(flatten(e, n - 1)) : res << e}
     end
 
     # Flattens the first level of nested arrays in `arrs`. Unlike

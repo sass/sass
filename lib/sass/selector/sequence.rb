@@ -228,11 +228,11 @@ module Sass
           next if current.empty?
           current = current.dup
           last_current = [current.pop]
-          prefixes = Sass::Util.flatten(prefixes.map do |prefix|
+          prefixes = prefixes.map do |prefix|
             sub = subweave(prefix, current)
             next [] unless sub
             sub.map {|seqs| seqs + last_current}
-          end, 1)
+          end.flatten(1)
         end
         prefixes
       end
@@ -551,7 +551,7 @@ module Sass
       def trim(seqses)
         # Avoid truly horrific quadratic behavior. TODO: I think there
         # may be a way to get perfect trimming without going quadratic.
-        return Sass::Util.flatten(seqses, 1) if seqses.size > 100
+        return seqses.flatten(1) if seqses.size > 100
 
         # Keep the results in a separate array so we can be sure we aren't
         # comparing against an already-trimmed selector. This ensures that two
@@ -586,7 +586,7 @@ module Sass
             end
           end
         end
-        Sass::Util.flatten(result, 1)
+        result.flatten(1)
       end
 
       def _hash

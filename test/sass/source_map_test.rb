@@ -881,11 +881,12 @@ JSON
     source_ranges = build_ranges(source, source_file_name)
     target_ranges = build_ranges(css)
     map = Sass::Source::Map.new
-    Sass::Util.flatten(source_ranges.map do |(name, sources)|
+    source_ranges.map do |(name, sources)|
         assert(sources.length == 1, "#{sources.length} source ranges encountered for annotation #{name}")
         assert(target_ranges[name], "No target ranges for annotation #{name}")
         target_ranges[name].map {|target_range| [sources.first, target_range]}
-      end, 1).
+      end.
+      flatten(1).
       sort_by {|(_, target)| [target.start_pos.line, target.start_pos.offset]}.
       each {|(s2, target)| map.add(s2, target)}
     map
