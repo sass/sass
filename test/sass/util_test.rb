@@ -213,21 +213,6 @@ class UtilTest < MiniTest::Test
     assert_equal([1, 4, 6, 2, 5, 3], flatten_vertically([[1, 2, 3], [4, 5], 6]))
   end
 
-  def test_set_eql
-    assert(set_eql?(Set[1, 2, 3], Set[3, 2, 1]))
-    assert(set_eql?(Set[1, 2, 3], Set[1, 2, 3]))
-
-    s1 = Set[]
-    s1 << 1
-    s1 << 2
-    s1 << 3
-    s2 = Set[]
-    s2 << 3
-    s2 << 2
-    s2 << 1
-    assert(set_eql?(s1, s2))
-  end
-
   def test_extract_and_inject_values
     test = lambda {|arr| assert_equal(arr, with_extracted_values(arr) {|str| str})}
 
