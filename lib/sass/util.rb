@@ -1005,16 +1005,6 @@ module Sass
       result
     end
 
-    # Returns the hash code for a set in a cross-version manner.
-    # Aggravatingly, this is order-dependent in Ruby 1.8.6.
-    #
-    # @param set [Set]
-    # @return [Fixnum] The order-independent hashcode of `set`
-    def set_hash(set)
-      return set.hash unless ruby1_8_6?
-      set.map {|e| e.hash}.uniq.sort.hash
-    end
-
     # Tests the hash-equality of two sets in a cross-version manner.
     # Aggravatingly, this is order-dependent in Ruby 1.8.6.
     #

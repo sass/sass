@@ -213,21 +213,6 @@ class UtilTest < MiniTest::Test
     assert_equal([1, 4, 6, 2, 5, 3], flatten_vertically([[1, 2, 3], [4, 5], 6]))
   end
 
-  def test_set_hash
-    assert(set_hash(Set[1, 2, 3]) == set_hash(Set[3, 2, 1]))
-    assert(set_hash(Set[1, 2, 3]) == set_hash(Set[1, 2, 3]))
-
-    s1 = Set[]
-    s1 << 1
-    s1 << 2
-    s1 << 3
-    s2 = Set[]
-    s2 << 3
-    s2 << 2
-    s2 << 1
-    assert(set_hash(s1) == set_hash(s2))
-  end
-
   def test_set_eql
     assert(set_eql?(Set[1, 2, 3], Set[3, 2, 1]))
     assert(set_eql?(Set[1, 2, 3], Set[1, 2, 3]))

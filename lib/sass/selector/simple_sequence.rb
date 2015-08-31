@@ -332,7 +332,7 @@ MESSAGE
       end
 
       def _hash
-        [base, Sass::Util.set_hash(rest)].hash
+        [base, rest.hash].hash
       end
 
       def _eql?(other)
