@@ -783,15 +783,6 @@ module Sass
                    (RUBY_VERSION_COMPONENTS[0] == 1 && RUBY_VERSION_COMPONENTS[1] < 9)
     end
 
-    # Whether or not this is running under Ruby 1.8.6 or lower.
-    # Note that lower versions are not officially supported.
-    #
-    # @return [Boolean]
-    def ruby1_8_6?
-      return @ruby1_8_6 if defined?(@ruby1_8_6)
-      @ruby1_8_6 = ruby1_8? && RUBY_VERSION_COMPONENTS[2] < 7
-    end
-
     # Whether or not this is running under Ruby 1.9.2 exactly.
     #
     # @return [Boolean]
