@@ -332,12 +332,12 @@ MESSAGE
       end
 
       def _hash
-        [base, Sass::Util.set_hash(rest)].hash
+        [base, rest.hash].hash
       end
 
       def _eql?(other)
         other.base.eql?(base) && other.pseudo_elements == pseudo_elements &&
-          Sass::Util.set_eql?(other.rest, rest) && other.subject? == subject?
+          other.rest.eql?(rest) && other.subject? == subject?
       end
     end
   end
