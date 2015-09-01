@@ -215,12 +215,12 @@ module Sass
       end
 
       def special_directive(name, start_pos)
-        sym = name.gsub('-', '_').to_sym
+        sym = name.tr('-', '_').to_sym
         DIRECTIVES.include?(sym) && send("#{sym}_directive", start_pos)
       end
 
       def prefixed_directive(name, start_pos)
-        sym = deprefix(name).gsub('-', '_').to_sym
+        sym = deprefix(name).tr('-', '_').to_sym
         PREFIXED_DIRECTIVES.include?(sym) && send("#{sym}_directive", name, start_pos)
       end
 
