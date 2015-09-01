@@ -156,13 +156,12 @@ module Sass
         else
           value = Sass::Engine.parse_interp(
             text, line, @scanner.pos - text.size, :filename => @filename)
-          string_before_comment = @scanner.string[0...@scanner.pos - text.length]
-          newline_before_comment = string_before_comment.rindex("\n")
+          newline_before_comment = @scanner.string.rindex("\n", @scanner.pos - text.length)
           last_line_before_comment =
             if newline_before_comment
-              string_before_comment[newline_before_comment + 1..-1]
+              @scanner.string[newline_before_comment + 1...@scanner.pos - text.length]
             else
-              string_before_comment
+              @scanner.string[0...@scanner.pos - text.length]
             end
           value.unshift(last_line_before_comment.gsub(/[^\s]/, ' '))
         end
