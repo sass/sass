@@ -16,6 +16,8 @@
 * Rounding numbers now respects Sass's precision setting for numbers very
   close to half an integer.
 
+* The q unit, or a quarter of a millimeter is a new unit added to the CSS standard. Support for it and conversions between the associated family has now been added.
+
 ## 3.4.19 (09 October 2015)
 
 * Sass numeric equality now better handles float-point errors. Any
