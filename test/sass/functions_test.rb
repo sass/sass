@@ -197,6 +197,7 @@ WARNING
     assert_equal("1", evaluate("min(3px, 2px, 1)"))
     assert_equal("4em", evaluate("min(4em)"))
     assert_equal("10cm", evaluate("min(10cm, 6in)"))
+    assert_equal("1q", evaluate("min(1cm, 1q)"))
 
     assert_error_message("#aaaaaa is not a number for `min'", "min(#aaa)")
     assert_error_message("Incompatible units: 'px' and 'em'.", "min(3em, 4em, 1px)")
@@ -207,6 +208,8 @@ WARNING
     assert_equal("3", evaluate("max(3, 2px, 1px)"))
     assert_equal("4em", evaluate("max(4em)"))
     assert_equal("6in", evaluate("max(10cm, 6in)"))
+    assert_equal("11mm", evaluate("max(11mm, 10q)"))
+
 
     assert_error_message("#aaaaaa is not a number for `max'", "max(#aaa)")
     assert_error_message("Incompatible units: 'px' and 'em'.", "max(3em, 4em, 1px)")
