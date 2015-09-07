@@ -7,7 +7,7 @@ enable :lock
 Dir.chdir(File.dirname(__FILE__) + "/..")
 
 post "/" do
-  puts "Recieved payload!"
+  puts "Received payload!"
   puts "Rev: #{`git name-rev HEAD`.strip}"
   system %{rake handle_update --trace REF=#{JSON.parse(params["payload"])["ref"].inspect}}
 end
