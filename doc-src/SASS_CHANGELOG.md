@@ -3,6 +3,13 @@
 * Table of contents
 {:toc}
 
+## 4.0.0 (Unreleased)
+
+* Combine ids and `:root` when unifying selectors with `@extend` and selector
+  functions.
+
+* Add a `$weight` parameter to `invert()`.
+
 ## 3.4.19 (UNRELEASED)
 
 * Sass numeric equality now better handles float-point errors. Any
@@ -11,6 +18,8 @@
 
 * Allow importing relative paths on standard input even when `--stdin` isn't
   explicitly passed.
+
+* The q unit, or a quarter of a millimeter is a new unit added to the CSS standard. Support for it and conversions between the associated family has now been added.
 
 ## 3.4.18 (25 August 2015)
 
