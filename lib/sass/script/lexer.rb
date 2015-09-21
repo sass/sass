@@ -147,7 +147,7 @@ module Sass
       # @param offset [Fixnum] The 1-based character (not byte) offset in the line in the source.
       #   Used for error reporting and sourcemap building
       # @param options [{Symbol => Object}] An options hash;
-      #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
+      #   see {file:SASS_REFERENCE.md#options the Sass options documentation}
       def initialize(str, line, offset, options)
         @scanner = str.is_a?(StringScanner) ? str : Sass::Util::MultibyteStringScanner.new(str)
         @line = line

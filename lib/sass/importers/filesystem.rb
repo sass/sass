@@ -133,7 +133,7 @@ module Sass
 
       REDUNDANT_DIRECTORY = /#{Regexp.escape(File::SEPARATOR)}\.#{Regexp.escape(File::SEPARATOR)}/
       # Given a base directory and an `@import`ed name,
-      # finds an existant file that matches the name.
+      # finds an existent file that matches the name.
       #
       # @param dir [String] The directory relative to which to search.
       # @param name [String] The filename to search for.

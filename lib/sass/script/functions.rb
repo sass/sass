@@ -77,7 +77,7 @@ module Sass::Script
   # \{#complement complement($color)}
   # : Returns the complement of a color.
   #
-  # \{#invert invert($color)}
+  # \{#invert invert($color, \[$weight\])}
   # : Returns the inverse of a color.
   #
   # ## Opacity Functions
@@ -123,7 +123,7 @@ module Sass::Script
   # : Inserts `$insert` into `$string` at `$index`.
   #
   # \{#str_index str-index($string, $substring)}
-  # : Returns the index of the first occurance of `$substring` in `$string`.
+  # : Returns the index of the first occurrence of `$substring` in `$string`.
   #
   # \{#str_slice str-slice($string, $start-at, [$end-at])}
   # : Extracts a substring from `$string`.
@@ -1393,20 +1393,28 @@ module Sass::Script
     #
     # @overload invert($color)
     #   @param $color [Sass::Script::Value::Color]
+    # @overload invert($color, $weight: 100%)
+    #   @param $color [Sass::Script::Value::Color]
+    #   @param $weight [Sass::Script::Value::Number] The relative weight of the
+    #     color color's inverse
     # @return [Sass::Script::Value::Color]
-    # @raise [ArgumentError] if `$color` isn't a color
-    def invert(color)
+    # @raise [ArgumentError] if `$color` isn't a color or `$weight`
+    #   isn't a percentage between 0% and 100%
+    def invert(color, weight = number(100))
       if color.is_a?(Sass::Script::Value::Number)
         return identifier("invert(#{color})")
       end
 
       assert_type color, :Color, :color
-      color.with(
+      inv = color.with(
         :red => (255 - color.red),
         :green => (255 - color.green),
         :blue => (255 - color.blue))
+
+      mix(inv, color, weight)
     end
     declare :invert, [:color]
+    declare :invert, [:color, :weight]
 
     # Removes quotes from a string. If the string is already unquoted, this will
     # return it unmodified.

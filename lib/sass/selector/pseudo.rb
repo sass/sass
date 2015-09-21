@@ -48,6 +48,10 @@ module Sass
         @selector = selector
       end
 
+      def unique?
+        type == :class && normalized_name == 'root'
+      end
+
       # Returns a copy of this with \{#selector} set to \{#new\_selector}.
       #
       # @param new_selector [CommaSequence]

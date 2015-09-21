@@ -87,6 +87,10 @@ module Sass
         @name = name
       end
 
+      def unique?
+        true
+      end
+
       # @see Selector#to_s
       def to_s
         "#" + @name

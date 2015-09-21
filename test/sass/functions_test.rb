@@ -873,12 +873,22 @@ WARNING
 
   def test_invert
     assert_equal("#112233", evaluate("invert(#edc)"))
+    assert_equal("#d8cabd", evaluate("invert(#edc, 10%)"))
     assert_equal("rgba(245, 235, 225, 0.5)", evaluate("invert(rgba(10, 20, 30, 0.5))"))
+    assert_equal("rgba(34, 42, 50, 0.5)", evaluate("invert(rgba(10, 20, 30, 0.5), 10%)"))
     assert_equal("invert(20%)", evaluate("invert(20%)"))
   end
 
   def test_invert_tests_types
     assert_error_message("$color: \"foo\" is not a color for `invert'", "invert(\"foo\")")
+    assert_error_message("$weight: \"foo\" is not a number for `invert'", "invert(#edc, \"foo\")")
+  end
+
+  def test_invert_tests_bounds
+    assert_error_message("Weight -0.001 must be between 0% and 100% for `invert'",
+      "invert(#edc, -0.001)")
+    assert_error_message("Weight 100.001 must be between 0% and 100% for `invert'",
+      "invert(#edc, 100.001)")
   end
 
   def test_unquote

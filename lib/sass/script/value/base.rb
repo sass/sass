@@ -26,7 +26,7 @@ module Sass::Script::Value
 
     # Sets the options hash for this node,
     # as well as for all child nodes.
-    # See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
+    # See {file:SASS_REFERENCE.md#options the Sass options documentation}.
     #
     # @param options [{Symbol => Object}] The options
     attr_writer :options

@@ -21,7 +21,7 @@ module Sass
     # @param offset [Fixnum] The number of characters in on `line` that the SassScript started.
     #   Used for error reporting
     # @param options [{Symbol => Object}] An options hash;
-    #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
+    #   see {file:SASS_REFERENCE.md#options the Sass options documentation}
     # @return [Script::Tree::Node] The root node of the parse tree
     def self.parse(value, line, offset, options = {})
       Parser.parse(value, line, offset, options)

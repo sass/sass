@@ -3,6 +3,13 @@
 * Table of contents
 {:toc}
 
+## 4.0.0 (Unreleased)
+
+* Combine ids and `:root` when unifying selectors with `@extend` and selector
+  functions.
+
+* Add a `$weight` parameter to `invert()`.
+
 ## 3.4.19 (UNRELEASED)
 
 * Sass numeric equality now better handles float-point errors. Any
