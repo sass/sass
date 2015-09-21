@@ -83,7 +83,7 @@ module Sass
       attr_writer :filename
 
       # The options hash for the node.
-      # See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
+      # See {file:SASS_REFERENCE.md#options the Sass options documentation}.
       #
       # @return [{Symbol => Object}]
       attr_reader :options
@@ -149,7 +149,7 @@ module Sass
       # @return [Boolean]
       def invisible?; false; end
 
-      # The output style. See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
+      # The output style. See {file:SASS_REFERENCE.md#options the Sass options documentation}.
       #
       # @return [Symbol]
       def style
