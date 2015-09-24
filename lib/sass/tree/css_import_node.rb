@@ -15,6 +15,11 @@ module Sass::Tree
     # @return [String]
     attr_accessor :resolved_uri
 
+    # The supports condition for this import.
+    #
+    # @return [Sass::Supports::Condition]
+    attr_accessor :supports_condition
+
     # The media query for this rule, interspersed with
     # {Sass::Script::Tree::Node}s representing `#{}`-interpolation. Any adjacent
     # strings will be merged together.
@@ -30,9 +35,11 @@ module Sass::Tree
 
     # @param uri [String, Sass::Script::Tree::Node] See \{#uri}
     # @param query [Array<String, Sass::Script::Tree::Node>] See \{#query}
-    def initialize(uri, query = [])
+    # @param supports_condition [Sass::Supports::Condition] See \{#supports_condition}
+    def initialize(uri, query = [], supports_condition = nil)
       @uri = uri
       @query = query
+      @supports_condition = supports_condition
       super('')
     end
 
@@ -52,6 +59,7 @@ module Sass::Tree
       @resolved_value ||=
         begin
           str = "@import #{resolved_uri}"
+          str << " supports(#{supports_condition.to_css})" if supports_condition
           str << " #{resolved_query.to_css}" if resolved_query
           str
         end

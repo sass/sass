@@ -55,6 +55,15 @@ module Sass
         interp_ident
       end
 
+      # Parses a supports clause for an @import directive
+      def parse_supports_clause
+        init_scanner!
+        ss
+        clause = supports_clause
+        ss
+        clause
+      end
+
       # Parses a media query list.
       #
       # @return [Sass::Media::QueryList] The parsed query list
@@ -379,16 +388,20 @@ module Sass
         if uri
           str = sass_script(:parse_string)
           ss
+          supports = supports_clause
+          ss
           media = media_query_list
           ss
-          return node(Tree::CssImportNode.new(str, media.to_a), start_pos)
+          return node(Tree::CssImportNode.new(str, media.to_a, supports), start_pos)
         end
         ss
 
+        supports = supports_clause
+        ss
         media = media_query_list
-        if str =~ %r{^(https?:)?//} || media || use_css_import?
+        if str =~ %r{^(https?:)?//} || media || supports || use_css_import?
           return node(Sass::Tree::CssImportNode.new(
-              Sass::Script::Value::String.quote(str), media.to_a), start_pos)
+              Sass::Script::Value::String.quote(str), media.to_a, supports), start_pos)
         end
 
         node(Sass::Tree::ImportNode.new(str.strip), start_pos)
@@ -546,6 +559,15 @@ module Sass
         tok!(/\}/)
 
         node(node, start_pos)
+      end
+
+      def supports_clause
+        return unless tok(/supports\(/i)
+        ss
+        supports = supports_condition
+        ss
+        tok!(/\)/)
+        supports
       end
 
       def supports_condition

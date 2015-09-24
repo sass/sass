@@ -8,6 +8,8 @@
 * Fix a bug with the rounding changes from 3.4.14 and 3.4.15 where some negative
   numbers would incorrectly be rounded up instead of down.
 
+* Add support for the new `supports()` clause for CSS `@import` directives.
+
 ## 3.4.19 (09 October 2015)
 
 * Sass numeric equality now better handles float-point errors. Any
