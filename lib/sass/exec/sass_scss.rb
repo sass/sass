@@ -52,7 +52,7 @@ END
       super
 
       if @options[:sourcemap] != :none && @options[:output_filename]
-        if !@options[:sourcemap_filename]
+        unless @options[:sourcemap_filename]
           @options[:sourcemap_filename] = Sass::Util.sourcemap_name(@options[:output_filename])
         end
       end
@@ -174,7 +174,7 @@ MESSAGE
 
       # If the user gives --sourcemap-filename, we write out the sourcemap file there
       # The default is to write in the same location
-      opts.on(:OPTIONAL, '--sourcemap-filename=FILE', 'The destination of the sourcemap file') do |smd|
+      opts.on(:OPTIONAL, '--sourcemap-filename=FILE', 'The destination sourcemap file') do |smd|
         @options[:sourcemap_filename] = smd
       end
 
