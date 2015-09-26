@@ -172,8 +172,6 @@ MESSAGE
         @options[:sourcemap] = (type || :auto).to_sym
       end
 
-      # If the user gives --sourcemap-filename, we write out the sourcemap file there
-      # The default is to write in the same location
       opts.on(:OPTIONAL, '--sourcemap-filename=FILE', 'The destination sourcemap file') do |smd|
         @options[:sourcemap_filename] = smd
       end
