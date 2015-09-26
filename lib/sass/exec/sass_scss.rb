@@ -134,22 +134,7 @@ END
       end
     end
 
-    def input_and_output(opts)
-      opts.separator ''
-      opts.separator 'Input and Output:'
-
-      if @default_syntax == :sass
-        opts.on('--scss',
-                'Use the CSS-superset SCSS syntax.') do
-          @options[:for_engine][:syntax] = :scss
-        end
-      else
-        opts.on('--sass',
-                'Use the indented Sass syntax.') do
-          @options[:for_engine][:syntax] = :sass
-        end
-      end
-
+    def sourcemap_options(opts)
       # This is optional for backwards-compatibility with Sass 3.3, which didn't
       # enable sourcemaps by default and instead used "--sourcemap" to do so.
       opts.on(:OPTIONAL, '--sourcemap=TYPE',
@@ -172,9 +157,30 @@ MESSAGE
         @options[:sourcemap] = (type || :auto).to_sym
       end
 
+      # This lets the user place the generated .map file at a location of his liking
       opts.on(:OPTIONAL, '--sourcemap-filename=FILE', 'The destination sourcemap file') do |smd|
         @options[:sourcemap_filename] = smd
       end
+    end
+
+    def input_and_output(opts)
+      opts.separator ''
+      opts.separator 'Input and Output:'
+
+      if @default_syntax == :sass
+        opts.on('--scss',
+                'Use the CSS-superset SCSS syntax.') do
+          @options[:for_engine][:syntax] = :scss
+        end
+      else
+        opts.on('--sass',
+                'Use the indented Sass syntax.') do
+          @options[:for_engine][:syntax] = :sass
+        end
+      end
+
+      # New function to stay under function size limit
+      sourcemap_options(opts)
 
       opts.on('-s', '--stdin', :NONE,
               'Read input from standard input instead of an input file.',
