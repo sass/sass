@@ -188,7 +188,7 @@ module Sass::Script
   # \{#index index($list, $value)}
   # : Returns the position of a value within a list.
   #
-  # \{#list_separator list-separator(#list)}
+  # \{#list_separator list-separator($list)}
   # : Returns the separator of a list.
   #
   # ## Map Functions {#map-functions}
