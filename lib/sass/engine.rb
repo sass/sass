@@ -229,7 +229,7 @@ module Sass
       had_syntax = options[:syntax]
 
       if had_syntax
-        # Use what was explicitly specificed
+        # Use what was explicitly specified
       elsif filename =~ /\.scss$/
         options.merge!(:syntax => :scss)
       elsif filename =~ /\.sass$/

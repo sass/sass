@@ -123,7 +123,7 @@ module Sass::Script
   # : Inserts `$insert` into `$string` at `$index`.
   #
   # \{#str_index str-index($string, $substring)}
-  # : Returns the index of the first occurance of `$substring` in `$string`.
+  # : Returns the index of the first occurence of `$substring` in `$string`.
   #
   # \{#str_slice str-slice($string, $start-at, [$end-at])}
   # : Extracts a substring from `$string`.

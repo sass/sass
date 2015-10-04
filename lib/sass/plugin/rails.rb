@@ -2,7 +2,7 @@ unless defined?(Sass::RAILS_LOADED)
   Sass::RAILS_LOADED = true
 
   module Sass::Plugin::Configuration
-    # Different default options in a rails envirionment.
+    # Different default options in a rails environment.
     def default_options
       return @default_options if @default_options
       opts = {

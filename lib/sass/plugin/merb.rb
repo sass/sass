@@ -2,7 +2,7 @@ unless defined?(Sass::MERB_LOADED)
   Sass::MERB_LOADED = true
 
   module Sass::Plugin::Configuration
-    # Different default options in a m envirionment.
+    # Different default options in a m environment.
     def default_options
       @default_options ||= begin
         version = Merb::VERSION.split('.').map {|n| n.to_i}
