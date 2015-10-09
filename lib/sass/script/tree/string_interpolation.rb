@@ -3,12 +3,33 @@ module Sass::Script::Tree
   #
   # @see Interpolation
   class StringInterpolation < Node
+    # @return [Literal] The string literal before this interpolation.
+    attr_reader :before
+
+    # @return [Node] The SassScript within the interpolation
+    attr_reader :mid
+
+    # @return [StringInterpolation, Literal]
+    #     The string literal or string interpolation before this interpolation.
+    attr_reader :after
+
+    # Whether this is a CSS string or a CSS identifier. The difference is that
+    # strings are written with double-quotes, while identifiers aren't.
+    #
+    # String interpolations are only ever identifiers if they're quote-like
+    # functions such as `url()`.
+    #
+    # @return [Symbol] `:string` or `:identifier`
+    def type
+      @before.value.type
+    end
+
     # Interpolation in a string is of the form `"before #{mid} after"`,
     # where `before` and `after` may include more interpolation.
     #
-    # @param before [Node] The string before the interpolation
-    # @param mid [Node] The SassScript within the interpolation
-    # @param after [Node] The string after the interpolation
+    # @param before [StringInterpolation, Literal] See {StringInterpolation#before}
+    # @param mid [Node] See {StringInterpolation#mid}
+    # @param after [Literal] See {StringInterpolation#after}
     def initialize(before, mid, after)
       @before = before
       @mid = mid
@@ -22,32 +43,15 @@ module Sass::Script::Tree
 
     # @see Node#to_sass
     def to_sass(opts = {})
-      # We can get rid of all of this when we remove the deprecated :equals context
-      # XXX CE: It's gone now but I'm not sure what can be removed now.
-      before_unquote, before_quote_char, before_str = parse_str(@before.to_sass(opts))
-      after_unquote, after_quote_char, after_str = parse_str(@after.to_sass(opts))
-      unquote = before_unquote || after_unquote ||
-        (before_quote_char && !after_quote_char && !after_str.empty?) ||
-        (!before_quote_char && after_quote_char && !before_str.empty?)
-      quote_char =
-        if before_quote_char && after_quote_char && before_quote_char != after_quote_char
-          before_str.gsub!("\\'", "'")
-          before_str.gsub!('"', "\\\"")
-          after_str.gsub!("\\'", "'")
-          after_str.gsub!('"', "\\\"")
-          '"'
-        else
-          before_quote_char || after_quote_char
-        end
+      quote = type == :string ? opts[:quote] || quote_for(self) || '"' : :none
+      opts = opts.merge(:quote => quote)
 
       res = ""
-      res << 'unquote(' if unquote
-      res << quote_char if quote_char
-      res << before_str
-      res << '#{' << @mid.to_sass(opts) << '}'
-      res << after_str
-      res << quote_char if quote_char
-      res << ')' if unquote
+      res << quote if quote != :none
+      res << _to_sass(before, opts)
+      res << '#{' << @mid.to_sass(opts.merge(:quote => nil)) << '}'
+      res << _to_sass(after, opts)
+      res << quote if quote != :none
       res
     end
 
@@ -88,17 +92,28 @@ module Sass::Script::Tree
 
     private
 
-    def parse_str(str)
-      case str
-      when /^unquote\((["'])(.*)\1\)$/
-        return true, $1, $2
-      when '""'
-        return false, nil, ""
-      when /^(["'])(.*)\1$/
-        return false, $1, $2
-      else
-        return false, nil, str
+    def _to_sass(string_or_interp, opts)
+      result = string_or_interp.to_sass(opts)
+      opts[:quote] == :none ? result : result.slice(1...-1)
+    end
+
+    def quote_for(string_or_interp)
+      if string_or_interp.is_a?(Sass::Script::Tree::Literal)
+        return nil if string_or_interp.value.value.empty?
+        return '"' if string_or_interp.value.value.include?("'")
+        return "'" if string_or_interp.value.value.include?('"')
+        return nil
       end
+
+      # Double-quotes take precedence over single quotes.
+      before_quote = quote_for(string_or_interp.before)
+      return '"' if before_quote == '"'
+      after_quote = quote_for(string_or_interp.after)
+      return '"' if after_quote == '"'
+
+      # Returns "'" if either or both insist on single quotes, and nil
+      # otherwise.
+      return before_quote || after_quote
     end
   end
 end

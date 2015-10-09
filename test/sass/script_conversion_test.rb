@@ -334,7 +334,9 @@ RUBY
     assert_renders '"foo #{$bar} #{$bang} baz"'
     assert_renders '"#{$bar}baz"'
     assert_renders '"foo#{$bar}"'
-    assert_equal '#{$bar}', render('"#{$bar}"')
+    assert_renders '"#{$bar}"'
+
+    assert_renders "'\"\#{\"bar\"}\"'"
 
     assert_equal '"foo#{$bar}baz"', render("'foo\#{$bar}baz'")
   end

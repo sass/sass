@@ -12,6 +12,8 @@
 * Allow importing relative paths on standard input even when `--stdin` isn't
   explicitly passed.
 
+* Fix some busted edge cases with `sass-convert` and string interpolation.
+
 ## 3.4.18 (25 August 2015)
 
 * A fix in 3.4.17 to address unecessary semi-colons in compressed mode

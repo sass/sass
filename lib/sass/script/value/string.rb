@@ -87,7 +87,7 @@ module Sass::Script::Value
 
     # @see Value#to_sass
     def to_sass(opts = {})
-      to_s
+      to_s(opts)
     end
 
     def inspect
