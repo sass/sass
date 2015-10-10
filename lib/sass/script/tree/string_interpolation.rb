@@ -113,7 +113,7 @@ module Sass::Script::Tree
 
       # Returns "'" if either or both insist on single quotes, and nil
       # otherwise.
-      return before_quote || after_quote
+      before_quote || after_quote
     end
   end
 end
