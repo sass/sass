@@ -44,6 +44,7 @@ class SassScriptTest < MiniTest::Test
     assert_equal "☃f", resolve("\"\\2603 f\"")
     assert_equal "☃x", resolve("\"\\2603x\"")
     assert_equal "\\2603", resolve("\"\\\\2603\"")
+    assert_equal "\#{foo}", resolve("\"\\\#{foo}\"")
 
     # U+FFFD is the replacement character, "�".
     assert_equal [0xFFFD].pack("U"), resolve("\"\\0\"")
@@ -71,6 +72,7 @@ class SassScriptTest < MiniTest::Test
     assert_equal '"☃abcdef"', resolve_quoted('"\2603 abcdef"')
     assert_equal '"\\\\"', resolve_quoted('"\\\\"')
     assert_equal '"foobar"', resolve_quoted("\"foo\\\nbar\"")
+    assert_equal '"#{foo}"', resolve_quoted("\"\\\#{foo}\"")
   end
 
   def test_color_names

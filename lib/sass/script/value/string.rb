@@ -28,9 +28,18 @@ module Sass::Script::Value
       end
     end
 
-    def self.quote(contents, quote = nil)
+    # Returns the quoted string representation of `contents`.
+    #
+    # @options opts :quote [String]
+    #   The preferred quote style for quoted strings. If `:none`, strings are
+    #   always emitted unquoted. If `nil`, quoting is determined automatically.
+    # @options opts :sass [String]
+    #   Whether to quote strings for Sass source, as opposed to CSS. Defaults to `false`.
+    def self.quote(contents, opts = {})
+      quote = opts[:quote]
+
       # Short-circuit if there are no characters that need quoting.
-      unless contents =~ /[\n\\"']/
+      unless contents =~ /[\n\\"']|\#\{/
         quote ||= '"'
         return "#{quote}#{contents}#{quote}"
       end
@@ -49,6 +58,9 @@ module Sass::Script::Value
 
       # Replace single backslashes with multiples.
       contents = contents.gsub("\\", "\\\\\\\\")
+
+      # Escape interpolation.
+      contents = contents.gsub('#{', "\\\#{") if opts[:sass]
 
       if quote == '"'
         contents = contents.gsub('"', "\\\"")
@@ -82,12 +94,12 @@ module Sass::Script::Value
     # @see Value#to_s
     def to_s(opts = {})
       return @value.gsub(/\n\s*/, ' ') if opts[:quote] == :none || @type == :identifier
-      Sass::Script::Value::String.quote(value, opts[:quote])
+      String.quote(value, opts)
     end
 
     # @see Value#to_sass
     def to_sass(opts = {})
-      to_s(opts)
+      to_s(opts.merge(:sass => true))
     end
 
     def inspect
