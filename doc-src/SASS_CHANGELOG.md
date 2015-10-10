@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.4.19 (UNRELEASED)
+## 3.4.19 (09 October 2015)
 
 * Sass numeric equality now better handles float-point errors. Any
   numbers that are within `1 / (10 ^ (precision + 1))` of each other are
