@@ -144,9 +144,10 @@ module Sass
     # @param value [Numeric]
     # @return [Numeric]
     def round(value)
-      # If the number is within epsilon of X.5, round up.
-      return value.ceil if (value % 1) - 0.5 > -0.00001
-      value.round
+      # If the number is within epsilon of X.5, round up (or down for negative
+      # numbers).
+      return value.round if (value % 1) - 0.5 <= -0.00001
+      value > 0 ? value.ceil : value.floor
     end
 
     # Concatenates all strings that are adjacent in an array,
