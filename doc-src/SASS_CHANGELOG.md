@@ -16,6 +16,14 @@
   numbers that are within `1 / (10 ^ (precision + 1))` of each other are
   now considered equal.
 
+* Allow importing relative paths on standard input even when `--stdin` isn't
+  explicitly passed.
+
+* Since we require ruby 1.8.7 or greater, support for ruby 1.8.6 was
+  removed from the code.
+
+* Small performance enhancements.
+
 ## 3.4.18 (25 August 2015)
 
 * A fix in 3.4.17 to address unecessary semi-colons in compressed mode

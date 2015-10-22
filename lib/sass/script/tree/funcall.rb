@@ -1,5 +1,5 @@
 require 'sass/script/functions'
-require 'sass/util/normalized_map'
+require 'sass/util'
 
 module Sass::Script::Tree
   # A SassScript parse node representing a function call.

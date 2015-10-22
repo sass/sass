@@ -78,8 +78,7 @@ module Sass
             next unless subset.subset?(set)
             [index, subenum]
           end
-        end
-        res = Sass::Util.flatten(res, 1)
+        end.flatten(1)
         res.compact!
         res.uniq!
         res.sort!

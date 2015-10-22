@@ -15,7 +15,7 @@ particularly with the help of
 
 ## Features
 
-* Fully CSS3-compatible
+* Fully CSS-compatible
 * Language extensions such as variables, nesting, and mixins
 * Many {Sass::Script::Functions useful functions} for manipulating colors and other values
 * Advanced features like [control directives](#control_directives__expressions) for libraries
@@ -23,15 +23,15 @@ particularly with the help of
 
 ## Syntax
 
-There are two syntaxes available for Sass.
-The first, known as SCSS (Sassy CSS) and used throughout this reference,
-is an extension of the syntax of CSS3.
-This means that every valid CSS3 stylesheet
-is a valid SCSS file with the same meaning.
-In addition, SCSS understands most CSS hacks
-and vendor-specific syntax, such as [IE's old `filter` syntax](http://msdn.microsoft.com/en-us/library/ms530752.aspx).
-This syntax is enhanced with the Sass features described below.
-Files using this syntax have the `.scss` extension.
+There are two syntaxes available for Sass. The first, known as SCSS (Sassy CSS)
+and used throughout this reference, is an extension of the syntax of CSS. This
+means that every valid CSS stylesheet is a valid SCSS file with the same
+meaning. In addition, SCSS understands most CSS hacks and vendor-specific
+syntax, such as [IE's old `filter` syntax][filter]. This syntax is enhanced with
+the Sass features described below. Files using this syntax have the `.scss`
+extension.
+
+[filter]: http://msdn.microsoft.com/en-us/library/ms530752.aspx
 
 The second and older syntax, known as the indented syntax (or sometimes just "Sass"),
 provides a more concise way of writing CSS.
