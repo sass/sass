@@ -111,12 +111,10 @@ add the following line to `config/dependencies.rb`:
     dependency "merb-haml"
 
 To enable Sass in a Rack application,
-add
+add the following lines to `config.ru`.
 
     require 'sass/plugin/rack'
     use Sass::Plugin::Rack
-
-to `config.ru`.
 
 Sass stylesheets don't work the same as views.
 They don't contain dynamic content,
