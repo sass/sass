@@ -776,7 +776,19 @@ WARNING
                else
                  :normal
                end
-        Tree::CommentNode.new(value, type)
+        comment = Tree::CommentNode.new(value, type)
+        comment.line = line.index
+        text = line.text.rstrip
+        if text.include?("\n")
+          end_offset = text.length - text.rindex("\n")
+        else
+          end_offset = to_parser_offset(line.offset + text.length)
+        end
+        comment.source_range = Sass::Source::Range.new(
+          Sass::Source::Position.new(@line, to_parser_offset(line.offset)),
+          Sass::Source::Position.new(@line + text.count("\n"), end_offset),
+          @options[:filename])
+        comment
       else
         Tree::RuleNode.new(parse_interp(line.text), full_line_range(line))
       end
@@ -1189,10 +1201,15 @@ WARNING
           res << "\\" * (escapes - 1) << '#{'
         else
           res << "\\" * [0, escapes - 1].max
-          # Add 1 to emulate to_parser_offset.
-          res << Script::Parser.new(
-            scan, line, offset + scan.pos - scan.matched_size + 1, options).
-            parse_interpolated
+          if scan[1].include?("\n")
+            line = line + scan[1].count("\n")
+            offset = scan.matched_size - scan[1].rindex("\n")
+          else
+            offset += scan.matched_size
+          end
+          node = Script::Parser.new(scan, line, offset, options).parse_interpolated
+          offset = node.source_range.end_pos.offset
+          res << node
         end
       end
       res << rest
