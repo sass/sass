@@ -1013,12 +1013,21 @@ WARNING
           end_pos = str.source_range.end_pos
           node = Tree::CssImportNode.new(str)
         else
-          media_parser = Sass::SCSS::Parser.new(scanner,
+          supports_parser = Sass::SCSS::Parser.new(scanner,
             @options[:filename], @options[:importer],
             @line, str.source_range.end_pos.offset)
-          media = media_parser.parse_media_query_list
-          end_pos = Sass::Source::Position.new(@line, media_parser.offset + 1)
-          node = Tree::CssImportNode.new(str, media.to_a)
+          supports_condition = supports_parser.parse_supports_clause
+
+          if scanner.eos?
+            node = Tree::CssImportNode.new(str, [], supports_condition)
+          else
+            media_parser = Sass::SCSS::Parser.new(scanner,
+              @options[:filename], @options[:importer],
+              @line, str.source_range.end_pos.offset)
+            media = media_parser.parse_media_query_list
+            end_pos = Sass::Source::Position.new(@line, media_parser.offset + 1)
+            node = Tree::CssImportNode.new(str, media.to_a, supports_condition)
+          end
         end
 
         node.source_range = Sass::Source::Range.new(

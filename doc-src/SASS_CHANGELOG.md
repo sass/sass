@@ -11,6 +11,8 @@
 * Better compression for `:nth` pseudoselectors with subtraction.
   [Issue #1650](https://github.com/sass/sass/issues/1874)
 
+* Add support for the new `supports()` clause for CSS `@import` directives.
+
 ## 3.4.19 (09 October 2015)
 
 * Sass numeric equality now better handles float-point errors. Any

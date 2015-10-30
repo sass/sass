@@ -163,6 +163,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
     else
       str = "#{tab_str}@import #{node.uri}"
     end
+    str << " supports(#{node.supports_condition.to_src(@options)})" if node.supports_condition
     str << " #{interp_to_src(node.query)}" unless node.query.empty?
     "#{str}#{semi}\n"
   end

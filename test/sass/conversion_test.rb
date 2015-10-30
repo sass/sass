@@ -2112,6 +2112,14 @@ foo {
 SCSS
   end
 
+  def test_import_with_supports_clause
+    assert_renders(<<'SASS', <<'SCSS')
+@import url("fallback-layout.css") supports(not (display: #{$display-type}))
+SASS
+@import url("fallback-layout.css") supports(not (display: #{$display-type}));
+SCSS
+  end
+
   private
 
   def assert_sass_to_sass(sass, options = {})

@@ -526,6 +526,9 @@ WARNING
         node.filename, node.options[:importer], node.line)
       node.resolved_query ||= parser.parse_media_query_list
     end
+    if node.supports_condition
+      node.supports_condition.perform(@environment)
+    end
     yield
   end
 
