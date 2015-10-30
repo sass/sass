@@ -3322,6 +3322,17 @@ CSS
 SASS
   end
 
+  def test_compressed_output_of_nth_selectors
+    assert_equal(<<CSS, render(<<SASS, :syntax => :scss, :style => :compressed))
+:nth-of-type(2n-1),:nth-of-type(2n-1),:nth-of-type(2n-1),:nth-of-type(2n-1),:nth-of-type(2n-1){color:red}:nth-of-type(2n+1),:nth-of-type(2n+1),:nth-of-type(2n+1),:nth-of-type(2n+1),:nth-of-type(2n+1){color:red}
+CSS
+:nth-of-type(2n-1), :nth-of-type(2n-  1), :nth-of-type(2n  -1), :nth-of-type(2n  -  1), :nth-of-type( 2n  -  1 ) {
+  color: red }
+:nth-of-type(2n+1), :nth-of-type(2n+  1), :nth-of-type(2n  +1), :nth-of-type(2n  +  1), :nth-of-type( 2n  +  1 ) {
+  color: red }
+SASS
+  end
+
   private
 
   def assert_hash_has(hash, expected)
