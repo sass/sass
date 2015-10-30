@@ -3322,26 +3322,17 @@ CSS
 SASS
   end
 
-  def test_import_with_supports_clause_interp_scss
-    assert_equal(<<CSS, render(<<SASS, :syntax => :scss, :style => :compressed))
+  def test_import_with_supports_clause_interp
+    assert_equal(<<CSS, render(<<'SASS', :style => :compressed))
 @import url("fallback-layout.css") supports(not (display: flex))
 CSS
-$display-type: flex;
-@import url("fallback-layout.css") supports(not (display: \#{$display-type}));
+$display-type: flex
+@import url("fallback-layout.css") supports(not (display: #{$display-type}))
 SASS
   end
 
-  def test_import_with_supports_clause_scss
-    assert_equal(<<CSS, render(<<SASS, :syntax => :scss, :style => :compressed))
-@import url("fallback-layout.css") supports(not (display: flex));.foo{bar:baz}
-CSS
-@import url("fallback-layout.css") supports(not (display: flex));
-.foo { bar: baz; }
-SASS
-  end
-
-  def test_import_with_supports_clause_sass
-    assert_equal(<<CSS, render(<<SASS, :syntax => :sass, :style => :compressed))
+  def test_import_with_supports_clause
+    assert_equal(<<CSS, render(<<SASS, :style => :compressed))
 @import url("fallback-layout.css") supports(not (display: flex))
 CSS
 @import url("fallback-layout.css") supports(not (display: flex))

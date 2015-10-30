@@ -566,7 +566,7 @@ module Sass
         ss
         supports = supports_condition
         ss
-        tok!(/\)/)
+        tok!(')')
         supports
       end
 
