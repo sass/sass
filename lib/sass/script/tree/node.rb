@@ -62,6 +62,10 @@ module Sass::Script::Tree
 
     # Returns the text of this SassScript expression.
     #
+    # @options opts :quote [String]
+    #   The preferred quote style for quoted strings. If `:none`, strings are
+    #   always emitted unquoted.
+    #
     # @return [String]
     def to_sass(opts = {})
       Sass::Util.abstract(self)

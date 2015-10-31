@@ -154,6 +154,7 @@ WARNING
     assert_equal("5px", evaluate("round(4.8px)"))
     assert_equal("5px", evaluate("round(5.49px)"))
     assert_equal("5px", evaluate("round($number: 5.49px)"))
+    assert_equal("-6", evaluate("round(-5.5)"))
   end
 
   def test_round_checks_types

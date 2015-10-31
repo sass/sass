@@ -3,7 +3,19 @@
 * Table of contents
 {:toc}
 
-## 3.4.19 (UNRELEASED)
+## 3.4.20 (Unreleased)
+
+* Fix a bug with the rounding changes from 3.4.14 and 3.4.15 where some negative
+  numbers would incorrectly be rounded up instead of down.
+
+* Better compression for `:nth` pseudoselectors with subtraction.
+  [Issue #1650](https://github.com/sass/sass/issues/1874)
+
+* Add support for the new `supports()` clause for CSS `@import` directives.
+
+* The q unit, or a quarter of a millimeter is a new unit added to the CSS standard. Support for it and conversions between the associated family has now been added.
+
+## 3.4.19 (09 October 2015)
 
 * Sass numeric equality now better handles float-point errors. Any
   numbers that are within `1 / (10 ^ (precision + 1))` of each other are
@@ -12,7 +24,12 @@
 * Allow importing relative paths on standard input even when `--stdin` isn't
   explicitly passed.
 
-* The q unit, or a quarter of a millimeter is a new unit added to the CSS standard. Support for it and conversions between the associated family has now been added.
+* Fix some busted edge cases with `sass-convert` and string interpolation.
+
+* Since we require ruby 1.8.7 or greater, support for ruby 1.8.6 was
+  removed from the code.
+
+* Small performance enhancements.
 
 ## 3.4.18 (25 August 2015)
 
