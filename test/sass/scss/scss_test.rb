@@ -3909,6 +3909,27 @@ CSS
 SCSS
   end
 
+  def test_extra_comma_in_mixin_arglist_multiline
+    assert_equal <<CSS, render(<<SCSS)
+.bar {
+  baz: bar;
+  bal: bri; }
+CSS
+@mixin foo($a1, $a2) {
+  baz: $a1;
+  bal: $a2;
+}
+
+.bar {
+  @include foo(
+    bar,
+    bri,
+  );
+}
+SCSS
+  end
+
+
   def test_interpolation
     assert_equal <<CSS, render(<<SCSS)
 ul li#foo a span.label {
