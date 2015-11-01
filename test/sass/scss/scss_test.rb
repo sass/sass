@@ -3894,12 +3894,13 @@ a.\#{"foo"} b
 SCSS
   end
 
-  def test_extra_comma_in_mixin_arglist_error
-    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
-Invalid CSS after "...clude foo(bar, ": expected mixin argument, was ");"
-MESSAGE
-@mixin foo($a1, $a2) {
-  baz: $a1 $a2;
+  def test_extra_comma_in_mixin_arglist
+    assert_equal <<CSS, render(<<SCSS)
+.bar {
+  baz: bar; }
+CSS
+@mixin foo($a1) {
+  baz: $a1;
 }
 
 .bar {
