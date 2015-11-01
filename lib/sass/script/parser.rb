@@ -483,11 +483,28 @@ RUBY
             args << e if e
           end
 
+<<<<<<< HEAD
+          return args, keywords, splat unless no_trailing_comma?(description)
+=======
           return args, keywords, splat unless try_tok(:comma)
+>>>>>>> parent of 3118711... Added a new method no_trailing_comma?
           e = assert_expr(subexpr, description)
         end
       end
 
+<<<<<<< HEAD
+      def no_trailing_comma?(description)
+        if description == 'mixin argument'
+          val = try_tok(:comma)
+          peeked = @lexer.peek.type
+          !((val && peeked == :rparen) || (!val))
+        else
+          return try_tok(:comma)
+        end
+      end
+
+=======
+>>>>>>> parent of 3118711... Added a new method no_trailing_comma?
       def raw
         tok = try_tok(:raw)
         return special_fun unless tok
