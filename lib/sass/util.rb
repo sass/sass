@@ -146,7 +146,7 @@ module Sass
     def round(value)
       # If the number is within epsilon of X.5, round up (or down for negative
       # numbers).
-      return value.round if (value % 1) - 0.5 <= -0.00001
+      return value.round if (value % 1) - 0.5 <= -1 * Script::Value::Number.epsilon
       value > 0 ? value.ceil : value.floor
     end
 
