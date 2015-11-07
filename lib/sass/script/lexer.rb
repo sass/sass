@@ -157,6 +157,13 @@ module Sass
         @prev = nil
       end
 
+      # Returns whether or not there's whitespace before the given token.
+      #
+      # @return [Boolean]
+      def whitespace_before?(tok)
+        @scanner.string[0...tok.pos] =~ /\s\Z/
+      end
+
       # Moves the lexer forward one token.
       #
       # @return [Token] The token that was moved past
@@ -165,18 +172,6 @@ module Sass
         @tok, tok = nil, @tok
         @prev = tok
         tok
-      end
-
-      # Returns whether or not there's whitespace before the next token.
-      #
-      # @return [Boolean]
-      def whitespace?(tok = @tok)
-        if tok
-          @scanner.string[0...tok.pos] =~ /\s\Z/
-        else
-          @scanner.string[@scanner.pos, 1] =~ /^\s/ ||
-            @scanner.string[@scanner.pos - 1, 1] =~ /\s\Z/
-        end
       end
 
       # Returns the next token without moving the lexer forward.
@@ -201,11 +196,6 @@ module Sass
         return if @next_tok
         whitespace unless after_interpolation? && !@interpolation_stack.empty?
         @scanner.eos? && @tok.nil?
-      end
-
-      # @return [Boolean] Whether or not the last token lexed was `:end_interpolation`.
-      def after_interpolation?
-        @prev && @prev.type == :end_interpolation
       end
 
       # Raise an error to the effect that `name` was expected in the input stream
@@ -234,6 +224,11 @@ module Sass
       end
 
       private
+
+      # @return [Boolean] Whether or not the last token lexed was `:end_interpolation`.
+      def after_interpolation?
+        @prev && @prev.type == :end_interpolation
+      end
 
       def read_token
         if (tok = @next_tok)
