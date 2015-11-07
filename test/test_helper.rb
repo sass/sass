@@ -52,22 +52,23 @@ class MiniTest::Test
 
   def assert_warning(message)
     the_real_stderr, $stderr = $stderr, StringIO.new
-    yield
+    result = yield
 
     if message.is_a?(Regexp)
       assert_match message, $stderr.string.strip
     else
       assert_equal message.strip, $stderr.string.strip
     end
+    result
   ensure
     $stderr = the_real_stderr
   end
 
   def assert_no_warning
     the_real_stderr, $stderr = $stderr, StringIO.new
-    yield
-
+    result = yield
     assert_equal '', $stderr.string
+    result
   ensure
     $stderr = the_real_stderr
   end

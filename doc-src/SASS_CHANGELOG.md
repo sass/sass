@@ -24,6 +24,31 @@
 * In compressed mode, numbers between -1 and 1 now have the
   leading 0 omitted.
 
+### Deprecation -- Must Read!
+
+Certain ways of using `#{}` without quotes in property and variable values have
+been deprecated in order to simplify the feature.
+
+Currently, `#{}` behaves unpredictably. If it's used near operators, it will
+cause those operators to become part of an unquoted string instead of having
+their normal meaning. This isn't an especially useful feature, and it makes it
+hard to reason about some code that includes `#{}`, so we're getting rid of it.
+
+In the new world, `#{}` just returns an unquoted string that acts like any other
+unquoted string. For example, `foo + #{$var}` will now do the same thing as
+`foo + $var`, instead of doing the same thing as `unquote("foo + #{$var}")`.
+
+In order to ease the transition, Sass will now emit deprecation warnings for all
+uses of `#{}` that will change behavior in 4.0. We don't anticipate many
+warnings to appear in practice, and you can fix most of them automatically by
+running `sass-convert --in-place` on the affected files.
+
+For more details, see [the blog post on the deprecation][interp-blog] and
+[the GitHub issue in which it was planned][interp-issue].
+
+[interp-blog]: http://logdown.com/account/posts/308328-cleaning-up-interpolation
+[interp-issue]: https://github.com/sass/sass/issues/1778
+
 ## 3.4.19 (09 October 2015)
 
 * Sass numeric equality now better handles float-point errors. Any

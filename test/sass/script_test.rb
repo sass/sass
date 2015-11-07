@@ -191,43 +191,45 @@ class SassScriptTest < MiniTest::Test
   end
 
   def test_interpolation_near_operators
-    assert_equal '3 , 7', resolve('#{1 + 2} , #{3 + 4}')
-    assert_equal '3, 7', resolve('#{1 + 2}, #{3 + 4}')
-    assert_equal '3 ,7', resolve('#{1 + 2} ,#{3 + 4}')
-    assert_equal '3,7', resolve('#{1 + 2},#{3 + 4}')
-    assert_equal '3, 7, 11', resolve('#{1 + 2}, #{3 + 4}, #{5 + 6}')
-    assert_equal '3, 7, 11', resolve('3, #{3 + 4}, 11')
-    assert_equal '3, 7, 11', resolve('3, 7, #{5 + 6}')
+    silence_warnings do
+      assert_equal '3 , 7', resolve('#{1 + 2} , #{3 + 4}')
+      assert_equal '3, 7', resolve('#{1 + 2}, #{3 + 4}')
+      assert_equal '3 ,7', resolve('#{1 + 2} ,#{3 + 4}')
+      assert_equal '3,7', resolve('#{1 + 2},#{3 + 4}')
+      assert_equal '3, 7, 11', resolve('#{1 + 2}, #{3 + 4}, #{5 + 6}')
+      assert_equal '3, 7, 11', resolve('3, #{3 + 4}, 11')
+      assert_equal '3, 7, 11', resolve('3, 7, #{5 + 6}')
 
-    assert_equal '3 / 7', resolve('3 / #{3 + 4}')
-    assert_equal '3 /7', resolve('3 /#{3 + 4}')
-    assert_equal '3/ 7', resolve('3/ #{3 + 4}')
-    assert_equal '3/7', resolve('3/#{3 + 4}')
+      assert_equal '3 / 7', resolve('3 / #{3 + 4}')
+      assert_equal '3 /7', resolve('3 /#{3 + 4}')
+      assert_equal '3/ 7', resolve('3/ #{3 + 4}')
+      assert_equal '3/7', resolve('3/#{3 + 4}')
 
-    assert_equal '3 * 7', resolve('#{1 + 2} * 7')
-    assert_equal '3* 7', resolve('#{1 + 2}* 7')
-    assert_equal '3 *7', resolve('#{1 + 2} *7')
-    assert_equal '3*7', resolve('#{1 + 2}*7')
+      assert_equal '3 * 7', resolve('#{1 + 2} * 7')
+      assert_equal '3* 7', resolve('#{1 + 2}* 7')
+      assert_equal '3 *7', resolve('#{1 + 2} *7')
+      assert_equal '3*7', resolve('#{1 + 2}*7')
 
-    assert_equal '-3', resolve('-#{1 + 2}')
-    assert_equal '- 3', resolve('- #{1 + 2}')
+      assert_equal '-3', resolve('-#{1 + 2}')
+      assert_equal '- 3', resolve('- #{1 + 2}')
 
-    assert_equal '5 + 3 * 7', resolve('5 + #{1 + 2} * #{3 + 4}')
-    assert_equal '5 +3 * 7', resolve('5 +#{1 + 2} * #{3 + 4}')
-    assert_equal '5+3 * 7', resolve('5+#{1 + 2} * #{3 + 4}')
-    assert_equal '3 * 7 + 5', resolve('#{1 + 2} * #{3 + 4} + 5')
-    assert_equal '3 * 7+ 5', resolve('#{1 + 2} * #{3 + 4}+ 5')
-    assert_equal '3 * 7+5', resolve('#{1 + 2} * #{3 + 4}+5')
+      assert_equal '5 + 3 * 7', resolve('5 + #{1 + 2} * #{3 + 4}')
+      assert_equal '5 +3 * 7', resolve('5 +#{1 + 2} * #{3 + 4}')
+      assert_equal '5+3 * 7', resolve('5+#{1 + 2} * #{3 + 4}')
+      assert_equal '3 * 7 + 5', resolve('#{1 + 2} * #{3 + 4} + 5')
+      assert_equal '3 * 7+ 5', resolve('#{1 + 2} * #{3 + 4}+ 5')
+      assert_equal '3 * 7+5', resolve('#{1 + 2} * #{3 + 4}+5')
 
-    assert_equal '5/3 + 7', resolve('5 / (#{1 + 2} + #{3 + 4})')
-    assert_equal '5/3 + 7', resolve('5 /(#{1 + 2} + #{3 + 4})')
-    assert_equal '5/3 + 7', resolve('5 /( #{1 + 2} + #{3 + 4} )')
-    assert_equal '3 + 7/5', resolve('(#{1 + 2} + #{3 + 4}) / 5')
-    assert_equal '3 + 7/5', resolve('(#{1 + 2} + #{3 + 4})/ 5')
-    assert_equal '3 + 7/5', resolve('( #{1 + 2} + #{3 + 4} )/ 5')
+      assert_equal '5/3 + 7', resolve('5 / (#{1 + 2} + #{3 + 4})')
+      assert_equal '5/3 + 7', resolve('5 /(#{1 + 2} + #{3 + 4})')
+      assert_equal '5/3 + 7', resolve('5 /( #{1 + 2} + #{3 + 4} )')
+      assert_equal '3 + 7/5', resolve('(#{1 + 2} + #{3 + 4}) / 5')
+      assert_equal '3 + 7/5', resolve('(#{1 + 2} + #{3 + 4})/ 5')
+      assert_equal '3 + 7/5', resolve('( #{1 + 2} + #{3 + 4} )/ 5')
 
-    assert_equal '3 + 5', resolve('#{1 + 2} + 2 + 3')
-    assert_equal '3 +5', resolve('#{1 + 2} +2 + 3')
+      assert_equal '3 + 5', resolve('#{1 + 2} + 2 + 3')
+      assert_equal '3 +5', resolve('#{1 + 2} +2 + 3')
+    end
   end
 
   def test_string_interpolation
@@ -1184,8 +1186,135 @@ SASS
     assert_equal "0.5", resolve("0.5", :style => :compact)
   end
 
+  def test_interpolation_without_deprecation_warning
+    assert_no_warning {assert_equal "a", resolve('#{a}')}
+    assert_no_warning {assert_equal "abc", resolve('a#{b}c')}
+    assert_no_warning {assert_equal "+ a", resolve('+ #{a}')}
+    assert_no_warning {assert_equal "/ a", resolve('/ #{a}')}
+    assert_no_warning {assert_equal "1 / a", resolve('1 / #{a}')}
+    assert_no_warning {assert_equal "a / b", resolve('#{a} / #{b}')}
+    assert_no_warning {assert_equal "foo(1 = a)", resolve('foo(1 = #{a})')}
+    assert_no_warning {assert_equal "foo(a = b)", resolve('foo(#{a} = #{b})')}
+    assert_no_warning {assert_equal "-a", resolve('-#{a}')}
+    assert_no_warning {assert_equal "1-a", resolve('1-#{a}')}
+    assert_no_warning {assert_equal "a- 1", resolve('#{a}- 1')}
+    assert_no_warning {assert_equal "a-1", resolve('#{a}-1')}
+    assert_no_warning {assert_equal "a-b", resolve('#{a}-#{b}')}
+  end
+
+  def test_leading_interpolation_with_deprecation_warning
+    assert_equal "ab == 1", resolve_with_interp_warning('#{a + b} == 1')
+    assert_equal "ab != 1", resolve_with_interp_warning('#{a + b} != 1')
+    assert_equal "ab > 1", resolve_with_interp_warning('#{a + b} > 1')
+    assert_equal "ab >= 1", resolve_with_interp_warning('#{a + b} >= 1')
+    assert_equal "ab < 1", resolve_with_interp_warning('#{a + b} < 1')
+    assert_equal "ab <= 1", resolve_with_interp_warning('#{a + b} <= 1')
+    assert_equal "ab + 1", resolve_with_interp_warning('#{a + b} + 1')
+    assert_equal "ab * 1", resolve_with_interp_warning('#{a + b} * 1')
+    assert_equal "ab - 1", resolve_with_interp_warning('#{a + b} - 1')
+    assert_equal "ab % 1", resolve_with_interp_warning('#{a + b} % 1')
+  end
+
+  def test_trailing_interpolation_with_deprecation_warning
+    assert_equal "not ab", resolve_with_interp_warning('not #{a + b}')
+    assert_equal "1 and ab", resolve_with_interp_warning('1 and #{a + b}')
+    assert_equal "1 or ab", resolve_with_interp_warning('1 or #{a + b}')
+    assert_equal "1 == ab", resolve_with_interp_warning('1 == #{a + b}')
+    assert_equal "1 != ab", resolve_with_interp_warning('1 != #{a + b}')
+    assert_equal "1 > ab", resolve_with_interp_warning('1 > #{a + b}')
+    assert_equal "1 >= ab", resolve_with_interp_warning('1 >= #{a + b}')
+    assert_equal "1 < ab", resolve_with_interp_warning('1 < #{a + b}')
+    assert_equal "1 <= ab", resolve_with_interp_warning('1 <= #{a + b}')
+    assert_equal "1 + ab", resolve_with_interp_warning('1 + #{a + b}')
+    assert_equal "1 * ab", resolve_with_interp_warning('1 * #{a + b}')
+    assert_equal "1 - ab", resolve_with_interp_warning('1 - #{a + b}')
+    assert_equal "1 % ab", resolve_with_interp_warning('1 % #{a + b}')
+    assert_equal "- ab", resolve_with_interp_warning('- #{a + b}')
+    assert_equal "1- ab", resolve_with_interp_warning('1- #{a + b}')
+    assert_equal "- ab 2 3", resolve_with_interp_warning('- #{a + b} 2 3', '"- #{a + b} #{2 3}"')
+  end
+
+  def test_brackteing_interpolation_with_deprecation_warning
+    assert_equal "ab == cd", resolve_with_interp_warning('#{a + b} == #{c + d}')
+    assert_equal "ab != cd", resolve_with_interp_warning('#{a + b} != #{c + d}')
+    assert_equal "ab > cd", resolve_with_interp_warning('#{a + b} > #{c + d}')
+    assert_equal "ab >= cd", resolve_with_interp_warning('#{a + b} >= #{c + d}')
+    assert_equal "ab < cd", resolve_with_interp_warning('#{a + b} < #{c + d}')
+    assert_equal "ab <= cd", resolve_with_interp_warning('#{a + b} <= #{c + d}')
+    assert_equal "ab + cd", resolve_with_interp_warning('#{a + b} + #{c + d}')
+    assert_equal "ab * cd", resolve_with_interp_warning('#{a + b} * #{c + d}')
+    assert_equal "ab - cd", resolve_with_interp_warning('#{a + b} - #{c + d}')
+    assert_equal "ab % cd", resolve_with_interp_warning('#{a + b} % #{c + d}')
+  end
+
+  def test_interp_warning_formatting
+    resolve_with_interp_warning('#{1} + 1', '"1 + 1"')
+    resolve_with_interp_warning('#{1} + "foo"', '\'1 + "foo"\'')
+    resolve_with_interp_warning('#{1} + \'foo\'', '\'1 + "foo"\'')
+
+    resolve_with_interp_warning('#{1} + "#{a + b}"', '\'1 + "#{a + b}"\'')
+    resolve_with_interp_warning('"#{a + b}" + #{1}', '\'"#{a + b}" + 1\'')
+    resolve_with_interp_warning('"#{a + b}" + #{1} + "#{c + d}"', '\'"#{a + b}" + 1 + "#{c + d}"\'')
+
+    resolve_with_interp_warning('#{1} + "\'"', '"1 + \\"\'\\""')
+    resolve_with_interp_warning('#{1} + \'"\'', '"1 + \'\\"\'"')
+    resolve_with_interp_warning('#{1} + "\'\\""', '"1 + \\"\'\\\\\\"\\""')
+  end
+
+  def test_inactive_lazy_interpolation_deprecation_warning
+    assert_equal '1, 2, 3', assert_no_warning {resolve('1, #{2}, 3')}
+    assert_equal '1, 2, 3', assert_no_warning {resolve('1, 2, #{3}')}
+    assert_equal '1,2,3', assert_no_warning {resolve('1,#{2},3')}
+    assert_equal '1 2 3', assert_no_warning {resolve('#{1} 2 3')}
+    assert_equal '1 2 3', assert_no_warning {resolve('1 #{2} 3')}
+    assert_equal '1 2 3', assert_no_warning {resolve('1 2 #{3}')}
+
+    assert_equal '+1 2 3', assert_no_warning {resolve('+#{1} 2 3')}
+    assert_equal '-1 2 3', assert_no_warning {resolve('-#{1} 2 3')}
+    assert_equal '/1 2 3', assert_no_warning {resolve('/#{1} 2 3')}
+
+    assert_equal '1, 2, 31', assert_no_warning {resolve('(1, #{2}, 3) + 1')}
+    assert_equal '11, 2, 3', assert_no_warning {resolve('1 + (1, #{2}, 3)')}
+
+    assert_equal 'a, b, c', assert_no_warning {resolve('selector-parse((a, #{b}, c))')}
+  end
+
+  def test_active_lazy_interpolation_deprecation_warning
+    assert_equal "1, 2, 3", resolve_with_lazy_interp_warning('quote((1, #{2}, 3))', '"1, 2, 3"')
+    assert_equal "1", resolve_with_lazy_interp_warning('length((1, #{2}, 3))', '"1, 2, 3"')
+    assert_equal "1, 2, 3", resolve_with_lazy_interp_warning('inspect((1, #{2}, 3))', '"1, 2, 3"')
+    assert_equal "string", resolve_with_lazy_interp_warning('type-of((1, #{2}, 3))', '"1, 2, 3"')
+
+    assert_equal "+1 2 3", resolve_with_lazy_interp_warning('quote((+#{1} 2 3))', '"+1 #{2 3}"')
+    assert_equal "/1 2 3", resolve_with_lazy_interp_warning('quote((/#{1} 2 3))', '"/1 #{2 3}"')
+    assert_equal "-1 2 3", resolve_with_lazy_interp_warning('quote((-#{1} 2 3))', '"-1 #{2 3}"')
+  end
 
   private
+
+  def resolve_with_lazy_interp_warning(str, contents = nil)
+    contents ||= "\"#{str}\""
+    result = assert_warning(<<WARNING) {resolve(str)}
+DEPRECATION WARNING on line 1 of #{filename_for_test}: \#{} interpolation near operators will be simplified
+in a future version of Sass. To preserve the current behavior, use quotes:
+
+  unquote(#{contents})
+WARNING
+    $_sass_deprecated_interp_warnings = nil
+    result
+  end
+
+  def resolve_with_interp_warning(str, contents = nil)
+    contents ||= "\"#{str}\""
+    assert_warning(<<WARNING) {resolve(str)}
+DEPRECATION WARNING on line 1 of #{filename_for_test}: \#{} interpolation near operators will be simplified
+in a future version of Sass. To preserve the current behavior, use quotes:
+
+  unquote(#{contents})
+
+You can use the sass-convert command to automatically fix most cases.
+WARNING
+  end
 
   def resolve(str, opts = {}, environment = env)
     munge_filename opts
