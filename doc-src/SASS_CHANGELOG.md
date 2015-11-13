@@ -10,6 +10,10 @@
 
 * Add a `$weight` parameter to `invert()`.
 
+* Add support for nested maps with `map-get()` and `map-has-key()` by passing more than 2 arguments
+
+* Add support for merging changes deeply into a nested hash by providing a new syntax for merge that is generally non-destructive with the signature `map-merge($map, $keys, $value)` 
+
 ## 3.4.20 (Unreleased)
 
 * Fix a bug with the rounding changes from 3.4.14 and 3.4.15 where some negative
@@ -130,7 +134,7 @@
 * When converting a space-separated list with `sass-convert`, add
   parentheses when they make it easier to read even if they aren't
   strictly required.
-  
+
 ### Deprecations -- Must Read!
 
 * Compiling directories on the command line without using either
