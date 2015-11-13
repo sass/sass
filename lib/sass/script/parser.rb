@@ -538,6 +538,7 @@ RUBY
         tok = try_tok(:number)
         return selector unless tok
         num = tok.value
+        num.options = @options
         num.original = num.to_s
         literal_node(num, tok.source_range.start_pos)
       end
