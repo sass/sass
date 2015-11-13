@@ -47,7 +47,7 @@ module Sass
   #
   # @param contents [String] The contents of the Sass file.
   # @param options [{Symbol => Object}] An options hash;
-  #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
+  #   see {file:SASS_REFERENCE.md#options the Sass options documentation}
   # @raise [Sass::SyntaxError] if there's an error in the document
   # @raise [Encoding::UndefinedConversionError] if the source encoding
   #   cannot be converted to UTF-8
@@ -69,7 +69,7 @@ module Sass
   #
   #   @param filename [String] The path to the Sass, SCSS, or CSS file on disk.
   #   @param options [{Symbol => Object}] An options hash;
-  #     see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
+  #     see {file:SASS_REFERENCE.md#options the Sass options documentation}
   #   @return [String] The compiled CSS.
   #
   # @overload compile_file(filename, css_filename, options = {})
@@ -77,7 +77,7 @@ module Sass
   #
   #   @param filename [String] The path to the Sass, SCSS, or CSS file on disk.
   #   @param options [{Symbol => Object}] An options hash;
-  #     see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
+  #     see {file:SASS_REFERENCE.md#options the Sass options documentation}
   #   @param css_filename [String] The location to which to write the compiled CSS.
   def self.compile_file(filename, *args)
     options = args.last.is_a?(Hash) ? args.pop : {}

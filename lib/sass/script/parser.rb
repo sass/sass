@@ -25,7 +25,7 @@ module Sass
       # @param offset [Fixnum] The character (not byte) offset where the script starts in the line.
       #   Used for error reporting and sourcemap building
       # @param options [{Symbol => Object}] An options hash;
-      #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
+      #   see {file:SASS_REFERENCE.md#options the Sass options documentation}
       def initialize(str, line, offset, options = {})
         @options = options
         @lexer = lexer_class.new(str, line, offset, options)
