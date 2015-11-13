@@ -90,7 +90,7 @@ module Sass
       #
       # @param uri [String] The URI of the file to check.
       #   Comes from a `:filename` option set on an engine returned by this importer.
-      # @param options [{Symbol => Objet}] Options for the Sass file
+      # @param options [{Symbol => Object}] Options for the Sass file
       #   containing the `@import` currently being checked.
       # @return [Time, nil]
       def mtime(uri, options)

@@ -166,7 +166,7 @@ module Sass
           extended.members.reject! {|seq| seq.has_placeholder?}
 
           # For `:not()`, we usually want to get rid of any complex
-          # selectors becuase that will cause the selector to fail to
+          # selectors because that will cause the selector to fail to
           # parse on all browsers at time of writing. We can keep them
           # if either the original selector had a complex selector, or
           # the result of extending has only complex selectors,
