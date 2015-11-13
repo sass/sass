@@ -211,7 +211,6 @@ WARNING
     assert_equal("6in", evaluate("max(10cm, 6in)"))
     assert_equal("11mm", evaluate("max(11mm, 10q)"))
 
-
     assert_error_message("#aaaaaa is not a number for `max'", "max(#aaa)")
     assert_error_message("Incompatible units: 'px' and 'em'.", "max(3em, 4em, 1px)")
   end
