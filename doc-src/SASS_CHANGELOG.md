@@ -18,6 +18,9 @@
 
 * Add support for the `q` unit, representing one quarter of a millimeter.
 
+* Mitigate a race condition when multiple threads are using the same
+  `Sass::Plugin` object at once.
+
 ## 3.4.19 (09 October 2015)
 
 * Sass numeric equality now better handles float-point errors. Any
