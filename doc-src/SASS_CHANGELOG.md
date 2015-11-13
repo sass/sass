@@ -3,6 +3,13 @@
 * Table of contents
 {:toc}
 
+## 4.0.0 (Unreleased)
+
+* Combine ids and `:root` when unifying selectors with `@extend` and selector
+  functions.
+
+* Add a `$weight` parameter to `invert()`.
+
 ## 3.4.20 (Unreleased)
 
 * Fix a bug with the rounding changes from 3.4.14 and 3.4.15 where some negative

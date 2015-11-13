@@ -43,6 +43,17 @@ module Sass::Script::Value
       Bool.new(other.is_a?(Map) && value == other.value)
     end
 
+    def surgical_merge(my_key, *keys)
+      new_map = self.to_h.dup
+      if keys.size == 1
+        new_map[my_key] = keys.last
+      else
+        child = new_map[my_key] || Map.new({})
+        new_map[my_key] = child.surgical_merge(*keys)
+      end
+      Map.new(new_map)
+    end
+
     def hash
       @hash ||= value.hash
     end

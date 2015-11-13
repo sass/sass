@@ -295,6 +295,18 @@ SCSS
     assert_extends 'a.foo:bar', '.baz {@extend .foo}', 'a.foo:bar, a.baz:bar'
   end
 
+  def test_id_unification
+    assert_unification('#id.foo .bar', '#id.baz .qux {@extend .bar}',
+        '#id.foo .bar, #id.baz.foo .qux')
+  end
+
+  def test_root_unification
+    assert_extends(
+      ".foo:root .bar",
+      ".baz:root .qux {@extend .bar}",
+      ".foo:root .bar, .baz.foo:root .qux")
+  end
+
   def test_not_remains_at_end_of_selector
     assert_extends '.foo:not(.bar)', '.baz {@extend .foo}', '.foo:not(.bar), .baz:not(.bar)'
   end

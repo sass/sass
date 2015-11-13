@@ -874,12 +874,22 @@ WARNING
 
   def test_invert
     assert_equal("#112233", evaluate("invert(#edc)"))
+    assert_equal("#d8cabd", evaluate("invert(#edc, 10%)"))
     assert_equal("rgba(245, 235, 225, 0.5)", evaluate("invert(rgba(10, 20, 30, 0.5))"))
+    assert_equal("rgba(34, 42, 50, 0.5)", evaluate("invert(rgba(10, 20, 30, 0.5), 10%)"))
     assert_equal("invert(20%)", evaluate("invert(20%)"))
   end
 
   def test_invert_tests_types
     assert_error_message("$color: \"foo\" is not a color for `invert'", "invert(\"foo\")")
+    assert_error_message("$weight: \"foo\" is not a number for `invert'", "invert(#edc, \"foo\")")
+  end
+
+  def test_invert_tests_bounds
+    assert_error_message("Weight -0.001 must be between 0% and 100% for `invert'",
+      "invert(#edc, -0.001)")
+    assert_error_message("Weight 100.001 must be between 0% and 100% for `invert'",
+      "invert(#edc, 100.001)")
   end
 
   def test_unquote
@@ -1347,10 +1357,20 @@ SCSS
   end
 
   def test_map_get
+    # Simple maps should be able to be found with a single key
     assert_equal "1", evaluate("map-get((foo: 1, bar: 2), foo)")
     assert_equal "2", evaluate("map-get((foo: 1, bar: 2), bar)")
+
+    # Nested maps should return values, if found and matching the keys
+    assert_equal "d", evaluate("map-get((a: (b: (c: d))), a, b, c)")
+
+    # map-get should return a 'null' if the key isn't found
     assert_equal "null", perform("map-get((foo: 1, bar: 2), baz)").to_sass
     assert_equal "null", perform("map-get((), foo)").to_sass
+
+    # map-get should return a 'null' if the nested map key isn't found
+    assert_equal "null", perform("map-get((a: b), a, b, c, m)").to_sass
+    assert_equal "null", perform("map-get((a: (b: (c: d))), a, b, c, m)").to_sass
   end
 
   def test_map_get_checks_type
@@ -1358,12 +1378,22 @@ SCSS
   end
 
   def test_map_merge
+    # These are the version where the second argument is a map
     assert_equal("(foo: 1, bar: 2, baz: 3)",
       perform("map-merge((foo: 1, bar: 2), (baz: 3))").to_sass)
     assert_equal("(foo: 1, bar: 2)",
       perform("map-merge((), (foo: 1, bar: 2))").to_sass)
     assert_equal("(foo: 1, bar: 2)",
       perform("map-merge((foo: 1, bar: 2), ())").to_sass)
+
+    # Here, we test when the second argument is an array of keys, plus a value
+    assert_equal("(foo: 1, bar: (bing: ping))",
+      perform("map-merge((foo: 1, bar: (bing: bong)), bar, bing, ping)").to_sass)
+    assert_equal("(foo: 1, bar: (bing: bong, ping: pong))",
+      perform("map-merge((foo: 1, bar: (bing: bong)), bar, ping, pong)").to_sass)
+    # Create a nested Map, if it didn't exist already
+    assert_equal("(a: (b: c))",
+      perform("map-merge((), a, b, c)").to_sass)
   end
 
   def test_map_merge_checks_type
@@ -1409,8 +1439,10 @@ SCSS
 
   def test_map_has_key
     assert_equal "true", evaluate("map-has-key((foo: 1, bar: 1), foo)")
+    assert_equal "true", evaluate("map-has-key((foo: (bar: 1)), foo, bar)")
     assert_equal "false", evaluate("map-has-key((foo: 1, bar: 1), baz)")
     assert_equal "false", evaluate("map-has-key((), foo)")
+    assert_equal "false", evaluate("map-has-key((foo: (bar: 1)), foo, bing)")
   end
 
   def test_map_has_key_checks_type

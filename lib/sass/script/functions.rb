@@ -77,7 +77,7 @@ module Sass::Script
   # \{#complement complement($color)}
   # : Returns the complement of a color.
   #
-  # \{#invert invert($color)}
+  # \{#invert invert($color, \[$weight\])}
   # : Returns the inverse of a color.
   #
   # ## Opacity Functions
@@ -123,7 +123,7 @@ module Sass::Script
   # : Inserts `$insert` into `$string` at `$index`.
   #
   # \{#str_index str-index($string, $substring)}
-  # : Returns the index of the first occurance of `$substring` in `$string`.
+  # : Returns the index of the first occurrence of `$substring` in `$string`.
   #
   # \{#str_slice str-slice($string, $start-at, [$end-at])}
   # : Extracts a substring from `$string`.
@@ -196,11 +196,13 @@ module Sass::Script
   # Maps in Sass are immutable; all map functions return a new map rather than
   # updating the existing map in-place.
   #
-  # \{#map_get map-get($map, $key)}
-  # : Returns the value in a map associated with a given key.
+  # \{#map_get map-get($map, $keys)}
+  # : Returns the value in a map (or nested map) associated with a given series of keys.
   #
   # \{#map_merge map-merge($map1, $map2)}
   # : Merges two maps together into a new map.
+  # \{#map_merge map-merge($map, keys, value)
+  # : Merges in the specified nested keys into a new map
   #
   # \{#map_remove map-remove($map, $keys...)}
   # : Returns a new map with keys removed.
@@ -211,8 +213,8 @@ module Sass::Script
   # \{#map_values map-values($map)}
   # : Returns a list of all values in a map.
   #
-  # \{#map_has_key map-has-key($map, $key)}
-  # : Returns whether a map has a value associated with a given key.
+  # \{#map_has_key map-has-key($map, $keys)}
+  # : Returns whether a map has a value associated with a given key or keys.
   #
   # \{#keywords keywords($args)}
   # : Returns the keywords passed to a function that takes variable arguments.
@@ -1393,20 +1395,28 @@ module Sass::Script
     #
     # @overload invert($color)
     #   @param $color [Sass::Script::Value::Color]
+    # @overload invert($color, $weight: 100%)
+    #   @param $color [Sass::Script::Value::Color]
+    #   @param $weight [Sass::Script::Value::Number] The relative weight of the
+    #     color color's inverse
     # @return [Sass::Script::Value::Color]
-    # @raise [ArgumentError] if `$color` isn't a color
-    def invert(color)
+    # @raise [ArgumentError] if `$color` isn't a color or `$weight`
+    #   isn't a percentage between 0% and 100%
+    def invert(color, weight = number(100))
       if color.is_a?(Sass::Script::Value::Number)
         return identifier("invert(#{color})")
       end
 
       assert_type color, :Color, :color
-      color.with(
+      inv = color.with(
         :red => (255 - color.red),
         :green => (255 - color.green),
         :blue => (255 - color.blue))
+
+      mix(inv, color, weight)
     end
     declare :invert, [:color]
+    declare :invert, [:color, :weight]
 
     # Removes quotes from a string. If the string is already unquoted, this will
     # return it unmodified.
@@ -2045,15 +2055,23 @@ MESSAGE
     #   map-get(("foo": 1, "bar": 2), "baz") => null
     # @overload map_get($map, $key)
     #   @param $map [Sass::Script::Value::Map]
-    #   @param $key [Sass::Script::Value::Base]
-    # @return [Sass::Script::Value::Base] The value indexed by `$key`, or `null`
+    #   @param $keys [[Sass::Script::Value::Base]]
+    # @return [Sass::Script::Value::Base] The value indexed by `$keys`, or `null`
     #   if the map doesn't contain the given key
     # @raise [ArgumentError] if `$map` is not a map
-    def map_get(map, key)
+    def map_get(map, *keys)
       assert_type map, :Map, :map
-      map.to_h[key] || null
+      result = map
+      keys.each do |key|
+        unless result.is_a?(Sass::Script::Value::Map) || result.is_a?(Hash)
+          return null
+        else
+          result = result.to_h[key]
+        end
+      end
+      return result || null
     end
-    declare :map_get, [:map, :key]
+    declare :map_get, [:map, :key], :var_args => true
 
     # Merges two maps together into a new map. Keys in `$map2` will take
     # precedence over keys in `$map1`.
@@ -2070,17 +2088,35 @@ MESSAGE
     # @example
     #   map-merge(("foo": 1), ("bar": 2)) => ("foo": 1, "bar": 2)
     #   map-merge(("foo": 1, "bar": 2), ("bar": 3)) => ("foo": 1, "bar": 3)
+    #   map-merge(("foo": 1, "bar": 2), bar, 3) => ("foo": 1, "bar": 3)
+    #   map-merge((a: (b: c)), a, b, d) => (a: (b: d))
     # @overload map_merge($map1, $map2)
     #   @param $map1 [Sass::Script::Value::Map]
     #   @param $map2 [Sass::Script::Value::Map]
     # @return [Sass::Script::Value::Map]
     # @raise [ArgumentError] if either parameter is not a map
-    def map_merge(map1, map2)
+    # @overload map_merge($map1, $keys, $value)
+    #   @param $map1 [Sass::Script::Value::Map]
+    #   @param $keys [[Sass::Script::Value::Base]]
+    #   @param $value [Sass::Script::Value::Base]
+    # @return [Sass::Script::Value::Map]
+    # @raise [ArgumentError] if the first parameter is not a map
+    def map_merge(map1, *args)
       assert_type map1, :Map, :map1
-      assert_type map2, :Map, :map2
-      map(map1.to_h.merge(map2.to_h))
+      # If we only have one argument, it must be a map
+      if args.size == 1
+        map2 = args.first
+        assert_type map2, :Map, :map2
+        map(map1.to_h.merge(map2.to_h))
+      else # Using the keyed version
+        if map1.is_a? Sass::Script::Value::List
+          map1 = map(map1.to_h)
+        end
+        map1.surgical_merge(*args)
+      end
     end
     declare :map_merge, [:map1, :map2]
+    declare :map_merge, [:map1, :keys, :value]
 
     # Returns a new map with keys removed.
     #
@@ -2139,16 +2175,18 @@ MESSAGE
     # @example
     #   map-has-key(("foo": 1, "bar": 2), "foo") => true
     #   map-has-key(("foo": 1, "bar": 2), "baz") => false
-    # @overload map_has_key($map, $key)
+    # @overload map_has_key($map, $keys)
     #   @param $map [Sass::Script::Value::Map]
-    #   @param $key [Sass::Script::Value::Base]
+    #   @param $keys [[Sass::Script::Value::Base]]
     # @return [Sass::Script::Value::Bool]
     # @raise [ArgumentError] if `$map` is not a map
-    def map_has_key(map, key)
+    def map_has_key(map, *keys)
       assert_type map, :Map, :map
-      bool(map.to_h.has_key?(key))
+      bool(keys.all? do |key|
+        map = map.to_h[key] || false
+      end)
     end
-    declare :map_has_key, [:map, :key]
+    declare :map_has_key, [:map, :keys]
 
     # Returns the map of named arguments passed to a function or mixin that
     # takes a variable argument list. The argument names are strings, and they
