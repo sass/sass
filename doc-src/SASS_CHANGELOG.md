@@ -34,7 +34,7 @@
 
 ## 3.4.18 (25 August 2015)
 
-* A fix in 3.4.17 to address unecessary semi-colons in compressed mode
+* A fix in 3.4.17 to address unnecessary semi-colons in compressed mode
   was too aggressive and removed some that *were* necessary. This is now
   fixed.
 
@@ -136,7 +136,7 @@
 * When converting a space-separated list with `sass-convert`, add
   parentheses when they make it easier to read even if they aren't
   strictly required.
-  
+
 ### Deprecations -- Must Read!
 
 * Compiling directories on the command line without using either
@@ -1443,7 +1443,7 @@ that each value is passed as a separate argument. For example:
       // $shadows is a list of all arguments passed to box-shadow
       -moz-box-shadow: $shadows;
       -webkit-box-shadow: $shadows;
-      box-shadow: $shadows;      
+      box-shadow: $shadows;
     }
 
     // This is the same as "@include spacing(1, 2, 3);"
@@ -2496,7 +2496,7 @@ Make the `--no-cache` flag properly forbid Sass from writing `.sass-cache` files
 
 [Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.0.4).
 
-* Raise an informative error when function arguments have a mispaced comma,
+* Raise an informative error when function arguments have a misplaced comma,
   as in `foo(bar, )`.
 
 * Fix a performance problem when using long function names
@@ -2522,7 +2522,7 @@ should *really* work with this release.
 
 ### Bug Fixes
 
-* Raise an informative error when mixin arguments have a mispaced comma,
+* Raise an informative error when mixin arguments have a misplaced comma,
   as in `@include foo(bar, )`.
 
 * Make sure SassScript subtraction happens even when nothing else dynamic is going on.
