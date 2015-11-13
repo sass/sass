@@ -2103,7 +2103,7 @@ MESSAGE
       end
     end
     declare :map_merge, [:map1, :map2]
-    declare :map_merge, [:map1, :keys, :value]
+    declare :map_merge, [:map1, :keys, :value], :var_args => true
 
     # Returns a new map with keys removed.
     #
@@ -2125,7 +2125,7 @@ MESSAGE
       hash.delete_if {|key, _| keys.include?(key)}
       map(hash)
     end
-    declare :map_remove, [:map, :key], :var_args => true
+    declare :map_remove, [:map, :keys], :var_args => true
 
     # Returns a list of all keys in a map.
     #
@@ -2162,6 +2162,7 @@ MESSAGE
     # @example
     #   map-has-key(("foo": 1, "bar": 2), "foo") => true
     #   map-has-key(("foo": 1, "bar": 2), "baz") => false
+    #   map-has-key((foo: (bar: 1)), foo, bar)   => true
     # @overload map_has_key($map, $keys)
     #   @param $map [Sass::Script::Value::Map]
     #   @param $keys [[Sass::Script::Value::Base]]
@@ -2173,7 +2174,7 @@ MESSAGE
         map = map.to_h[key] || false
       end)
     end
-    declare :map_has_key, [:map, :keys]
+    declare :map_has_key, [:map, :keys], :var_args => true
 
     # Returns the map of named arguments passed to a function or mixin that
     # takes a variable argument list. The argument names are strings, and they
