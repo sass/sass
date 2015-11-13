@@ -1357,11 +1357,11 @@ SCSS
   end
 
   def test_map_get
-    # Simple maps should be able to find with a single key
+    # Simple maps should be able to be found with a single key
     assert_equal "1", evaluate("map-get((foo: 1, bar: 2), foo)")
     assert_equal "2", evaluate("map-get((foo: 1, bar: 2), bar)")
 
-    # Nested maps should return values, if found and mathing the keys
+    # Nested maps should return values, if found and matching the keys
     assert_equal "d", evaluate("map-get((a: (b: (c: d))), a, b, c)")
 
     # map-get should return a 'null' if the key isn't found
