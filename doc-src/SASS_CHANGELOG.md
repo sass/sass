@@ -16,6 +16,8 @@
 * Rounding numbers now respects Sass's precision setting for numbers very
   close to half an integer.
 
+* Add support for the `q` unit, representing one quarter of a millimeter.
+
 ## 3.4.19 (09 October 2015)
 
 * Sass numeric equality now better handles float-point errors. Any

@@ -98,7 +98,7 @@ end
 
 desc "Install Sass as a gem. Use SUDO=1 to install with sudo."
 task :install => [:package] do
-  gem  = RUBY_PLATFORM =~ /java/  ? 'jgem' : 'gem' 
+  gem  = RUBY_PLATFORM =~ /java/  ? 'jgem' : 'gem'
   sh %{#{'sudo ' if ENV["SUDO"]}#{gem} install --no-ri pkg/sass-#{get_version}}
 end
 
@@ -310,7 +310,7 @@ END
     file = File.read(scope("test/sass/templates/#{file || 'complex'}.sass"))
     result = RubyProf.profile { times.times { Sass::Engine.new(file).render } }
 
-    RubyProf.const_get("#{(ENV['OUTPUT'] || 'Flat').capitalize}Printer").new(result).print 
+    RubyProf.const_get("#{(ENV['OUTPUT'] || 'Flat').capitalize}Printer").new(result).print
   end
 rescue LoadError; end
 

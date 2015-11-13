@@ -496,10 +496,14 @@ SASS
 
   def test_operator_unit_conversion
     assert_equal "1.1cm", resolve("1cm + 1mm")
+    assert_equal "8q", resolve("4q + 1mm")
+    assert_equal "40.025cm", resolve("40cm + 1q")
     assert_equal "2in", resolve("1in + 96px")
     assert_equal "true", resolve("2mm < 1cm")
     assert_equal "true", resolve("10mm == 1cm")
     assert_equal "true", resolve("1.1cm == 11mm")
+    assert_equal "true", resolve("2mm == 8q")
+    assert_equal "false", resolve("2px > 3q")
 
     assert_warning(<<WARNING) {assert_equal "true", resolve("1 == 1cm")}
 DEPRECATION WARNING on line 1 of test_operator_unit_conversion_inline.sass:
@@ -521,6 +525,8 @@ WARNING
     assert_equal "2.83465", resolve("(1mm/1pt)")
     assert_equal "1.33333", resolve("(1pt/1px)")
     assert_equal "0.01042", resolve("(1px/1in)")
+    assert_equal "1.05833", resolve("(1px/1q)")
+    assert_equal "0.05906", resolve("(1q/1pc)")
   end
 
   def test_angle_units
