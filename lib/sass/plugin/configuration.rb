@@ -1,8 +1,10 @@
 module Sass
   module Plugin
-    # We keep configuration in its own self-contained file
-    # so that we can load it independently in Rails 3,
-    # where the full plugin stuff is lazy-loaded.
+    # We keep configuration in its own self-contained file so that we can load
+    # it independently in Rails 3, where the full plugin stuff is lazy-loaded.
+    #
+    # Note that this is not guaranteed to be thread-safe. For guaranteed thread
+    # safety, use a separate {Sass::Plugin} for each thread.
     module Configuration
       # Returns the default options for a {Sass::Plugin::Compiler}.
       #
@@ -85,33 +87,47 @@ module Sass
       # See the {file:SASS_REFERENCE.md#template_location-option `:template_location` option}
       # for details.
       #
+      # Modifications to the returned array may not be persistent.  Use {#add_template_location}
+      # and {#remove_template_location} instead.
+      #
       # @return [Array<(String, String)>]
       #   An array of `[template_location, css_location]` pairs.
       def template_location_array
-        old_template_location = options[:template_location]
-        normalize_template_location!
-        options[:template_location]
-      ensure
-        options[:template_location] = old_template_location
+        convert_template_location(options[:template_location], options[:css_location])
       end
 
       private
 
-      def normalize_template_location!
-        return if options[:template_location].is_a?(Array)
-        options[:template_location] =
-          case options[:template_location]
-          when nil
-            if options[:css_location]
-              [[File.join(options[:css_location], 'sass'), options[:css_location]]]
-            else
-              []
-            end
-          when String
-            [[options[:template_location], options[:css_location]]]
+      # Returns the given template location, as an array. If it's already an array,
+      # it is returned unmodified. Otherwise, a new array is created and returned.
+      #
+      # @param template_location [String, Array<(String, String)>]
+      #   A single template location, or a pre-normalized array of template
+      #   locations and CSS locations.
+      # @param css_location [String?]
+      #   The location for compiled CSS files.
+      # @return [Array<(String, String)>]
+      #   An array of `[template_location, css_location]` pairs.
+      def convert_template_location(template_location, css_location)
+        return template_location if template_location.is_a?(Array)
+
+        case template_location
+        when nil
+          if css_location
+            [[File.join(css_location, 'sass'), css_location]]
           else
-            options[:template_location].to_a
+            []
           end
+        when String
+          [[template_location, css_location]]
+        else
+          template_location.to_a
+        end
+      end
+
+      def normalize_template_location!
+        options[:template_location] = convert_template_location(
+            options[:template_location], options[:css_location])
       end
     end
   end
