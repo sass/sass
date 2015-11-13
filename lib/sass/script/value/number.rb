@@ -478,6 +478,7 @@ module Sass::Script::Value
         'cm' => Rational(1, 2.54),
         'pc' => Rational(1, 6),
         'mm' => Rational(1, 25.4),
+        'q' => Rational(1, 101.6),
         'pt' => Rational(1, 72),
         'px' => Rational(1, 96)
       },
