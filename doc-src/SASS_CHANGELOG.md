@@ -10,6 +10,10 @@
 
 * Add a `$weight` parameter to `invert()`.
 
+* Add support for nested maps with `map-get()` and `map-has-key()` by passing more than 2 arguments
+
+* Add support for merging changes deeply into a nested hash by providing a new syntax for merge that is generally non-destructive with the signature `map-merge($map, $keys, $value)` 
+
 ### Backwards Incompatibilities -- Must Read!
 
 Certain ways of using `#{}` without quotes in property and variable values,
