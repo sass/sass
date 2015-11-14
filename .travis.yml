@@ -19,7 +19,6 @@ branches:
     - master
     - stable
     - stable_3_2
-    - stable_sass
 notifications:
   irc: {channels: "irc.freenode.org#sass"}
 matrix:
