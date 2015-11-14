@@ -12,7 +12,7 @@
 
 * Add support for nested maps with `map-get()` and `map-has-key()` by passing more than 2 arguments
 
-* Add support for merging changes deeply into a nested hash by providing a new syntax for merge that is generally non-destructive with the signature `map-merge($map, $keys, $value)` 
+* Add support for setting changes deeply into a nested hash by providing a new syntax for set that is generally non-destructive with the signature `map-set($map, $keys..., $value)` 
 
 ## 3.4.20 (Unreleased)
 
