@@ -957,6 +957,16 @@ MESSAGE
     assert_error_message("$substring: #ff0000 is not a string for `str-index'", "str-index(asdf, #f00)")
   end
 
+  def test_str_is_quoted
+    assert_equal('true',  perform('str-is-quoted("true")').to_sass)
+    assert_equal('true',  perform("str-is-quoted('single')").to_sass)
+    assert_equal('false', perform('str-is-quoted(string)').to_sass)
+  end
+
+  def test_str_is_quoted_requires_a_string
+    assert_error_message("$string: 2 is not a string for `str-is-quoted'", "str-is-quoted(2)")
+  end
+
   def test_to_lower_case
     assert_equal('abcd', evaluate('to-lower-case(ABCD)'))
     assert_equal('"abcd"', evaluate('to-lower-case("ABCD")'))

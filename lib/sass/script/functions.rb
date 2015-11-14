@@ -125,6 +125,9 @@ module Sass::Script
   # \{#str_index str-index($string, $substring)}
   # : Returns the index of the first occurrence of `$substring` in `$string`.
   #
+  # \{#str_is_quoted str-is-quoted($string)}
+  # : Returns true or false, depending on whether the string in question is quoted or not.
+  #
   # \{#str_slice str-slice($string, $start-at, [$end-at])}
   # : Extracts a substring from `$string`.
   #
@@ -1545,6 +1548,21 @@ MESSAGE
       index ? number(index + 1) : null
     end
     declare :str_index, [:string, :substring]
+
+    # Detect whether or not the provided String
+    # is quoted or unquoted.
+    #
+    # Single and double quote are treated equally.
+    #
+    # @overload str_is_quoted($string)
+    #   @param $string [Sass::Script::Value::String]
+    # @return [Sass::Script::Value::Bool]
+    # @raise [ArgumentError] if any parameter is the wrong type
+    def str_is_quoted(string)
+      assert_type string, :String, :string
+      bool(string.type == :string)
+    end
+    declare :str_is_quoted, [:string]
 
     # Extracts a substring from `$string`. The substring will begin at index
     # `$start-at` and ends at index `$end-at`.

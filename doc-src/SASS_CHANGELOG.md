@@ -8,6 +8,8 @@
 * Combine ids and `:root` when unifying selectors with `@extend` and selector
   functions.
 
+* Add a `str-is-quoted($string)` function to detect whether a not a string is quoted or not (e.g. is an identifier)
+
 * Add a `$weight` parameter to `invert()`.
 
 ## 3.4.20 (Unreleased)
@@ -130,7 +132,7 @@
 * When converting a space-separated list with `sass-convert`, add
   parentheses when they make it easier to read even if they aren't
   strictly required.
-  
+
 ### Deprecations -- Must Read!
 
 * Compiling directories on the command line without using either
