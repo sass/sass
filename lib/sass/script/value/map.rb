@@ -56,7 +56,7 @@ module Sass::Script::Value
     # @param keys [Array<Value>]
     # @param new_value [Value]
     # @return new_map [Map]
-    def recursive_set(keys = [], new_value)
+    def recursive_set(keys, new_value)
       new_map = value.dup
       my_key, *child_keys = keys
       if child_keys.any?
@@ -75,7 +75,7 @@ module Sass::Script::Value
     # @param keys [Array<Value>]
     # @param map_to_merge [Map]
     # @return new_map [Map]
-    def recursive_merge(keys = [], map_to_merge)
+    def recursive_merge(keys, map_to_merge)
       new_map = value.dup
       my_key, *child_keys = keys
       if my_key
