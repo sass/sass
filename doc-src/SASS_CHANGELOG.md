@@ -10,9 +10,14 @@
 
 * Add a `$weight` parameter to `invert()`.
 
-* Add support for nested maps with `map-get()` and `map-has-key()` by passing more than 2 arguments
+* Add support for nested maps with `map-get()` and `map-has-key()` by passing
+  more than 2 arguments.
 
-* Add support for setting changes deeply into a nested hash by providing a new syntax for set that is generally non-destructive with the signature `map-set($map, $keys..., $value)` 
+* Add support for setting changes deeply into a nested hash by providing a new
+  syntax for set that is generally non-destructive with the signature
+  `map-set($map, $keys..., $value)`.
+
+* Add support for additional keys passed to `map-merge($map1, $keys..., $map2)`, allowing for nested Map merges.
 
 ### Backwards Incompatibilities -- Must Read!
 

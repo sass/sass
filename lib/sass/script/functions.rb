@@ -197,12 +197,12 @@ module Sass::Script
   # updating the existing map in-place.
   #
   # \{#map_get map-get($map, $keys...)}
-  # : Returns the value in a map (or nested map) associated with a given series of keys.
+  # : Returns the value in a (potentially nested) map associated with a given series of keys.
   #
   # \{#map_merge map-merge($map1, $map2)}
   # : Merges two maps together into a new map.
-  # \{#map_merge map-merge($map1, $keys..., $map2)}
-  # : Merges a map into another map, nested with the specified keys
+  # \{#map_merge map-merge($map1, [$keys...], $map2)}
+  # : Merges a map into another map with the specified keys
   #
   # \{#map_set map-set($map, $keys..., $value)
   # : Sets in the specified keys into a new map, supporting one or more keys, creating nested maps as needed
@@ -217,7 +217,7 @@ module Sass::Script
   # : Returns a list of all values in a map.
   #
   # \{#map_has_key map-has-key($map, $keys...)}
-  # : Returns whether a map has a value associated with a given key or keys.
+  # : Returns whether a map has a (potentially nested) value associated with the given key(s).
   #
   # \{#keywords keywords($args)}
   # : Returns the keywords passed to a function that takes variable arguments.
@@ -2053,11 +2053,8 @@ MESSAGE
       assert_type map, :Map, :map
       result = map
       keys.each do |key|
-        if result.is_a?(Sass::Script::Value::Map)
-          result = result.to_h[key]
-        else
-          return null
-        end
+        return null unless map.is_a?(Sass::Script::Value::Map)
+        result = result.to_h[key]
       end
       result || null
     end
@@ -2079,8 +2076,8 @@ MESSAGE
     # @example
     #   map-merge(("foo": 1), ("bar": 2)) => ("foo": 1, "bar": 2)
     #   map-merge(("foo": 1, "bar": 2), ("bar": 3)) => ("foo": 1, "bar": 3)
-    #   map-merge(("foo": 1, "bar": 2), bar, 3) => ("foo": 1, "bar": 3)
-    #   map-merge((a: (b: c)), a, b, d) => (a: (b: d))
+    #   map-merge((a: (b: c)), a, (d: e))
+    #   map-merge((a: (b: c)), (a: (d: e)))
     # @overload map_merge($map1, $map2)
     #   @param $map1 [Sass::Script::Value::Map]
     #   @param $map2 [Sass::Script::Value::Map]
@@ -2095,7 +2092,7 @@ MESSAGE
     def map_merge(map1, *keys)
       assert_type map1, :Map, :map1
       map2 = keys.pop
-      if map1.is_a? Sass::Script::Value::List
+      if map1.is_a?(Sass::Script::Value::List)
         map1 = map(map1.to_h)
       end
       assert_type map2, :Map, :map2
@@ -2104,9 +2101,16 @@ MESSAGE
     declare :map_merge, [:map1, :map2]
     declare :map_merge, [:map1], :var_args => true
 
+    # Allows the setting of specific values in a
+    # map by passing in a series of keys, with the
+    # final argument setting the value of that key.
+    #
+    # If no keys exist, they are created along with
+    # any needed nested maps.
+    #
     # @example
     #   map-set((a: 1), b, 2) => (a: 1, b: 2)
-    #   map-set((a: (a: 1)), a, b, 2) => (a: (a: 1, b: 2))
+    #   map-set((a: (b: 1)), a, c, 2) => (a: (b: 1, c: 2))
     #   map-set((), a, b, c) => (a: (b: c))
     # @overload map-set($map, $keys..., $value)
     #   @param $map1 [Sass::Script::Value::Map]
@@ -2117,7 +2121,7 @@ MESSAGE
     def map_set(map, *keys)
       assert_type map, :Map, :map
       new_value = keys.pop
-      if map.is_a? Sass::Script::Value::List
+      if map.is_a?(Sass::Script::Value::List)
         map = map(map.to_h)
       end
       map.recursive_set(keys, new_value)
@@ -2136,9 +2140,6 @@ MESSAGE
     # @overload map_remove($map, $keys...)
     #   @param $map  [Sass::Script::Value::Map]
     #   @param $keys [[Sass::Script::Value::Base]]
-    # @overload map_remove($map, $key)
-    #   @param $map  [Sass::Script::Value::Map]
-    #   @param $keys [Sass::Script::Value::Base]
     # @return [Sass::Script::Value::Map]
     # @raise [ArgumentError] if `$map` is not a map
     def map_remove(map, *keys)
