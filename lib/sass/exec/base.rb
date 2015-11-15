@@ -149,7 +149,7 @@ module Sass::Exec
 
     # Wraps the given string in terminal escapes
     # causing it to have the given color.
-    # If terminal esapes aren't supported on this platform,
+    # If terminal escapes aren't supported on this platform,
     # just returns the string instead.
     #
     # @param color [Symbol] The name of the color to use.

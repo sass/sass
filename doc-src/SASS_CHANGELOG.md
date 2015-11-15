@@ -15,6 +15,19 @@
 * Fix a bug with the rounding changes from 3.4.14 and 3.4.15 where some negative
   numbers would incorrectly be rounded up instead of down.
 
+* Better compression for `:nth` pseudoselectors with subtraction.
+  [Issue #1650](https://github.com/sass/sass/issues/1874)
+
+* Add support for the new `supports()` clause for CSS `@import` directives.
+
+* Rounding numbers now respects Sass's precision setting for numbers very
+  close to half an integer.
+
+* Add support for the `q` unit, representing one quarter of a millimeter.
+
+* Mitigate a race condition when multiple threads are using the same
+  `Sass::Plugin` object at once.
+
 ## 3.4.19 (09 October 2015)
 
 * Sass numeric equality now better handles float-point errors. Any
@@ -26,9 +39,14 @@
 
 * Fix some busted edge cases with `sass-convert` and string interpolation.
 
+* Since we require ruby 1.8.7 or greater, support for ruby 1.8.6 was
+  removed from the code.
+
+* Small performance enhancements.
+
 ## 3.4.18 (25 August 2015)
 
-* A fix in 3.4.17 to address unecessary semi-colons in compressed mode
+* A fix in 3.4.17 to address unnecessary semi-colons in compressed mode
   was too aggressive and removed some that *were* necessary. This is now
   fixed.
 
@@ -130,7 +148,7 @@
 * When converting a space-separated list with `sass-convert`, add
   parentheses when they make it easier to read even if they aren't
   strictly required.
-  
+
 ### Deprecations -- Must Read!
 
 * Compiling directories on the command line without using either
@@ -1437,7 +1455,7 @@ that each value is passed as a separate argument. For example:
       // $shadows is a list of all arguments passed to box-shadow
       -moz-box-shadow: $shadows;
       -webkit-box-shadow: $shadows;
-      box-shadow: $shadows;      
+      box-shadow: $shadows;
     }
 
     // This is the same as "@include spacing(1, 2, 3);"
@@ -2490,7 +2508,7 @@ Make the `--no-cache` flag properly forbid Sass from writing `.sass-cache` files
 
 [Tagged on GitHub](https://github.com/sass/sass/releases/tag/3.0.4).
 
-* Raise an informative error when function arguments have a mispaced comma,
+* Raise an informative error when function arguments have a misplaced comma,
   as in `foo(bar, )`.
 
 * Fix a performance problem when using long function names
@@ -2516,7 +2534,7 @@ should *really* work with this release.
 
 ### Bug Fixes
 
-* Raise an informative error when mixin arguments have a mispaced comma,
+* Raise an informative error when mixin arguments have a misplaced comma,
   as in `@include foo(bar, )`.
 
 * Make sure SassScript subtraction happens even when nothing else dynamic is going on.

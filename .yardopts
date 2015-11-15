@@ -9,3 +9,5 @@
 --protected
 --no-private
 --no-highlight
+--tag             comment
+--hide-tag        comment

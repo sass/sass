@@ -354,6 +354,17 @@ WARNING
     assert_equal decimal_array, decimal_array_from_vlq
   end
 
+  def test_round_respects_precision
+    original_precision = Sass::Script::Value::Number.precision
+    assert_equal 0, Sass::Util.round(0.49999)
+    assert_equal 1, Sass::Util.round(0.499999)
+    Sass::Script::Value::Number.precision = 6
+    assert_equal 0, Sass::Util.round(0.499999)
+    assert_equal 1, Sass::Util.round(0.49999999)
+  ensure
+    Sass::Script::Value::Number.precision = original_precision
+  end
+
   def test_atomic_writes
     # when using normal writes, this test fails about 90% of the time.
     filename = File.join(Dir.tmpdir, "test_atomic")
