@@ -10,6 +10,10 @@
 
 * Add a `$weight` parameter to `invert()`.
 
+* Add support for nested maps with `map-get()` and `map-has-key()` by passing more than 2 arguments
+
+* Add support for setting changes deeply into a nested hash by providing a new syntax for set that is generally non-destructive with the signature `map-set($map, $keys..., $value)` 
+
 ## 3.4.20 (Unreleased)
 
 * Fix a bug with the rounding changes from 3.4.14 and 3.4.15 where some negative
