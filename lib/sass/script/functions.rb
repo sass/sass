@@ -2124,7 +2124,6 @@ MESSAGE
     end
     declare :map_set, [:map, :keys, :value], :var_args => true
 
-
     # Returns a new map with keys removed.
     #
     # Like all map functions, `map-merge()` returns a new map rather than
