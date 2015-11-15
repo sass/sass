@@ -393,7 +393,7 @@ WARNING
   def visit_prop(node)
     node.resolved_name = run_interp(node.name)
     val = node.value.perform(@environment)
-    node.resolved_value = val.to_s
+    node.resolved_value = val.to_s(:style => node.style)
     node.value_source_range = val.source_range if val.source_range
     yield
   end

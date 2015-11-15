@@ -267,6 +267,11 @@ module Sass::Script::Value
     # @raise [Sass::SyntaxError] if this number has units that can't be used in CSS
     #   (e.g. `px*in`)
     def to_s(opts = {})
+      if opts[:style] == :compressed
+        return '0' if int? && to_i == 0 # remove units from integer zeros
+        return original.sub(/^0\./, '.') if original
+      end
+
       return original if original
       raise Sass::SyntaxError.new("#{inspect} isn't a valid CSS value.") unless legal_units?
       inspect
