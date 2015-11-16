@@ -289,6 +289,9 @@ module Sass::Script::Value
       # and confusing.
       str = ("%0.#{self.class.precision}f" % value).gsub(/0*$/, '') if str.include?('e')
 
+      if @options && options[:style] == :compressed
+        str.sub!(/^(-)?0\./, '\1.')
+      end
       unitless? ? str : "#{str}#{unit_str}"
     end
     alias_method :to_sass, :inspect

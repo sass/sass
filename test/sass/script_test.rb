@@ -1177,12 +1177,21 @@ SASS
     assert_equal "true", resolve("29 == (29 / 7 * 7)")
   end
 
+  def test_compressed_output_of_numbers_with_leading_zeros
+    assert_equal "1.5", resolve("1.5", :style => :compressed)
+    assert_equal ".5", resolve("0.5", :style => :compressed)
+    assert_equal "-.5", resolve("-0.5", :style => :compressed)
+    assert_equal "0.5", resolve("0.5", :style => :compact)
+  end
+
+
   private
 
   def resolve(str, opts = {}, environment = env)
     munge_filename opts
     val = eval(str, opts, environment)
     assert_kind_of Sass::Script::Value::Base, val
+    val.options = opts
     val.is_a?(Sass::Script::Value::String) ? val.value : val.to_s
   end
 
