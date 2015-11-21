@@ -16,6 +16,9 @@
 * Rounding numbers now respects Sass's precision setting for numbers very
   close to half an integer.
 
+* In compressed mode, numbers between -1 and 1 now have the
+  leading 0 omitted.
+
 ## 3.4.19 (09 October 2015)
 
 * Sass numeric equality now better handles float-point errors. Any
