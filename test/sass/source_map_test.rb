@@ -903,28 +903,6 @@ JSON
     assert_sourcemaps_equal source, css, mapping, sourcemap
   end
 
-  def assert_positions_equal(expected, actual, lines, message = nil)
-    prefix = message ? message + ": " : ""
-    expected_location = lines[expected.line - 1] + "\n" + ("-" * (expected.offset - 1)) + "^"
-    actual_location = lines[actual.line - 1] + "\n" + ("-" * (actual.offset - 1)) + "^"
-    assert_equal(expected.line, actual.line, prefix +
-      "Expected #{expected.inspect}\n" +
-      expected_location + "\n\n" +
-      "But was #{actual.inspect}\n" +
-      actual_location)
-    assert_equal(expected.offset, actual.offset, prefix +
-      "Expected #{expected.inspect}\n" +
-      expected_location + "\n\n" +
-      "But was #{actual.inspect}\n" +
-      actual_location)
-  end
-
-  def assert_ranges_equal(expected, actual, lines, prefix)
-    assert_positions_equal(expected.start_pos, actual.start_pos, lines, prefix + " start position")
-    assert_positions_equal(expected.end_pos, actual.end_pos, lines, prefix + " end position")
-    assert_equal(expected.file, actual.file)
-  end
-
   def assert_sourcemaps_equal(source, css, expected, actual)
     assert_equal(expected.data.length, actual.data.length, <<MESSAGE)
 Wrong number of mappings. Expected:
@@ -936,8 +914,8 @@ MESSAGE
     source_lines = source.split("\n")
     css_lines = css.split("\n")
     expected.data.zip(actual.data) do |expected_mapping, actual_mapping|
-      assert_ranges_equal(expected_mapping.input, actual_mapping.input, source_lines, "Input")
-      assert_ranges_equal(expected_mapping.output, actual_mapping.output, css_lines, "Output")
+      assert_equal(expected_mapping.input.inspect, actual_mapping.input.inspect, "Mapping input")
+      assert_equal(expected_mapping.output.inspect, actual_mapping.output.inspect, "Mapping output")
     end
   end
 
