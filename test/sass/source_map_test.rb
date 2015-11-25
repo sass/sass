@@ -800,7 +800,7 @@ SCSS
 
     interpolated = engine.to_tree.children.
       first.children.
-      first.value.children[1]
+      first.value.contents[1]
     assert_equal "123", interpolated.to_sass
     range = interpolated.source_range
     assert_equal 3, range.start_pos.line

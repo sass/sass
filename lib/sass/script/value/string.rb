@@ -76,13 +76,9 @@ module Sass::Script::Value
     #
     # @param value [String] See \{#value}
     # @param type [Symbol] See \{#type}
-    # @param deprecated_interp_equivalent [String?]
-    #   If this was created via a potentially-deprecated string interpolation,
-    #   this is the replacement expression that should be suggested to the user.
-    def initialize(value, type = :identifier, deprecated_interp_equivalent = nil)
+    def initialize(value, type = :identifier)
       super(value)
       @type = type
-      @deprecated_interp_equivalent = deprecated_interp_equivalent
     end
 
     # @see Value#plus
@@ -104,38 +100,6 @@ module Sass::Script::Value
     # @see Value#to_sass
     def to_sass(opts = {})
       to_s(opts.merge(:sass => true))
-    end
-
-    def separator
-      check_deprecated_interp
-      super
-    end
-
-    def to_a
-      check_deprecated_interp
-      super
-    end
-
-    # Prints a warning if this string was created using potentially-deprecated
-    # interpolation.
-    def check_deprecated_interp
-      return unless @deprecated_interp_equivalent
-
-      # rubocop:disable GlobalVars
-      $_sass_deprecated_interp_warnings ||= Set.new
-      key = [source_range.start_pos.line, source_range.file, @deprecated_interp_equivalent]
-      return if $_sass_deprecated_interp_warnings.include?(key)
-      $_sass_deprecated_interp_warnings << key
-      # rubocop:enable GlobalVars
-
-      location = "on line #{source_range.start_pos.line}"
-      location << " of #{source_range.file}" if source_range.file
-      Sass::Util.sass_warn <<WARNING
-DEPRECATION WARNING #{location}: \#{} interpolation near operators will be simplified
-in a future version of Sass. To preserve the current behavior, use quotes:
-
-  #{@deprecated_interp_equivalent}
-WARNING
     end
 
     def inspect
