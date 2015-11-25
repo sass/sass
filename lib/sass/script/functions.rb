@@ -526,7 +526,11 @@ module Sass::Script
       # @raise [ArgumentError] if value is not of the correct type.
       def assert_type(value, type, name = nil)
         klass = Sass::Script::Value.const_get(type)
-        return if value.is_a?(klass)
+        if value.is_a?(klass)
+          value.check_deprecated_interp if type == :String
+          return
+        end
+
         return if value.is_a?(Sass::Script::Value::List) && type == :Map && value.value.empty?
         err = "#{value.inspect} is not a #{TYPE_NAMES[type] || type.to_s.downcase}"
         err = "$#{name.to_s.gsub('_', '-')}: " + err if name
@@ -1446,6 +1450,7 @@ MESSAGE
         return string
       end
 
+      string.check_deprecated_interp
       return string if string.type == :identifier
       identifier(string.value)
     end
@@ -1632,6 +1637,7 @@ MESSAGE
     # @return [Sass::Script::Value::String] The unquoted string name of the
     #   value's type
     def type_of(value)
+      value.check_deprecated_interp if value.is_a?(Sass::Script::Value::String)
       identifier(value.class.name.gsub(/Sass::Script::Value::/, '').downcase)
     end
     declare :type_of, [:value]
@@ -2360,6 +2366,7 @@ MESSAGE
     # @return [Sass::Script::Value::String] A representation of the value as
     #   it would be written in Sass.
     def inspect(value)
+      value.check_deprecated_interp if value.is_a?(Sass::Script::Value::String)
       unquoted_string(value.to_sass)
     end
     declare :inspect, [:value]
