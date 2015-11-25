@@ -23,7 +23,14 @@ end
 
 # ----- Code Style Enforcement -----
 
-if RUBY_VERSION !~ /^(1\.8)/ && (ENV.has_key?("RUBOCOP") && ENV["RUBOCOP"] == "true" || !(ENV.has_key?("RUBOCOP") || ENV.has_key?("TEST")))
+version = RUBY_VERSION.split(".").map {|n| n.to_i}
+
+# TODO: Run Rubocop on Ruby 2.2+ when it's supported. See
+# https://github.com/sass/sass/pull/1805.
+if (version[0] > 1 || (version[0] == 1 && version[1] > 8)) &&
+    (version[0] < 2 || (version[0] == 2 && version[1] < 2)) &&
+    (ENV.has_key?("RUBOCOP") && ENV["RUBOCOP"] == "true" ||
+      !(ENV.has_key?("RUBOCOP") || ENV.has_key?("TEST")))
   require 'rubocop/rake_task'
   Rubocop::RakeTask.new do |t|
     t.patterns = FileList["lib/**/*"]

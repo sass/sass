@@ -28,6 +28,9 @@
 * Mitigate a race condition when multiple threads are using the same
   `Sass::Plugin` object at once.
 
+* In compressed mode, numbers between -1 and 1 now have the
+  leading 0 omitted.
+
 ## 3.4.19 (09 October 2015)
 
 * Sass numeric equality now better handles float-point errors. Any
