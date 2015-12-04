@@ -62,8 +62,8 @@ class SassScriptConversionTest < MiniTest::Test
   end
 
   def test_url
-    # assert_renders "url(foo.gif)"
-    # assert_renders "url($var)"
+    assert_renders "url(foo.gif)"
+    assert_renders "url($var)"
     assert_renders "url(\#{$var}/flip.gif)"
   end
 
