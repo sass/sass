@@ -1200,6 +1200,10 @@ SASS
     assert_no_warning {assert_equal "a- 1", resolve('#{a}- 1')}
     assert_no_warning {assert_equal "a-1", resolve('#{a}-1')}
     assert_no_warning {assert_equal "a-b", resolve('#{a}-#{b}')}
+    assert_no_warning {assert_equal "a1", resolve('#{a}1')}
+    assert_no_warning {assert_equal "ab", resolve('#{a}b')}
+    assert_no_warning {assert_equal "1a", resolve('1#{a}')}
+    assert_no_warning {assert_equal "ba", resolve('b#{a}')}
   end
 
   def test_leading_interpolation_with_deprecation_warning
@@ -1213,6 +1217,18 @@ SASS
     assert_equal "ab * 1", resolve_with_interp_warning('#{a + b} * 1')
     assert_equal "ab - 1", resolve_with_interp_warning('#{a + b} - 1')
     assert_equal "ab % 1", resolve_with_interp_warning('#{a + b} % 1')
+    assert_equal(
+      "abvar",
+      resolve_with_interp_warning(
+        '#{a + b}$var', '"#{a + b}#{$var}"',
+        env('var' => Sass::Script::Value::String.new("var"))))
+    assert_equal(
+      "varab",
+      resolve_with_interp_warning(
+        '$var#{a + b}', '"#{$var}#{a + b}"',
+        env('var' => Sass::Script::Value::String.new("var"))))
+    assert_equal "ab1", resolve_with_interp_warning('#{a + b}(1)', '"#{a + b}1"')
+    assert_equal "1ab", resolve_with_interp_warning('(1)#{a + b}', '"1#{a + b}"')
   end
 
   def test_trailing_interpolation_with_deprecation_warning
@@ -1292,9 +1308,9 @@ SASS
 
   private
 
-  def resolve_with_lazy_interp_warning(str, contents = nil)
+  def resolve_with_lazy_interp_warning(str, contents = nil, environment = env)
     contents ||= "\"#{str}\""
-    result = assert_warning(<<WARNING) {resolve(str)}
+    result = assert_warning(<<WARNING) {resolve(str, {}, environment)}
 DEPRECATION WARNING on line 1 of #{filename_for_test}: \#{} interpolation near operators will be simplified
 in a future version of Sass. To preserve the current behavior, use quotes:
 
@@ -1304,9 +1320,9 @@ WARNING
     result
   end
 
-  def resolve_with_interp_warning(str, contents = nil)
+  def resolve_with_interp_warning(str, contents = nil, environment = env)
     contents ||= "\"#{str}\""
-    assert_warning(<<WARNING) {resolve(str)}
+    assert_warning(<<WARNING) {resolve(str, {}, environment)}
 DEPRECATION WARNING on line 1 of #{filename_for_test}: \#{} interpolation near operators will be simplified
 in a future version of Sass. To preserve the current behavior, use quotes:
 
