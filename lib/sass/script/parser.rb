@@ -414,16 +414,22 @@ RUBY
         e = first || send(inner)
         while (interp = try_tok(:begin_interpolation))
           wb = @lexer.whitespace?(interp)
+          char_before = @lexer.char(interp.pos - 1)
           mid = assert_expr :expr
           assert_tok :end_interpolation
           wa = @lexer.whitespace?
+          char_after = @lexer.char
 
           after = send(inner)
           before_deprecation = e.is_a?(Script::Tree::Interpolation) ? e.deprecation : :none
           after_deprecation = after.is_a?(Script::Tree::Interpolation) ? after.deprecation : :none
 
           deprecation =
-            if before_deprecation == :immediate || after_deprecation == :immediate
+            if before_deprecation == :immediate || after_deprecation == :immediate ||
+               # Warn for #{foo}$var and #{foo}(1) but not #{$foo}1.
+               (after && !wa && char_after =~ /[$(]/) ||
+               # Warn for $var#{foo} and (a)#{foo} but not a#{foo}.
+               (e && !wb && is_unsafe_before?(e, char_before))
               :immediate
             else
               :potential
@@ -434,6 +440,26 @@ RUBY
             (e || interp).source_range.start_pos)
         end
         e
+      end
+
+      # Returns whether `expr` is unsafe to include before an interpolation.
+      #
+      # @param expr [Node] The expression to check.
+      # @param char_before [String] The character immediately before the
+      #   interpolation being checked (and presumably the last character of
+      #   `expr`).
+      # @return [Boolean]
+      def is_unsafe_before?(expr, char_before)
+        # If the previous expression is an identifier or number, it's safe
+        # unless it was wrapped in parentheses.
+        if expr.is_a?(Script::Tree::Literal) &&
+           (expr.value.is_a?(Script::Value::Number) ||
+            (expr.value.is_a?(Script::Value::String) && expr.value.type == :identifier))
+          return char_before == ')'
+        end
+
+        # Otherwise, it's only safe if it was another interpolation.
+        !expr.is_a?(Script::Tree::Interpolation)
       end
 
       def space
