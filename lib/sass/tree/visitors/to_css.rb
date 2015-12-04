@@ -159,8 +159,9 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   def visit_comment(node)
     return if node.invisible?
     spaces = ('  ' * [@tabs - node.resolved_value[/^ */].size, 0].max)
+    output(spaces)
 
-    content = node.resolved_value.gsub(/^/, spaces)
+    content = node.resolved_value.split("\n").join("\n" + spaces)
     if node.type == :silent
       content.gsub!(%r{^(\s*)//(.*)$}) {|md| "#{$1}/*#{$2} */"}
     end

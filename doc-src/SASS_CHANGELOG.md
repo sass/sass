@@ -24,6 +24,8 @@
 * In compressed mode, numbers between -1 and 1 now have the
   leading 0 omitted.
 
+* Source maps now include source ranges for comments..
+
 ## 3.4.19 (09 October 2015)
 
 * Sass numeric equality now better handles float-point errors. Any

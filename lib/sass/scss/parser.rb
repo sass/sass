@@ -159,20 +159,16 @@ module Sass
         silent = text =~ %r{\A//}
         loud = !silent && text =~ %r{\A/[/*]!}
         line = @line - text.count("\n")
+        comment_start = @scanner.pos - text.length
+        index_before_line = @scanner.string.rindex("\n", comment_start) || -1
+        offset = comment_start - index_before_line
 
         if silent
           value = [text.sub(%r{\A\s*//}, '/*').gsub(%r{^\s*//}, ' *') + ' */']
         else
-          value = Sass::Engine.parse_interp(
-            text, line, @scanner.pos - text.size, :filename => @filename)
-          newline_before_comment = @scanner.string.rindex("\n", @scanner.pos - text.length)
-          last_line_before_comment =
-            if newline_before_comment
-              @scanner.string[newline_before_comment + 1...@scanner.pos - text.length]
-            else
-              @scanner.string[0...@scanner.pos - text.length]
-            end
-          value.unshift(last_line_before_comment.gsub(/[^\s]/, ' '))
+          value = Sass::Engine.parse_interp(text, line, offset, :filename => @filename)
+          line_before_comment = @scanner.string[index_before_line + 1...comment_start]
+          value.unshift(line_before_comment.gsub(/[^\s]/, ' '))
         end
 
         type = if silent
@@ -182,8 +178,8 @@ module Sass
                else
                  :normal
                end
-        comment = Sass::Tree::CommentNode.new(value, type)
-        comment.line = line
+        start_pos = Sass::Source::Position.new(line, offset)
+        comment = node(Sass::Tree::CommentNode.new(value, type), start_pos)
         node << comment
       end
 

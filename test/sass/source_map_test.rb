@@ -28,7 +28,7 @@ a {
 CSS
 {
 "version": 3,
-"mappings": "AAAA,CAAE;EACA,GAAG,EAAE,GAAG;;EAER,SAAS,EAAE,IAAI",
+"mappings": "AAAA,CAAE;EACA,GAAG,EAAE,GAAG;EACV,kBAAkB;EAChB,SAAS,EAAE,IAAI",
 "sources": ["test_simple_mapping_scss_inline.scss"],
 "names": [],
 "file": "test.css"
@@ -78,7 +78,7 @@ a {
 CSS
 {
 "version": 3,
-"mappings": "AAAA,CAAE;EACA,GAAG,EAAE,GAAG;;EAER,SAAS,EAAE,IAAI",
+"mappings": "AAAA,CAAE;EACA,GAAG,EAAE,GAAG;EACV,kBAAkB;EAChB,SAAS,EAAE,IAAI",
 "sources": ["#{uri}"],
 "names": [],
 "file": "test.css"
@@ -104,7 +104,7 @@ a {
 CSS
 {
 "version": 3,
-"mappings": "AAAA,CAAE;EACA,GAAG,EAAE,GAAG;;EAER,SAAS,EAAE,IAAI",
+"mappings": "AAAA,CAAE;EACA,GAAG,EAAE,GAAG;EACV,kBAAkB;EAChB,SAAS,EAAE,IAAI",
 "sources": ["../scss/style.scss"],
 "names": [],
 "file": "style.css"
@@ -350,44 +350,44 @@ CSS
 $width: 2px;
 $translucent-red: rgba(255, 0, 0, 0.5);
 {{1}}a {{/1}}{
-  {{8}}.special {{/8}}{
-    {{9}}color{{/9}}: {{10}}red{{/10}};
-    {{11}}&:hover {{/11}}{
-      {{12}}foo{{/12}}: {{13}}bar{{/13}};
-      {{14}}cursor{{/14}}: {{15}}e + -resize{{/15}};
-      {{16}}color{{/16}}: {{17}}opacify($translucent-red, 0.3){{/17}};
+  {{9}}.special {{/9}}{
+    {{10}}color{{/10}}: {{11}}red{{/11}};
+    {{12}}&:hover {{/12}}{
+      {{13}}foo{{/13}}: {{14}}bar{{/14}};
+      {{15}}cursor{{/15}}: {{16}}e + -resize{{/16}};
+      {{17}}color{{/17}}: {{18}}opacify($translucent-red, 0.3){{/18}};
     }
-    {{18}}&:after {{/18}}{
-      {{19}}content{{/19}}: {{20}}"I ate #{5 + 10} pies #{$width} thick!"{{/20}};
+    {{19}}&:after {{/19}}{
+      {{20}}content{{/20}}: {{21}}"I ate #{5 + 10} pies #{$width} thick!"{{/21}};
     }
   }
-  {{21}}&:active {{/21}}{
-    {{22}}color{{/22}}: {{23}}#010203 + #040506{{/23}};
-    {{24}}border{{/24}}: {{25}}$width solid black{{/25}};
+  {{22}}&:active {{/22}}{
+    {{23}}color{{/23}}: {{24}}#010203 + #040506{{/24}};
+    {{25}}border{{/25}}: {{26}}$width solid black{{/26}};
   }
-/* SOME COMMENT */
-  {{2}}font{{/2}}: {{3}}2px/3px {{/3}}{
-    {{4}}family{{/4}}: {{5}}fantasy{{/5}};
-    {{6}}size{{/6}}: {{7}}1em + (2em * 3){{/7}};
+{{2}}/* SOME COMMENT */{{/2}}
+  {{3}}font{{/3}}: {{4}}2px/3px {{/4}}{
+    {{5}}family{{/5}}: {{6}}fantasy{{/6}};
+    {{7}}size{{/7}}: {{8}}1em + (2em * 3){{/8}};
   }
 }
 SCSS
 {{1}}a{{/1}} {
-  /* SOME COMMENT */
-  {{2}}font{{/2}}: {{3}}2px/3px{{/3}};
-    {{4}}font-family{{/4}}: {{5}}fantasy{{/5}};
-    {{6}}font-size{{/6}}: {{7}}7em{{/7}}; }
-  {{8}}a .special{{/8}} {
-    {{9}}color{{/9}}: {{10}}red{{/10}}; }
-    {{11}}a .special:hover{{/11}} {
-      {{12}}foo{{/12}}: {{13}}bar{{/13}};
-      {{14}}cursor{{/14}}: {{15}}e-resize{{/15}};
-      {{16}}color{{/16}}: {{17}}rgba(255, 0, 0, 0.8){{/17}}; }
-    {{18}}a .special:after{{/18}} {
-      {{19}}content{{/19}}: {{20}}"I ate 15 pies 2px thick!"{{/20}}; }
-  {{21}}a:active{{/21}} {
-    {{22}}color{{/22}}: {{23}}#050709{{/23}};
-    {{24}}border{{/24}}: {{25}}2px solid black{{/25}}; }
+  {{2}}/* SOME COMMENT */{{/2}}
+  {{3}}font{{/3}}: {{4}}2px/3px{{/4}};
+    {{5}}font-family{{/5}}: {{6}}fantasy{{/6}};
+    {{7}}font-size{{/7}}: {{8}}7em{{/8}}; }
+  {{9}}a .special{{/9}} {
+    {{10}}color{{/10}}: {{11}}red{{/11}}; }
+    {{12}}a .special:hover{{/12}} {
+      {{13}}foo{{/13}}: {{14}}bar{{/14}};
+      {{15}}cursor{{/15}}: {{16}}e-resize{{/16}};
+      {{17}}color{{/17}}: {{18}}rgba(255, 0, 0, 0.8){{/18}}; }
+    {{19}}a .special:after{{/19}} {
+      {{20}}content{{/20}}: {{21}}"I ate 15 pies 2px thick!"{{/21}}; }
+  {{22}}a:active{{/22}} {
+    {{23}}color{{/23}}: {{24}}#050709{{/24}};
+    {{25}}border{{/25}}: {{26}}2px solid black{{/26}}; }
 
 /*# sourceMappingURL=test.css.map */
 CSS
@@ -398,39 +398,39 @@ CSS
 $width: 2px
 $translucent-red: rgba(255, 0, 0, 0.5)
 {{1}}a{{/1}}
-  {{8}}.special{{/8}}
-    {{9}}color{{/9}}: {{10}}red{{/10}}
-    {{11}}&:hover{{/11}}
-      {{12}}foo{{/12}}: {{13}}bar{{/13}}
-      {{14}}cursor{{/14}}: {{15}}e + -resize{{/15}}
-      {{16}}color{{/16}}: {{17}}opacify($translucent-red, 0.3){{/17}}
-    {{18}}&:after{{/18}}
-      {{19}}content{{/19}}: {{20}}"I ate #{5 + 10} pies #{$width} thick!"{{/20}}
-  {{21}}&:active{{/21}}
-    {{22}}color{{/22}}: {{23}}#010203 + #040506{{/23}}
-    {{24}}border{{/24}}: {{25}}$width solid black{{/25}}
+  {{9}}.special{{/9}}
+    {{10}}color{{/10}}: {{11}}red{{/11}}
+    {{12}}&:hover{{/12}}
+      {{13}}foo{{/13}}: {{14}}bar{{/14}}
+      {{15}}cursor{{/15}}: {{16}}e + -resize{{/16}}
+      {{17}}color{{/17}}: {{18}}opacify($translucent-red, 0.3){{/18}}
+    {{19}}&:after{{/19}}
+      {{20}}content{{/20}}: {{21}}"I ate #{5 + 10} pies #{$width} thick!"{{/21}}
+  {{22}}&:active{{/22}}
+    {{23}}color{{/23}}: {{24}}#010203 + #040506{{/24}}
+    {{25}}border{{/25}}: {{26}}$width solid black{{/26}}
 
-  /* SOME COMMENT */
-  {{2}}font{{/2}}: {{3}}2px/3px{{/3}}
-    {{4}}family{{/4}}: {{5}}fantasy{{/5}}
-    {{6}}size{{/6}}: {{7}}1em + (2em * 3){{/7}}
+  {{2}}/* SOME COMMENT */{{/2}}
+  {{3}}font{{/3}}: {{4}}2px/3px{{/4}}
+    {{5}}family{{/5}}: {{6}}fantasy{{/6}}
+    {{7}}size{{/7}}: {{8}}1em + (2em * 3){{/8}}
 SASS
 {{1}}a{{/1}} {
-  /* SOME COMMENT */
-  {{2}}font{{/2}}: {{3}}2px/3px{{/3}};
-    {{4}}font-family{{/4}}: {{5}}fantasy{{/5}};
-    {{6}}font-size{{/6}}: {{7}}7em{{/7}}; }
-  {{8}}a .special{{/8}} {
-    {{9}}color{{/9}}: {{10}}red{{/10}}; }
-    {{11}}a .special:hover{{/11}} {
-      {{12}}foo{{/12}}: {{13}}bar{{/13}};
-      {{14}}cursor{{/14}}: {{15}}e-resize{{/15}};
-      {{16}}color{{/16}}: {{17}}rgba(255, 0, 0, 0.8){{/17}}; }
-    {{18}}a .special:after{{/18}} {
-      {{19}}content{{/19}}: {{20}}"I ate 15 pies 2px thick!"{{/20}}; }
-  {{21}}a:active{{/21}} {
-    {{22}}color{{/22}}: {{23}}#050709{{/23}};
-    {{24}}border{{/24}}: {{25}}2px solid black{{/25}}; }
+  {{2}}/* SOME COMMENT */{{/2}}
+  {{3}}font{{/3}}: {{4}}2px/3px{{/4}};
+    {{5}}font-family{{/5}}: {{6}}fantasy{{/6}};
+    {{7}}font-size{{/7}}: {{8}}7em{{/8}}; }
+  {{9}}a .special{{/9}} {
+    {{10}}color{{/10}}: {{11}}red{{/11}}; }
+    {{12}}a .special:hover{{/12}} {
+      {{13}}foo{{/13}}: {{14}}bar{{/14}};
+      {{15}}cursor{{/15}}: {{16}}e-resize{{/16}};
+      {{17}}color{{/17}}: {{18}}rgba(255, 0, 0, 0.8){{/18}}; }
+    {{19}}a .special:after{{/19}} {
+      {{20}}content{{/20}}: {{21}}"I ate 15 pies 2px thick!"{{/21}}; }
+  {{22}}a:active{{/22}} {
+    {{23}}color{{/23}}: {{24}}#050709{{/24}};
+    {{25}}border{{/25}}: {{26}}2px solid black{{/26}}; }
 
 /*# sourceMappingURL=test.css.map */
 CSS
@@ -844,6 +844,72 @@ SCSS
 "file": "output%20file.css"
 }
 JSON
+  end
+
+  def test_scss_comment_source_range
+    assert_parses_with_mapping <<SCSS, <<CSS, :syntax => :scss
+$var: val; {{1}}/* text */{{/1}}
+
+{{2}}/* multiline
+   comment */{{/2}}
+SCSS
+{{1}}/* text */{{/1}}
+{{2}}/* multiline
+   comment */{{/2}}
+
+/*# sourceMappingURL=test.css.map */
+CSS
+  end
+
+  def test_sass_comment_source_range
+    assert_parses_with_mapping <<SASS, <<CSS, :syntax => :sass
+{{1}}body{{/1}}
+  {{2}}/* text */{{/2}}
+
+{{3}}/* multiline
+   comment */{{/3}}
+SASS
+{{1}}body{{/1}} {
+  {{2}}/* text */{{/2}} }
+
+{{3}}/* multiline
+ * comment */{{/3}}
+
+/*# sourceMappingURL=test.css.map */
+CSS
+  end
+
+  def test_scss_comment_interpolation_source_range
+    assert_parses_with_mapping <<SCSS, <<CSS, :syntax => :scss
+$var: 2; {{1}}/* two \#{$var} and four \#{2 * $var} */{{/1}}
+
+{{2}}/* multiline
+   comment \#{ 2 + 2 } and \#{ 2 +
+   2 } */{{/2}}
+SCSS
+{{1}}/* two 2 and four 4 */{{/1}}
+{{2}}/* multiline
+   comment 4 and 4 */{{/2}}
+
+/*# sourceMappingURL=test.css.map */
+CSS
+  end
+
+  def test_sass_comment_interpolation_source_range
+    assert_parses_with_mapping <<SASS, <<CSS, :syntax => :sass
+$var: 2
+{{1}}/* two \#{$var} and four \#{2 * $var} */{{/1}}
+
+{{2}}/* multiline
+   comment \#{ 2 + 2 } and \#{ 2 +
+   2 } */{{/2}}
+SASS
+{{1}}/* two 2 and four 4 */{{/1}}
+{{2}}/* multiline
+ * comment 4 and 4 */{{/2}}
+
+/*# sourceMappingURL=test.css.map */
+CSS
   end
 
   private
