@@ -10,6 +10,24 @@
 
 * Add a `$weight` parameter to `invert()`.
 
+### Backwards Incompatibilities -- Must Read!
+
+Certain ways of using `#{}` without quotes in property and variable values,
+which were deprecated in version 3.4.20, have been removed entirely in order to
+simplify the feature.
+
+Previously, `#{}` behaved unpredictably. If it was used near operators, it would
+cause those operators to become part of an unquoted string instead of having
+their normal meaning. This wan't an especially useful feature, and it made it
+hard to reason about some code that included `#{}`.
+
+Now `#{}` just returns an unquoted string that acts like any other unquoted
+string. For example, `foo + #{$var}` does the same thing as `foo + $var`,
+instead of doing the same thing as `unquote("foo + #{$var}")`.
+
+For more details, see [this blog post][interp-blog] and
+[the GitHub issue in which it was planned][interp-issue].
+
 ## 3.4.20 (Unreleased)
 
 * Fix a bug with the rounding changes from 3.4.14 and 3.4.15 where some negative
