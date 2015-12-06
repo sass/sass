@@ -2053,7 +2053,7 @@ MESSAGE
       assert_type map, :Map, :map
       result = map
       keys.each do |key|
-        return null unless map.is_a?(Sass::Script::Value::Map)
+        return null unless result.is_a?(Sass::Script::Value::Map)
         result = result.to_h[key]
       end
       result || null
@@ -2076,13 +2076,8 @@ MESSAGE
     # @example
     #   map-merge(("foo": 1), ("bar": 2)) => ("foo": 1, "bar": 2)
     #   map-merge(("foo": 1, "bar": 2), ("bar": 3)) => ("foo": 1, "bar": 3)
-    #   map-merge((a: (b: c)), a, (d: e))
-    #   map-merge((a: (b: c)), (a: (d: e)))
-    # @overload map_merge($map1, $map2)
-    #   @param $map1 [Sass::Script::Value::Map]
-    #   @param $map2 [Sass::Script::Value::Map]
-    # @return [Sass::Script::Value::Map]
-    # @raise [ArgumentError] if either parameter is not a map
+    #   map-merge((a: (b: c)), a, (d: e)) => (a: (b: c, d: e))
+    #   map-merge((a: (b: c)), (a: (d: e))) => (a: (d: e))
     # @overload map_merge($map1, $keys..., $map2)
     #   @param $map1 [Sass::Script::Value::Map]
     #   @param $keys [[Sass::Script::Value]]
@@ -2091,11 +2086,19 @@ MESSAGE
     # @raise [ArgumentError] if either parameter is not a map
     def map_merge(map1, *keys)
       assert_type map1, :Map, :map1
+
+      # Empty Maps arrive as Lists, so ensure we are a list if we are empty
+      # but since Lists don't define the merge functions, we need to ensure
+      # we have a proper Map.
+      map1 = map(map1.to_h)
+
+      # The last argument is always the map we are merging in
       map2 = keys.pop
-      if map1.is_a?(Sass::Script::Value::List)
-        map1 = map(map1.to_h)
-      end
+
+      # Make sure that the last argument is Map-like, however it
+      # can be a List, and we're fine with that.
       assert_type map2, :Map, :map2
+
       map1.recursive_merge(keys, map2)
     end
     declare :map_merge, [:map1, :map2]
@@ -2126,7 +2129,8 @@ MESSAGE
       end
       map.recursive_set(keys, new_value)
     end
-    declare :map_set, [:map, :keys, :value], :var_args => true
+    declare :map_set, [:map, :value]
+    declare :map_set, [:map, :keys], :var_args => true
 
     # Returns a new map with keys removed.
     #
@@ -2148,8 +2152,7 @@ MESSAGE
       hash.delete_if {|key, _| keys.include?(key)}
       map(hash)
     end
-    declare :map_remove, [:map], :var_args => true
-    declare :map_remove, [:map, :key]
+    declare :map_remove, [:map, :key], :var_args => true
 
     # Returns a list of all keys in a map.
     #
@@ -2195,10 +2198,12 @@ MESSAGE
     def map_has_key(map, *keys)
       assert_type map, :Map, :map
       bool(keys.all? do |key|
-        map = map.to_h[key] || false
+        return bool(false) unless map.is_a?(Sass::Script::Value::Map)
+        map = map.to_h[key]
       end)
     end
-    declare :map_has_key, [:map, :keys], :var_args => true
+    declare :map_has_key, [:map, :key]
+    declare :map_has_key, [:map], :var_args => true
 
     # Returns the map of named arguments passed to a function or mixin that
     # takes a variable argument list. The argument names are strings, and they

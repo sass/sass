@@ -1453,9 +1453,13 @@ SCSS
   def test_map_has_key
     assert_equal "true", evaluate("map-has-key((foo: 1, bar: 1), foo)")
     assert_equal "true", evaluate("map-has-key((foo: (bar: 1)), foo, bar)")
+    assert_equal "true", evaluate("map-has-key((foo: ()), foo)")
     assert_equal "false", evaluate("map-has-key((foo: 1, bar: 1), baz)")
     assert_equal "false", evaluate("map-has-key((), foo)")
     assert_equal "false", evaluate("map-has-key((foo: (bar: 1)), foo, bing)")
+    assert_equal "false", evaluate("map-has-key((foo: bar), foo, bar)")
+    assert_equal "false", evaluate("map-has-key((), a, b, c, d, e)")
+    assert_equal "false", evaluate("map-has-key((foo: ()), foo, bar)")
   end
 
   def test_map_has_key_checks_type

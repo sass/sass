@@ -43,15 +43,11 @@ module Sass::Script::Value
       Bool.new(other.is_a?(Map) && value == other.value)
     end
 
-    # Walks the Map, directed by the list
-    # of keys specified in the `keys` array
-    # creating nested Maps as needed, and
-    # when there is only one key left,
-    # setting the value to what is specified
-    # in `new_value`.
+    # Walks the Map, directed by the list of keys specified in the `keys` array
+    # creating nested Maps as needed, and when there is only one key left,
+    # setting the value to what is specified in `new_value`.
     #
-    # If a nested map specified in a key
-    # doesn't exist, it is created.
+    # If a nested map specified in a key doesn't exist, it is created.
     #
     # @param keys [Array<Value>]
     # @param new_value [Value]
@@ -68,9 +64,8 @@ module Sass::Script::Value
       Map.new(new_map)
     end
 
-    # Returns a new map, after following the
-    # nestd keys specified in the second argument, until
-    # a final merge is called with the last value.
+    # Returns a new map, after following the nestd keys specified in the second
+    # argument, until a final merge is called with the last value.
     #
     # @param keys [Array<Value>]
     # @param map_to_merge [Map]
