@@ -9,6 +9,8 @@ rvm:
   - 2.2.3
   - jruby-18mode
   - jruby-19mode
+  - jruby-21mode
+  - jruby-9.0.0.0
   - rbx
   - ree
 gemfile: Gemfile
@@ -27,6 +29,8 @@ matrix:
     - rvm: rbx
     - rvm: jruby-18mode
     - rvm: jruby-19mode
+    - rvm: jruby-21mode
+    - rvm: jruby-9.0.0.0
   include:
     - rvm: 2.2.3
       env: MATHN=true RUBOCOP=true
