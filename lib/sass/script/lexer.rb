@@ -179,6 +179,13 @@ module Sass
         end
       end
 
+      # Returns the given character.
+      #
+      # @return [String]
+      def char(pos = @scanner.pos)
+        @scanner.string[pos, 1]
+      end
+
       # Returns the next token without moving the lexer forward.
       #
       # @return [Token] The next token

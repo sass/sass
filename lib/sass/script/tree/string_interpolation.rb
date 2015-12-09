@@ -24,6 +24,12 @@ module Sass::Script::Tree
       @before.value.type
     end
 
+    # Returns the quote character that should be used to wrap a Sass
+    # representation of this interpolation.
+    def quote
+      quote_for(self) || '"'
+    end
+
     # Interpolation in a string is of the form `"before #{mid} after"`,
     # where `before` and `after` may include more interpolation.
     #

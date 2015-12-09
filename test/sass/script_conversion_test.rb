@@ -264,20 +264,21 @@ RUBY
   end
 
   def test_interpolation
-    assert_renders "$foo\#{$bar}$baz"
-    assert_renders "$foo\#{$bar} $baz"
-    assert_renders "$foo \#{$bar}$baz"
+    assert_equal 'unquote("#{$foo}#{$bar}#{$baz}")', render("$foo\#{$bar}$baz")
+    assert_equal 'unquote("#{$foo}#{$bar} #{$baz}")', render("$foo\#{$bar} $baz")
+    assert_equal 'unquote("#{$foo} #{$bar}#{$baz}")', render("$foo \#{$bar}$baz")
     assert_renders "$foo \#{$bar} $baz"
     assert_renders "$foo \#{$bar}\#{$bang} $baz"
     assert_renders "$foo \#{$bar} \#{$bang} $baz"
-    assert_renders "\#{$bar}$baz"
-    assert_renders "$foo\#{$bar}"
+    assert_equal 'unquote("#{$bar}#{$baz}")', render("\#{$bar}$baz")
+    assert_equal 'unquote("#{$foo}#{$bar}")', render("$foo\#{$bar}")
     assert_renders "\#{$bar}"
   end
 
   def test_interpolation_in_function
     assert_renders 'flabnabbit(#{1 + "foo"})'
-    assert_renders 'flabnabbit($foo #{1 + "foo"}$baz)'
+    assert_equal 'flabnabbit(unquote("#{$foo} #{1 + "foo"}#{$baz}"))',
+                 render('flabnabbit($foo #{1 + "foo"}$baz)')
     assert_renders 'flabnabbit($foo #{1 + "foo"}#{2 + "bar"} $baz)'
   end
 
@@ -299,30 +300,30 @@ RUBY
     assert_renders '3/ #{3 + 4}'
     assert_renders '3/#{3 + 4}'
 
-    assert_renders '#{1 + 2} * 7'
-    assert_renders '#{1 + 2}* 7'
-    assert_renders '#{1 + 2} *7'
-    assert_renders '#{1 + 2}*7'
+    assert_equal 'unquote("#{1 + 2} * 7")', render('#{1 + 2} * 7')
+    assert_equal 'unquote("#{1 + 2}* 7")', render('#{1 + 2}* 7')
+    assert_equal 'unquote("#{1 + 2} *7")', render('#{1 + 2} *7')
+    assert_equal 'unquote("#{1 + 2}*7")', render('#{1 + 2}*7')
 
     assert_renders '-#{1 + 2}'
-    assert_renders '- #{1 + 2}'
+    assert_equal 'unquote("- #{1 + 2}")', render('- #{1 + 2}')
 
-    assert_renders '5 + #{1 + 2} * #{3 + 4}'
-    assert_renders '5 +#{1 + 2} * #{3 + 4}'
-    assert_renders '5+#{1 + 2} * #{3 + 4}'
-    assert_renders '#{1 + 2} * #{3 + 4} + 5'
-    assert_renders '#{1 + 2} * #{3 + 4}+ 5'
-    assert_renders '#{1 + 2} * #{3 + 4}+5'
+    assert_equal 'unquote("5 + #{1 + 2} * #{3 + 4}")', render('5 + #{1 + 2} * #{3 + 4}')
+    assert_equal 'unquote("5 +#{1 + 2} * #{3 + 4}")', render('5 +#{1 + 2} * #{3 + 4}')
+    assert_equal 'unquote("5+#{1 + 2} * #{3 + 4}")', render('5+#{1 + 2} * #{3 + 4}')
+    assert_equal 'unquote("#{1 + 2} * #{3 + 4} + 5")', render('#{1 + 2} * #{3 + 4} + 5')
+    assert_equal 'unquote("#{1 + 2} * #{3 + 4}+ 5")', render('#{1 + 2} * #{3 + 4}+ 5')
+    assert_equal 'unquote("#{1 + 2} * #{3 + 4}+5")', render('#{1 + 2} * #{3 + 4}+5')
 
-    assert_equal '5 / #{1 + 2} + #{3 + 4}', render('5 / (#{1 + 2} + #{3 + 4})')
-    assert_equal '5 / #{1 + 2} + #{3 + 4}', render('5 /(#{1 + 2} + #{3 + 4})')
-    assert_equal '5 / #{1 + 2} + #{3 + 4}', render('5 /( #{1 + 2} + #{3 + 4} )')
-    assert_equal '#{1 + 2} + #{3 + 4} / 5', render('(#{1 + 2} + #{3 + 4}) / 5')
-    assert_equal '#{1 + 2} + #{3 + 4} / 5', render('(#{1 + 2} + #{3 + 4})/ 5')
-    assert_equal '#{1 + 2} + #{3 + 4} / 5', render('( #{1 + 2} + #{3 + 4} )/ 5')
+    assert_equal '5 / unquote("#{1 + 2} + #{3 + 4}")', render('5 / (#{1 + 2} + #{3 + 4})')
+    assert_equal '5 / unquote("#{1 + 2} + #{3 + 4}")', render('5 /(#{1 + 2} + #{3 + 4})')
+    assert_equal '5 / unquote("#{1 + 2} + #{3 + 4}")', render('5 /( #{1 + 2} + #{3 + 4} )')
+    assert_equal 'unquote("#{1 + 2} + #{3 + 4}") / 5', render('(#{1 + 2} + #{3 + 4}) / 5')
+    assert_equal 'unquote("#{1 + 2} + #{3 + 4}") / 5', render('(#{1 + 2} + #{3 + 4})/ 5')
+    assert_equal 'unquote("#{1 + 2} + #{3 + 4}") / 5', render('( #{1 + 2} + #{3 + 4} )/ 5')
 
-    assert_renders '#{1 + 2} + 2 + 3'
-    assert_renders '#{1 + 2} +2 + 3'
+    assert_equal 'unquote("#{1 + 2} + #{2 + 3}")', render('#{1 + 2} + 2 + 3')
+    assert_equal 'unquote("#{1 + 2} +#{2 + 3}")', render('#{1 + 2} +2 + 3')
   end
 
   def test_string_interpolation
@@ -350,7 +351,7 @@ RUBY
 
   def render(script, options = {})
     munge_filename(options)
-    node = Sass::Script.parse(script, 1, 0, options)
+    node = Sass::Script.parse(script, 1, 0, options.merge(:_convert => true))
     node.to_sass
   end
 end
