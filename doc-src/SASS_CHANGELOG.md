@@ -48,7 +48,7 @@ running `sass-convert --in-place` on the affected files.
 For more details, see [the blog post on the deprecation][interp-blog] and
 [the GitHub issue in which it was planned][interp-issue].
 
-[interp-blog]: http://logdown.com/account/posts/308328-cleaning-up-interpolation
+[interp-blog]: http://sass.logdown.com/posts/308328-cleaning-up-interpolation
 [interp-issue]: https://github.com/sass/sass/issues/1778
 
 ## 3.4.19 (09 October 2015)
