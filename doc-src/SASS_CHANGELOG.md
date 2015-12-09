@@ -28,7 +28,7 @@ instead of doing the same thing as `unquote("foo + #{$var}")`.
 For more details, see [this blog post][interp-blog] and
 [the GitHub issue in which it was planned][interp-issue].
 
-## 3.4.20 (Unreleased)
+## 3.4.20 (09 December 2015)
 
 * Fix a bug with the rounding changes from 3.4.14 and 3.4.15 where some negative
   numbers would incorrectly be rounded up instead of down.
@@ -48,6 +48,8 @@ For more details, see [this blog post][interp-blog] and
 
 * In compressed mode, numbers between -1 and 1 now have the
   leading 0 omitted.
+
+* Source maps now include source ranges for comments.
 
 ### Deprecation -- Must Read!
 
