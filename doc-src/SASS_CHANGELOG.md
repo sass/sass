@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.4.20 (Unreleased)
+## 3.4.20 (09 December 2015)
 
 * Fix a bug with the rounding changes from 3.4.14 and 3.4.15 where some negative
   numbers would incorrectly be rounded up instead of down.
