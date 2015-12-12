@@ -26,3 +26,25 @@ and bring Sass's modularity into line with the best practices as demonstrated by
 other modern languages. As such, the semantics of `@use` are is heavily based on
 other languages' module systems, with Python and Dart being particularly strong
 influences.
+
+## High-Level Goals
+
+* **Locality**. The module system should make it possible to understand a Sass
+  file by looking only at that file. An important aspect of this is that names
+  in the file should be resolved based on the contents of the file rather than
+  the global state of the compilation. This also applies to authoring: an author
+  should be able to be confident that a name is safe to use as long as it
+  doesn't conflict with any name visible in the file.
+
+* **Encapsulation**. The module system should allow authors, particularly
+  library authors, to choose what API they expose. They should be able to define
+  entities for internal use without making those entities available for external
+  users to access or modify.
+
+* **Configuration**. Sass is unusual among languages in that it encourages the
+  use of files whose entire purpose is to produce side effects—specifically, to
+  emit CSS. There's also a broader class of libraries that may not emit CSS
+  directly, but do define configuration variables that are used in computations,
+  sometimes at the top level. The module system should allow the user to
+  flexibly use modules with side-effects, and shouldn't force global
+  configuration.
