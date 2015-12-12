@@ -3909,25 +3909,20 @@ CSS
 SCSS
   end
 
-  def test_extra_comma_in_mixin_arglist_multiline
-    assert_equal <<CSS, render(<<SCSS)
-.bar {
-  baz: bar;
-  bal: bri; }
-CSS
+
+  def test_extra_comma_between_parameters_in_mixin_arglist
+    assert_raise_message(Sass::SyntaxError, "Invalid CSS after \"...nclude foo(bar,\": expected mixin argument, was \", baz );\"") {render <<SCSS}
 @mixin foo($a1, $a2) {
   baz: $a1;
-  bal: $a2;
+  bef: $a2;
 }
 
 .bar {
-  @include foo(
-    bar,
-    bri,
-  );
+  @include foo(bar,, baz );
 }
 SCSS
   end
+
 
   def test_extra_comma_in_mixin_arglist_ending_needs_have_parentheses_after
     assert_raise_message(Sass::SyntaxError, "Invalid CSS after \"    bri,\": expected mixin argument, was \"};\"") {render <<SCSS}
