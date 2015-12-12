@@ -72,3 +72,26 @@ most part, they're derived from user feedback that we've collected about
   and it can also contribute to bloated CSS output when the styles themselves
   are duplicated. The new module system should only compile a file once, at
   least for the default configuration.
+
+### Non-Goals
+
+These are potential goals that we have explicitly decided to avoid pursuing for
+various reasons. Some of them may be on the table for future work, but none are
+expected to land in Sass 4.
+
+* **Dynamic imports**. Allowing the path to a module to be defined dynamically,
+  whether by including variables or including it in a conditional block, moves
+  away from being declarative. In addition to making stylesheets harder to read,
+  this makes any sort of static analysis more difficult—and actually impossible
+  in the general case. It also limits the possibility of future implementation
+  optimizations.
+
+* **Importing multiple files at once**. In addition to the long-standing reason
+  that this hasn't been supported—that it opens authors up to sneaky and
+  difficult-to-debug ordering bugs—this violates the principle of locality by
+  obfuscating which files are imported and thus where names come from.
+
+* **Extend-only imports**. The idea of importing a file so that the CSS it
+  generates isn't emitted unless it's `@extend`ed is cool, but it's also a lot
+  of extra work. This is the most likely feature to end up in a future release,
+  but it's not central enough to the module system to include in Sass 4.
