@@ -27,7 +27,13 @@ other modern languages. As such, the semantics of `@use` are is heavily based on
 other languages' module systems, with Python and Dart being particularly strong
 influences.
 
-## High-Level Goals
+## Goals
+
+### High-Level
+
+These are the philosophical design goals for the module system at large. While
+they don't uniquely specify a system, they do represent the underlying
+motivations behind many of the lower-level design decisions.
 
 * **Locality**. The module system should make it possible to understand a Sass
   file by looking only at that file. An important aspect of this is that names
@@ -48,3 +54,21 @@ influences.
   sometimes at the top level. The module system should allow the user to
   flexibly use modules with side-effects, and shouldn't force global
   configuration.
+
+### Low-Level
+
+These are goals that are based less on philosophy than on practicality. For the
+most part, they're derived from user feedback that we've collected about
+`@import` over the years.
+
+* **Using CSS files**. People often have CSS files that they want to bring into
+  their Sass compilation. Historically, `@import` has been unable to do this due
+  to its overlap with the plain-CSS `@import` directive and the requirement that
+  SCSS remain a CSS superset. With a new directive name, this becomes possible.
+
+* **Import once**. Because `@import` is a literal textual inclusion, multiple
+  `@import`s of the same Sass file within the scope of a compilation will
+  compile and run that file multiple times. At best this hurts compilation time,
+  and it can also contribute to bloated CSS output when the styles themselves
+  are duplicated. The new module system should only compile a file once, at
+  least for the default configuration.
