@@ -45,7 +45,8 @@ motivations behind many of the lower-level design decisions.
 * **Encapsulation**. The module system should allow authors, particularly
   library authors, to choose what API they expose. They should be able to define
   entities for internal use without making those entities available for external
-  users to access or modify.
+  users to access or modify. This also includes the ability to "forward" public
+  APIs from another file.
 
 * **Configuration**. Sass is unusual among languages in that it encourages the
   use of files whose entire purpose is to produce side effects—specifically, to
