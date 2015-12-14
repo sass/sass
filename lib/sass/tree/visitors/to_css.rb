@@ -298,7 +298,10 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
         rule_part = seq.to_s
         if node.style == :compressed
           rule_part.gsub!(/([^,])\s*\n\s*/m, '\1 ')
-          rule_part.gsub!(/\s*([-,+>])\s*/m, '\1')
+          rule_part.gsub!(/\s*([,+>])\s*/m, '\1')
+          rule_part.gsub!(/nth([^( ]*)\(([^)]*)\)/m) do |match|
+            match.tr(" \t\n", "")
+          end
           rule_part.strip!
         end
         rule_part

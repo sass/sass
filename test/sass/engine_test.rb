@@ -3324,11 +3324,20 @@ SASS
 
   def test_compressed_output_of_nth_selectors
     assert_equal(<<CSS, render(<<SASS, :syntax => :scss, :style => :compressed))
-:nth-of-type(2n-1),:nth-of-type(2n-1),:nth-of-type(2n-1),:nth-of-type(2n-1),:nth-of-type(2n-1){color:red}:nth-of-type(2n+1),:nth-of-type(2n+1),:nth-of-type(2n+1),:nth-of-type(2n+1),:nth-of-type(2n+1){color:red}
+:nth-of-type(2n-1),:nth-child(2n-1),:nth(2n-1),:nth-of-type(2n-1),:nth-of-type(2n-1){color:red}:nth-of-type(2n+1),:nth-child(2n+1),:nth(2n+1),:nth-of-type(2n+1),:nth-of-type(2n+1){color:red}
 CSS
-:nth-of-type(2n-1), :nth-of-type(2n-  1), :nth-of-type(2n  -1), :nth-of-type(2n  -  1), :nth-of-type( 2n  -  1 ) {
+:nth-of-type(2n-1), :nth-child(2n-  1), :nth(2n  -1), :nth-of-type(2n  -  1), :nth-of-type( 2n  -  1 ) {
   color: red }
-:nth-of-type(2n+1), :nth-of-type(2n+  1), :nth-of-type(2n  +1), :nth-of-type(2n  +  1), :nth-of-type( 2n  +  1 ) {
+:nth-of-type(2n+1), :nth-child(2n+  1), :nth(2n  +1), :nth-of-type(2n  +  1), :nth-of-type( 2n  +  1 ) {
+  color: red }
+SASS
+  end
+
+  def test_descendant_selectors_with_leading_dash
+    assert_equal(<<CSS, render(<<SASS, :syntax => :scss, :style => :compressed))
+a -b{color:red}
+CSS
+a -b {
   color: red }
 SASS
   end
