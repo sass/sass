@@ -2915,7 +2915,7 @@ SASS
       assert_equal <<CSS, render(<<SASS)
 div {
   maximum: 1.00000001;
-  too-much: 1.0; }
+  too-much: 1; }
 CSS
 div
   maximum : 1.00000001
@@ -3319,6 +3319,19 @@ CSS
 @import url("foo.css");
 @import url("bar.css");
 @import url("baz.css");
+SASS
+  end
+
+  def test_numeric_formatting_of_integers
+    assert_equal(<<CSS, render(<<SASS, :syntax => :scss, :style => :compressed))
+a{near:3.00001;plus:3;minus:3;negative:-3}
+CSS
+a {
+  near: (3 + 0.00001);
+  plus: (3 + 0.0000001);
+  minus: (3 - 0.0000001);
+  negative: (-3 + 0.0000001);
+}
 SASS
   end
 
