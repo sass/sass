@@ -3322,6 +3322,16 @@ CSS
 SASS
   end
 
+  def test_escaped_semicolons_are_not_compressed
+    assert_equal(<<'CSS', render(<<'SASS', :syntax => :scss, :style => :compressed))
+div{color:#f00000\9\0\;}
+CSS
+div {
+ color: #f00000\9\0\;
+}
+SASS
+  end
+
   def test_compressed_output_of_nth_selectors
     assert_equal(<<CSS, render(<<SASS, :syntax => :scss, :style => :compressed))
 :nth-of-type(2n-1),:nth-child(2n-1),:nth(2n-1),:nth-of-type(2n-1),:nth-of-type(2n-1){color:red}:nth-of-type(2n+1),:nth-child(2n+1),:nth(2n+1),:nth-of-type(2n+1),:nth-of-type(2n+1){color:red}
