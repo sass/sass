@@ -3,6 +3,18 @@
 * Table of contents
 {:toc}
 
+## 3.4.21 (UNRELEASED)
+
+* Consistent output formatting for numbers close to an integer.
+  [Issue #1931](https://github.com/sass/sass/issues/1931)
+* Correctly round negative numbers that were almost but not quite a
+  whole number (slightly greater than the negative number)
+  [Issue #1938](https://github.com/sass/sass/issues/1938)
+* Don't strip escaped semicolons from compressed output.
+  [Issue #1932](https://github.com/sass/sass/issues/1932)
+* Only compress around dashes within nth selectors.
+  [Issue #1933](https://github.com/sass/sass/issues/1933)
+
 ## 3.4.20 (09 December 2015)
 
 * Fix a bug with the rounding changes from 3.4.14 and 3.4.15 where some negative
