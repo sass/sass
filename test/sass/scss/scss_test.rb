@@ -1014,16 +1014,6 @@ bar {
 SASS
   end
 
-  def test_disallowed_mixin_names
-    assert_warning(<<WARNING) {render(<<SCSS)}
-DEPRECATION WARNING on line 1 of test_disallowed_mixin_names_inline.scss:
-Naming a mixin "mixin" is disallowed and will be an error in future versions of Sass.
-This conflicts with a new syntax for including mixins when the mixin name is specified dynamically.
-WARNING
-@mixin mixin() {}
-SCSS
-  end
-
   def test_disallowed_function_names
     assert_warning(<<WARNING) {render(<<SCSS)}
 DEPRECATION WARNING on line 1 of test_disallowed_function_names_inline.scss:
@@ -3178,12 +3168,12 @@ SCSS
 .foo {
   content: ".foo"; }
 CSS
-@mixin a-mixin {
+@mixin mixin {
   content: "\#{&}";
 }
 
 .foo {
-  @include a-mixin;
+  @include mixin;
 }
 SCSS
   end
@@ -3193,12 +3183,12 @@ SCSS
 .foo {
   content: ".foo"; }
 CSS
-@mixin a_mixin {
+@mixin mixin {
   @content;
 }
 
 .foo {
-  @include a_mixin {
+  @include mixin {
     content: "\#{&}";
   }
 }

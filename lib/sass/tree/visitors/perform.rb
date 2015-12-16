@@ -336,15 +336,6 @@ WARNING
   # Loads a mixin into the environment.
   def visit_mixindef(node)
     env = Sass::Environment.new(@environment, node.options)
-
-    if node.name == "mixin"
-      Sass::Util.sass_warn <<WARNING
-DEPRECATION WARNING on line #{node.line}#{" of #{node.filename}" if node.filename}:
-Naming a mixin "mixin" is disallowed and will be an error in future versions of Sass.
-This conflicts with a new syntax for including mixins when the mixin name is specified dynamically.
-WARNING
-    end
-
     @environment.set_local_mixin(node.name,
       Sass::Callable.new(node.name, node.args, node.splat, env,
                          node.children, node.has_content, "mixin"))
