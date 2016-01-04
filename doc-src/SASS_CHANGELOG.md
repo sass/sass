@@ -14,6 +14,8 @@
   [Issue #1932](https://github.com/sass/sass/issues/1932)
 * Only compress around dashes within nth selectors.
   [Issue #1933](https://github.com/sass/sass/issues/1933)
+* Selector compression of whitespace around commas was affecting attribute values.
+  [Issue #1947](https://github.com/sass/sass/issues/1947)
 
 ## 3.4.20 (09 December 2015)
 

@@ -71,8 +71,10 @@ module Sass
 
       # Returns the selector string.
       #
+      # @param opts [Hash] rendering options.
+      # @option opts [Symbol] :style The css rendering style.
       # @return [String]
-      def to_s
+      def to_s(opts = {})
         Sass::Util.abstract(self)
       end
 

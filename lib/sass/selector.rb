@@ -39,7 +39,7 @@ module Sass
       end
 
       # @see Selector#to_s
-      def to_s
+      def to_s(opts = {})
         "&" + (@suffix || '')
       end
 
@@ -65,7 +65,7 @@ module Sass
       end
 
       # @see Selector#to_s
-      def to_s
+      def to_s(opts = {})
         "." + @name
       end
 
@@ -88,7 +88,7 @@ module Sass
       end
 
       # @see Selector#to_s
-      def to_s
+      def to_s(opts = {})
         "#" + @name
       end
 
@@ -123,7 +123,7 @@ module Sass
       end
 
       # @see Selector#to_s
-      def to_s
+      def to_s(opts = {})
         "%" + @name
       end
 
@@ -147,7 +147,7 @@ module Sass
       end
 
       # @see Selector#to_s
-      def to_s
+      def to_s(opts = {})
         @namespace ? "#{@namespace}|*" : "*"
       end
 
@@ -219,7 +219,7 @@ module Sass
       end
 
       # @see Selector#to_s
-      def to_s
+      def to_s(opts = {})
         @namespace ? "#{@namespace}|#{@name}" : @name
       end
 
@@ -308,7 +308,7 @@ module Sass
       end
 
       # @see Selector#to_s
-      def to_s
+      def to_s(opts = {})
         res = "["
         res << @namespace << "|" if @namespace
         res << @name

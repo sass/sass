@@ -285,8 +285,8 @@ module Sass
       end
 
       # @see Simple#to_s
-      def to_s
-        res = @members.join
+      def to_s(opts = {})
+        res = @members.map {|m| m.to_s(opts)}.join
         res << '!' if subject?
         res
       end

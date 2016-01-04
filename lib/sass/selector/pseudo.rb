@@ -113,13 +113,13 @@ module Sass
       end
 
       # @see Selector#to_s
-      def to_s
+      def to_s(opts = {})
         res = (syntactic_type == :class ? ":" : "::") + @name
         if @arg || @selector
           res << "("
           res << @arg.strip if @arg
           res << " " if @arg && @selector
-          res << @selector.to_s if @selector
+          res << @selector.to_s(opts) if @selector
           res << ")"
         end
         res

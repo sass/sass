@@ -3382,6 +3382,15 @@ CSS
 SASS
   end
 
+  def test_compressed_commas_in_attribute_selectors
+    assert_equal(<<CSS, render(<<SASS, :style => :compressed))
+.classname[a="1, 2, 3"],.another[b="4, 5, 6"]{color:red}
+CSS
+.classname[a="1, 2, 3"], .another[b="4, 5, 6"]
+  color: red
+SASS
+  end
+
   private
 
   def assert_hash_has(hash, expected)
