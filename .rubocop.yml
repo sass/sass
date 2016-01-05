@@ -134,3 +134,5 @@ Lint/AssignmentInCondition:
   Enabled: true
 Lint/FormatParameterMismatch:
   Enabled: true
+Lint/NestedMethodDefinition:
+  Enabled: true

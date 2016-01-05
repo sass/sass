@@ -299,8 +299,9 @@ MSG
         # #watched_paths.
         # rubocop:disable ClassVars
         @@working_directory = Sass::Util.realpath('.').to_s
-        # rubocop:ensable ClassVars
+        # rubocop:enable ClassVars
 
+        # rubocop:disable NestedMethodDefinition
         def watched_file?(file)
           super(file) ||
             (file =~ /\.s[ac]ss$/ && file.start_with?(@@working_directory + File::SEPARATOR))
@@ -309,6 +310,7 @@ MSG
         def watched_paths
           @watched_paths ||= super + [@@working_directory]
         end
+        # rubocop:enable NestedMethodDefinition
       end
 
       dirs, files = @args.map {|name| split_colon_path(name)}.
