@@ -172,7 +172,7 @@ module Sass
     # @return [{Symbol => Object}] The normalized options hash.
     # @private
     def self.normalize_options(options)
-      options = DEFAULT_OPTIONS.merge(options.reject {|k, v| v.nil?})
+      options = DEFAULT_OPTIONS.merge(options.reject {|_k, v| v.nil?})
 
       # If the `:filename` option is passed in without an importer,
       # assume it's using the default filesystem importer.
@@ -489,9 +489,7 @@ END
     end
 
     # @comment
-    #   rubocop:disable ParameterLists
     def try_comment(line, last, tab_str, comment_tab_str, index)
-      # rubocop:enable ParameterLists
       return unless last && last.comment?
       # Nested comment stuff must be at least one whitespace char deeper
       # than the normal indentation
@@ -798,8 +796,6 @@ WARNING
       :each, :while, :if, :else, :extend, :import, :media, :charset, :content,
       :at_root, :error]
 
-    # @comment
-    #   rubocop:disable MethodLength
     def parse_directive(parent, line, root)
       directive, whitespace, value = line.text[1..-1].split(/(\s+)/, 2)
       raise SyntaxError.new("Invalid directive: '@'.") unless directive
@@ -860,8 +856,6 @@ WARNING
       )
       Tree::ExtendNode.new(interp_parsed, optional, selector_range)
     end
-    # @comment
-    #   rubocop:enable MethodLength
 
     def parse_warn_directive(parent, line, root, value, offset)
       raise SyntaxError.new("Invalid warn directive '@warn': expected expression.") unless value

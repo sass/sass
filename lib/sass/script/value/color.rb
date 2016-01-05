@@ -237,7 +237,7 @@ module Sass::Script::Value
         @attrs[:alpha] = attrs[3] ? attrs[3].to_f : 1
         @representation = representation
       else
-        attrs = attrs.reject {|k, v| v.nil?}
+        attrs = attrs.reject {|_k, v| v.nil?}
         hsl = [:hue, :saturation, :lightness] & attrs.keys
         rgb = [:red, :green, :blue] & attrs.keys
         if !allow_both_rgb_and_hsl && !hsl.empty? && !rgb.empty?
@@ -421,7 +421,7 @@ module Sass::Script::Value
     # @return [Color] The new Color object
     # @raise [ArgumentError] if both RGB and HSL keys are specified
     def with(attrs)
-      attrs = attrs.reject {|k, v| v.nil?}
+      attrs = attrs.reject {|_k, v| v.nil?}
       hsl = !([:hue, :saturation, :lightness] & attrs.keys).empty?
       rgb = !([:red, :green, :blue] & attrs.keys).empty?
       if hsl && rgb

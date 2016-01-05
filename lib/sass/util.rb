@@ -310,7 +310,7 @@ module Sass
     # @return [Array]
     def hash_to_a(hash)
       return hash.to_a unless ruby1_8? || defined?(Test::Unit)
-      hash.sort_by {|k, v| k}
+      hash.sort_by {|k, _v| k}
     end
 
     # Performs the equivalent of `enum.group_by.to_a`, but with a guaranteed
@@ -1304,13 +1304,10 @@ module Sass
       return str, str.encoding
     end
 
-    # rubocop:disable LineLength
-
     # Calculates the memoization table for the Least Common Subsequence algorithm.
     # Algorithm from [Wikipedia](http://en.wikipedia.org/wiki/Longest_common_subsequence_problem#Computing_the_length_of_the_LCS)
     def lcs_table(x, y)
       # This method does not take a block as an explicit parameter for performance reasons.
-      # rubocop:enable LineLength
       c = Array.new(x.size) {[]}
       x.size.times {|i| c[i][0] = 0}
       y.size.times {|j| c[0][j] = 0}
@@ -1326,12 +1323,12 @@ module Sass
       end
       c
     end
-    # rubocop:disable ParameterLists, LineLength
+    # rubocop:disable ParameterLists
 
     # Computes a single longest common subsequence for arrays x and y.
     # Algorithm from [Wikipedia](http://en.wikipedia.org/wiki/Longest_common_subsequence_problem#Reading_out_an_LCS)
     def lcs_backtrace(c, x, y, i, j, &block)
-      # rubocop:enable ParameterList, LineLengths
+      # rubocop:enable ParameterList
       return [] if i == 0 || j == 0
       if (v = yield(x[i], y[j]))
         return lcs_backtrace(c, x, y, i - 1, j - 1, &block) << v
