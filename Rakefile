@@ -32,7 +32,9 @@ if (version[0] > 1 || (version[0] == 1 && version[1] > 8)) &&
     (ENV.has_key?("RUBOCOP") && ENV["RUBOCOP"] == "true" ||
       !(ENV.has_key?("RUBOCOP") || ENV.has_key?("TEST")))
   require 'rubocop/rake_task'
-  Rubocop::RakeTask.new do |t|
+  RuboCop = Rubocop unless defined?(RuboCop)
+  RuboCop::RakeTask.new do |t|
+    t.options = ['-c', '.rubocop_0.18.0.yml'] if RUBY_VERSION < '1.9.3'
     t.patterns = FileList["lib/**/*"]
   end
 else

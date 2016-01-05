@@ -51,8 +51,8 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     @source_mapping.add(source_range, target_range)
   end
 
-  def ends_with?(str)
-    @result.end_with?(str)
+  def trailing_semicolon?
+   @result.end_with?(";") && !@result.end_with?('\;')
   end
 
   # Move the output cursor back `chars` characters.
@@ -128,7 +128,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
       end
     end
     rstrip!
-    if node.style == :compressed && ends_with?(";")
+    if node.style == :compressed && trailing_semicolon?
       erase! 1
     end
     return "" if @result.empty?
@@ -163,7 +163,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
 
     content = node.resolved_value.split("\n").join("\n" + spaces)
     if node.type == :silent
-      content.gsub!(%r{^(\s*)//(.*)$}) {|md| "#{$1}/*#{$2} */"}
+      content.gsub!(%r{^(\s*)//(.*)$}) {"#{$1}/*#{$2} */"}
     end
     if (node.style == :compact || node.style == :compressed) && node.type != :loud
       content.gsub!(/\n +(\* *(?!\/))?/, ' ')
@@ -222,7 +222,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
         first = false
       elsif node.style == :compressed
         unless had_children
-          output(";") unless ends_with?(";")
+          output(";") unless trailing_semicolon?
         end
         with_tabs(0) {visit(child)}
         had_children = child.has_children
@@ -232,7 +232,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
       end
     end
     rstrip!
-    if node.style == :compressed && ends_with?(";")
+    if node.style == :compressed && trailing_semicolon?
       erase! 1
     end
     if node.style == :expanded
@@ -295,10 +295,13 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
 
       joined_rules = node.resolved_rules.members.map do |seq|
         next if seq.has_placeholder?
-        rule_part = seq.to_s
+        rule_part = seq.to_s(:style => node.style)
         if node.style == :compressed
           rule_part.gsub!(/([^,])\s*\n\s*/m, '\1 ')
-          rule_part.gsub!(/\s*([-,+>])\s*/m, '\1')
+          rule_part.gsub!(/\s*([+>])\s*/m, '\1')
+          rule_part.gsub!(/nth([^( ]*)\(([^)]*)\)/m) do |match|
+            match.tr(" \t\n", "")
+          end
           rule_part.strip!
         end
         rule_part
@@ -356,7 +359,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
       with_tabs(tabs) do
         node.children.each_with_index do |child, i|
           if i > 0
-            if separator.start_with?(";") && ends_with?(";")
+            if separator.start_with?(";") && trailing_semicolon?
               erase! 1
             end
             output(separator)
@@ -364,7 +367,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
           visit(child)
         end
       end
-      if node.style == :compressed && ends_with?(";")
+      if node.style == :compressed && trailing_semicolon?
         erase! 1
       end
 

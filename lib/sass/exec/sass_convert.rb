@@ -162,7 +162,8 @@ END
     end
 
     def process_directory
-      unless @options[:input] = @args.shift
+      @options[:input] = @args.shift
+      unless @options[:input]
         raise "Error: directory required when using --recursive."
       end
 

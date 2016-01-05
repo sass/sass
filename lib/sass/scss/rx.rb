@@ -32,7 +32,7 @@ module Sass
       # @return [String] The escaped character
       # @private
       def self.escape_char(c)
-        return "\\%06x" % Sass::Util.ord(c) unless c =~ /[ -\/:-~]/
+        return "\\%06x" % (Sass::Util.ord(c)) unless c =~ /[ -\/:-~]/
         "\\#{c}"
       end
 

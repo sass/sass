@@ -158,7 +158,7 @@ module Sass
         seen_with_pseudo_selectors = seen.dup
 
         modified_original = false
-        members = Sass::Util.enum_with_index(self.members).map do |sel, i|
+        members = self.members.map do |sel|
           next sel unless sel.is_a?(Pseudo) && sel.selector
           next sel if seen.include?([sel])
           extended = sel.selector.do_extend(extends, parent_directives, replace, seen, !:original)
@@ -279,14 +279,14 @@ module Sass
           end
         end
 
-        our_spcs.all? do |name, pseudos|
+        our_spcs.all? do |_name, pseudos|
           pseudos.all? {|pseudo| pseudo.superselector?(their_sseq, parents)}
         end
       end
 
       # @see Simple#to_s
-      def to_s
-        res = @members.join
+      def to_s(opts = {})
+        res = @members.map {|m| m.to_s(opts)}.join
         res << '!' if subject?
         res
       end

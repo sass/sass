@@ -39,7 +39,7 @@ module Sass
       end
 
       # @see Selector#to_s
-      def to_s
+      def to_s(opts = {})
         "&" + (@suffix || '')
       end
 
@@ -65,7 +65,7 @@ module Sass
       end
 
       # @see Selector#to_s
-      def to_s
+      def to_s(opts = {})
         "." + @name
       end
 
@@ -92,7 +92,7 @@ module Sass
       end
 
       # @see Selector#to_s
-      def to_s
+      def to_s(opts = {})
         "#" + @name
       end
 
@@ -127,7 +127,7 @@ module Sass
       end
 
       # @see Selector#to_s
-      def to_s
+      def to_s(opts = {})
         "%" + @name
       end
 
@@ -151,7 +151,7 @@ module Sass
       end
 
       # @see Selector#to_s
-      def to_s
+      def to_s(opts = {})
         @namespace ? "#{@namespace}|*" : "*"
       end
 
@@ -223,7 +223,7 @@ module Sass
       end
 
       # @see Selector#to_s
-      def to_s
+      def to_s(opts = {})
         @namespace ? "#{@namespace}|#{@name}" : @name
       end
 
@@ -300,10 +300,7 @@ module Sass
       # @param operator [String] The matching operator, e.g. `"="` or `"^="`
       # @param value [String] See \{#value}
       # @param flags [String] See \{#flags}
-      # @comment
-      #   rubocop:disable ParameterLists
       def initialize(name, namespace, operator, value, flags)
-        # rubocop:enable ParameterLists
         @name = name
         @namespace = namespace
         @operator = operator
@@ -312,7 +309,7 @@ module Sass
       end
 
       # @see Selector#to_s
-      def to_s
+      def to_s(opts = {})
         res = "["
         res << @namespace << "|" if @namespace
         res << @name

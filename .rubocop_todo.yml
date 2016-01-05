@@ -1,0 +1,64 @@
+Metrics/ModuleLength:
+  Enabled: false
+Metrics/PerceivedComplexity:
+  Enabled: false
+Performance/FlatMap:
+  Enabled: false
+Performance/ReverseEach:
+  Enabled: false
+Performance/StringReplacement:
+  Enabled: false
+Style/BarePercentLiterals:
+  Enabled: false
+Style/ClassAndModuleChildren:
+  Enabled: false
+Style/ClassCheck:
+  Enabled: false
+Style/ClosingParenthesisIndentation:
+  Enabled: false
+Style/DoubleNegation:
+  Enabled: false
+Style/EachWithObject:
+  Enabled: false
+Style/EmptyLinesAroundBlockBody:
+  Enabled: false
+Style/ExtraSpacing:
+  Enabled: false
+Style/FirstParameterIndentation:
+  Enabled: false
+Style/GuardClause:
+  Enabled: false
+Style/IndentHash:
+  Enabled: false
+Style/LineEndConcatenation:
+  Enabled: false
+Style/Next:
+  Enabled: false
+Style/MultilineOperationIndentation:
+  Enabled: false
+Style/MultilineTernaryOperator:
+  Enabled: false
+Style/ParallelAssignment:
+  Enabled: false
+Style/PercentLiteralDelimiters:
+  Enabled: false
+Style/RegexpLiteral:
+  Enabled: false
+Style/SelfAssignment:
+  Enabled: false
+Style/SingleSpaceBeforeFirstArg:
+  Enabled: false
+Style/SpaceAroundOperators:
+  Enabled: false
+Style/SpaceInsideRangeLiteral:
+  Enabled: false
+Style/SpaceInsideStringInterpolation:
+  Enabled: false
+Style/StringLiteralsInInterpolation:
+  Enabled: false
+Style/StructInheritance:
+  Enabled: false
+Style/SymbolProc:
+  Enabled: false
+Style/TrailingUnderscoreVariable:
+  Enabled: false

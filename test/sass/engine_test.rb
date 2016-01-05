@@ -2915,7 +2915,7 @@ SASS
       assert_equal <<CSS, render(<<SASS)
 div {
   maximum: 1.00000001;
-  too-much: 1.0; }
+  too-much: 1; }
 CSS
 div
   maximum : 1.00000001
@@ -3322,13 +3322,45 @@ CSS
 SASS
   end
 
+  def test_numeric_formatting_of_integers
+    assert_equal(<<CSS, render(<<SASS, :syntax => :scss, :style => :compressed))
+a{near:3.00001;plus:3;minus:3;negative:-3}
+CSS
+a {
+  near: (3 + 0.00001);
+  plus: (3 + 0.0000001);
+  minus: (3 - 0.0000001);
+  negative: (-3 + 0.0000001);
+}
+SASS
+  end
+
+  def test_escaped_semicolons_are_not_compressed
+    assert_equal(<<'CSS', render(<<'SASS', :syntax => :scss, :style => :compressed))
+div{color:#f00000\9\0\;}
+CSS
+div {
+ color: #f00000\9\0\;
+}
+SASS
+  end
+
   def test_compressed_output_of_nth_selectors
     assert_equal(<<CSS, render(<<SASS, :syntax => :scss, :style => :compressed))
-:nth-of-type(2n-1),:nth-of-type(2n-1),:nth-of-type(2n-1),:nth-of-type(2n-1),:nth-of-type(2n-1){color:red}:nth-of-type(2n+1),:nth-of-type(2n+1),:nth-of-type(2n+1),:nth-of-type(2n+1),:nth-of-type(2n+1){color:red}
+:nth-of-type(2n-1),:nth-child(2n-1),:nth(2n-1),:nth-of-type(2n-1),:nth-of-type(2n-1){color:red}:nth-of-type(2n+1),:nth-child(2n+1),:nth(2n+1),:nth-of-type(2n+1),:nth-of-type(2n+1){color:red}
 CSS
-:nth-of-type(2n-1), :nth-of-type(2n-  1), :nth-of-type(2n  -1), :nth-of-type(2n  -  1), :nth-of-type( 2n  -  1 ) {
+:nth-of-type(2n-1), :nth-child(2n-  1), :nth(2n  -1), :nth-of-type(2n  -  1), :nth-of-type( 2n  -  1 ) {
   color: red }
-:nth-of-type(2n+1), :nth-of-type(2n+  1), :nth-of-type(2n  +1), :nth-of-type(2n  +  1), :nth-of-type( 2n  +  1 ) {
+:nth-of-type(2n+1), :nth-child(2n+  1), :nth(2n  +1), :nth-of-type(2n  +  1), :nth-of-type( 2n  +  1 ) {
+  color: red }
+SASS
+  end
+
+  def test_descendant_selectors_with_leading_dash
+    assert_equal(<<CSS, render(<<SASS, :syntax => :scss, :style => :compressed))
+a -b{color:red}
+CSS
+a -b {
   color: red }
 SASS
   end
@@ -3347,6 +3379,15 @@ SASS
 @import url("fallback-layout.css") supports(not (display: flex))
 CSS
 @import url("fallback-layout.css") supports(not (display: flex))
+SASS
+  end
+
+  def test_compressed_commas_in_attribute_selectors
+    assert_equal(<<CSS, render(<<SASS, :style => :compressed))
+.classname[a="1, 2, 3"],.another[b="4, 5, 6"]{color:red}
+CSS
+.classname[a="1, 2, 3"], .another[b="4, 5, 6"]
+  color: red
 SASS
   end
 

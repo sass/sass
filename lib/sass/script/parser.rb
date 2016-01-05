@@ -102,7 +102,7 @@ module Sass
         assert_done
 
         args.each {|a| a.options = @options}
-        keywords.each {|k, v| v.options = @options}
+        keywords.each {|_k, v| v.options = @options}
         splat.options = @options if splat
         kwarg_splat.options = @options if kwarg_splat
         return args, keywords, splat, kwarg_splat

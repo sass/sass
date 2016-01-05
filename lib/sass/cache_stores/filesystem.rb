@@ -52,7 +52,7 @@ module Sass
       # @param key [String]
       # @return [String] The path to the cache file.
       def path_to(key)
-        key = key.gsub(/[<>:\\|?*%]/) {|c| "%%%03d" % Sass::Util.ord(c)}
+        key = key.gsub(/[<>:\\|?*%]/) {|c| "%%%03d" % (Sass::Util.ord(c))}
         File.join(cache_location, key)
       end
     end

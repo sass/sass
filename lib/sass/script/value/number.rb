@@ -289,9 +289,16 @@ module Sass::Script::Value
       # and confusing.
       str = ("%0.#{self.class.precision}f" % value).gsub(/0*$/, '') if str.include?('e')
 
+      # Sometimes numeric formatting will result in a decimal number with a trailing zero (x.0)
+      if str =~ /(.*)\.0$/
+        str = $1
+      end
+
+      # We omit a leading zero before the decimal point in compressed mode.
       if @options && options[:style] == :compressed
         str.sub!(/^(-)?0\./, '\1.')
       end
+
       unitless? ? str : "#{str}#{unit_str}"
     end
     alias_method :to_sass, :inspect
@@ -403,7 +410,7 @@ module Sass::Script::Value
       if num.is_a?(Float) && (num.infinite? || num.nan?)
         num
       elsif basically_equal?(num % 1, 0.0)
-        num.to_i
+        num.round
       else
         ((num * precision_factor).round / precision_factor).to_f
       end

@@ -159,8 +159,10 @@ module Sass
       end
 
       # @see AbstractSequence#to_s
-      def to_s
-        @members.join(", ").gsub(", \n", ",\n")
+      def to_s(opts = {})
+        @members.map {|m| m.to_s(opts)}.
+          join(opts[:style] == :compressed ? "," : ", ").
+          gsub(", \n", ",\n")
       end
 
       private

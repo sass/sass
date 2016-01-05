@@ -81,7 +81,7 @@ module Sass
 
       # A sub-list of {OP_NAMES} that only includes operators
       # with identifier names.
-      IDENT_OP_NAMES = OP_NAMES.select {|k, v| k =~ /^\w+/}
+      IDENT_OP_NAMES = OP_NAMES.select {|k, _v| k =~ /^\w+/}
 
       PARSEABLE_NUMBER = /(?:(\d*\.\d+)|(\d+))(?:[eE]([+-]?\d+))?(#{UNIT})?/
 

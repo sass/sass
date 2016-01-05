@@ -157,8 +157,8 @@ module Sass
       end
 
       # @see AbstractSequence#to_s
-      def to_s
-        @members.join(" ").gsub(/ ?\n ?/, "\n")
+      def to_s(opts = {})
+        @members.map {|m| m.is_a?(String) ? m : m.to_s(opts)}.join(" ").gsub(/ ?\n ?/, "\n")
       end
 
       # Returns a string representation of the sequence.
