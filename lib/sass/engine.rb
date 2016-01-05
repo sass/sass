@@ -172,7 +172,7 @@ module Sass
     # @return [{Symbol => Object}] The normalized options hash.
     # @private
     def self.normalize_options(options)
-      options = DEFAULT_OPTIONS.merge(options.reject {|k, v| v.nil?})
+      options = DEFAULT_OPTIONS.merge(options.reject {|_k, v| v.nil?})
 
       # If the `:filename` option is passed in without an importer,
       # assume it's using the default filesystem importer.

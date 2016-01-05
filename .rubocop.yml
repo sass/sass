@@ -145,3 +145,5 @@ Lint/UselessAccessModifier:
   Enabled: true
 Lint/UnneededDisable:
   Enabled: true
+Lint/UnusedBlockArgument:
+  Enabled: true

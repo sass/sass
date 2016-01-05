@@ -86,7 +86,7 @@ module Sass
     # @param attrs [{Symbol => Object}] The information in the backtrace entry.
     #   See \{#sass\_backtrace}
     def add_backtrace(attrs)
-      sass_backtrace << attrs.reject {|k, v| v.nil?}
+      sass_backtrace << attrs.reject {|_k, v| v.nil?}
     end
 
     # Modify the top Sass backtrace entries
@@ -104,12 +104,12 @@ module Sass
     # @param attrs [{Symbol => Object}] The information to add to the backtrace entry.
     #   See \{#sass\_backtrace}
     def modify_backtrace(attrs)
-      attrs = attrs.reject {|k, v| v.nil?}
+      attrs = attrs.reject {|_k, v| v.nil?}
       # Move backwards through the backtrace
       (0...sass_backtrace.size).to_a.reverse.each do |i|
         entry = sass_backtrace[i]
         sass_backtrace[i] = attrs.merge(entry)
-        attrs.reject! {|k, v| entry.include?(k)}
+        attrs.reject! {|k, _v| entry.include?(k)}
         break if attrs.empty?
       end
     end

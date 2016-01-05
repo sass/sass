@@ -163,7 +163,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
 
     content = node.resolved_value.split("\n").join("\n" + spaces)
     if node.type == :silent
-      content.gsub!(%r{^(\s*)//(.*)$}) {|md| "#{$1}/*#{$2} */"}
+      content.gsub!(%r{^(\s*)//(.*)$}) {"#{$1}/*#{$2} */"}
     end
     if (node.style == :compact || node.style == :compressed) && node.type != :loud
       content.gsub!(/\n +(\* *(?!\/))?/, ' ')

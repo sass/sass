@@ -110,7 +110,7 @@ module Sass
           a.options = @options
         end
 
-        keywords.each do |k, v|
+        keywords.each do |_k, v|
           check_for_interpolation v
           v.options = @options
         end

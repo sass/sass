@@ -641,7 +641,7 @@ module Sass::Script
       assert_type green, :Number, :green
       assert_type blue, :Number, :blue
 
-      color_attrs = [[red, :red], [green, :green], [blue, :blue]].map do |(c, name)|
+      color_attrs = [red, green, blue].map do |c|
         if c.is_unit?("%")
           c.value * 255 / 100.0
         elsif c.unitless?

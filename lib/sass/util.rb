@@ -310,7 +310,7 @@ module Sass
     # @return [Array]
     def hash_to_a(hash)
       return hash.to_a unless ruby1_8? || defined?(Test::Unit)
-      hash.sort_by {|k, v| k}
+      hash.sort_by {|k, _v| k}
     end
 
     # Performs the equivalent of `enum.group_by.to_a`, but with a guaranteed
