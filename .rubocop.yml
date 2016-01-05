@@ -151,3 +151,7 @@ Lint/UnusedMethodArgument:
   # Lots of polymorphic methods take arguments
   # they don't use.
   Enabled: false
+Metrics/AbcSize:
+  # TODO: It's probably good to address this complexity measurement
+  # but it's a lot of work so this remains disabled.
+  Enabled: false
