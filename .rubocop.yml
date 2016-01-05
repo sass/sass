@@ -136,3 +136,6 @@ Lint/FormatParameterMismatch:
   Enabled: true
 Lint/NestedMethodDefinition:
   Enabled: true
+Lint/NonLocalExitFromIterator:
+  # We do this a number of times and it cleans up the code.
+  Enabled: false
