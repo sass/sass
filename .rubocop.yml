@@ -141,3 +141,5 @@ Lint/NonLocalExitFromIterator:
   Enabled: false
 Lint/StringConversionInInterpolation:
   Enabled: true
+Lint/UselessAccessModifier:
+  Enabled: true
