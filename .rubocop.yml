@@ -143,3 +143,5 @@ Lint/StringConversionInInterpolation:
   Enabled: true
 Lint/UselessAccessModifier:
   Enabled: true
+Lint/UnneededDisable:
+  Enabled: true
