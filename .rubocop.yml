@@ -139,3 +139,5 @@ Lint/NestedMethodDefinition:
 Lint/NonLocalExitFromIterator:
   # We do this a number of times and it cleans up the code.
   Enabled: false
+Lint/StringConversionInInterpolation:
+  Enabled: true
