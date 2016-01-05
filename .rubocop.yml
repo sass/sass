@@ -106,8 +106,8 @@ Style/SingleLineBlockParams:
 Style/SingleLineMethods:
   # We like single line methods for simple methods.
   Enabled: false
-# We prefer "foo {|arg| body}".
 Style/SpaceBeforeBlockBraces:
+  # We prefer "foo {|arg| body}".
   EnforcedStyle: space
 Style/SpaceInsideBlockBraces:
   EnforcedStyle: no_space
@@ -130,3 +130,5 @@ Style/WhenThen:
 Style/WhileUntilModifier:
   # We don't feel strongly about this.
   Enabled: false
+Lint/AssignmentInCondition:
+  Enabled: true
