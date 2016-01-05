@@ -132,3 +132,5 @@ Style/WhileUntilModifier:
   Enabled: false
 Lint/AssignmentInCondition:
   Enabled: true
+Lint/FormatParameterMismatch:
+  Enabled: true
