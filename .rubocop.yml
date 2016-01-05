@@ -147,3 +147,7 @@ Lint/UnneededDisable:
   Enabled: true
 Lint/UnusedBlockArgument:
   Enabled: true
+Lint/UnusedMethodArgument:
+  # Lots of polymorphic methods take arguments
+  # they don't use.
+  Enabled: false
