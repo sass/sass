@@ -157,3 +157,7 @@ Metrics/AbcSize:
   Enabled: false
 Metrics/ModuleLength:
   Enabled: true
+Metrics/PerceivedComplexity:
+  # TODO: It's probably good to address this complexity measurement
+  # but it's a lot of work so this remains disabled.
+  Enabled: false
