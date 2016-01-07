@@ -180,3 +180,6 @@ Style/ClosingParenthesisIndentation:
 Style/DoubleNegation:
   # We don't dislike double negation.
   Enabled: false
+Style/EachWithObject:
+  # This requires a newer version of ruby than we require.
+  Enabled: false
