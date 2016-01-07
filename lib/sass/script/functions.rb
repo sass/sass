@@ -534,7 +534,7 @@ module Sass::Script
 
         return if value.is_a?(Sass::Script::Value::List) && type == :Map && value.value.empty?
         err = "#{value.inspect} is not a #{TYPE_NAMES[type] || type.to_s.downcase}"
-        err = "$#{name.to_s.gsub('_', '-')}: " + err if name
+        err = "$#{name.to_s.tr('_', '-')}: " + err if name
         raise ArgumentError.new(err)
       end
 

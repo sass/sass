@@ -166,3 +166,5 @@ Performance/FlatMap:
   Enabled: false
 Performance/ReverseEach:
   Enabled: true
+Performance/StringReplacement:
+  Enabled: true

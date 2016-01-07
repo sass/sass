@@ -476,7 +476,7 @@ ERR
 
         line_tabs = line_tab_str.scan(tab_str).size
         if tab_str * line_tabs != line_tab_str
-          message = <<END.strip.gsub("\n", ' ')
+          message = <<END.strip.tr("\n", ' ')
 Inconsistent indentation: #{Sass::Shared.human_indentation line_tab_str, true} used for indentation,
 but the rest of the document was indented using #{Sass::Shared.human_indentation tab_str}.
 END
@@ -495,7 +495,7 @@ END
       # than the normal indentation
       return unless line =~ /^#{tab_str}\s/
       unless line =~ /^(?:#{comment_tab_str})(.*)$/
-        raise SyntaxError.new(<<MSG.strip.gsub("\n", " "), :line => index)
+        raise SyntaxError.new(<<MSG.strip.tr("\n", " "), :line => index)
 Inconsistent indentation:
 previous line was indented by #{Sass::Shared.human_indentation comment_tab_str},
 but this line was indented by #{Sass::Shared.human_indentation line[/^\s*/]}.
@@ -801,7 +801,7 @@ WARNING
       raise SyntaxError.new("Invalid directive: '@'.") unless directive
       offset = directive.size + whitespace.size + 1 if whitespace
 
-      directive_name = directive.gsub('-', '_').to_sym
+      directive_name = directive.tr('-', '_').to_sym
       if DIRECTIVES.include?(directive_name)
         return send("parse_#{directive_name}_directive", parent, line, root, value, offset)
       end

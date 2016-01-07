@@ -14,7 +14,7 @@ module Sass::Script::Tree
     # @param name [String] See \{#name}
     def initialize(name)
       @name = name
-      @underscored_name = name.gsub(/-/, "_")
+      @underscored_name = name.tr("-", "_")
       super()
     end
 

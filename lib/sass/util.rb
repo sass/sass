@@ -645,7 +645,7 @@ module Sass
     #
     # @param path [String]
     def glob(path)
-      path = path.gsub('\\', '/') if windows?
+      path = path.tr('\\', '/') if windows?
       if block_given?
         Dir.glob(path) {|f| yield(f)}
       else
