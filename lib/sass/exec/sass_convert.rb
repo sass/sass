@@ -108,10 +108,11 @@ END
         @options[:for_tree][:dasherize] = true
       end
 
-      opts.on('--indent NUM',
+      opts.on(
+        '--indent NUM',
         'How many spaces to use for each level of indentation. Defaults to 2.',
-        '"t" means use hard tabs.') do |indent|
-
+        '"t" means use hard tabs.'
+      ) do |indent|
         if indent == 't'
           @options[:for_tree][:indent] = "\t"
         else

@@ -183,3 +183,5 @@ Style/DoubleNegation:
 Style/EachWithObject:
   # This requires a newer version of ruby than we require.
   Enabled: false
+Style/EmptyLinesAroundBlockBody:
+  Enabled: true
