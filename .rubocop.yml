@@ -173,3 +173,5 @@ Style/BarePercentLiterals:
 Style/ClassAndModuleChildren:
   # We hates it.
   Enabled: false
+Style/ClassCheck:
+  Enabled: true

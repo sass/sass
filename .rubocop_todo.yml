@@ -1,5 +1,3 @@
-Style/ClassCheck:
-  Enabled: false
 Style/ClosingParenthesisIndentation:
   Enabled: false
 Style/DoubleNegation:
