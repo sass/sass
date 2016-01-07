@@ -161,3 +161,6 @@ Metrics/PerceivedComplexity:
   # TODO: It's probably good to address this complexity measurement
   # but it's a lot of work so this remains disabled.
   Enabled: false
+Performance/FlatMap:
+  # This requires a newer version of ruby than we require.
+  Enabled: false

@@ -1,5 +1,3 @@
-Performance/FlatMap:
-  Enabled: false
 Performance/ReverseEach:
   Enabled: false
 Performance/StringReplacement:
