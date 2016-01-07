@@ -1,5 +1,3 @@
-Style/ClassAndModuleChildren:
-  Enabled: false
 Style/ClassCheck:
   Enabled: false
 Style/ClosingParenthesisIndentation:

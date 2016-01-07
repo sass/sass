@@ -170,3 +170,6 @@ Performance/StringReplacement:
   Enabled: true
 Style/BarePercentLiterals:
   Enabled: true
+Style/ClassAndModuleChildren:
+  # We hates it.
+  Enabled: false
