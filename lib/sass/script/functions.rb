@@ -1133,8 +1133,7 @@ module Sass::Script
           "saturation" => [-100..100, "%"],
           "lightness" => [-100..100, "%"],
           "alpha" => [-1..1, ""]
-        ) do |name, (range, units)|
-
+      ) do |name, (range, units)|
         val = kwargs.delete(name)
         next unless val
         assert_type val, :Number, name
@@ -1201,8 +1200,7 @@ module Sass::Script
           "saturation" => 100,
           "lightness" => 100,
           "alpha" => 1
-        ) do |name, max|
-
+      ) do |name, max|
         val = kwargs.delete(name)
         next unless val
         assert_type val, :Number, name

@@ -175,3 +175,5 @@ Style/ClassAndModuleChildren:
   Enabled: false
 Style/ClassCheck:
   Enabled: true
+Style/ClosingParenthesisIndentation:
+  Enabled: true

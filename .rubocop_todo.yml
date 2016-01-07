@@ -1,5 +1,3 @@
-Style/ClosingParenthesisIndentation:
-  Enabled: false
 Style/DoubleNegation:
   Enabled: false
 Style/EachWithObject:
