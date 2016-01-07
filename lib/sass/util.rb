@@ -13,6 +13,8 @@ require 'sass/util/subset_map'
 
 module Sass
   # A module containing various useful functions.
+  # @comment
+  #   rubocop:disable ModuleLength
   module Util
     extend self
 

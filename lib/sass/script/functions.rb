@@ -356,6 +356,7 @@ module Sass::Script
   #
   # @comment
   #   rubocop:enable LineLength
+  #   rubocop:disable ModuleLength
   module Functions
     @signatures = {}
 
