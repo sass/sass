@@ -1,5 +1,3 @@
-Performance/ReverseEach:
-  Enabled: false
 Performance/StringReplacement:
   Enabled: false
 Style/BarePercentLiterals:
