@@ -1127,7 +1127,7 @@ module Sass
     VLQ_BASE_MASK = VLQ_BASE - 1
     VLQ_CONTINUATION_BIT = VLQ_BASE
 
-    BASE64_DIGITS = ('A'..'Z').to_a  + ('a'..'z').to_a + ('0'..'9').to_a  + ['+', '/']
+    BASE64_DIGITS = ('A'..'Z').to_a + ('a'..'z').to_a + ('0'..'9').to_a + ['+', '/']
     BASE64_DIGIT_MAP = begin
       map = {}
       Sass::Util.enum_with_index(BASE64_DIGITS).map do |digit, i|

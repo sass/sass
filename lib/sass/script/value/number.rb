@@ -60,7 +60,7 @@ module Sass::Script::Value
     end
 
     # Used so we don't allocate two new arrays for each new number.
-    NO_UNITS  = []
+    NO_UNITS = []
 
     # @param value [Numeric] The value of the number
     # @param numerator_units [::String, Array<::String>] See \{#numerator\_units}

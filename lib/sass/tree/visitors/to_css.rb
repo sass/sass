@@ -340,7 +340,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
         end
       end
 
-      end_props, trailer, tabs  = '', '', 0
+      end_props, trailer, tabs = '', '', 0
       if node.style == :compact
         separator, end_props, bracket = ' ', ' ', ' { '
         trailer = "\n" if node.group_end

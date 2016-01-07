@@ -185,3 +185,5 @@ Style/EachWithObject:
   Enabled: false
 Style/EmptyLinesAroundBlockBody:
   Enabled: true
+Style/ExtraSpacing:
+  Enabled: true

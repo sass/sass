@@ -15,7 +15,7 @@ unless defined?(Sass::MERB_LOADED)
         end
 
         {
-          :always_update      => false,
+          :always_update     => false,
           :template_location => root + '/public/stylesheets/sass',
           :css_location      => root + '/public/stylesheets',
           :cache_location    => root + '/tmp/sass-cache',
