@@ -133,7 +133,7 @@ module Sass::Tree
 
     def try_to_parse_non_interpolated_rules
       @parsed_rules = nil
-      return unless @rule.all? {|t| t.kind_of?(String)}
+      return unless @rule.all? {|t| t.is_a?(String)}
 
       # We don't use real filename/line info because we don't have it yet.
       # When we get it, we'll set it on the parsed rules if possible.

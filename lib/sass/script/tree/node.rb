@@ -90,7 +90,7 @@ module Sass::Script::Tree
     # Converts underscores to dashes if the :dasherize option is set.
     def dasherize(s, opts)
       if opts[:dasherize]
-        s.gsub(/_/, '-')
+        s.tr('_', '-')
       else
         s
       end

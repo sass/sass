@@ -340,7 +340,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
 
   def dasherize(s)
     if @options[:dasherize]
-      s.gsub('_', '-')
+      s.tr('_', '-')
     else
       s
     end

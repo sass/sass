@@ -1,6 +1,8 @@
 module Sass::Script::Value
   # Provides helper functions for creating sass values from within ruby methods.
   # @since `3.3.0`
+  # @comment
+  #   rubocop:disable ModuleLength
   module Helpers
     # Construct a Sass Boolean.
     #
@@ -139,7 +141,7 @@ module Sass::Script::Value
         Sass::SCSS::StaticParser.new(str, nil, nil, 1, 1, allow_parent_ref).parse_selector
       rescue Sass::SyntaxError => e
         err = "#{value.inspect} is not a valid selector: #{e}"
-        err = "$#{name.to_s.gsub('_', '-')}: #{err}" if name
+        err = "$#{name.to_s.tr('_', '-')}: #{err}" if name
         raise ArgumentError.new(err)
       end
     end
@@ -163,7 +165,7 @@ module Sass::Script::Value
       return seq if selector.members.length == 1
 
       err = "#{value.inspect} is not a complex selector"
-      err = "$#{name.to_s.gsub('_', '-')}: #{err}" if name
+      err = "$#{name.to_s.tr('_', '-')}: #{err}" if name
       raise ArgumentError.new(err)
     end
 
@@ -190,7 +192,7 @@ module Sass::Script::Value
       end
 
       err = "#{value.inspect} is not a compound selector"
-      err = "$#{name.to_s.gsub('_', '-')}: #{err}" if name
+      err = "$#{name.to_s.tr('_', '-')}: #{err}" if name
       raise ArgumentError.new(err)
     end
 
@@ -215,7 +217,7 @@ module Sass::Script::Value
 
       err = "#{value.inspect} is not a valid selector: it must be a string,\n" +
         "a list of strings, or a list of lists of strings"
-      err = "$#{name.to_s.gsub('_', '-')}: #{err}" if name
+      err = "$#{name.to_s.tr('_', '-')}: #{err}" if name
       raise ArgumentError.new(err)
     end
 

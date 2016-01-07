@@ -155,3 +155,31 @@ Metrics/AbcSize:
   # TODO: It's probably good to address this complexity measurement
   # but it's a lot of work so this remains disabled.
   Enabled: false
+Metrics/ModuleLength:
+  Enabled: true
+Metrics/PerceivedComplexity:
+  # TODO: It's probably good to address this complexity measurement
+  # but it's a lot of work so this remains disabled.
+  Enabled: false
+Performance/FlatMap:
+  # This requires a newer version of ruby than we require.
+  Enabled: false
+Performance/ReverseEach:
+  Enabled: true
+Performance/StringReplacement:
+  Enabled: true
+Style/BarePercentLiterals:
+  Enabled: true
+Style/ClassAndModuleChildren:
+  # We hates it.
+  Enabled: false
+Style/ClassCheck:
+  Enabled: true
+Style/ClosingParenthesisIndentation:
+  Enabled: true
+Style/DoubleNegation:
+  # We don't dislike double negation.
+  Enabled: false
+Style/EachWithObject:
+  # This requires a newer version of ruby than we require.
+  Enabled: false

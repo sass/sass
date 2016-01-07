@@ -349,7 +349,7 @@ WARNING
       raise Sass::SyntaxError.new("Undefined mixin '#{node.name}'.") unless mixin
 
       if node.children.any? && !mixin.has_content
-        raise Sass::SyntaxError.new(%Q{Mixin "#{node.name}" does not accept a content block.})
+        raise Sass::SyntaxError.new(%{Mixin "#{node.name}" does not accept a content block.})
       end
 
       args = node.args.map {|a| a.perform(@environment)}

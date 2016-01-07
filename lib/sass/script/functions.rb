@@ -356,6 +356,7 @@ module Sass::Script
   #
   # @comment
   #   rubocop:enable LineLength
+  #   rubocop:disable ModuleLength
   module Functions
     @signatures = {}
 
@@ -529,7 +530,7 @@ module Sass::Script
         return if value.is_a?(klass)
         return if value.is_a?(Sass::Script::Value::List) && type == :Map && value.value.empty?
         err = "#{value.inspect} is not a #{TYPE_NAMES[type] || type.to_s.downcase}"
-        err = "$#{name.to_s.gsub('_', '-')}: " + err if name
+        err = "$#{name.to_s.tr('_', '-')}: " + err if name
         raise ArgumentError.new(err)
       end
 
@@ -1128,8 +1129,7 @@ module Sass::Script
           "saturation" => [-100..100, "%"],
           "lightness" => [-100..100, "%"],
           "alpha" => [-1..1, ""]
-        ) do |name, (range, units)|
-
+      ) do |name, (range, units)|
         val = kwargs.delete(name)
         next unless val
         assert_type val, :Number, name
@@ -1196,8 +1196,7 @@ module Sass::Script
           "saturation" => 100,
           "lightness" => 100,
           "alpha" => 1
-        ) do |name, max|
-
+      ) do |name, max|
         val = kwargs.delete(name)
         next unless val
         assert_type val, :Number, name
