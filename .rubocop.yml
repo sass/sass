@@ -168,3 +168,5 @@ Performance/ReverseEach:
   Enabled: true
 Performance/StringReplacement:
   Enabled: true
+Style/BarePercentLiterals:
+  Enabled: true

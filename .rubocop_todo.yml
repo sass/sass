@@ -1,5 +1,3 @@
-Style/BarePercentLiterals:
-  Enabled: false
 Style/ClassAndModuleChildren:
   Enabled: false
 Style/ClassCheck:
