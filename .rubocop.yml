@@ -177,3 +177,6 @@ Style/ClassCheck:
   Enabled: true
 Style/ClosingParenthesisIndentation:
   Enabled: true
+Style/DoubleNegation:
+  # We don't dislike double negation.
+  Enabled: false

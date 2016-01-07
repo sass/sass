@@ -1,5 +1,3 @@
-Style/DoubleNegation:
-  Enabled: false
 Style/EachWithObject:
   Enabled: false
 Style/EmptyLinesAroundBlockBody:
