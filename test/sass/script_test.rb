@@ -1145,6 +1145,26 @@ SASS
   end
 
 
+  def test_comparison_of_complex_units
+    # Tests for issue #1960
+    assert_warning(<<WARNING) do
+DEPRECATION WARNING on line 1 of test_comparison_of_complex_units_inline.sass:
+The result of `10 == 10px` will be `false` in future releases of Sass.
+Unitless numbers will no longer be equal to the same numbers with units.
+WARNING
+      assert_equal "true", resolve("10 == 2 * 5px")
+    end
+    assert_warning(<<WARNING) do
+DEPRECATION WARNING on line 1 of test_comparison_of_complex_units_inline.sass:
+The result of `10 == 10px*px` will be `false` in future releases of Sass.
+Unitless numbers will no longer be equal to the same numbers with units.
+WARNING
+      assert_equal "true", resolve("10 == 2px * 5px")
+    end
+    assert_equal "true", resolve("10px * 1px == 2px * 5px")
+    assert_equal "true", resolve("5px * 1px < 2px * 5px")
+  end
+
   private
 
   def resolve(str, opts = {}, environment = env)
