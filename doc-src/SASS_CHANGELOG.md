@@ -21,6 +21,11 @@
 * Selector compression of whitespace around commas was affecting attribute values.
   [Issue #1947](https://github.com/sass/sass/issues/1947)
 
+* Make subtraction work when a unit is followed directly by a hyphen and then a
+  period. For example, `1em-.75em` now returns `0.25em` rather than `1em
+  -0.75em`. This is consistent with the behavior when the subtrahend begins with
+  a `0`. [Issue #1954](https://github.com/sass/sass/issues/1954)
+
 ## 3.4.20 (09 December 2015)
 
 * Fix a bug with the rounding changes from 3.4.14 and 3.4.15 where some negative

@@ -384,6 +384,17 @@ SASS
     assert_equal "-1", resolve("-1")
   end
 
+  def test_subtraction_vs_minus_vs_identifier
+    assert_equal "0.25em", resolve("1em-.75")
+    assert_equal "0.25em", resolve("1em-0.75")
+    assert_equal "1em -0.75", resolve("1em -.75")
+    assert_equal "1em -0.75", resolve("1em -0.75")
+    assert_equal "1em- 0.75", resolve("1em- .75")
+    assert_equal "1em- 0.75", resolve("1em- 0.75")
+    assert_equal "0.25em", resolve("1em - .75")
+    assert_equal "0.25em", resolve("1em - 0.75")
+  end
+
   def test_string_ops
     assert_equal '"foo" "bar"', resolve('"foo" "bar"')
     assert_equal "true 1", resolve('true 1')
