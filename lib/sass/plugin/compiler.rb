@@ -500,7 +500,9 @@ module Sass::Plugin
 
       write_file(css, rendered)
       if mapping
-        write_file(sourcemap, mapping.to_json(
+        write_file(
+          sourcemap,
+          mapping.to_json(
             :css_path => css, :sourcemap_path => sourcemap, :type => options[:sourcemap]))
       end
       run_updated_stylesheet(filename, css, sourcemap) unless compilation_error_occured

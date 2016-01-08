@@ -1126,13 +1126,13 @@ module Sass::Script
     def adjust_color(color, kwargs)
       assert_type color, :Color, :color
       with = Sass::Util.map_hash(
-          "red" => [-255..255, ""],
-          "green" => [-255..255, ""],
-          "blue" => [-255..255, ""],
-          "hue" => nil,
-          "saturation" => [-100..100, "%"],
-          "lightness" => [-100..100, "%"],
-          "alpha" => [-1..1, ""]
+        "red" => [-255..255, ""],
+        "green" => [-255..255, ""],
+        "blue" => [-255..255, ""],
+        "hue" => nil,
+        "saturation" => [-100..100, "%"],
+        "lightness" => [-100..100, "%"],
+        "alpha" => [-1..1, ""]
       ) do |name, (range, units)|
         val = kwargs.delete(name)
         next unless val
@@ -1194,12 +1194,12 @@ module Sass::Script
     def scale_color(color, kwargs)
       assert_type color, :Color, :color
       with = Sass::Util.map_hash(
-          "red" => 255,
-          "green" => 255,
-          "blue" => 255,
-          "saturation" => 100,
-          "lightness" => 100,
-          "alpha" => 1
+        "red" => 255,
+        "green" => 255,
+        "blue" => 255,
+        "saturation" => 100,
+        "lightness" => 100,
+        "alpha" => 1
       ) do |name, max|
         val = kwargs.delete(name)
         next unless val

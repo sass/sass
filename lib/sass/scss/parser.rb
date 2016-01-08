@@ -393,7 +393,8 @@ module Sass
         ss
         media = media_query_list
         if str =~ %r{^(https?:)?//} || media || supports || use_css_import?
-          return node(Sass::Tree::CssImportNode.new(
+          return node(
+            Sass::Tree::CssImportNode.new(
               Sass::Script::Value::String.quote(str), media.to_a, supports), start_pos)
         end
 
@@ -643,8 +644,9 @@ module Sass
       def ruleset
         start_pos = source_position
         return unless (rules = almost_any_value)
-        block(node(
-          Sass::Tree::RuleNode.new(rules, range(start_pos)), start_pos), :ruleset)
+        block(
+          node(
+            Sass::Tree::RuleNode.new(rules, range(start_pos)), start_pos), :ruleset)
       end
 
       def block(node, context)
@@ -719,8 +721,9 @@ module Sass
           selector << additional_selector
         end
 
-        block(node(
-          Sass::Tree::RuleNode.new(merge(selector), range(start_pos)), start_pos), :ruleset)
+        block(
+          node(
+            Sass::Tree::RuleNode.new(merge(selector), range(start_pos)), start_pos), :ruleset)
       end
 
       # Tries to parse a declaration, and returns the value parsed so far if it
