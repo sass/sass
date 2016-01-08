@@ -131,9 +131,9 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
     end
   end
 
-  VALID_PROP_CHILDREN =  CONTROL_NODES + [Sass::Tree::CommentNode,
-                                          Sass::Tree::PropNode,
-                                          Sass::Tree::MixinNode]
+  VALID_PROP_CHILDREN = CONTROL_NODES + [Sass::Tree::CommentNode,
+                                         Sass::Tree::PropNode,
+                                         Sass::Tree::MixinNode]
   def invalid_prop_child?(parent, child)
     unless is_any_of?(child, VALID_PROP_CHILDREN)
       "Illegal nesting: Only properties may be nested beneath properties."

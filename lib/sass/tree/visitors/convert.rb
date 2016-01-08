@@ -27,7 +27,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
     res = visit_rule_level(parent.children)
 
     if @format == :sass
-      "\n"  + res.rstrip + "\n"
+      "\n" + res.rstrip + "\n"
     else
       " {\n" + res.rstrip + "\n#{ @tab_chars * (@tabs - 1)}}\n"
     end
