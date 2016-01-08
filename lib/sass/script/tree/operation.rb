@@ -93,7 +93,7 @@ module Sass::Script::Tree
                       Sass::Script::Value::Bool::FALSE
                     end)
 
-        operation = "#{value1} #{@operator == :eq ? '==' : '!='} #{value2}"
+        operation = "#{value1.to_sass} #{@operator == :eq ? '==' : '!='} #{value2.to_sass}"
         future_value = @operator == :neq
         Sass::Util.sass_warn <<WARNING
 DEPRECATION WARNING on line #{line}#{" of #{filename}" if filename}:
