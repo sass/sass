@@ -7,13 +7,17 @@
 
 * Consistent output formatting for numbers close to an integer.
   [Issue #1931](https://github.com/sass/sass/issues/1931)
+
 * Correctly round negative numbers that were almost but not quite a
-  whole number (slightly greater than the negative number)
+  whole number (slightly greater than the negative number).
   [Issue #1938](https://github.com/sass/sass/issues/1938)
+
 * Don't strip escaped semicolons from compressed output.
   [Issue #1932](https://github.com/sass/sass/issues/1932)
+
 * Only compress around dashes within nth selectors.
   [Issue #1933](https://github.com/sass/sass/issues/1933)
+
 * Selector compression of whitespace around commas was affecting attribute values.
   [Issue #1947](https://github.com/sass/sass/issues/1947)
 
