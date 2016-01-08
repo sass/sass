@@ -66,7 +66,6 @@ module Sass
 
       IDENT    = /-*#{NMSTART}#{NMCHAR}*/
       NAME     = /#{NMCHAR}+/
-      NUM      = //
       STRING   = /#{STRING1}|#{STRING2}/
       URLCHAR  = /[#%&*-~]|#{NONASCII}|#{ESCAPE}/
       URL      = /(#{URLCHAR}*)/
