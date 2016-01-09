@@ -258,3 +258,36 @@ inconsistency in prefix choice. If the prefix is left entirely up to the user,
 different people may choose to prefix `strings.scss` as `strings`, `string`,
 `str`, or `strs`. This taxes the reusability of code and knowledge, and
 mitigating it is a benefit.
+
+### Resolving Members
+
+The main function of the module system is to control how [member](#member) names
+are resolved across files—that is, to find the definition corresponding to a
+given name. Given a set of [module](#module)s loaded via `@use` and a member
+type and name to resolve:
+
+* If the name begins with a module's prefix followed by a hyphen:
+
+  * Strip the prefix and hyphen to get the *unprefixed name*.
+
+  * If the module has a member of the given type with the unprefixed name, use
+    that member's definition.
+
+  * Otherwise, resolution fails.
+
+* If a member of the given type with the given name has already been defined in
+  the current source file, use its definition.
+
+* If such a member is defined later on in the file, resolution fails. This
+  ensures that any change in name resolution caused by reordering a file causes
+  an immediate error rather than an unexpected behavioral change.
+
+* If such a member is defined in exactly one unprefixed module, use that
+  module's definition.
+
+* Otherwise, if such a member is defined in more than one unprefixed module,
+  resolution fails. This ensures that, if a new version of a package produces a
+  conflicting name, it causes an immediate error.
+
+* Otherwise, if such a member isn't defined in any unprefixed module, resolution
+  fails.
