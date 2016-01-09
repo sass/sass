@@ -8,6 +8,13 @@ can be brought up and discussed on [the issue tracker][issues].
 
 [issues]: https://github.com/sass/proposal.module-system
 
+Although this document describes some imperative processes when describing the
+semantics of the module system, these aren't meant to prescribe a specific
+implementation. Individual implementations are free to implement this feature
+however they want as long as the end result is the same. However, there are
+specific design decisions that were made with implementation efficiency in
+mind—these will be called out explicitly in block-quoted "implementation note"s.
+
 *Note: at the time of writing, the initial draft of the proposal is not yet
 complete*.
 
@@ -107,8 +114,10 @@ mixins, functions, and placeholder selectors. Each member type has its own
 namespace, so for example the variable `$name` doesn't conflict with the
 placeholder selector `%name`.
 
-Members other than placeholder selectors have definitions associated with them,
-whose specific structure depends on the type of the given member.
+All members have definitions associated with them, whose specific structure
+depends on the type of the given member. Variables, mixins, and functions have
+intuitive definitions, but placeholder selectors' definitions just indicate
+which [module](#module) they come from.
 
 ### CSS Tree
 
@@ -137,7 +146,8 @@ another.
 A *module* is an abstract collection of [members](#members) as well as a
 [CSS tree](#css-tree), although that tree may be empty. Each module may have
 only one member of a given type and name (for example, a module may not have two
-variables named `$name`).
+variables named `$name`). To satisfy this requirement, placeholder selectors are
+de-duplicated.
 
 Each module is uniquely identified by the combination of a URI and a
 [configuration](#configuration). A given module can be produced by executing the
@@ -164,3 +174,87 @@ There are five types of source file:
 Each one has different execution semantics that are beyond the scope of this
 document. Note that some of these are not or may not actually be files on the
 file system.
+
+## Syntax
+
+The new directive will be called `@use`. The grammar for this directive is as
+follows:
+
+```
+UseDirective ::= '@use' QuotedString (AsClause | NoPrefix)?
+AsClause     ::= 'as' Identifier
+NoPrefix     ::= 'no-prefix'
+```
+
+*Note: this only encompasses the syntax whose semantics are currently described
+in this document. As the document becomes more complete, the grammar will be
+expanded accordingly.*
+
+`@use` directives must be at the top level of the document, and must come before
+any directives other than `@charset`. Because each `@use` directive affects the
+namespace of the entire [source file](#source-file) that contains it, whereas
+most other Sass constructs are purely imperative, keeping it at the top of the
+file helps reduce confusion.
+
+## Semantics
+
+### Loading Modules
+
+When encountering a `@use` directive, the first step is to load the associated
+[module](#module). To do so:
+
+* Look up the [source file](#source-file) with the given URI. The process for
+  doing this is out of scope of this document.
+
+* If no such file can be found, throw a fatal error.
+
+* If the source file has already been executed with an empty
+  [configuration](#configuration), use the module that execution produced. This
+  fulfills the "import once" low-level goal.
+
+* Otherwise, execute that file with an empty configuration, and use the
+  resulting module.
+
+> **Implementation note:**
+>
+> Although this specification only requires that modules be cached and reused
+> when compiling a single entrypoint, modules are intentionally
+> context-independent enough to store and re-use across multiple entrypoints, as
+> long as no source files change. For example, if the user requests that all
+> Sass files beneath `stylesheets/sass` be compiled, modules may be shared
+> between those separate compilations.
+
+Each module loaded this may have an associated **prefix**, which is a Sass
+identifier that's used to identify the module's [member](#member)s within the
+current file. No two `@use` directives in a given file may share a prefix,
+although any number may have no prefix. The prefix for a given `@use`
+directive's module is determined as follows:
+
+* If the directive has an `as` clause, use that clause's identifier.
+
+* If the directive has a `no-prefix` clause, then it has no prefix.
+
+* If the module's URI doesn't match the regular expression
+  `(.*/)?([^/]+)(\.[^/]*)?`, the `@use` directive is malformed.
+
+* Call the text captured by the second group of the regular expression the
+  *module name*.
+
+* If the module name isn't a Sass identifier, the `@use` directive is malformed.
+
+* Use the module name.
+
+This proposal follows Python and diverges from Dart in that `@use` imports
+modules with a prefix by default. This is for two reasons. First, it seems to be
+the case that language ecosystems with similar module systems either prefix all
+imports by convention, or prefix almost none. Because Sass is not
+object-oriented and doesn't have the built-in namespacing that classes provide
+many other languages, its APIs tend to be much broader at the top level and thus
+at higher risk for name conflict. Prefixing by default tilts the balance towards
+always prefixing, which mitigates this risk.
+
+Second, a default prefix scheme drastically reduces the potential for
+inconsistency in prefix choice. If the prefix is left entirely up to the user,
+different people may choose to prefix `strings.scss` as `strings`, `string`,
+`str`, or `strs`. This taxes the reusability of code and knowledge, and
+mitigating it is a benefit.
