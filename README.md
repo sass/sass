@@ -96,3 +96,71 @@ expected to land in Sass 4.
   generates isn't emitted unless it's `@extend`ed is cool, but it's also a lot
   of extra work. This is the most likely feature to end up in a future release,
   but it's not central enough to the module system to include in Sass 4.
+
+## Definitions
+
+### Member
+
+A *member* is anything that's defined, either by the user or the implementation,
+that is identified by a Sass identifier. This currently includes variables,
+mixins, functions, and placeholder selectors. Each member type has its own
+namespace, so for example the variable `$name` doesn't conflict with the
+placeholder selector `%name`.
+
+Members other than placeholder selectors have definitions associated with them,
+whose specific structure depends on the type of the given member.
+
+### CSS Tree
+
+A *CSS tree* is an abstract CSS syntax tree. It has multiple top-level CSS
+declarations like `@`-rules or rulesets. The ordering of the roots is
+significant.
+
+A CSS tree cannot contain any Sass-specific constructs, with the notable
+exception of placeholder selectors. These are allowed so that modules' CSS may
+be `@extend`ed.
+
+An empty CSS tree contains no top-level declarations.
+
+### Configuration
+
+A *configuration* is a set of variables with associated SassScript values. It's
+used when executing a [source file](#source-file) to customize its execution. It
+may be empty—that is, it may contain no variables.
+
+Two configurations are considered identical if they contain the same variables,
+and if each pair of variables with the same name has values that are `==` to one
+another.
+
+### Module
+
+A *module* is an abstract collection of [members](#members) as well as a
+[CSS tree](#css-tree), although that tree may be empty. Each module may have
+only one member of a given type and name (for example, a module may not have two
+variables named `$name`).
+
+Each module is uniquely identified by the combination of a URI and a
+[configuration](#configuration). A given module can be produced by executing the
+[source file](#source-file) identified by the module's URI with the module's
+configuration.
+
+### Source File
+
+A *source file* is an entity uniquely identified by a URI. It can be executed
+with a [configuration](#configuration) to produce a [module](#module). The names
+of this module's members are static, and can be determined without executing the
+file. This means that all modules for a given source file have the same member
+names regardless of the configurations used for those modules.
+
+There are five types of source file:
+
+* Sass files, SCSS files, and CSS files are identified by file paths.
+
+* Core libraries are identified by special URIs in an as-yet-undecided format.
+
+* Implementations may define implementation-specific or pluggable means of
+  defining source files, which can use any URI.
+
+Each one has different execution semantics that are beyond the scope of this
+document. Note that some of these are not or may not actually be files on the
+file system.
