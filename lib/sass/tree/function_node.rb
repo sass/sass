@@ -36,9 +36,8 @@ module Sass
         @splat = splat
         super()
 
-        if %w[and or not].include?(name)
-          raise Sass::SyntaxError.new("Invalid function name \"#{name}\".")
-        end
+        return unless %w[and or not].include?(name)
+        raise Sass::SyntaxError.new("Invalid function name \"#{name}\".")
       end
     end
   end

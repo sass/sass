@@ -127,7 +127,7 @@ module Sass
 
       def normalize_template_location!
         options[:template_location] = convert_template_location(
-            options[:template_location], options[:css_location])
+          options[:template_location], options[:css_location])
       end
     end
   end

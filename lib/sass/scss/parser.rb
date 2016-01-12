@@ -393,7 +393,8 @@ module Sass
         ss
         media = media_query_list
         if str =~ %r{^(https?:)?//} || media || supports || use_css_import?
-          return node(Sass::Tree::CssImportNode.new(
+          return node(
+            Sass::Tree::CssImportNode.new(
               Sass::Script::Value::String.quote(str), media.to_a, supports), start_pos)
         end
 
@@ -643,8 +644,9 @@ module Sass
       def ruleset
         start_pos = source_position
         return unless (rules = almost_any_value)
-        block(node(
-          Sass::Tree::RuleNode.new(rules, range(start_pos)), start_pos), :ruleset)
+        block(
+          node(
+            Sass::Tree::RuleNode.new(rules, range(start_pos)), start_pos), :ruleset)
       end
 
       def block(node, context)
@@ -719,8 +721,9 @@ module Sass
           selector << additional_selector
         end
 
-        block(node(
-          Sass::Tree::RuleNode.new(merge(selector), range(start_pos)), start_pos), :ruleset)
+        block(
+          node(
+            Sass::Tree::RuleNode.new(merge(selector), range(start_pos)), start_pos), :ruleset)
       end
 
       # Tries to parse a declaration, and returns the value parsed so far if it
@@ -1184,33 +1187,34 @@ module Sass
 
       def tok(rx, last_group_lookahead = false)
         res = @scanner.scan(rx)
-        if res
-          # This fixes https://github.com/nex3/sass/issues/104, which affects
-          # Ruby 1.8.7 and REE. This fix is to replace the ?= zero-width
-          # positive lookahead operator in the Regexp (which matches without
-          # consuming the matched group), with a match that does consume the
-          # group, but then rewinds the scanner and removes the group from the
-          # end of the matched string. This fix makes the assumption that the
-          # matched group will always occur at the end of the match.
-          if last_group_lookahead && @scanner[-1]
-            @scanner.pos -= @scanner[-1].length
-            res.slice!(-@scanner[-1].length..-1)
-          end
 
-          newline_count = res.count(NEWLINE)
-          if newline_count > 0
-            @line += newline_count
-            @offset = res[res.rindex(NEWLINE)..-1].size
-          else
-            @offset += res.size
-          end
+        return unless res
 
-          @expected = nil
-          if !@strs.empty? && rx != COMMENT && rx != SINGLE_LINE_COMMENT
-            @strs.each {|s| s << res}
-          end
-          res
+        # This fixes https://github.com/nex3/sass/issues/104, which affects
+        # Ruby 1.8.7 and REE. This fix is to replace the ?= zero-width
+        # positive lookahead operator in the Regexp (which matches without
+        # consuming the matched group), with a match that does consume the
+        # group, but then rewinds the scanner and removes the group from the
+        # end of the matched string. This fix makes the assumption that the
+        # matched group will always occur at the end of the match.
+        if last_group_lookahead && @scanner[-1]
+          @scanner.pos -= @scanner[-1].length
+          res.slice!(-@scanner[-1].length..-1)
         end
+
+        newline_count = res.count(NEWLINE)
+        if newline_count > 0
+          @line += newline_count
+          @offset = res[res.rindex(NEWLINE)..-1].size
+        else
+          @offset += res.size
+        end
+
+        @expected = nil
+        if !@strs.empty? && rx != COMMENT && rx != SINGLE_LINE_COMMENT
+          @strs.each {|s| s << res}
+        end
+        res
       end
 
       # Remove a vendor prefix from `str`.

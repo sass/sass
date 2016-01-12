@@ -187,3 +187,7 @@ Style/EmptyLinesAroundBlockBody:
   Enabled: true
 Style/ExtraSpacing:
   Enabled: true
+Style/FirstParameterIndentation:
+  Enabled: true
+Style/GuardClause:
+  Enabled: true

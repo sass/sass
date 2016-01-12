@@ -26,11 +26,10 @@ module Sass
 
       # @see Base#retrieve
       def retrieve(key, sha)
-        if @contents.has_key?(key)
-          return unless @contents[key][:sha] == sha
-          obj = @contents[key][:obj]
-          obj.respond_to?(:deep_copy) ? obj.deep_copy : obj.dup
-        end
+        return unless @contents.has_key?(key)
+        return unless @contents[key][:sha] == sha
+        obj = @contents[key][:obj]
+        obj.respond_to?(:deep_copy) ? obj.deep_copy : obj.dup
       end
 
       # @see Base#store

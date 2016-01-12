@@ -32,15 +32,24 @@ For more details, see [this blog post][interp-blog] and
 
 * Consistent output formatting for numbers close to an integer.
   [Issue #1931](https://github.com/sass/sass/issues/1931)
+
 * Correctly round negative numbers that were almost but not quite a
-  whole number (slightly greater than the negative number)
+  whole number (slightly greater than the negative number).
   [Issue #1938](https://github.com/sass/sass/issues/1938)
+
 * Don't strip escaped semicolons from compressed output.
   [Issue #1932](https://github.com/sass/sass/issues/1932)
+
 * Only compress around dashes within nth selectors.
   [Issue #1933](https://github.com/sass/sass/issues/1933)
+
 * Selector compression of whitespace around commas was affecting attribute values.
   [Issue #1947](https://github.com/sass/sass/issues/1947)
+
+* Make subtraction work when a unit is followed directly by a hyphen and then a
+  period. For example, `1em-.75em` now returns `0.25em` rather than `1em
+  -0.75em`. This is consistent with the behavior when the subtrahend begins with
+  a `0`. [Issue #1954](https://github.com/sass/sass/issues/1954)
 
 ## 3.4.20 (09 December 2015)
 

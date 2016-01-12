@@ -463,12 +463,12 @@ module Sass::Plugin
         end
       end
 
-      if recompile_required
-        # In case a file we're watching is removed and then recreated we
-        # prune out the non-existent files here.
-        watched_files_remaining = individual_files.select {|(source, _, _)| File.exist?(source)}
-        update_stylesheets(watched_files_remaining)
-      end
+      return unless recompile_required
+
+      # In case a file we're watching is removed and then recreated we
+      # prune out the non-existant files here.
+      watched_files_remaining = individual_files.select {|(source, _, _)| File.exist?(source)}
+      update_stylesheets(watched_files_remaining)
     end
 
     def update_stylesheet(filename, css, sourcemap)
@@ -500,7 +500,9 @@ module Sass::Plugin
 
       write_file(css, rendered)
       if mapping
-        write_file(sourcemap, mapping.to_json(
+        write_file(
+          sourcemap,
+          mapping.to_json(
             :css_path => css, :sourcemap_path => sourcemap, :type => options[:sourcemap]))
       end
       run_updated_stylesheet(filename, css, sourcemap) unless compilation_error_occurred
@@ -521,10 +523,11 @@ module Sass::Plugin
         File.delete css
       end
       map = Sass::Util.sourcemap_name(css)
-      if File.exist?(map)
-        run_deleting_sourcemap map
-        File.delete map
-      end
+
+      return unless File.exist?(map)
+
+      run_deleting_sourcemap map
+      File.delete map
     end
 
     def watched_file?(file)

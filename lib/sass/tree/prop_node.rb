@@ -119,11 +119,10 @@ module Sass::Tree
     private
 
     def check!
-      if @options[:property_syntax] && @options[:property_syntax] != @prop_syntax
-        raise Sass::SyntaxError.new(
-          "Illegal property syntax: can't use #{@prop_syntax} syntax when " +
-          ":property_syntax => #{@options[:property_syntax].inspect} is set.")
-      end
+      return unless @options[:property_syntax] && @options[:property_syntax] != @prop_syntax
+      raise Sass::SyntaxError.new(
+        "Illegal property syntax: can't use #{@prop_syntax} syntax when " +
+        ":property_syntax => #{@options[:property_syntax].inspect} is set.")
     end
 
     class << self

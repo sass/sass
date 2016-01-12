@@ -390,10 +390,10 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
       rule = Sass::Tree::RuleNode.new([""])
       rule.resolved_rules = Sass::Selector::CommaSequence.new(
         [Sass::Selector::Sequence.new(
-            [Sass::Selector::SimpleSequence.new(
-                [Sass::Selector::Element.new(k.to_s.gsub(/[^\w-]/, "\\\\\\0"), nil)],
-                false)
-            ])
+          [Sass::Selector::SimpleSequence.new(
+            [Sass::Selector::Element.new(k.to_s.gsub(/[^\w-]/, "\\\\\\0"), nil)],
+            false)
+          ])
         ])
       prop = Sass::Tree::PropNode.new([""], Sass::Script::Value::String.new(''), :new)
       prop.resolved_name = "font-family"

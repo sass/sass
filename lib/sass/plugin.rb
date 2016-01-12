@@ -93,7 +93,8 @@ module Sass
     #   the second is the location of the CSS file that it should be compiled to.
     # @see #update_stylesheets
     def force_update_stylesheets(individual_files = [])
-      Compiler.new(options.dup.merge(
+      Compiler.new(
+        options.dup.merge(
           :never_update => false,
           :always_update => true,
           :cache => false)).update_stylesheets(individual_files)

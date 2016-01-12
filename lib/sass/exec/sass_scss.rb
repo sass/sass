@@ -413,7 +413,8 @@ WARNING
           @options[:sourcemap_filename], Sass::Util.pathname(@options[:output_filename]).dirname)
         rendered, mapping = engine.render_with_sourcemap(relative_sourcemap_path.to_s)
         write_output(rendered, output)
-        write_output(mapping.to_json(
+        write_output(
+          mapping.to_json(
             :type => @options[:sourcemap],
             :css_path => @options[:output_filename],
             :sourcemap_path => @options[:sourcemap_filename]) + "\n",

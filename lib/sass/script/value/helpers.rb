@@ -201,9 +201,7 @@ module Sass::Script::Value
     # @param literal [Sass::Script::Value::Base] The value to check
     # @return boolean
     def calc?(literal)
-      if literal.is_a?(Sass::Script::Value::String)
-        literal.value =~ /calc\(/
-      end
+      literal.is_a?(Sass::Script::Value::String) && literal.value =~ /calc\(/
     end
 
     private

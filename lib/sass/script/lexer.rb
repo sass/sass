@@ -71,9 +71,9 @@ module Sass
       OPERATORS_REVERSE = Sass::Util.map_hash(OPERATORS) {|k, v| [v, k]}
 
       TOKEN_NAMES = Sass::Util.map_hash(OPERATORS_REVERSE) {|k, v| [k, v.inspect]}.merge(
-          :const => "variable (e.g. $foo)",
-          :ident => "identifier (e.g. middle)",
-          :special_fun => '")"')
+        :const => "variable (e.g. $foo)",
+        :ident => "identifier (e.g. middle)",
+        :special_fun => '")"')
 
       # A list of operator strings ordered with longer names first
       # so that `>` and `<` don't clobber `>=` and `<=`.
@@ -185,11 +185,10 @@ module Sass
       # Rewinds the underlying StringScanner
       # to before the token returned by \{#peek}.
       def unpeek!
-        if @tok
-          @scanner.pos = @tok.pos
-          @line = @tok.source_range.start_pos.line
-          @offset = @tok.source_range.start_pos.offset
-        end
+        return unless @tok
+        @scanner.pos = @tok.pos
+        @line = @tok.source_range.start_pos.line
+        @offset = @tok.source_range.start_pos.offset
       end
 
       # @return [Boolean] Whether or not there's more source text to lex.
