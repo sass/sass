@@ -1,5 +1,3 @@
-Style/GuardClause:
-  Enabled: false
 Style/IndentHash:
   Enabled: false
 Style/LineEndConcatenation:

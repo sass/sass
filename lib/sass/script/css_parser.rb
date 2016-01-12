@@ -19,9 +19,8 @@ module Sass
       def string
         tok = try_tok(:string)
         return number unless tok
-        unless @lexer.peek && @lexer.peek.type == :begin_interpolation
-          return literal_node(tok.value, tok.source_range)
-        end
+        return if @lexer.peek && @lexer.peek.type == :begin_interpolation
+        literal_node(tok.value, tok.source_range)
       end
 
       # Short-circuit all the SassScript-only productions

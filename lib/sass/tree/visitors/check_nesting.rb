@@ -90,9 +90,8 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
 
   VALID_EXTEND_PARENTS = [Sass::Tree::RuleNode, Sass::Tree::MixinDefNode, Sass::Tree::MixinNode]
   def invalid_extend_parent?(parent, child)
-    unless is_any_of?(parent, VALID_EXTEND_PARENTS)
-      return "Extend directives may only be used within rules."
-    end
+    return if is_any_of?(parent, VALID_EXTEND_PARENTS)
+    "Extend directives may only be used within rules."
   end
 
   INVALID_IMPORT_PARENTS = CONTROL_NODES +
@@ -110,15 +109,13 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
   end
 
   def invalid_mixindef_parent?(parent, child)
-    unless (@parents.map {|p| p.class} & INVALID_IMPORT_PARENTS).empty?
-      return "Mixins may not be defined within control directives or other mixins."
-    end
+    return if (@parents.map {|p| p.class} & INVALID_IMPORT_PARENTS).empty?
+    "Mixins may not be defined within control directives or other mixins."
   end
 
   def invalid_function_parent?(parent, child)
-    unless (@parents.map {|p| p.class} & INVALID_IMPORT_PARENTS).empty?
-      return "Functions may not be defined within control directives or other mixins."
-    end
+    return if (@parents.map {|p| p.class} & INVALID_IMPORT_PARENTS).empty?
+    "Functions may not be defined within control directives or other mixins."
   end
 
   VALID_FUNCTION_CHILDREN = [
@@ -126,27 +123,24 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
     Sass::Tree::VariableNode, Sass::Tree::WarnNode, Sass::Tree::ErrorNode
   ] + CONTROL_NODES
   def invalid_function_child?(parent, child)
-    unless is_any_of?(child, VALID_FUNCTION_CHILDREN)
-      "Functions can only contain variable declarations and control directives."
-    end
+    return if is_any_of?(child, VALID_FUNCTION_CHILDREN)
+    "Functions can only contain variable declarations and control directives."
   end
 
   VALID_PROP_CHILDREN = CONTROL_NODES + [Sass::Tree::CommentNode,
                                          Sass::Tree::PropNode,
                                          Sass::Tree::MixinNode]
   def invalid_prop_child?(parent, child)
-    unless is_any_of?(child, VALID_PROP_CHILDREN)
-      "Illegal nesting: Only properties may be nested beneath properties."
-    end
+    return if is_any_of?(child, VALID_PROP_CHILDREN)
+    "Illegal nesting: Only properties may be nested beneath properties."
   end
 
   VALID_PROP_PARENTS = [Sass::Tree::RuleNode, Sass::Tree::KeyframeRuleNode, Sass::Tree::PropNode,
                         Sass::Tree::MixinDefNode, Sass::Tree::DirectiveNode, Sass::Tree::MixinNode]
   def invalid_prop_parent?(parent, child)
-    unless is_any_of?(parent, VALID_PROP_PARENTS)
-      "Properties are only allowed within rules, directives, mixin includes, or other properties." +
-        child.pseudo_class_selector_message
-    end
+    return if is_any_of?(parent, VALID_PROP_PARENTS)
+    "Properties are only allowed within rules, directives, mixin includes, or other properties." +
+      child.pseudo_class_selector_message
   end
 
   def invalid_return_parent?(parent, child)
