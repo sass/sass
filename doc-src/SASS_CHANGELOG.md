@@ -28,7 +28,7 @@ instead of doing the same thing as `unquote("foo + #{$var}")`.
 For more details, see [this blog post][interp-blog] and
 [the GitHub issue in which it was planned][interp-issue].
 
-## 3.4.21 (UNRELEASED)
+## 3.4.21 (11 January 2016)
 
 * Consistent output formatting for numbers close to an integer.
   [Issue #1931](https://github.com/sass/sass/issues/1931)
