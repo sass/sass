@@ -242,6 +242,11 @@ directive's module is determined as follows:
 
 * If the module name isn't a Sass identifier, the `@use` directive is malformed.
 
+* If the module name followed by a hyphen is a initial substring of previous
+  `@use` directive's prefix, or if another `@use` directive's prefix followed by
+  a hyphen is an initial substring of the module name, the `@use` directive is
+  malformed.
+
 * Use the module name.
 
 This proposal follows Python and diverges from Dart in that `@use` imports
