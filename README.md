@@ -162,6 +162,19 @@ Each module is uniquely identified by the combination of a URI and a
 [source file](#source-file) identified by the module's URI with the module's
 configuration.
 
+### Module Graph
+
+Modules also track their `@use` directives, which point to other modules. In
+this sense, modules can be construed as a directed acyclic graph where the
+vertices are modules and the edges are `@use` directives. We call this the
+*module graph*.
+
+The module graph is not allowed to contain cycles because they make it
+impossible to guarantee that all dependencies of a module are fully executed
+before that module is loaded. Although a module's members can be determined
+without executing it, Sass allows code to be executed while loading a module,
+which means those members may be executed.
+
 ### Source File
 
 A *source file* is an entity uniquely identified by a URI. It can be executed
