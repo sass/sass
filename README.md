@@ -336,3 +336,59 @@ The downside to hyphens are that they look like normal identifiers, which makes
 it less locally clear what's a namespace and what's a normal member name. It
 also allows module prefixes to shadow other members, and introduces the
 possibility of conflicting prefixes between modules.
+
+### Resolving Extends
+
+The module system also scopes the resolution of the `@extend` directive. This
+helps satisfy locality, making selector extension more predictable than it is
+using `@import`s.
+
+Extension is scoped to CSS in [module](#module)s *transitively used* by the
+module in which the `@extend` appears. This transitivity is necessary because
+CSS is not considered a [member](#member) of a module, and can't be controlled
+as explicitly as members can. Extending all transitively-used modules means that
+the `@extend` affects exactly that CSS that is guaranteed to exist by the `@use`
+directives.
+
+Specifically, once all modules have been loaded, do a global pass to resolve the
+extends.
+
+* For each module that contains CSS (call it the *extended module*):
+
+  * Set this module's *virtual selectors* to the set of selectors in all of its
+    CSS rules. These virtual selectors remember the original selector they were
+    generated from.
+
+  * Take the subgraph of the module graph that can transitively reach the
+    extended module.
+
+  * For every module in this subgraph (call it the *extending module*) in
+    reverse [topological][] order:
+
+    * For each of the extended module's selectors:
+
+      * Take the corresponding virtual selector from each module used by the
+        extending module, if it has such a selector set.
+
+      * Create a new selector that matches the union of all elements matched by
+        these virtual selectors, and set it as a virtual selector of this
+        subgraph.
+
+  * Replace the selectors in the extended module's rules with the corresponding
+    virtual selectors of the [entrypoint module](#entrypoint-module).
+
+[topological]: https://en.wikipedia.org/wiki/Topological_sorting
+
+> **Implementation note:**
+>
+> This process as written is O(n²) for the number of modules in the compilation,
+> and in a pathological case this is accurate. However, it's intended to be
+> tightly constrained by the number and scope of the extensions the user chooses
+> to write. Even a relatively naïve implementation should be able to keep it to
+> O(n×m) for extending modules and extended modules. It's possible there's even
+> an O(n) implementation that integrates extension with compilation, but that's
+> beyond the scope of this document.
+
+There is intentionally no way for a module to affect the extensions of another
+module that doesn't transitively use it. This promotes locality, and matches the
+behavior of mixins and functions in that monkey-patching is disallowed.
