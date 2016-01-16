@@ -119,6 +119,14 @@ depends on the type of the given member. Variables, mixins, and functions have
 intuitive definitions, but placeholder selectors' definitions just indicate
 which [module](#module) they come from.
 
+There's some question of whether placeholders ought to be considered members,
+and consequently [namespaced](#resolving-members) like other members. On one
+hand, they're frequently used in parallel with mixins as the API exposed by a
+library, which suggests that they should be namespaced like the mixins they
+parallel. On the other hand, this usage is somewhat discouraged since it doesn't
+treat them like selectors, and not namespacing them would potentially free up
+characters like `.` or `:` to be used as namespace separators.
+
 ### CSS Tree
 
 A *CSS tree* is an abstract CSS syntax tree. It has multiple top-level CSS
@@ -296,3 +304,15 @@ type and name to resolve:
 
 * Otherwise, if such a member isn't defined in any unprefixed module, resolution
   fails.
+
+The hyphenated syntax (`namespace-name`) was chosen in preference to other
+syntaxes (for example `namespace.name`, `namespace::name`, or `namespace|name`)
+because it's likely to be compatible with existing code that uses manual
+namespaces, and because it doesn't overlap with plain CSS syntax. This is
+especially relevant for namespaced placeholder selectors, because most other
+reasonable characters are already meaningful in selector contexts.
+
+The downside to hyphens are that they look like normal identifiers, which makes
+it less locally clear what's a namespace and what's a normal member name. It
+also allows module prefixes to shadow other members, and introduces the
+possibility of conflicting prefixes between modules.
