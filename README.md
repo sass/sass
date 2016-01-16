@@ -196,6 +196,13 @@ Each one has different execution semantics that are beyond the scope of this
 document. Note that some of these are not or may not actually be files on the
 file system.
 
+### Entrypoint
+
+The *entrypoint* of a compilation is the [source file](#source-file) that was
+initially passed to the implementation. Similarly, the *entrypoint module* is
+the [module](#module) loaded from that source file with an empty configuration.
+The entrypoint module is the root of the [module graph](#module-graph).
+
 ## Syntax
 
 The new directive will be called `@use`. The grammar for this directive is as
