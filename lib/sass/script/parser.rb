@@ -458,7 +458,7 @@ RUBY
         return [args, keywords] unless e
 
         splat = nil
-        loop do
+        until subexpr.nil?
           if @lexer.peek && @lexer.peek.type == :colon
             name = e
             @lexer.expected!("comma") unless name.is_a?(Tree::Variable)
@@ -479,23 +479,21 @@ RUBY
             elsif !keywords.empty?
               raise SyntaxError.new("Positional arguments must come before keyword arguments.")
             end
-
             args << e if e
           end
 
-          return args, keywords, splat unless no_trailing_comma?(description)
+          return args, keywords, splat unless no_trailing_comma?
           e = assert_expr(subexpr, description)
         end
       end
 
-      def no_trailing_comma?(description)
-        if description == 'mixin argument'
-          val = try_tok(:comma)
-          peeked = @lexer.peek.type
-          !((val && peeked == :rparen) || (!val))
-        else
-          return try_tok(:comma)
+      def no_trailing_comma?
+        val = try_tok(:comma)
+        if @lexer.peek.nil?
+          return false
         end
+        peeked = @lexer.peek.type
+        !((val && peeked == :rparen) || (!val))
       end
 
       def raw
