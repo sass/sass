@@ -68,6 +68,7 @@ that adds power and elegance to the basic language.
 It allows you to use [variables][vars], [nested rules][nested],
 [mixins][mixins], [inline imports][imports],
 and more, all with a fully CSS-compatible syntax.
+
 Sass helps keep large stylesheets well-organized,
 and get small stylesheets up and running quickly,
 particularly with the help of
