@@ -208,7 +208,7 @@ task for a girl genius). Natalie lives in Seattle, Washington and works on
 
 [Chris Eppstein](http://twitter.com/chriseppstein) is a core contributor to
 Sass and the creator of [Compass](http://compass-style.org/), the first Sass-based framework, and
-[Eyeglass](http://github.com/sass-eyeglass/eyeglass), a Sass plugin ecosystem for NPM. Chris focuses
+[Eyeglass](http://github.com/sass-eyeglass/eyeglass), a node-sass plugin ecosystem for NPM. Chris focuses
 on making Sass more powerful, easy to use, and on ways to speed its adoption
 through the web development community. Chris lives in San Jose, California with
 his wife and two children. He is an Engineer for
