@@ -206,16 +206,22 @@ documentation, implementing new features, and getting Hampton coffee (a fitting
 task for a girl genius). Natalie lives in Seattle, Washington and works on
 [Dart](http://dartlang.org) application libraries at Google.
 
-[Chris Eppstein](http://acts-as-architect.blogspot.com) is a core contributor to
-Sass and the creator of Compass, the first Sass-based framework. Chris focuses
+[Chris Eppstein](http://twitter.com/chriseppstein) is a core contributor to
+Sass and the creator of [Compass](http://compass-style.org/), the first Sass-based framework, and
+[Eyeglass](http://github.com/sass-eyeglass/eyeglass), a node-sass plugin ecosystem for NPM. Chris focuses
 on making Sass more powerful, easy to use, and on ways to speed its adoption
 through the web development community. Chris lives in San Jose, California with
-his wife and daughter. He is an Engineer for
-[LinkedIn.com](http://linkedin.com), where one of his responsibilities is to
-maintain Sass & Compass.
+his wife and two children. He is an Engineer for
+[LinkedIn.com](http://linkedin.com), where his primary responsibility is to
+maintain Sass and many other Sass-related open source projects.
 
-If you use this software, you must pay Hampton a compliment. And buy Natalie
-some candy. Maybe pet a kitten. Yeah. Pet that kitty.
+If you use this software, we'd be truly honored if you'd make a
+tax-deductible donation to a non-profit organization and then
+[let us know on twitter](http://twitter.com/SassCSS) so that we can
+thank you. Here's a few that we endorse:
 
-Beyond that, the implementation is licensed under the MIT License.
-Okay, fine, I guess that means compliments aren't __required__.
+* [Trans Justice Funding Project](http://www.transjusticefundingproject.org/)
+* [United Mitochondrial Disease Foundation](http://umdf.org/compass)
+* [Girl Develop It](https://www.girldevelopit.com/donate)
+
+Sass is licensed under the MIT License.
