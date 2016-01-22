@@ -232,21 +232,14 @@ The new directive will be called `@use`. The grammar for this directive is as
 follows:
 
 ```
-UseDirective ::= '@use' QuotedString (AsClause | NoPrefix)? ShowClause?
-                     HideClause?
+UseDirective ::= '@use' QuotedString (AsClause | NoPrefix)?
 AsClause     ::= 'as' Identifier
 NoPrefix     ::= 'no-prefix'
-ShowClause   ::= 'show' Identifier (',' Identifier)*
-HideClause   ::= 'hide' Identifier (',' Identifier)*
 ```
 
 *Note: this only encompasses the syntax whose semantics are currently described
 in this document. As the document becomes more complete, the grammar will be
 expanded accordingly.*
-
-The ordering of clauses is enforced in part to ensure consistency across
-stylesheets, and in part to match the style of plain CSS, where `supports()`
-must precede media queries in an `@import` rule.
 
 `@use` directives must be at the top level of the document, and must come before
 any directives other than `@charset`. Because each `@use` directive affects the
@@ -350,16 +343,10 @@ type and name to resolve:
 
   * Strip the prefix and hyphen to get the *unprefixed name*.
 
-  * If the module doesn't have a member of the given type with the unprefixed
-    name, resolution fails.
+  * If the module has a member of the given type with the unprefixed name, use
+    that member's definition.
 
-  * If the module's `@use` directive has a `show` clause that doesn't include
-    the unprefixed name, resolution fails.
-
-  * If the module's `@use` directive has a `hide` clause that does include the
-    unprefixed name, resolution fails.
-
-  * Otherwise, use that member's definition.
+  * Otherwise, resolution fails.
 
 * If a member of the given type with the given name has already been defined in
   the current source file, use its definition.
@@ -368,23 +355,15 @@ type and name to resolve:
   ensures that any change in name resolution caused by reordering a file causes
   an immediate error rather than an unexpected behavioral change.
 
-* Take the set of unprefixed modules that have such a member. Call this the
-  *candidate module set*.
-
-* Remove all modules whose `@use` directives have a `show` clause that doesn't
-  include the member name from the candidate module set.
-
-* Remove all modules whose `@use` directives have a `hide` clause that does
-  include the member name from the candidate module set.
-
-* If there's exactly one module left in the candidate module set, use that
+* If such a member is defined in exactly one unprefixed module, use that
   module's definition.
 
-* Otherwise, if there are multiple modules left, resolution fails. This ensures
-  that if a new version of a package produces a conflicting name, it causes an
-  immediate error.
+* Otherwise, if such a member is defined in more than one unprefixed module,
+  resolution fails. This ensures that, if a new version of a package produces a
+  conflicting name, it causes an immediate error.
 
-* Otherwise, if the candidate module set is empty, resolution fails.
+* Otherwise, if such a member isn't defined in any unprefixed module, resolution
+  fails.
 
 The hyphenated syntax (`namespace-name`) was chosen in preference to other
 syntaxes (for example `namespace.name`, `namespace::name`, or `namespace|name`)
