@@ -226,6 +226,23 @@ file helps reduce confusion.
 
 ## Semantics
 
+### Compilation Process
+
+First, let's look at the large-scale process that occurs when compiling a Sass
+[entrypoint](#entrypoint) to CSS.
+
+* [Load the entrypoint module](#loading-modules) as though it were referenced by
+  a `@use` directive containing its URI and no further clauses. Note that this
+  transitively loads any referenced modules, producing a
+  [module graph](#module-graph).
+
+* [Resolve extends](#resolving-extends).
+
+* Concatenate the CSS of each module in the module graph, in reverse
+  [topological][] order. This is the CSS output.
+
+[topological]: https://en.wikipedia.org/wiki/Topological_sorting
+
 ### Loading Modules
 
 When encountering a `@use` directive, the first step is to load the associated
@@ -246,7 +263,7 @@ When encountering a `@use` directive, the first step is to load the associated
 > **Implementation note:**
 >
 > Although this specification only requires that modules be cached and reused
-> when compiling a single entrypoint, modules are intentionally
+> when compiling a single [entrypoint](#entrypoint), modules are intentionally
 > context-independent enough to store and re-use across multiple entrypoints, as
 > long as no source files change. For example, if the user requests that all
 > Sass files beneath `stylesheets/sass` be compiled, modules may be shared
@@ -376,8 +393,6 @@ extends.
 
   * Replace the selectors in the extended module's rules with the corresponding
     virtual selectors of the [entrypoint module](#entrypoint-module).
-
-[topological]: https://en.wikipedia.org/wiki/Topological_sorting
 
 > **Implementation note:**
 >
