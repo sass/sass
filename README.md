@@ -36,8 +36,9 @@ complete*.
 * [Syntax](#syntax)
   * [`@forward`](#forward)
 * [Semantics](#semantics)
-  * [Compilation Process](#compilation-process)
   * [Loading Modules](#loading-modules)
+  * [Compilation Process](#compilation-process)
+  * [Using Modules](#using-modules)
   * [Resolving Members](#resolving-members)
   * [Resolving Extends](#resolving-extends)
   * [Forwarding Modules](#forwarding-modules)
@@ -264,38 +265,27 @@ before any directives other than `@charset` or `@use`.
 
 ## Semantics
 
-### Compilation Process
-
-First, let's look at the large-scale process that occurs when compiling a Sass
-[entrypoint](#entrypoint) to CSS.
-
-* [Load the entrypoint module](#loading-modules) as though it were referenced by
-  a `@use` directive containing its URI and no further clauses. Note that this
-  transitively loads any referenced modules, producing a
-  [module graph](#module-graph).
-
-* [Resolve extends](#resolving-extends).
-
-* Concatenate the CSS of each module in the module graph, in reverse
-  [topological][] order. This is the CSS output.
-
-[topological]: https://en.wikipedia.org/wiki/Topological_sorting
-
 ### Loading Modules
 
-When encountering a `@use` directive, the first step is to load the associated
-[module](#module). To do so:
+This describes the general process for loading a module. It's used as part of
+various other semantics described below. To load a module with a given URI and
+configuration:
 
 * Look up the [source file](#source-file) with the given URI. The process for
   doing this is out of scope of this document.
 
-* If no such file can be found, throw a fatal error.
+* If no such file can be found, loading fails.
 
-* If the source file has already been executed with an empty
+* If the source file has already been executed with the given
   [configuration](#configuration), use the module that execution produced. This
   fulfills the "import once" low-level goal.
 
-* Otherwise, execute that file with an empty configuration, and use the
+* If the source file is currently being executed with the given
+  [configuration](#configuration), loading fails. This disallows circular
+  `@use`s, which ensures that modules can't be used until they're fully
+  initialized.
+
+* Otherwise, execute that file with the given configuration, and use the
   resulting module.
 
 > **Implementation note:**
@@ -307,7 +297,29 @@ When encountering a `@use` directive, the first step is to load the associated
 > Sass files beneath `stylesheets/sass` be compiled, modules may be shared
 > between those separate compilations.
 
-Each module loaded this may have an associated **prefix**, which is a Sass
+### Compilation Process
+
+First, let's look at the large-scale process that occurs when compiling a Sass
+[entrypoint](#entrypoint) to CSS.
+
+* [Load](#loading-modules) the [module](#module) with the entrypoint URI and the
+  empty configuration. Note that this transitively loads any referenced modules,
+  producing a [module graph](#module-graph).
+
+* [Resolve extends](#resolving-extends).
+
+* Concatenate the CSS of each module in the module graph, in reverse
+  [topological][] order. This is the CSS output.
+
+[topological]: https://en.wikipedia.org/wiki/Topological_sorting
+
+### Using Modules
+
+When encountering a `@use` directive, the first step is to
+[load](#loading-modules) the [module](#module) with the given URI and the empty
+configuration. Once that's done, the next step is to determine its **prefix**.
+
+Each module loaded this may have an associated prefix, which is a Sass
 identifier that's used to identify the module's [member](#member)s within the
 current file. No two `@use` directives in a given file may share a prefix,
 although any number may have no prefix. The prefix for a given `@use`
@@ -453,8 +465,8 @@ API as though it were part of the current module's. Note that it *does not* make
 that API available to the current module; that is purely the domain of `@use`.
 To execute a `@forward` directive:
 
-* Load that directive's module as though it were referred to by a `@use`
-  directive with the same URL and no additional clauses.
+* [Load](#loading-modules) the module for the directive's URI with the empty
+  configuration.
 
 * For every member (call it the *forwarded member*) in the loaded module:
 
