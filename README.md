@@ -34,12 +34,13 @@ complete*.
   * [Source File](#source-file)
   * [Entrypoint](#entrypoint)
 * [Syntax](#syntax)
+  * [`@forward`](#forward)
 * [Semantics](#semantics)
   * [Compilation Process](#compilation-process)
   * [Loading Modules](#loading-modules)
   * [Resolving Members](#resolving-members)
   * [Resolving Extends](#resolving-extends)
-
+  * [Forwarding Modules](#forwarding-modules)
 
 ## Background
 
@@ -187,10 +188,10 @@ configuration.
 
 ### Module Graph
 
-Modules also track their `@use` directives, which point to other modules. In
-this sense, modules can be construed as a directed acyclic graph where the
-vertices are modules and the edges are `@use` directives. We call this the
-*module graph*.
+Modules also track their `@use` and [`@forward`](#forwarding-modules)
+directives, which point to other modules. In this sense, modules can be
+construed as a directed acyclic graph where the vertices are modules and the
+edges are `@use` and/or `@forward` directives. We call this the *module graph*.
 
 The module graph is not allowed to contain cycles because they make it
 impossible to guarantee that all dependencies of a module are fully executed
@@ -246,6 +247,20 @@ any directives other than `@charset`. Because each `@use` directive affects the
 namespace of the entire [source file](#source-file) that contains it, whereas
 most other Sass constructs are purely imperative, keeping it at the top of the
 file helps reduce confusion.
+
+### `@forward`
+
+This proposal introduces an additional new directive, called `@forward`. The
+grammar for this directive is as follows:
+
+```
+ForwardDirective ::= '@forward' QuotedString (ShowClause | HideClause)?
+ShowClause       ::= 'show' Identifier (',' Identifier)*
+HideClause       ::= 'hide' Identifier (',' Identifier)*
+```
+
+`@forward` directives must be at the top level of the document, and must come
+before any directives other than `@charset` or `@use`.
 
 ## Semantics
 
@@ -430,3 +445,39 @@ extends.
 There is intentionally no way for a module to affect the extensions of another
 module that doesn't transitively use it. This promotes locality, and matches the
 behavior of mixins and functions in that monkey-patching is disallowed.
+
+### Forwarding Modules
+
+The [`@forward`](#forward) directive forwards another [module](#module)'s public
+API as though it were part of the current module's. Note that it *does not* make
+that API available to the current module; that is purely the domain of `@use`.
+To execute a `@forward` directive:
+
+* Load that directive's module as though it were referred to by a `@use`
+  directive with the same URL and no additional clauses.
+
+* For every member (call it the *forwarded member*) in the loaded module:
+
+  * If there's a member with the same name and type defined later on in the
+    current [source file](#source-file), do nothing. Giving local definitions
+    precedence ensures that a module continues to expose the same API if a
+    forwarded module changes to include a conflicting member.
+
+  * If the `@forward` directive has a `show` clause that doesn't include the
+    forwarded member's name, do nothing.
+
+  * If the `@forward` directive has a `hide` clause that does include the
+    forwarded member's name, do nothing.
+
+  * If another `@forward` directive's module has a member with the same name and
+    type, the directive is malformed. Failing here ensures that, in the absence
+    of an obvious member that takes precedence, conflicts are detected as soon
+    as possible.
+
+  * Otherwise, add the member to the current module's collection of members.
+
+This forwards all members by default to reduce the churn and potential for
+errors when a new member gets added to a forwarded module. It's likely that most
+packages will already break up their definitions into many smaller modules which
+will all be forwarded, which makes the API definition explicit enough without
+requiring additional explicitness here.
