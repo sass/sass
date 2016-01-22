@@ -18,6 +18,29 @@ mind—these will be called out explicitly in block-quoted "implementation note"
 *Note: at the time of writing, the initial draft of the proposal is not yet
 complete*.
 
+## Table of Contents
+
+* [Background](#background)
+* [Goals](#goals)
+  * [High-Level](#high-level)
+  * [Low-Level](#low-level)
+  * [Non-Goals](#non-goals)
+* [Definitions](#definitions)
+  * [Member](#member)
+  * [CSS Tree](#css-tree)
+  * [Configuration](#configuration)
+  * [Module](#module)
+  * [Module Graph](#module-graph)
+  * [Source File](#source-file)
+  * [Entrypoint](#entrypoint)
+* [Syntax](#syntax)
+* [Semantics](#semantics)
+  * [Compilation Process](#compilation-process)
+  * [Loading Modules](#loading-modules)
+  * [Resolving Members](#resolving-members)
+  * [Resolving Extends](#resolving-extends)
+
+
 ## Background
 
 The new `@use` directive is intended to supercede Sass's `@import` directive as
