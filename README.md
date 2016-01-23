@@ -42,6 +42,7 @@ complete*.
   * [Resolving Members](#resolving-members)
   * [Resolving Extends](#resolving-extends)
   * [Forwarding Modules](#forwarding-modules)
+  * [Module Mixins](#module-mixins)
 
 ## Background
 
@@ -190,9 +191,12 @@ configuration.
 ### Module Graph
 
 Modules also track their `@use` and [`@forward`](#forwarding-modules)
-directives, which point to other modules. In this sense, modules can be
-construed as a directed acyclic graph where the vertices are modules and the
-edges are `@use` and/or `@forward` directives. We call this the *module graph*.
+directives, which point to other modules. In this sense, modules with empty
+configuration can be construed as a [directed acyclic graph][] where the
+vertices are modules and the edges are `@use` directives (without `mixin`
+clauses) and/or `@forward` directives. We call this the *module graph*.
+
+[directed acyclic graph]: https://en.wikipedia.org/wiki/Directed_acyclic_graph
 
 The module graph is not allowed to contain cycles because they make it
 impossible to guarantee that all dependencies of a module are fully executed
@@ -204,9 +208,10 @@ which means those members may be executed.
 
 A *source file* is an entity uniquely identified by a URI. It can be executed
 with a [configuration](#configuration) to produce a [module](#module). The names
-of this module's members are static, and can be determined without executing the
-file. This means that all modules for a given source file have the same member
-names regardless of the configurations used for those modules.
+(and mixin and function signatures) of this module's members are static, and can
+be determined without executing the file. This means that all modules for a
+given source file have the same member names regardless of the configurations
+used for those modules.
 
 There are five types of source file:
 
@@ -234,9 +239,10 @@ The new directive will be called `@use`. The grammar for this directive is as
 follows:
 
 ```
-UseDirective ::= '@use' QuotedString (AsClause | NoPrefix)?
+UseDirective ::= '@use' QuotedString (AsClause? MixinClause? | NoPrefix?)
 AsClause     ::= 'as' Identifier
 NoPrefix     ::= 'no-prefix'
+MixinClause  ::= 'mixin'
 ```
 
 *Note: this only encompasses the syntax whose semantics are currently described
@@ -248,6 +254,16 @@ any directives other than `@charset`. Because each `@use` directive affects the
 namespace of the entire [source file](#source-file) that contains it, whereas
 most other Sass constructs are purely imperative, keeping it at the top of the
 file helps reduce confusion.
+
+The mixin clause is not allowed for unprefixed modules because the mixin name
+is derived from the module's prefix.
+
+> **Design note:**
+>
+> I'm not at all sure about the mixin syntax here. `@use "foo" mixin` doesn't
+> read very well, and sounds less sentence-like than I'd prefer. But I'm having
+> trouble determining what else would be better, and still remain orthogonal to
+> all the other modifiers that can be applied.
 
 ### `@forward`
 
@@ -315,9 +331,10 @@ First, let's look at the large-scale process that occurs when compiling a Sass
 
 ### Using Modules
 
-When encountering a `@use` directive, the first step is to
-[load](#loading-modules) the [module](#module) with the given URI and the empty
-configuration. Once that's done, the next step is to determine its **prefix**.
+When encountering a `@use` directive without a `mixin` clause, the first step is
+to [load](#loading-modules) the [module](#module) with the given URI and the
+empty configuration. Once that's done, the next step is to determine its
+**prefix**.
 
 Each module loaded this may have an associated prefix, which is a Sass
 identifier that's used to identify the module's [member](#member)s within the
@@ -370,10 +387,17 @@ type and name to resolve:
 
   * Strip the prefix and hyphen to get the *unprefixed name*.
 
-  * If the module has a member of the given type with the unprefixed name, use
-    that member's definition.
+  * If the module doesn't have a member of the given type with the unprefixed
+    name, resolution fails.
 
-  * Otherwise, resolution fails.
+  * If the module's `@use` directive has a `mixin` clause and the
+    [module mixin](#module-mixins) hasn't yet been invoked, resolution fails.
+
+  * Otherwise, use the module's definition.
+
+* If the type is "mixin" and the name is exactly a module's prefix, and that
+  module's `@use` directive has a `mixin` clause, use its
+  [module mixin](#module-mixins).
 
 * If a member of the given type with the given name has already been defined in
   the current source file, use its definition.
@@ -493,3 +517,59 @@ errors when a new member gets added to a forwarded module. It's likely that most
 packages will already break up their definitions into many smaller modules which
 will all be forwarded, which makes the API definition explicit enough without
 requiring additional explicitness here.
+
+### Module Mixins
+
+[Modules](#module) can be encapsulated in mixins by using `@use`'s `mixin`
+clause. This allows a module's CSS to only be conditionally included in a
+document, or to be included in a nested context. It also allows the user of the
+module to configure it by providing default values for variables that the module
+uses.
+
+When executing a `@use` directive with a `mixin` clause, the directive's module
+isn't [loaded as normal](#using-modules). Instead a special *module mixin*, with
+the same name as the directive's prefix, is introduced into the current module's
+namespace.
+
+The module mixin's arguments are derived from the module's members (which we can
+determine without executing the module). For every variable in module that has a
+`!default` flag, the module mixin has an argument with the same name and a
+default value of `null`. These arguments are in the order the variables are
+defined, although users should be strongly encouraged to only pass them by name.
+
+When this mixin is included:
+
+* Create a configuration whose variable names are the module mixin's argument
+  names. These variable's values are the values of the corresponding arguments.
+
+* [Load](#loading-modules) the module with the `@use` directive's URI and this
+  configuration.
+
+* For every module in the [module graph](#module-graph) reachable from the
+  loaded module, in reverse [topological][] order, emit that module's CSS to the
+  location of the `@include`.
+
+> **Design note:**
+>
+> This currently fails to take into account `@extend`s in the module or modules
+> it transitively imports. This needs to be addressed, but it'll take some
+> refactoring to do right.
+
+There are several important things to note here. First, every time a module
+mixin is used, its CSS is emitted, which means that the CSS may be emitted
+multiple times. This behavior makes sense in context, and is unlikely to
+surprise anyone, but it's good to note nonetheless as an exception to the
+import-once goal.
+
+Second, because module mixins' CSS is included directly in another module's,
+`@use` directives with `mixin` clauses do not create edges on the module graph.
+Those edges represent a *reference to* another module's CSS, whereas module
+mixins *directly include* that CSS. Keeping them out of the module graph also
+allows users to dynamically choose not to include the module at all and avoid
+using its CSS at all.
+
+Finally, module mixins don't affect name resolution at all, except in that a
+name that refers to a member of the module will fail to load until the mixin has
+been included. The scoping of these names is independent of the location of the
+module mixin's `@include` directive, so even if it's included in a deeply-nested
+selector hierarchy its members will be accessible at the root of the document.
