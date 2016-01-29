@@ -322,10 +322,8 @@ First, let's look at the large-scale process that occurs when compiling a Sass
   empty configuration. Note that this transitively loads any referenced modules,
   producing a [module graph](#module-graph).
 
-* [Resolve extends](#resolving-extends).
-
-* Concatenate the CSS of each module in the module graph, in reverse
-  [topological][] order. This is the CSS output.
+* [Resolve extends](#resolving-extends) for the entrypoint's module. The
+  resulting CSS is the compilation's output.
 
 [topological]: https://en.wikipedia.org/wiki/Topological_sorting
 
@@ -441,42 +439,55 @@ as explicitly as members can. Extending all transitively-used modules means that
 the `@extend` affects exactly that CSS that is guaranteed to exist by the `@use`
 directives.
 
-Specifically, once all modules have been loaded, do a global pass to resolve the
-extends.
+We define a general process for resolving extends for a given module. This
+process emits CSS for that module and everything it transitively uses.
 
-* For each module that contains CSS (call it the *extended module*):
+* Take the subgraph of the module graph containing modules that are transitively
+  reachable from the given module. Call this the *extended graph*.
 
-  * Set this module's *virtual selectors* to the set of selectors in all of its
-    CSS rules. These virtual selectors remember the original selector they were
-    generated from.
+* For each module in the extended graph (call it the *extended module*) in
+  reverse [topological][] order:
 
-  * Take the subgraph of the module graph that can transitively reach the
-    extended module.
+  * Create an empty map for the extended module (call it the module's *extended
+    selectors*). This map will contain selectors defined for rules in this
+    module and its transitively reachable modules, with extends partially
+    resolved. This map is indexed by the locations of the rules for those
+    selectors. We say that this is the *original location* for a selector.
 
-  * For every module in this subgraph (call it the *extending module*) in
-    reverse [topological][] order:
+  * For each module used or forwarded by the extended module (call it the
+    *foreign module*`) in reverse [topological][] order:
 
-    * For each of the extended module's selectors:
+    * For each of the foreign module's extended selectors (call it the *foreign
+      selector*):
 
-      * Take the corresponding virtual selector from each module used by the
-        extending module, if it has such a selector set.
+      * If the extended module has an extended selector that has the same
+        original location as the foreign selector, take it. Otherwise, create a
+        selector that matches no elements. Call this the *domestic selector*.
 
       * Create a new selector that matches the union of all elements matched by
-        these virtual selectors, and set it as a virtual selector of this
-        subgraph.
+        the foreign selector selector and the domestic selector. Call this the
+        *new selector*.
 
-  * Replace the selectors in the extended module's rules with the corresponding
-    virtual selectors of the [entrypoint module](#entrypoint-module).
+      * Apply any extends defined in the extended module to the new selector,
+        and replace it with the result.
 
-> **Implementation note:**
->
-> This process as written is O(n²) for the number of modules in the compilation,
-> and in a pathological case this is accurate. However, it's intended to be
-> tightly constrained by the number and scope of the extensions the user chooses
-> to write. Even a relatively naïve implementation should be able to keep it to
-> O(n×m) for extending modules and extended modules. It's possible there's even
-> an O(n) implementation that integrates extension with compilation, but that's
-> beyond the scope of this document.
+      * Add the new selector to the extended module's extended selectors,
+        indexed by the foreign selector's original location. Replace the
+        domestic selector if necessary.
+
+  * For each CSS rule in the extended module:
+
+    * Apply any extends defined in the extended module to the rule's selector.
+
+    * Add the resulting selector to the extended module's extended selectors,
+      indexed by the rule's location.
+
+* For each module in the extended graph (call it the *extended module*) in
+  reverse [topological][] order:
+
+  * Emit each top-level CSS construct in the extended module, with any selectors
+    replaced by the corresponding selector in the given module's extended
+    selectors.
 
 There is intentionally no way for a module to affect the extensions of another
 module that doesn't transitively use it. This promotes locality, and matches the
@@ -545,15 +556,8 @@ When this mixin is included:
 * [Load](#loading-modules) the module with the `@use` directive's URI and this
   configuration.
 
-* For every module in the [module graph](#module-graph) reachable from the
-  loaded module, in reverse [topological][] order, emit that module's CSS to the
-  location of the `@include`.
-
-> **Design note:**
->
-> This currently fails to take into account `@extend`s in the module or modules
-> it transitively imports. This needs to be addressed, but it'll take some
-> refactoring to do right.
+* [Resolve extends](#resolving-extends) for the loaded module, then emit the
+  resulting CSS to the location of the `@include`.
 
 There are several important things to note here. First, every time a module
 mixin is used, its CSS is emitted, which means that the CSS may be emitted
