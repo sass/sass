@@ -439,28 +439,29 @@ as explicitly as members can. Extending all transitively-used modules means that
 the `@extend` affects exactly that CSS that is guaranteed to exist by the `@use`
 directives.
 
-We define a general process for resolving extends for a given module. This
-process emits CSS for that module and everything it transitively uses.
+We define a general process for resolving extends for a given module (call it
+the *starting module*). This process emits CSS for that module and everything it
+transitively uses.
 
 * Take the subgraph of the module graph containing modules that are transitively
-  reachable from the given module. Call this the *extended graph*.
+  reachable from the starting module. Call this the *extended graph*.
 
-* For each module in the extended graph (call it the *extended module*) in
+* For each module in the extended graph (call it the *domestic module*) in
   reverse [topological][] order:
 
-  * Create an empty map for the extended module (call it the module's *extended
+  * Create an empty map for the domestic module (call it the module's *extended
     selectors*). This map will contain selectors defined for rules in this
     module and its transitively reachable modules, with extends partially
     resolved. This map is indexed by the locations of the rules for those
     selectors. We say that this is the *original location* for a selector.
 
-  * For each module used or forwarded by the extended module (call it the
+  * For each module used or forwarded by the domestic module (call it the
     *foreign module*`) in reverse [topological][] order:
 
     * For each of the foreign module's extended selectors (call it the *foreign
       selector*):
 
-      * If the extended module has an extended selector that has the same
+      * If the domestic module has an extended selector that has the same
         original location as the foreign selector, take it. Otherwise, create a
         selector that matches no elements. Call this the *domestic selector*.
 
@@ -468,25 +469,25 @@ process emits CSS for that module and everything it transitively uses.
         the foreign selector selector and the domestic selector. Call this the
         *new selector*.
 
-      * Apply any extends defined in the extended module to the new selector,
+      * Apply any extends defined in the domestic module to the new selector,
         and replace it with the result.
 
-      * Add the new selector to the extended module's extended selectors,
+      * Add the new selector to the domestic module's extended selectors,
         indexed by the foreign selector's original location. Replace the
         domestic selector if necessary.
 
-  * For each CSS rule in the extended module:
+  * For each CSS rule in the domestic module:
 
-    * Apply any extends defined in the extended module to the rule's selector.
+    * Apply any extends defined in the domestic module to the rule's selector.
 
-    * Add the resulting selector to the extended module's extended selectors,
+    * Add the resulting selector to the domestic module's extended selectors,
       indexed by the rule's location.
 
-* For each module in the extended graph (call it the *extended module*) in
+* For each module in the extended graph (call it the *domestic module*) in
   reverse [topological][] order:
 
-  * Emit each top-level CSS construct in the extended module, with any selectors
-    replaced by the corresponding selector in the given module's extended
+  * Emit each top-level CSS construct in the domestic module, with any selectors
+    replaced by the corresponding selector in the starting module's extended
     selectors.
 
 There is intentionally no way for a module to affect the extensions of another
