@@ -618,10 +618,11 @@ selector hierarchy its members will be accessible at the root of the document.
 
 ### Private Members
 
-For the most part, when a source file is executed to produce a module, any
-variables, functions, mixins, and placeholder selectors defined in the source
-file become members of the corresponding module. However, an author may also
-declare members private, which makes them accessible only within the module.
+For the most part, when a [source file](#source-file) is executed to produce a
+[module](#module), any variables, functions, mixins, and placeholder selectors
+defined in the source file become [member](#member)s of the corresponding
+module. However, an author may also declare members private, which makes them
+accessible only within the module.
 
 Privacy is determined by the naming of the member: members that begin with `-`
 or `_` (which Sass considers equivalent) are private. Private members are not
