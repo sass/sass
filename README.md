@@ -470,8 +470,9 @@ transitively uses.
         the foreign selector selector and the domestic selector. Call this the
         *new selector*.
 
-      * Apply any extends defined in the domestic module to the new selector,
-        and replace it with the result.
+      * If the foreign module was used by the domestic module (as opposed to
+        only being forwarded), apply any extends defined in the domestic module
+        to the new selector, and replace it with the result.
 
       * Add the new selector to the domestic module's extended selectors,
         indexed by the foreign selector's original location. Replace the
