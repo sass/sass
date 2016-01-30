@@ -390,7 +390,8 @@ type and name to resolve:
     name, resolution fails.
 
   * If the module's `@use` directive has a `mixin` clause and the
-    [module mixin](#module-mixins) hasn't yet been invoked, resolution fails.
+    [module mixin](#module-mixins) hasn't yet been included, or has been
+    included more than once, resolution fails.
 
   * Otherwise, use the module's definition.
 
