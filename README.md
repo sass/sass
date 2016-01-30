@@ -302,8 +302,14 @@ configuration:
   `@use`s, which ensures that modules can't be used until they're fully
   initialized.
 
-* Otherwise, execute that file with the given configuration, and use the
+* Otherwise, execute that file with the given configuration, and take the
   resulting module.
+
+* If the source file contained a `@use` directive with a `mixin` clause and a
+  `@forward` directive with the same URI, and if that `@use` directive's mixin
+  was not included during the execution of the source file, loading fails.
+
+* Otherwise, use the resulting module.
 
 > **Implementation note:**
 >
@@ -502,12 +508,11 @@ behavior of mixins and functions in that monkey-patching is disallowed.
 The [`@forward`](#forward) directive forwards another [module](#module)'s public
 API as though it were part of the current module's. Note that it *does not* make
 that API available to the current module; that is purely the domain of `@use`.
-To execute a `@forward` directive:
 
-* [Load](#loading-modules) the module for the directive's URI with the empty
-  configuration.
+First, we define a general procedure for forward a module (call it the
+*forwarded module*) with a `@forward` directive:
 
-* For every member (call it the *forwarded member*) in the loaded module:
+* For every member (call it the *forwarded member*) in the forwarded module:
 
   * If there's a member with the same name and type defined later on in the
     current [source file](#source-file), do nothing. Giving local definitions
@@ -527,11 +532,36 @@ To execute a `@forward` directive:
 
   * Otherwise, add the member to the current module's collection of members.
 
+Note that the procedure defined above is not directly executed when encountering
+a `@forward` directive. To execute a `@forward` directive:
+
+* If the current module contains a `@use` directive with the same URI as the
+  `@forward` directive and a `mixin` clause:
+
+  * If there are multiple `@use` directives with that URI, the `@forward`
+    directive is malformed. This is true regardless of whether the additional
+    `@use` directives have `mixin` declarations.
+
+  * Otherwise, do nothing. The module will be forwarded when the module is
+    included.
+
+* Otherwise, [load](#loading-modules) the module for the directive's URI with
+  the empty configuration.
+
+* Forward the loaded module.
+
 This forwards all members by default to reduce the churn and potential for
 errors when a new member gets added to a forwarded module. It's likely that most
 packages will already break up their definitions into many smaller modules which
 will all be forwarded, which makes the API definition explicit enough without
 requiring additional explicitness here.
+
+> **Design note:**
+>
+> There should definitely be a way to forward members from a configured module,
+> but I'm not sure whether this is the best way to do it. It weirds me out that
+> an identical `@forward` declaration can mean different things based on `@use`
+> directives around it. But I haven't come up with a better alternative.
 
 ### Module Mixins
 
@@ -559,6 +589,10 @@ When this mixin is included:
 
 * [Load](#loading-modules) the module with the `@use` directive's URI and this
   configuration.
+
+* If the current module contains a `@forward` directive with the same URI as the
+  `@use` directive, [forward](#forwarding-modules) the loaded module with that
+  `@forward` directive.
 
 * [Resolve extends](#resolving-extends) for the loaded module, then emit the
   resulting CSS to the location of the `@include`.
