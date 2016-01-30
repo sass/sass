@@ -43,6 +43,7 @@ complete*.
   * [Resolving Extends](#resolving-extends)
   * [Forwarding Modules](#forwarding-modules)
   * [Module Mixins](#module-mixins)
+  * [Private Members](#private-members)
 
 ## Background
 
@@ -134,8 +135,8 @@ expected to land in Sass 4.
 
 ### Member
 
-A *member* is anything that's defined, either by the user or the implementation,
-that is identified by a Sass identifier. This currently includes variables,
+A *member* is anything that's defined either by the user or the implementation 
+and is identified by a Sass identifier. This currently includes variables,
 mixins, functions, and placeholder selectors. Each member type has its own
 namespace, so for example the variable `$name` doesn't conflict with the
 placeholder selector `%name`.
@@ -578,3 +579,17 @@ name that refers to a member of the module will fail to load until the mixin has
 been included. The scoping of these names is independent of the location of the
 module mixin's `@include` directive, so even if it's included in a deeply-nested
 selector hierarchy its members will be accessible at the root of the document.
+
+### Private Members
+
+For the most part, when a source file is executed to produce a module, any
+variables, functions, mixins, and placeholder selectors defined in the source
+file become members of the corresponding module. However, an author may also
+declare members private, which makes them accessible only within the module.
+
+Privacy is determined by the naming of the member: members that begin with `-`
+or `_` (which Sass considers equivalent) are private. Private members are not
+added to the module's member set, but they are visible from within the module
+itself. This follows Python's and Dart's privacy models, and bears some
+similarity to CSS's use of leading hyphens to indicate experimental vendor
+features.
