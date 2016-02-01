@@ -17,7 +17,8 @@
   syntax for set that is generally non-destructive with the signature
   `map-set($map, $keys..., $value)`.
 
-* Add support for additional keys passed to `map-merge($map1, $keys..., $map2)`, allowing for nested Map merges.
+* Add support for additional keys passed to `map-merge($map1, $keys..., $map2)`,
+  allowing for nested Map merges.
 
 ### Backwards Incompatibilities -- Must Read!
 
