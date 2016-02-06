@@ -39,6 +39,7 @@ complete*.
 * [Semantics](#semantics)
   * [Loading Modules](#loading-modules)
   * [Compilation Process](#compilation-process)
+  * [Executing Files](#executing-files)
   * [Using Modules](#using-modules)
   * [Resolving Members](#resolving-members)
   * [Resolving Extensions](#resolving-extensions)
@@ -187,8 +188,8 @@ An empty CSS tree contains no top-level declarations.
 ### Configuration
 
 A *configuration* is a set of variables with associated SassScript values. It's
-used when executing a [source file](#source-file) to customize its execution. It
-may be empty—that is, it may contain no variables.
+used when [executing](#executing-files) a [source file](#source-file) to
+customize its execution. It may be empty—that is, it may contain no variables.
 
 Two configurations are considered identical if they contain the same variables,
 and if each pair of variables with the same name has values that are `==` to one
@@ -203,9 +204,9 @@ name (for example, a module may not have two variables named `$name`). To
 satisfy this requirement, placeholder selectors are de-duplicated.
 
 Each module is uniquely identified by the combination of a URI and a
-[configuration](#configuration). A given module can be produced by executing the
-[source file](#source-file) identified by the module's URI with the module's
-configuration.
+[configuration](#configuration). A given module can be produced by
+[executing](#executing-files) the [source file](#source-file) identified by the
+module's URI with the module's configuration.
 
 ### Module Graph
 
@@ -220,17 +221,17 @@ clauses) and/or `@forward` directives. We call this the *module graph*.
 The module graph is not allowed to contain cycles because they make it
 impossible to guarantee that all dependencies of a module are fully executed
 before that module is loaded. Although a module's members can be determined
-without executing it, Sass allows code to be executed while loading a module,
-which means those members may be executed.
+without [executing](#executing-files) it, Sass allows code to be executed while
+loading a module, which means those members may be executed.
 
 ### Source File
 
-A *source file* is an entity uniquely identified by a URI. It can be executed
-with a [configuration](#configuration) to produce a [module](#module). The names
-(and mixin and function signatures) of this module's members are static, and can
-be determined without executing the file. This means that all modules for a
-given source file have the same member names regardless of the configurations
-used for those modules.
+A *source file* is an entity uniquely identified by a URI. It can be
+[executed](#executing-files) with a [configuration](#configuration) to produce a
+[module](#module). The names (and mixin and function signatures) of this
+module's members are static, and can be determined without executing the file.
+This means that all modules for a given source file have the same member names
+regardless of the configurations used for those modules.
 
 There are five types of source file:
 
@@ -303,22 +304,21 @@ before any directives other than `@charset` or `@use`.
 ### Loading Modules
 
 This describes the general process for loading a module. It's used as part of
-various other semantics described below. To load a module with a given URI and
-configuration:
+various other semantics described below. To load a module with a given URI,
+[configuration](#configuration):
 
 * Look up the [source file](#source-file) with the given URI. The process for
   doing this is out of scope of this document.
 
 * If no such file can be found, loading fails.
 
-* If the source file has already been executed with the given
-  [configuration](#configuration), use the module that execution produced. This
-  fulfills the "import once" low-level goal.
+* If the source file has already been [executed](#executing-files) with the
+  given configuration, use the module that execution produced. This fulfills the
+  "import once" low-level goal.
 
-* If the source file is currently being executed with the given
-  [configuration](#configuration), loading fails. This disallows circular
-  `@use`s, which ensures that modules can't be used until they're fully
-  initialized.
+* If the source file is currently being executed with the given configuration,
+  loading fails. This disallows circular `@use`s, which ensures that modules
+  can't be used until they're fully initialized.
 
 * Otherwise, execute that file with the given configuration, and take the
   resulting module.
@@ -351,6 +351,40 @@ First, let's look at the large-scale process that occurs when compiling a Sass
   resulting CSS is the compilation's output.
 
 [topological]: https://en.wikipedia.org/wiki/Topological_sorting
+
+### Executing Files
+
+Many of the details of executing a [source file](#source-file) are out of scope
+for this specification. However, certain constructs have relevant new semantics
+that are covered below. This procedure should be understood as modifying and
+expanding upon the existing execution process rather than being a comprehensive
+replacement.
+
+Given a [source file](#source-file), a [configuration](#configuration), and
+optionally an [import context](#import-context):
+
+* Create an empty module with the given configuration and the current file's
+  URI. Call this the *current module*.
+
+* When a `@use` directive is encountered, [use the module](#using-modules) it
+  refers to.
+
+* When a `@forward` directive is encountered,
+  [forward the module](#forwarding-modules) it refers to.
+  
+* When an `@extend` directive is encountered, add its extension to the current
+  module.
+
+* When a CSS rule or a plain CSS directive is encountered, execute it as normal
+  and add the resulting CSS to the current module's CSS.
+
+* When a [member](#member) definition is encountered, if its member's name
+  doesn't begin with `-` or `_`, add it to the current module.
+
+* When a member use is encountered, [resolve it](#resolving-members) using the
+  set of used modules and the current import context.
+
+* Once all top-level statements are executed, return the current module.
 
 ### Using Modules
 
@@ -553,8 +587,8 @@ First, we define a general procedure for forward a module (call it the
 Note that the procedure defined above is not directly executed when encountering
 a `@forward` directive. To execute a `@forward` directive:
 
-* If the current module contains a `@use` directive with the same URI as the
-  `@forward` directive and a `mixin` clause:
+* If the current source file contains a `@use` directive with the same URI as
+  the `@forward` directive and a `mixin` clause:
 
   * If there are multiple `@use` directives with that URI, the `@forward`
     directive is malformed. This is true regardless of whether the additional
@@ -591,8 +625,8 @@ uses.
 
 When executing a `@use` directive with a `mixin` clause, the directive's module
 isn't [loaded as normal](#using-modules). Instead a special *module mixin*, with
-the same name as the directive's prefix, is introduced into the current module's
-namespace.
+the same name as the directive's prefix, is introduced into the current source
+file's namespace.
 
 The module mixin's arguments are derived from the module's members (which we can
 determine without executing the module). For every variable in module that has a
@@ -608,9 +642,9 @@ When this mixin is included:
 * [Load](#loading-modules) the module with the `@use` directive's URI and this
   configuration.
 
-* If the current module contains a `@forward` directive with the same URI as the
-  `@use` directive, [forward](#forwarding-modules) the loaded module with that
-  `@forward` directive.
+* If the current source file contains a `@forward` directive with the same URI
+  as the `@use` directive, [forward](#forwarding-modules) the loaded module with
+  that `@forward` directive.
 
 * [Resolve extensions](#resolving-extensions) for the loaded module, then emit
   the resulting CSS to the location of the `@include`.
