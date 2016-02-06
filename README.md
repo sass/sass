@@ -34,6 +34,7 @@ complete*.
   * [Module Graph](#module-graph)
   * [Source File](#source-file)
   * [Entrypoint](#entrypoint)
+  * [Import Context](#import-context)
 * [Syntax](#syntax)
   * [`@forward`](#forward)
 * [Semantics](#semantics)
@@ -46,6 +47,7 @@ complete*.
   * [Forwarding Modules](#forwarding-modules)
   * [Module Mixins](#module-mixins)
   * [Private Members](#private-members)
+  * [Importing Files](#importing-files)
 
 ## Background
 
@@ -109,6 +111,13 @@ most part, they're derived from user feedback that we've collected about
   and it can also contribute to bloated CSS output when the styles themselves
   are duplicated. The new module system should only compile a file once, at
   least for the default configuration.
+
+* **Backwards compatibility**. We want to make it as easy as possible for people
+  to migrate to the new module system, and that means making it work in
+  conjunction with existing stylesheets that use `@import`. Existing stylesheets
+  that only use `@import` should have identical importing behavior to earlier
+  versions of Sass, and stylesheets should be able to change parts to `@use`
+  without changing the whole thing at once.
 
 ### Non-Goals
 
@@ -253,6 +262,16 @@ initially passed to the implementation. Similarly, the *entrypoint module* is
 the [module](#module) loaded from that source file with an empty configuration.
 The entrypoint module is the root of the [module graph](#module-graph).
 
+### Import Context
+
+An *import context* is a collection of members, indexed by their names. It's
+used to ensure that the previous global-namespace behavior is preserved when
+`@import`s are used.
+
+An import context is mutable throughout its entire lifetime, unlike a module
+which doesn't change once it's been fully created. This allows it to behave as a
+shared namespace for a connected group of imports.
+
 ## Syntax
 
 The new directive will be called `@use`. The grammar for this directive is as
@@ -371,6 +390,9 @@ optionally an [import context](#import-context):
 
 * When a `@forward` directive is encountered,
   [forward the module](#forwarding-modules) it refers to.
+
+* When an `@import` directive is encountered,
+  [import the file](#importing-files) it refers to.
   
 * When an `@extend` directive is encountered, add its extension to the current
   module.
@@ -379,7 +401,9 @@ optionally an [import context](#import-context):
   and add the resulting CSS to the current module's CSS.
 
 * When a [member](#member) definition is encountered, if its member's name
-  doesn't begin with `-` or `_`, add it to the current module.
+  doesn't begin with `-` or `_`, add it to the current module. In addition, if
+  there's a current import context, add the member to the import context
+  (regardless of whether or not the member is private).
 
 * When a member use is encountered, [resolve it](#resolving-members) using the
   set of used modules and the current import context.
@@ -458,7 +482,8 @@ type and name to resolve:
   [module mixin](#module-mixins).
 
 * If a member of the given type with the given name has already been defined in
-  the current source file, use its definition.
+  the current source file or exists in the current
+  [import context](#import-context), use its definition.
 
 * If such a member is defined later on in the file, resolution fails. This
   ensures that any change in name resolution caused by reordering a file causes
@@ -682,3 +707,52 @@ added to the module's member set, but they are visible from within the module
 itself. This follows Python's and Dart's privacy models, and bears some
 similarity to CSS's use of leading hyphens to indicate experimental vendor
 features.
+
+For backwards-compatibility, privacy does not apply across `@import` boundaries.
+If one file imports another, either may refer to the other's private members.
+
+### Importing Files
+
+For the duration of the Sass 4.x release cycle, `@use` will coexist with the old
+`@import` directive in order to ease the burden of migration. This means that we
+need to define how the two directives interact.
+
+When executing an `@import` directive:
+
+* If there is no current [import context](#import-context), create one that
+  contains all of the current [module](#module)'s members that have been defined
+  so far. Note that this does not include members visible because of `@use`, nor
+  does it include members from [forwarded](#forwarding-modules) modules.
+
+* Look up the [source file](#source-file) with the given URI.
+
+* If no such file can be found, importing fails.
+
+* If the source file is currently being executed with the current import
+  context, loading fails.
+
+* [Execute](#executing-files) that file with an empty configuration and the
+  current import context. Note that this execution can mutate the current import
+  context.
+
+* Emit the resulting module's CSS to the location of the `@import`.
+
+* Add the resulting module's extensions to the current module.
+
+* Add any members of the resulting module that don't conflict with the current
+  import context to that context, and to the current module. This makes
+  forwarded members available in the importing module, but does not them to
+  overwrite existing members with the same names and types.
+
+When a stylesheet contains only `@import`s without any `@use`s, the `@import`s
+are intended to work exactly as they did in previous Sass versions. Any
+difference should be considered a bug in this specification.
+
+This definition allows files that include `@use` to be imported. Doing so
+includes those modules' CSS as well as any members they define or forward. This
+makes it possible for users to continue using `@import` even when their
+dependencies switch to `@use`, which conversely makes it safer for packages to
+switch to `@use`.
+
+It also allows files that use `@import` to be used as modules. Doing so treats
+them as though all CSS and members were included in the module itself.
