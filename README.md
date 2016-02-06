@@ -27,6 +27,7 @@ complete*.
   * [Non-Goals](#non-goals)
 * [Definitions](#definitions)
   * [Member](#member)
+  * [Extension](#extension)
   * [CSS Tree](#css-tree)
   * [Configuration](#configuration)
   * [Module](#module)
@@ -40,7 +41,7 @@ complete*.
   * [Compilation Process](#compilation-process)
   * [Using Modules](#using-modules)
   * [Resolving Members](#resolving-members)
-  * [Resolving Extends](#resolving-extends)
+  * [Resolving Extensions](#resolving-extensions)
   * [Forwarding Modules](#forwarding-modules)
   * [Module Mixins](#module-mixins)
   * [Private Members](#private-members)
@@ -154,6 +155,23 @@ parallel. On the other hand, this usage is somewhat discouraged since it doesn't
 treat them like selectors, and not namespacing them would potentially free up
 characters like `.` or `:` to be used as namespace separators.
 
+### Extension
+
+An *extension* is an object that represents a single `@extend` rule. It contains
+two selectors: the *extender* is the selector for the rule that contains the
+`@extend`, and the *extendee* is the selector that comes after the `@extend`.
+For example:
+
+```scss
+.extender {
+  @extend .extendee;
+}
+```
+
+An extension may be applied to a selector to produce a new selector. This
+process is outside the scope of this document, and remains unchanged from
+previous versions of Sass.
+
 ### CSS Tree
 
 A *CSS tree* is an abstract CSS syntax tree. It has multiple top-level CSS
@@ -178,11 +196,11 @@ another.
 
 ### Module
 
-A *module* is an abstract collection of [members](#members) as well as a
-[CSS tree](#css-tree), although that tree may be empty. Each module may have
-only one member of a given type and name (for example, a module may not have two
-variables named `$name`). To satisfy this requirement, placeholder selectors are
-de-duplicated.
+A *module* is an abstract collection of [members](#members) and
+[extensions](#extensions), as well as a [CSS tree](#css-tree) (although that
+tree may be empty). Each module may have only one member of a given type and
+name (for example, a module may not have two variables named `$name`). To
+satisfy this requirement, placeholder selectors are de-duplicated.
 
 Each module is uniquely identified by the combination of a URI and a
 [configuration](#configuration). A given module can be produced by executing the
@@ -329,7 +347,7 @@ First, let's look at the large-scale process that occurs when compiling a Sass
   empty configuration. Note that this transitively loads any referenced modules,
   producing a [module graph](#module-graph).
 
-* [Resolve extends](#resolving-extends) for the entrypoint's module. The
+* [Resolve extensions](#resolving-extensions) for the entrypoint's module. The
   resulting CSS is the compilation's output.
 
 [topological]: https://en.wikipedia.org/wiki/Topological_sorting
@@ -434,7 +452,7 @@ it less locally clear what's a namespace and what's a normal member name. It
 also allows module prefixes to shadow other members, and introduces the
 possibility of conflicting prefixes between modules.
 
-### Resolving Extends
+### Resolving Extensions
 
 The module system also scopes the resolution of the `@extend` directive. This
 helps satisfy locality, making selector extension more predictable than it is
@@ -447,7 +465,7 @@ as explicitly as members can. Extending all transitively-used modules means that
 the `@extend` affects exactly that CSS that is guaranteed to exist by the `@use`
 directives.
 
-We define a general process for resolving extends for a given module (call it
+We define a general process for resolving extensions for a given module (call it
 the *starting module*). This process emits CSS for that module and everything it
 transitively uses.
 
@@ -459,7 +477,7 @@ transitively uses.
 
   * Create an empty map for the domestic module (call it the module's *extended
     selectors*). This map will contain selectors defined for rules in this
-    module and its transitively reachable modules, with extends partially
+    module and its transitively reachable modules, with extensions partially
     resolved. This map is indexed by the locations of the rules for those
     selectors. We say that this is the *original location* for a selector.
 
@@ -478,8 +496,8 @@ transitively uses.
         *new selector*.
 
       * If the foreign module was used by the domestic module (as opposed to
-        only being forwarded), apply any extends defined in the domestic module
-        to the new selector, and replace it with the result.
+        only being forwarded), apply the domestic module's extensions to the new
+        selector, and replace it with the result.
 
       * Add the new selector to the domestic module's extended selectors,
         indexed by the foreign selector's original location. Replace the
@@ -487,7 +505,7 @@ transitively uses.
 
   * For each CSS rule in the domestic module:
 
-    * Apply any extends defined in the domestic module to the rule's selector.
+    * Apply the domestic module's extensions to the rule's selector.
 
     * Add the resulting selector to the domestic module's extended selectors,
       indexed by the rule's location.
@@ -594,8 +612,8 @@ When this mixin is included:
   `@use` directive, [forward](#forwarding-modules) the loaded module with that
   `@forward` directive.
 
-* [Resolve extends](#resolving-extends) for the loaded module, then emit the
-  resulting CSS to the location of the `@include`.
+* [Resolve extensions](#resolving-extensions) for the loaded module, then emit
+  the resulting CSS to the location of the `@include`.
 
 There are several important things to note here. First, every time a module
 mixin is used, its CSS is emitted, which means that the CSS may be emitted
