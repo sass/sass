@@ -494,6 +494,19 @@ hyphens to indicate experimental vendor features.
 For backwards-compatibility, privacy does not apply across `@import` boundaries.
 If one file imports another, either may refer to the other's private members.
 
+```scss
+// This function is private and may only be used within this module.
+@function -parse-gutters($short) {
+  // ...
+}
+
+// By contrast, this mixin is part of the module's public API.
+@mixin gutters($span) {
+  // But it can use private members within its own module.
+  $span: -parse-gutters($span);
+}
+```
+
 ### Resolving Members
 
 The main function of the module system is to control how [member](#member) names
@@ -595,6 +608,26 @@ different people may choose to prefix `strings.scss` as `strings`, `string`,
 `str`, or `strs`. This taxes the reusability of code and knowledge, and
 mitigating it is a benefit.
 
+```scss
+// This has the default prefix "susy".
+@use "susy";
+
+// This has the explicit prefix "bbn".
+@use "bourbon" as bbn;
+
+// This has no prefix.
+@use "compass" no-prefix;
+
+// Both packages define their own "gutters()" functions. But because the members
+// are prefixed, there's no conflict and the user can use both at once.
+#susy {@include susy-gutters()}
+#bourbon {@include bbn-gutters()}
+
+// Users can also import without a prefix at all, which lets them use the
+// original member names.
+#compass {@include gutters()}
+```
+
 ### Module Mixins
 
 [Modules](#module) can be encapsulated in mixins by using `@use`'s `mixin`
@@ -647,6 +680,22 @@ name that refers to a member of the module will fail to load until the mixin has
 been included. The scoping of these names is independent of the location of the
 module mixin's `@include` directive, so even if it's included in a deeply-nested
 selector hierarchy its members will be accessible at the root of the document.
+
+```scss
+// This defines a mixin named "susy" that loads the module with custom
+// configuration.
+@use "susy" mixin;
+
+// Forward all the members from susy, with our customization included.
+@forward "susy";
+
+// These variables are set in the scope of susy's main module.
+@include susy(
+  $columns: 4,
+  $gutters: 0.25,
+  $math: fluid
+);
+```
 
 ### Forwarding Modules
 
@@ -707,6 +756,20 @@ requiring additional explicitness here.
 > but I'm not sure whether this is the best way to do it. It weirds me out that
 > an identical `@forward` declaration can mean different things based on `@use`
 > directives around it. But I haven't come up with a better alternative.
+
+```scss
+// _susy.scss would forward its component files so users would see its full API
+// with a single @use, but the definitions don't have to live in a single file.
+
+@forward "susy/grids";
+@forward "susy/box-sizing";
+@forward "susy/content";
+
+// You can show or hide members that are only meant to be used within the
+// package. You could also choose not to forward this module at all and only
+// use it from internal modules.
+@forward "susy/settings" hide susy-defaults;
+```
 
 ### Importing Files
 
