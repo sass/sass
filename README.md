@@ -37,16 +37,16 @@ complete*.
   * [Import Context](#import-context)
 * [Syntax](#syntax)
   * [`@forward`](#forward)
-* [Semantics](#semantics)
+* [Procedures](#procedures)
   * [Loading Modules](#loading-modules)
+  * [Resolving Extensions](#resolving-extensions)
+* [Semantics](#semantics)
   * [Compilation Process](#compilation-process)
   * [Executing Files](#executing-files)
-  * [Using Modules](#using-modules)
   * [Resolving Members](#resolving-members)
-  * [Resolving Extensions](#resolving-extensions)
-  * [Forwarding Modules](#forwarding-modules)
+  * [Using Modules](#using-modules)
   * [Module Mixins](#module-mixins)
-  * [Private Members](#private-members)
+  * [Forwarding Modules](#forwarding-modules)
   * [Importing Files](#importing-files)
 
 ## Background
@@ -318,7 +318,11 @@ HideClause       ::= 'hide' Identifier (',' Identifier)*
 `@forward` directives must be at the top level of the document, and must come
 before any directives other than `@charset` or `@use`.
 
-## Semantics
+## Procedures
+
+The following procedures are not directly tied to the semantics of any single
+construct. Instead, they're used as components of multiple constructs'
+semantics. They can be thought of as re-usable functions.
 
 ### Loading Modules
 
@@ -356,160 +360,6 @@ various other semantics described below. To load a module with a given URI,
 > long as no source files change. For example, if the user requests that all
 > Sass files beneath `stylesheets/sass` be compiled, modules may be shared
 > between those separate compilations.
-
-### Compilation Process
-
-First, let's look at the large-scale process that occurs when compiling a Sass
-[entrypoint](#entrypoint) to CSS.
-
-* [Load](#loading-modules) the [module](#module) with the entrypoint URI and the
-  empty configuration. Note that this transitively loads any referenced modules,
-  producing a [module graph](#module-graph).
-
-* [Resolve extensions](#resolving-extensions) for the entrypoint's module. The
-  resulting CSS is the compilation's output.
-
-[topological]: https://en.wikipedia.org/wiki/Topological_sorting
-
-### Executing Files
-
-Many of the details of executing a [source file](#source-file) are out of scope
-for this specification. However, certain constructs have relevant new semantics
-that are covered below. This procedure should be understood as modifying and
-expanding upon the existing execution process rather than being a comprehensive
-replacement.
-
-Given a [source file](#source-file), a [configuration](#configuration), and
-optionally an [import context](#import-context):
-
-* Create an empty module with the given configuration and the current file's
-  URI. Call this the *current module*.
-
-* When a `@use` directive is encountered, [use the module](#using-modules) it
-  refers to.
-
-* When a `@forward` directive is encountered,
-  [forward the module](#forwarding-modules) it refers to.
-
-* When an `@import` directive is encountered,
-  [import the file](#importing-files) it refers to.
-  
-* When an `@extend` directive is encountered, add its extension to the current
-  module.
-
-* When a CSS rule or a plain CSS directive is encountered, execute it as normal
-  and add the resulting CSS to the current module's CSS.
-
-* When a [member](#member) definition is encountered, if its member's name
-  doesn't begin with `-` or `_`, add it to the current module. In addition, if
-  there's a current import context, add the member to the import context
-  (regardless of whether or not the member is private).
-
-* When a member use is encountered, [resolve it](#resolving-members) using the
-  set of used modules and the current import context.
-
-* Once all top-level statements are executed, return the current module.
-
-### Using Modules
-
-When encountering a `@use` directive without a `mixin` clause, the first step is
-to [load](#loading-modules) the [module](#module) with the given URI and the
-empty configuration. Once that's done, the next step is to determine its
-**prefix**.
-
-Each module loaded this may have an associated prefix, which is a Sass
-identifier that's used to identify the module's [member](#member)s within the
-current file. No two `@use` directives in a given file may share a prefix,
-although any number may have no prefix. The prefix for a given `@use`
-directive's module is determined as follows:
-
-* If the directive has an `as` clause, use that clause's identifier.
-
-* If the directive has a `no-prefix` clause, then it has no prefix.
-
-* If the module's URI doesn't match the regular expression
-  `(.*/)?([^/]+)(\.[^/]*)?`, the `@use` directive is malformed.
-
-* Call the text captured by the second group of the regular expression the
-  *module name*.
-
-* If the module name isn't a Sass identifier, the `@use` directive is malformed.
-
-* If the module name followed by a hyphen is a initial substring of previous
-  `@use` directive's prefix, or if another `@use` directive's prefix followed by
-  a hyphen is an initial substring of the module name, the `@use` directive is
-  malformed.
-
-* Use the module name.
-
-This proposal follows Python and diverges from Dart in that `@use` imports
-modules with a prefix by default. This is for two reasons. First, it seems to be
-the case that language ecosystems with similar module systems either prefix all
-imports by convention, or prefix almost none. Because Sass is not
-object-oriented and doesn't have the built-in namespacing that classes provide
-many other languages, its APIs tend to be much broader at the top level and thus
-at higher risk for name conflict. Prefixing by default tilts the balance towards
-always prefixing, which mitigates this risk.
-
-Second, a default prefix scheme drastically reduces the potential for
-inconsistency in prefix choice. If the prefix is left entirely up to the user,
-different people may choose to prefix `strings.scss` as `strings`, `string`,
-`str`, or `strs`. This taxes the reusability of code and knowledge, and
-mitigating it is a benefit.
-
-### Resolving Members
-
-The main function of the module system is to control how [member](#member) names
-are resolved across files—that is, to find the definition corresponding to a
-given name. Given a set of [module](#module)s loaded via `@use` and a member
-type and name to resolve:
-
-* If the name begins with a module's prefix followed by a hyphen:
-
-  * Strip the prefix and hyphen to get the *unprefixed name*.
-
-  * If the module doesn't have a member of the given type with the unprefixed
-    name, resolution fails.
-
-  * If the module's `@use` directive has a `mixin` clause and the
-    [module mixin](#module-mixins) hasn't yet been included, or has been
-    included more than once, resolution fails.
-
-  * Otherwise, use the module's definition.
-
-* If the type is "mixin" and the name is exactly a module's prefix, and that
-  module's `@use` directive has a `mixin` clause, use its
-  [module mixin](#module-mixins).
-
-* If a member of the given type with the given name has already been defined in
-  the current source file or exists in the current
-  [import context](#import-context), use its definition.
-
-* If such a member is defined later on in the file, resolution fails. This
-  ensures that any change in name resolution caused by reordering a file causes
-  an immediate error rather than an unexpected behavioral change.
-
-* If such a member is defined in exactly one unprefixed module, use that
-  module's definition.
-
-* Otherwise, if such a member is defined in more than one unprefixed module,
-  resolution fails. This ensures that, if a new version of a package produces a
-  conflicting name, it causes an immediate error.
-
-* Otherwise, if such a member isn't defined in any unprefixed module, resolution
-  fails.
-
-The hyphenated syntax (`namespace-name`) was chosen in preference to other
-syntaxes (for example `namespace.name`, `namespace::name`, or `namespace|name`)
-because it's likely to be compatible with existing code that uses manual
-namespaces, and because it doesn't overlap with plain CSS syntax. This is
-especially relevant for namespaced placeholder selectors, because most other
-reasonable characters are already meaningful in selector contexts.
-
-The downside to hyphens are that they look like normal identifiers, which makes
-it less locally clear what's a namespace and what's a normal member name. It
-also allows module prefixes to shadow other members, and introduces the
-possibility of conflicting prefixes between modules.
 
 ### Resolving Extensions
 
@@ -580,6 +430,224 @@ There is intentionally no way for a module to affect the extensions of another
 module that doesn't transitively use it. This promotes locality, and matches the
 behavior of mixins and functions in that monkey-patching is disallowed.
 
+[topological]: https://en.wikipedia.org/wiki/Topological_sorting
+
+## Semantics
+
+### Compilation Process
+
+First, let's look at the large-scale process that occurs when compiling a Sass
+[entrypoint](#entrypoint) to CSS.
+
+* [Load](#loading-modules) the [module](#module) with the entrypoint URI and the
+  empty configuration. Note that this transitively loads any referenced modules,
+  producing a [module graph](#module-graph).
+
+* [Resolve extensions](#resolving-extensions) for the entrypoint's module. The
+  resulting CSS is the compilation's output.
+
+### Executing Files
+
+Many of the details of executing a [source file](#source-file) are out of scope
+for this specification. However, certain constructs have relevant new semantics
+that are covered below. This procedure should be understood as modifying and
+expanding upon the existing execution process rather than being a comprehensive
+replacement.
+
+Given a [source file](#source-file), a [configuration](#configuration), and
+optionally an [import context](#import-context):
+
+* Create an empty module with the given configuration and the current file's
+  URI. Call this the *current module*.
+
+* When a `@use` directive is encountered, [use the module](#using-modules) it
+  refers to.
+
+* When a `@forward` directive is encountered,
+  [forward the module](#forwarding-modules) it refers to.
+
+* When an `@import` directive is encountered,
+  [import the file](#importing-files) it refers to.
+  
+* When an `@extend` directive is encountered, add its extension to the current
+  module.
+
+* When a CSS rule or a plain CSS directive is encountered, execute it as normal
+  and add the resulting CSS to the current module's CSS.
+
+* When a [member](#member) definition is encountered, if its member's name
+  doesn't begin with `-` or `_`, add it to the current module. In addition, if
+  there's a current import context, add the member to the import context
+  (regardless of whether or not the member is private).
+
+* When a member use is encountered, [resolve it](#resolving-members) using the
+  set of used modules and the current import context.
+
+* Once all top-level statements are executed, return the current module.
+
+Note that members that begin with `-` or `_` (which Sass considers equivalent)
+are considered private. Private members are not added to the module's member
+set, but they are visible from within the module itself. This follows Python's
+and Dart's privacy models, and bears some similarity to CSS's use of leading
+hyphens to indicate experimental vendor features.
+
+For backwards-compatibility, privacy does not apply across `@import` boundaries.
+If one file imports another, either may refer to the other's private members.
+
+### Resolving Members
+
+The main function of the module system is to control how [member](#member) names
+are resolved across files—that is, to find the definition corresponding to a
+given name. Given a set of [module](#module)s loaded via `@use` and a member
+type and name to resolve:
+
+* If the name begins with a module's prefix followed by a hyphen:
+
+  * Strip the prefix and hyphen to get the *unprefixed name*.
+
+  * If the module doesn't have a member of the given type with the unprefixed
+    name, resolution fails.
+
+  * If the module's `@use` directive has a `mixin` clause and the
+    [module mixin](#module-mixins) hasn't yet been included, or has been
+    included more than once, resolution fails.
+
+  * Otherwise, use the module's definition.
+
+* If the type is "mixin" and the name is exactly a module's prefix, and that
+  module's `@use` directive has a `mixin` clause, use its
+  [module mixin](#module-mixins).
+
+* If a member of the given type with the given name has already been defined in
+  the current source file or exists in the current
+  [import context](#import-context), use its definition.
+
+* If such a member is defined later on in the file, resolution fails. This
+  ensures that any change in name resolution caused by reordering a file causes
+  an immediate error rather than an unexpected behavioral change.
+
+* If such a member is defined in exactly one unprefixed module, use that
+  module's definition.
+
+* Otherwise, if such a member is defined in more than one unprefixed module,
+  resolution fails. This ensures that, if a new version of a package produces a
+  conflicting name, it causes an immediate error.
+
+* Otherwise, if such a member isn't defined in any unprefixed module, resolution
+  fails.
+
+The hyphenated syntax (`namespace-name`) was chosen in preference to other
+syntaxes (for example `namespace.name`, `namespace::name`, or `namespace|name`)
+because it's likely to be compatible with existing code that uses manual
+namespaces, and because it doesn't overlap with plain CSS syntax. This is
+especially relevant for namespaced placeholder selectors, because most other
+reasonable characters are already meaningful in selector contexts.
+
+The downside to hyphens are that they look like normal identifiers, which makes
+it less locally clear what's a namespace and what's a normal member name. It
+also allows module prefixes to shadow other members, and introduces the
+possibility of conflicting prefixes between modules.
+
+### Using Modules
+
+When encountering a `@use` directive without a `mixin` clause, the first step is
+to [load](#loading-modules) the [module](#module) with the given URI and the
+empty configuration. Once that's done, the next step is to determine its
+**prefix**.
+
+Each module loaded this may have an associated prefix, which is a Sass
+identifier that's used to identify the module's [member](#member)s within the
+current file. No two `@use` directives in a given file may share a prefix,
+although any number may have no prefix. The prefix for a given `@use`
+directive's module is determined as follows:
+
+* If the directive has an `as` clause, use that clause's identifier.
+
+* If the directive has a `no-prefix` clause, then it has no prefix.
+
+* If the module's URI doesn't match the regular expression
+  `(.*/)?([^/]+)(\.[^/]*)?`, the `@use` directive is malformed.
+
+* Call the text captured by the second group of the regular expression the
+  *module name*.
+
+* If the module name isn't a Sass identifier, the `@use` directive is malformed.
+
+* If the module name followed by a hyphen is a initial substring of previous
+  `@use` directive's prefix, or if another `@use` directive's prefix followed by
+  a hyphen is an initial substring of the module name, the `@use` directive is
+  malformed.
+
+* Use the module name.
+
+This proposal follows Python and diverges from Dart in that `@use` imports
+modules with a prefix by default. This is for two reasons. First, it seems to be
+the case that language ecosystems with similar module systems either prefix all
+imports by convention, or prefix almost none. Because Sass is not
+object-oriented and doesn't have the built-in namespacing that classes provide
+many other languages, its APIs tend to be much broader at the top level and thus
+at higher risk for name conflict. Prefixing by default tilts the balance towards
+always prefixing, which mitigates this risk.
+
+Second, a default prefix scheme drastically reduces the potential for
+inconsistency in prefix choice. If the prefix is left entirely up to the user,
+different people may choose to prefix `strings.scss` as `strings`, `string`,
+`str`, or `strs`. This taxes the reusability of code and knowledge, and
+mitigating it is a benefit.
+
+### Module Mixins
+
+[Modules](#module) can be encapsulated in mixins by using `@use`'s `mixin`
+clause. This allows a module's CSS to only be conditionally included in a
+document, or to be included in a nested context. It also allows the user of the
+module to configure it by providing default values for variables that the module
+uses.
+
+When executing a `@use` directive with a `mixin` clause, the directive's module
+isn't [loaded as normal](#using-modules). Instead a special *module mixin*, with
+the same name as the directive's prefix, is introduced into the current source
+file's namespace.
+
+The module mixin's arguments are derived from the module's members (which we can
+determine without executing the module). For every variable in module that has a
+`!default` flag, the module mixin has an argument with the same name and a
+default value of `null`. These arguments are in the order the variables are
+defined, although users should be strongly encouraged to only pass them by name.
+
+When this mixin is included:
+
+* Create a configuration whose variable names are the module mixin's argument
+  names. These variable's values are the values of the corresponding arguments.
+
+* [Load](#loading-modules) the module with the `@use` directive's URI and this
+  configuration.
+
+* If the current source file contains a `@forward` directive with the same URI
+  as the `@use` directive, [forward](#forwarding-modules) the loaded module with
+  that `@forward` directive.
+
+* [Resolve extensions](#resolving-extensions) for the loaded module, then emit
+  the resulting CSS to the location of the `@include`.
+
+There are several important things to note here. First, every time a module
+mixin is used, its CSS is emitted, which means that the CSS may be emitted
+multiple times. This behavior makes sense in context, and is unlikely to
+surprise anyone, but it's good to note nonetheless as an exception to the
+import-once goal.
+
+Second, because module mixins' CSS is included directly in another module's,
+`@use` directives with `mixin` clauses do not create edges on the module graph.
+Those edges represent a *reference to* another module's CSS, whereas module
+mixins *directly include* that CSS. Keeping them out of the module graph also
+allows users to dynamically choose not to include the module at all and avoid
+using its CSS at all.
+
+Finally, module mixins don't affect name resolution at all, except in that a
+name that refers to a member of the module will fail to load until the mixin has
+been included. The scoping of these names is independent of the location of the
+module mixin's `@include` directive, so even if it's included in a deeply-nested
+selector hierarchy its members will be accessible at the root of the document.
+
 ### Forwarding Modules
 
 The [`@forward`](#forward) directive forwards another [module](#module)'s public
@@ -639,77 +707,6 @@ requiring additional explicitness here.
 > but I'm not sure whether this is the best way to do it. It weirds me out that
 > an identical `@forward` declaration can mean different things based on `@use`
 > directives around it. But I haven't come up with a better alternative.
-
-### Module Mixins
-
-[Modules](#module) can be encapsulated in mixins by using `@use`'s `mixin`
-clause. This allows a module's CSS to only be conditionally included in a
-document, or to be included in a nested context. It also allows the user of the
-module to configure it by providing default values for variables that the module
-uses.
-
-When executing a `@use` directive with a `mixin` clause, the directive's module
-isn't [loaded as normal](#using-modules). Instead a special *module mixin*, with
-the same name as the directive's prefix, is introduced into the current source
-file's namespace.
-
-The module mixin's arguments are derived from the module's members (which we can
-determine without executing the module). For every variable in module that has a
-`!default` flag, the module mixin has an argument with the same name and a
-default value of `null`. These arguments are in the order the variables are
-defined, although users should be strongly encouraged to only pass them by name.
-
-When this mixin is included:
-
-* Create a configuration whose variable names are the module mixin's argument
-  names. These variable's values are the values of the corresponding arguments.
-
-* [Load](#loading-modules) the module with the `@use` directive's URI and this
-  configuration.
-
-* If the current source file contains a `@forward` directive with the same URI
-  as the `@use` directive, [forward](#forwarding-modules) the loaded module with
-  that `@forward` directive.
-
-* [Resolve extensions](#resolving-extensions) for the loaded module, then emit
-  the resulting CSS to the location of the `@include`.
-
-There are several important things to note here. First, every time a module
-mixin is used, its CSS is emitted, which means that the CSS may be emitted
-multiple times. This behavior makes sense in context, and is unlikely to
-surprise anyone, but it's good to note nonetheless as an exception to the
-import-once goal.
-
-Second, because module mixins' CSS is included directly in another module's,
-`@use` directives with `mixin` clauses do not create edges on the module graph.
-Those edges represent a *reference to* another module's CSS, whereas module
-mixins *directly include* that CSS. Keeping them out of the module graph also
-allows users to dynamically choose not to include the module at all and avoid
-using its CSS at all.
-
-Finally, module mixins don't affect name resolution at all, except in that a
-name that refers to a member of the module will fail to load until the mixin has
-been included. The scoping of these names is independent of the location of the
-module mixin's `@include` directive, so even if it's included in a deeply-nested
-selector hierarchy its members will be accessible at the root of the document.
-
-### Private Members
-
-For the most part, when a [source file](#source-file) is executed to produce a
-[module](#module), any variables, functions, mixins, and placeholder selectors
-defined in the source file become [member](#member)s of the corresponding
-module. However, an author may also declare members private, which makes them
-accessible only within the module.
-
-Privacy is determined by the naming of the member: members that begin with `-`
-or `_` (which Sass considers equivalent) are private. Private members are not
-added to the module's member set, but they are visible from within the module
-itself. This follows Python's and Dart's privacy models, and bears some
-similarity to CSS's use of leading hyphens to indicate experimental vendor
-features.
-
-For backwards-compatibility, privacy does not apply across `@import` boundaries.
-If one file imports another, either may refer to the other's private members.
 
 ### Importing Files
 
