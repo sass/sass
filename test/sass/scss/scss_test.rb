@@ -4144,4 +4144,14 @@ CSS
 SASS
   end
 
+  def test_crlf
+    # Attempt to reproduce https://github.com/sass/sass/issues/1985
+    assert_equal(<<CSS, render(<<SCSS))
+p {
+  margin: 0; }
+CSS
+p {\r\n   margin: 0;\r\n}
+SCSS
+  end
+
 end
