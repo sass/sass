@@ -482,18 +482,12 @@ RUBY
             args << e if e
           end
 
-          return args, keywords, splat unless no_trailing_comma?
+          comma_present = try_tok(:comma)
+          if !comma_present || (@lexer.peek.type == :rparen && comma_present)
+            return args, keywords, splat
+          end
           e = assert_expr(subexpr, description)
         end
-      end
-
-      def no_trailing_comma?
-        val = try_tok(:comma)
-        if @lexer.peek.nil?
-          return false
-        end
-        peeked = @lexer.peek.type
-        !((val && peeked == :rparen) || (!val))
       end
 
       def raw
