@@ -1,4 +1,4 @@
-# The Next-Generation Sass Module System: Draft 1
+# The Next-Generation Sass Module System: Draft 2
 
 This repository houses a proposal for the `@use` directive and associated module
 system, which is intended to be the headlining feature for Sass 4. This is a
