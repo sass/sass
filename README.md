@@ -34,6 +34,7 @@ mind—these will be called out explicitly in block-quoted "implementation note"
   * [Import Context](#import-context)
 * [Syntax](#syntax)
   * [`@forward`](#forward)
+  * [Member References](#member-references)
 * [Procedures](#procedures)
   * [Loading Modules](#loading-modules)
   * [Resolving Extensions](#resolving-extensions)
@@ -144,24 +145,12 @@ expected to land in Sass 4.
 
 ### Member
 
-A *member* is anything that's defined either by the user or the implementation 
-and is identified by a Sass identifier. This currently includes variables,
-mixins, functions, and placeholder selectors. Each member type has its own
-namespace, so for example the variable `$name` doesn't conflict with the
-placeholder selector `%name`.
-
-All members have definitions associated with them, whose specific structure
-depends on the type of the given member. Variables, mixins, and functions have
-intuitive definitions, but placeholder selectors' definitions just indicate
-which [module](#module) they come from.
-
-There's some question of whether placeholders ought to be considered members,
-and consequently [namespaced](#resolving-members) like other members. On one
-hand, they're frequently used in parallel with mixins as the API exposed by a
-library, which suggests that they should be namespaced like the mixins they
-parallel. On the other hand, this usage is somewhat discouraged since it doesn't
-treat them like selectors, and not namespacing them would potentially free up
-characters like `.` or `:` to be used as namespace separators.
+A *member* is a Sass construct that's defined either by the user or the
+implementation and is identified by a Sass identifier. This currently includes
+variables, mixins, and functions (but *not* placeholder selectors). Each member
+type has its own namespace, so for example the variable `$name` doesn't conflict
+with the mixin `name`. All members have definitions associated with them, whose
+specific structure depends on the type of the given member.
 
 ### Extension
 
@@ -207,8 +196,7 @@ another.
 A *module* is an abstract collection of [members](#members) and
 [extensions](#extensions), as well as a [CSS tree](#css-tree) (although that
 tree may be empty). Each module may have only one member of a given type and
-name (for example, a module may not have two variables named `$name`). To
-satisfy this requirement, placeholder selectors are de-duplicated.
+name (for example, a module may not have two variables named `$name`).
 
 Each module is uniquely identified by the combination of a URI and a
 [configuration](#configuration). A given module can be produced by
@@ -316,6 +304,26 @@ HideClause       ::= 'hide' Identifier (',' Identifier)*
 
 `@forward` directives must be at the top level of the document, and must come
 before any directives other than `@charset` or `@use`.
+
+### Member References
+
+This proposal updates the syntax for using members. For functions and mixins,
+this update affects only calls, not definitions. Variables, on the other hand,
+may use this syntax for either assignment or reference.
+
+```
+NamespacedIdentifier ::= (Identifier '.')? Identifier
+Variable             ::= '$' NamespacedIdentifier
+```
+
+The dot-separated syntax (`namespace.name`) was chosen in preference to a
+hyphenated syntax (for example `namespace-name`) because it makes the difference
+between module-based namespaces and manually-separated identifiers very clear.
+It also matches the conventions of many other languages. We're
+[reasonably confident][Tab comment] that the syntax will not conflict with
+future CSS syntax additions.
+
+[Tab comment]: https://github.com/sass/proposal.module-system/issues/1#issuecomment-174755061
 
 ## Procedures
 
@@ -471,8 +479,14 @@ optionally an [import context](#import-context):
 * When an `@extend` directive is encountered, add its extension to the current
   module.
 
-* When a CSS rule or a plain CSS directive is encountered, execute it as normal
-  and add the resulting CSS to the current module's CSS.
+* When a CSS rule or a plain CSS directive is encountered:
+
+  * Execute the rule or directive as normal.
+
+  * Remove any rules containing a placeholder selector that begins with `-` or
+    `_`.
+
+  * Add the resulting CSS to the current module's CSS.
 
 * When a [member](#member) definition is encountered, if its member's name
   doesn't begin with `-` or `_`, add it to the current module. In addition, if
@@ -513,9 +527,12 @@ are resolved across files—that is, to find the definition corresponding to a
 given name. Given a set of [module](#module)s loaded via `@use` and a member
 type and name to resolve:
 
-* If the name begins with a module's prefix followed by a hyphen:
+* If the name is a [namespaced identifier](#member-references):
 
-  * Strip the prefix and hyphen to get the *unprefixed name*.
+  * Take the module whose prefix is the initial identifier. If there is no such
+    module, resolution fails.
+
+  * Strip the prefix and period to get the *unprefixed name*.
 
   * If the module doesn't have a member of the given type with the unprefixed
     name, resolution fails.
@@ -547,18 +564,6 @@ type and name to resolve:
 
 * Otherwise, if such a member isn't defined in any unprefixed module, resolution
   fails.
-
-The hyphenated syntax (`namespace-name`) was chosen in preference to other
-syntaxes (for example `namespace.name`, `namespace::name`, or `namespace|name`)
-because it's likely to be compatible with existing code that uses manual
-namespaces, and because it doesn't overlap with plain CSS syntax. This is
-especially relevant for namespaced placeholder selectors, because most other
-reasonable characters are already meaningful in selector contexts.
-
-The downside to hyphens are that they look like normal identifiers, which makes
-it less locally clear what's a namespace and what's a normal member name. It
-also allows module prefixes to shadow other members, and introduces the
-possibility of conflicting prefixes between modules.
 
 ### Using Modules
 
@@ -619,8 +624,8 @@ mitigating it is a benefit.
 
 // Both packages define their own "gutters()" functions. But because the members
 // are prefixed, there's no conflict and the user can use both at once.
-#susy {@include susy-gutters()}
-#bourbon {@include bbn-gutters()}
+#susy {@include susy.gutters()}
+#bourbon {@include bbn.gutters()}
 
 // Users can also import without a prefix at all, which lets them use the
 // original member names.
@@ -902,9 +907,9 @@ but CSS will not be added to existing modules.
 // Adapted from https://css-tricks.com/snippets/sass/luminance-color-function/.
 @function luminance($color) {
   $colors: (
-    'red': color-red($color),
-    'green': color-green($color),
-    'blue': color-blue($color)
+    'red': color.red($color),
+    'green': color.green($color),
+    'blue': color.blue($color)
   );
 
   @each $name, $value in $colors {
@@ -915,14 +920,14 @@ but CSS will not be added to existing modules.
       $value: $value / 12.92;
     } @else {
       $value: ($value + .055) / 1.055;
-      $value: math-pow($value, 2.4);
+      $value: math.pow($value, 2.4);
     }
 
-    $colors: map-merge($colors, ($name: $value));
+    $colors: map.merge($colors, ($name: $value));
   }
 
-  @return map-get($colors, 'red') * .2126 +
-      map-get($colors, 'green') * .7152 +
-      map-get($colors, 'blue') * .0722;
+  @return map.get($colors, 'red') * .2126 +
+      map.get($colors, 'green') * .7152 +
+      map.get($colors, 'blue') * .0722;
 }
 ```
