@@ -48,6 +48,7 @@ complete*.
   * [Module Mixins](#module-mixins)
   * [Forwarding Modules](#forwarding-modules)
   * [Importing Files](#importing-files)
+* [Built-In Modules](#built-in-modules)
 
 ## Background
 
@@ -246,7 +247,8 @@ There are five types of source file:
 
 * Sass files, SCSS files, and CSS files are identified by file paths.
 
-* Core libraries are identified by special URIs in an as-yet-undecided format.
+* [Built-in modules](#built-in modules) are identified by URIs beginning with
+  "sass:".
 
 * Implementations may define implementation-specific or pluggable means of
   defining source files, which can use any URI.
@@ -816,3 +818,114 @@ switch to `@use`.
 
 It also allows files that use `@import` to be used as modules. Doing so treats
 them as though all CSS and members were included in the module itself.
+
+## Built-In Modules
+
+The new module system provides an opportunity to bring more locality and
+organization to the set of built-in functions that comprise Sass's core library.
+These functions currently reside in the same global namespace as everything
+else, which makes it difficult to add new functions without risking conflict
+with either user code or future CSS functions (which has
+[happened in practice][issue-631]).
+
+[issue 631]: https://github.com/sass/sass/issues/631
+
+We'll move all current built-in functions to built-in [module](#module)s, except
+for those functions that are intentionally compatible with plain CSS functions.
+These modules are identified by URIs that begin with "sass:". This scheme was
+chosen to avoid conflicting with plausible filenames while still being
+relatively concise.
+
+The built-in functions will be organized as follows:
+
+| Current Name             | New Name    | Module        |   | Current Name             | New Name    | Module        |
+| ------------------------ | ------------| ------------- |---| ------------------------ | ------------| ------------- |
+| `rgb`                    |             | *global*      |   | `percentage`             |             | sass:math     |
+| `rgba`                   |             | *global*      |   | `round`                  |             | sass:math     |
+| `hsl`                    |             | *global*      |   | `ceil`                   |             | sass:math     |
+| `hsla`                   |             | *global*      |   | `floor`                  |             | sass:math     |
+| `if`                     |             | *global*      |   | `abs`                    |             | sass:math     |
+|                          |             |               |   | `min`                    |             | sass:math     |
+| `red`                    |             | sass:color    |   | `max`                    |             | sass:math     |
+| `blue`                   |             | sass:color    |   | `random`                 |             | sass:math     |
+| `green`                  |             | sass:color    |   | `unit`                   |             | sass:math     |
+| `mix`                    |             | sass:color    |   | `unitless`               |             | sass:math     |
+| `hue`                    |             | sass:color    |   | `comparable`             |             | sass:math     |
+| `saturation`             |             | sass:color    |   |                          |             |               |
+| `lightness`              |             | sass:color    |   | `length`                 |             | sass:list     |
+| `adjust-hue`             |             | sass:color    |   | `nth`                    |             | sass:list     |
+| `lighten`                |             | sass:color    |   | `set-nth`                |             | sass:list     |
+| `darken`                 |             | sass:color    |   | `join`                   |             | sass:list     |
+| `saturate`               |             | sass:color    |   | `append`                 |             | sass:list     |
+| `desaturate`             |             | sass:color    |   | `zip`                    |             | sass:list     |
+| `grayscale`              |             | sass:color    |   | `index`                  |             | sass:list     |
+| `complement`             |             | sass:color    |   | `list-separator`         | `separator` | sass:list     |
+| `invert`                 |             | sass:color    |   |                          |             |               |
+| `alpha`                  |             | sass:color    |   | `feature-exists`         |             | sass:meta     |
+| `opacify`                |             | sass:color    |   | `variable-exists`        |             | sass:meta     |
+| `transparentize`         |             | sass:color    |   | `global-variable-exists` |             | sass:meta     |
+| `adjust-color`           | `adjust`    | sass:color    |   | `function-exists`        |             | sass:meta     |
+| `scale-color`            | `scale`     | sass:color    |   | `mixin-exists`           |             | sass:meta     |
+| `change-color`           | `change`    | sass:color    |   | `inspect`                |             | sass:meta     |
+| `ie-hex-str`             |             | sass:color    |   | `type-of`                |             | sass:meta     |
+|                          |             |               |   | `call`                   |             | sass:meta     |
+| `map-get`                | `get`       | sass:map      |   | `unique-id`              |             | sass:meta     |
+| `map-merge`              | `merge`     | sass:map      |   |                          |             |               |
+| `map-remove`             | `remove`    | sass:map      |   | `unquote`                |             | sass:string   |
+| `map-keys`               | `keys`      | sass:map      |   | `quote`                  |             | sass:string   |
+| `map-values`             | `values`    | sass:map      |   | `str-length`             | `length`    | sass:string   |
+| `map-has-key`            | `has-key`   | sass:map      |   | `str-insert`             | `insert`    | sass:string   |
+| `keywords`               |             | sass:map      |   | `str-index`              | `index`     | sass:string   |
+|                          |             |               |   | `str-slice`              | `slice`     | sass:string   |
+| `selector-nest`          | `nest`      | sass:selector |   | `to-upper-case`          |             | sass:string   |
+| `selector-append`        | `append`    | sass:selector |   | `to-lower-case`          |             | sass:string   |
+| `selector-replace`       | `replace`   | sass:selector |   |                          |             |               |
+| `selector-unify`         | `unify`     | sass:selector |   |                          |             |               |
+| `is-superselector`       |             | sass:selector |   |                          |             |               |
+| `simple-selectors`       |             | sass:selector |   |                          |             |               |
+| `selector-parse`         | `parse`     | sass:selector |   |                          |             |               |
+
+> **Design note:**
+>
+> For now, I've left in all existing functions. However, given that we'll be
+> asking users to make such a big transition anyway, it may be worth considering
+> whether we want to get rid of some. I'm thinking in particular of individual
+> color functions that are redundant with `adjust-color()`.
+
+Regardless of what configuration is used to load them, built-in modules will
+contain only the functions described above. They won't contain any other
+[member](#member)s, CSS, or extensions. New members may be added in the future,
+but CSS will not be added to existing modules.
+
+```scss
+@use "sass:color";
+@use "sass:map";
+@use "sass:math";
+
+// Adapted from https://css-tricks.com/snippets/sass/luminance-color-function/.
+@function luminance($color) {
+  $colors: (
+    'red': color-red($color),
+    'green': color-green($color),
+    'blue': color-blue($color)
+  );
+
+  @each $name, $value in $colors {
+    $adjusted: 0;
+    $value: $value / 255;
+
+    @if $value < 0.03928 {
+      $value: $value / 12.92;
+    } @else {
+      $value: ($value + .055) / 1.055;
+      $value: math-pow($value, 2.4);
+    }
+
+    $colors: map-merge($colors, ($name: $value));
+  }
+
+  @return map-get($colors, 'red') * .2126 +
+      map-get($colors, 'green') * .7152 +
+      map-get($colors, 'blue') * .0722;
+}
+```
