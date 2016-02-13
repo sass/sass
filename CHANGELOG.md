@@ -7,6 +7,8 @@
 
 * Be explicit about how URIs are canonicalized and thus compared.
 
+* Allow `@forward` and `@use` to be intermingled.
+
 ## Draft 1
 
 * Initial draft.

@@ -279,10 +279,10 @@ in this document. As the document becomes more complete, the grammar will be
 expanded accordingly.*
 
 `@use` directives must be at the top level of the document, and must come before
-any directives other than `@charset`. Because each `@use` directive affects the
-namespace of the entire [source file](#source-file) that contains it, whereas
-most other Sass constructs are purely imperative, keeping it at the top of the
-file helps reduce confusion.
+any directives other than `@charset` or `@forward`. Because each `@use`
+directive affects the namespace of the entire [source file](#source-file) that
+contains it, whereas most other Sass constructs are purely imperative, keeping
+it at the top of the file helps reduce confusion.
 
 The mixin clause is not allowed for unprefixed modules because the mixin name
 is derived from the module's prefix.
