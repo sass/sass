@@ -38,6 +38,7 @@ mind—these will be called out explicitly in block-quoted "implementation note"
 * [Procedures](#procedures)
   * [Loading Modules](#loading-modules)
   * [Resolving Extensions](#resolving-extensions)
+  * [Canonicalizing URIs](#canonicalizing-uris)
 * [Semantics](#semantics)
   * [Compilation Process](#compilation-process)
   * [Executing Files](#executing-files)
@@ -198,10 +199,11 @@ A *module* is an abstract collection of [members](#members) and
 tree may be empty). Each module may have only one member of a given type and
 name (for example, a module may not have two variables named `$name`).
 
-Each module is uniquely identified by the combination of a URI and a
-[configuration](#configuration). A given module can be produced by
-[executing](#executing-files) the [source file](#source-file) identified by the
-module's URI with the module's configuration.
+Each module is uniquely identified by the combination of a
+[canonical](#canonicalizing-uris) URI and a [configuration](#configuration). A
+given module can be produced by [executing](#executing-files) the
+[source file](#source-file) identified by the module's URI with the module's
+configuration.
 
 ### Module Graph
 
@@ -221,12 +223,13 @@ loading a module, which means those members may be executed.
 
 ### Source File
 
-A *source file* is an entity uniquely identified by a URI. It can be
-[executed](#executing-files) with a [configuration](#configuration) to produce a
-[module](#module). The names (and mixin and function signatures) of this
-module's members are static, and can be determined without executing the file.
-This means that all modules for a given source file have the same member names
-regardless of the configurations used for those modules.
+A *source file* is an entity uniquely identified by a
+[canonical](#canonicalizing-uris) URI. It can be [executed](#executing-files)
+with a [configuration](#configuration) to produce a [module](#module). The names
+(and mixin and function signatures) of this module's members are static, and can
+be determined without executing the file. This means that all modules for a
+given source file have the same member names regardless of the configurations
+used for those modules.
 
 There are five types of source file:
 
@@ -354,8 +357,9 @@ various other semantics described below. To load a module with a given URI,
   resulting module.
 
 * If the source file contained a `@use` directive with a `mixin` clause and a
-  `@forward` directive with the same URI, and if that `@use` directive's mixin
-  was not included during the execution of the source file, loading fails.
+  `@forward` directive with the same [canonical](#canonicalizing-uris) URI, and
+  if that `@use` directive's mixin was not included during the execution of the
+  source file, loading fails.
 
 * Otherwise, use the resulting module.
 
@@ -438,6 +442,30 @@ module that doesn't transitively use it. This promotes locality, and matches the
 behavior of mixins and functions in that monkey-patching is disallowed.
 
 [topological]: https://en.wikipedia.org/wiki/Topological_sorting
+
+### Canonicalizing URIs
+
+[Module](#module)s and [source file](#source-file)s are uniquely identified by
+URIs, which means we must be able to determine the canonical form of URIs
+written by users. Given a non-canonical URI and a canonicalized base URI
+representing the context in which it's being resolved:
+
+* If the non-canonical URI's scheme is `sass`, return it as-is.
+  [Built-in module](#built-in-modules) URIs are compared textually, and have no
+  special canonicalization logic.
+
+* If the base URI's scheme is `file` and the non-canonical URI is relative,
+  prepend the base URI without its final path component to the non-canonical
+  URI. For example, if the base URI is `file:///foo/bar/baz` and the
+  non-canonical URI was `bang/qux`, it is now `file:///foo/bar/bang/qux`.
+
+* If the non-canonical URI's scheme is `file`, resolve any `..` or `.`
+  components and remove any duplicate separators in the path component, then
+  return the URI with the new path component.
+
+* Otherwise, canonicalization proceeds in an implementation-defined manner. This
+  allows individual implementations to support user-defined means of resolving
+  URIs.
 
 ## Semantics
 
@@ -582,7 +610,7 @@ directive's module is determined as follows:
 
 * If the directive has a `no-prefix` clause, then it has no prefix.
 
-* If the module's URI doesn't match the regular expression
+* If the module's URI (as written) doesn't match the regular expression
   `(.*/)?([^/]+)(\.[^/]*)?`, the `@use` directive is malformed.
 
 * Call the text captured by the second group of the regular expression the
@@ -659,9 +687,10 @@ When this mixin is included:
 * [Load](#loading-modules) the module with the `@use` directive's URI and this
   configuration.
 
-* If the current source file contains a `@forward` directive with the same URI
-  as the `@use` directive, [forward](#forwarding-modules) the loaded module with
-  that `@forward` directive.
+* If the current source file contains a `@forward` directive with the same
+  [canonical](#canonicalizing-uris) URI as the `@use` directive,
+  [forward](#forwarding-modules) the loaded module with that `@forward`
+  directive.
 
 * [Resolve extensions](#resolving-extensions) for the loaded module, then emit
   the resulting CSS to the location of the `@include`.
@@ -733,12 +762,13 @@ First, we define a general procedure for forward a module (call it the
 Note that the procedure defined above is not directly executed when encountering
 a `@forward` directive. To execute a `@forward` directive:
 
-* If the current source file contains a `@use` directive with the same URI as
-  the `@forward` directive and a `mixin` clause:
+* If the current source file contains a `@use` directive with the same
+  [canonical](#canonicalizing-uris) URI as the `@forward` directive and a
+  `mixin` clause:
 
-  * If there are multiple `@use` directives with that URI, the `@forward`
-    directive is malformed. This is true regardless of whether the additional
-    `@use` directives have `mixin` declarations.
+  * If there are multiple `@use` directives with that canonical URI, the
+    `@forward` directive is malformed. This is true regardless of whether the
+    additional `@use` directives have `mixin` declarations.
 
   * Otherwise, do nothing. The module will be forwarded when the module is
     included.
