@@ -2572,7 +2572,7 @@ tastes and needs vary and so Sass supports several other styles.
 
 Sass allows you to choose between four different output styles
 by setting the [`:style` option](#style-option)
-or using the `--style` command-line flag.
+or using the `--output-style=` command-line flag.
 
 ### `:nested`
 
