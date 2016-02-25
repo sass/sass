@@ -12,18 +12,73 @@ task :default => :test
 
 require 'rake/testtask'
 
-Rake::TestTask.new do |t|
-  t.libs << 'test'
-  test_files = FileList[scope('test/**/*_test.rb')]
-  test_files.exclude(scope('test/rails/*'))
-  test_files.exclude(scope('test/plugins/*'))
-  t.test_files = test_files
-  t.verbose = true
+desc "Run all tests"
+task :test => ["test:ruby", "test:spec"]
+
+namespace :test do
+  desc "Run the ruby tests (without sass-spec)"
+  Rake::TestTask.new("ruby") do |t|
+    t.libs << 'test'
+    test_files = FileList[scope('test/**/*_test.rb')]
+    test_files.exclude(scope('test/rails/*'))
+    test_files.exclude(scope('test/plugins/*'))
+    t.test_files = test_files
+    t.verbose = true
+  end
+
+  desc "Run sass-spec tests against the local code."
+  task :spec do
+    if ruby_gt_1_9_2?
+      old_load_path = $:.dup
+      begin
+        $:.unshift(File.join(File.dirname(__FILE__), "lib"))
+        begin
+          require 'sass_spec'
+        rescue LoadError
+          puts "You probably forgot to run: bundle exec rake"
+          raise
+        end
+        sass_spec_passed = SassSpec::Runner.new(
+          :spec_directory => SassSpec::SPEC_DIR,
+          :engine_adapter => SassEngineAdapter.new("sass"),
+          :generate => [],
+          :tap => false,
+          :skip => false,
+          :verbose => false,
+          :filter => "",
+          :limit => -1,
+          :unexpected_pass => false,
+          :nuke => false,
+
+          # Constants
+          :output_styles => ["nested", "compressed", "expanded", "compact"],
+          :input_files => ["input.scss", "input.sass"],
+          :nested_output_file => 'expected_output',
+          :compressed_output_file => 'expected.compressed',
+          :expanded_output_file => 'expected.expanded',
+          :compact_output_file => 'expected.compact'
+        ).run
+        unless sass_spec_passed
+          exit 1
+        end
+      ensure
+        $:.replace(old_load_path)
+      end
+    else
+      "Skipping sass-spec on ruby versions less than 1.9.2"
+    end
+  end
 end
 
 # ----- Code Style Enforcement -----
 
 version = RUBY_VERSION.split(".").map {|n| n.to_i}
+
+def ruby_gt_1_9_2?
+  ruby_version = Gem::Version.new(RUBY_VERSION)
+  version_1_9_2 = Gem::Version.new("1.9.2")
+  ruby_version >= version_1_9_2
+end
 
 # TODO: Run Rubocop on Ruby 2.2+ when it's supported. See
 # https://github.com/sass/sass/pull/1805.
