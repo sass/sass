@@ -3,6 +3,16 @@
 * Table of contents
 {:toc}
 
+## 3.4.22 (UNRELEASED)
+
+* Sass no longer watches the current working directory unless it is on
+  the load path or the files being compiled are in the current working
+  directory. This was causing performance issues for users with large
+  numbers of files in their project directory.
+  [Issue #1562](https://github.com/sass/sass/issues/1562),
+  [Issue #1966](https://github.com/sass/sass/issues/1966),
+  [Issue #2006](https://github.com/sass/sass/issues/2006),
+
 ## 3.4.21 (11 January 2016)
 
 * Consistent output formatting for numbers close to an integer.
