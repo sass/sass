@@ -289,6 +289,7 @@ module Sass::Plugin
     # @option options [Boolean] :skip_initial_update
     #   Don't do an initial update when starting the watcher when true
     def watch(individual_files = [], options = {})
+      @inferred_directories = []
       options, individual_files = individual_files, [] if individual_files.is_a?(Hash)
       update_stylesheets(individual_files) unless options[:skip_initial_update]
 
@@ -296,8 +297,10 @@ module Sass::Plugin
       individual_files.each do |(source, _, _)|
         source = File.expand_path(source)
         @watched_files << Sass::Util.realpath(source).to_s
-        directories << File.dirname(source)
+        @inferred_directories << File.dirname(source)
       end
+
+      directories += @inferred_directories
       directories = remove_redundant_directories(directories)
 
       # A Listen version prior to 2.0 will write a test file to a directory to
@@ -531,7 +534,13 @@ module Sass::Plugin
     end
 
     def watched_file?(file)
-      @watched_files.include?(file) || normalized_load_paths.any? {|lp| lp.watched_file?(file)}
+      @watched_files.include?(file) ||
+        normalized_load_paths.any? {|lp| lp.watched_file?(file)} ||
+        @inferred_directories.any? {|d| sass_file_in_directory?(d, file)}
+    end
+
+    def sass_file_in_directory?(directory, filename)
+      filename =~ /\.s[ac]ss$/ && filename.start_with?(directory + File::SEPARATOR)
     end
 
     def watched_paths
