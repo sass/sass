@@ -67,7 +67,7 @@ module Sass
       end
 
       def public_url(name, sourcemap_directory)
-        file_pathname = Sass::Util.cleanpath(Sass::Util.absolute_path(name, @root))
+        file_pathname = Sass::Util.cleanpath(File.absolute_path(name, @root))
         return Sass::Util.file_uri_from_path(file_pathname) if sourcemap_directory.nil?
 
         sourcemap_pathname = Sass::Util.cleanpath(sourcemap_directory)

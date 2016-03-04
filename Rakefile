@@ -54,7 +54,7 @@ task :test => :rubocop
 # Don't use Rake::GemPackageTast because we want prerequisites to run
 # before we load the gemspec.
 desc "Build all the packages."
-task :package => [:revision_file, :date_file, :submodules, :permissions] do
+task :package => [:revision_file, :date_file, :permissions] do
   version = get_version
   File.open(scope('VERSION'), 'w') {|f| f.puts(version)}
   load scope('sass.gemspec')
@@ -146,18 +146,6 @@ end
 def changed_since?(rev, *files)
   IO.popen("git diff --exit-code #{rev} #{files.join(' ')}") {}
   return !$?.success?
-end
-
-task :submodules do
-  if File.exist?(File.dirname(__FILE__) + "/.git")
-    sh %{git submodule sync}
-    sh %{git submodule update --init}
-  elsif !File.exist?(File.dirname(__FILE__) + "/vendor/listen/lib")
-    warn <<WARN
-WARNING: vendor/listen doesn't exist, and this isn't a git repository so
-I can't get it automatically!
-WARN
-  end
 end
 
 # Get the version string. If this is being installed from Git,

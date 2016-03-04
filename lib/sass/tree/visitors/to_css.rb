@@ -135,7 +135,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
 
     output "\n"
 
-    unless Sass::Util.ruby1_8? || @result.ascii_only?
+    unless @result.ascii_only?
       if node.style == :compressed
         # A byte order mark is sufficient to tell browsers that this
         # file is UTF-8 encoded, and will override any other detection
@@ -386,7 +386,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
 
   def debug_info_rule(debug_info, options)
     node = Sass::Tree::DirectiveNode.resolved("@media -sass-debug-info")
-    Sass::Util.hash_to_a(debug_info.map {|k, v| [k.to_s, v.to_s]}).each do |k, v|
+    debug_info.map {|k, v| [k.to_s, v.to_s]}.to_a.each do |k, v|
       rule = Sass::Tree::RuleNode.new([""])
       rule.resolved_rules = Sass::Selector::CommaSequence.new(
         [Sass::Selector::Sequence.new(

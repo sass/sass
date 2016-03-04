@@ -553,7 +553,7 @@ WARNING
     end
 
     files << node.filename << node.imported_file.options[:filename]
-    msg << "\n" << Sass::Util.enum_cons(files, 2).map do |m1, m2|
+    msg << "\n" << files.each_cons(2).map do |m1, m2|
       "    #{m1} imports #{m2}"
     end.join("\n")
     raise Sass::SyntaxError.new(msg)

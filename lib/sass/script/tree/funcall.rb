@@ -56,8 +56,7 @@ module Sass::Script::Tree
     # @return [String] A string representation of the function call
     def inspect
       args = @args.map {|a| a.inspect}.join(', ')
-      keywords = Sass::Util.hash_to_a(@keywords.as_stored).
-          map {|k, v| "$#{k}: #{v.inspect}"}.join(', ')
+      keywords = @keywords.as_stored.to_a.map {|k, v| "$#{k}: #{v.inspect}"}.join(', ')
       # rubocop:disable RedundantSelf
       if self.splat
         splat = args.empty? && keywords.empty? ? "" : ", "
@@ -77,8 +76,7 @@ module Sass::Script::Tree
       end
 
       args = @args.map(&arg_to_sass)
-      keywords = Sass::Util.hash_to_a(@keywords.as_stored).
-        map {|k, v| "$#{dasherize(k, opts)}: #{arg_to_sass[v]}"}
+      keywords = @keywords.as_stored.to_a.map {|k, v| "$#{dasherize(k, opts)}: #{arg_to_sass[v]}"}
 
       # rubocop:disable RedundantSelf
       if self.splat
@@ -120,7 +118,7 @@ module Sass::Script::Tree
     # @return [Sass::Script::Value] The SassScript object that is the value of the function call
     # @raise [Sass::SyntaxError] if the function call raises an ArgumentError
     def _perform(environment)
-      args = Sass::Util.enum_with_index(@args).
+      args = @args.each_with_index.
         map {|a, i| perform_arg(a, environment, signature && signature.args[i])}
       keywords = Sass::Util.map_hash(@keywords) do |k, v|
         [k, perform_arg(v, environment, k.tr('-', '_'))]
@@ -268,30 +266,21 @@ module Sass::Script::Tree
           message = "wrong number of arguments (#{given} for #{expected})"
         end
       elsif Sass::Util.jruby?
-        if Sass::Util.jruby1_6?
-          should_maybe_raise = e.message =~ /^wrong number of arguments \((\d+) for (\d+)\)/ &&
-            # The one case where JRuby does include the Ruby name of the function
-            # is manually-thrown ArgumentErrors, which are indistinguishable from
-            # legitimate ArgumentErrors. We treat both of these as
-            # Sass::SyntaxErrors even though it can hide Ruby errors.
-            e.backtrace[0] !~ /:in `(block in )?#{ruby_name}'$/
-        else
-          should_maybe_raise =
-            e.message =~ /^wrong number of arguments calling `[^`]+` \((\d+) for (\d+)\)/
-          given, expected = $1, $2
-        end
+        should_maybe_raise =
+          e.message =~ /^wrong number of arguments calling `[^`]+` \((\d+) for (\d+)\)/
+        given, expected = $1, $2
 
         if should_maybe_raise
           # JRuby 1.7 includes __send__ before send and _perform.
           trace = e.backtrace.dup
-          raise e if !Sass::Util.jruby1_6? && trace.shift !~ /:in `__send__'$/
+          raise e if trace.shift !~ /:in `__send__'$/
 
           # JRuby (as of 1.7.2) doesn't put the actual method
           # for which the argument error was thrown in the backtrace, so we
           # detect whether our send threw an argument error.
           if !(trace[0] =~ /:in `send'$/ && trace[1] =~ /:in `_perform'$/)
             raise e
-          elsif !Sass::Util.jruby1_6?
+          else
             # JRuby 1.7 doesn't use standard formatting for its ArgumentErrors.
             message = "wrong number of arguments (#{given} for #{expected})"
           end

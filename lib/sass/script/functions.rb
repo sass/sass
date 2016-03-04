@@ -471,14 +471,14 @@ module Sass::Script
     # @param seed [Integer]
     # @return [Integer] The same seed.
     def self.random_seed=(seed)
-      @random_number_generator = Sass::Util::CrossPlatformRandom.new(seed)
+      @random_number_generator = Random.new(seed)
     end
 
     # Get Sass's internal random number generator.
     #
     # @return [Random]
     def self.random_number_generator
-      @random_number_generator ||= Sass::Util::CrossPlatformRandom.new
+      @random_number_generator ||= Random.new
     end
 
     # The context in which methods in {Script::Functions} are evaluated.

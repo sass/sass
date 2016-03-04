@@ -885,7 +885,7 @@ module Sass
         # we don't parse it at all, and instead return a plain old string
         # containing the value.
         # This results in a dramatic speed increase.
-        if (val = tok(STATIC_VALUE, true))
+        if (val = tok(STATIC_VALUE))
           str = Sass::Script::Tree::Literal.new(Sass::Script::Value::String.new(val.strip))
           str.line = start_pos.line
           str.source_range = range(start_pos)
@@ -982,7 +982,7 @@ module Sass
       end
 
       def interp_ident(start = IDENT)
-        val = tok(start) || interpolation(:warn_for_color) || tok(IDENT_HYPHEN_INTERP, true)
+        val = tok(start) || interpolation(:warn_for_color) || tok(IDENT_HYPHEN_INTERP)
         return unless val
         res = [val]
         while (val = tok(NAME) || interpolation(:warn_for_color))
@@ -1077,9 +1077,9 @@ module Sass
         :keyframes_selector => "keyframes selector (e.g. 10%)"
       }
 
-      TOK_NAMES = Sass::Util.to_hash(Sass::SCSS::RX.constants.map do |c|
+      TOK_NAMES = Hash[Sass::SCSS::RX.constants.map do |c|
         [Sass::SCSS::RX.const_get(c), c.downcase]
-      end).merge(
+      end].merge(
         IDENT => "identifier",
         /[;{}]/ => '";"',
         /\b(without|with)\b/ => '"with" or "without"'
@@ -1185,22 +1185,10 @@ module Sass
       # This is important because `#tok` is called all the time.
       NEWLINE = "\n"
 
-      def tok(rx, last_group_lookahead = false)
+      def tok(rx)
         res = @scanner.scan(rx)
 
         return unless res
-
-        # This fixes https://github.com/nex3/sass/issues/104, which affects
-        # Ruby 1.8.7 and REE. This fix is to replace the ?= zero-width
-        # positive lookahead operator in the Regexp (which matches without
-        # consuming the matched group), with a match that does consume the
-        # group, but then rewinds the scanner and removes the group from the
-        # end of the matched string. This fix makes the assumption that the
-        # matched group will always occur at the end of the match.
-        if last_group_lookahead && @scanner[-1]
-          @scanner.pos -= @scanner[-1].length
-          res.slice!(-@scanner[-1].length..-1)
-        end
 
         newline_count = res.count(NEWLINE)
         if newline_count > 0

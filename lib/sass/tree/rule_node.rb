@@ -120,7 +120,8 @@ module Sass::Tree
     #
     # @return [{#to_s => #to_s}]
     def debug_info
-      {:filename => filename && ("file://" + Sass::Util.escape_uri(File.expand_path(filename))),
+      {:filename => filename &&
+         ("file://" + URI::DEFAULT_PARSER.escape(File.expand_path(filename))),
        :line => line}
     end
 

@@ -35,17 +35,6 @@ module Sass
       File.join(Sass::ROOT_DIR, file)
     end
 
-    # Converts an array of `[key, value]` pairs to a hash.
-    #
-    # @example
-    #   to_hash([[:foo, "bar"], [:baz, "bang"]])
-    #     #=> {:foo => "bar", :baz => "bang"}
-    # @param arr [Array<(Object, Object)>] An array of pairs
-    # @return [Hash] A hash
-    def to_hash(arr)
-      ordered_hash(*arr.compact)
-    end
-
     # Maps the keys in a hash according to a block.
     #
     # @example
@@ -301,44 +290,6 @@ module Sass
       lcs_backtrace(lcs_table(x, y, &block), x, y, x.size - 1, y.size - 1, &block)
     end
 
-    # Converts a Hash to an Array. This is usually identical to `Hash#to_a`,
-    # with the following exceptions:
-    #
-    # * In Ruby 1.8, `Hash#to_a` is not deterministically ordered, but this is.
-    # * In Ruby 1.9 when running tests, this is ordered in the same way it would
-    #   be under Ruby 1.8 (sorted key order rather than insertion order).
-    #
-    # @param hash [Hash]
-    # @return [Array]
-    def hash_to_a(hash)
-      return hash.to_a unless ruby1_8? || defined?(Test::Unit)
-      hash.sort_by {|k, _v| k}
-    end
-
-    # Performs the equivalent of `enum.group_by.to_a`, but with a guaranteed
-    # order. Unlike {Util#hash_to_a}, the resulting order isn't sorted key order;
-    # instead, it's the same order as `#group_by` has under Ruby 1.9 (key
-    # appearance order).
-    #
-    # @param enum [Enumerable]
-    # @return [Array<[Object, Array]>] An array of pairs.
-    def group_by_to_a(enum)
-      return enum.group_by {|e| yield(e)}.to_a unless ruby1_8?
-      order = {}
-      arr = []
-      groups = enum.group_by do |e|
-        res = yield(e)
-        unless order.include?(res)
-          order[res] = order.size
-        end
-        res
-      end
-      groups.each do |key, vals|
-        arr[order[key]] = [key, vals]
-      end
-      arr
-    end
-
     # Returns a sub-array of `minuend` containing only elements that are also in
     # `subtrahend`. Ensures that the return value has the same order as
     # `minuend`, even on Rubinius where that's not guaranteed by `Array#-`.
@@ -512,8 +463,7 @@ module Sass
     #
     # @param msg [String]
     def sass_warn(msg)
-      msg = msg + "\n" unless ruby1?
-      Sass.logger.warn(msg)
+      Sass.logger.warn("#{msg}\n")
     end
 
     ## Cross Rails Version Compatibility
@@ -564,24 +514,6 @@ module Sass
         defined?(ActionPack::VERSION::STRING)
 
       version_geq(ActionPack::VERSION::STRING, version)
-    end
-
-    # Returns whether this environment is using Listen
-    # version 2.0.0 or greater.
-    #
-    # @return [Boolean]
-    def listen_geq_2?
-      return @listen_geq_2 unless @listen_geq_2.nil?
-      @listen_geq_2 =
-        begin
-          # Make sure we're loading listen/version from the same place that
-          # we're loading listen itself.
-          load_listen!
-          require 'listen/version'
-          version_geq(::Listen::VERSION, '2.0.0')
-        rescue LoadError
-          false
-        end
     end
 
     # Returns an ActionView::Template* class.
@@ -727,7 +659,7 @@ module Sass
     def file_uri_from_path(path)
       path = path.to_s if path.is_a?(Pathname)
       path = path.tr('\\', '/') if windows?
-      path = Sass::Util.escape_uri(path)
+      path = URI::DEFAULT_PARSER.escape(path)
       return path.start_with?('/') ? "file://" + path : path unless windows?
       return "file:///" + path.tr("\\", "/") if path =~ /^[a-zA-Z]:[\/\\]/
       return "file:" + path.tr("\\", "/") if path =~ /\\\\[^\\]+\\[^\\\/]+/
@@ -762,88 +694,10 @@ module Sass
       val || []
     end
 
-    ## Cross-Ruby-Version Compatibility
-
-    # Whether or not this is running under a Ruby version under 2.0.
-    #
-    # @return [Boolean]
-    def ruby1?
-      return @ruby1 if defined?(@ruby1)
-      @ruby1 = RUBY_VERSION_COMPONENTS[0] <= 1
-    end
-
-    # Whether or not this is running under Ruby 1.8 or lower.
-    #
-    # Note that IronRuby counts as Ruby 1.8,
-    # because it doesn't support the Ruby 1.9 encoding API.
-    #
-    # @return [Boolean]
-    def ruby1_8?
-      # IronRuby says its version is 1.9, but doesn't support any of the encoding APIs.
-      # We have to fall back to 1.8 behavior.
-      return @ruby1_8 if defined?(@ruby1_8)
-      @ruby1_8 = ironruby? ||
-                   (RUBY_VERSION_COMPONENTS[0] == 1 && RUBY_VERSION_COMPONENTS[1] < 9)
-    end
-
-    # Whether or not this is running under Ruby 1.9.2 exactly.
-    #
-    # @return [Boolean]
-    def ruby1_9_2?
-      return @ruby1_9_2 if defined?(@ruby1_9_2)
-      @ruby1_9_2 = RUBY_VERSION_COMPONENTS == [1, 9, 2]
-    end
-
-    # Wehter or not this is running under JRuby 1.6 or lower.
-    def jruby1_6?
-      return @jruby1_6 if defined?(@jruby1_6)
-      @jruby1_6 = jruby? && jruby_version[0] == 1 && jruby_version[1] < 7
-    end
-
-    # Whether or not this is running under MacRuby.
-    #
-    # @return [Boolean]
-    def macruby?
-      return @macruby if defined?(@macruby)
-      @macruby = RUBY_ENGINE == 'macruby'
-    end
-
-    require 'sass/util/ordered_hash' if ruby1_8?
-
-    # Converts a hash or a list of pairs into an order-preserving hash.
-    #
-    # On Ruby 1.8.7, this uses the orderedhash gem to simulate an
-    # order-preserving hash. On Ruby 1.9 and up, it just uses the native Hash
-    # class, since that preserves the order itself.
-    #
-    # @overload ordered_hash(hash)
-    #   @param hash [Hash] a normal hash to convert to an ordered hash
-    #   @return [Hash]
-    # @overload ordered_hash(*pairs)
-    #   @example
-    #     ordered_hash([:foo, "bar"], [:baz, "bang"])
-    #       #=> {:foo => "bar", :baz => "bang"}
-    #     ordered_hash #=> {}
-    #   @param pairs [Array<(Object, Object)>] the list of key/value pairs for
-    #     the hash.
-    #   @return [Hash]
-    def ordered_hash(*pairs_or_hash)
-      if pairs_or_hash.length == 1 && pairs_or_hash.first.is_a?(Hash)
-        hash = pairs_or_hash.first
-        return hash unless ruby1_8?
-        return OrderedHash.new.merge hash
-      end
-
-      return Hash[pairs_or_hash] unless ruby1_8?
-      (pairs_or_hash.is_a?(NormalizedMap) ? NormalizedMap : OrderedHash)[*pairs_or_hash.flatten(1)]
-    end
-
-    unless ruby1_8?
-      CHARSET_REGEXP = /\A@charset "([^"]+)"/
-      UTF_8_BOM = "\xEF\xBB\xBF".force_encoding('BINARY')
-      UTF_16BE_BOM = "\xFE\xFF".force_encoding('BINARY')
-      UTF_16LE_BOM = "\xFF\xFE".force_encoding('BINARY')
-    end
+    CHARSET_REGEXP = /\A@charset "([^"]+)"/
+    UTF_8_BOM = "\xEF\xBB\xBF".force_encoding('BINARY')
+    UTF_16BE_BOM = "\xFE\xFF".force_encoding('BINARY')
+    UTF_16LE_BOM = "\xFF\xFE".force_encoding('BINARY')
 
     # Like {\#check\_encoding}, but also checks for a `@charset` declaration
     # at the beginning of the file and uses that encoding if it exists.
@@ -852,7 +706,7 @@ module Sass
     #
     # @param str [String] The string of which to check the encoding
     # @return [(String, Encoding)] The original string encoded as UTF-8,
-    #   and the source encoding of the string (or `nil` under Ruby 1.8)
+    #   and the source encoding of the string
     # @raise [Encoding::UndefinedConversionError] if the source encoding
     #   cannot be converted to UTF-8
     # @raise [ArgumentError] if the document uses an unknown encoding with `@charset`
@@ -860,15 +714,6 @@ module Sass
     #   doesn't match its contents, or it doesn't declare an encoding and its
     #   contents are invalid in the native encoding.
     def check_sass_encoding(str)
-      # On Ruby 1.8 we can't do anything complicated with encodings.
-      # Instead, we just strip out a UTF-8 BOM if it exists and
-      # sanitize according to Section 3.3 of CSS Syntax Level 3. We
-      # don't sanitize null characters since they might be components
-      # of other characters.
-      if ruby1_8?
-        return str.gsub(/\A\xEF\xBB\xBF/, '').gsub(/\r\n?|\f/, "\n"), nil
-      end
-
       # Determine the fallback encoding following section 3.2 of CSS Syntax Level 3 and Encodings:
       # http://www.w3.org/TR/2013/WD-css-syntax-3-20130919/#determine-the-fallback-encoding
       # http://encoding.spec.whatwg.org/#decode
@@ -884,14 +729,9 @@ module Sass
         str = binary.force_encoding('UTF-16LE')
       elsif binary =~ CHARSET_REGEXP
         charset = $1.force_encoding('US-ASCII')
-        # Ruby 1.9.2 doesn't recognize a UTF-16 encoding without an endian marker.
-        if ruby1_9_2? && charset.downcase == 'utf-16'
+        encoding = Encoding.find(charset)
+        if encoding.name == 'UTF-16' || encoding.name == 'UTF-16BE'
           encoding = Encoding.find('UTF-8')
-        else
-          encoding = Encoding.find(charset)
-          if encoding.name == 'UTF-16' || encoding.name == 'UTF-16BE'
-            encoding = Encoding.find('UTF-8')
-          end
         end
         str = binary.force_encoding(encoding)
       elsif str.encoding.name == "ASCII-8BIT"
@@ -911,50 +751,6 @@ module Sass
       end
     end
 
-    # Checks to see if a class has a given method.
-    # For example:
-    #
-    #     Sass::Util.has?(:public_instance_method, String, :gsub) #=> true
-    #
-    # Method collections like `Class#instance_methods`
-    # return strings in Ruby 1.8 and symbols in Ruby 1.9 and on,
-    # so this handles checking for them in a compatible way.
-    #
-    # @param attr [#to_s] The (singular) name of the method-collection method
-    #   (e.g. `:instance_methods`, `:private_methods`)
-    # @param klass [Module] The class to check the methods of which to check
-    # @param method [String, Symbol] The name of the method do check for
-    # @return [Boolean] Whether or not the given collection has the given method
-    def has?(attr, klass, method)
-      klass.send("#{attr}s").include?(ruby1_8? ? method.to_s : method.to_sym)
-    end
-
-    # A version of `Enumerable#enum_with_index` that works in Ruby 1.8 and 1.9.
-    #
-    # @param enum [Enumerable] The enumerable to get the enumerator for
-    # @return [Enumerator] The with-index enumerator
-    def enum_with_index(enum)
-      ruby1_8? ? enum.enum_with_index : enum.each_with_index
-    end
-
-    # A version of `Enumerable#enum_cons` that works in Ruby 1.8 and 1.9.
-    #
-    # @param enum [Enumerable] The enumerable to get the enumerator for
-    # @param n [Fixnum] The size of each cons
-    # @return [Enumerator] The consed enumerator
-    def enum_cons(enum, n)
-      ruby1_8? ? enum.enum_cons(n) : enum.each_cons(n)
-    end
-
-    # A version of `Enumerable#enum_slice` that works in Ruby 1.8 and 1.9.
-    #
-    # @param enum [Enumerable] The enumerable to get the enumerator for
-    # @param n [Fixnum] The size of each slice
-    # @return [Enumerator] The consed enumerator
-    def enum_slice(enum, n)
-      ruby1_8? ? enum.enum_slice(n) : enum.each_slice(n)
-    end
-
     # Destructively removes all elements from an array that match a block, and
     # returns the removed elements.
     #
@@ -971,14 +767,6 @@ module Sass
         true
       end
       out
-    end
-
-    # Returns the ASCII code of the given character.
-    #
-    # @param c [String] All characters but the first are ignored.
-    # @return [Fixnum] The ASCII code of `c`.
-    def ord(c)
-      ruby1_8? ? c[0] : c.ord
     end
 
     # Flattens the first level of nested arrays in `arrs`. Unlike
@@ -1130,7 +918,7 @@ module Sass
     BASE64_DIGITS = ('A'..'Z').to_a + ('a'..'z').to_a + ('0'..'9').to_a + ['+', '/']
     BASE64_DIGIT_MAP = begin
       map = {}
-      Sass::Util.enum_with_index(BASE64_DIGITS).map do |digit, i|
+      BASE64_DIGITS.each_with_index.map do |digit, i|
         map[digit] = i
       end
       map
@@ -1157,35 +945,6 @@ module Sass
         result << BASE64_DIGITS[digit]
       end while value > 0
       result
-    end
-
-    # This is a hack around the fact that you can't instantiate a URI parser on
-    # 1.8, so we have to have this hacky stuff to work around it. When 1.8
-    # support is dropped, we can remove this method.
-    #
-    # @private
-    URI_ESCAPE = URI.const_defined?("DEFAULT_PARSER") ? URI::DEFAULT_PARSER : URI
-
-    # URI-escape `string`.
-    #
-    # @param string [String]
-    # @return [String]
-    def escape_uri(string)
-      URI_ESCAPE.escape string
-    end
-
-    # A cross-platform implementation of `File.absolute_path`.
-    #
-    # @param path [String]
-    # @param dir_string [String] The directory to consider [path] relative to.
-    # @return [String] The absolute version of `path`.
-    def absolute_path(path, dir_string = nil)
-      # Ruby 1.8 doesn't support File.absolute_path.
-      return File.absolute_path(path, dir_string) unless ruby1_8?
-
-      # File.expand_path expands "~", which we don't want.
-      return File.expand_path(path, dir_string) unless path[0] == ?~
-      File.expand_path(File.join(".", path), dir_string)
     end
 
     ## Static Method Stuff
@@ -1243,44 +1002,6 @@ module Sass
       # presumably due to an error during write
       tmpfile.close if tmpfile
       tmpfile.unlink if tmpfile
-    end
-
-    def load_listen!
-      if defined?(gem)
-        begin
-          gem 'listen', '>= 1.1.0', '< 3.0.0'
-          require 'listen'
-        rescue Gem::LoadError
-          dir = scope("vendor/listen/lib")
-          $LOAD_PATH.unshift dir
-          begin
-            require 'listen'
-          rescue LoadError => e
-            if version_geq(RUBY_VERSION, "1.9.3")
-              version_constraint = "~> 3.0"
-            else
-              version_constraint = "~> 1.1"
-            end
-            e.message << "\n" <<
-              "Run \"gem install listen --version '#{version_constraint}'\" to get it."
-            raise e
-          end
-        end
-      else
-        begin
-          require 'listen'
-        rescue LoadError => e
-          dir = scope("vendor/listen/lib")
-          if $LOAD_PATH.include?(dir)
-            raise e unless File.exist?(scope(".git"))
-            e.message << "\n" <<
-              'Run "git submodule update --init" to get the bundled version.'
-          else
-            $LOAD_PATH.unshift dir
-            retry
-          end
-        end
-      end
     end
 
     private
@@ -1346,4 +1067,3 @@ end
 
 require 'sass/util/multibyte_string_scanner'
 require 'sass/util/normalized_map'
-require 'sass/util/cross_platform_random'

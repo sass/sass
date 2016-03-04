@@ -184,7 +184,7 @@ module Sass
           result
         end.flatten
 
-        groups = Sass::Util.group_by_to_a(extends[members.to_set]) {|ex| ex.extender}
+        groups = extends[members.to_set].group_by {|ex| ex.extender}.to_a
         groups.map! do |seq, group|
           sels = group.map {|e| e.target}.flatten
           # If A {@extend B} and C {...},

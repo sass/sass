@@ -12,7 +12,7 @@ module Sass::Script::Value
     #
     # @param hash [Hash<Node, Node>]
     def initialize(hash)
-      super(Sass::Util.ordered_hash(hash))
+      super(hash)
     end
 
     # @see Value#options=

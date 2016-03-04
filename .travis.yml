@@ -1,18 +1,11 @@
 sudo: false
 cache: bundler
 rvm:
-  - 1.8.7
-  - 1.9.2
-  - 1.9.3
   - 2.0.0
   - 2.1.7
   - 2.2.3
-  - jruby-18mode
-  - jruby-19mode
-  - jruby-21mode
   - jruby-9.0.0.0
-  - rbx
-  - ree
+  - rbx-2.2.7
 gemfile: Gemfile
 env:
   - MATHN=true RUBOCOP=false
@@ -26,10 +19,7 @@ notifications:
   irc: {channels: "irc.freenode.org#sass"}
 matrix:
   allow_failures:
-    - rvm: rbx
-    - rvm: jruby-18mode
-    - rvm: jruby-19mode
-    - rvm: jruby-21mode
+    - rvm: rbx-2.2.7
     - rvm: jruby-9.0.0.0
   include:
     - rvm: 2.2.3
@@ -38,5 +28,4 @@ matrix:
       env: MATHN=true RUBOCOP=true
     - rvm: 2.0.0
       env: MATHN=true RUBOCOP=true
-    - rvm: 1.9.3
-      env: MATHN=true RUBOCOP=true
+

@@ -142,7 +142,7 @@ module Sass
       msg = lines[0] + lines[1..-1].
         map {|l| "\n" + (" " * "Error: ".size) + l}.join
       "Error: #{msg}" +
-        Sass::Util.enum_with_index(sass_backtrace).map do |entry, i|
+        sass_backtrace.each_with_index.map do |entry, i|
           "\n        #{i == 0 ? "on" : "from"} line #{entry[:line]}" +
             " of #{entry[:filename] || default_filename}" +
             (entry[:mixin] ? ", in `#{entry[:mixin]}'" : "")
@@ -186,7 +186,7 @@ END
         section = e.sass_template.rstrip.split("\n")[min ... line_num + 5]
         return e.sass_backtrace_str if section.nil? || section.empty?
 
-        e.sass_backtrace_str + "\n\n" + Sass::Util.enum_with_index(section).
+        e.sass_backtrace_str + "\n\n" + section.each_with_index.
           map {|line, i| "#{line_offset + min + i}: #{line}"}.join("\n")
       end
     end

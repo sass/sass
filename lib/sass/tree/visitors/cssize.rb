@@ -56,8 +56,7 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
     @parents.pop
   end
 
-  # In Ruby 1.8, ensures that there's only one `@charset` directive
-  # and that it's at the top of the document.
+  # Converts the entire document to CSS.
   #
   # @return [(Tree::Node, Sass::Util::SubsetMap)] The resulting tree of static nodes
   #   *and* the extensions defined for this tree
@@ -65,14 +64,6 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
     yield
 
     if parent.nil?
-      # In Ruby 1.9 we can make all @charset nodes invisible
-      # and infer the final @charset from the encoding of the final string.
-      if Sass::Util.ruby1_8?
-        charset = node.children.find {|c| c.is_a?(Sass::Tree::CharsetNode)}
-        node.children.reject! {|c| c.is_a?(Sass::Tree::CharsetNode)}
-        node.children.unshift charset if charset
-      end
-
       imports_to_move = []
       import_limit = nil
       i = -1

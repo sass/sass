@@ -99,7 +99,7 @@ module Sass
     end
 
     def to_s
-      Sass::Util.enum_with_index(Sass::Util.enum_cons(frames.reverse + [nil], 2)).
+      (frames.reverse + [nil]).each_cons(2).each_with_index.
           map do |(frame, caller), i|
         "#{i == 0 ? "on" : "from"} line #{frame.line}" +
           " of #{frame.filename || "an unknown file"}" +

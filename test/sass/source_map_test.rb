@@ -61,7 +61,7 @@ JSON
   end
 
   def test_simple_mapping_with_file_uris
-    uri = Sass::Util.file_uri_from_path(Sass::Util.absolute_path(filename_for_test(:scss)))
+    uri = Sass::Util.file_uri_from_path(File.absolute_path(filename_for_test(:scss)))
     assert_parses_with_sourcemap <<SCSS, <<CSS, <<JSON, :sourcemap => :file
 a {
   foo: bar;
@@ -137,9 +137,8 @@ CSS
 JSON
   end
 
-  unless Sass::Util.ruby1_8?
-    def test_simple_charset_mapping_scss
-      assert_parses_with_sourcemap <<SCSS, <<CSS, <<JSON
+  def test_simple_charset_mapping_scss
+    assert_parses_with_sourcemap <<SCSS, <<CSS, <<JSON
 a {
   fóó: bár;
 }
@@ -158,10 +157,10 @@ CSS
 "file": "test.css"
 }
 JSON
-    end
+  end
 
-    def test_simple_charset_mapping_sass
-      assert_parses_with_sourcemap <<SASS, <<CSS, <<JSON, :syntax => :sass
+  def test_simple_charset_mapping_sass
+    assert_parses_with_sourcemap <<SASS, <<CSS, <<JSON, :syntax => :sass
 a
   fóó: bár
 SASS
@@ -179,10 +178,10 @@ CSS
 "file": "test.css"
 }
 JSON
-    end
+  end
 
-    def test_different_charset_than_encoding_scss
-      assert_parses_with_sourcemap(<<SCSS.force_encoding("IBM866"), <<CSS, <<JSON)
+  def test_different_charset_than_encoding_scss
+    assert_parses_with_sourcemap(<<SCSS.force_encoding("IBM866"), <<CSS, <<JSON)
 @charset "IBM866";
 f\x86\x86 {
   \x86: b;
@@ -202,10 +201,10 @@ CSS
 "file": "test.css"
 }
 JSON
-    end
+  end
 
-    def test_different_charset_than_encoding_sass
-      assert_parses_with_sourcemap(<<SASS.force_encoding("IBM866"), <<CSS, <<JSON, :syntax => :sass)
+  def test_different_charset_than_encoding_sass
+    assert_parses_with_sourcemap(<<SASS.force_encoding("IBM866"), <<CSS, <<JSON, :syntax => :sass)
 @charset "IBM866"
 f\x86\x86
   \x86: b
@@ -224,7 +223,6 @@ CSS
 "file": "test.css"
 }
 JSON
-    end
   end
 
   def test_import_sourcemap_scss

@@ -64,7 +64,7 @@ module Sass::Script::Value
 
     # @see Value#to_h
     def to_h
-      return Sass::Util.ordered_hash if value.empty?
+      return {} if value.empty?
       super
     end
 

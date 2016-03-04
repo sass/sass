@@ -27,10 +27,8 @@ module Sass
     #     from                    to
     #
     # @param scanner [StringScanner] The string scanner to move
-    # @param start [Character] The character opening the balanced pair.
-    #   A `Fixnum` in 1.8, a `String` in 1.9
-    # @param finish [Character] The character closing the balanced pair.
-    #   A `Fixnum` in 1.8, a `String` in 1.9
+    # @param start [String] The character opening the balanced pair.
+    # @param finish [String] The character closing the balanced pair.
     # @param count [Fixnum] The number of opening characters matched
     #   before calling this method
     # @return [(String, String)] The string matched within the balanced pair

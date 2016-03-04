@@ -202,8 +202,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
 
     unless node.args.empty? && node.keywords.empty? && node.splat.nil?
       args = node.args.map(&arg_to_sass)
-      keywords = Sass::Util.hash_to_a(node.keywords.as_stored).
-        map {|k, v| "$#{dasherize(k)}: #{arg_to_sass[v]}"}
+      keywords = node.keywords.as_stored.to_a.map {|k, v| "$#{dasherize(k)}: #{arg_to_sass[v]}"}
 
       if node.splat
         splat = "#{arg_to_sass[node.splat]}..."
@@ -280,7 +279,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   # Visit rule-level nodes and return their conversion with appropriate
   # whitespace added.
   def visit_rule_level(nodes)
-    Sass::Util.enum_cons(nodes + [nil], 2).map do |child, nxt|
+    (nodes + [nil]).each_cons(2).map do |child, nxt|
       visit(child) +
         if nxt &&
             (child.is_a?(Sass::Tree::CommentNode) && child.line + child.lines + 1 == nxt.line) ||

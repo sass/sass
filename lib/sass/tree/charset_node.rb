@@ -16,7 +16,7 @@ module Sass::Tree
 
     # @see Node#invisible?
     def invisible?
-      !Sass::Util.ruby1_8?
+      true
     end
   end
 end
