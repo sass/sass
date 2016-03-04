@@ -9,6 +9,10 @@
 
 * Allow `@forward` and `@use` to be intermingled.
 
+* Allow `@extend` to affect downstream modules as well as upstream ones.
+  Downstream modules inherently share the same semantics for selector names, and
+  extensions are an aspect of those semantics.
+
 ## Draft 1
 
 * Initial draft.

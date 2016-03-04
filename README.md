@@ -378,12 +378,60 @@ The module system also scopes the resolution of the `@extend` directive. This
 helps satisfy locality, making selector extension more predictable than it is
 using `@import`s.
 
-Extension is scoped to CSS in [module](#module)s *transitively used* by the
-module in which the `@extend` appears. This transitivity is necessary because
-CSS is not considered a [member](#member) of a module, and can't be controlled
-as explicitly as members can. Extending all transitively-used modules means that
-the `@extend` affects exactly that CSS that is guaranteed to exist by the `@use`
-directives.
+Extension is scoped to CSS in [module](#module)s *transitively used* by or
+*transitively using* the module in which the `@extend` appears. This
+transitivity is necessary because CSS is not considered a [member](#member) of a
+module, and can't be controlled as explicitly as members can. Extending all
+transitively-used and -using modules means that the `@extend` affects all CSS
+that has the same semantic notion of a given selector.
+
+Another way to think about it is that `@extend` affects upstream and downstream
+CSS, but not sibling CSS.
+
+```scss
+// upstream.scss
+.bad-error {
+  font-weight: bold;
+
+  // This works because "downstream" uses "upstream".
+  @extend .error;
+}
+
+.success {
+  color: green;
+}
+
+// sibling.scss
+.no-extend-error {
+  // This doesn't work, because "sibling" doesn't use "upstream" and "upstream"
+  // doesn't use "sibling".
+  @extend .error;
+}
+
+// downstream.scss
+@use "upstream";
+@use "sibling";
+
+.error {
+  color: red;
+}
+
+.huge-success {
+  font-weight: bold;
+
+  // This works because "downstream" uses "upstream".
+  @extend .success;
+}
+
+// output.css
+.bad-error {
+  font-weight: bold;
+}
+
+.error, .bad-error {
+  font-weight: bold;
+}
+```
 
 We define a general process for resolving extensions for a given module (call it
 the *starting module*). This process emits CSS for that module and everything it
@@ -425,6 +473,10 @@ transitively uses.
 
   * For each CSS rule in the domestic module:
 
+    * For each module transitively reachable in the module graph from the
+      domestic module in reverse [topological][] order, apply that module's
+      extensions to the rule's selector.
+
     * Apply the domestic module's extensions to the rule's selector.
 
     * Add the resulting selector to the domestic module's extended selectors,
@@ -437,9 +489,16 @@ transitively uses.
     replaced by the corresponding selector in the starting module's extended
     selectors.
 
-There is intentionally no way for a module to affect the extensions of another
-module that doesn't transitively use it. This promotes locality, and matches the
-behavior of mixins and functions in that monkey-patching is disallowed.
+> **Implementation note**:
+>
+> As written, this algorithm is O(n²) in the number of modules because resolving
+> extends for each local CSS rule requires iterating over all its transitive
+> modules. However, it's intended to be straightforwardly implementable in O(n)
+> time by cumulatively tracking the extends as the algorithm proceeds.
+
+To promote locality, there is intentionally no way for a module to affect the
+extensions of another module that doesn't transitively use it or isn't
+transitively used by it.
 
 [topological]: https://en.wikipedia.org/wiki/Topological_sorting
 
