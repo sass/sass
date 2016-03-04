@@ -243,12 +243,12 @@ END
         Sass::Util.silence_sass_warnings do
           if @options[:from] == :css
             require 'sass/css'
-            Sass::CSS.new(input.read, @options[:for_tree]).render(@options[:to])
+            Sass::CSS.new(File.open(input).read, @options[:for_tree]).render(@options[:to])
           else
             if input_path
               Sass::Engine.for_file(input_path, @options[:for_engine])
             else
-              Sass::Engine.new(input.read, @options[:for_engine])
+              Sass::Engine.new(File.open(input).read, @options[:for_engine])
             end.to_tree.send("to_#{@options[:to]}", @options[:for_tree])
           end
         end
