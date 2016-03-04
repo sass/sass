@@ -735,8 +735,15 @@ file's namespace.
 The module mixin's arguments are derived from the module's members (which we can
 determine without executing the module). For every variable in module that has a
 `!default` flag, the module mixin has an argument with the same name and a
-default value of `null`. These arguments are in the order the variables are
-defined, although users should be strongly encouraged to only pass them by name.
+default value of `null`. The mixin does not allow positional arguments, nor does
+it allow named arguments that are not derived from variables.
+
+> **Design note**:
+>
+> It may become useful to provide the ability to customize the behavior of
+> module mixins at the language level. It may be wise to define a convention for
+> reserved argument names so that we can add arguments to all module mixins in
+> the future. It's not clear what a good convention would be for this, though.
 
 When this mixin is included:
 
