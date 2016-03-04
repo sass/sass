@@ -50,8 +50,7 @@ module Sass
         block(node(Sass::Tree::KeyframeRuleNode.new(selector.strip), start_pos), :ruleset)
       end
 
-      @sass_script_parser = Class.new(Sass::Script::CssParser)
-      @sass_script_parser.send(:include, ScriptParser)
+      @sass_script_parser = Sass::Script::CssParser
     end
   end
 end
