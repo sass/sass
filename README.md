@@ -901,8 +901,8 @@ When executing an `@import` directive:
 
 * Add any members of the resulting module that don't conflict with the current
   import context to that context, and to the current module. This makes
-  forwarded members available in the importing module, but does not them to
-  overwrite existing members with the same names and types.
+  forwarded members available in the importing module, but does not allow them
+  to overwrite existing members with the same names and types.
 
 When a stylesheet contains only `@import`s without any `@use`s, the `@import`s
 are intended to work exactly as they did in previous Sass versions. Any
@@ -924,7 +924,7 @@ organization to the set of built-in functions that comprise Sass's core library.
 These functions currently reside in the same global namespace as everything
 else, which makes it difficult to add new functions without risking conflict
 with either user code or future CSS functions (which has
-[happened in practice][issue-631]).
+[happened in practice][issue 631]).
 
 [issue 631]: https://github.com/sass/sass/issues/631
 
