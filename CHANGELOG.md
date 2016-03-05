@@ -23,6 +23,9 @@
 
 * Add new functions for module introspection.
 
+* Add a `$module` parameter to `global-variable-exists()`, `function-exists()`,
+  and `mixin-exists()`.
+
 ## Draft 1
 
 * Initial draft.

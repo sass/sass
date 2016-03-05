@@ -1050,3 +1050,15 @@ Because a module's member names are knowable statically, these functions may be
 safely called even before a module mixin is included. Note that (like the
 existing `-defined` functions) their behavior depends on the lexical context in
 which they're invoked.
+
+### New Features For Existing Functions
+
+Several functions will get additional features in the new module-system world.
+
+The `global-variable-exists`, `function-exists`, and `mixin-exists` functions
+will all take an optional `$module` parameter. This parameter must be a string
+or `null`, and it must match the prefix of a module used by the current module.
+If it's not `null`, the function returns whether the module has a member with
+the given name and type. If it's `null`, it looks for members defined so far in
+the current module, members of any modules that have been used without prefixes,
+or global built-in definitions.
