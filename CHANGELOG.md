@@ -17,6 +17,10 @@
 
 * To `@forward` a module mixin, use the module's prefix rather than its URI.
 
+* Modules now export *all* variables that have global definitions, even if those
+  definitions weren't executed. This preserves the invariant that modules'
+  member sets are statically knowable.
+
 ## Draft 1
 
 * Initial draft.

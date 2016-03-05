@@ -584,7 +584,19 @@ optionally an [import context](#import-context):
 * When a member use is encountered, [resolve it](#resolving-members) using the
   set of used modules and the current import context.
 
-* Once all top-level statements are executed, return the current module.
+* Once all top-level statements are executed, for every global variable
+  assignment in the source file:
+
+  * If the module has a variable with the same name as the assigned variable, do
+    nothing.
+
+  * If the variable name begin with `-` or `_`, do nothing.
+
+  * Otherwise, add the assigned variable to the current module, with a `null`
+    value. This ensures that the module exposes the same set of members
+    regardless of its execution.
+
+* Finally, return the current module.
 
 Note that members that begin with `-` or `_` (which Sass considers equivalent)
 are considered private. Private members are not added to the module's member
