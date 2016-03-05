@@ -48,6 +48,8 @@ mind—these will be called out explicitly in block-quoted "implementation note"
   * [Forwarding Modules](#forwarding-modules)
   * [Importing Files](#importing-files)
 * [Built-In Modules](#built-in-modules)
+  * [New Functions](#new-functions)
+  * [New Features For Existing Functions](#new-features-for-existing-functions)
 
 ## Background
 
@@ -1030,3 +1032,21 @@ but CSS will not be added to existing modules.
       map.get($colors, 'blue') * .0722;
 }
 ```
+
+### New Functions
+
+The module system brings with it the need for additional introspection
+abilities. To that end, several new built-in functions will be defined in
+the `sass:meta` module.
+
+The `module-variables`, `module-functions`, and `module-mixins` functions each
+take a `$module` parameter. This parameter must be a string, and it must match
+the prefix of a module used by the current module. These functions return
+comma-separated lists of the names of all members of their respective types
+defined in the given module. These names are quoted strings; the
+`module-variables` function's strings do not include the leading `$`.
+
+Because a module's member names are knowable statically, these functions may be
+safely called even before a module mixin is included. Note that (like the
+existing `-defined` functions) their behavior depends on the lexical context in
+which they're invoked.

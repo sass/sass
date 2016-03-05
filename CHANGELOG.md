@@ -21,6 +21,8 @@
   definitions weren't executed. This preserves the invariant that modules'
   member sets are statically knowable.
 
+* Add new functions for module introspection.
+
 ## Draft 1
 
 * Initial draft.
