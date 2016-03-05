@@ -15,6 +15,8 @@
 
 * Don't allow module mixin arguments to be passed by position.
 
+* To `@forward` a module mixin, use the module's prefix rather than its URI.
+
 ## Draft 1
 
 * Initial draft.

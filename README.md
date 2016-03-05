@@ -300,7 +300,8 @@ This proposal introduces an additional new directive, called `@forward`. The
 grammar for this directive is as follows:
 
 ```
-ForwardDirective ::= '@forward' QuotedString (ShowClause | HideClause)?
+ForwardDirective ::= '@forward' (QuotedString | Identifier)
+                       (ShowClause | HideClause)?
 ShowClause       ::= 'show' Identifier (',' Identifier)*
 HideClause       ::= 'hide' Identifier (',' Identifier)*
 ```
@@ -357,9 +358,9 @@ various other semantics described below. To load a module with a given URI,
   resulting module.
 
 * If the source file contained a `@use` directive with a `mixin` clause and a
-  `@forward` directive with the same [canonical](#canonicalizing-uris) URI, and
-  if that `@use` directive's mixin was not included during the execution of the
-  source file, loading fails.
+  `@forward` directive with an identifier that's the same as the `@use`
+  directive's prefix, and if that `@use` directive's mixin was not included
+  during the execution of the source file, loading fails.
 
 * Otherwise, use the resulting module.
 
@@ -753,8 +754,8 @@ When this mixin is included:
 * [Load](#loading-modules) the module with the `@use` directive's URI and this
   configuration.
 
-* If the current source file contains a `@forward` directive with the same
-  [canonical](#canonicalizing-uris) URI as the `@use` directive,
+* If the current source file contains a `@forward` directive with an identifier
+  that's the same as the `@use` directive's prefix,
   [forward](#forwarding-modules) the loaded module with that `@forward`
   directive.
 
@@ -828,19 +829,16 @@ First, we define a general procedure for forward a module (call it the
 Note that the procedure defined above is not directly executed when encountering
 a `@forward` directive. To execute a `@forward` directive:
 
-* If the current source file contains a `@use` directive with the same
-  [canonical](#canonicalizing-uris) URI as the `@forward` directive and a
-  `mixin` clause:
+* If the directive has an identifier rather than a quoted string:
 
-  * If there are multiple `@use` directives with that canonical URI, the
-    `@forward` directive is malformed. This is true regardless of whether the
-    additional `@use` directives have `mixin` declarations.
+  * If there's no `@use` directive with the identifier as its prefix and with a
+    `mixin` clause, the `@forward` directive is malformed.
 
-  * Otherwise, do nothing. The module will be forwarded when the module is
+  * Otherwise, do nothing. The module will be forwarded when its mixin is
     included.
 
-* Otherwise, [load](#loading-modules) the module for the directive's URI with
-  the empty configuration.
+* Otherwise, [load](#loading-modules) the module for the URI in the directive's
+  quoted string with the empty configuration.
 
 * Forward the loaded module.
 
@@ -849,13 +847,6 @@ errors when a new member gets added to a forwarded module. It's likely that most
 packages will already break up their definitions into many smaller modules which
 will all be forwarded, which makes the API definition explicit enough without
 requiring additional explicitness here.
-
-> **Design note:**
->
-> There should definitely be a way to forward members from a configured module,
-> but I'm not sure whether this is the best way to do it. It weirds me out that
-> an identical `@forward` declaration can mean different things based on `@use`
-> directives around it. But I haven't come up with a better alternative.
 
 ```scss
 // _susy.scss would forward its component files so users would see its full API
