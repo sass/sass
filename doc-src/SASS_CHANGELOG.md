@@ -18,6 +18,14 @@
 
 [Ruby deprecation]: http://blog.sass-lang.com/posts/560719
 
+* `sass-convert` now accepts a `-q` and `--quiet` option to disable
+  ouput while it is running.
+
+* Fixed a bug in sass-convert when recursively processing
+  CSS files into Sass files which caused the process to crash
+  without processing any files.
+  [Issue #1827](https://github.com/sass/sass/issues/1827),
+
 ## 3.4.21 (11 January 2016)
 
 * Consistent output formatting for numbers close to an integer.
