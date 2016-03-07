@@ -157,6 +157,10 @@ END
         @options[:for_engine][:read_cache] = false
       end
 
+      opts.on('-q', '--quiet', 'Silence warnings and status messages during conversion.') do |bool|
+        @options[:for_engine][:quiet] = bool
+      end
+
       opts.on('--trace', :NONE, 'Show a full Ruby stack trace on error') do
         @options[:trace] = true
       end
