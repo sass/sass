@@ -217,7 +217,7 @@ maintain Sass and many other Sass-related open source projects.
 
 If you use this software, we'd be truly honored if you'd make a
 tax-deductible donation to a non-profit organization and then
-[let us know on twitter](http://twitter.com/SassCSS) so that we can
+[let us know on twitter](http://twitter.com/SassCSS), so that we can
 thank you. Here's a few that we endorse:
 
 * [Trans Justice Funding Project](http://www.transjusticefundingproject.org/)
