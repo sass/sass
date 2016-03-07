@@ -16,8 +16,6 @@
 * Support for Ruby 1.8.7 and 1.9.3 is deprecated. See
   [this blog post][Ruby deprecation] for details.
 
-[Ruby deprecation]: http://blog.sass-lang.com/posts/560719
-
 * `sass-convert` now accepts a `-q` and `--quiet` option to disable
   ouput while it is running.
 
@@ -25,6 +23,8 @@
   CSS files into Sass files which caused the process to crash
   without processing any files.
   [Issue #1827](https://github.com/sass/sass/issues/1827),
+
+[Ruby deprecation]: http://blog.sass-lang.com/posts/560719
 
 ## 3.4.21 (11 January 2016)
 
