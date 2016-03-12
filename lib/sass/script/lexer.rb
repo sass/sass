@@ -156,6 +156,8 @@ module Sass
         @options = options
         @interpolation_stack = []
         @prev = nil
+        @tok = nil
+        @next_tok = nil
       end
 
       # Returns whether or not there's whitespace before the given token.

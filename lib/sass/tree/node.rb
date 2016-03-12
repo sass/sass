@@ -90,6 +90,8 @@ module Sass
 
       def initialize
         @children = []
+        @filename = nil
+        @options = nil
       end
 
       # Sets the options hash for the node and all its children.

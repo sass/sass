@@ -13,7 +13,9 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     @line = 1
     @offset = 1
     @result = ""
-    @source_mapping = Sass::Source::Map.new if build_source_mapping
+    @source_mapping = build_source_mapping ? Sass::Source::Map.new : nil
+    @lstrip = nil
+    @in_directive = false
   end
 
   # Runs the visitor on `node`.
