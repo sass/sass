@@ -71,6 +71,7 @@ module Sass::Script::Value
       super(value)
       @numerator_units = numerator_units
       @denominator_units = denominator_units
+      @options = nil
       normalize!
     end
 

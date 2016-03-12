@@ -28,6 +28,8 @@ module Sass
         @line = line
         @offset = offset
         @strs = []
+        @expected = nil
+        @throw_error = false
       end
 
       # Parses an SCSS document.

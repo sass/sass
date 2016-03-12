@@ -51,12 +51,12 @@ module Sass
     def define_callback(name)
       class_eval <<RUBY, __FILE__, __LINE__ + 1
 def on_#{name}(&block)
-  @_sass_callbacks ||= {}
+  @_sass_callbacks = {} unless defined? @_sass_callbacks
   (@_sass_callbacks[#{name.inspect}] ||= []) << block
 end
 
 def run_#{name}(*args)
-  return unless @_sass_callbacks
+  return unless defined? @_sass_callbacks
   return unless @_sass_callbacks[#{name.inspect}]
   @_sass_callbacks[#{name.inspect}].each {|c| c[*args]}
 end

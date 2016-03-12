@@ -18,6 +18,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
     @tabs = 0
     # 2 spaces by default
     @tab_chars = @options[:indent] || "  "
+    @is_else = false
   end
 
   def visit_children(parent)
