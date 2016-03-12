@@ -766,7 +766,7 @@ module Sass
         value_start_pos = source_position
         value = nil
         error = catch_error do
-          value = value!
+          value = value!(name.first.is_a?(String) && name.first.start_with?("--"))
           if tok?(/\{/)
             # Properties that are ambiguous with selectors can't have additional
             # properties nested beneath them.
@@ -859,7 +859,7 @@ module Sass
         tok!(/:/)
         ss
         value_start_pos = source_position
-        value = value!
+        value = value!(name.first.is_a?(String) && name.first.start_with?("--"))
         value_end_pos = source_position
         ss
         require_block = tok?(/\{/)
@@ -873,7 +873,7 @@ module Sass
         nested_properties! node
       end
 
-      def value!
+      def value!(css_variable = false)
         if tok?(/\{/)
           str = Sass::Script::Tree::Literal.new(Sass::Script::Value::String.new(""))
           str.line = source_position.line
@@ -893,10 +893,19 @@ module Sass
           str.source_range = range(start_pos)
           return str
         end
-        sass_script(:parse)
+
+        sass_script(:parse, css_variable)
       end
 
       def nested_properties!(node)
+        if node.name.first.is_a?(String) && node.name.first.start_with?("--")
+          Sass::Util.sass_warn(<<WARNING)
+DEPRECATION WARNING on line #{@line}#{" of #{@filename}" if @filename}:
+Sass 3.6 will change the way CSS variables are parsed. Instead of being parsed as
+normal properties, they will not allow any Sass-specific behavior other than \#{}.
+WARNING
+        end
+
         @expected = 'expression (e.g. 1px, bold) or "{"'
         block(node, :property)
       end

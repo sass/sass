@@ -78,6 +78,13 @@ module Sass::Script::Tree
           "Invalid null operation: \"#{value1.inspect} #{@operator} #{value2.inspect}\".")
       end
 
+      if css_variable_warning && @operator == :div &&
+         !(value1.is_a?(Sass::Script::Value::Number) && value1.original &&
+           value2.is_a?(Sass::Script::Value::Number) && value2.original) &&
+         !(value1.is_a?(Sass::Script::Value::String) && value2.is_a?(Sass::Script::Value::String))
+        css_variable_warning.warn!
+      end
+
       begin
         result = opts(value1.send(@operator, value2))
       rescue NoMethodError => e

@@ -29,6 +29,13 @@
 
 [Ruby deprecation]: http://blog.sass-lang.com/posts/560719
 
+* Deprecate the current handling of [CSS variables][]. In order to support the
+  CSS spec as fully as possible, no Sass-specific constructs other than `#{}`
+  will be supported in CSS variable values. For forwards-compatibility, any
+  SassScript being used in CSS variables must be moved into `#{}`.
+
+[CSS variables]: https://www.w3.org/TR/css-variables/
+
 ## 3.4.21 (11 January 2016)
 
 * Consistent output formatting for numbers close to an integer.

@@ -1,4 +1,5 @@
 require 'sass/script/lexer'
+require 'sass/script/css_variable_warning'
 
 module Sass
   module Script
@@ -34,6 +35,7 @@ module Sass
         @allow_extra_text = options.delete(:allow_extra_text)
         @lexer = lexer_class.new(str, line, offset, options)
         @stop_at = nil
+        @css_variable_warning = nil
       end
 
       # Parses a SassScript expression within an interpolated segment (`#{}`).
@@ -62,13 +64,23 @@ module Sass
 
       # Parses a SassScript expression.
       #
+      # @param css_variable [Boolean] Whether this is the value of a CSS variable.
       # @return [Script::Tree::Node] The root node of the parse tree
       # @raise [Sass::SyntaxError] if the expression isn't valid SassScript
-      def parse
+      def parse(css_variable = false)
+        if css_variable
+          @css_variable_warning = CssVariableWarning.new
+        end
+
         expr = assert_expr :expr
         assert_done
         expr.options = @options
         check_for_interpolation expr
+
+        if css_variable
+          @css_variable_warning.value = expr
+        end
+
         expr
       rescue Sass::SyntaxError => e
         e.modify_backtrace :line => @lexer.line, :filename => @options[:filename]
@@ -220,12 +232,12 @@ module Sass
 
       # Parses a SassScript expression.
       #
-      # @overload parse(str, line, offset, filename = nil)
       # @return [Script::Tree::Node] The root node of the parse tree
       # @see Parser#initialize
       # @see Parser#parse
-      def self.parse(*args)
-        new(*args).parse
+      def self.parse(value, line, offset, options = {})
+        css_variable = options.delete :css_variable
+        new(value, line, offset, options).parse(css_variable)
       end
 
       PRECEDENCE = [
@@ -237,6 +249,8 @@ module Sass
       ]
 
       ASSOCIATIVE = [:plus, :times]
+
+      VALID_CSS_OPS = [:comma, :single_eq, :space, :div]
 
       class << self
         # Returns an integer representing the precedence
@@ -277,6 +291,10 @@ module Sass
                   return other_interp
                 end
 
+                if @css_variable_warning && !VALID_CSS_OPS.include?(tok.type)
+                  @css_variable_warning.warn!
+                end
+
                 e = node(Tree::Operation.new(e, assert_expr(#{sub.inspect}), tok.type),
                          e.source_range.start_pos)
               end
@@ -292,6 +310,8 @@ RUBY
               interp = try_op_before_interp(tok)
               return interp if interp
               start_pos = source_position
+
+              @css_variable_warning.warn! if @css_variable_warning
               node(Tree::UnaryOperation.new(assert_expr(:unary_#{op}), :#{op}), start_pos)
             end
 RUBY
@@ -318,6 +338,7 @@ RUBY
         return list e, start_pos unless @lexer.peek && @lexer.peek.type == :colon
 
         pair = map_pair(e)
+        @css_variable_warning.warn! if @css_variable_warning
         map = node(Sass::Script::Tree::MapLiteral.new([pair]), start_pos)
         while try_tok(:comma)
           pair = map_pair
@@ -415,7 +436,7 @@ RUBY
         while (interp = try_tok(:begin_interpolation))
           wb = @lexer.whitespace?(interp)
           char_before = @lexer.char(interp.pos - 1)
-          mid = assert_expr :expr
+          mid = without_css_variable_warning {assert_expr :expr}
           assert_tok :end_interpolation
           wa = @lexer.whitespace?
           char_after = @lexer.char
@@ -604,7 +625,7 @@ RUBY
         return paren unless first
         str = literal_node(first.value, first.source_range)
         return str unless try_tok(:string_interpolation)
-        mid = assert_expr :expr
+        mid = without_css_variable_warning {assert_expr :expr}
         assert_tok :end_interpolation
         last = assert_expr(:special_fun)
         node(
@@ -619,6 +640,8 @@ RUBY
         e.force_division! if e
         end_pos = source_position
         assert_tok(:rparen)
+
+        @css_variable_warning.warn! if @css_variable_warning
         e || node(Sass::Script::Tree::ListLiteral.new([], nil), start_pos, end_pos)
       end
 
@@ -626,6 +649,8 @@ RUBY
         start_pos = source_position
         c = try_tok(:const)
         return string unless c
+
+        @css_variable_warning.warn! if @css_variable_warning
         node(Tree::Variable.new(*c.value), start_pos)
       end
 
@@ -634,7 +659,7 @@ RUBY
         return number unless first
         str = literal_node(first.value, first.source_range)
         return str unless try_tok(:string_interpolation)
-        mid = assert_expr :expr
+        mid = without_css_variable_warning {assert_expr :expr}
         assert_tok :end_interpolation
         last = assert_expr(:string)
         node(Tree::StringInterpolation.new(str, mid, last), first.source_range.start_pos)
@@ -652,6 +677,7 @@ RUBY
       def selector
         tok = try_tok(:selector)
         return literal unless tok
+        @css_variable_warning.warn! if @css_variable_warning
         node(tok.value, tok.source_range.start_pos)
       end
 
@@ -739,10 +765,25 @@ RUBY
             range(source_range_or_start_pos, end_pos)
           end
 
+        node.css_variable_warning = @css_variable_warning
         node.line = source_range.start_pos.line
         node.source_range = source_range
         node.filename = @options[:filename]
         node
+      end
+
+      # Runs the given block without CSS variable warnings enabled.
+      #
+      # CSS warnings don't apply within interpolation, so this is used to
+      # disable them.
+      #
+      # @yield []
+      def without_css_variable_warning
+        old_css_variable_warning = @css_variable_warning
+        @css_variable_warning = nil
+        yield
+      ensure
+        @css_variable_warning = old_css_variable_warning
       end
 
       # Checks a script node for any immediately-deprecated interpolations, and

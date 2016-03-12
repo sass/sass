@@ -718,9 +718,12 @@ WARNING
         expr = Sass::Script::Tree::Literal.new(Sass::Script::Value::String.new(""))
         end_offset = start_offset
       else
-        expr = parse_script(value, :offset => to_parser_offset(start_offset))
+        expr = parse_script(value,
+          :offset => to_parser_offset(start_offset),
+          :css_variable => name.start_with?("--"))
         end_offset = expr.source_range.end_pos.offset - 1
       end
+
       node = Tree::PropNode.new(parse_interp(name), expr, prop)
       node.value_source_range = Sass::Source::Range.new(
         Sass::Source::Position.new(line.index, to_parser_offset(start_offset)),
@@ -1143,9 +1146,9 @@ WARNING
     end
 
     def parse_script(script, options = {})
-      line = options[:line] || @line
-      offset = options[:offset] || @offset + 1
-      Script.parse(script, line, offset, @options)
+      line = options.delete(:line) || @line
+      offset = options.delete(:offset) || @offset + 1
+      Script.parse(script, line, offset, @options.merge(options))
     end
 
     def format_comment_text(text, silent)
