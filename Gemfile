@@ -2,7 +2,11 @@ source "https://rubygems.org"
 
 gemspec
 
-gem 'rake'
+if RUBY_VERSION =~ /^1\.8/ || RUBY_VERSION =~ /^1\.9\.[012]$/
+  gem 'rake', '~> 10.5.0'
+else
+  gem 'rake'
+end
 
 # Pin this version since Rubocop occasionally adds new cops in
 # incremental releases and we don't want out builds going red because
