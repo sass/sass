@@ -75,7 +75,7 @@ end
 version = RUBY_VERSION.split(".").map {|n| n.to_i}
 
 def ruby_gt_1_9_2?
-  ruby_version = Gem::Version.new(RUBY_VERSION)
+  ruby_version = Gem::Version.new(RUBY_VERSION.dup)
   version_1_9_2 = Gem::Version.new("1.9.2")
   ruby_version >= version_1_9_2
 end
