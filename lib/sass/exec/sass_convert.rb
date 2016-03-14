@@ -273,7 +273,7 @@ END
     end
 
     def read(file)
-      if (file.respond_to?(:read))
+      if file.respond_to?(:read)
         file.read
       else
         open(file, 'rb') {|f| f.read}
