@@ -16,6 +16,12 @@ module Sass::Script::Tree
     # @return [Symbol] `:string` or `:identifier`
     attr_reader :type
 
+    # Returns the quote character that should be used to wrap a Sass
+    # representation of this interpolation.
+    def quote
+      quote_for(self) || '"'
+    end
+
     # Interpolation in a string.
     #
     # @param contents [[Node, String]] See {StringInterpolation#contents}
