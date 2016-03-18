@@ -45,7 +45,9 @@ module Sass
         start_pos = Sass::Source::Position.new(line, offset - 2)
         expr = assert_expr :expr
         assert_tok :end_interpolation
-        expr = Sass::Script::Tree::Interpolation.new(expr, warn_for_color)
+        expr = Sass::Script::Tree::Interpolation.new(
+          nil, expr, nil, !:wb, !:wa, :warn_for_color => warn_for_color)
+        check_for_interpolation expr
         expr.options = @options
         node(expr, start_pos)
       rescue Sass::SyntaxError => e
@@ -61,6 +63,7 @@ module Sass
         expr = assert_expr :expr
         assert_done
         expr.options = @options
+        check_for_interpolation expr
         expr
       rescue Sass::SyntaxError => e
         e.modify_backtrace :line => @lexer.line, :filename => @options[:filename]
@@ -78,6 +81,7 @@ module Sass
         expr = assert_expr :expr
         assert_done
         expr.options = @options
+        check_for_interpolation expr
         expr
       rescue Sass::SyntaxError => e
         e.modify_backtrace :line => @lexer.line, :filename => @options[:filename]
@@ -101,10 +105,26 @@ module Sass
         end
         assert_done
 
-        args.each {|a| a.options = @options}
-        keywords.each {|_k, v| v.options = @options}
-        splat.options = @options if splat
-        kwarg_splat.options = @options if kwarg_splat
+        args.each do |a|
+          check_for_interpolation a
+          a.options = @options
+        end
+
+        keywords.each do |_, v|
+          check_for_interpolation v
+          v.options = @options
+        end
+
+        if splat
+          check_for_interpolation splat
+          splat.options = @options
+        end
+
+        if kwarg_splat
+          check_for_interpolation kwarg_splat
+          kwarg_splat.options = @options
+        end
+
         return args, keywords, splat, kwarg_splat
       rescue Sass::SyntaxError => e
         e.modify_backtrace :line => @lexer.line, :filename => @options[:filename]
@@ -121,10 +141,20 @@ module Sass
         assert_done
 
         args.each do |k, v|
+          check_for_interpolation k
           k.options = @options
-          v.options = @options if v
+
+          if v
+            check_for_interpolation v
+            v.options = @options
+          end
         end
-        splat.options = @options if splat
+
+        if splat
+          check_for_interpolation splat
+          splat.options = @options
+        end
+
         return args, splat
       rescue Sass::SyntaxError => e
         e.modify_backtrace :line => @lexer.line, :filename => @options[:filename]
@@ -141,10 +171,20 @@ module Sass
         assert_done
 
         args.each do |k, v|
+          check_for_interpolation k
           k.options = @options
-          v.options = @options if v
+
+          if v
+            check_for_interpolation v
+            v.options = @options
+          end
         end
-        splat.options = @options if splat
+
+        if splat
+          check_for_interpolation splat
+          splat.options = @options
+        end
+
         return args, splat
       rescue Sass::SyntaxError => e
         e.modify_backtrace :line => @lexer.line, :filename => @options[:filename]
@@ -164,6 +204,7 @@ module Sass
         end
 
         expr = assert_expr :funcall
+        check_for_interpolation expr
         expr.options = @options
         @lexer.unpeek!
         expr
@@ -221,8 +262,16 @@ module Sass
         def production(name, sub, *ops)
           class_eval <<RUBY, __FILE__, __LINE__ + 1
             def #{name}
+              interp = try_ops_after_interp(#{ops.inspect}, #{name.inspect})
+              return interp if interp
               return unless e = #{sub}
               while tok = try_toks(#{ops.map {|o| o.inspect}.join(', ')})
+                if interp = try_op_before_interp(tok, e)
+                  other_interp = try_ops_after_interp(#{ops.inspect}, #{name.inspect}, interp)
+                  return interp unless other_interp
+                  return other_interp
+                end
+
                 e = node(Tree::Operation.new(e, assert_expr(#{sub.inspect}), tok.type),
                          e.source_range.start_pos)
               end
@@ -235,6 +284,8 @@ RUBY
           class_eval <<RUBY, __FILE__, __LINE__ + 1
             def unary_#{op}
               return #{sub} unless tok = try_tok(:#{op})
+              interp = try_op_before_interp(tok)
+              return interp if interp
               start_pos = source_position
               node(Tree::UnaryOperation.new(assert_expr(:unary_#{op}), :#{op}), start_pos)
             end
@@ -257,7 +308,7 @@ RUBY
 
       def map
         start_pos = source_position
-        e = space
+        e = interpolation
         return unless e
         return list e, start_pos unless @lexer.peek && @lexer.peek.type == :colon
 
@@ -272,14 +323,14 @@ RUBY
       end
 
       def map_pair(key = nil)
-        return unless key ||= space
+        return unless key ||= interpolation
         assert_tok :colon
-        return key, assert_expr(:space)
+        return key, assert_expr(:interpolation)
       end
 
       def expr
         start_pos = source_position
-        e = space
+        e = interpolation
         return unless e
         list e, start_pos
       end
@@ -288,15 +339,97 @@ RUBY
         return first unless @lexer.peek && @lexer.peek.type == :comma
 
         list = node(Sass::Script::Tree::ListLiteral.new([first], :comma), start_pos)
-        while try_tok(:comma)
-          return list unless (e = space)
+        while (tok = try_tok(:comma))
+          element_before_interp = list.elements.length == 1 ? list.elements.first : list
+          if (interp = try_op_before_interp(tok, element_before_interp))
+            other_interp = try_ops_after_interp([:comma], :expr, interp)
+            return interp unless other_interp
+            return other_interp
+          end
+          return list unless (e = interpolation)
           list.elements << e
           list.source_range.end_pos = list.elements.last.source_range.end_pos
         end
         list
       end
 
-      production :equals, :space, :single_eq
+      production :equals, :interpolation, :single_eq
+
+      def try_op_before_interp(op, prev = nil, after_interp = false)
+        return unless @lexer.peek && @lexer.peek.type == :begin_interpolation
+        unary = !prev && !after_interp
+        wb = @lexer.whitespace?(op)
+        str = literal_node(Script::Value::String.new(Lexer::OPERATORS_REVERSE[op.type]),
+                           op.source_range)
+
+        deprecation =
+          case op.type
+          when :comma; :potential
+          when :div, :single_eq; :none
+          when :plus; unary ? :none : :immediate
+          when :minus; @lexer.whitespace?(@lexer.peek) ? :immediate : :none
+          else; :immediate
+          end
+
+        interp = node(
+          Script::Tree::Interpolation.new(
+            prev, str, nil, wb, !:wa, :originally_text => true, :deprecation => deprecation),
+          (prev || str).source_range.start_pos)
+        interpolation(interp)
+      end
+
+      def try_ops_after_interp(ops, name, prev = nil)
+        return unless @lexer.after_interpolation?
+        op = try_toks(*ops)
+        return unless op
+        interp = try_op_before_interp(op, prev, :after_interp)
+        return interp if interp
+
+        wa = @lexer.whitespace?
+        str = literal_node(Script::Value::String.new(Lexer::OPERATORS_REVERSE[op.type]),
+                           op.source_range)
+        str.line = @lexer.line
+
+        deprecation =
+          case op.type
+          when :comma; :potential
+          when :div, :single_eq; :none
+          when :minus; @lexer.whitespace?(op) ? :immediate : :none
+          else; :immediate
+          end
+        interp = node(
+          Script::Tree::Interpolation.new(
+            prev, str, assert_expr(name), !:wb, wa,
+            :originally_text => true, :deprecation => deprecation),
+          (prev || str).source_range.start_pos)
+        interp
+      end
+
+      def interpolation(first = space)
+        e = first
+        while (interp = try_tok(:begin_interpolation))
+          wb = @lexer.whitespace?(interp)
+          mid = assert_expr :expr
+          assert_tok :end_interpolation
+          wa = @lexer.whitespace?
+
+          after = space
+          before_deprecation = e.is_a?(Script::Tree::Interpolation) ? e.deprecation : :none
+          after_deprecation = after.is_a?(Script::Tree::Interpolation) ? after.deprecation : :none
+
+          deprecation =
+            if before_deprecation == :immediate || after_deprecation == :immediate
+              :immediate
+            else
+              :potential
+            end
+
+          e = node(
+            Script::Tree::Interpolation.new(e, mid, after, wb, wa, :deprecation => deprecation),
+            (e || interp).source_range.start_pos)
+        end
+        e
+      end
 
       def space
         start_pos = source_position
@@ -326,51 +459,20 @@ RUBY
       unary :not, :ident
 
       def ident
-        return funcall unless (first = @lexer.peek)
+        return funcall unless @lexer.peek && @lexer.peek.type == :ident
+        return if @stop_at && @stop_at.include?(@lexer.peek.value)
 
-        contents = []
-        if first.type == :ident
-          return if @stop_at && @stop_at.include?(first.value)
-          contents << @lexer.next.value
-        elsif first.type == :begin_interpolation
-          @lexer.next # Move through :begin_interpolation
-          contents << assert_expr(:expr)
-          assert_tok(:end_interpolation)
+        name = @lexer.next
+        if (color = Sass::Script::Value::Color::COLOR_NAMES[name.value.downcase])
+          literal_node(Sass::Script::Value::Color.new(color, name.value), name.source_range)
+        elsif name.value == "true"
+          literal_node(Sass::Script::Value::Bool.new(true), name.source_range)
+        elsif name.value == "false"
+          literal_node(Sass::Script::Value::Bool.new(false), name.source_range)
+        elsif name.value == "null"
+          literal_node(Sass::Script::Value::Null.new, name.source_range)
         else
-          return funcall
-        end
-
-        while (tok = @lexer.peek)
-          break if @lexer.whitespace_before?(tok)
-
-          if tok.type == :ident
-            contents << @lexer.next.value
-            next
-          end
-
-          break unless try_tok(:begin_interpolation)
-          contents << assert_expr(:expr)
-          assert_tok(:end_interpolation)
-        end
-
-        if contents.length > 1 || contents.first.is_a?(Sass::Script::Tree::Node)
-          return node(
-            Sass::Script::Tree::StringInterpolation.new(contents, :identifier),
-            first.source_range.start_pos)
-        end
-
-        if (color = Sass::Script::Value::Color::COLOR_NAMES[first.value.downcase])
-          literal_node(Sass::Script::Value::Color.new(color, first.value), first.source_range)
-        elsif first.value == "true"
-          literal_node(Sass::Script::Value::Bool.new(true), first.source_range)
-        elsif first.value == "false"
-          literal_node(Sass::Script::Value::Bool.new(false), first.source_range)
-        elsif first.value == "null"
-          literal_node(Sass::Script::Value::Null.new, first.source_range)
-        else
-          literal_node(
-            Sass::Script::Value::String.new(first.value, :identifier),
-            first.source_range)
+          literal_node(Sass::Script::Value::String.new(name.value, :identifier), name.source_range)
         end
       end
 
@@ -419,7 +521,7 @@ RUBY
       end
 
       def mixin_arglist
-        arglist(:space, "mixin argument")
+        arglist(:interpolation, "mixin argument")
       end
 
       def arglist(subexpr, description)
@@ -469,20 +571,13 @@ RUBY
       def special_fun
         first = try_tok(:special_fun)
         return paren unless first
-
-        unless try_tok(:string_interpolation)
-          return literal_node(first.value, first.source_range)
-        end
-
-        contents = [first.value.value]
-        begin
-          contents << assert_expr(:expr)
-          assert_tok :end_interpolation
-          contents << assert_tok(:special_fun).value.value
-        end while try_tok(:string_interpolation)
-
+        str = literal_node(first.value, first.source_range)
+        return str unless try_tok(:string_interpolation)
+        mid = assert_expr :expr
+        assert_tok :end_interpolation
+        last = assert_expr(:special_fun)
         node(
-          Tree::StringInterpolation.new(contents, :identifier),
+          Tree::Interpolation.new(str, mid, last, !:wb, !:wa),
           first.source_range.start_pos)
       end
 
@@ -506,21 +601,12 @@ RUBY
       def string
         first = try_tok(:string)
         return number unless first
-
-        unless try_tok(:string_interpolation)
-          return literal_node(first.value, first.source_range)
-        end
-
-        contents = [first.value.value]
-        begin
-          contents << assert_expr(:expr)
-          assert_tok :end_interpolation
-          contents << assert_tok(:string).value.value
-        end while try_tok(:string_interpolation)
-
-        node(
-          Tree::StringInterpolation.new(contents, first.value.type),
-          first.source_range.start_pos)
+        str = literal_node(first.value, first.source_range)
+        return str unless try_tok(:string_interpolation)
+        mid = assert_expr :expr
+        assert_tok :end_interpolation
+        last = assert_expr(:string)
+        node(Tree::StringInterpolation.new(str, mid, last), first.source_range.start_pos)
       end
 
       def number
@@ -551,7 +637,8 @@ RUBY
         :default => "expression (e.g. 1px, bold)",
         :mixin_arglist => "mixin argument",
         :fn_arglist => "function argument",
-        :splat => "..."
+        :splat => "...",
+        :special_fun => '")"',
       }
 
       def assert_expr(name, expected = nil)
@@ -619,6 +706,41 @@ RUBY
         node.source_range = source_range
         node.filename = @options[:filename]
         node
+      end
+
+      # Checks a script node for any immediately-deprecated interpolations, and
+      # emits warnings for them.
+      #
+      # @param node [Sass::Script::Tree::Node]
+      def check_for_interpolation(node)
+        nodes = [node]
+        until nodes.empty?
+          node = nodes.pop
+          unless node.is_a?(Sass::Script::Tree::Interpolation) &&
+                 node.deprecation == :immediate
+            nodes.concat node.children
+            next
+          end
+
+          interpolation_deprecation(node)
+        end
+      end
+
+      # Emits a deprecation warning for an interpolation node.
+      #
+      # @param node [Sass::Script::Tree::Node]
+      def interpolation_deprecation(interpolation)
+        return if @options[:_convert]
+        location = "on line #{interpolation.line}"
+        location << " of #{interpolation.filename}" if interpolation.filename
+        Sass::Util.sass_warn <<WARNING
+DEPRECATION WARNING #{location}: \#{} interpolation near operators will be simplified
+in a future version of Sass. To preserve the current behavior, use quotes:
+
+  #{interpolation.to_quoted_equivalent.to_sass}
+
+You can use the sass-convert command to automatically fix most cases.
+WARNING
       end
     end
   end

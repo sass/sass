@@ -23,18 +23,6 @@ module Sass
         literal_node(tok.value, tok.source_range)
       end
 
-      def ident
-        return funcall unless @lexer.peek && @lexer.peek.type == :ident
-        return if @stop_at && @stop_at.include?(@lexer.peek.value)
-
-        name = @lexer.next
-        if (color = Sass::Script::Value::Color::COLOR_NAMES[name.value.downcase])
-          literal_node(Sass::Script::Value::Color.new(color, name.value), name.source_range)
-        else
-          literal_node(Sass::Script::Value::String.new(name.value, :identifier), name.source_range)
-        end
-      end
-
       # Short-circuit all the SassScript-only productions
       alias_method :interpolation, :space
       alias_method :or_expr, :div

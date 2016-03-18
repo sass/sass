@@ -31,7 +31,7 @@ module Sass
         template = template.read
       end
 
-      @options = options.dup
+      @options = options.merge(:_convert => true)
       # Backwards compatibility
       @options[:old] = true if @options[:alternate] == false
       @template = template
