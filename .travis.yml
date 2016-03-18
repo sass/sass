@@ -1,4 +1,5 @@
 sudo: false
+language: ruby
 cache: bundler
 install:
   - bundle install --jobs=3 --retry=3 --path=${BUNDLE_PATH:-vendor/bundle}
@@ -10,6 +11,7 @@ rvm:
   - 2.0.0
   - 2.1.7
   - 2.2.3
+  - 2.3.0
   - jruby-18mode
   - jruby-19mode
   - jruby-21mode
@@ -34,6 +36,7 @@ matrix:
     - rvm: jruby-19mode
     - rvm: jruby-21mode
     - rvm: jruby-9.0.0.0
+    - rvm: 2.3.0
   include:
     - rvm: 2.2.3
       env: MATHN=true RUBOCOP=true
