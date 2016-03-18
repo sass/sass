@@ -601,21 +601,12 @@ RUBY
       def string
         first = try_tok(:string)
         return number unless first
-
-        unless try_tok(:string_interpolation)
-          return literal_node(first.value, first.source_range)
-        end
-
-        contents = [first.value.value]
-        begin
-          contents << assert_expr(:expr)
-          assert_tok :end_interpolation
-          contents << assert_tok(:string).value.value
-        end while try_tok(:string_interpolation)
-
-        node(
-          Tree::StringInterpolation.new(contents, first.value.type),
-          first.source_range.start_pos)
+        str = literal_node(first.value, first.source_range)
+        return str unless try_tok(:string_interpolation)
+        mid = assert_expr :expr
+        assert_tok :end_interpolation
+        last = assert_expr(:string)
+        node(Tree::StringInterpolation.new(str, mid, last), first.source_range.start_pos)
       end
 
       def number
