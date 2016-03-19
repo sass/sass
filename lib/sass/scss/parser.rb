@@ -758,6 +758,12 @@ module Sass
         mid = [str {ss}]
         return name + mid unless tok(/:/)
         mid << ':'
+
+        # If this is a CSS variable, parse it as a property no matter what.
+        if name.first.is_a?(String) && name.first.start_with?("--")
+          return css_variable_declaration(name, name_start_pos, name_end_pos)
+        end
+
         return name + mid + [':'] if tok(/:/)
         mid << str {ss}
         post_colon_whitespace = !mid.last.empty?
@@ -793,7 +799,7 @@ module Sass
         ss
         require_block = tok?(/\{/)
 
-        node = node(Sass::Tree::PropNode.new(name.flatten.compact, value, :new),
+        node = node(Sass::Tree::PropNode.new(name.flatten.compact, [value], :new),
                     name_start_pos, value_end_pos)
         node.name_source_range = range(name_start_pos, name_end_pos)
         node.value_source_range = range(value_start_pos, value_end_pos)
@@ -802,13 +808,21 @@ module Sass
         nested_properties! node
       end
 
-      # This production is similar to the CSS [`<any-value>`][any-value]
-      # production, but as the name implies, not quite the same. It's meant to
-      # consume values that could be a selector, an expression, or a combination
-      # of both. It respects strings and comments and supports interpolation. It
-      # will consume up to "{", "}", ";", or "!".
-      #
-      # [any-value]: http://dev.w3.org/csswg/css-variables/#typedef-any-value
+      def css_variable_declaration(name, name_start_pos, name_end_pos)
+        value_start_pos = source_position
+        value = declaration_value
+        value_end_pos = source_position
+
+        node = node(Sass::Tree::PropNode.new(name.flatten.compact, value, :new),
+                    name_start_pos, value_end_pos)
+        node.name_source_range = range(name_start_pos, name_end_pos)
+        node.value_source_range = range(value_start_pos, value_end_pos)
+        node
+      end
+
+      # This production consumes values that could be a selector, an expression,
+      # or a combination of both. It respects strings and comments and supports
+      # interpolation. It will consume up to "{", "}", ";", or "!".
       #
       # Values consumed by this production will usually be parsed more
       # thoroughly once interpolation has been resolved.
@@ -839,6 +853,51 @@ module Sass
                 interpolation(:warn_for_color)
       end
 
+      def declaration_value(top_level: true)
+        return unless (tok = declaration_value_token(top_level))
+        value = [tok]
+        while (tok = declaration_value_token(top_level))
+          value << tok
+        end
+        merge(value)
+      end
+
+      def declaration_value_token(top_level)
+        # This comes, more or less, from the [token consumption algorithm][].
+        # However, since we don't have to worry about the token semantics, we
+        # just consume everything until we come across a token with special
+        # semantics.
+        #
+        # [token consumption algorithm]: https://drafts.csswg.org/css-syntax-3/#consume-token.
+        result = tok(%r{
+          (
+            (?!
+              url\(
+            )
+            [^()\[\]{}"'#/#{top_level ? ";!" : ""}]
+          |
+            \#(?!\{)
+          |
+            /(?!\*)
+          )+
+        }xi) || interp_string || interp_uri || interpolation || tok(COMMENT)
+        return result if result
+
+        if tok(/\(/)
+          value = declaration_value(top_level: false)
+          tok!(/\)/)
+          ['(', *value, ')']
+        elsif tok(/\[/)
+          value = declaration_value(top_level: false)
+          tok!(/\]/)
+          ['[', *value, ']']
+        elsif tok(/\{/)
+          value = declaration_value(top_level: false)
+          tok!(/\}/)
+          ['{', *value, '}']
+        end
+      end
+
       def declaration
         # This allows the "*prop: val", ":prop: val", "#prop: val", and ".prop:
         # val" hacks.
@@ -864,7 +923,7 @@ module Sass
         ss
         require_block = tok?(/\{/)
 
-        node = node(Sass::Tree::PropNode.new(name.flatten.compact, value, :new),
+        node = node(Sass::Tree::PropNode.new(name.flatten.compact, [value], :new),
                     name_start_pos, value_end_pos)
         node.name_source_range = range(name_start_pos, name_end_pos)
         node.value_source_range = range(value_start_pos, value_end_pos)
