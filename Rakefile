@@ -29,6 +29,11 @@ namespace :test do
 
   desc "Run sass-spec tests against the local code."
   task :spec do
+    sass_spec_options = YAML.load_file(scope("test/sass-spec.yml"))
+    unless sass_spec_options[:enabled]
+      puts "SassSpec tests are disabled."
+      next
+    end
     if ruby_gt_1_9_2?
       old_load_path = $:.dup
       begin
