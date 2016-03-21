@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/../test_helper'
+require 'fileutils'
 require 'sass/util/test'
 require 'tmpdir'
 
@@ -64,6 +65,14 @@ class ExecTest < MiniTest::Test
     assert_equal(".ruleset\r\n  margin: 0\r\n", read(src))
   end
 
+  def test_sass_convert_R
+    Dir.chdir(@dir) do
+      src = get_path("styles/src.css")
+      write(src, ".ruleset { margin: 0 }")
+      assert(exec(*%w[sass-convert -Rq --from css --to scss --trace styles]))
+    end
+  end
+
   private
 
   def get_path(name)
@@ -75,6 +84,7 @@ class ExecTest < MiniTest::Test
   end
 
   def write(file, content)
+    FileUtils.mkdir_p(File.dirname(file))
     open(file, 'wb') {|f| f.write(content)}
   end
 

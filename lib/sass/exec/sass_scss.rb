@@ -290,29 +290,6 @@ File #{@args[1]} #{err}.
 MSG
       end
 
-      # Watch the working directory for changes without adding it to the load
-      # path. This preserves the pre-3.4 behavior when the working directory was
-      # on the load path. We should remove this when we can look for directories
-      # to watch by traversing the import graph.
-      class << Sass::Plugin.compiler
-        # We have to use a class var to make this visible to #watched_file? and
-        # #watched_paths.
-        # rubocop:disable ClassVars
-        @@working_directory = Sass::Util.realpath('.').to_s
-        # rubocop:enable ClassVars
-
-        # rubocop:disable NestedMethodDefinition
-        def watched_file?(file)
-          super(file) ||
-            (file =~ /\.s[ac]ss$/ && file.start_with?(@@working_directory + File::SEPARATOR))
-        end
-
-        def watched_paths
-          @watched_paths ||= super + [@@working_directory]
-        end
-        # rubocop:enable NestedMethodDefinition
-      end
-
       dirs, files = @args.map {|name| split_colon_path(name)}.
         partition {|i, _| File.directory? i}
 

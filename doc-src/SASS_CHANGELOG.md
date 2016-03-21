@@ -3,12 +3,7 @@
 * Table of contents
 {:toc}
 
-## 4.0.0 (Unreleased)
-
-* Combine ids and `:root` when unifying selectors with `@extend` and selector
-  functions.
-
-* Add a `$weight` parameter to `invert()`.
+## 4.0.0 (UNRELEASED)
 
 ### Backwards Incompatibilities -- Must Read!
 
@@ -27,6 +22,37 @@ instead of doing the same thing as `unquote("foo + #{$var}")`.
 
 For more details, see [this blog post][interp-blog] and
 [the GitHub issue in which it was planned][interp-issue].
+
+## 3.5.0 (UNRELEASED)
+
+* Combine ids and `:root` when unifying selectors with `@extend` and selector
+  functions.
+
+* Add a `$weight` parameter to `invert()`.
+
+
+## 3.4.22 (UNRELEASED)
+
+* Sass no longer watches the current working directory unless it is on
+  the load path or the files being compiled are in the current working
+  directory. This was causing performance issues for users with large
+  numbers of files in their project directory.
+  [Issue #1562](https://github.com/sass/sass/issues/1562),
+  [Issue #1966](https://github.com/sass/sass/issues/1966),
+  [Issue #2006](https://github.com/sass/sass/issues/2006).
+
+* Support for Ruby 1.8.7 and 1.9.3 is deprecated. See
+  [this blog post][Ruby deprecation] for details.
+
+* `sass-convert` now accepts a `-q` and `--quiet` option to disable
+  ouput while it is running.
+
+* Fixed a bug in sass-convert when recursively processing
+  CSS files into Sass files which caused the process to crash
+  without processing any files.
+  [Issue #1827](https://github.com/sass/sass/issues/1827),
+
+[Ruby deprecation]: http://blog.sass-lang.com/posts/560719
 
 ## 3.4.21 (11 January 2016)
 
