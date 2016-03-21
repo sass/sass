@@ -150,6 +150,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
   def initialize(env)
     @environment = env
+    @in_keyframes = false
+    @at_root_without_rule = false
   end
 
   # If an exception is raised, this adds proper metadata to the backtrace.
