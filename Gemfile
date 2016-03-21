@@ -31,4 +31,4 @@ end
 gem 'rubyforge', :group => :development
 gem 'minitest', '>= 5.0.0', '< 6.0.0', :group => :test
 #gem "sass-spec", :path => "../sass-spec"
-gem "sass-spec", :git => 'https://github.com/chriseppstein/sass-spec.git'
+gem "sass-spec", :git => 'https://github.com/sass/sass-spec.git'
