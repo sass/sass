@@ -157,6 +157,10 @@ END
         @options[:for_engine][:read_cache] = false
       end
 
+      opts.on('-q', '--quiet', 'Silence warnings and status messages during conversion.') do |bool|
+        @options[:for_engine][:quiet] = bool
+      end
+
       opts.on('--trace', :NONE, 'Show a full Ruby stack trace on error') do
         @options[:trace] = true
       end
@@ -243,12 +247,12 @@ END
         Sass::Util.silence_sass_warnings do
           if @options[:from] == :css
             require 'sass/css'
-            Sass::CSS.new(input.read, @options[:for_tree]).render(@options[:to])
+            Sass::CSS.new(read(input), @options[:for_tree]).render(@options[:to])
           else
             if input_path
               Sass::Engine.for_file(input_path, @options[:for_engine])
             else
-              Sass::Engine.new(input.read, @options[:for_engine])
+              Sass::Engine.new(read(input), @options[:for_engine])
             end.to_tree.send("to_#{@options[:to]}", @options[:for_tree])
           end
         end
@@ -266,6 +270,14 @@ END
     def path_for(file)
       return file.path if file.is_a?(File)
       return file if file.is_a?(String)
+    end
+
+    def read(file)
+      if file.respond_to?(:read)
+        file.read
+      else
+        open(file, 'rb') {|f| f.read}
+      end
     end
   end
 end
