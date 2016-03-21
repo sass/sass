@@ -296,8 +296,12 @@ module Sass::Script::Tree
             message = "wrong number of arguments (#{given} for #{expected})"
           end
         end
-      elsif e.message =~ /^wrong number of arguments \(\d+ for \d+\)/ &&
-          e.backtrace[0] !~ /:in `(block in )?#{ruby_name}'$/
+      elsif (md = /^wrong number of arguments \(given (\d+), expected (\d+)\)/.match(e.message)) &&
+            e.backtrace[0] =~ /:in `#{ruby_name}'$/
+        # Handle ruby 2.3 error formatting
+        message = "wrong number of arguments (#{md[1]} for #{md[2]})"
+      elsif e.message =~ /^wrong number of arguments/ &&
+            e.backtrace[0] !~ /:in `(block in )?#{ruby_name}'$/
         raise e
       end
       raise Sass::SyntaxError.new("#{message} for `#{name}'")

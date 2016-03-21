@@ -36,7 +36,6 @@ matrix:
     - rvm: jruby-19mode
     - rvm: jruby-21mode
     - rvm: jruby-9.0.0.0
-    - rvm: 2.3.0
   include:
     - rvm: 2.2.3
       env: MATHN=true RUBOCOP=true
