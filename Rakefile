@@ -29,6 +29,7 @@ namespace :test do
 
   desc "Run sass-spec tests against the local code."
   task :spec do
+    require "yaml"
     sass_spec_options = YAML.load_file(scope("test/sass-spec.yml"))
     unless sass_spec_options[:enabled]
       puts "SassSpec tests are disabled."
