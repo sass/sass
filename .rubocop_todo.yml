@@ -1,5 +1,3 @@
-Style/SpaceInsideStringInterpolation:
-  Enabled: false
 Style/StringLiteralsInInterpolation:
   Enabled: false
 Style/StructInheritance:

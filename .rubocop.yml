@@ -215,3 +215,5 @@ Style/SpaceAroundOperators:
   Enabled: true
 Style/SpaceInsideRangeLiteral:
   Enabled: true
+Style/SpaceInsideStringInterpolation:
+  Enabled: true

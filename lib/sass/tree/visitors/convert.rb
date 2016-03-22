@@ -29,7 +29,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
     if @format == :sass
       "\n" + res.rstrip + "\n"
     else
-      " {\n" + res.rstrip + "\n#{ @tab_chars * (@tabs - 1)}}\n"
+      " {\n" + res.rstrip + "\n#{@tab_chars * (@tabs - 1)}}\n"
     end
   ensure
     @tabs -= 1
