@@ -1,5 +1,3 @@
-Style/LineEndConcatenation:
-  Enabled: false
 Style/Next:
   Enabled: false
 Style/MultilineOperationIndentation:

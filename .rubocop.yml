@@ -193,3 +193,5 @@ Style/GuardClause:
   Enabled: true
 Style/IndentHash:
   Enabled: true
+Style/LineEndConcatenation:
+  Enabled: false
