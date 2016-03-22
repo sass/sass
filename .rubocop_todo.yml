@@ -1,5 +1,3 @@
-Style/StructInheritance:
-  Enabled: false
 Style/SymbolProc:
   Enabled: false
 Style/TrailingUnderscoreVariable:

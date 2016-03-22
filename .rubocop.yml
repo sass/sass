@@ -219,3 +219,5 @@ Style/SpaceInsideStringInterpolation:
   Enabled: true
 Style/StringLiteralsInInterpolation:
   Enabled: true
+Style/StructInheritance:
+  Enabled: false
