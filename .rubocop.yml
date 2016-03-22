@@ -197,3 +197,5 @@ Style/LineEndConcatenation:
   Enabled: false
 Style/Next:
   Enabled: true
+Style/MultilineOperationIndentation:
+  Enabled: false
