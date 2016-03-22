@@ -221,3 +221,7 @@ Style/StringLiteralsInInterpolation:
   Enabled: true
 Style/StructInheritance:
   Enabled: false
+Style/SymbolProc:
+  # We need to enable this for Sass 3.5+
+  # Since we will have dropped support for older rubies.
+  Enabled: false
