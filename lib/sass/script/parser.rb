@@ -29,6 +29,7 @@ module Sass
       def initialize(str, line, offset, options = {})
         @options = options
         @lexer = lexer_class.new(str, line, offset, options)
+        @stop_at = nil
       end
 
       # Parses a SassScript expression within an interpolated segment (`#{}`).
@@ -234,7 +235,7 @@ RUBY
         def unary(op, sub)
           class_eval <<RUBY, __FILE__, __LINE__ + 1
             def unary_#{op}
-              return #{sub} unless tok = try_tok(:#{op})
+              return #{sub} unless try_tok(:#{op})
               start_pos = source_position
               node(Tree::UnaryOperation.new(assert_expr(:unary_#{op}), :#{op}), start_pos)
             end

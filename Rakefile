@@ -23,7 +23,7 @@ namespace :test do
     test_files.exclude(scope('test/rails/*'))
     test_files.exclude(scope('test/plugins/*'))
     t.test_files = test_files
-    t.warning = false
+    t.warning = true
     t.verbose = true
   end
 
@@ -35,7 +35,7 @@ namespace :test do
       puts "SassSpec tests are disabled."
       next
     end
-    if ruby_gt_1_9_2?
+    if ruby_version_at_least?("1.9.2")
       old_load_path = $:.dup
       begin
         $:.unshift(File.join(File.dirname(__FILE__), "lib"))
@@ -79,24 +79,20 @@ end
 
 # ----- Code Style Enforcement -----
 
-version = RUBY_VERSION.split(".").map {|n| n.to_i}
-
-def ruby_gt_1_9_2?
+def ruby_version_at_least?(version_string)
   ruby_version = Gem::Version.new(RUBY_VERSION.dup)
-  version_1_9_2 = Gem::Version.new("1.9.2")
-  ruby_version >= version_1_9_2
+  version = Gem::Version.new(version_string)
+  ruby_version >= version
 end
 
 # TODO: Run Rubocop on Ruby 2.2+ when it's supported. See
 # https://github.com/sass/sass/pull/1805.
-if (version[0] > 1 || (version[0] == 1 && version[1] > 8)) &&
-    (version[0] < 2 || (version[0] == 2 && version[1] < 2)) &&
+if ruby_version_at_least?("2.2.0") &&
     (ENV.has_key?("RUBOCOP") && ENV["RUBOCOP"] == "true" ||
       !(ENV.has_key?("RUBOCOP") || ENV.has_key?("TEST")))
   require 'rubocop/rake_task'
   RuboCop = Rubocop unless defined?(RuboCop)
   RuboCop::RakeTask.new do |t|
-    t.options = ['-c', '.rubocop_0.18.0.yml'] if RUBY_VERSION < '1.9.3'
     t.patterns = FileList["lib/**/*"]
   end
 else
@@ -175,7 +171,6 @@ end
 
 desc "Release a new Sass package to RubyGems.org."
 task :release => [:check_release, :package] do
-  name = File.read(scope("VERSION_NAME")).strip
   version = File.read(scope("VERSION")).strip
   sh %{gem push pkg/sass-#{version}.gem}
 end

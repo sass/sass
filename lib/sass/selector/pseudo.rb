@@ -9,7 +9,7 @@ module Sass
       # selectors.
       #
       # @return [Set<String>]
-      ACTUALLY_ELEMENTS = %w[after before first-line first-letter].to_set
+      ACTUALLY_ELEMENTS = %w(after before first-line first-letter).to_set
 
       # Like \{#type}, but returns the type of selector this looks like, rather
       # than the type it is semantically. This only differs from type for

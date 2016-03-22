@@ -5,8 +5,7 @@ gemspec
 if RUBY_VERSION =~ /^1\.8/ || RUBY_VERSION =~ /^1\.9\.[012]$/
   gem 'rake', '~> 10.5.0'
 else
-  #gem 'rake' # rake 11 uses ruby in warning mode and I can't figure out how to disable it -chris
-  gem 'rake', '~> 10.5.0'
+  gem 'rake', '~> 11.0'
 end
 
 # Pin this version since Rubocop occasionally adds new cops in

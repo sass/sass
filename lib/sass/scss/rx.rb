@@ -32,7 +32,7 @@ module Sass
       # @return [String] The escaped character
       # @private
       def self.escape_char(c)
-        return "\\%06x" % c.ord unless c =~ /[ -\/:-~]/
+        return "\\%06x" % c.ord unless c =~ %r{[ -/:-~]}
         "\\#{c}"
       end
 
@@ -127,7 +127,7 @@ module Sass
       STRING_NOINTERP = /#{STRING1_NOINTERP}|#{STRING2_NOINTERP}/
 
       STATIC_COMPONENT = /#{IDENT}|#{STRING_NOINTERP}|#{HEXCOLOR}|[+-]?#{NUMBER}|\!important/i
-      STATIC_VALUE = /#{STATIC_COMPONENT}(\s*[\s,\/]\s*#{STATIC_COMPONENT})*(?=[;}])/i
+      STATIC_VALUE = %r(#{STATIC_COMPONENT}(\s*[\s,\/]\s*#{STATIC_COMPONENT})*(?=[;}]))i
       STATIC_SELECTOR = /(#{NMCHAR}|[ \t]|[,>+*]|[:#.]#{NMSTART}){1,50}([{])/i
     end
   end

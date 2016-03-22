@@ -1059,7 +1059,7 @@ CSS
 a
   b: foo() / 2
 SASS
-end
+  end
 
   def test_funcall_has_higher_precedence_than_color_name
     assert_equal "teal(12)", resolve("teal(12)")

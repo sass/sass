@@ -295,7 +295,7 @@ SCSS
     assert_extends 'a.foo:bar', '.baz {@extend .foo}', 'a.foo:bar, a.baz:bar'
   end
 
-  def test_id_unification
+  def test_id_unification_again
     assert_unification('#id.foo .bar', '#id.baz .qux {@extend .bar}',
         '#id.foo .bar, #id.baz.foo .qux')
   end

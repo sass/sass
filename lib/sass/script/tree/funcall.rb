@@ -206,7 +206,7 @@ module Sass::Script::Tree
 
       argnames = signature.args[args.size..-1] || []
       deprecated_argnames = (signature.deprecated && signature.deprecated[args.size..-1]) || []
-      args = args + argnames.zip(deprecated_argnames).map do |(argname, deprecated_argname)|
+      args += argnames.zip(deprecated_argnames).map do |(argname, deprecated_argname)|
         if keywords.has_key?(argname)
           keywords.delete(argname)
         elsif deprecated_argname && keywords.has_key?(deprecated_argname)

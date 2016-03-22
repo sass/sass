@@ -25,7 +25,8 @@ module Sass::Script::Value
       rgba
     end
 
-    ALTERNATE_COLOR_NAMES = Sass::Util.map_vals({
+    ALTERNATE_COLOR_NAMES = Sass::Util.map_vals(
+      {
         'aqua'                 => 0x00FFFFFF,
         'darkgrey'             => 0xA9A9A9FF,
         'darkslategrey'        => 0x2F4F4FFF,
@@ -35,10 +36,11 @@ module Sass::Script::Value
         'lightgrey'            => 0xD3D3D3FF,
         'lightslategrey'       => 0x778899FF,
         'slategrey'            => 0x708090FF,
-    }, &method(:int_to_rgba))
+      }, &method(:int_to_rgba))
 
     # A hash from color names to `[red, green, blue]` value arrays.
-    COLOR_NAMES = Sass::Util.map_vals({
+    COLOR_NAMES = Sass::Util.map_vals(
+      {
         'aliceblue'            => 0xF0F8FFFF,
         'antiquewhite'         => 0xFAEBD7FF,
         'aquamarine'           => 0x7FFFD4FF,
@@ -179,7 +181,7 @@ module Sass::Script::Value
         'whitesmoke'           => 0xF5F5F5FF,
         'yellow'               => 0xFFFF00FF,
         'yellowgreen'          => 0x9ACD32FF
-     }, &method(:int_to_rgba))
+      }, &method(:int_to_rgba))
 
     # A hash from `[red, green, blue, alpha]` value arrays to color names.
     COLOR_NAMES_REVERSE = COLOR_NAMES.invert.freeze

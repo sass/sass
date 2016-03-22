@@ -35,6 +35,7 @@ module Sass
       # Backwards compatibility
       @options[:old] = true if @options[:alternate] == false
       @template = template
+      @checked_encoding = false
     end
 
     # Converts the CSS template into Sass or SCSS code.
@@ -74,14 +75,14 @@ module Sass
     # @return [Tree::Node] The root node of the parsed tree
     def build_tree
       root = Sass::SCSS::CssParser.new(@template, @options[:filename], nil).parse
-      parse_selectors    root
-      expand_commas      root
-      nest_seqs          root
-      parent_ref_rules   root
-      flatten_rules      root
-      bubble_subject     root
-      fold_commas        root
-      dump_selectors     root
+      parse_selectors(root)
+      expand_commas(root)
+      nest_seqs(root)
+      parent_ref_rules(root)
+      flatten_rules(root)
+      bubble_subject(root)
+      fold_commas(root)
+      dump_selectors(root)
       root
     end
 

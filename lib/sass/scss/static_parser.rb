@@ -62,7 +62,7 @@ module Sass
       private
 
       def moz_document_function
-        val = tok(URI) || tok(URL_PREFIX) || tok(DOMAIN) || function(!:allow_var)
+        val = tok(URI) || tok(URL_PREFIX) || tok(DOMAIN) || function(false)
         return unless val
         ss
         [val]
@@ -78,7 +78,7 @@ module Sass
       def use_css_import?; true; end
 
       def special_directive(name, start_pos)
-        return unless %w[media import charset -moz-document].include?(name)
+        return unless %w(media import charset -moz-document).include?(name)
         super
       end
 
@@ -89,13 +89,12 @@ module Sass
         ws = ''
         while tok(/,/)
           ws << str {ss}
-          if (sel = selector)
-            selectors << sel
-            if ws.include?("\n")
-              selectors[-1] = Selector::Sequence.new(["\n"] + selectors.last.members)
-            end
-            ws = ''
+          next unless (sel = selector)
+          selectors << sel
+          if ws.include?("\n")
+            selectors[-1] = Selector::Sequence.new(["\n"] + selectors.last.members)
           end
+          ws = ''
         end
         Selector::CommaSequence.new(selectors)
       end
@@ -140,11 +139,11 @@ MESSAGE
       end
 
       def reference_combinator
-        return unless tok(/\//)
+        return unless tok(%r{/})
         res = '/'
         ns, name = expr!(:qualified_name)
         res << ns << '|' if ns
-        res << name << tok!(/\//)
+        res << name << tok!(%r{/})
         res
       end
 
@@ -266,9 +265,9 @@ MESSAGE
         return ns, name
       end
 
-      SELECTOR_PSEUDO_CLASSES = %w[not matches current any has host host-context].to_set
+      SELECTOR_PSEUDO_CLASSES = %w(not matches current any has host host-context).to_set
 
-      PREFIXED_SELECTOR_PSEUDO_CLASSES = %w[nth-child nth-last-child].to_set
+      PREFIXED_SELECTOR_PSEUDO_CLASSES = %w(nth-child nth-last-child).to_set
 
       def pseudo
         s = tok(/::?/)

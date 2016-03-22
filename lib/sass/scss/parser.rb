@@ -28,6 +28,8 @@ module Sass
         @line = line
         @offset = offset
         @strs = []
+        @expected = nil
+        @throw_error = false
       end
 
       # Parses an SCSS document.
@@ -509,7 +511,7 @@ module Sass
 
       def moz_document_function
         val = interp_uri || _interp_string(:url_prefix) ||
-          _interp_string(:domain) || function(!:allow_var) || interpolation
+          _interp_string(:domain) || function(false) || interpolation
         return unless val
         ss
         val
@@ -638,7 +640,7 @@ module Sass
         # are disallowed by the CSS spec,
         # but they're included here for compatibility
         # with some proprietary MS properties
-        str {ss if tok(/[\/,:.=]/)}
+        str {ss if tok(%r{[/,:.=]})}
       end
 
       def ruleset
@@ -1102,7 +1104,7 @@ module Sass
 
         unless name
           # Display basic regexps as plain old strings
-          source = rx.source.gsub(/\\\//, '/')
+          source = rx.source.gsub(%r{\\/}, '/')
           string = rx.source.gsub(/\\(.)/, '\1')
           name = source == Regexp.escape(string) ? string.inspect : rx.inspect
         end

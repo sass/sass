@@ -71,6 +71,7 @@ module Sass::Script::Value
       super(value)
       @numerator_units = numerator_units
       @denominator_units = denominator_units
+      @options = nil
       normalize!
     end
 
@@ -469,11 +470,10 @@ module Sass::Script::Value
         sans_common_units(@numerator_units, @denominator_units)
 
       @denominator_units.each_with_index do |d, i|
-        if convertable?(d) && (u = @numerator_units.find(&method(:convertable?)))
-          @value /= conversion_factor(d, u)
-          @denominator_units.delete_at(i)
-          @numerator_units.delete_at(@numerator_units.index(u))
-        end
+        next unless convertable?(d) && (u = @numerator_units.find(&method(:convertable?)))
+        @value /= conversion_factor(d, u)
+        @denominator_units.delete_at(i)
+        @numerator_units.delete_at(@numerator_units.index(u))
       end
     end
 

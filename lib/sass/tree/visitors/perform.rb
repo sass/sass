@@ -150,6 +150,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
   def initialize(env)
     @environment = env
+    @in_keyframes = false
+    @at_root_without_rule = false
   end
 
   # If an exception is raised, this adds proper metadata to the backtrace.
@@ -287,7 +289,7 @@ WARNING
 
     @environment.set_local_function(node.name,
       Sass::Callable.new(node.name, node.args, node.splat, env,
-                         node.children, !:has_content, "function"))
+                         node.children, false, "function"))
     []
   end
 
@@ -349,7 +351,7 @@ WARNING
       raise Sass::SyntaxError.new("Undefined mixin '#{node.name}'.") unless mixin
 
       if node.children.any? && !mixin.has_content
-        raise Sass::SyntaxError.new(%{Mixin "#{node.name}" does not accept a content block.})
+        raise Sass::SyntaxError.new(%(Mixin "#{node.name}" does not accept a content block.))
       end
 
       args = node.args.map {|a| a.perform(@environment)}

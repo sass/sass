@@ -661,8 +661,8 @@ module Sass
       path = path.tr('\\', '/') if windows?
       path = URI::DEFAULT_PARSER.escape(path)
       return path.start_with?('/') ? "file://" + path : path unless windows?
-      return "file:///" + path.tr("\\", "/") if path =~ /^[a-zA-Z]:[\/\\]/
-      return "file:" + path.tr("\\", "/") if path =~ /\\\\[^\\]+\\[^\\\/]+/
+      return "file:///" + path.tr("\\", "/") if path =~ %r{^[a-zA-Z]:[/\\]}
+      return "file:" + path.tr("\\", "/") if path =~ %r{\\\\[^\\]+\\[^\\/]+}
       path.tr("\\", "/")
     end
 

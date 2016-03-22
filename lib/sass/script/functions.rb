@@ -897,7 +897,7 @@ module Sass::Script
              a.value =~ /^[a-zA-Z]+\s*=/
          end
         # Support the proprietary MS alpha() function
-        return identifier("alpha(#{args.map {|a| a.to_s}.join(", ")})")
+        return identifier("alpha(#{args.map {|a| a.to_s}.join(', ')})")
       end
 
       raise ArgumentError.new("wrong number of arguments (#{args.size} for 1)") if args.size != 1
@@ -1915,7 +1915,7 @@ MESSAGE
     # @return [Sass::Script::Value::List]
     def join(list1, list2, separator = identifier("auto"))
       assert_type separator, :String, :separator
-      unless %w[auto space comma].include?(separator.value)
+      unless %w(auto space comma).include?(separator.value)
         raise ArgumentError.new("Separator name must be space, comma, or auto")
       end
       sep = if separator.value == 'auto'
@@ -1951,7 +1951,7 @@ MESSAGE
     # @return [Sass::Script::Value::List]
     def append(list, val, separator = identifier("auto"))
       assert_type separator, :String, :separator
-      unless %w[auto space comma].include?(separator.value)
+      unless %w(auto space comma).include?(separator.value)
         raise ArgumentError.new("Separator name must be space, comma, or auto")
       end
       sep = if separator.value == 'auto'
@@ -2420,7 +2420,7 @@ MESSAGE
       end
 
       parsed = [parse_selector(selectors.first, :selectors)]
-      parsed += selectors[1..-1].map {|sel| parse_selector(sel, :selectors, !!:parse_parent_ref)}
+      parsed += selectors[1..-1].map {|sel| parse_selector(sel, :selectors, true)}
       parsed.inject {|result, child| child.resolve_parent_refs(result)}.to_sass_script
     end
     declare :selector_nest, [], :var_args => true
@@ -2552,7 +2552,7 @@ MESSAGE
       extends = Sass::Util::SubsetMap.new
       begin
         replacement.populate_extends(extends, original)
-        selector.do_extend(extends, [], !!:replace).to_sass_script
+        selector.do_extend(extends, [], true).to_sass_script
       rescue Sass::SyntaxError => e
         raise ArgumentError.new(e.to_s)
       end
