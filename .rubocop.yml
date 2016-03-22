@@ -1,5 +1,3 @@
-inherit_from: .rubocop_todo.yml
-
 Lint/BlockAlignment:
   Enabled: false
 Lint/EndAlignment:
