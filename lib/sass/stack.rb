@@ -101,8 +101,8 @@ module Sass
     def to_s
       Sass::Util.enum_with_index(Sass::Util.enum_cons(frames.reverse + [nil], 2)).
           map do |(frame, caller), i|
-        "#{i == 0 ? "on" : "from"} line #{frame.line}" +
-          " of #{frame.filename || "an unknown file"}" +
+        "#{i == 0 ? 'on' : 'from'} line #{frame.line}" +
+          " of #{frame.filename || 'an unknown file'}" +
           (caller && caller.name ? ", in `#{caller.name}'" : "")
       end.join("\n")
     end

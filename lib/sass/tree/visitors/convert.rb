@@ -104,12 +104,12 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
 
   def visit_extend(node)
     "#{tab_str}@extend #{selector_to_src(node.selector).lstrip}" +
-      "#{" !optional" if node.optional?}#{semi}\n"
+      "#{' !optional' if node.optional?}#{semi}\n"
   end
 
   def visit_for(node)
     "#{tab_str}@for $#{dasherize(node.var)} from #{node.from.to_sass(@options)} " +
-      "#{node.exclusive ? "to" : "through"} #{node.to.to_sass(@options)}#{yield}"
+      "#{node.exclusive ? 'to' : 'through'} #{node.to.to_sass(@options)}#{yield}"
   end
 
   def visit_function(node)

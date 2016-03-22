@@ -217,3 +217,5 @@ Style/SpaceInsideRangeLiteral:
   Enabled: true
 Style/SpaceInsideStringInterpolation:
   Enabled: true
+Style/StringLiteralsInInterpolation:
+  Enabled: true

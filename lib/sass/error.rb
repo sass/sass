@@ -127,7 +127,7 @@ module Sass
       return nil if super.nil?
       return super if sass_backtrace.all? {|h| h.empty?}
       sass_backtrace.map do |h|
-        "#{h[:filename] || "(sass)"}:#{h[:line]}" +
+        "#{h[:filename] || '(sass)'}:#{h[:line]}" +
           (h[:mixin] ? ":in `#{h[:mixin]}'" : "")
       end + super
     end
@@ -143,7 +143,7 @@ module Sass
         map {|l| "\n" + (" " * "Error: ".size) + l}.join
       "Error: #{msg}" +
         Sass::Util.enum_with_index(sass_backtrace).map do |entry, i|
-          "\n        #{i == 0 ? "on" : "from"} line #{entry[:line]}" +
+          "\n        #{i == 0 ? 'on' : 'from'} line #{entry[:line]}" +
             " of #{entry[:filename] || default_filename}" +
             (entry[:mixin] ? ", in `#{entry[:mixin]}'" : "")
         end.join
@@ -163,9 +163,9 @@ module Sass
 
         <<END
 /*
-#{header.gsub("*/", "*\\/")}
+#{header.gsub('*/', '*\\/')}
 
-Backtrace:\n#{e.backtrace.join("\n").gsub("*/", "*\\/")}
+Backtrace:\n#{e.backtrace.join("\n").gsub('*/', '*\\/')}
 */
 body:before {
   white-space: pre;

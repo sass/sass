@@ -901,7 +901,7 @@ module Sass::Script
              a.value =~ /^[a-zA-Z]+\s*=/
          end
         # Support the proprietary MS alpha() function
-        return identifier("alpha(#{args.map {|a| a.to_s}.join(", ")})")
+        return identifier("alpha(#{args.map {|a| a.to_s}.join(', ')})")
       end
 
       raise ArgumentError.new("wrong number of arguments (#{args.size} for 1)") if args.size != 1
