@@ -203,3 +203,5 @@ Style/MultilineTernaryOperator:
   Enabled: true
 Style/ParallelAssignment:
   Enabled: false
+Style/PercentLiteralDelimiters:
+  Enabled: true

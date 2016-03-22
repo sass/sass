@@ -1913,7 +1913,7 @@ MESSAGE
     # @return [Sass::Script::Value::List]
     def join(list1, list2, separator = identifier("auto"))
       assert_type separator, :String, :separator
-      unless %w[auto space comma].include?(separator.value)
+      unless %w(auto space comma).include?(separator.value)
         raise ArgumentError.new("Separator name must be space, comma, or auto")
       end
       sep = if separator.value == 'auto'
@@ -1949,7 +1949,7 @@ MESSAGE
     # @return [Sass::Script::Value::List]
     def append(list, val, separator = identifier("auto"))
       assert_type separator, :String, :separator
-      unless %w[auto space comma].include?(separator.value)
+      unless %w(auto space comma).include?(separator.value)
         raise ArgumentError.new("Separator name must be space, comma, or auto")
       end
       sep = if separator.value == 'auto'

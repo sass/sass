@@ -260,7 +260,7 @@ module Sass
 
         # Some psuedo-selectors can be subselectors of non-pseudo selectors.
         # Pull those out here so we can efficiently check against them below.
-        their_subselector_pseudos = %w[matches any nth-child nth-last-child].
+        their_subselector_pseudos = %w(matches any nth-child nth-last-child).
           map {|name| their_spcs[name] || []}.flatten
 
         # If `self`'s non-pseudo simple selectors aren't a subset of `their_sseq`'s,

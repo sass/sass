@@ -78,7 +78,7 @@ module Sass
       def use_css_import?; true; end
 
       def special_directive(name, start_pos)
-        return unless %w[media import charset -moz-document].include?(name)
+        return unless %w(media import charset -moz-document).include?(name)
         super
       end
 
@@ -265,9 +265,9 @@ MESSAGE
         return ns, name
       end
 
-      SELECTOR_PSEUDO_CLASSES = %w[not matches current any has host host-context].to_set
+      SELECTOR_PSEUDO_CLASSES = %w(not matches current any has host host-context).to_set
 
-      PREFIXED_SELECTOR_PSEUDO_CLASSES = %w[nth-child nth-last-child].to_set
+      PREFIXED_SELECTOR_PSEUDO_CLASSES = %w(nth-child nth-last-child).to_set
 
       def pseudo
         s = tok(/::?/)

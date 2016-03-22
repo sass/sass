@@ -395,10 +395,10 @@ module Sass
                 ([merged, '+'] if merged)
               ].compact
             end
-          elsif op1 == '>' && %w[~ +].include?(op2)
+          elsif op1 == '>' && %w(~ +).include?(op2)
             res.unshift sel2, op2
             seq1.push sel1, op1
-          elsif op2 == '>' && %w[~ +].include?(op1)
+          elsif op2 == '>' && %w(~ +).include?(op1)
             res.unshift sel1, op1
             seq2.push sel2, op2
           elsif op1 == op2

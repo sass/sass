@@ -1,5 +1,3 @@
-Style/PercentLiteralDelimiters:
-  Enabled: false
 Style/RegexpLiteral:
   Enabled: false
 Style/SelfAssignment:
