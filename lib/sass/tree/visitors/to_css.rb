@@ -120,12 +120,10 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     node.children.each do |child|
       next if child.invisible?
       visit(child)
-      unless node.style == :compressed
-        output "\n"
-        if child.is_a?(Sass::Tree::DirectiveNode) && child.has_children && !child.bubbles?
-          output "\n"
-        end
-      end
+      next if node.style == :compressed
+      output "\n"
+      next unless child.is_a?(Sass::Tree::DirectiveNode) && child.has_children && !child.bubbles?
+      output "\n"
     end
     rstrip!
     if node.style == :compressed && trailing_semicolon?

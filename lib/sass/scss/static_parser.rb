@@ -89,13 +89,12 @@ module Sass
         ws = ''
         while tok(/,/)
           ws << str {ss}
-          if (sel = selector)
-            selectors << sel
-            if ws.include?("\n")
-              selectors[-1] = Selector::Sequence.new(["\n"] + selectors.last.members)
-            end
-            ws = ''
+          next unless (sel = selector)
+          selectors << sel
+          if ws.include?("\n")
+            selectors[-1] = Selector::Sequence.new(["\n"] + selectors.last.members)
           end
+          ws = ''
         end
         Selector::CommaSequence.new(selectors)
       end

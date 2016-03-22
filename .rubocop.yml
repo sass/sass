@@ -195,3 +195,5 @@ Style/IndentHash:
   Enabled: true
 Style/LineEndConcatenation:
   Enabled: false
+Style/Next:
+  Enabled: true

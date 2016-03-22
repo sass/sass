@@ -457,11 +457,10 @@ module Sass::Plugin
           # And try to remove the css file that corresponds to it
           template_location_array.each do |(sass_dir, css_dir)|
             sass_dir = File.expand_path(sass_dir)
-            if child_of_directory?(sass_dir, f)
-              remainder = f[(sass_dir.size + 1)..-1]
-              try_delete_css(css_filename(remainder, css_dir))
-              break
-            end
+            next unless child_of_directory?(sass_dir, f)
+            remainder = f[(sass_dir.size + 1)..-1]
+            try_delete_css(css_filename(remainder, css_dir))
+            break
           end
         end
       end

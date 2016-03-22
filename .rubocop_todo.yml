@@ -1,5 +1,3 @@
-Style/Next:
-  Enabled: false
 Style/MultilineOperationIndentation:
   Enabled: false
 Style/MultilineTernaryOperator:
