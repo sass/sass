@@ -211,3 +211,5 @@ Style/SelfAssignment:
   Enabled: true
 Style/SingleSpaceBeforeFirstArg:
   Enabled: true
+Style/SpaceAroundOperators:
+  Enabled: true
