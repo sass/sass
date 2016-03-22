@@ -29,6 +29,7 @@ module Sass
       def initialize(str, line, offset, options = {})
         @options = options
         @lexer = lexer_class.new(str, line, offset, options)
+        @stop_at = nil
       end
 
       # Parses a SassScript expression within an interpolated segment (`#{}`).
@@ -46,7 +47,7 @@ module Sass
         expr = assert_expr :expr
         assert_tok :end_interpolation
         expr = Sass::Script::Tree::Interpolation.new(
-          nil, expr, nil, !:wb, !:wa, :warn_for_color => warn_for_color)
+          nil, expr, nil, false, false, :warn_for_color => warn_for_color)
         check_for_interpolation expr
         expr.options = @options
         node(expr, start_pos)
@@ -373,7 +374,7 @@ RUBY
 
         interp = node(
           Script::Tree::Interpolation.new(
-            prev, str, nil, wb, !:wa, :originally_text => true, :deprecation => deprecation),
+            prev, str, nil, wb, false, :originally_text => true, :deprecation => deprecation),
           (prev || str).source_range.start_pos)
         interpolation(interp)
       end
@@ -399,7 +400,7 @@ RUBY
           end
         interp = node(
           Script::Tree::Interpolation.new(
-            prev, str, assert_expr(name), !:wb, wa,
+            prev, str, assert_expr(name), false, wa,
             :originally_text => true, :deprecation => deprecation),
           (prev || str).source_range.start_pos)
         interp
@@ -577,7 +578,7 @@ RUBY
         assert_tok :end_interpolation
         last = assert_expr(:special_fun)
         node(
-          Tree::Interpolation.new(str, mid, last, !:wb, !:wa),
+          Tree::Interpolation.new(str, mid, last, false, false),
           first.source_range.start_pos)
       end
 

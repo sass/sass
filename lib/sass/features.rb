@@ -7,12 +7,12 @@ module Sass
     #
     # When this is updated, the documentation of `feature-exists()` should be
     # updated as well.
-    KNOWN_FEATURES = Set[*%w{
+    KNOWN_FEATURES = Set[*%w(
       global-variable-shadowing
       extend-selector-pseudoclass
       units-level-3
       at-error
-    }]
+    )]
 
     # Check if a feature exists by name. This is used to implement
     # the Sass function `feature-exists($feature)`

@@ -156,7 +156,7 @@ END
           '  file: always absolute file URIs',
           '  inline: include the source text in the sourcemap',
           '  none: no sourcemaps') do |type|
-        if type && !%w[auto file inline none].include?(type)
+        if type && !%w(auto file inline none).include?(type)
           $stderr.puts "Unknown sourcemap type #{type}.\n\n"
           $stderr.puts opts
           exit
@@ -413,7 +413,7 @@ WARNING
     def split_colon_path(path)
       one, two = path.split(':', 2)
       if one && two && Sass::Util.windows? &&
-          one =~ /\A[A-Za-z]\Z/ && two =~ /\A[\/\\]/
+          one =~ /\A[A-Za-z]\Z/ && two =~ %r{\A[/\\]}
         # If we're on Windows and we were passed a drive letter path,
         # don't split on that colon.
         one2, two = two.split(':', 2)

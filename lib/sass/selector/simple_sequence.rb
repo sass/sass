@@ -88,7 +88,7 @@ module Sass
       def resolve_parent_refs(super_cseq)
         resolved_members = @members.map do |sel|
           next sel unless sel.is_a?(Pseudo) && sel.selector
-          sel.with_selector(sel.selector.resolve_parent_refs(super_cseq, !:implicit_parent))
+          sel.with_selector(sel.selector.resolve_parent_refs(super_cseq, false))
         end.flatten
 
         # Parent selector only appears as the first selector in the sequence
@@ -161,7 +161,7 @@ module Sass
         members = self.members.map do |sel|
           next sel unless sel.is_a?(Pseudo) && sel.selector
           next sel if seen.include?([sel])
-          extended = sel.selector.do_extend(extends, parent_directives, replace, seen, !:original)
+          extended = sel.selector.do_extend(extends, parent_directives, replace, seen, false)
           next sel if extended == sel.selector
           extended.members.reject! {|seq| seq.has_placeholder?}
 
@@ -204,7 +204,7 @@ module Sass
         groups.map! do |sels, seq|
           next [] if seen.include?(sels)
           seq.do_extend(
-            extends, parent_directives, !:replace, seen_with_pseudo_selectors + [sels], !:original)
+            extends, parent_directives, false, seen_with_pseudo_selectors + [sels], false)
         end
         groups.flatten!
 
@@ -260,7 +260,7 @@ module Sass
 
         # Some psuedo-selectors can be subselectors of non-pseudo selectors.
         # Pull those out here so we can efficiently check against them below.
-        their_subselector_pseudos = %w[matches any nth-child nth-last-child].
+        their_subselector_pseudos = %w(matches any nth-child nth-last-child).
           map {|name| their_spcs[name] || []}.flatten
 
         # If `self`'s non-pseudo simple selectors aren't a subset of `their_sseq`'s,

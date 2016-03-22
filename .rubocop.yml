@@ -1,5 +1,3 @@
-inherit_from: .rubocop_todo.yml
-
 Lint/BlockAlignment:
   Enabled: false
 Lint/EndAlignment:
@@ -191,3 +189,39 @@ Style/FirstParameterIndentation:
   Enabled: true
 Style/GuardClause:
   Enabled: true
+Style/IndentHash:
+  Enabled: true
+Style/LineEndConcatenation:
+  Enabled: false
+Style/Next:
+  Enabled: true
+Style/MultilineOperationIndentation:
+  Enabled: false
+Style/MultilineTernaryOperator:
+  Enabled: true
+Style/ParallelAssignment:
+  Enabled: false
+Style/PercentLiteralDelimiters:
+  Enabled: true
+Style/RegexpLiteral:
+  Enabled: true
+Style/SelfAssignment:
+  Enabled: true
+Style/SingleSpaceBeforeFirstArg:
+  Enabled: true
+Style/SpaceAroundOperators:
+  Enabled: true
+Style/SpaceInsideRangeLiteral:
+  Enabled: true
+Style/SpaceInsideStringInterpolation:
+  Enabled: true
+Style/StringLiteralsInInterpolation:
+  Enabled: true
+Style/StructInheritance:
+  Enabled: false
+Style/SymbolProc:
+  # We need to enable this for Sass 3.5+
+  # Since we will have dropped support for older rubies.
+  Enabled: false
+Style/TrailingUnderscoreVariable:
+  Enabled: false

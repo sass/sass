@@ -101,8 +101,8 @@ module Sass
     def to_s
       (frames.reverse + [nil]).each_cons(2).each_with_index.
           map do |(frame, caller), i|
-        "#{i == 0 ? "on" : "from"} line #{frame.line}" +
-          " of #{frame.filename || "an unknown file"}" +
+        "#{i == 0 ? 'on' : 'from'} line #{frame.line}" +
+          " of #{frame.filename || 'an unknown file'}" +
           (caller && caller.name ? ", in `#{caller.name}'" : "")
       end.join("\n")
     end

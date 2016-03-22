@@ -22,6 +22,7 @@ module Sass::Script::Value
     def initialize(value = nil)
       value.freeze unless value.nil? || value == true || value == false
       @value = value
+      @options = nil
     end
 
     # Sets the options hash for this node,
