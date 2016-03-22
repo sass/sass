@@ -213,3 +213,5 @@ Style/SingleSpaceBeforeFirstArg:
   Enabled: true
 Style/SpaceAroundOperators:
   Enabled: true
+Style/SpaceInsideRangeLiteral:
+  Enabled: true
