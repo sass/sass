@@ -289,7 +289,7 @@ WARNING
 
     @environment.set_local_function(node.name,
       Sass::Callable.new(node.name, node.args, node.splat, env,
-                         node.children, !:has_content, "function"))
+                         node.children, false, "function"))
     []
   end
 

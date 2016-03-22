@@ -2419,7 +2419,7 @@ MESSAGE
       end
 
       parsed = [parse_selector(selectors.first, :selectors)]
-      parsed += selectors[1..-1].map {|sel| parse_selector(sel, :selectors, !!:parse_parent_ref)}
+      parsed += selectors[1..-1].map {|sel| parse_selector(sel, :selectors, true)}
       parsed.inject {|result, child| child.resolve_parent_refs(result)}.to_sass_script
     end
     declare :selector_nest, [], :var_args => true
@@ -2551,7 +2551,7 @@ MESSAGE
       extends = Sass::Util::SubsetMap.new
       begin
         replacement.populate_extends(extends, original)
-        selector.do_extend(extends, [], !!:replace).to_sass_script
+        selector.do_extend(extends, [], true).to_sass_script
       rescue Sass::SyntaxError => e
         raise ArgumentError.new(e.to_s)
       end

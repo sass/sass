@@ -87,7 +87,7 @@ class CompilerTest < MiniTest::Test
     private
     def create_listener(*args, &on_filesystem_event)
       if Sass::Util.listen_geq_2?
-        options = args.pop if args.last.is_a?(Hash)
+        args.pop if args.last.is_a?(Hash)
         args.map do |dir|
           @fake_listener = FakeListener.new(*args, &on_filesystem_event)
           @fake_listener.on_start!(&run_during_start)

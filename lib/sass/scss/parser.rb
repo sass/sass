@@ -511,7 +511,7 @@ module Sass
 
       def moz_document_function
         val = interp_uri || _interp_string(:url_prefix) ||
-          _interp_string(:domain) || function(!:allow_var) || interpolation
+          _interp_string(:domain) || function(false) || interpolation
         return unless val
         ss
         val
