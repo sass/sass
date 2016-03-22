@@ -201,3 +201,5 @@ Style/MultilineOperationIndentation:
   Enabled: false
 Style/MultilineTernaryOperator:
   Enabled: true
+Style/ParallelAssignment:
+  Enabled: false
