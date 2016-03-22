@@ -209,3 +209,5 @@ Style/RegexpLiteral:
   Enabled: true
 Style/SelfAssignment:
   Enabled: true
+Style/SingleSpaceBeforeFirstArg:
+  Enabled: true
