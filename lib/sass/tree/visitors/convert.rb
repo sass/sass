@@ -47,14 +47,14 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   def visit_comment(node)
     value = interp_to_src(node.value)
     if @format == :sass
-      content = value.gsub(/\*\/$/, '').rstrip
+      content = value.gsub(%r{\*/$}, '').rstrip
       if content =~ /\A[ \t]/
         # Re-indent SCSS comments like this:
         #     /* foo
         #   bar
         #       baz */
         content.gsub!(/^/, '   ')
-        content.sub!(/\A([ \t]*)\/\*/, '/*\1')
+        content.sub!(%r{\A([ \t]*)/\*}, '/*\1')
       end
 
       if content.include?("\n")
@@ -68,13 +68,13 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
         end
       end
 
-      content.gsub!(/\A\/\*/, '//') if node.type == :silent
+      content.gsub!(%r{\A/\*}, '//') if node.type == :silent
       content.gsub!(/^/, tab_str)
       content = content.rstrip + "\n"
     else
       spaces = (@tab_chars * [@tabs - value[/^ */].size, 0].max)
       content = if node.type == :silent
-                  value.gsub(/^[\/ ]\*/, '//').gsub(/ *\*\/$/, '')
+                  value.gsub(%r{^[/ ]\*}, '//').gsub(%r{ *\*/$}, '')
                 else
                   value
                 end.gsub(/^/, spaces) + "\n"

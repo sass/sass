@@ -572,8 +572,8 @@ MSG
           if continued_comment &&
               child.line == continued_comment.line +
               continued_comment.lines + 1
-            continued_comment.value.last.sub!(/ \*\/\Z/, '')
-            child.value.first.gsub!(/\A\/\*/, ' *')
+            continued_comment.value.last.sub!(%r{ \*/\Z}, '')
+            child.value.first.gsub!(%r{\A/\*}, ' *')
             continued_comment.value += ["\n"] + child.value
             next
           end
@@ -1154,7 +1154,7 @@ WARNING
       end
 
       return "/* */" if content.empty?
-      content.last.gsub!(/ ?\*\/ *$/, '')
+      content.last.gsub!(%r{ ?\*/ *$}, '')
       first = content.shift unless removed_first
       content.map! {|l| l.gsub!(/^\*( ?)/, '\1') || (l.empty? ? "" : " ") + l}
       content.unshift first unless removed_first

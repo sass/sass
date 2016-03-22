@@ -413,7 +413,7 @@ WARNING
     def split_colon_path(path)
       one, two = path.split(':', 2)
       if one && two && Sass::Util.windows? &&
-          one =~ /\A[A-Za-z]\Z/ && two =~ /\A[\/\\]/
+          one =~ /\A[A-Za-z]\Z/ && two =~ %r{\A[/\\]}
         # If we're on Windows and we were passed a drive letter path,
         # don't split on that colon.
         one2, two = two.split(':', 2)

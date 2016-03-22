@@ -122,7 +122,7 @@ module Sass
         end
 
         # JRuby chokes when trying to import files from JARs when the path starts with './'.
-        ret.map {|f, s| [f.sub(/^\.\//, ''), s]}
+        ret.map {|f, s| [f.sub(%r{^\./}, ''), s]}
       end
 
       def escape_glob_characters(name)

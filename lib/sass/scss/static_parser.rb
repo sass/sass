@@ -139,11 +139,11 @@ MESSAGE
       end
 
       def reference_combinator
-        return unless tok(/\//)
+        return unless tok(%r{/})
         res = '/'
         ns, name = expr!(:qualified_name)
         res << ns << '|' if ns
-        res << name << tok!(/\//)
+        res << name << tok!(%r{/})
         res
       end
 

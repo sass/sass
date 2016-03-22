@@ -205,3 +205,5 @@ Style/ParallelAssignment:
   Enabled: false
 Style/PercentLiteralDelimiters:
   Enabled: true
+Style/RegexpLiteral:
+  Enabled: true

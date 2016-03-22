@@ -164,7 +164,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
       content.gsub!(%r{^(\s*)//(.*)$}) {"#{$1}/*#{$2} */"}
     end
     if (node.style == :compact || node.style == :compressed) && node.type != :loud
-      content.gsub!(/\n +(\* *(?!\/))?/, ' ')
+      content.gsub!(%r{\n +(\* *(?!/))?}, ' ')
     end
     for_node(node) {output(content)}
   end
