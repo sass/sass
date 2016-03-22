@@ -155,6 +155,8 @@ module Sass
         @options = options
         @interpolation_stack = []
         @prev = nil
+        @tok = nil
+        @next_tok = nil
       end
 
       # Moves the lexer forward one token.

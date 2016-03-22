@@ -86,7 +86,14 @@ module Sass
     def initialize(parent = nil, options = nil)
       @parent = parent
       @options = options || (parent && parent.options) || {}
-      @stack = Sass::Stack.new if @parent.nil?
+      @stack = @parent.nil? ? Sass::Stack.new : nil
+      @caller = nil
+      @content = nil
+      @filename = nil
+      @functions = nil
+      @mixins = nil
+      @selector = nil
+      @vars = nil
     end
 
     # Returns whether this is the global environment.

@@ -571,7 +571,7 @@ module Sass
     #
     # @return [Boolean]
     def listen_geq_2?
-      return @listen_geq_2 unless @listen_geq_2.nil?
+      return @listen_geq_2 if defined?(@listen_geq_2)
       @listen_geq_2 =
         begin
           # Make sure we're loading listen/version from the same place that
