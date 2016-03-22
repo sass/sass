@@ -1196,7 +1196,7 @@ WARNING
         else
           res << "\\" * [0, escapes - 1].max
           if scan[1].include?("\n")
-            line = line + scan[1].count("\n")
+            line += scan[1].count("\n")
             offset = scan.matched_size - scan[1].rindex("\n")
           else
             offset += scan.matched_size

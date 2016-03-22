@@ -207,3 +207,5 @@ Style/PercentLiteralDelimiters:
   Enabled: true
 Style/RegexpLiteral:
   Enabled: true
+Style/SelfAssignment:
+  Enabled: true

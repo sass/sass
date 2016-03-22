@@ -1,5 +1,3 @@
-Style/SelfAssignment:
-  Enabled: false
 Style/SingleSpaceBeforeFirstArg:
   Enabled: false
 Style/SpaceAroundOperators:

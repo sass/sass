@@ -102,7 +102,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     @lstrip = true
     yield
   ensure
-    @lstrip = @lstrip && old_lstrip
+    @lstrip &&= old_lstrip
   end
 
   # Prepend `prefix` to the output string.
@@ -185,7 +185,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
       return
     end
 
-    @in_directive = @in_directive || !node.is_a?(Sass::Tree::MediaNode)
+    @in_directive ||= !node.is_a?(Sass::Tree::MediaNode)
     output(tab_str) if node.style != :compressed
     for_node(node) {output(node.resolved_value)}
     output(node.style == :compressed ? "{" : " {")

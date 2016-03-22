@@ -512,7 +512,7 @@ module Sass
     #
     # @param msg [String]
     def sass_warn(msg)
-      msg = msg + "\n" unless ruby1?
+      msg += "\n" unless ruby1?
       Sass.logger.warn(msg)
     end
 
