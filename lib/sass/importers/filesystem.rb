@@ -144,8 +144,11 @@ module Sass
         name = name.gsub(File::ALT_SEPARATOR, File::SEPARATOR) unless File::ALT_SEPARATOR.nil?
 
         found = possible_files(remove_root(name)).map do |f, s|
-          path = (dir == "." || Sass::Util.pathname(f).absolute?) ? f :
-            "#{escape_glob_characters(dir)}/#{f}"
+          path = if dir == "." || Sass::Util.pathname(f).absolute?
+                   f
+                 else
+                   "#{escape_glob_characters(dir)}/#{f}"
+                 end
           Dir[path].map do |full_path|
             full_path.gsub!(REDUNDANT_DIRECTORY, File::SEPARATOR)
             [Sass::Util.cleanpath(full_path).to_s, s]

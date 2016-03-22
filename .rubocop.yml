@@ -199,3 +199,5 @@ Style/Next:
   Enabled: true
 Style/MultilineOperationIndentation:
   Enabled: false
+Style/MultilineTernaryOperator:
+  Enabled: true
