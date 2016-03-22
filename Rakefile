@@ -23,7 +23,7 @@ namespace :test do
     test_files.exclude(scope('test/rails/*'))
     test_files.exclude(scope('test/plugins/*'))
     t.test_files = test_files
-    t.warning = false
+    t.warning = true
     t.verbose = true
   end
 
