@@ -171,7 +171,6 @@ end
 
 desc "Release a new Sass package to RubyGems.org."
 task :release => [:check_release, :package] do
-  name = File.read(scope("VERSION_NAME")).strip
   version = File.read(scope("VERSION")).strip
   sh %{gem push pkg/sass-#{version}.gem}
 end
