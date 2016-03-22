@@ -5,6 +5,9 @@
 
 ## 3.4.22 (UNRELEASED)
 
+* Sass now runs without warnings when running ruby with code style
+  warnings enabled.
+
 * Sass no longer watches the current working directory unless it is on
   the load path or the files being compiled are in the current working
   directory. This was causing performance issues for users with large
