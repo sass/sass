@@ -191,3 +191,5 @@ Style/FirstParameterIndentation:
   Enabled: true
 Style/GuardClause:
   Enabled: true
+Style/IndentHash:
+  Enabled: true

@@ -1,5 +1,3 @@
-Style/IndentHash:
-  Enabled: false
 Style/LineEndConcatenation:
   Enabled: false
 Style/Next:
