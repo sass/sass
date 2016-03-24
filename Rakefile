@@ -58,7 +58,7 @@ namespace :test do
           :nuke => false,
 
           # Constants
-          :output_styles => ["nested", "compressed", "expanded", "compact"],
+          :output_styles => ["nested"],
           :input_files => ["input.scss", "input.sass"],
           :nested_output_file => 'expected_output',
           :compressed_output_file => 'expected.compressed',
