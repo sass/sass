@@ -412,7 +412,7 @@ MESSAGE
       end
 
       def special_val
-        return unless scan(/!important/i)
+        return unless scan(/!#{W}important/i)
         [:string, Script::Value::String.new("!important")]
       end
 

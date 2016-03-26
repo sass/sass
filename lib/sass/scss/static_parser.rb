@@ -361,7 +361,6 @@ MESSAGE
       end
 
       @sass_script_parser = Class.new(Sass::Script::CssParser)
-      @sass_script_parser.send(:include, ScriptParser)
     end
   end
 end

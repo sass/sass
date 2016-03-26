@@ -1029,8 +1029,7 @@ module Sass
         node
       end
 
-      @sass_script_parser = Class.new(Sass::Script::Parser)
-      @sass_script_parser.send(:include, ScriptParser)
+      @sass_script_parser = Sass::Script::Parser
 
       class << self
         # @private
@@ -1039,7 +1038,7 @@ module Sass
 
       def sass_script(*args)
         parser = self.class.sass_script_parser.new(@scanner, @line, @offset,
-                                                   :filename => @filename, :importer => @importer)
+          :filename => @filename, :importer => @importer, :allow_extra_text => true)
         result = parser.send(*args)
         unless @strs.empty?
           # Convert to CSS manually so that comments are ignored.
