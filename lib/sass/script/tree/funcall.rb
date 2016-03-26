@@ -128,12 +128,15 @@ module Sass::Script::Tree
       splat = Sass::Tree::Visitors::Perform.perform_splat(
         @splat, keywords, @kwarg_splat, environment)
       if (fn = environment.function(@name))
+        css_variable_warning.warn! if css_variable_warning
         return without_original(perform_sass_fn(fn, args, splat, environment))
       end
 
       args = construct_ruby_args(ruby_name, args, splat, environment)
 
       if Sass::Script::Functions.callable?(ruby_name)
+        css_variable_warning.warn! if css_variable_warning
+
         local_environment = Sass::Environment.new(environment.global_env, environment.options)
         local_environment.caller = Sass::ReadOnlyEnvironment.new(environment, environment.options)
         result = opts(Sass::Script::Functions::EvaluationContext.new(
