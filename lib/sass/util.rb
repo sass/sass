@@ -840,9 +840,10 @@ module Sass
 
     unless ruby1_8?
       CHARSET_REGEXP = /\A@charset "([^"]+)"/
-      UTF_8_BOM = "\xEF\xBB\xBF".force_encoding('BINARY')
-      UTF_16BE_BOM = "\xFE\xFF".force_encoding('BINARY')
-      UTF_16LE_BOM = "\xFF\xFE".force_encoding('BINARY')
+      bom = "\uFEFF"
+      UTF_8_BOM = bom.encode("UTF-8").force_encoding('BINARY')
+      UTF_16BE_BOM = bom.encode("UTF-16BE").force_encoding('BINARY')
+      UTF_16LE_BOM = bom.encode("UTF-16LE").force_encoding('BINARY')
     end
 
     # Like {\#check\_encoding}, but also checks for a `@charset` declaration
