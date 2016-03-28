@@ -96,7 +96,7 @@ if ruby_version_at_least?("2.2.0") &&
 else
   task :rubocop do
     puts "Skipping rubocop style check."
-    break if ENV.has_key?("RUBOCOP") && ENV["RUBOCOP"] != "true"
+    next if ENV.has_key?("RUBOCOP") && ENV["RUBOCOP"] != "true"
     puts "Passing this check is required in order for your patch to be accepted."
     puts "Use Ruby 2.2 or greater and then run the style check with: rake rubocop"
   end
