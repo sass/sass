@@ -10,6 +10,14 @@
 
 * Add a `$weight` parameter to `invert()`.
 
+### Backwards Incompatibilities -- Must Read!
+
+* The way [CSS variables][] are handled has changed to better correspond to the
+  CSS spec. They no longer allow arbitrary SassScript in their values; instead,
+  almost all text in the property values will be passed through unchanged to
+  CSS. The only exception is `#{}`, which will inject a SassScript value as
+  before.
+
 ## 3.4.22 (UNRELEASED)
 
 * Sass now runs without warnings when running ruby with code style
