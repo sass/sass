@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.4.22 (UNRELEASED)
+## 3.4.22 (28 March 2016)
 
 * Sass now runs without warnings when running ruby with code style
   warnings enabled.
