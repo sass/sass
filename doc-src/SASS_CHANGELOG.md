@@ -23,9 +23,6 @@
   [Issue #1966](https://github.com/sass/sass/issues/1966),
   [Issue #2006](https://github.com/sass/sass/issues/2006).
 
-* Support for Ruby 1.8.7 and 1.9.3 is deprecated. See
-  [this blog post][Ruby deprecation] for details.
-
 * `sass-convert` now accepts a `-q` and `--quiet` option to disable
   ouput while it is running.
 
@@ -34,7 +31,18 @@
   without processing any files.
   [Issue #1827](https://github.com/sass/sass/issues/1827),
 
+### Deprecation -- Must Read!
+
+* Support for Ruby 1.8.7 and 1.9.3 is deprecated. See
+  [this blog post][Ruby deprecation] for details.
+
+* The current handling of [CSS variables][] is deprecated. In order to support
+  the CSS spec as fully as possible, no Sass-specific constructs other than
+  `#{}` will be supported in CSS variable values. For forwards-compatibility,
+  any SassScript being used in CSS variables must be moved into `#{}`.
+
 [Ruby deprecation]: http://blog.sass-lang.com/posts/560719
+[CSS variables]: https://www.w3.org/TR/css-variables/
 
 ## 3.4.21 (11 January 2016)
 
