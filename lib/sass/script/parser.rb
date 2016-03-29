@@ -24,10 +24,14 @@ module Sass
       #   Used for error reporting and sourcemap building
       # @param offset [Fixnum] The character (not byte) offset where the script starts in the line.
       #   Used for error reporting and sourcemap building
-      # @param options [{Symbol => Object}] An options hash;
-      #   see {file:SASS_REFERENCE.md#options the Sass options documentation}
+      # @param options [{Symbol => Object}] An options hash; see
+      #   {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
+      #   This supports an additional `:allow_extra_text` option that controls
+      #   whether the parser throws an error when extra text is encountered
+      #   after the parsed construct.
       def initialize(str, line, offset, options = {})
         @options = options
+        @allow_extra_text = options.delete(:allow_extra_text)
         @lexer = lexer_class.new(str, line, offset, options)
         @stop_at = nil
       end
@@ -586,8 +590,14 @@ RUBY
       end
 
       def assert_done
-        return if @lexer.done?
-        @lexer.expected!(EXPR_NAMES[:default])
+        if @allow_extra_text
+          # If extra text is allowed, just rewind the lexer so that the
+          # StringScanner is pointing to the end of the parsed text.
+          @lexer.unpeek!
+        else
+          return if @lexer.done?
+          @lexer.expected!(EXPR_NAMES[:default])
+        end
       end
 
       # @overload node(value, source_range)

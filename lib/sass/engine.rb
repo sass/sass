@@ -686,7 +686,14 @@ WARNING
       end
 
       name = line.text[0...scanner.pos]
-      if (scanned = scanner.scan(/\s*:(?:\s+|$)/)) # test for a property
+      could_be_property =
+        if name.start_with?('--')
+          (scanned = scanner.scan(/\s*:/))
+        else
+          (scanned = scanner.scan(/\s*:(?:\s+|$)/))
+        end
+
+      if could_be_property # test for a property
         offset += scanned.length
         property = parse_property(name, res, scanner.rest, :new, line, offset)
         property.name_source_range = ident_range
@@ -713,19 +720,29 @@ WARNING
     #   rubocop:disable ParameterLists
     def parse_property(name, parsed_name, value, prop, line, start_offset)
       # rubocop:enable ParameterLists
-      if value.strip.empty?
-        expr = Sass::Script::Tree::Literal.new(Sass::Script::Value::String.new(""))
+
+      if name.start_with?('--')
+        unless line.children.empty?
+          raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath custom properties.",
+            :line => @line + 1)
+        end
+
+        parsed_value = parse_interp(value)
+        end_offset = start_offset + value.length
+      elsif value.strip.empty?
+        parsed_value = [Sass::Script::Tree::Literal.new(Sass::Script::Value::String.new(""))]
         end_offset = start_offset
       else
         expr = parse_script(value, :offset => to_parser_offset(start_offset))
         end_offset = expr.source_range.end_pos.offset - 1
+        parsed_value = [expr]
       end
-      node = Tree::PropNode.new(parse_interp(name), expr, prop)
+      node = Tree::PropNode.new(parse_interp(name), parsed_value, prop)
       node.value_source_range = Sass::Source::Range.new(
         Sass::Source::Position.new(line.index, to_parser_offset(start_offset)),
         Sass::Source::Position.new(line.index, to_parser_offset(end_offset)),
         @options[:filename], @options[:importer])
-      if value.strip.empty? && line.children.empty?
+      if !node.custom_property? && value.strip.empty? && line.children.empty?
         raise SyntaxError.new(
           "Invalid property: \"#{node.declaration}\" (no value)." +
           node.pseudo_class_selector_message)

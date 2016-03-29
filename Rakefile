@@ -85,8 +85,6 @@ def ruby_version_at_least?(version_string)
   ruby_version >= version
 end
 
-# TODO: Run Rubocop on Ruby 2.2+ when it's supported. See
-# https://github.com/sass/sass/pull/1805.
 if ruby_version_at_least?("2.2.0") &&
     (ENV.has_key?("RUBOCOP") && ENV["RUBOCOP"] == "true" ||
       !(ENV.has_key?("RUBOCOP") || ENV.has_key?("TEST")))
@@ -98,10 +96,9 @@ if ruby_version_at_least?("2.2.0") &&
 else
   task :rubocop do
     puts "Skipping rubocop style check."
-    if !ENV.has_key?("RUBOCOP")
-      puts "Passing this check is required in order for your patch to be accepted."
-      puts "Use ruby 1.9 or greater and then run the style check with: rake rubocop"
-    end
+    next if ENV.has_key?("RUBOCOP") && ENV["RUBOCOP"] != "true"
+    puts "Passing this check is required in order for your patch to be accepted."
+    puts "Use Ruby 2.2 or greater and then run the style check with: rake rubocop"
   end
 end
 
