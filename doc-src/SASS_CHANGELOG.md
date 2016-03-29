@@ -18,7 +18,7 @@
   CSS. The only exception is `#{}`, which will inject a SassScript value as
   before.
 
-## 3.4.22 (UNRELEASED)
+## 3.4.22 (28 March 2016)
 
 * Sass now runs without warnings when running ruby with code style
   warnings enabled.
