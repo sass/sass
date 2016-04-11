@@ -73,6 +73,16 @@ END
         (@options[:for_engine][:load_paths] ||= []) << path
       end
 
+      opts.on('--sourceroot PATH', 'Specify Source Root path.') do |sourceroot|
+        if File.directory?(sourceroot)
+          @options[:sourceroot] = sourceroot.to_s
+        else
+          puts_action :warn, :yellow,
+            "Not using Source Root because it is not a valid path: #{sourceroot}"
+
+        end
+      end
+
       opts.on('-r', '--require LIB', 'Require a Ruby library before running Sass.') do |lib|
         require lib
       end
@@ -394,7 +404,8 @@ WARNING
           mapping.to_json(
             :type => @options[:sourcemap],
             :css_path => @options[:output_filename],
-            :sourcemap_path => @options[:sourcemap_filename]) + "\n",
+            :sourcemap_path => @options[:sourcemap_filename],
+            :sourceroot => @options[:sourceroot]) + "\n",
           @options[:sourcemap_filename])
       else
         write_output(engine.render, output)
