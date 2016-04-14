@@ -57,8 +57,6 @@ namespace :test do
           :limit => -1,
           :unexpected_pass => false,
           :nuke => false,
-          # don't run any whitespace specific tests -- that's impl specific.
-          :only_output_styles => [nil]
         }
         SassSpec::Runner.new(default_options.merge(sass_spec_options)).run || exit(1)
       ensure
