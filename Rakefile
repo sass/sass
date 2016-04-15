@@ -49,7 +49,7 @@ namespace :test do
         default_options = {
           :spec_directory => SassSpec::SPEC_DIR,
           :engine_adapter => SassEngineAdapter.new("sass"),
-          :generate => [],
+          :generate => false,
           :tap => false,
           :skip => false,
           :verbose => false,
@@ -57,14 +57,6 @@ namespace :test do
           :limit => -1,
           :unexpected_pass => false,
           :nuke => false,
-
-          # Constants
-          :output_styles => ["nested"],
-          :input_files => ["input.scss", "input.sass"],
-          :nested_output_file => 'expected_output',
-          :compressed_output_file => 'expected.compressed',
-          :expanded_output_file => 'expected.expanded',
-          :compact_output_file => 'expected.compact'
         }
         SassSpec::Runner.new(default_options.merge(sass_spec_options)).run || exit(1)
       ensure

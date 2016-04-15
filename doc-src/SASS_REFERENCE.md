@@ -2023,6 +2023,9 @@ is compiled to:
     p {
       border: 1px solid; }
 
+You can explicitly test for `$var == false` or `$var == null` if you want to
+distinguish between these.
+
 The `@if` statement can be followed by several `@else if` statements
 and one `@else` statement.
 If the `@if` statement fails,
