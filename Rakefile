@@ -31,7 +31,8 @@ namespace :test do
   task :spec do
     require "yaml"
     sass_spec_options = YAML.load_file(scope("test/sass-spec.yml"))
-    unless sass_spec_options[:enabled]
+    enabled = sass_spec_options.delete(:enabled)
+    unless enabled
       puts "SassSpec tests are disabled."
       next
     end
@@ -45,10 +46,10 @@ namespace :test do
           puts "You probably forgot to run: bundle exec rake"
           raise
         end
-        sass_spec_passed = SassSpec::Runner.new(
+        default_options = {
           :spec_directory => SassSpec::SPEC_DIR,
           :engine_adapter => SassEngineAdapter.new("sass"),
-          :generate => [],
+          :generate => false,
           :tap => false,
           :skip => false,
           :verbose => false,
@@ -56,18 +57,8 @@ namespace :test do
           :limit => -1,
           :unexpected_pass => false,
           :nuke => false,
-
-          # Constants
-          :output_styles => ["nested"],
-          :input_files => ["input.scss", "input.sass"],
-          :nested_output_file => 'expected_output',
-          :compressed_output_file => 'expected.compressed',
-          :expanded_output_file => 'expected.expanded',
-          :compact_output_file => 'expected.compact'
-        ).run
-        unless sass_spec_passed
-          exit 1
-        end
+        }
+        SassSpec::Runner.new(default_options.merge(sass_spec_options)).run || exit(1)
       ensure
         $:.replace(old_load_path)
       end

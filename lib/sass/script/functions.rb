@@ -1614,6 +1614,7 @@ MESSAGE
     #   type-of(true)   => bool
     #   type-of(#fff)   => color
     #   type-of(blue)   => color
+    #   type-of(null)   => null
     # @overload type_of($value)
     #   @param $value [Sass::Script::Value::Base] The value to inspect
     # @return [Sass::Script::Value::String] The unquoted string name of the
@@ -2265,6 +2266,7 @@ MESSAGE
     # @example
     #   $a-false-value: false;
     #   variable-exists(a-false-value) => true
+    #   variable-exists(a-null-value) => true
     #
     #   variable-exists(nonexistent) => false
     #
@@ -2285,6 +2287,7 @@ MESSAGE
     # @example
     #   $a-false-value: false;
     #   global-variable-exists(a-false-value) => true
+    #   global-variable-exists(a-null-value) => true
     #
     #   .foo {
     #     $some-var: false;
