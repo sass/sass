@@ -3649,6 +3649,39 @@ SCSS
 
   # Regression
 
+  # Regression test for #2031.
+  def test_no_interpolation_warning_in_nested_selector
+    assert_no_warning {assert_equal(<<CSS, render(<<SCSS))}
+z a:b(n+1) {
+  x: y; }
+CSS
+z {
+  a:b(n+\#{1}) {
+    x: y;
+  }
+}
+SCSS
+  end
+
+  # Ensures that the fix for #2031 doesn't hide legitimate warnings.
+  def test_interpolation_warning_in_selector_like_property
+    assert_warning(<<WARNING) {assert_equal(<<CSS, render(<<SCSS))}
+DEPRECATION WARNING on line 2 of #{filename_for_test :scss}: \#{} interpolation near operators will be simplified
+in a future version of Sass. To preserve the current behavior, use quotes:
+
+  unquote("n+1")
+
+You can use the sass-convert command to automatically fix most cases.
+WARNING
+z {
+  a: b(n+1); }
+CSS
+z {
+  a:b(n+\#{1});
+}
+SCSS
+  end
+
   def test_escape_in_selector
     assert_equal(<<CSS, render(".\\!foo {a: b}"))
 .\\!foo {

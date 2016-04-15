@@ -1143,14 +1143,20 @@ WARNING
         line = @line
         offset = @offset
         expected = @expected
+
+        logger = Sass::Logger::Delayed.install!
         if catch(:_sass_parser_error) {yield; false}
           @scanner.pos = pos
           @line = line
           @offset = offset
           @expected = expected
           {:pos => pos, :line => line, :expected => @expected, :block => block}
+        else
+          logger.flush
+          nil
         end
       ensure
+        logger.uninstall! if logger
         @throw_error = old_throw_error
       end
 
