@@ -34,30 +34,36 @@ module Sass::Script::Value
     attr_accessor :original
 
     def self.precision
-      @precision ||= 5
+      Thread.current[:sass_numeric_precision] || Thread.main[:sass_numeric_precision] || 5
     end
 
     # Sets the number of digits of precision
     # For example, if this is `3`,
     # `3.1415926` will be printed as `3.142`.
+    # The numeric precision is stored as a thread local for thread safety reasons.
+    # To set for all threads, be sure to set the precision on the main thread.
     def self.precision=(digits)
-      @precision = digits.round
-      @precision_factor = 10.0**@precision
-      @epsilon = 1 / (@precision_factor * 10)
+      Thread.current[:sass_numeric_precision] = digits.round
+      Thread.current[:sass_numeric_precision_factor] = 10.0**precision
+      Thread.current[:sass_numeric_epsilon] = 1 / (precision_factor * 10)
+
+      Thread.current[:sass_numeric_precision]
     end
 
     # the precision factor used in numeric output
     # it is derived from the `precision` method.
     def self.precision_factor
-      @precision_factor ||= 10.0**precision
+      Thread.current[:sass_numeric_precision_factor] ||= 10.0**precision
     end
 
     # Used in checking equality of floating point numbers. Any
     # numbers within an `epsilon` of each other are considered functionally equal.
     # The value for epsilon is one tenth of the current numeric precision.
     def self.epsilon
-      @epsilon ||= 1 / (precision_factor * 10)
+      Thread.current[:sass_numeric_epsilon] ||= 1 / (precision_factor * 10)
     end
+
+    self.precision = 5 # sets the default on the main thread (probably)
 
     # Used so we don't allocate two new arrays for each new number.
     NO_UNITS = []

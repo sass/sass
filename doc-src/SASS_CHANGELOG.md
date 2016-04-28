@@ -9,6 +9,9 @@
   and can now be configured to output to any IO object. This can help
   services and processes that wrap Sass compilation reliably extract
   warnings in a concurrent environment.
+* Setting the numeric precision by assigning to
+  `Sass::Script::Value::Number.precision` is now thread safe. To set for
+  all threads, be sure to set the precision on the main thread.
 
 ## 3.4.22 (28 March 2016)
 
