@@ -12,6 +12,8 @@
 * Setting the numeric precision by assigning to
   `Sass::Script::Value::Number.precision` is now thread safe. To set for
   all threads, be sure to set the precision on the main thread.
+* Sass cache files will now be world and group writable if your umask
+  allows it.
 
 ## 3.4.22 (28 March 2016)
 
