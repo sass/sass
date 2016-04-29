@@ -3944,7 +3944,7 @@ SCSS
 
 
   def test_extra_comma_between_parameters_in_mixin_arglist
-    assert_raise_message(Sass::SyntaxError, "Invalid CSS after \"...nclude foo(bar,\": expected mixin argument, was \", baz );\"") {render <<SCSS}
+    assert_raise_message(Sass::SyntaxError, "Invalid CSS after \"...nclude foo(bar,\": expected \")\", was \", baz );\"") {render <<SCSS}
 @mixin foo($a1, $a2) {
   baz: $a1;
   bef: $a2;
@@ -3958,7 +3958,7 @@ SCSS
 
 
   def test_extra_comma_in_mixin_arglist_ending_needs_have_parentheses_after
-    assert_raise_message(Sass::SyntaxError, "Invalid CSS after \"    bri,\": expected mixin argument, was \"};\"") {render <<SCSS}
+    assert_raise_message(Sass::SyntaxError, "Invalid CSS after \"    bri,\": expected \")\", was \"};\"") {render <<SCSS}
 @mixin foo($a1, $a2) {
   baz: $a1;
   bal: $a2;
