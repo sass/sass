@@ -558,12 +558,8 @@ RUBY
       def arglist(subexpr, description)
         args = []
         keywords = Sass::Util::NormalizedMap.new
-        e = send(subexpr)
-
-        return [args, keywords] unless e
-
         splat = nil
-        until subexpr.nil?
+        while (e = send(subexpr))
           if @lexer.peek && @lexer.peek.type == :colon
             name = e
             @lexer.expected!("comma") unless name.is_a?(Tree::Variable)
@@ -587,12 +583,9 @@ RUBY
             args << e if e
           end
 
-          comma_present = try_tok(:comma)
-          if !comma_present || (@lexer.peek.type == :rparen && comma_present)
-            return args, keywords, splat
-          end
-          e = assert_expr(subexpr, description)
+          return args, keywords, splat unless try_tok(:comma)
         end
+        return args, keywords
       end
 
       def raw
