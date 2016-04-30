@@ -14,13 +14,20 @@ module Sass::Script::Value
     # @return [Symbol]
     attr_reader :separator
 
+    # Whether the list is surrounded by square brackets.
+    #
+    # @return [Boolean]
+    attr_reader :bracketed
+
     # Creates a new list.
     #
     # @param value [Array<Value>] See \{#value}
     # @param separator [Symbol] See \{#separator}
-    def initialize(value, separator)
+    # @param bracketed [Boolean] See \{#bracketed}
+    def initialize(value, separator: nil, bracketed: false)
       super(value)
       @separator = separator
+      @bracketed = bracketed
     end
 
     # @see Value#options=
@@ -42,15 +49,21 @@ module Sass::Script::Value
 
     # @see Value#to_s
     def to_s(opts = {})
-      raise Sass::SyntaxError.new("() isn't a valid CSS value.") if value.empty?
-      value.
+      if !bracketed && value.empty?
+        raise Sass::SyntaxError.new("#{inspect} isn't a valid CSS value.")
+      end
+
+      members = value.
         reject {|e| e.is_a?(Null) || e.is_a?(List) && e.value.empty?}.
-        map {|e| e.to_s(opts)}.join(sep_str)
+        map {|e| e.to_s(opts)}
+
+      contents = members.join(sep_str)
+      bracketed ? "[#{contents}]" : contents
     end
 
     # @see Value#to_sass
     def to_sass(opts = {})
-      return "()" if value.empty?
+      return bracketed ? "[]" : "()" if value.empty?
       members = value.map do |v|
         if element_needs_parens?(v)
           "(#{v.to_sass(opts)})"
@@ -58,8 +71,13 @@ module Sass::Script::Value
           v.to_sass(opts)
         end
       end
-      return "(#{members.first},)" if members.length == 1 && separator == :comma
-      members.join(sep_str(nil))
+
+      if separator == :comma && members.length == 1
+        return "#{bracketed ? '[' : '('}#{members.first},#{bracketed ? ']' : ')'}"
+      end
+
+      contents = members.join(sep_str(nil))
+      bracketed ? "[#{contents}]" : contents
     end
 
     # @see Value#to_h
@@ -70,7 +88,9 @@ module Sass::Script::Value
 
     # @see Value#inspect
     def inspect
-      "(#{value.map {|e| e.inspect}.join(sep_str(nil))})"
+      (bracketed ? '[' : '(') +
+        value.map {|e| e.inspect}.join(sep_str(nil)) +
+        (bracketed ? ']' : ')')
     end
 
     # Asserts an index is within the list.
@@ -94,9 +114,10 @@ module Sass::Script::Value
 
     def element_needs_parens?(element)
       if element.is_a?(List)
-        return false if element.value.empty?
-        precedence = Sass::Script::Parser.precedence_of(separator)
-        return Sass::Script::Parser.precedence_of(element.separator) <= precedence
+        return false if element.value.length < 2
+        return false if element.bracketed
+        precedence = Sass::Script::Parser.precedence_of(separator || :space)
+        return Sass::Script::Parser.precedence_of(element.separator || :space) <= precedence
       end
 
       return false unless separator == :space

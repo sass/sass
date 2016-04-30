@@ -343,7 +343,7 @@ RUBY
       def list(first, start_pos)
         return first unless @lexer.peek && @lexer.peek.type == :comma
 
-        list = node(Sass::Script::Tree::ListLiteral.new([first], :comma), start_pos)
+        list = node(Sass::Script::Tree::ListLiteral.new([first], separator: :comma), start_pos)
         while (tok = try_tok(:comma))
           element_before_interp = list.elements.length == 1 ? list.elements.first : list
           if (interp = try_op_before_interp(tok, element_before_interp))
@@ -380,7 +380,7 @@ RUBY
           Script::Tree::Interpolation.new(
             prev, str, nil, wb, false, :originally_text => true, :deprecation => deprecation),
           (prev || str).source_range.start_pos)
-        interpolation(interp)
+        interpolation(first: interp)
       end
 
       def try_ops_after_interp(ops, name, prev = nil)
@@ -410,15 +410,15 @@ RUBY
         interp
       end
 
-      def interpolation(first = space)
-        e = first
+      def interpolation(first: nil, inner: :space)
+        e = first || send(inner)
         while (interp = try_tok(:begin_interpolation))
           wb = @lexer.whitespace?(interp)
           mid = assert_expr :expr
           assert_tok :end_interpolation
           wa = @lexer.whitespace?
 
-          after = space
+          after = send(inner)
           before_deprecation = e.is_a?(Script::Tree::Interpolation) ? e.deprecation : :none
           after_deprecation = after.is_a?(Script::Tree::Interpolation) ? after.deprecation : :none
 
@@ -447,7 +447,7 @@ RUBY
         if arr.size == 1
           arr.first
         else
-          node(Sass::Script::Tree::ListLiteral.new(arr, :space), start_pos)
+          node(Sass::Script::Tree::ListLiteral.new(arr, separator: :space), start_pos)
         end
       end
 
@@ -575,7 +575,7 @@ RUBY
 
       def special_fun
         first = try_tok(:special_fun)
-        return paren unless first
+        return square_list unless first
         str = literal_node(first.value, first.source_range)
         return str unless try_tok(:string_interpolation)
         mid = assert_expr :expr
@@ -586,6 +586,50 @@ RUBY
           first.source_range.start_pos)
       end
 
+      def square_list
+        start_pos = source_position
+        return paren unless try_tok(:lsquare)
+
+        space_start_pos = source_position
+        e = interpolation(inner: :or_expr)
+        separator = nil
+        if e
+          elements = [e]
+          while (e = interpolation(inner: :or_expr))
+            elements << e
+          end
+
+          # If there's a comma after a space-separated list, it's actually a
+          # space-separated list nested in a comma-separated list.
+          if try_tok(:comma)
+            e = if elements.length == 1
+                  elements.first
+                else
+                  node(
+                    Sass::Script::Tree::ListLiteral.new(elements, separator: :space),
+                    space_start_pos)
+                end
+            elements = [e]
+
+            while (e = space)
+              elements << e
+              break unless try_tok(:comma)
+            end
+            separator = :comma
+          else
+            separator = :space if elements.length > 1
+          end
+        else
+          elements = []
+        end
+
+        assert_tok(:rsquare)
+        end_pos = source_position
+
+        node(Sass::Script::Tree::ListLiteral.new(elements, separator: separator, bracketed: true),
+             start_pos, end_pos)
+      end
+
       def paren
         return variable unless try_tok(:lparen)
         start_pos = source_position
@@ -593,7 +637,7 @@ RUBY
         e.force_division! if e
         end_pos = source_position
         assert_tok(:rparen)
-        e || node(Sass::Script::Tree::ListLiteral.new([], nil), start_pos, end_pos)
+        e || node(Sass::Script::Tree::ListLiteral.new([]), start_pos, end_pos)
       end
 
       def variable
