@@ -6,8 +6,12 @@ require "sass/logger/delayed"
 
 module Sass
   class << self
-    attr_accessor :logger
-  end
+    def logger=(l)
+      Thread.current[:sass_logger] = l
+    end
 
-  self.logger = Sass::Logger::Base.new
+    def logger
+      Thread.current[:sass_logger] ||= Sass::Logger::Base.new
+    end
+  end
 end

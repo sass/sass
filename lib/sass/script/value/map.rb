@@ -32,7 +32,7 @@ module Sass::Script::Value
     # @see Value#to_a
     def to_a
       value.map do |k, v|
-        list = List.new([k, v], :space)
+        list = List.new([k, v], separator: :space)
         list.options = options
         list
       end

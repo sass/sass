@@ -38,6 +38,18 @@ For more details, see [this blog post][interp-blog] and
   CSS. The only exception is `#{}`, which will inject a SassScript value as
   before.
 
+## 3.4.23 (UNRELEASED)
+
+* The Sass logger is now instantiated on a per-thread/per-fiber basis
+  and can now be configured to output to any IO object. This can help
+  services and processes that wrap Sass compilation reliably extract
+  warnings in a concurrent environment.
+* Setting the numeric precision by assigning to
+  `Sass::Script::Value::Number.precision` is now thread safe. To set for
+  all threads, be sure to set the precision on the main thread.
+* Sass cache files will now be world and group writable if your umask
+  allows it.
+
 ## 3.4.22 (28 March 2016)
 
 * Sass now runs without warnings when running ruby with code style

@@ -176,7 +176,7 @@ module Sass::Script
   # \{#set-nth set-nth($list, $n, $value)}
   # : Replaces the nth item in a list.
   #
-  # \{#join join($list1, $list2, \[$separator\])}
+  # \{#join join($list1, $list2, \[$separator, $bracketed\])}
   # : Joins together two lists into one.
   #
   # \{#append append($list1, $val, \[$separator\])}
@@ -190,6 +190,9 @@ module Sass::Script
   #
   # \{#list_separator list-separator($list)}
   # : Returns the separator of a list.
+  #
+  # \{#is_bracketed is-bracketed($list)}
+  # : Returns whether a list has square brackets.
   #
   # ## Map Functions {#map-functions}
   #
@@ -1857,7 +1860,7 @@ MESSAGE
       index = n.to_i > 0 ? n.to_i - 1 : n.to_i
       new_list = list.to_a.dup
       new_list[index] = value
-      Sass::Script::Value::List.new(new_list, list.separator)
+      list.with_contents(new_list)
     end
     declare :set_nth, [:list, :n, :value]
 
@@ -1898,6 +1901,9 @@ MESSAGE
     # list. If both lists have fewer than two items, spaces are used for the
     # resulting list.
     #
+    # Unless `$bracketed` is passed, if one list is bracketed and one is not,
+    # the resulting list if the first parameter is.
+    #
     # Like all list functions, `join()` returns a new list rather than modifying
     # its arguments in place.
     #
@@ -1907,27 +1913,73 @@ MESSAGE
     #   join(10px, 20px) => 10px 20px
     #   join(10px, 20px, comma) => 10px, 20px
     #   join((blue, red), (#abc, #def), space) => blue red #abc #def
-    # @overload join($list1, $list2, $separator: auto)
+    #   join([10px], 20px) => [10px 20px]
+    # @overload join($list1, $list2, $separator: auto, $bracketed: auto)
     #   @param $list1 [Sass::Script::Value::Base]
     #   @param $list2 [Sass::Script::Value::Base]
     #   @param $separator [Sass::Script::Value::String] The list separator to use.
     #     If this is `comma` or `space`, that separator will be used. If this is
     #     `auto` (the default), the separator is determined as explained above.
+    #   @param $bracketed [Sass::Script::Value::Base] Whether the resulting list
+    #     will be bracketed. If this is `auto` (the default), the separator is
+    #     determined as explained above.
     # @return [Sass::Script::Value::List]
-    def join(list1, list2, separator = identifier("auto"))
+    # @comment
+    #   rubocop:disable ParameterLists
+    def join(list1, list2,
+             separator = identifier("auto"), bracketed = identifier("auto"),
+             kwargs = nil, *rest)
+      # rubocop:enable ParameterLists
+      if separator.is_a?(Hash)
+        kwargs = separator
+        separator = identifier("auto")
+      elsif bracketed.is_a?(Hash)
+        kwargs = bracketed
+        bracketed = identifier("auto")
+      elsif rest.last.is_a?(Hash)
+        rest.unshift kwargs
+        kwargs = rest.pop
+      end
+
+      unless rest.empty?
+        # Add 4 to rest.length because we don't want to count the kwargs hash,
+        # which is always passed.
+        raise ArgumentError.new("wrong number of arguments (#{rest.length + 4} for 2..4)")
+      end
+
+      if kwargs
+        separator = kwargs.delete("separator") || separator
+        bracketed = kwargs.delete("bracketed") || bracketed
+
+        unless kwargs.empty?
+          name, val = kwargs.to_a.first
+          raise ArgumentError.new("Unknown argument $#{name} (#{val})")
+        end
+      end
+
       assert_type separator, :String, :separator
       unless %w(auto space comma).include?(separator.value)
         raise ArgumentError.new("Separator name must be space, comma, or auto")
       end
-      sep = if separator.value == 'auto'
-              list1.separator || list2.separator || :space
-            else
-              separator.value.to_sym
-            end
-      list(list1.to_a + list2.to_a, sep)
+
+      list(list1.to_a + list2.to_a,
+        separator:
+          if separator.value == 'auto'
+            list1.separator || list2.separator || :space
+          else
+            separator.value.to_sym
+          end,
+        bracketed:
+          if bracketed.is_a?(Sass::Script::Value::String) && bracketed.value == 'auto'
+            list1.bracketed
+          else
+            bracketed.to_bool
+          end)
     end
-    declare :join, [:list1, :list2]
-    declare :join, [:list1, :list2, :separator]
+    # We don't actually take variable arguments or keyword arguments, but this
+    # is the best way to take either `$separator` or `$bracketed` as keywords
+    # without complaining about the other missing.
+    declare :join, [:list1, :list2], :var_args => true, :var_kwargs => true
 
     # Appends a single value onto the end of a list.
     #
@@ -1955,12 +2007,13 @@ MESSAGE
       unless %w(auto space comma).include?(separator.value)
         raise ArgumentError.new("Separator name must be space, comma, or auto")
       end
-      sep = if separator.value == 'auto'
-              list.separator || :space
-            else
-              separator.value.to_sym
-            end
-      list(list.to_a + [val], sep)
+      list.with_contents(list.to_a + [val],
+        separator:
+          if separator.value == 'auto'
+            list.separator || :space
+          else
+            separator.value.to_sym
+          end)
     end
     declare :append, [:list, :val]
     declare :append, [:list, :val, :separator]
@@ -2030,7 +2083,20 @@ MESSAGE
     def list_separator(list)
       identifier((list.separator || :space).to_s)
     end
-    declare :separator, [:list]
+    declare :list_separator, [:list]
+
+    # Returns whether a list uses square brackets.
+    #
+    # @example
+    #   is-bracketed(1px 2px 3px) => false
+    #   is-bracketed([1px, 2px, 3px]) => true
+    # @overload is_bracketed($list)
+    #   @param $list [Sass::Script::Value::Base]
+    # @return [Sass::Script::Value::Bool]
+    def is_bracketed(list)
+      bool(list.bracketed)
+    end
+    declare :is_bracketed, [:list]
 
     # Returns the value in a map associated with the given key. If the map
     # doesn't have such a key, returns `null`.

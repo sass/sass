@@ -292,7 +292,7 @@ RUBY
       def list(first, start_pos)
         return first unless @lexer.peek && @lexer.peek.type == :comma
 
-        list = node(Sass::Script::Tree::ListLiteral.new([first], :comma), start_pos)
+        list = node(Sass::Script::Tree::ListLiteral.new([first], separator: :comma), start_pos)
         while try_tok(:comma)
           return list unless (e = space)
           list.elements << e
@@ -314,7 +314,7 @@ RUBY
         if arr.size == 1
           arr.first
         else
-          node(Sass::Script::Tree::ListLiteral.new(arr, :space), start_pos)
+          node(Sass::Script::Tree::ListLiteral.new(arr, separator: :space), start_pos)
         end
       end
 
@@ -473,7 +473,7 @@ RUBY
 
       def special_fun
         first = try_tok(:special_fun)
-        return paren unless first
+        return square_list unless first
 
         unless try_tok(:string_interpolation)
           return literal_node(first.value, first.source_range)
@@ -491,6 +491,50 @@ RUBY
           first.source_range.start_pos)
       end
 
+      def square_list
+        start_pos = source_position
+        return paren unless try_tok(:lsquare)
+
+        space_start_pos = source_position
+        e = or_expr
+        separator = nil
+        if e
+          elements = [e]
+          while (e = or_expr)
+            elements << e
+          end
+
+          # If there's a comma after a space-separated list, it's actually a
+          # space-separated list nested in a comma-separated list.
+          if try_tok(:comma)
+            e = if elements.length == 1
+                  elements.first
+                else
+                  node(
+                    Sass::Script::Tree::ListLiteral.new(elements, separator: :space),
+                    space_start_pos)
+                end
+            elements = [e]
+
+            while (e = space)
+              elements << e
+              break unless try_tok(:comma)
+            end
+            separator = :comma
+          else
+            separator = :space if elements.length > 1
+          end
+        else
+          elements = []
+        end
+
+        assert_tok(:rsquare)
+        end_pos = source_position
+
+        node(Sass::Script::Tree::ListLiteral.new(elements, separator: separator, bracketed: true),
+             start_pos, end_pos)
+      end
+
       def paren
         return variable unless try_tok(:lparen)
         start_pos = source_position
@@ -498,7 +542,7 @@ RUBY
         e.force_division! if e
         end_pos = source_position
         assert_tok(:rparen)
-        e || node(Sass::Script::Tree::ListLiteral.new([], nil), start_pos, end_pos)
+        e || node(Sass::Script::Tree::ListLiteral.new([]), start_pos, end_pos)
       end
 
       def variable

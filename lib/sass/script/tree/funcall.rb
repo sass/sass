@@ -201,6 +201,7 @@ module Sass::Script::Tree
         raise Sass::SyntaxError.new(
           "#{args[signature.args.size].inspect} is not a keyword argument for `#{name}'")
       elsif keywords.empty?
+        args << {} if signature.var_kwargs
         return args
       end
 

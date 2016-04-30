@@ -3387,22 +3387,22 @@ SCSS
   def test_uses_property_exception_with_star_hack
     render <<SCSS
 foo {
-  *bar:baz [fail]; }
+  *bar:baz <fail>; }
 SCSS
     assert(false, "Expected syntax error")
   rescue Sass::SyntaxError => e
-    assert_equal 'Invalid CSS after "  *bar:baz ": expected ";", was "[fail]; }"', e.message
+    assert_equal 'Invalid CSS after "  *bar:baz <fail>": expected expression (e.g. 1px, bold), was "; }"', e.message
     assert_equal 2, e.sass_line
   end
 
   def test_uses_property_exception_with_colon_hack
     render <<SCSS
 foo {
-  :bar:baz [fail]; }
+  :bar:baz <fail>; }
 SCSS
     assert(false, "Expected syntax error")
   rescue Sass::SyntaxError => e
-    assert_equal 'Invalid CSS after "  :bar:baz ": expected ";", was "[fail]; }"', e.message
+    assert_equal 'Invalid CSS after "  :bar:baz <fail>": expected expression (e.g. 1px, bold), was "; }"', e.message
     assert_equal 2, e.sass_line
   end
 
@@ -3420,22 +3420,22 @@ SCSS
   def test_uses_property_exception_with_space_after_name
     render <<SCSS
 foo {
-  bar: baz [fail]; }
+  bar: baz <fail>; }
 SCSS
     assert(false, "Expected syntax error")
   rescue Sass::SyntaxError => e
-    assert_equal 'Invalid CSS after "  bar: baz ": expected ";", was "[fail]; }"', e.message
+    assert_equal 'Invalid CSS after "  bar: baz <fail>": expected expression (e.g. 1px, bold), was "; }"', e.message
     assert_equal 2, e.sass_line
   end
 
   def test_uses_property_exception_with_non_identifier_after_name
     render <<SCSS
 foo {
-  bar:1px [fail]; }
+  bar:1px <fail>; }
 SCSS
     assert(false, "Expected syntax error")
   rescue Sass::SyntaxError => e
-    assert_equal 'Invalid CSS after "  bar:1px ": expected ";", was "[fail]; }"', e.message
+    assert_equal 'Invalid CSS after "  bar:1px <fail>": expected expression (e.g. 1px, bold), was "; }"', e.message
     assert_equal 2, e.sass_line
   end
 

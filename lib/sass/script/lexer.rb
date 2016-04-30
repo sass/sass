@@ -51,6 +51,8 @@ module Sass
         ':' => :colon,
         '(' => :lparen,
         ')' => :rparen,
+        '[' => :lsquare,
+        ']' => :rsquare,
         ',' => :comma,
         'and' => :and,
         'or' => :or,
