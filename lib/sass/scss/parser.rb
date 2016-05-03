@@ -758,6 +758,12 @@ module Sass
         mid = [str {ss}]
         return name + mid unless tok(/:/)
         mid << ':'
+
+        # If this is a CSS variable, parse it as a property no matter what.
+        if name.first.is_a?(String) && name.first.start_with?("--")
+          return css_variable_declaration(name, name_start_pos, name_end_pos)
+        end
+
         return name + mid + [':'] if tok(/:/)
         mid << str {ss}
         post_colon_whitespace = !mid.last.empty?
@@ -766,7 +772,7 @@ module Sass
         value_start_pos = source_position
         value = nil
         error = catch_error do
-          value = value!(name.first.is_a?(String) && name.first.start_with?("--"))
+          value = value!
           if tok?(/\{/)
             # Properties that are ambiguous with selectors can't have additional
             # properties nested beneath them.
@@ -793,7 +799,7 @@ module Sass
         ss
         require_block = tok?(/\{/)
 
-        node = node(Sass::Tree::PropNode.new(name.flatten.compact, value, :new),
+        node = node(Sass::Tree::PropNode.new(name.flatten.compact, [value], :new),
                     name_start_pos, value_end_pos)
         node.name_source_range = range(name_start_pos, name_end_pos)
         node.value_source_range = range(value_start_pos, value_end_pos)
@@ -802,13 +808,21 @@ module Sass
         nested_properties! node
       end
 
-      # This production is similar to the CSS [`<any-value>`][any-value]
-      # production, but as the name implies, not quite the same. It's meant to
-      # consume values that could be a selector, an expression, or a combination
-      # of both. It respects strings and comments and supports interpolation. It
-      # will consume up to "{", "}", ";", or "!".
-      #
-      # [any-value]: http://dev.w3.org/csswg/css-variables/#typedef-any-value
+      def css_variable_declaration(name, name_start_pos, name_end_pos)
+        value_start_pos = source_position
+        value = declaration_value
+        value_end_pos = source_position
+
+        node = node(Sass::Tree::PropNode.new(name.flatten.compact, value, :new),
+                    name_start_pos, value_end_pos)
+        node.name_source_range = range(name_start_pos, name_end_pos)
+        node.value_source_range = range(value_start_pos, value_end_pos)
+        node
+      end
+
+      # This production consumes values that could be a selector, an expression,
+      # or a combination of both. It respects strings and comments and supports
+      # interpolation. It will consume up to "{", "}", ";", or "!".
       #
       # Values consumed by this production will usually be parsed more
       # thoroughly once interpolation has been resolved.
@@ -839,6 +853,51 @@ module Sass
                 interpolation(:warn_for_color)
       end
 
+      def declaration_value(top_level: true)
+        return unless (tok = declaration_value_token(top_level))
+        value = [tok]
+        while (tok = declaration_value_token(top_level))
+          value << tok
+        end
+        merge(value)
+      end
+
+      def declaration_value_token(top_level)
+        # This comes, more or less, from the [token consumption algorithm][].
+        # However, since we don't have to worry about the token semantics, we
+        # just consume everything until we come across a token with special
+        # semantics.
+        #
+        # [token consumption algorithm]: https://drafts.csswg.org/css-syntax-3/#consume-token.
+        result = tok(%r{
+          (
+            (?!
+              url\(
+            )
+            [^()\[\]{}"'#/#{top_level ? ";!" : ""}]
+          |
+            \#(?!\{)
+          |
+            /(?!\*)
+          )+
+        }xi) || interp_string || interp_uri || interpolation || tok(COMMENT)
+        return result if result
+
+        if tok(/\(/)
+          value = declaration_value(top_level: false)
+          tok!(/\)/)
+          ['(', *value, ')']
+        elsif tok(/\[/)
+          value = declaration_value(top_level: false)
+          tok!(/\]/)
+          ['[', *value, ']']
+        elsif tok(/\{/)
+          value = declaration_value(top_level: false)
+          tok!(/\}/)
+          ['{', *value, '}']
+        end
+      end
+
       def declaration
         # This allows the "*prop: val", ":prop: val", "#prop: val", and ".prop:
         # val" hacks.
@@ -859,12 +918,12 @@ module Sass
         tok!(/:/)
         ss
         value_start_pos = source_position
-        value = value!(name.first.is_a?(String) && name.first.start_with?("--"))
+        value = value!
         value_end_pos = source_position
         ss
         require_block = tok?(/\{/)
 
-        node = node(Sass::Tree::PropNode.new(name.flatten.compact, value, :new),
+        node = node(Sass::Tree::PropNode.new(name.flatten.compact, [value], :new),
                     name_start_pos, value_end_pos)
         node.name_source_range = range(name_start_pos, name_end_pos)
         node.value_source_range = range(value_start_pos, value_end_pos)
@@ -873,7 +932,7 @@ module Sass
         nested_properties! node
       end
 
-      def value!(css_variable = false)
+      def value!
         if tok?(/\{/)
           str = Sass::Script::Tree::Literal.new(Sass::Script::Value::String.new(""))
           str.line = source_position.line
@@ -887,25 +946,16 @@ module Sass
         # we don't parse it at all, and instead return a plain old string
         # containing the value.
         # This results in a dramatic speed increase.
-        if (val = tok(STATIC_VALUE, true))
+        if (val = tok(STATIC_VALUE))
           str = Sass::Script::Tree::Literal.new(Sass::Script::Value::String.new(val.strip))
           str.line = start_pos.line
           str.source_range = range(start_pos)
           return str
         end
-
-        sass_script(:parse, css_variable)
+        sass_script(:parse)
       end
 
       def nested_properties!(node)
-        if node.name.first.is_a?(String) && node.name.first.start_with?("--")
-          Sass::Util.sass_warn(<<WARNING)
-DEPRECATION WARNING on line #{@line}#{" of #{@filename}" if @filename}:
-Sass 3.6 will change the way CSS variables are parsed. Instead of being parsed as
-normal properties, they will not allow any Sass-specific behavior other than \#{}.
-WARNING
-        end
-
         @expected = 'expression (e.g. 1px, bold) or "{"'
         block(node, :property)
       end
@@ -993,7 +1043,7 @@ WARNING
       end
 
       def interp_ident(start = IDENT)
-        val = tok(start) || interpolation(:warn_for_color) || tok(IDENT_HYPHEN_INTERP, true)
+        val = tok(start) || interpolation(:warn_for_color) || tok(IDENT_HYPHEN_INTERP)
         return unless val
         res = [val]
         while (val = tok(NAME) || interpolation(:warn_for_color))
@@ -1087,9 +1137,9 @@ WARNING
         :keyframes_selector => "keyframes selector (e.g. 10%)"
       }
 
-      TOK_NAMES = Sass::Util.to_hash(Sass::SCSS::RX.constants.map do |c|
+      TOK_NAMES = Hash[Sass::SCSS::RX.constants.map do |c|
         [Sass::SCSS::RX.const_get(c), c.downcase]
-      end).merge(
+      end].merge(
         IDENT => "identifier",
         /[;{}]/ => '";"',
         /\b(without|with)\b/ => '"with" or "without"'
@@ -1201,22 +1251,10 @@ WARNING
       # This is important because `#tok` is called all the time.
       NEWLINE = "\n"
 
-      def tok(rx, last_group_lookahead = false)
+      def tok(rx)
         res = @scanner.scan(rx)
 
         return unless res
-
-        # This fixes https://github.com/nex3/sass/issues/104, which affects
-        # Ruby 1.8.7 and REE. This fix is to replace the ?= zero-width
-        # positive lookahead operator in the Regexp (which matches without
-        # consuming the matched group), with a match that does consume the
-        # group, but then rewinds the scanner and removes the group from the
-        # end of the matched string. This fix makes the assumption that the
-        # matched group will always occur at the end of the match.
-        if last_group_lookahead && @scanner[-1]
-          @scanner.pos -= @scanner[-1].length
-          res.slice!(-@scanner[-1].length..-1)
-        end
 
         newline_count = res.count(NEWLINE)
         if newline_count > 0

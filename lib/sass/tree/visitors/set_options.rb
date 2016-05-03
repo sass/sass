@@ -88,7 +88,7 @@ class Sass::Tree::Visitors::SetOptions < Sass::Tree::Visitors::Base
 
   def visit_prop(node)
     node.name.each {|c| c.options = @options if c.is_a?(Sass::Script::Tree::Node)}
-    node.value.options = @options
+    node.value.each {|c| c.options = @options if c.is_a?(Sass::Script::Tree::Node)}
     yield
   end
 

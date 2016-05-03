@@ -394,9 +394,19 @@ WARNING
   # Runs any SassScript that may be embedded in a property.
   def visit_prop(node)
     node.resolved_name = run_interp(node.name)
-    val = node.value.perform(@environment)
-    node.resolved_value = val.to_s
-    node.value_source_range = val.source_range if val.source_range
+
+    # If the node's value is just a variable or similar, we may get a useful
+    # source range from evaluating it.
+    if node.value.length == 1 && node.value.first.is_a?(Sass::Script::Tree::Node)
+      result = node.value.first.perform(@environment)
+      node.resolved_value = result.to_s
+      node.value_source_range = result.source_range if result.source_range
+    elsif node.custom_property?
+      node.resolved_value = run_interp_no_strip(node.value)
+    else
+      node.resolved_value = run_interp(node.value)
+    end
+
     yield
   end
 
@@ -555,7 +565,7 @@ WARNING
     end
 
     files << node.filename << node.imported_file.options[:filename]
-    msg << "\n" << Sass::Util.enum_cons(files, 2).map do |m1, m2|
+    msg << "\n" << files.each_cons(2).map do |m1, m2|
       "    #{m1} imports #{m2}"
     end.join("\n")
     raise Sass::SyntaxError.new(msg)

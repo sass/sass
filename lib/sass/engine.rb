@@ -168,7 +168,7 @@ module Sass
     # default values and resolving aliases.
     #
     # @param options [{Symbol => Object}] The options hash;
-    #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
+    #   see {file:SASS_REFERENCE.md#options the Sass options documentation}
     # @return [{Symbol => Object}] The normalized options hash.
     # @private
     def self.normalize_options(options)
@@ -222,7 +222,7 @@ module Sass
     #
     # @param filename [String] The path to the Sass or SCSS file
     # @param options [{Symbol => Object}] The options hash;
-    #   See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
+    #   See {file:SASS_REFERENCE.md#options the Sass options documentation}.
     # @return [Sass::Engine] The Engine for the given Sass or SCSS file.
     # @raise [Sass::SyntaxError] if there's an error in the document.
     def self.for_file(filename, options)
@@ -240,7 +240,7 @@ module Sass
     end
 
     # The options for the Sass engine.
-    # See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
+    # See {file:SASS_REFERENCE.md#options the Sass options documentation}.
     #
     # @return [{Symbol => Object}]
     attr_reader :options
@@ -259,7 +259,7 @@ module Sass
     #   that overrides the Ruby encoding
     #   (see {file:SASS_REFERENCE.md#encodings the encoding documentation})
     # @param options [{Symbol => Object}] An options hash.
-    #   See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
+    #   See {file:SASS_REFERENCE.md#options the Sass options documentation}.
     # @see {Sass::Engine.for_file}
     # @see {Sass::Plugin}
     def initialize(template, options = {})
@@ -313,8 +313,7 @@ module Sass
                 end
     end
 
-    # Returns the original encoding of the document,
-    # or `nil` under Ruby 1.8.
+    # Returns the original encoding of the document.
     #
     # @return [Encoding, nil]
     # @raise [Encoding::UndefinedConversionError] if the source encoding
@@ -383,7 +382,7 @@ ERR
       rendered << "\n" if rendered[-1] != ?\n
       rendered << "\n" unless compressed
       rendered << "/*# sourceMappingURL="
-      rendered << Sass::Util.escape_uri(sourcemap_uri)
+      rendered << URI::DEFAULT_PARSER.escape(sourcemap_uri)
       rendered << " */\n"
       return rendered, sourcemap
     end
@@ -687,7 +686,14 @@ WARNING
       end
 
       name = line.text[0...scanner.pos]
-      if (scanned = scanner.scan(/\s*:(?:\s+|$)/)) # test for a property
+      could_be_property =
+        if name.start_with?('--')
+          (scanned = scanner.scan(/\s*:/))
+        else
+          (scanned = scanner.scan(/\s*:(?:\s+|$)/))
+        end
+
+      if could_be_property # test for a property
         offset += scanned.length
         property = parse_property(name, res, scanner.rest, :new, line, offset)
         property.name_source_range = ident_range
@@ -714,22 +720,29 @@ WARNING
     #   rubocop:disable ParameterLists
     def parse_property(name, parsed_name, value, prop, line, start_offset)
       # rubocop:enable ParameterLists
-      if value.strip.empty?
-        expr = Sass::Script::Tree::Literal.new(Sass::Script::Value::String.new(""))
+
+      if name.start_with?('--')
+        unless line.children.empty?
+          raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath custom properties.",
+            :line => @line + 1)
+        end
+
+        parsed_value = parse_interp(value)
+        end_offset = start_offset + value.length
+      elsif value.strip.empty?
+        parsed_value = [Sass::Script::Tree::Literal.new(Sass::Script::Value::String.new(""))]
         end_offset = start_offset
       else
-        expr = parse_script(value,
-          :offset => to_parser_offset(start_offset),
-          :css_variable => name.start_with?("--"))
+        expr = parse_script(value, :offset => to_parser_offset(start_offset))
         end_offset = expr.source_range.end_pos.offset - 1
+        parsed_value = [expr]
       end
-
-      node = Tree::PropNode.new(parse_interp(name), expr, prop)
+      node = Tree::PropNode.new(parse_interp(name), parsed_value, prop)
       node.value_source_range = Sass::Source::Range.new(
         Sass::Source::Position.new(line.index, to_parser_offset(start_offset)),
         Sass::Source::Position.new(line.index, to_parser_offset(end_offset)),
         @options[:filename], @options[:importer])
-      if value.strip.empty? && line.children.empty?
+      if !node.custom_property? && value.strip.empty? && line.children.empty?
         raise SyntaxError.new(
           "Invalid property: \"#{node.declaration}\" (no value)." +
           node.pseudo_class_selector_message)
@@ -1146,9 +1159,9 @@ WARNING
     end
 
     def parse_script(script, options = {})
-      line = options.delete(:line) || @line
-      offset = options.delete(:offset) || @offset + 1
-      Script.parse(script, line, offset, @options.merge(options))
+      line = options[:line] || @line
+      offset = options[:offset] || @offset + 1
+      Script.parse(script, line, offset, @options)
     end
 
     def format_comment_text(text, silent)

@@ -135,7 +135,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
 
     output "\n"
 
-    unless Sass::Util.ruby1_8? || @result.ascii_only?
+    unless @result.ascii_only?
       if node.style == :compressed
         # A byte order mark is sufficient to tell browsers that this
         # file is UTF-8 encoded, and will override any other detection
@@ -261,18 +261,14 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   end
 
   def visit_prop(node)
-    return if node.resolved_value.empty?
+    return if node.resolved_value.empty? && !node.custom_property?
     tab_str = '  ' * (@tabs + node.tabs)
     output(tab_str)
     for_node(node, :name) {output(node.resolved_name)}
-    if node.style == :compressed
-      output(":")
-      for_node(node, :value) {output(node.resolved_value)}
-    else
-      output(": ")
-      for_node(node, :value) {output(node.resolved_value)}
-      output(";")
-    end
+    output(":")
+    output(" ") unless node.style == :compressed || node.custom_property?
+    for_node(node, :value) {output(node.resolved_value)}
+    output(";") unless node.style == :compressed
   end
 
   # @comment
@@ -386,7 +382,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
 
   def debug_info_rule(debug_info, options)
     node = Sass::Tree::DirectiveNode.resolved("@media -sass-debug-info")
-    Sass::Util.hash_to_a(debug_info.map {|k, v| [k.to_s, v.to_s]}).each do |k, v|
+    debug_info.map {|k, v| [k.to_s, v.to_s]}.to_a.each do |k, v|
       rule = Sass::Tree::RuleNode.new([""])
       rule.resolved_rules = Sass::Selector::CommaSequence.new(
         [Sass::Selector::Sequence.new(
@@ -395,7 +391,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
             false)
           ])
         ])
-      prop = Sass::Tree::PropNode.new([""], Sass::Script::Value::String.new(''), :new)
+      prop = Sass::Tree::PropNode.new([""], [""], :new)
       prop.resolved_name = "font-family"
       prop.resolved_value = Sass::SCSS::RX.escape_ident(v.to_s)
       rule << prop

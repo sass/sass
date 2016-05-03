@@ -90,18 +90,9 @@ module Sass::Exec
     #
     # @param opts [OptionParser]
     def encoding_option(opts)
-      encoding_desc = if Sass::Util.ruby1_8?
-                        'Does not work in Ruby 1.8.'
-                      else
-                        'Specify the default encoding for input files.'
-                      end
+      encoding_desc = 'Specify the default encoding for input files.'
       opts.on('-E', '--default-encoding ENCODING', encoding_desc) do |encoding|
-        if Sass::Util.ruby1_8?
-          $stderr.puts "Specifying the encoding is not supported in ruby 1.8."
-          exit 1
-        else
-          Encoding.default_external = encoding
-        end
+        Encoding.default_external = encoding
       end
     end
 

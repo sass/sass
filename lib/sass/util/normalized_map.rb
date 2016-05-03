@@ -5,12 +5,11 @@ module Sass
     # A hash that normalizes its string keys while still allowing you to get back
     # to the original keys that were stored. If several different values normalize
     # to the same value, whichever is stored last wins.
-    require 'sass/util/ordered_hash' if ruby1_8?
     class NormalizedMap
       # Create a normalized map
       def initialize(map = nil)
         @key_strings = {}
-        @map = Util.ruby1_8? ? OrderedHash.new : {}
+        @map = {}
 
         map.each {|key, value| self[key] = value} if map
       end
@@ -113,12 +112,6 @@ module Sass
           raise ArgumentError.new("The method #{method} must be implemented explicitly")
         end
         @map.send(method, *args, &block)
-      end
-
-      if Sass::Util.ruby1_8?
-        def respond_to?(method, include_private = false)
-          super || @map.respond_to?(method, include_private)
-        end
       end
 
       def respond_to_missing?(method, include_private = false)

@@ -3,6 +3,23 @@
 * Table of contents
 {:toc}
 
+## 3.5.0 (UNRELEASED)
+
+* Combine ids and `:root` when unifying selectors with `@extend` and selector
+  functions.
+
+* Add a `$weight` parameter to `invert()`.
+
+* The last argument in an argument list can now have a trailing comma.
+
+### Backwards Incompatibilities -- Must Read!
+
+* The way [CSS variables][] are handled has changed to better correspond to the
+  CSS spec. They no longer allow arbitrary SassScript in their values; instead,
+  almost all text in the property values will be passed through unchanged to
+  CSS. The only exception is `#{}`, which will inject a SassScript value as
+  before.
+
 ## 3.4.23 (UNRELEASED)
 
 * The Sass logger is now instantiated on a per-thread/per-fiber basis

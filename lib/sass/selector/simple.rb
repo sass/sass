@@ -14,6 +14,14 @@ module Sass
       # @return [String, nil]
       attr_accessor :filename
 
+      # Whether only one instance of this simple selector is allowed in a given
+      # complex selector.
+      #
+      # @return [Boolean]
+      def unique?
+        false
+      end
+
       # @see #to_s
       #
       # @return [String]
@@ -73,9 +81,8 @@ module Sass
       #   this exception will only ever be raised as a result of programmer error
       def unify(sels)
         return sels if sels.any? {|sel2| eql?(sel2)}
-        sels_with_ix = Sass::Util.enum_with_index(sels)
         if !is_a?(Pseudo) || (sels.last.is_a?(Pseudo) && sels.last.type == :element)
-          _, i = sels_with_ix.find {|sel, _| sel.is_a?(Pseudo)}
+          _, i = sels.each_with_index.find {|sel, _| sel.is_a?(Pseudo)}
         end
         return sels + [self] unless i
         sels[0...i] + [self] + sels[i..-1]

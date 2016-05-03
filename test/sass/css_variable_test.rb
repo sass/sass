@@ -4,102 +4,313 @@ require File.dirname(__FILE__) + '/../test_helper'
 require 'sass/engine'
 
 class CssVariableTest < MiniTest::Test
-  def test_variable_warning_for_operators
-    resolve_with_variable_warning("1 == 2")
-    resolve_with_variable_warning("1 != 2")
-    resolve_with_variable_warning("1 < 2")
-    resolve_with_variable_warning("1 <= 2")
-    resolve_with_variable_warning("1 > 2")
-    resolve_with_variable_warning("1 >= 2")
-    resolve_with_variable_warning("1 + 1")
-    resolve_with_variable_warning("1 - 1")
-    resolve_with_variable_warning("1 * 1")
-    resolve_with_variable_warning("1 % 1")
+  def test_simple_values
+    assert_same_value('value')
+    assert_same_value('value1 value2')
+    assert_same_value('foo(bar)')
+    assert_same_value('url(http://foo.com/bar)')
+    assert_same_value('#foo')
+    assert_same_value('12.6e7')
+    assert_same_value('*/')
   end
 
-  def test_variable_warning_for_variable
-    render_with_variable_warning(<<SCSS, "$var", 3)
+  def test_empty_value
+    # The indented syntax always ignores trailing whitespace, so only test this
+    # for SCSS.
+    assert_equal <<CSS, render(<<SCSS)
 .foo {
-  $var: value;
-  --var: $var;
+  --bar: ; }
+CSS
+.foo {
+  --bar: ; }
+SCSS
+  end
+
+  def test_nested_characters
+    assert_same_value('(foo; (bar: baz;) bang!)')
+    assert_same_value('{foo; (bar: baz;) bang!}')
+    assert_same_value('[foo; (bar: baz;) bang!]')
+    assert_same_value('[({{([])}})]')
+  end
+
+  def test_sass_script_doesnt_work
+    assert_same_value('$variable')
+    assert_same_value('1 + 1')
+    assert_same_value('red(#ffffff)')
+    assert_same_value('(a b c)')
+    assert_same_value('(a: b, c: d)')
+  end
+
+  def test_strings_are_tokenized
+    assert_same_value('"foo"')
+    assert_same_value('"!"')
+    assert_same_value('";"')
+    assert_same_value('"]["')
+    assert_same_value('"}{"')
+    assert_same_value('")("')
+  end
+
+  def test_block_comments_are_tokenized
+    assert_same_value('/*foo*/')
+    assert_same_value('/* ! */')
+    assert_same_value('/* ; */')
+    assert_same_value('/* ][ */')
+    assert_same_value('/* }{ */')
+    assert_same_value('/* )( */')
+    assert_same_value('/* /* */ */')
+  end
+
+  def test_block_comments_are_ignored
+    assert_same_value('/*foo*/')
+    assert_same_value('/* ! */')
+    assert_same_value('/* ; */')
+    assert_same_value('/* ][ */')
+    assert_same_value('/* }{ */')
+    assert_same_value('/* )( */')
+    assert_same_value('/* /* */ */')
+  end
+
+  def test_single_line_comments_arent_treated_specially
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  --bar: // (
+    ); }
+CSS
+.foo {
+  --bar: // (
+    );
 }
 SCSS
   end
 
-  def test_variable_warning_for_core_function
-    resolve_with_variable_warning("alpha(#abc)")
+  def test_interpolation
+    assert_variable_value('3', '#{1 + 2}')
+    assert_variable_value('a 3 c', 'a #{1 + 2} c')
+    assert_variable_value('foo3bar', 'foo#{1 + 2}bar')
+    assert_variable_value('"foo3bar"', '"foo#{1 + 2}bar"')
+    assert_variable_value('uri(foo3bar)', 'uri(foo#{1 + 2}bar)')
   end
 
-  def test_variable_warning_for_sass_function
-    render_with_variable_warning(<<SCSS, "my-fn()", 2)
-@function my-fn() {@return null}
-.foo {--var: my-fn()}
+  def test_extra_whitespace_isnt_added
+    # Custom properties care whether there's whitespace before the first token.
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  --bar:baz; }
+CSS
+.foo {
+  --bar:baz;
+}
+SCSS
+
+    assert_equal <<CSS, render(<<SASS, syntax: :sass)
+.foo {
+  --bar:baz; }
+CSS
+.foo
+  --bar:baz
+SASS
+  end
+
+  def test_trailing_whitespace_isnt_removed
+    # The indented syntax always ignores trailing whitespace, so only test this
+    # for SCSS.
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  --bar:baz
+; }
+CSS
+.foo {
+  --bar:baz
+}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  --bar:baz\t; }
+CSS
+.foo {
+  --bar:baz\t;
+}
 SCSS
   end
 
-  def test_variable_warning_for_parens
-    resolve_with_variable_warning("(foo)", "foo")
-    resolve_with_variable_warning("(foo,)")
-  end
-
-  def test_variable_warning_for_selector
-    resolve_with_variable_warning("&")
-  end
-
-  def test_variable_warning_for_nested_properties
-    assert_warning(<<WARNING) {render(<<SCSS)}
-DEPRECATION WARNING on line 2 of #{filename_for_test :scss}:
-Sass 3.6 will change the way CSS variables are parsed. Instead of being parsed as
-normal properties, they will not allow any Sass-specific behavior other than \#{}.
-WARNING
+  def test_nested_properties_arent_flattened
+    assert_equal <<CSS, render(<<SCSS)
 .foo {
-  --var: {
+  --bar: {baz: bang;}; }
+CSS
+.foo {
+  --bar: {baz: bang;};
+}
+SCSS
+  end
+
+  def test_ambiguous_declarations_are_always_properties
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  --bar:baz {bang: qux;}; }
+CSS
+.foo {
+  --bar:baz {bang: qux;};
+}
+SCSS
+  end
+
+  # Conversion
+
+  def test_static_values_convert
+    assert_converts <<SASS, <<SCSS
+.foo
+  --bar: baz
+SASS
+.foo {
+  --bar: baz;
+}
+SCSS
+
+    assert_converts <<SASS, <<SCSS
+.foo
+  --bar: [({{([!;])}})]
+SASS
+.foo {
+  --bar: [({{([!;])}})];
+}
+SCSS
+
+    assert_converts <<SASS, <<SCSS
+.foo
+  --bar: {a: b; c: d}
+SASS
+.foo {
+  --bar: {a: b; c: d};
+}
+SCSS
+  end
+
+  def test_dynamic_values_convert
+    assert_converts <<SASS, <<SCSS
+.foo
+  --bar: baz \#{bang} qux
+SASS
+.foo {
+  --bar: baz \#{bang} qux;
+}
+SCSS
+
+    assert_converts <<SASS, <<SCSS
+.foo
+  --bar: "baz \#{bang} qux"
+SASS
+.foo {
+  --bar: "baz \#{bang} qux";
+}
+SCSS
+  end
+
+  def test_multiline_value_converts
+    assert_scss_to_scss <<SCSS
+.foo {
+  --bar: {
     a: b;
-  }
+    c: d;
+  };
+}
+SCSS
+
+    assert_scss_to_sass <<SASS, <<SCSS
+.foo
+  --bar: {     a: b;     c: d;   }
+SASS
+.foo {
+  --bar: {
+    a: b;
+    c: d;
+  };
 }
 SCSS
   end
 
-  def test_no_warning
-    assert_no_variable_warning("foo")
-    assert_no_variable_warning("true")
-    assert_no_variable_warning("1, 2")
-    assert_no_variable_warning("1 2")
-    assert_no_variable_warning("1 / 2")
-    assert_no_variable_warning("foo / bar")
-    assert_no_variable_warning("asdf(foo)")
-    assert_no_variable_warning("calc(1 + 1)")
-    assert_no_variable_warning("asdf(foo=2)")
+  # Syntax errors
+
+  def test_dont_allow_nesting
+    assert_raise_message Sass::SyntaxError, <<ERROR.rstrip do
+Illegal nesting: Nothing may be nested beneath custom properties.
+ERROR
+      render(<<SASS, syntax: :sass)
+.foo
+  --bar: baz
+    a: b
+SASS
+    end
+
+    assert_raise_message Sass::SyntaxError, <<ERROR.rstrip do
+Illegal nesting: Nothing may be nested beneath custom properties.
+ERROR
+      render(<<SASS, syntax: :sass)
+.foo
+  --bar:
+    a: b
+SASS
+    end
   end
 
-  def test_no_warning_within_interpolation
-    assert_no_variable_warning('#{1 + 1}')
-    assert_no_variable_warning('#{alpha(#abc)}')
+  def test_disallow_unmatched_brackets
+    assert_raise_message(Sass::SyntaxError, <<ERROR.rstrip) {render_variable(")")}
+Invalid CSS after "  --variable: ": expected "}", was ");"
+ERROR
+
+    assert_raise_message(Sass::SyntaxError, <<ERROR.rstrip) {render_variable("]")}
+Invalid CSS after "  --variable: ": expected "}", was "];"
+ERROR
+
+    assert_raise_message(Sass::SyntaxError, <<ERROR.rstrip) {render_variable("(])")}
+Invalid CSS after "  --variable: (": expected ")", was "]);"
+ERROR
+
+    assert_raise_message(Sass::SyntaxError, <<ERROR.rstrip) {render_variable("[}]")}
+Invalid CSS after "  --variable: [": expected "]", was "}];"
+ERROR
+
+    assert_raise_message(Sass::SyntaxError, <<ERROR.rstrip) {render_variable("{)}")}
+Invalid CSS after "  --variable: {": expected "}", was ")};"
+ERROR
+  end
+
+  def test_disallow_top_level_bang
+    assert_raise_message(Sass::SyntaxError, <<ERROR.rstrip) {render_variable("!")}
+Invalid CSS after "  --variable: ": expected "}", was "!;"
+ERROR
+
+    assert_raise_message(Sass::SyntaxError, <<ERROR.rstrip) {render_variable("foo!bar")}
+Invalid CSS after "  --variable: foo": expected "}", was "!bar;"
+ERROR
   end
 
   private
 
-  def assert_no_variable_warning(str)
-    assert_no_warning {render("a {--var: #{str}}")}
-    assert_no_warning {render("a\n  --var: #{str}", :syntax => :sass)}
+  def assert_same_value(value)
+    assert_variable_value(value, value)
   end
 
-  def resolve_with_variable_warning(str, expression = nil)
-    render_with_variable_warning("a {--var: #{str}}", expression || str, 1)
-    render_with_variable_warning(
-      "a\n  --var: #{str}", expression || str, 2, :syntax => :sass)
+  def assert_variable_value(expected, source)
+    expected = <<CSS
+x {
+  --variable: #{expected}; }
+CSS
+
+    assert_equal expected, render_variable(source)
+    assert_equal expected, render_variable(source, syntax: :sass)
   end
 
-  def render_with_variable_warning(sass, expression, line, opts = {})
-    opts[:syntax] ||= :scss
-    assert_warning(<<WARNING) {render(sass, opts)}
-DEPRECATION WARNING on line #{line} of #{filename_for_test(opts[:syntax])}:
-Sass 3.6 will change the way CSS variables are parsed. Instead of being parsed as
-normal properties, they will not allow any Sass-specific behavior other than \#{}.
-For forwards-compatibility, use \#{}:
-
-  --variable: \#{#{expression}};
-WARNING
+  def render_variable(source, syntax: :scss)
+    render(syntax == :scss ? <<SCSS : <<SASS, :syntax => syntax)
+x {
+  --variable: #{source};
+}
+SCSS
+x
+  --variable: #{source}
+SASS
   end
 
   def render(sass, options = {})

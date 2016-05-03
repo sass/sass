@@ -2700,15 +2700,6 @@ a
 SASS
   end
 
-  def test_mixin_no_arg_error
-    assert_raise_message(Sass::SyntaxError, 'Invalid CSS after "($bar,": expected variable (e.g. $foo), was ")"') do
-      render(<<SASS)
-=foo($bar,)
-  bip: bap
-SASS
-    end
-  end
-
   def test_import_with_commas_in_url
     assert_equal <<CSS, render(<<SASS)
 @import url(foo.css?bar,baz);
@@ -3388,6 +3379,70 @@ SASS
 CSS
 .classname[a="1, 2, 3"], .another[b="4, 5, 6"]
   color: red
+SASS
+  end
+
+  def test_trailing_commas_in_arglists
+    assert_equal(<<CSS, render(<<SASS, :style => :nested))
+.includes {
+  one-positional-arg: positional 1 a;
+  two-positional-args: positional 2 a b;
+  one-keyword-arg: keyword 1 z;
+  two-keyword-args: keyword 2 y z;
+  mixed-args: mixed 2 y z; }
+
+.calls {
+  one-positional-arg: positional 1 a;
+  two-positional-args: positional 2 a b;
+  one-keyword-arg: keyword 1 z;
+  two-keyword-args: keyword 2 y z;
+  mixed-args: mixed 2 y z; }
+CSS
+=one-positional-arg($a,)
+  one-positional-arg: positional 1 $a
+
+=two-positional-args($a, $b,)
+  two-positional-args: positional 2 $a $b
+
+=one-keyword-arg($a: a,)
+  one-keyword-arg: keyword 1 $a
+
+=two-keyword-args($a: a, $b: b,)
+  two-keyword-args: keyword 2 $a $b
+
+=mixed-args($a, $b: b,)
+  mixed-args: mixed 2 $a $b
+
+@function one-positional-arg($a)
+  @return positional 1 $a
+
+@function two-positional-args($a, $b)
+  @return positional 2 $a $b
+
+@function one-keyword-arg($a: a)
+  @return keyword 1 $a
+
+@function two-keyword-args($a: a, $b: b)
+  @return keyword 2 $a $b
+
+@function mixed-args($a, $b: b)
+  @return mixed 2 $a $b
+
+
+.includes
+  +one-positional-arg(a,)
+  +two-positional-args(a, b,)
+  +one-keyword-arg($a: z,)
+  +two-keyword-args($a: y, $b: z,)
+  +mixed-args(y, $b: z,)
+
+
+.calls
+  one-positional-arg: one-positional-arg(a)
+  two-positional-args: two-positional-args(a, b)
+  one-keyword-arg: one-keyword-arg($a: z)
+  two-keyword-args: two-keyword-args($a: y, $b: z)
+  mixed-args: mixed-args(y, $b: z)
 SASS
   end
 

@@ -284,10 +284,10 @@ SASS
   end
 
   def test_adding_functions_directly_to_functions_module
-    assert !Functions.callable?('nonexistant')
-    Functions.class_eval { def nonexistant; end }
-    assert Functions.callable?('nonexistant')
-    Functions.send :remove_method, :nonexistant
+    assert !Functions.callable?('nonexistent')
+    Functions.class_eval { def nonexistent; end }
+    assert Functions.callable?('nonexistent')
+    Functions.send :remove_method, :nonexistent
   end
 
   def test_default_functions
@@ -1132,9 +1132,8 @@ SASS
     assert_equal "#2", resolve('"##{1 + 1}"')
   end
 
-  def test_misplaced_comma_in_funcall
-    assert_raise_message(Sass::SyntaxError,
-      'Invalid CSS after "foo(bar, ": expected function argument, was ")"') {eval('foo(bar, )')}
+  def test_func_call_arglist_trailing_comma
+    assert_equal eval('foo(bar)'), eval('foo(bar, )')
   end
 
   def test_color_prefixed_identifier
@@ -1211,10 +1210,6 @@ SASS
     assert_no_warning {assert_equal "a- 1", resolve('#{a}- 1')}
     assert_no_warning {assert_equal "a-1", resolve('#{a}-1')}
     assert_no_warning {assert_equal "a-b", resolve('#{a}-#{b}')}
-    assert_no_warning {assert_equal "a1", resolve('#{a}1')}
-    assert_no_warning {assert_equal "ab", resolve('#{a}b')}
-    assert_no_warning {assert_equal "1a", resolve('1#{a}')}
-    assert_no_warning {assert_equal "ba", resolve('b#{a}')}
   end
 
   def test_leading_interpolation_with_deprecation_warning
@@ -1228,18 +1223,6 @@ SASS
     assert_equal "ab * 1", resolve_with_interp_warning('#{a + b} * 1')
     assert_equal "ab - 1", resolve_with_interp_warning('#{a + b} - 1')
     assert_equal "ab % 1", resolve_with_interp_warning('#{a + b} % 1')
-    assert_equal(
-      "abvar",
-      resolve_with_interp_warning(
-        '#{a + b}$var', '"#{a + b}#{$var}"',
-        env('var' => Sass::Script::Value::String.new("var"))))
-    assert_equal(
-      "varab",
-      resolve_with_interp_warning(
-        '$var#{a + b}', '"#{$var}#{a + b}"',
-        env('var' => Sass::Script::Value::String.new("var"))))
-    assert_equal "ab1", resolve_with_interp_warning('#{a + b}(1)', '"#{a + b}1"')
-    assert_equal "1ab", resolve_with_interp_warning('(1)#{a + b}', '"1#{a + b}"')
   end
 
   def test_trailing_interpolation_with_deprecation_warning
@@ -1339,9 +1322,9 @@ WARNING
 
   private
 
-  def resolve_with_lazy_interp_warning(str, contents = nil, environment = env)
+  def resolve_with_lazy_interp_warning(str, contents = nil)
     contents ||= "\"#{str}\""
-    result = assert_warning(<<WARNING) {resolve(str, {}, environment)}
+    result = assert_warning(<<WARNING) {resolve(str)}
 DEPRECATION WARNING on line 1 of #{filename_for_test}: \#{} interpolation near operators will be simplified
 in a future version of Sass. To preserve the current behavior, use quotes:
 
@@ -1351,9 +1334,9 @@ WARNING
     result
   end
 
-  def resolve_with_interp_warning(str, contents = nil, environment = env)
+  def resolve_with_interp_warning(str, contents = nil)
     contents ||= "\"#{str}\""
-    assert_warning(<<WARNING) {resolve(str, {}, environment)}
+    assert_warning(<<WARNING) {resolve(str)}
 DEPRECATION WARNING on line 1 of #{filename_for_test}: \#{} interpolation near operators will be simplified
 in a future version of Sass. To preserve the current behavior, use quotes:
 

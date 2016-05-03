@@ -51,6 +51,8 @@ module Sass
         ':' => :colon,
         '(' => :lparen,
         ')' => :rparen,
+        '[' => :lsquare,
+        ']' => :rsquare,
         ',' => :comma,
         'and' => :and,
         'or' => :or,
@@ -147,7 +149,7 @@ module Sass
       # @param offset [Fixnum] The 1-based character (not byte) offset in the line in the source.
       #   Used for error reporting and sourcemap building
       # @param options [{Symbol => Object}] An options hash;
-      #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
+      #   see {file:SASS_REFERENCE.md#options the Sass options documentation}
       def initialize(str, line, offset, options)
         @scanner = str.is_a?(StringScanner) ? str : Sass::Util::MultibyteStringScanner.new(str)
         @line = line
@@ -179,13 +181,6 @@ module Sass
           @scanner.string[@scanner.pos, 1] =~ /^\s/ ||
             @scanner.string[@scanner.pos - 1, 1] =~ /\s\Z/
         end
-      end
-
-      # Returns the given character.
-      #
-      # @return [String]
-      def char(pos = @scanner.pos)
-        @scanner.string[pos, 1]
       end
 
       # Returns the next token without moving the lexer forward.

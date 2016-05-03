@@ -264,21 +264,20 @@ RUBY
   end
 
   def test_interpolation
-    assert_equal 'unquote("#{$foo}#{$bar}#{$baz}")', render("$foo\#{$bar}$baz")
-    assert_equal 'unquote("#{$foo}#{$bar} #{$baz}")', render("$foo\#{$bar} $baz")
-    assert_equal 'unquote("#{$foo} #{$bar}#{$baz}")', render("$foo \#{$bar}$baz")
+    assert_renders "$foo\#{$bar}$baz"
+    assert_renders "$foo\#{$bar} $baz"
+    assert_renders "$foo \#{$bar}$baz"
     assert_renders "$foo \#{$bar} $baz"
     assert_renders "$foo \#{$bar}\#{$bang} $baz"
     assert_renders "$foo \#{$bar} \#{$bang} $baz"
-    assert_equal 'unquote("#{$bar}#{$baz}")', render("\#{$bar}$baz")
-    assert_equal 'unquote("#{$foo}#{$bar}")', render("$foo\#{$bar}")
+    assert_renders "\#{$bar}$baz"
+    assert_renders "$foo\#{$bar}"
     assert_renders "\#{$bar}"
   end
 
   def test_interpolation_in_function
     assert_renders 'flabnabbit(#{1 + "foo"})'
-    assert_equal 'flabnabbit(unquote("#{$foo} #{1 + "foo"}#{$baz}"))',
-                 render('flabnabbit($foo #{1 + "foo"}$baz)')
+    assert_renders 'flabnabbit($foo #{1 + "foo"}$baz)'
     assert_renders 'flabnabbit($foo #{1 + "foo"}#{2 + "bar"} $baz)'
   end
 
@@ -341,6 +340,15 @@ RUBY
     assert_renders '"\#{bar}"'
 
     assert_equal '"foo#{$bar}baz"', render("'foo\#{$bar}baz'")
+  end
+
+  def test_bracketed_lists
+    assert_renders("[]")
+    assert_renders("[foo, bar]")
+    assert_renders("[[foo]]")
+    assert_renders("[(foo bar)]")
+    assert_renders("[foo bar,]")
+    assert_renders("[(foo,)]")
   end
 
   private
