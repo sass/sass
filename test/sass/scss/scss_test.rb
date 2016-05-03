@@ -3932,7 +3932,7 @@ SCSS
 .bar {
   baz: bar; }
 CSS
-@mixin foo($a1) {
+@mixin foo($a1,) {
   baz: $a1;
 }
 
