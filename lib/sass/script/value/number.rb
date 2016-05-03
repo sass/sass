@@ -44,10 +44,8 @@ module Sass::Script::Value
     # To set for all threads, be sure to set the precision on the main thread.
     def self.precision=(digits)
       Thread.current[:sass_numeric_precision] = digits.round
-      Thread.current[:sass_numeric_precision_factor] = 10.0**precision
-      Thread.current[:sass_numeric_epsilon] = 1 / (precision_factor * 10)
-
-      Thread.current[:sass_numeric_precision]
+      Thread.current[:sass_numeric_precision_factor] = nil
+      Thread.current[:sass_numeric_epsilon] = nil
     end
 
     # the precision factor used in numeric output
@@ -62,8 +60,6 @@ module Sass::Script::Value
     def self.epsilon
       Thread.current[:sass_numeric_epsilon] ||= 1 / (precision_factor * 10)
     end
-
-    self.precision = 5 # sets the default on the main thread (probably)
 
     # Used so we don't allocate two new arrays for each new number.
     NO_UNITS = []
