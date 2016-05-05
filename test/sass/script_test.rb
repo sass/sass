@@ -1090,9 +1090,8 @@ SASS
     assert_equal "#2", resolve('"##{1 + 1}"')
   end
 
-  def test_misplaced_comma_in_funcall
-    assert_raise_message(Sass::SyntaxError,
-      'Invalid CSS after "foo(bar, ": expected function argument, was ")"') {eval('foo(bar, )')}
+  def test_func_call_arglist_trailing_comma
+    assert_equal eval('foo(bar)'), eval('foo(bar, )')
   end
 
   def test_color_prefixed_identifier

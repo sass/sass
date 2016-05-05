@@ -30,6 +30,8 @@ For more details, see [this blog post][interp-blog] and
 
 * Add a `$weight` parameter to `invert()`.
 
+* The last argument in an argument list can now have a trailing comma.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * The way [CSS variables][] are handled has changed to better correspond to the
