@@ -27,6 +27,12 @@ module Sass::Script::Functions::UserFunctions
   end
 end
 
+module Sass::Script::Functions::MyFunctions
+  def my_option(name)
+    option(name)
+  end
+end
+
 module Sass::Script::Functions
   include Sass::Script::Functions::UserFunctions
 end
@@ -2697,6 +2703,17 @@ a {
 CSS
 a
   b: option("style")
+SASS
+  end
+
+  def test_my_options_available_in_environment
+    options = { :functions => Sass::Script::Functions::MyFunctions }
+    assert_equal(<<CSS, render(<<SASS, options))
+a {
+  b: nested; }
+CSS
+a
+  b: my-option("style")
 SASS
   end
 
