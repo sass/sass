@@ -34,6 +34,8 @@ For more details, see [this blog post][interp-blog] and
 
 * Adds support for CSS's grid template areas and named lines. We support
   this syntax through a new type of list called a "bracketed list".
+  Bracketed lists can be created by wrapping a list with square brackets.
+  For example: `[this is bracketed]` and `[this, is, also, bracketed]`.
   Bracketed lists will output their square brackets when used as a CSS
   value. Bracketed lists may be either space-separated or comma-separated.
   The `is-bracketed()` function, when passed a list will return a boolean
