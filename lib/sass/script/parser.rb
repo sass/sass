@@ -522,12 +522,12 @@ RUBY
         else
           return [], nil unless try_tok(:lparen)
         end
-        return [], nil if try_tok(:rparen)
 
         res = []
         splat = nil
         must_have_default = false
         loop do
+          break if peek_tok(:rparen)
           c = assert_tok(:const)
           var = node(Script::Tree::Variable.new(c.value), c.source_range)
           if try_tok(:colon)
@@ -558,12 +558,8 @@ RUBY
       def arglist(subexpr, description)
         args = []
         keywords = Sass::Util::NormalizedMap.new
-        e = send(subexpr)
-
-        return [args, keywords] unless e
-
         splat = nil
-        loop do
+        while (e = send(subexpr))
           if @lexer.peek && @lexer.peek.type == :colon
             name = e
             @lexer.expected!("comma") unless name.is_a?(Tree::Variable)
@@ -584,13 +580,12 @@ RUBY
             elsif !keywords.empty?
               raise SyntaxError.new("Positional arguments must come before keyword arguments.")
             end
-
             args << e if e
           end
 
           return args, keywords, splat unless try_tok(:comma)
-          e = assert_expr(subexpr, description)
         end
+        return args, keywords
       end
 
       def raw
@@ -735,10 +730,14 @@ RUBY
         @lexer.expected!(names.map {|tok| Lexer::TOKEN_NAMES[tok] || tok}.join(" or "))
       end
 
-      def try_tok(name)
+      def peek_tok(name)
         # Avoids an array allocation caused by argument globbing in the try_toks method.
         peeked = @lexer.peek
-        peeked && name == peeked.type && @lexer.next
+        peeked && name == peeked.type
+      end
+
+      def try_tok(name)
+        peek_tok(name) && @lexer.next
       end
 
       def try_toks(*names)
