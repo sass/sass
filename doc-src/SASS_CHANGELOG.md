@@ -12,6 +12,15 @@
 
 * The last argument in an argument list can now have a trailing comma.
 
+* Adds support for CSS's grid template areas and named lines. We support
+  this syntax through a new type of list called a "bracketed list".
+  Bracketed lists will output their square brackets when used as a CSS
+  value. Bracketed lists may be either space-separated or comma-separated.
+  The `is-bracketed()` function, when passed a list will return a boolean
+  indicating whether that list will output with brackets. The `join()`
+  function now accepts a `$bracketed` parameter that controls whether the
+  returned list has brackets.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * The way [CSS variables][] are handled has changed to better correspond to the
