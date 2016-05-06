@@ -2370,6 +2370,13 @@ providing many arguments without becoming difficult to call.
 Named arguments can be passed in any order, and arguments with default values can be omitted.
 Since the named arguments are variable names, underscores and dashes can be used interchangeably.
 
+#### Trailing Commas
+
+When the last argument to a mixin or function is a positional or
+keyword-style argument, that argument can be followed by a trailing
+comma. Some prefer this coding style as it can lead to more concise
+diffs and fewer syntax errors when refactoring.
+
 #### Variable Arguments
 
 Sometimes it makes sense for a mixin or function to take an unknown number of
