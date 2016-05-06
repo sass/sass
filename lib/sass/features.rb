@@ -12,6 +12,7 @@ module Sass
       extend-selector-pseudoclass
       units-level-3
       at-error
+      custom-property
     )]
 
     # Check if a feature exists by name. This is used to implement
