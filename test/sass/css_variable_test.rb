@@ -3,7 +3,114 @@
 require File.dirname(__FILE__) + '/../test_helper'
 require 'sass/engine'
 
+# Most CSS variable tests are in sass-spec, but a few relate to formatting or
+# conversion and so belong here.
 class CssVariableTest < MiniTest::Test
+  def test_folded_inline_whitespace
+    assert_variable_value "foo bar baz", "foo    bar        baz"
+    assert_variable_value "foo bar", "foo \t   bar"
+  end
+
+  def test_folded_multiline_whitespace
+    # We don't want to reformat newlines in nested and expanded mode, so we just
+    # remove trailing whitespace before them.
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  --multiline: foo
+    bar; }
+CSS
+.foo {
+  --multiline: foo\s
+    bar;
+}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  --multiline: foo
+
+
+    bar; }
+CSS
+.foo {
+  --multiline: foo\s
+
+
+    bar;
+}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS, style: :expanded)
+.foo {
+  --multiline: foo
+    bar;
+}
+CSS
+.foo {
+  --multiline: foo\s
+    bar;
+}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS, style: :expanded)
+.foo {
+  --multiline: foo
+
+
+    bar;
+}
+CSS
+.foo {
+  --multiline: foo\s
+
+
+    bar;
+}
+SCSS
+
+    # In compact and compressed mode, we fold all whitespace around newlines
+    # together.
+    assert_equal <<CSS, render(<<SCSS, style: :compact)
+.foo { --multiline: foo bar; }
+CSS
+.foo {
+  --multiline: foo\s
+    bar;
+}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS, style: :compact)
+.foo { --multiline: foo bar; }
+CSS
+.foo {
+  --multiline: foo\s
+
+
+    bar;
+}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS, style: :compressed)
+.foo{--multiline: foo bar}
+CSS
+.foo {
+  --multiline: foo\s
+    bar;
+}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS, style: :compressed)
+.foo{--multiline: foo bar}
+CSS
+.foo {
+  --multiline: foo\s
+
+
+    bar;
+}
+SCSS
+  end
+
   # Conversion.
 
   def test_static_values_convert

@@ -267,7 +267,13 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     for_node(node, :name) {output(node.resolved_name)}
     output(":")
     output(" ") unless node.style == :compressed || node.custom_property?
-    for_node(node, :value) {output(node.resolved_value)}
+    for_node(node, :value) do
+      output(if node.custom_property?
+               format_custom_property_value(node)
+             else
+               node.resolved_value
+             end)
+    end
     output(";") unless node.style == :compressed
   end
 
@@ -379,6 +385,38 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   end
 
   private
+
+  # Reformats the value of `node` so that it's nicely indented, preserving its
+  # existing relative indentation.
+  #
+  # @param node [Sass::Script::Tree::PropNode] A custom property node.
+  # @return [String]
+  def format_custom_property_value(node)
+    if node.style == :compact || node.style == :compressed || !node.resolved_value.include?("\n")
+      # Folding not involving newlines was done in the parser. We can safely
+      # fold newlines here because tokens like strings can't contain literal
+      # newlines, so we know any adjacent whitespace is tokenized as whitespace.
+      return node.resolved_value.gsub(/[ \t\r\f]*\n[ \t\r\f\n]*/, ' ')
+    end
+
+    # Find the smallest amount of indentation in the custom property and use
+    # that as the base indentation level.
+    lines = node.resolved_value.split("\n")
+    indented_lines = lines[1..-1]
+    min_indentation = indented_lines.
+      map {|line| line[/^[ \t]*/]}.
+      reject {|line| line.empty?}.
+      min_by {|line| line.length}
+
+    # Limit the base indentation to the same indentation level as the node name
+    # so that if *every* line is indented relative to the property name that's
+    # preserved.
+    if node.name_source_range
+      base_indentation = min_indentation[0...node.name_source_range.start_pos.offset - 1]
+    end
+
+    lines.first + "\n" + indented_lines.join("\n").gsub(/^#{base_indentation}/, '  ' * @tabs)
+  end
 
   def debug_info_rule(debug_info, options)
     node = Sass::Tree::DirectiveNode.resolved("@media -sass-debug-info")
