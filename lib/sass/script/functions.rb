@@ -1644,6 +1644,12 @@ MESSAGE
     #
     # * `at-error` indicates that the Sass `@error` directive is supported.
     #
+    # * `custom-property` indicates that the [Custom Properties Level 1][] spec
+    #   is supported. This means that custom properties are parsed statically,
+    #   with only interpolation treated as SassScript.
+    #
+    # [Custom Properties Level 1]: https://www.w3.org/TR/css-variables-1/
+    #
     # @example
     #   feature-exists(some-feature-that-exists) => true
     #   feature-exists(what-is-this-i-dont-know) => false
