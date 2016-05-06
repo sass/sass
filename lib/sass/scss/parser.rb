@@ -99,6 +99,18 @@ module Sass
         condition
       end
 
+      # Parses a custom property value.
+      #
+      # @return [Array<String, Sass::Script;:Tree::Node>] The interpolated value.
+      # @raise [Sass::SyntaxError] if there's a syntax error in the value,
+      #   or if it doesn't take up the entire input string.
+      def parse_declaration_value
+        init_scanner!
+        value = declaration_value
+        expected('"}"') unless value && @scanner.eos?
+        value
+      end
+
       private
 
       include Sass::SCSS::RX
@@ -874,7 +886,7 @@ module Sass
             (?!
               url\(
             )
-            [^()\[\]{}"'#/#{top_level ? ";!" : ""}]
+            [^()\[\]{}"'#/ \t\r\n\f#{top_level ? ";!" : ""}]
           |
             \#(?!\{)
           |
@@ -882,6 +894,15 @@ module Sass
           )+
         }xi) || interp_string || interp_uri || interpolation || tok(COMMENT)
         return result if result
+
+        # Fold together multiple characters of whitespace that don't include
+        # newlines. The value only cares about the tokenization, so this is safe
+        # as long as we don't delete whitespace entirely. It's important that we
+        # fold here rather than post-processing, since we aren't allowed to fold
+        # whitespace within strings and we lose that context later on.
+        if (ws = tok(S))
+          return ws.include?("\n") ? ws.gsub(/\A[^\n]*/, '') : ' '
+        end
 
         if tok(/\(/)
           value = declaration_value(top_level: false)

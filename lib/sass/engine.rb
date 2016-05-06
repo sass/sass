@@ -727,7 +727,10 @@ WARNING
             :line => @line + 1)
         end
 
-        parsed_value = parse_interp(value)
+        parser = Sass::SCSS::Parser.new(value,
+          @options[:filename], @options[:importer],
+          @line, to_parser_offset(@offset))
+        parsed_value = parser.parse_declaration_value
         end_offset = start_offset + value.length
       elsif value.strip.empty?
         parsed_value = [Sass::Script::Tree::Literal.new(Sass::Script::Value::String.new(""))]
