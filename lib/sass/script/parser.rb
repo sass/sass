@@ -471,16 +471,22 @@ RUBY
       #   `expr`).
       # @return [Boolean]
       def is_unsafe_before?(expr, char_before)
-        # If the previous expression is an identifier or number, it's safe
-        # unless it was wrapped in parentheses.
-        if expr.is_a?(Script::Tree::Literal) &&
-           (expr.value.is_a?(Script::Value::Number) ||
-            (expr.value.is_a?(Script::Value::String) && expr.value.type == :identifier))
-          return char_before == ')'
-        end
+        return char_before == ')' if is_safe_value?(expr)
 
         # Otherwise, it's only safe if it was another interpolation.
         !expr.is_a?(Script::Tree::Interpolation)
+      end
+
+      # Returns whether `expr` is safe as the value immediately before an
+      # interpolation.
+      #
+      # It's safe as long as the previous expression is an identifier or number,
+      # or a list whose last element is also safe.
+      def is_safe_value?(expr)
+        return is_safe_value?(expr.elements.last) if expr.is_a?(Script::Tree::ListLiteral)
+        return false unless expr.is_a?(Script::Tree::Literal)
+        return expr.value.is_a?(Script::Value::Number) ||
+               (expr.value.is_a?(Script::Value::String) && expr.value.type == :identifier)
       end
 
       def space
