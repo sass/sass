@@ -301,7 +301,20 @@ RUBY
         list
       end
 
+
       production :equals, :space, :single_eq
+
+      # Returns whether `expr` is safe as the value immediately before an
+      # interpolation.
+      #
+      # It's safe as long as the previous expression is an identifier or number,
+      # or a list whose last element is also safe.
+      def is_safe_value?(expr)
+        return is_safe_value?(expr.elements.last) if expr.is_a?(Script::Tree::ListLiteral)
+        return false unless expr.is_a?(Script::Tree::Literal)
+        expr.value.is_a?(Script::Value::Number) ||
+          (expr.value.is_a?(Script::Value::String) && expr.value.type == :identifier)
+      end
 
       def space
         start_pos = source_position
