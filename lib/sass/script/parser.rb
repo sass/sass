@@ -301,7 +301,6 @@ RUBY
         list
       end
 
-
       production :equals, :space, :single_eq
 
       # Returns whether `expr` is safe as the value immediately before an
