@@ -485,8 +485,8 @@ RUBY
       def is_safe_value?(expr)
         return is_safe_value?(expr.elements.last) if expr.is_a?(Script::Tree::ListLiteral)
         return false unless expr.is_a?(Script::Tree::Literal)
-        return expr.value.is_a?(Script::Value::Number) ||
-               (expr.value.is_a?(Script::Value::String) && expr.value.type == :identifier)
+        expr.value.is_a?(Script::Value::Number) ||
+          (expr.value.is_a?(Script::Value::String) && expr.value.type == :identifier)
       end
 
       def space
