@@ -32,5 +32,13 @@ module Sass::Script::Value
       @keywords_accessed = true
       @keywords
     end
+
+    # Remove the first positional argument from the ArgList and return
+    # it along with a new arglist that is the remaining arguments
+    #
+    # @return [Value]
+    def shift
+      [value.first, ArgList.new(value[1..-1] || [], @keywords, separator)]
+    end
   end
 end

@@ -346,29 +346,47 @@ WARNING
 
   # Runs a mixin.
   def visit_mixin(node)
+    mixin_name = nil
     @environment.stack.with_mixin(node.filename, node.line, node.name) do
-      mixin = @environment.mixin(node.name)
-      raise Sass::SyntaxError.new("Undefined mixin '#{node.name}'.") unless mixin
-
-      if node.children.any? && !mixin.has_content
-        raise Sass::SyntaxError.new(%(Mixin "#{node.name}" does not accept a content block.))
-      end
-
       args = node.args.map {|a| a.perform(@environment)}
       keywords = Sass::Util.map_vals(node.keywords) {|v| v.perform(@environment)}
       splat = self.class.perform_splat(node.splat, keywords, node.kwarg_splat, @environment)
+
+      mixin_name = node.name
+      # We let any existing mixin named `mixin` shadow dynamic includes
+      # for backwards compatability even though it will break the hell
+      # out of libraries if anyone does this.
+      mixin = @environment.mixin(mixin_name)
+
+      # The while loop is to allow any number of dynamic includes to be chained.
+      while mixin.nil? && mixin_name == "mixin"
+        if args.first.is_a?(Sass::Script::Value::String)
+          mixin_name = args.shift.value
+        elsif splat.value.first.is_a?(Sass::Script::Value::String)
+          n, splat = splat.shift
+          mixin_name = n.value
+        else
+          raise Sass::SyntaxError.new("First argument to a dynamic include must be a string.")
+        end
+        mixin = @environment.mixin(mixin_name)
+      end
+      raise Sass::SyntaxError.new("Undefined mixin '#{mixin_name}'.") unless mixin
+
+      if node.children.any? && !mixin.has_content
+        raise Sass::SyntaxError.new(%(Mixin "#{mixin_name}" does not accept a content block.))
+      end
 
       self.class.perform_arguments(mixin, args, splat, @environment) do |env|
         env.caller = Sass::Environment.new(@environment)
         env.content = [node.children, @environment] if node.has_children
 
-        trace_node = Sass::Tree::TraceNode.from_node(node.name, node)
+        trace_node = Sass::Tree::TraceNode.from_node(mixin_name, node)
         with_environment(env) {trace_node.children = mixin.tree.map {|c| visit(c)}.flatten}
         trace_node
       end
     end
   rescue Sass::SyntaxError => e
-    e.modify_backtrace(:mixin => node.name, :line => node.line)
+    e.modify_backtrace(:mixin => mixin_name || node.name, :line => node.line)
     e.add_backtrace(:line => node.line)
     raise e
   end

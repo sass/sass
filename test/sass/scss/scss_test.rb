@@ -4221,4 +4221,70 @@ p {\r\n   margin: 0;\r\n}
 SCSS
   end
 
+  def test_dynamic_include
+    assert_equal(<<CSS, render(<<SCSS))
+.foo {
+  invoked-with: 1px, 2px; }
+
+.foo {
+  invoked-with: passed as argument list; }
+CSS
+@mixin foo($args...) {
+  .foo { invoked-with: $args }
+}
+@include mixin(foo, 1px, 2px);
+$arglist: (foo, passed as argument list);
+@include mixin($arglist...);
+SCSS
+  end
+
+  def test_dynamic_includes_dynamic_include
+    assert_equal(<<CSS, render(<<SCSS))
+.foo {
+  invoked-with: 1px, 2px; }
+
+.foo {
+  invoked-with: passed as argument list; }
+CSS
+@mixin foo($args...) {
+  .foo { invoked-with: $args }
+}
+@include mixin(mixin, foo, 1px, 2px);
+$arglist: (mixin, foo, passed as argument list);
+@include mixin($arglist...);
+SCSS
+  end
+
+  def test_dynamic_include_prefers_local_definition
+    assert_equal(<<CSS, render(<<SCSS))
+.mixin {
+  dear-god-why: 2px; }
+CSS
+@mixin mixin($dear-god-why) {
+  .mixin { dear-god-why: $dear-god-why }
+}
+@include mixin(2px);
+SCSS
+  end
+
+  def test_dynamic_include_missing_name
+    assert_raise_message(Sass::SyntaxError,
+      "First argument to a dynamic include must be a string.") {render(<<SCSS)}
+@include mixin(2px);
+SCSS
+  end
+
+  def test_dynamic_include_undefined_mixin
+    assert_raise_message(Sass::SyntaxError, "Error: Undefined mixin 'foo'.") {render(<<SCSS)}
+@include mixin(foo);
+SCSS
+  end
+
+  def test_dynamic_include_undefined_mixin
+    assert_raise_message(Sass::SyntaxError,
+     "First argument to a dynamic include must be a string.") {render(<<SCSS)}
+@include mixin;
+SCSS
+  end
+
 end
