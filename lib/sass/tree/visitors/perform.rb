@@ -347,6 +347,7 @@ WARNING
   # Runs a mixin.
   def visit_mixin(node)
     mixin_name = node.name
+    dynamic_calls = 0
     @environment.stack.with_mixin(node.filename, node.line, node.name) do
       args = node.args.map {|a| a.perform(@environment)}
       keywords = Sass::Util.map_vals(node.keywords) {|v| v.perform(@environment)}
@@ -368,6 +369,7 @@ WARNING
           raise Sass::SyntaxError.new("First argument to a dynamic include must be a string.")
         end
         mixin = @environment.mixin(mixin_name)
+        dynamic_calls += 1 if mixin
       end
       raise Sass::SyntaxError.new("Undefined mixin '#{mixin_name}'.") unless mixin
 
@@ -387,6 +389,10 @@ WARNING
   rescue Sass::SyntaxError => e
     e.modify_backtrace(:mixin => mixin_name, :line => node.line)
     e.add_backtrace(:line => node.line)
+    dynamic_calls.times do
+      e.modify_backtrace(:mixin => "mixin", :line => node.line)
+      e.add_backtrace(:line => node.line)
+    end
     raise e
   end
 
