@@ -424,7 +424,19 @@ MESSAGE
         op = scan(REGULAR_EXPRESSIONS[:op])
         return unless op
         name = OPERATORS[op]
-        @interpolation_stack << nil if name == :begin_interpolation
+
+        if name == :begin_interpolation
+          @interpolation_stack << nil
+        elsif name == :end_interpolation && @interpolation_stack.last.nil?
+          # Interpolation followed immediately by a parenthesis should be
+          # considered part of a function call.
+          if @scanner.string[@scanner.pos] == ?(
+            @scanner.pos += 1
+            start_pos = Sass::Source::Position.new(@line, @offset - 1)
+            @next_tok = Token.new(:funcall, '', range(start_pos), @scanner.pos - 1)
+          end
+        end
+
         [name]
       end
 

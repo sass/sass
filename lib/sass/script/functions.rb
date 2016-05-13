@@ -2294,7 +2294,7 @@ MESSAGE
       assert_type name, :String, :name
       kwargs = args.last.is_a?(Hash) ? args.pop : {}
       funcall = Sass::Script::Tree::Funcall.new(
-        name.value,
+        [name.value],
         args.map {|a| Sass::Script::Tree::Literal.new(a)},
         Sass::Util.map_vals(kwargs) {|v| Sass::Script::Tree::Literal.new(v)},
         nil,

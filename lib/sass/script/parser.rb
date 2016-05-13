@@ -363,6 +363,12 @@ RUBY
           if tok.type == :ident
             contents << @lexer.next.value
             next
+          elsif tok.type == :funcall
+            contents << @lexer.next.value
+            args, keywords, splat, kwarg_splat = fn_arglist
+            assert_tok(:rparen)
+            return node(Script::Tree::Funcall.new(contents, args, keywords, splat, kwarg_splat),
+                 tok.source_range.start_pos, source_position)
           end
 
           break unless try_tok(:begin_interpolation)
@@ -396,7 +402,7 @@ RUBY
         return raw unless tok
         args, keywords, splat, kwarg_splat = fn_arglist
         assert_tok(:rparen)
-        node(Script::Tree::Funcall.new(tok.value, args, keywords, splat, kwarg_splat),
+        node(Script::Tree::Funcall.new([tok.value], args, keywords, splat, kwarg_splat),
           tok.source_range.start_pos, source_position)
       end
 
