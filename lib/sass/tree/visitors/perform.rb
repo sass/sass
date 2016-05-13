@@ -346,13 +346,12 @@ WARNING
 
   # Runs a mixin.
   def visit_mixin(node)
-    mixin_name = nil
+    mixin_name = node.name
     @environment.stack.with_mixin(node.filename, node.line, node.name) do
       args = node.args.map {|a| a.perform(@environment)}
       keywords = Sass::Util.map_vals(node.keywords) {|v| v.perform(@environment)}
       splat = self.class.perform_splat(node.splat, keywords, node.kwarg_splat, @environment)
 
-      mixin_name = node.name
       # We let any existing mixin named `mixin` shadow dynamic includes
       # for backwards compatability even though it will break the hell
       # out of libraries if anyone does this.
@@ -386,7 +385,7 @@ WARNING
       end
     end
   rescue Sass::SyntaxError => e
-    e.modify_backtrace(:mixin => mixin_name || node.name, :line => node.line)
+    e.modify_backtrace(:mixin => mixin_name, :line => node.line)
     e.add_backtrace(:line => node.line)
     raise e
   end
