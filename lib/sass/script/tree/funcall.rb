@@ -13,6 +13,11 @@ module Sass::Script::Tree
     # @return [String]
     attr_reader :name
 
+    # The callable to be invoked
+    #
+    # @return [Sass::Callable] or nil if no callable is provided.
+    attr_reader :callable
+
     # The arguments to the function.
     #
     # @return [Array<Node>]
@@ -39,13 +44,19 @@ module Sass::Script::Tree
     # @return [Node?]
     attr_accessor :kwarg_splat
 
-    # @param name [String] See \{#name}
+    # @param name_or_callable [String, Sass::Callable] See \{#name}
     # @param args [Array<Node>] See \{#args}
     # @param keywords [Sass::Util::NormalizedMap<Node>] See \{#keywords}
     # @param splat [Node] See \{#splat}
     # @param kwarg_splat [Node] See \{#kwarg_splat}
-    def initialize(name, args, keywords, splat, kwarg_splat)
-      @name = name
+    def initialize(name_or_callable, args, keywords, splat, kwarg_splat)
+      if name_or_callable.is_a?(Sass::Callable)
+        @callable = name_or_callable 
+        @name = name_or_callable.name
+      else
+        @callable = nil
+        @name = name_or_callable
+      end
       @args = args
       @keywords = keywords
       @splat = splat
@@ -125,7 +136,10 @@ module Sass::Script::Tree
       end
       splat = Sass::Tree::Visitors::Perform.perform_splat(
         @splat, keywords, @kwarg_splat, environment)
-      if (fn = environment.function(@name))
+
+      fn = @callable || environment.function(@name)
+
+      if fn && fn.origin == :stylesheet
         environment.stack.with_function(filename, line, name) do
           return without_original(perform_sass_fn(fn, args, splat, environment))
         end
@@ -133,7 +147,7 @@ module Sass::Script::Tree
 
       args = construct_ruby_args(ruby_name, args, splat, environment)
 
-      if Sass::Script::Functions.callable?(ruby_name)
+      if Sass::Script::Functions.callable?(ruby_name) && (!fn || fn.origin == :builtin)
         local_environment = Sass::Environment.new(environment.global_env, environment.options)
         local_environment.caller = Sass::ReadOnlyEnvironment.new(environment, environment.options)
         result = local_environment.stack.with_function(filename, line, name) do

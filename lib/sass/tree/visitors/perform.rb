@@ -289,7 +289,7 @@ WARNING
 
     @environment.set_local_function(node.name,
       Sass::Callable.new(node.name, node.args, node.splat, env,
-                         node.children, false, "function"))
+                         node.children, false, "function", :stylesheet))
     []
   end
 
@@ -340,7 +340,7 @@ WARNING
     env = Sass::Environment.new(@environment, node.options)
     @environment.set_local_mixin(node.name,
       Sass::Callable.new(node.name, node.args, node.splat, env,
-                         node.children, node.has_content, "mixin"))
+                         node.children, node.has_content, "mixin", :stylesheet))
     []
   end
 
