@@ -2344,7 +2344,7 @@ MESSAGE
         assert_type name, :Callable, :callable
       end
       if name.is_a?(Sass::Script::Value::String)
-        name = function_reference(name) rescue name
+        name = function_reference(name)
         Sass::Util.sass_warn(<<WARNING)
 DEPRECATION WARNING: Passing a string to call() is deprecated and will be illegal
 in Sass 4.0. Use call(#{name.to_sass}) instead.
@@ -2451,7 +2451,7 @@ WARNING
     # @return [Sass::Script::Value::Bool] Whether the function is defined.
     def function_exists(name)
       assert_type name, [:String, :Callable], :name
-      if (name.is_a?(Sass::Script::Value::String))
+      if name.is_a?(Sass::Script::Value::String)
         exists = Sass::Script::Functions.callable?(name.value.tr("-", "_"))
         exists ||= environment.caller.function(name.value)
         bool(exists)

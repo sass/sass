@@ -51,7 +51,7 @@ module Sass::Script::Tree
     # @param kwarg_splat [Node] See \{#kwarg_splat}
     def initialize(name_or_callable, args, keywords, splat, kwarg_splat)
       if name_or_callable.is_a?(Sass::Callable)
-        @callable = name_or_callable 
+        @callable = name_or_callable
         @name = name_or_callable.name
       else
         @callable = nil

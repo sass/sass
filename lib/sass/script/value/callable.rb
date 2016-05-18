@@ -1,7 +1,6 @@
 module Sass::Script::Value
   # A SassScript object representing a null value.
   class Callable < Base
-
     def initialize(callable)
       super(callable.dup)
     end
