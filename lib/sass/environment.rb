@@ -175,6 +175,10 @@ module Sass
 
   # A read-only wrapper for a lexical environment for SassScript.
   class ReadOnlyEnvironment < BaseEnvironment
+    def initialize(parent = nil, options = nil)
+      super
+      @content_cached = nil
+    end
     # The read-only environment of the caller of this environment's mixin or function.
     #
     # @see BaseEnvironment#caller
@@ -190,9 +194,19 @@ module Sass
     # @see BaseEnvironment#content
     # @return {ReadOnlyEnvironment}
     def content
-      return @content if @content
-      env = super
-      @content ||= env.is_a?(ReadOnlyEnvironment) ? env : ReadOnlyEnvironment.new(env, env.options)
+      return @content if @content_cached
+      read_write_content = super
+      if read_write_content
+        tree, env = read_write_content
+        if env && !env.is_a?(ReadOnlyEnvironment)
+          env = ReadOnlyEnvironment.new(env, env.options)
+        end
+        @content_cached = true
+        @content = [tree, env]
+      else
+        @content_cached = true
+        @content = nil
+      end
     end
   end
 
