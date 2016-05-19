@@ -2423,6 +2423,15 @@ MESSAGE
     end
     declare :mixin_exists, [:name]
 
+    def content_exists
+      mixin_frame = environment.stack.frames[-2]
+      unless mixin_frame && mixin_frame.type == :mixin
+        raise Sass::SyntaxError.new("Cannot call content-exists() except within a mixin.")
+      end
+      bool(!environment.caller.content.nil?)
+    end
+    declare :content_exists, []
+
     # Return a string containing the value as its Sass representation.
     #
     # @overload inspect($value)
