@@ -2305,6 +2305,8 @@ MESSAGE
         Sass::Util.map_vals(kwargs) {|v| Sass::Script::Tree::Literal.new(v)},
         nil,
         nil)
+      funcall.line = environment.stack.frames.last.line
+      funcall.filename = environment.stack.frames.last.filename
       funcall.options = options
       perform(funcall)
     end
