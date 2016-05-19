@@ -667,7 +667,7 @@ called `$main-width`, you can access it as `$main_width`, and vice versa.
 
 ### Data Types
 
-SassScript supports seven main data types:
+SassScript supports eight data types:
 
 * numbers (e.g. `1.2`, `13`, `10px`)
 * strings of text, with and without quotes (e.g. `"foo"`, `'bar'`, `baz`)
@@ -676,6 +676,7 @@ SassScript supports seven main data types:
 * nulls (e.g. `null`)
 * lists of values, separated by spaces or commas (e.g. `1.5em 1em 0 2em`, `Helvetica, Arial, sans-serif`)
 * maps from one value to another (e.g. `(key1: value1, key2: value2)`)
+* callable values that refer to functions
 
 SassScript also supports all other types of CSS property value,
 such as Unicode ranges and `!important` declarations.
@@ -819,6 +820,13 @@ prefers the same output format as was typed in other output modes, a
 color interpolated into a selector becomes invalid syntax when
 compressed. To avoid this, always quote named colors if they are meant
 to be used in the construction of a selector.
+
+#### Callables
+
+A callable value is returned by `function-reference($function-name)`.
+The callable value can be passed to `call($callable, $args...)` and the
+function it refers to will be invoked. Callable values cannot be used
+directly as CSS output and any attempt to do so will result in an error.
 
 ### Operations
 

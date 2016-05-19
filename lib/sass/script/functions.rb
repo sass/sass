@@ -297,8 +297,12 @@ module Sass::Script
   # \{#comparable comparable($number1, $number2)}
   # : Returns whether two numbers can be added, subtracted, or compared.
   #
-  # \{#call call($name, $args...)}
-  # : Dynamically calls a Sass function.
+  # \{#call call($callable, $args...)}
+  # : Dynamically calls a Sass function reference returned by `function-reference`.
+  #
+  # \{#function_reference function-reference($name)}
+  # : Looks up a function with the given name in the current lexical scope
+  #   and returns a reference to it.
   #
   # ## Miscellaneous Functions
   #
@@ -1635,6 +1639,10 @@ MESSAGE
     #   type-of(#fff)   => color
     #   type-of(blue)   => color
     #   type-of(null)   => null
+    #   type-of(a b c)  => list
+    #   type-of((a: 1, b: 2)) => map
+    #   type-of(function-reference(foo)) => callable
+    #
     # @overload type_of($value)
     #   @param $value [Sass::Script::Value::Base] The value to inspect
     # @return [Sass::Script::Value::String] The unquoted string name of the
@@ -1684,13 +1692,19 @@ MESSAGE
 
     # Returns a reference to a function for later invocation with the `call` function.
     #
+    # The function reference created may refer to a function defined in
+    # your stylesheet, built-in to the host environment, or a CSS native
+    # function. As such, this function never returns an error, but the
+    # you can use `function-exists()` to check if the function reference
+    # created points at a Sass function.
+    #
     # @example
     #   function-reference(rgb)
     #
     #   @function myfunc { @return "something"; }
     #   function-reference(myfunc)
     #
-    # @overload function_exists($name)
+    # @overload function_reference($name)
     #   @param name [Sass::Script::Value::String] The name of the function being referenced.
     #
     # @return [Sass::Script::Value::Callable] A function reference.
