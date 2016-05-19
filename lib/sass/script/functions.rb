@@ -279,6 +279,9 @@ module Sass::Script
   # \{#mixin_exists mixin-exists($name)}
   # : Returns whether a mixin with the given name exists.
   #
+  # \{#content_exists content-exists()}
+  # : Returns whether the current mixin was passed a content block.
+  #
   # \{#inspect inspect($value)}
   # : Returns the string representation of a value as it would be represented in Sass.
   #
@@ -2423,6 +2426,20 @@ MESSAGE
     end
     declare :mixin_exists, [:name]
 
+    # Check whether a mixin was passed a content block.
+    #
+    # Unless `content-exists()` is called directly from a mixin, an error will be raised.
+    #
+    # @example
+    #   @mixin needs-content {
+    #     @if not content-exists() {
+    #       @error "You must pass a content block!"
+    #     }
+    #     @content;
+    #   }
+    #
+    # @overload content_exists()
+    # @return [Sass::Script::Value::Bool] Whether a content block was passed to the mixin.
     def content_exists
       mixin_frame = environment.stack.frames[-2]
       unless mixin_frame && mixin_frame.type == :mixin
