@@ -37,11 +37,18 @@
   and can now be configured to output to any IO object. This can help
   services and processes that wrap Sass compilation reliably extract
   warnings in a concurrent environment.
+
 * Setting the numeric precision by assigning to
   `Sass::Script::Value::Number.precision` is now thread safe. To set for
   all threads, be sure to set the precision on the main thread.
+
 * Sass cache files will now be world and group writable if your umask
   allows it.
+  [Issue #1623](https://github.com/sass/sass/issues/1623)
+
+* The `supports(...)` clause in `@import` statements now allows bare
+  declarations as per the CSS specification.
+  [Issue #1967](https://github.com/sass/sass/issues/1967)
 
 ## 3.4.22 (28 March 2016)
 
