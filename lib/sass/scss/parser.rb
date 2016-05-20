@@ -560,7 +560,7 @@ module Sass
       def supports_clause
         return unless tok(/supports\(/i)
         ss
-        supports = supports_condition
+        supports = import_supports_condition
         ss
         tok!(/\)/)
         supports
@@ -568,6 +568,10 @@ module Sass
 
       def supports_condition
         supports_negation || supports_operator || supports_interpolation
+      end
+
+      def import_supports_condition
+        supports_condition || supports_declaration
       end
 
       def supports_negation
@@ -589,6 +593,13 @@ module Sass
         cond
       end
 
+      def supports_declaration
+          name = sass_script(:parse)
+          tok!(/:/); ss
+          value = sass_script(:parse)
+          Sass::Supports::Declaration.new(name, value)
+      end
+
       def supports_condition_in_parens
         interp = supports_interpolation
         return interp if interp
@@ -597,11 +608,9 @@ module Sass
           tok!(/\)/); ss
           cond
         else
-          name = sass_script(:parse)
-          tok!(/:/); ss
-          value = sass_script(:parse)
+          decl = supports_declaration
           tok!(/\)/); ss
-          Sass::Supports::Declaration.new(name, value)
+          decl
         end
       end
 
