@@ -594,7 +594,6 @@ module Sass
       end
 
       def supports_declaration
-          return if tok?(/\(/)
           name = sass_script(:parse)
           tok!(/:/); ss
           value = sass_script(:parse)
@@ -609,11 +608,9 @@ module Sass
           tok!(/\)/); ss
           cond
         else
-          name = sass_script(:parse)
-          tok!(/:/); ss
-          value = sass_script(:parse)
+          decl = supports_declaration
           tok!(/\)/); ss
-          Sass::Supports::Declaration.new(name, value)
+          decl
         end
       end
 
