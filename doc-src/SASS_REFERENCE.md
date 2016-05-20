@@ -757,6 +757,15 @@ example, `(1,)` is a list containing `1` and `(1 2 3,)` is a
 comma-separated list containing a space-separated list containing `1`,
 `2`, and `3`.
 
+##### Bracketed Lists
+
+Lists can also be written with square brackets—we call these bracketed lists.
+Bracketed lists containing are used as line names in [CSS Grid Layout][], but
+they can also be used in pure Sass code just like any other list. Bracketed
+lists can be comma- or space-separated.
+
+[CSS Grid Layout]: https://www.w3.org/TR/css-grid-1/
+
 #### Maps
 
 Maps represent an association between keys and values, where keys are used to
