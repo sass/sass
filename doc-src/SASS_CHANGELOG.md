@@ -23,6 +23,14 @@
   function now accepts a `$bracketed` parameter that controls whether the
   returned list has brackets.
 
+* A mixin may now be included dynamically, Sass provides a built-in
+  mixin named `mixin` that will include a mixin named the value of the
+  first argument passed to it and pass all remaining arguments to it. E.g.
+  `@include mixin("my-mixin", 2px)` will include the mixin named
+  `my-mixin` as if one had typed `@include my-mixin(2px)`. This is the
+  corollary to the `call()` function for functions and allows
+  mixin names to be the result of arbitrary SassScript expressions.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * The way [CSS variables][] are handled has changed to better correspond to the

@@ -2543,6 +2543,53 @@ passed block are related to the other styles around where the block is defined. 
       }
     }
 
+### Including a Mixin Dynamically
+
+There are times when it is convenient to call a mixin based on the
+result of a SassScript expression.
+
+For example, a library might want to delegate some styling to the
+application by allowing the application to register a mixin that the
+library would include where appropriate. Sometimes a content block is
+sufficient for that purpose but in many cases it is not. So instead a
+library can provide a way to register a mixin, or a library could have a
+naming convention and check if a user has defined such a mixin (via
+`mixin-exists`) based on a name constructed from a script expression.
+
+To including a mixin dynamically, Sass provides a built-in mixin named
+`mixin` that has the signature `@mixin mixin($mixin-name, $args...)`
+which will include the mixin named `$mixin-name` by passing it all the
+argument remaining arguments. This is similar to the built-in `call`
+method.
+
+Example:
+
+    @mixin border-styles($theme-base-color) {
+      border: 1px dashed darken($theme-base-color, 10%);
+      border-radius: 10px;
+    }
+    @mixin background-styles($theme-base-color) {
+      background: $theme-base-color url(logo.png);
+    }
+    .my-fancy-element {
+      @each $type in (background, font, border, color) {
+        $mixin-name: "#{$type}-styles";
+        @if mixin-exists($mixin-name) {
+          @include mixin($mixin-name, red);
+        }
+      }
+    }
+
+Compiles to:
+
+    .my-fancy-element {
+      background: red url(logo.png);
+      border: 1px dashed #cc0000;
+      border-radius: 10px;
+    }
+
+Note: The mixin name when performing a dynamic include must be passed as
+the first positional argument; it cannot be passed keyword-style.
 
 ## Function Directives {#function_directives}
 
