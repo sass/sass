@@ -189,15 +189,21 @@ module Sass
       @caller ||= env.is_a?(ReadOnlyEnvironment) ? env : ReadOnlyEnvironment.new(env, env.options)
     end
 
-    # The read-only content passed to this environment.
+    # The content passed to this environment but the content's
+    # environment is made readonly if it isn't already.
     #
     # @see BaseEnvironment#content
-    # @return {ReadOnlyEnvironment}
+    #
+    # @return {[Array<Sass::Tree::Node>, ReadOnlyEnvironment]?} The content nodes and
+    #   the lexical environment of the content block.
     def content
+      # Return the cached content from a previous invocation if any
       return @content if @content_cached
+      # get the content with a read-write environment from the superclass
       read_write_content = super
       if read_write_content
         tree, env = read_write_content
+        # make the content's environment read-only
         if env && !env.is_a?(ReadOnlyEnvironment)
           env = ReadOnlyEnvironment.new(env, env.options)
         end
