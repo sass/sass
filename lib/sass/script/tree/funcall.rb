@@ -126,7 +126,9 @@ module Sass::Script::Tree
       splat = Sass::Tree::Visitors::Perform.perform_splat(
         @splat, keywords, @kwarg_splat, environment)
       if (fn = environment.function(@name))
-        return without_original(perform_sass_fn(fn, args, splat, environment))
+        environment.stack.with_function(filename, line, name) do
+          return without_original(perform_sass_fn(fn, args, splat, environment))
+        end
       end
 
       args = construct_ruby_args(ruby_name, args, splat, environment)
@@ -134,8 +136,10 @@ module Sass::Script::Tree
       if Sass::Script::Functions.callable?(ruby_name)
         local_environment = Sass::Environment.new(environment.global_env, environment.options)
         local_environment.caller = Sass::ReadOnlyEnvironment.new(environment, environment.options)
-        result = opts(Sass::Script::Functions::EvaluationContext.new(
-          local_environment).send(ruby_name, *args))
+        result = local_environment.stack.with_function(filename, line, name) do
+          opts(Sass::Script::Functions::EvaluationContext.new(
+            local_environment).send(ruby_name, *args))
+        end
         without_original(result)
       else
         opts(to_literal(args))

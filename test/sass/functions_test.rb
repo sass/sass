@@ -903,6 +903,7 @@ WARNING
     assert_warning <<MESSAGE do
 DEPRECATION WARNING: Passing blue, a non-string value, to unquote()
 will be an error in future versions of Sass.
+        on line 1 of test_unquote_inline.scss
 MESSAGE
       assert_equal('blue', evaluate('unquote(blue)'))
     end
@@ -1967,7 +1968,7 @@ WARNING
   end
 
   def perform(value, environment = env)
-    Sass::Script::Parser.parse(value, 0, 0).perform(environment)
+    Sass::Script::Parser.parse(value, 1, 0, {:filename => "#{test_name}_inline.scss"}).perform(environment)
   end
 
   def render(sass, options = {})

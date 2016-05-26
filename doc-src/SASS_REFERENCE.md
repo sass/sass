@@ -2506,7 +2506,14 @@ The same mixins can be done in the `.sass` shorthand syntax:
       #logo
         background-image: url(/logo.gif)
 
-**Note:** when the `@content` directive is specified more than once or in a loop, the style block will be duplicated with each invocation.
+**Note:** when the `@content` directive is specified more than once or
+ in a loop, the style block will be duplicated with each invocation.
+
+Some mixins may require a passed content block or may have different
+behavior depending on whether a content block was passed. The
+[`content-exists()` function](Sass/Script/Functions.html#content_exists-instance_method)
+will return true when a content block is passed to the current
+mixin and can be used to implement such behaviors.
 
 #### Variable Scope and Content Blocks
 

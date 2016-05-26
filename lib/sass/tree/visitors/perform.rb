@@ -492,9 +492,11 @@ WARNING
   def visit_warn(node)
     res = node.expr.perform(@environment)
     res = res.value if res.is_a?(Sass::Script::Value::String)
-    msg = "WARNING: #{res}\n         "
-    msg << @environment.stack.to_s.gsub("\n", "\n         ") << "\n"
-    Sass::Util.sass_warn msg
+    @environment.stack.with_directive(node.filename, node.line, "@warn") do
+      msg = "WARNING: #{res}\n         "
+      msg << @environment.stack.to_s.gsub("\n", "\n         ") << "\n"
+      Sass::Util.sass_warn msg
+    end
     []
   end
 

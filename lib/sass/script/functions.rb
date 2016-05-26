@@ -279,6 +279,9 @@ module Sass::Script
   # \{#mixin_exists mixin-exists($name)}
   # : Returns whether a mixin with the given name exists.
   #
+  # \{#content_exists content-exists()}
+  # : Returns whether the current mixin was passed a content block.
+  #
   # \{#inspect inspect($value)}
   # : Returns the string representation of a value as it would be represented in Sass.
   #
@@ -2305,6 +2308,8 @@ MESSAGE
         Sass::Util.map_vals(kwargs) {|v| Sass::Script::Tree::Literal.new(v)},
         nil,
         nil)
+      funcall.line = environment.stack.frames.last.line
+      funcall.filename = environment.stack.frames.last.filename
       funcall.options = options
       perform(funcall)
     end
@@ -2420,6 +2425,31 @@ MESSAGE
       bool(environment.mixin(name.value))
     end
     declare :mixin_exists, [:name]
+
+    # Check whether a mixin was passed a content block.
+    #
+    # Unless `content-exists()` is called directly from a mixin, an error will be raised.
+    #
+    # @example
+    #   @mixin needs-content {
+    #     @if not content-exists() {
+    #       @error "You must pass a content block!"
+    #     }
+    #     @content;
+    #   }
+    #
+    # @overload content_exists()
+    # @return [Sass::Script::Value::Bool] Whether a content block was passed to the mixin.
+    def content_exists
+      # frames.last is the stack frame for this function,
+      # so we use frames[-2] to get the frame before that.
+      mixin_frame = environment.stack.frames[-2]
+      unless mixin_frame && mixin_frame.type == :mixin
+        raise Sass::SyntaxError.new("Cannot call content-exists() except within a mixin.")
+      end
+      bool(!environment.caller.content.nil?)
+    end
+    declare :content_exists, []
 
     # Return a string containing the value as its Sass representation.
     #
