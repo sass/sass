@@ -2441,6 +2441,8 @@ MESSAGE
     # @overload content_exists()
     # @return [Sass::Script::Value::Bool] Whether a content block was passed to the mixin.
     def content_exists
+      # frames.last is the stack frame for this function,
+      # so we use frames[-2] to get the frame before that.
       mixin_frame = environment.stack.frames[-2]
       unless mixin_frame && mixin_frame.type == :mixin
         raise Sass::SyntaxError.new("Cannot call content-exists() except within a mixin.")
