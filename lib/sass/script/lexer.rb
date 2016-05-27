@@ -94,6 +94,7 @@ module Sass
         :single_line_comment => SINGLE_LINE_COMMENT,
         :variable => /(\$)(#{IDENT})/,
         :ident => /(#{IDENT})(\()?/,
+        :mid_ident => /#{NMCHAR}+/,
         :number => PARSEABLE_NUMBER,
         :unary_minus_number => /-#{PARSEABLE_NUMBER}/,
         :color => HEXCOLOR,
@@ -255,10 +256,14 @@ module Sass
       end
 
       def token
-        if after_interpolation? && (interp = @interpolation_stack.pop)
-          interp_type, interp_value = interp
+        if after_interpolation?
+          interp_type, interp_value = @interpolation_stack.pop
           if interp_type == :special_fun
             return special_fun_body(interp_value)
+          elsif interp_type.nil?
+            if @scanner.string[@scanner.pos - 1] == '{' && scan(REGULAR_EXPRESSIONS[:mid_ident])
+              return [:ident, @scanner[0]]
+            end
           else
             raise "[BUG]: Unknown interp_type #{interp_type}" unless interp_type == :string
             return string(interp_value, true)
@@ -430,9 +435,9 @@ MESSAGE
         elsif name == :end_interpolation && @interpolation_stack.last.nil?
           # Interpolation followed immediately by a parenthesis should be
           # considered part of a function call.
+          start_pos = Sass::Source::Position.new(@line, @offset)
           if @scanner.string[@scanner.pos] == ?(
             @scanner.pos += 1
-            start_pos = Sass::Source::Position.new(@line, @offset - 1)
             @next_tok = Token.new(:funcall, '', range(start_pos), @scanner.pos - 1)
           end
         end
