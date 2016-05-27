@@ -43,6 +43,9 @@ For more details, see [this blog post][interp-blog] and
   function now accepts a `$bracketed` parameter that controls whether the
   returned list has brackets.
 
+* A new function `content-exists()` will return true when called within
+  a mixin that was passed content for use by the `@content` directive.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * The way [CSS variables][] are handled has changed to better correspond to the
