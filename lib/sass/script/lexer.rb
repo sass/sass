@@ -94,7 +94,7 @@ module Sass
         :single_line_comment => SINGLE_LINE_COMMENT,
         :variable => /(\$)(#{IDENT})/,
         :ident => /(#{IDENT})(\()?/,
-        :mid_ident => /#{NMCHAR}+/,
+        :mid_ident => /(#{NMCHAR}+)(\()?/,
         :number => PARSEABLE_NUMBER,
         :unary_minus_number => /-#{PARSEABLE_NUMBER}/,
         :color => HEXCOLOR,
@@ -261,8 +261,8 @@ module Sass
           if interp_type == :special_fun
             return special_fun_body(interp_value)
           elsif interp_type.nil?
-            if @scanner.string[@scanner.pos - 1] == '{' && scan(REGULAR_EXPRESSIONS[:mid_ident])
-              return [:ident, @scanner[0]]
+            if @scanner.string[@scanner.pos - 1] == '}' && scan(REGULAR_EXPRESSIONS[:mid_ident])
+              return [@scanner[2] ? :funcall : :ident, @scanner[1]]
             end
           else
             raise "[BUG]: Unknown interp_type #{interp_type}" unless interp_type == :string
