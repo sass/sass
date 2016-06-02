@@ -136,6 +136,11 @@ deprecated and will be an error in future versions of Sass. Use 40 instead.
 WARNING
   end
 
+  def test_gray
+    assert_equal "#bfbfbf", evaluate("gray(75%)")
+    assert_equal "rgba(64, 64, 64, 0.3)", evaluate("gray(25%, 0.3)")
+  end
+
   def test_percentage
     assert_equal("50%",  evaluate("percentage(.5)"))
     assert_equal("100%", evaluate("percentage(1)"))
