@@ -27,7 +27,7 @@
   a mixin that was passed content for use by the `@content` directive.
 
 * Passing a string to `call($function-name, $args...)` indicating which
-  function to invoke is now deprecated. Instead pass function reference
+  function to invoke is now deprecated. Instead pass a function reference
   returned from `get-function($function-name)`.  This allows function name
   resolution to be performed in the correct lexical context and then
   invoked in a different context. This is required so that the

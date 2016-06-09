@@ -1641,7 +1641,7 @@ MESSAGE
     #   type-of(null)   => null
     #   type-of(a b c)  => list
     #   type-of((a: 1, b: 2)) => map
-    #   type-of(get-function(foo)) => function
+    #   type-of(get-function("foo")) => function
     #
     # @overload type_of($value)
     #   @param $value [Sass::Script::Value::Base] The value to inspect
@@ -1699,13 +1699,14 @@ MESSAGE
     # created points at a Sass function.
     #
     # @example
-    #   get-function(rgb)
+    #   get-function("rgb")
     #
     #   @function myfunc { @return "something"; }
-    #   get-function(myfunc)
+    #   get-function("myfunc")
     #
     # @overload get_function($name)
     #   @param name [Sass::Script::Value::String] The name of the function being referenced.
+    #     if `$name` is a Sass::Script::Value::Function it is simply returned.
     #
     # @return [Sass::Script::Value::Function] A function reference.
     def get_function(name, kwargs = nil)
