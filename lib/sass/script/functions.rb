@@ -1708,23 +1708,40 @@ MESSAGE
     #   @param name [Sass::Script::Value::String] The name of the function being referenced.
     #
     # @return [Sass::Script::Value::Function] A function reference.
-    def get_function(name)
+    def get_function(name, kwargs = nil)
       assert_type name, [:String, :Function], :name
+
+      css = if kwargs && kwargs.has_key?("css")
+              v = kwargs.delete("css")
+              assert_type v, :Bool, :css
+              v.value
+            else
+              false
+            end
+
+      if kwargs && kwargs.any?
+        raise ArgumentError.new("Illegal keyword argument '#{kwargs.keys.first}'")
+      end
 
       return name if name.is_a?(Sass::Script::Value::Function)
 
-      ref = environment.caller.function(name.value)
-
-      if !ref && Sass::Script::Functions.callable?(name.value.tr("-", "_"))
-        # If it's a built-in we just capture the name for later invocation.
-        ref = Sass::Callable.new(name.value, nil, nil, nil, nil, nil, "function", :builtin);
-      else
-        ref ||= Sass::Callable.new(name.value, nil, nil, nil, nil, nil, "function", :undefined);
+      if css
+        return Sass::Script::Value::Function.new(
+          Sass::Callable.new(name.value, nil, nil, nil, nil, nil, "function", :css))
       end
 
-      Sass::Script::Value::Function.new(ref)
+      callable = environment.caller.function(name.value) ||
+        (Sass::Script::Functions.callable?(name.value.tr("-", "_")) &&
+         Sass::Callable.new(name.value, nil, nil, nil, nil, nil, "function", :builtin))
+
+      if callable
+        Sass::Script::Value::Function.new(callable)
+      else
+        raise Sass::SyntaxError.new("Function not found: #{name}")
+      end
+
     end
-    declare :get_function, [:name]
+    declare :get_function, [:name], :var_kwargs => true
 
     # Returns the unit(s) associated with a number. Complex units are sorted in
     # alphabetical order by numerator and denominator.
@@ -2358,7 +2375,11 @@ MESSAGE
         assert_type name, :Function, :function
       end
       if name.is_a?(Sass::Script::Value::String)
-        name = get_function(name)
+        name = if function_exists(name).to_bool
+                 get_function(name)
+               else
+                 get_function(name, "css" => bool(true))
+               end
         Sass::Util.sass_warn(<<WARNING)
 DEPRECATION WARNING: Passing a string to call() is deprecated and will be illegal
 in Sass 4.0. Use call(#{name.to_sass}) instead.
@@ -2464,14 +2485,10 @@ WARNING
     #     check or a function reference.
     # @return [Sass::Script::Value::Bool] Whether the function is defined.
     def function_exists(name)
-      assert_type name, [:String, :Function], :name
-      if name.is_a?(Sass::Script::Value::String)
-        exists = Sass::Script::Functions.callable?(name.value.tr("-", "_"))
-        exists ||= environment.caller.function(name.value)
-        bool(exists)
-      else
-        bool(name.value.origin != :undefined)
-      end
+      assert_type name, :String, :name
+      exists = Sass::Script::Functions.callable?(name.value.tr("-", "_"))
+      exists ||= environment.caller.function(name.value)
+      bool(exists)
     end
     declare :function_exists, [:name]
 

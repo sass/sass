@@ -1576,7 +1576,7 @@ SCSS
     Sass::Util.silence_sass_warnings do
       assert_equal evaluate("unknown(red, blue)"), evaluate("call(unknown, red, blue)")
     end
-    assert_equal evaluate("unknown(red, blue)"), evaluate("call(get-function(unknown), red, blue)")
+    assert_equal evaluate("unknown(red, blue)"), evaluate("call(get-function(unknown, $css: true), red, blue)")
   end
 
   def test_call_with_non_string_argument

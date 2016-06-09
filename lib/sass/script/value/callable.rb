@@ -6,7 +6,7 @@ module Sass::Script::Value
     # @param callable [Sass::Callable] The callable to be used when the
     # callable is called.
     def initialize(callable)
-      super(callable.dup)
+      super(callable)
     end
 
     def to_s(opts = {})
