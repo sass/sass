@@ -1484,7 +1484,7 @@ SCSS
     Sass::Util.silence_sass_warnings do
       assert_equal evaluate("lighten(blue, 5%)"), evaluate("call(lighten, blue, 5%)")
     end
-    assert_equal evaluate("lighten(blue, 5%)"), evaluate("call(function-reference(lighten), blue, 5%)")
+    assert_equal evaluate("lighten(blue, 5%)"), evaluate("call(get-function(lighten), blue, 5%)")
   end
 
   def test_call_with_keyword_arguments
@@ -1496,7 +1496,7 @@ SCSS
     end
     assert_equal(
       evaluate("lighten($color: blue, $amount: 5%)"),
-      evaluate("call(function-reference(lighten), $color: blue, $amount: 5%)"))
+      evaluate("call(get-function(lighten), $color: blue, $amount: 5%)"))
   end
 
   def test_call_with_keyword_and_positional_arguments
@@ -1508,7 +1508,7 @@ SCSS
     end
     assert_equal(
       evaluate("lighten(blue, $amount: 5%)"),
-      evaluate("call(function-reference(lighten), blue, $amount: 5%)"))
+      evaluate("call(get-function(lighten), blue, $amount: 5%)"))
   end
 
   def test_call_with_dynamic_name
@@ -1522,7 +1522,7 @@ SCSS
     assert_equal(
       evaluate("lighten($color: blue, $amount: 5%)"),
       evaluate("call($fn, $color: blue, $amount: 5%)",
-        env("fn" => Sass::Script::Value::Callable.new(
+        env("fn" => Sass::Script::Value::Function.new(
           Sass::Callable.new("lighten", nil, nil, nil, nil, nil, "function", :builtin)))))
   end
 
@@ -1562,11 +1562,11 @@ CSS
 
 .first-scope {
   @function foo() {@return local}
-  a: call(function-reference(foo));
+  a: call(get-function(foo));
 }
 
 .second-scope {
-  a: call(function-reference(foo));
+  a: call(get-function(foo));
 }
 SCSS
   end
@@ -1576,16 +1576,16 @@ SCSS
     Sass::Util.silence_sass_warnings do
       assert_equal evaluate("unknown(red, blue)"), evaluate("call(unknown, red, blue)")
     end
-    assert_equal evaluate("unknown(red, blue)"), evaluate("call(function-reference(unknown), red, blue)")
+    assert_equal evaluate("unknown(red, blue)"), evaluate("call(get-function(unknown), red, blue)")
   end
 
   def test_call_with_non_string_argument
-    assert_error_message "$callable: 3px is not a callable for `call'", "call(3px)"
+    assert_error_message "$function: 3px is not a function for `call'", "call(3px)"
   end
 
   def test_errors_in_called_function
     assert_error_message "$color: 3px is not a color for `lighten'",
-      "call(function-reference(lighten), 3px, 5%)"
+      "call(get-function(lighten), 3px, 5%)"
   end
 
   def test_variable_exists
@@ -1667,7 +1667,7 @@ SCSS
   end
 
   def test_function_exists_checks_type
-    assert_error_message("$name: 1 is not any of string, callable for `function-exists'", "function-exists(1)")
+    assert_error_message("$name: 1 is not any of string, function for `function-exists'", "function-exists(1)")
   end
 
   def test_mixin_exists

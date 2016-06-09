@@ -676,7 +676,7 @@ SassScript supports eight data types:
 * nulls (e.g. `null`)
 * lists of values, separated by spaces or commas (e.g. `1.5em 1em 0 2em`, `Helvetica, Arial, sans-serif`)
 * maps from one value to another (e.g. `(key1: value1, key2: value2)`)
-* callable values that refer to functions
+* function references
 
 SassScript also supports all other types of CSS property value,
 such as Unicode ranges and `!important` declarations.
@@ -821,11 +821,11 @@ color interpolated into a selector becomes invalid syntax when
 compressed. To avoid this, always quote named colors if they are meant
 to be used in the construction of a selector.
 
-#### Callables
+#### First Class Functions
 
-A callable value is returned by `function-reference($function-name)`.
-The callable value can be passed to `call($callable, $args...)` and the
-function it refers to will be invoked. Callable values cannot be used
+A function reference is returned by `get-function($function-name)`.
+The function can be passed to `call($function, $args...)` and the
+function it refers to will be invoked. First class functions cannot be used
 directly as CSS output and any attempt to do so will result in an error.
 
 ### Operations

@@ -17,8 +17,9 @@ module Sass::Script::Value
       to_sass
     end
 
+    # @abstract
     def to_sass
-      "#{value.type}-reference(#{value.name})"
+      Sass::Util.abstract(self)
     end
 
     def plus(other)

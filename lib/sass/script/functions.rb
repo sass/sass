@@ -297,10 +297,10 @@ module Sass::Script
   # \{#comparable comparable($number1, $number2)}
   # : Returns whether two numbers can be added, subtracted, or compared.
   #
-  # \{#call call($callable, $args...)}
-  # : Dynamically calls a Sass function reference returned by `function-reference`.
+  # \{#call call($function, $args...)}
+  # : Dynamically calls a Sass function reference returned by `get-function`.
   #
-  # \{#function_reference function-reference($name)}
+  # \{#get_function get-function($name)}
   # : Looks up a function with the given name in the current lexical scope
   #   and returns a reference to it.
   #
@@ -1641,7 +1641,7 @@ MESSAGE
     #   type-of(null)   => null
     #   type-of(a b c)  => list
     #   type-of((a: 1, b: 2)) => map
-    #   type-of(function-reference(foo)) => callable
+    #   type-of(get-function(foo)) => function
     #
     # @overload type_of($value)
     #   @param $value [Sass::Script::Value::Base] The value to inspect
@@ -1699,19 +1699,19 @@ MESSAGE
     # created points at a Sass function.
     #
     # @example
-    #   function-reference(rgb)
+    #   get-function(rgb)
     #
     #   @function myfunc { @return "something"; }
-    #   function-reference(myfunc)
+    #   get-function(myfunc)
     #
-    # @overload function_reference($name)
+    # @overload get_function($name)
     #   @param name [Sass::Script::Value::String] The name of the function being referenced.
     #
-    # @return [Sass::Script::Value::Callable] A function reference.
-    def function_reference(name)
-      assert_type name, [:String, :Callable], :name
+    # @return [Sass::Script::Value::Function] A function reference.
+    def get_function(name)
+      assert_type name, [:String, :Function], :name
 
-      return name if name.is_a?(Sass::Script::Value::Callable)
+      return name if name.is_a?(Sass::Script::Value::Function)
 
       ref = environment.caller.function(name.value)
 
@@ -1722,9 +1722,9 @@ MESSAGE
         ref ||= Sass::Callable.new(name.value, nil, nil, nil, nil, nil, "function", :undefined);
       end
 
-      Sass::Script::Value::Callable.new(ref)
+      Sass::Script::Value::Function.new(ref)
     end
-    declare :function_reference, [:name]
+    declare :get_function, [:name]
 
     # Returns the unit(s) associated with a number. Complex units are sorted in
     # alphabetical order by numerator and denominator.
@@ -2350,15 +2350,15 @@ MESSAGE
     #   $fn: nth;
     #   call($fn, (a b c), 2) => b
     #
-    # @overload call($callable, $args...)
-    #   @param $callable [Sass::Script::Value::Callable] The function to call.
+    # @overload call($function, $args...)
+    #   @param $function [Sass::Script::Value::Function] The function to call.
     def call(name, *args)
       unless name.is_a?(Sass::Script::Value::String) ||
-             name.is_a?(Sass::Script::Value::Callable)
-        assert_type name, :Callable, :callable
+             name.is_a?(Sass::Script::Value::Function)
+        assert_type name, :Function, :function
       end
       if name.is_a?(Sass::Script::Value::String)
-        name = function_reference(name)
+        name = get_function(name)
         Sass::Util.sass_warn(<<WARNING)
 DEPRECATION WARNING: Passing a string to call() is deprecated and will be illegal
 in Sass 4.0. Use call(#{name.to_sass}) instead.
@@ -2461,10 +2461,10 @@ WARNING
     #
     # @overload function_exists($name)
     #   @param name [Sass::Script::Value::String] The name of the function to
-    #     check or a callable.
+    #     check or a function reference.
     # @return [Sass::Script::Value::Bool] Whether the function is defined.
     def function_exists(name)
-      assert_type name, [:String, :Callable], :name
+      assert_type name, [:String, :Function], :name
       if name.is_a?(Sass::Script::Value::String)
         exists = Sass::Script::Functions.callable?(name.value.tr("-", "_"))
         exists ||= environment.caller.function(name.value)
