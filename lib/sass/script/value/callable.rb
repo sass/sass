@@ -21,29 +21,5 @@ module Sass::Script::Value
     def to_sass
       Sass::Util.abstract(self)
     end
-
-    def plus(other)
-      raise Sass::SyntaxError.new("Addition is not defined for values of type: Callable")
-    end
-
-    def minus(other)
-      raise Sass::SyntaxError.new("Subtraction is not defined for values of type: Callable")
-    end
-
-    def div(other)
-      raise Sass::SyntaxError.new("Division is not defined for values of type: Callable")
-    end
-
-    def unary_plus
-      raise Sass::SyntaxError.new("Positive is not defined for values of type: Callable")
-    end
-
-    def unary_minus
-      raise Sass::SyntaxError.new("Negation is not defined for values of type: Callable")
-    end
-
-    def unary_div
-      raise Sass::SyntaxError.new("Division is not defined for values of type: Callable")
-    end
   end
 end
