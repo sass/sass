@@ -1550,27 +1550,6 @@ SCSS
     end
   end
 
-  def test_call_with_ref_uses_local_scope
-    assert_equal <<CSS, render(<<SCSS)
-.first-scope {
-  a: local; }
-
-.second-scope {
-  a: global; }
-CSS
-@function foo() {@return global}
-
-.first-scope {
-  @function foo() {@return local}
-  a: call(get-function(foo));
-}
-
-.second-scope {
-  a: call(get-function(foo));
-}
-SCSS
-  end
-
   def test_call_unknown_function
     # TODO: Remove this block in 4.0
     Sass::Util.silence_sass_warnings do
