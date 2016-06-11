@@ -1687,6 +1687,13 @@ MESSAGE
       bool(number.unitless?)
     end
     declare :unitless, [:number]
+    
+    def unit_replace(number, unit_str)
+      assert_type number, :Number, :number
+      assert_type unit_str, :String, :unit_str
+      number(number.value, unit_str.value)
+    end
+    declare :unit_replace, [:number, :unit_str]
 
     # Returns whether two numbers can added, subtracted, or compared.
     #
