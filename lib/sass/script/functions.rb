@@ -1706,11 +1706,10 @@ MESSAGE
     #
     # @overload get_function($name)
     #   @param name [Sass::Script::Value::String] The name of the function being referenced.
-    #     if `$name` is a Sass::Script::Value::Function it is simply returned.
     #
     # @return [Sass::Script::Value::Function] A function reference.
     def get_function(name, kwargs = {})
-      assert_type name, [:String, :Function], :name
+      assert_type name, :String, :name
 
       css = if kwargs.has_key?("css")
               v = kwargs.delete("css")
@@ -1723,8 +1722,6 @@ MESSAGE
       if kwargs.any?
         raise ArgumentError.new("Illegal keyword argument '#{kwargs.keys.first}'")
       end
-
-      return name if name.is_a?(Sass::Script::Value::Function)
 
       if css
         return Sass::Script::Value::Function.new(

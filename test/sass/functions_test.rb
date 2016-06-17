@@ -1646,7 +1646,7 @@ SCSS
   end
 
   def test_function_exists_checks_type
-    assert_error_message("$name: 1 is not any of string, function for `function-exists'", "function-exists(1)")
+    assert_error_message("$name: 1 is not a string for `function-exists'", "function-exists(1)")
   end
 
   def test_mixin_exists
