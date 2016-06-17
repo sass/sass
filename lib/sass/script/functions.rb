@@ -1737,7 +1737,6 @@ MESSAGE
       else
         raise Sass::SyntaxError.new("Function not found: #{name}")
       end
-
     end
     declare :get_function, [:name], :var_kwargs => true
 

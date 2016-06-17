@@ -1,7 +1,6 @@
 module Sass::Script::Value
   # A SassScript object representing a function.
   class Function < Callable
-
     # Constructs a Function value for use in SassScript.
     #
     # @param function [Sass::Callable] The callable to be used when the
@@ -14,7 +13,7 @@ module Sass::Script::Value
     end
 
     def to_sass
-      %Q{get-function("#{value.name}")}
+      %{get-function("#{value.name}")}
     end
   end
 end
