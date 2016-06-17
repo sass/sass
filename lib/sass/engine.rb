@@ -79,7 +79,13 @@ module Sass
   #
   # `type`: `String`
   # : The user-friendly name of the type of the callable.
-  Callable = Struct.new(:name, :args, :splat, :environment, :tree, :has_content, :type)
+  #
+  # `origin`: `Symbol`
+  # : From whence comes the callable: `:stylesheet`, `:builtin`, `:css`
+  #   A callable with an origin of `:stylesheet` was defined in the stylesheet itself.
+  #   A callable with an origin of `:builtin` was defined in ruby.
+  #   A callable (function) with an origin of `:css` returns a function call with arguments to CSS.
+  Callable = Struct.new(:name, :args, :splat, :environment, :tree, :has_content, :type, :origin)
 
   # This class handles the parsing and compilation of the Sass template.
   # Example usage:
