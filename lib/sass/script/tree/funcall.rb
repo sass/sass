@@ -18,6 +18,11 @@ module Sass::Script::Tree
     # @return [Array<String, Sass::Script::Tree::Node>]
     attr_reader :name
 
+    # The callable to be invoked
+    #
+    # @return [Sass::Callable] or nil if no callable is provided.
+    attr_reader :callable
+
     # The arguments to the function.
     #
     # @return [Array<Node>]
@@ -44,13 +49,21 @@ module Sass::Script::Tree
     # @return [Node?]
     attr_accessor :kwarg_splat
 
-    # @param name [Array<String, Sass::Script::Tree::Node>] See \{#name}
+    # @param name_or_callable [Array<[String, Sass::Callable],
+    #   Sass::Script::Tree::Node>] See \{#name}
     # @param args [Array<Node>] See \{#args}
     # @param keywords [Sass::Util::NormalizedMap<Node>] See \{#keywords}
     # @param splat [Node] See \{#splat}
     # @param kwarg_splat [Node] See \{#kwarg_splat}
-    def initialize(name, args, keywords, splat, kwarg_splat)
-      @name = Sass::Util.merge_adjacent_strings(name)
+    def initialize(name_or_callable, args, keywords, splat, kwarg_splat)
+      if name_or_callable.first.is_a?(Sass::Callable)
+        @callable = name_or_callable.first
+        @name = name_or_callable
+        @name[0] = @name.first.name
+      else
+        @callable = nil
+        @name = Sass::Util.merge_adjacent_strings(name_or_callable)
+      end
       @args = args
       @keywords = keywords
       @splat = splat
@@ -134,14 +147,16 @@ module Sass::Script::Tree
       splat = Sass::Tree::Visitors::Perform.perform_splat(
         @splat, keywords, @kwarg_splat, environment)
 
-      fn = environment.function(name)
-      if @name.length > 1 || (fn.nil? && !Sass::Script::Functions.callable?(ruby_name))
+      fn = @callable || environment.function(name)
+      if @name.length > 1 ||
+         (fn && fn.origin == :css) ||
+         (fn.nil? && !Sass::Script::Functions.callable?(ruby_name))
         return opts(to_value(name, args + splat.to_a)) if splat.keywords.empty?
         raise Sass::SyntaxError.new(
           "Plain CSS function #{name} doesn't support keyword arguments")
       end
 
-      if (fn = environment.function(name))
+      if fn && fn.origin == :stylesheet
         environment.stack.with_function(filename, line, name) do
           return without_original(perform_sass_fn(fn, args, splat, environment))
         end

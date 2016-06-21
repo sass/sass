@@ -46,6 +46,17 @@ For more details, see [this blog post][interp-blog] and
 * A new function `content-exists()` will return true when called within
   a mixin that was passed content for use by the `@content` directive.
 
+* Passing a string to `call($function-name, $args...)` indicating which
+  function to invoke is now deprecated. Instead pass a function reference
+  returned from `get-function($function-name)`.  This allows function name
+  resolution to be performed in the correct lexical context and then
+  invoked in a different context. This is required so that the
+  module-based resolver in Sass 4.0 will invoke the correct function when
+  calling across module boundaries. Developers of frameworks that use
+  `call` should not do the function lookup for callers of their framework;
+  this is likely to result in a situation where the framework cannot
+  resolve the function in 4.0.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * The way [CSS variables][] are handled has changed to better correspond to the

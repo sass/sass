@@ -297,8 +297,12 @@ module Sass::Script
   # \{#comparable comparable($number1, $number2)}
   # : Returns whether two numbers can be added, subtracted, or compared.
   #
-  # \{#call call($name, $args...)}
-  # : Dynamically calls a Sass function.
+  # \{#call call($function, $args...)}
+  # : Dynamically calls a Sass function reference returned by `get-function`.
+  #
+  # \{#get_function get-function($name)}
+  # : Looks up a function with the given name in the current lexical scope
+  #   and returns a reference to it.
   #
   # ## Miscellaneous Functions
   #
@@ -528,14 +532,24 @@ module Sass::Script
       #   assert_type value, :String
       #   assert_type value, :Number
       # @param value [Sass::Script::Value::Base] A SassScript value
-      # @param type [Symbol] The name of the type the value is expected to be
+      # @param type [Symbol, Array<Symbol>] The name(s) of the type the value is expected to be
       # @param name [String, Symbol, nil] The name of the argument.
       # @raise [ArgumentError] if value is not of the correct type.
       def assert_type(value, type, name = nil)
-        klass = Sass::Script::Value.const_get(type)
-        return if value.is_a?(klass)
-        return if value.is_a?(Sass::Script::Value::List) && type == :Map && value.value.empty?
-        err = "#{value.inspect} is not a #{TYPE_NAMES[type] || type.to_s.downcase}"
+        valid_types = Array(type)
+        found_type = valid_types.find do |t|
+          value.is_a?(Sass::Script::Value.const_get(t)) ||
+            t == :Map && value.is_a?(Sass::Script::Value::List) && value.value.empty?
+        end
+
+        return if found_type
+
+        err = if valid_types.size == 1
+                "#{value.inspect} is not a #{TYPE_NAMES[type] || type.to_s.downcase}"
+              else
+                type_names = valid_types.map {|t| TYPE_NAMES[t] || t.to_s.downcase}
+                "#{value.inspect} is not any of #{type_names.join(', ')}"
+              end
         err = "$#{name.to_s.tr('_', '-')}: " + err if name
         raise ArgumentError.new(err)
       end
@@ -1621,6 +1635,10 @@ MESSAGE
     #   type-of(#fff)   => color
     #   type-of(blue)   => color
     #   type-of(null)   => null
+    #   type-of(a b c)  => list
+    #   type-of((a: 1, b: 2)) => map
+    #   type-of(get-function("foo")) => function
+    #
     # @overload type_of($value)
     #   @param $value [Sass::Script::Value::Base] The value to inspect
     # @return [Sass::Script::Value::String] The unquoted string name of the
@@ -1666,6 +1684,56 @@ MESSAGE
       bool(Sass.has_feature?(feature.value))
     end
     declare :feature_exists, [:feature]
+
+    # Returns a reference to a function for later invocation with the `call` function.
+    #
+    # The function reference created may refer to a function defined in
+    # your stylesheet, built-in to the host environment, or a CSS native
+    # function. As such, this function never returns an error, but the
+    # you can use `function-exists()` to check if the function reference
+    # created points at a Sass function.
+    #
+    # @example
+    #   get-function("rgb")
+    #
+    #   @function myfunc { @return "something"; }
+    #   get-function("myfunc")
+    #
+    # @overload get_function($name)
+    #   @param name [Sass::Script::Value::String] The name of the function being referenced.
+    #
+    # @return [Sass::Script::Value::Function] A function reference.
+    def get_function(name, kwargs = {})
+      assert_type name, :String, :name
+
+      css = if kwargs.has_key?("css")
+              v = kwargs.delete("css")
+              assert_type v, :Bool, :css
+              v.value
+            else
+              false
+            end
+
+      if kwargs.any?
+        raise ArgumentError.new("Illegal keyword argument '#{kwargs.keys.first}'")
+      end
+
+      if css
+        return Sass::Script::Value::Function.new(
+          Sass::Callable.new(name.value, nil, nil, nil, nil, nil, "function", :css))
+      end
+
+      callable = environment.caller.function(name.value) ||
+        (Sass::Script::Functions.callable?(name.value.tr("-", "_")) &&
+         Sass::Callable.new(name.value, nil, nil, nil, nil, nil, "function", :builtin))
+
+      if callable
+        Sass::Script::Value::Function.new(callable)
+      else
+        raise Sass::SyntaxError.new("Function not found: #{name}")
+      end
+    end
+    declare :get_function, [:name], :var_kwargs => true
 
     # Returns the unit(s) associated with a number. Complex units are sorted in
     # alphabetical order by numerator and denominator.
@@ -2291,10 +2359,24 @@ MESSAGE
     #   $fn: nth;
     #   call($fn, (a b c), 2) => b
     #
-    # @overload call($name, $args...)
-    #   @param $name [String] The name of the function to call.
+    # @overload call($function, $args...)
+    #   @param $function [Sass::Script::Value::Function] The function to call.
     def call(name, *args)
-      assert_type name, :String, :name
+      unless name.is_a?(Sass::Script::Value::String) ||
+             name.is_a?(Sass::Script::Value::Function)
+        assert_type name, :Function, :function
+      end
+      if name.is_a?(Sass::Script::Value::String)
+        name = if function_exists(name).to_bool
+                 get_function(name)
+               else
+                 get_function(name, "css" => bool(true))
+               end
+        Sass::Util.sass_warn(<<WARNING)
+DEPRECATION WARNING: Passing a string to call() is deprecated and will be illegal
+in Sass 4.0. Use call(#{name.to_sass}) instead.
+WARNING
+      end
       kwargs = args.last.is_a?(Hash) ? args.pop : {}
       funcall = Sass::Script::Tree::Funcall.new(
         [name.value],
@@ -2392,12 +2474,12 @@ MESSAGE
     #
     # @overload function_exists($name)
     #   @param name [Sass::Script::Value::String] The name of the function to
-    #     check.
+    #     check or a function reference.
     # @return [Sass::Script::Value::Bool] Whether the function is defined.
     def function_exists(name)
       assert_type name, :String, :name
       exists = Sass::Script::Functions.callable?(name.value.tr("-", "_"))
-      exists ||= environment.function(name.value)
+      exists ||= environment.caller.function(name.value)
       bool(exists)
     end
     declare :function_exists, [:name]

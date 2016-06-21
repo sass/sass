@@ -1480,30 +1480,56 @@ SCSS
   end
 
   def test_call_with_positional_arguments
-    assert_equal evaluate("lighten(blue, 5%)"), evaluate("call(lighten, blue, 5%)")
+    # TODO: Remove this block in 4.0
+    Sass::Util.silence_sass_warnings do
+      assert_equal evaluate("lighten(blue, 5%)"), evaluate("call(lighten, blue, 5%)")
+    end
+    assert_equal evaluate("lighten(blue, 5%)"), evaluate("call(get-function(lighten), blue, 5%)")
   end
 
   def test_call_with_keyword_arguments
+    # TODO: Remove this block in 4.0
+    Sass::Util.silence_sass_warnings do
+      assert_equal(
+        evaluate("lighten($color: blue, $amount: 5%)"),
+        evaluate("call(lighten, $color: blue, $amount: 5%)"))
+    end
     assert_equal(
       evaluate("lighten($color: blue, $amount: 5%)"),
-      evaluate("call(lighten, $color: blue, $amount: 5%)"))
+      evaluate("call(get-function(lighten), $color: blue, $amount: 5%)"))
   end
 
   def test_call_with_keyword_and_positional_arguments
+    # TODO: Remove this block in 4.0
+    Sass::Util.silence_sass_warnings do
+      assert_equal(
+        evaluate("lighten(blue, $amount: 5%)"),
+        evaluate("call(lighten, blue, $amount: 5%)"))
+    end
     assert_equal(
       evaluate("lighten(blue, $amount: 5%)"),
-      evaluate("call(lighten, blue, $amount: 5%)"))
+      evaluate("call(get-function(lighten), blue, $amount: 5%)"))
   end
 
   def test_call_with_dynamic_name
+    # TODO: Remove this block in 4.0
+    Sass::Util.silence_sass_warnings do
+      assert_equal(
+        evaluate("lighten($color: blue, $amount: 5%)"),
+        evaluate("call($fn, $color: blue, $amount: 5%)",
+          env("fn" => Sass::Script::Value::String.new("lighten"))))
+    end
     assert_equal(
       evaluate("lighten($color: blue, $amount: 5%)"),
       evaluate("call($fn, $color: blue, $amount: 5%)",
-        env("fn" => Sass::Script::String.new("lighten"))))
+        env("fn" => Sass::Script::Value::Function.new(
+          Sass::Callable.new("lighten", nil, nil, nil, nil, nil, "function", :builtin)))))
   end
 
+  # TODO: Remove this test in 4.0
   def test_call_uses_local_scope
-    assert_equal <<CSS, render(<<SCSS)
+    Sass::Util.silence_sass_warnings do
+      assert_equal <<CSS, render(<<SCSS)
 .first-scope {
   a: local; }
 
@@ -1521,18 +1547,24 @@ CSS
   a: call(foo);
 }
 SCSS
+    end
   end
 
   def test_call_unknown_function
-    assert_equal evaluate("unknown(red, blue)"), evaluate("call(unknown, red, blue)")
+    # TODO: Remove this block in 4.0
+    Sass::Util.silence_sass_warnings do
+      assert_equal evaluate("unknown(red, blue)"), evaluate("call(unknown, red, blue)")
+    end
+    assert_equal evaluate("unknown(red, blue)"), evaluate("call(get-function(unknown, $css: true), red, blue)")
   end
 
   def test_call_with_non_string_argument
-    assert_error_message "$name: 3px is not a string for `call'", "call(3px)"
+    assert_error_message "$function: 3px is not a function for `call'", "call(3px)"
   end
 
   def test_errors_in_called_function
-    assert_error_message "$color: 3px is not a color for `lighten'", "call(lighten, 3px, 5%)"
+    assert_error_message "$color: 3px is not a color for `lighten'",
+      "call(get-function(lighten), 3px, 5%)"
   end
 
   def test_variable_exists
