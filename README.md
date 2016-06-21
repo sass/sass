@@ -199,12 +199,12 @@ and now occasionally consults on the language issues. Hampton lives in San
 Francisco, California and works as VP of Technology
 at [Moovweb](http://www.moovweb.com/).
 
-[Natalie Weizenbaum](https://twitter.com/nex3) is the primary developer and architect of
-Sass. Her hard work has kept the project alive by endlessly answering forum
-posts, fixing bugs, refactoring, finding speed improvements, writing
-documentation, implementing new features, and getting Hampton coffee (a fitting
-task for a girl genius). Natalie lives in Seattle, Washington and works on
-[Dart](http://dartlang.org) application libraries at Google.
+[Natalie Weizenbaum](https://twitter.com/nex3) is the primary developer and
+architect of Sass. Her hard work has kept the project alive by endlessly
+answering forum posts, fixing bugs, refactoring, finding speed improvements,
+writing documentation, implementing new features, and designing the language.
+Natalie lives in Seattle, Washington and works on [Dart](http://dartlang.org)
+application libraries at Google.
 
 [Chris Eppstein](http://twitter.com/chriseppstein) is a core contributor to
 Sass and the creator of [Compass](http://compass-style.org/), the first Sass-based framework, and
