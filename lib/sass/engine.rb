@@ -116,6 +116,18 @@ module Sass
       def comment?
         text[0] == COMMENT_CHAR && (text[1] == SASS_COMMENT_CHAR || text[1] == CSS_COMMENT_CHAR)
       end
+
+      def initialize(*args)
+        super
+        return unless text[-1] == MULTILINE_CHAR
+        # Remove multiline indicator and remember that this is a different type of a line.
+        text.chop!
+        @is_multiline = true
+      end
+
+      def multiline?
+        defined? @is_multiline
+      end
     end
 
     # The character that begins a CSS property.
@@ -152,6 +164,9 @@ module Sass
     # The regex that matches and extracts data from
     # properties of the form `:name prop`.
     PROPERTY_OLD = /^:([^\s=:"]+)\s*(?:\s+|$)(.*)/
+
+    # Indicates that row is long one and its content is defined in nested block
+    MULTILINE_CHAR = ?\\
 
     # The default options for Sass::Engine.
     # @api public
@@ -486,9 +501,18 @@ END
           raise SyntaxError.new(message, :line => index)
         end
 
+        next if try_multiline(line, lines.last, line_tabs)
+
         lines << Line.new(line.strip, line_tabs, index, line_tab_str.size, @options[:filename], [])
       end
       lines
+    end
+
+    def try_multiline(line, last, tabs)
+      return false unless last.multiline? && tabs > last.tabs
+      line = Line.new(line.strip)
+      last.text << ' ' << line.text unless line.comment?
+      true
     end
 
     # @comment

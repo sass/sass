@@ -3391,6 +3391,10 @@ CSS
 SASS
   end
 
+  def test_multiline_operator
+    renders_correctly 'multiline-operator'
+  end
+
   private
 
   def assert_hash_has(hash, expected)

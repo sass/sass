@@ -1,0 +1,26 @@
+.shadow {
+  box-shadow: 5px 5px 10px black, inset 0 0 10px white; }
+
+.color-red {
+  color: red; }
+
+.color-green {
+  color: green; }
+
+.color-blue {
+  color: blue; }
+
+.color-c {
+  color: cyan; }
+
+.color-m {
+  color: magenta; }
+
+.color-y {
+  color: yellow; }
+
+.color-k {
+  color: black; }
+
+.comment {
+  box-shadow: inset 0 0 10px white; }

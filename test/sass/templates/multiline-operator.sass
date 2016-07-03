@@ -1,0 +1,28 @@
+.shadow
+  box-shadow: \
+    5px 5px 10px black,
+    inset 0 0 10px white
+
+$rgb-colors: \
+  red
+  green
+  blue
+
+@each $color in $rgb-colors
+  .color-#{"" + $color}
+    color: $color
+
+$cmyk-colors: ( \
+  c: cyan,
+  m: magenta,
+  y: yellow,
+  k: black )
+
+@each $key, $color in $cmyk-colors
+  .color-#{$key}
+    color: $color
+
+.comment
+  box-shadow: \
+    // 5px 5px 10px black,
+    inset 0 0 10px white
