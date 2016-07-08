@@ -184,7 +184,7 @@ See `sass-convert --help` for further information and options.
 To run the Sass executables from a source checkout instead of from rubygems:
 
 ```
-$ cd <SASS_CHECKOUT_DIRECTORY>
+$ cd sass
 $ bundle
 $ bundle exec sass ...
 $ bundle exec scss ...
