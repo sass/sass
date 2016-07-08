@@ -26,3 +26,25 @@ $cmyk-colors: ( \
   box-shadow: \
     // 5px 5px 10px black,
     inset 0 0 10px white
+
+#sidebar \
+  div
+  a
+    color: red
+
+.nested
+  @each \
+    $color in \
+      red
+      orange
+      yellow
+      green
+      blue
+        color: $color
+
+@media all \
+  and (min-device-width: 100px)
+  and (max-device-width: 300px)
+    #sidebar
+      width: 100%
+

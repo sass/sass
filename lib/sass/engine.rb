@@ -456,6 +456,8 @@ ERR
       comment_tab_str = nil
       first = true
       lines = []
+      @active_multiline_tabs = Set.new
+
       string.scan(/^[^\n]*?$/).each_with_index do |line, index|
         index += (@options[:line] || 1)
         if line.strip.empty?
@@ -504,13 +506,26 @@ END
         next if try_multiline(line, lines.last, line_tabs)
 
         lines << Line.new(line.strip, line_tabs, index, line_tab_str.size, @options[:filename], [])
+
+        # fix tabs nested in multiline
+        lines.last.tabs -= @active_multiline_tabs.size
       end
       lines
     end
 
     def try_multiline(line, last, tabs)
-      return false unless last.multiline? && tabs > last.tabs
+      # detect a new multiline block
+      @active_multiline_tabs << last.tabs if last.multiline?
+      # detect the end of a multiline block
+      @active_multiline_tabs.delete_if {|n| n >= tabs}
+
+      return false unless @active_multiline_tabs.include?(tabs - 1)
+
+      # detect a nested multiline block
       line = Line.new(line.strip)
+      @active_multiline_tabs << tabs if line.multiline?
+
+      # concatenate a multiline
       last.text << ' ' << line.text unless line.comment?
       true
     end

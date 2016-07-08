@@ -24,3 +24,17 @@
 
 .comment {
   box-shadow: inset 0 0 10px white; }
+
+#sidebar div a {
+  color: red; }
+
+.nested {
+  color: red;
+  color: orange;
+  color: yellow;
+  color: green;
+  color: blue; }
+
+@media all and (min-device-width: 100px) and (max-device-width: 300px) {
+  #sidebar {
+    width: 100%; } }
