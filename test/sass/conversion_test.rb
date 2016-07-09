@@ -1126,6 +1126,23 @@ foo {
 SCSS
   end
 
+  def test_consecutive_mixin_includes
+    assert_renders <<SASS, <<SCSS
+foo
+  +foo-bar
+  +foo-bar
+
+  a: blip
+SASS
+foo {
+  @include foo-bar;
+  @include foo-bar;
+
+  a: blip;
+}
+SCSS
+  end
+
   def test_mixin_include_with_hyphen_conversion_keyword_arg
     assert_renders <<SASS, <<SCSS
 foo
