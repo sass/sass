@@ -113,6 +113,8 @@ module Sass
     # `comment_tab_str`: `String?`
     # : The prefix indentation for this comment, if it is a comment.
     class Line < Struct.new(:text, :tabs, :index, :offset, :filename, :children, :comment_tab_str)
+      attr_accessor :multiline
+
       def comment?
         text[0] == COMMENT_CHAR && (text[1] == SASS_COMMENT_CHAR || text[1] == CSS_COMMENT_CHAR)
       end
@@ -120,13 +122,8 @@ module Sass
       def initialize(*args)
         super
         return unless text[-1] == MULTILINE_CHAR
-        # Remove multiline indicator and remember that this is a different type of a line.
         text.chop!
-        @is_multiline = true
-      end
-
-      def multiline?
-        defined? @is_multiline
+        @multiline = true
       end
     end
 
@@ -456,7 +453,6 @@ ERR
       comment_tab_str = nil
       first = true
       lines = []
-      @active_multiline_tabs = Set.new
 
       string.scan(/^[^\n]*?$/).each_with_index do |line, index|
         index += (@options[:line] || 1)
@@ -506,27 +502,18 @@ END
         next if try_multiline(line, lines.last, line_tabs)
 
         lines << Line.new(line.strip, line_tabs, index, line_tab_str.size, @options[:filename], [])
-
-        # fix tabs nested in multiline
-        lines.last.tabs -= @active_multiline_tabs.size
       end
+
       lines
     end
 
     def try_multiline(line, last, tabs)
-      # detect a new multiline block
-      @active_multiline_tabs << last.tabs if last.multiline?
-      # detect the end of a multiline block
-      @active_multiline_tabs.delete_if {|n| n >= tabs}
-
-      return false unless @active_multiline_tabs.include?(tabs - 1)
-
-      # detect a nested multiline block
+      return false unless last.multiline
       line = Line.new(line.strip)
-      @active_multiline_tabs << tabs if line.multiline?
-
-      # concatenate a multiline
-      last.text << ' ' << line.text unless line.comment?
+      unless line.comment?
+        last.text << ' ' << line.text
+        last.multiline = line.multiline
+      end
       true
     end
 

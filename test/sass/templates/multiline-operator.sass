@@ -1,11 +1,11 @@
 .shadow
   box-shadow: \
-    5px 5px 10px black,
+    5px 5px 10px black, \
     inset 0 0 10px white
 
 $rgb-colors: \
-  red
-  green
+  red \
+  green \
   blue
 
 @each $color in $rgb-colors
@@ -13,9 +13,9 @@ $rgb-colors: \
     color: $color
 
 $cmyk-colors: ( \
-  c: cyan,
-  m: magenta,
-  y: yellow,
+  c: cyan, \
+  m: magenta, \
+  y: yellow, \
   k: black )
 
 @each $key, $color in $cmyk-colors
@@ -28,23 +28,23 @@ $cmyk-colors: ( \
     inset 0 0 10px white
 
 #sidebar \
-  div
+  div \
   a
-    color: red
+  color: red
 
 .nested
   @each \
     $color in \
-      red
-      orange
-      yellow
-      green
+      red \
+      orange \
+      yellow \
+      green \
       blue
-        color: $color
+    color: $color
 
 @media all \
-  and (min-device-width: 100px)
+  and (min-device-width: 100px) \
   and (max-device-width: 300px)
-    #sidebar
-      width: 100%
+  #sidebar
+    width: 100%
 
