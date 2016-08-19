@@ -40,7 +40,8 @@ module Sass::Script::Value
     def eq(other)
       Sass::Script::Value::Bool.new(
         other.is_a?(List) && value == other.value &&
-        separator == other.separator)
+        separator == other.separator &&
+        bracketed == other.bracketed)
     end
 
     def hash

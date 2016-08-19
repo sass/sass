@@ -894,7 +894,7 @@ foo {
 CSS
 foo
   bar : baz
-  bizz	: bap
+  bizz  : bap
 SASS
   end
 
@@ -2454,6 +2454,19 @@ $var: 1
   b: $var
 SASS
   end
+
+def test_equality_of_lists
+  assert_equal(<<CSS, render(<<SASS))
+a {
+  f1: f; }
+CSS
+a
+  @if [1,2,3]==(1,2,3)
+    t1: t
+  @else
+    f1: f
+SASS
+end
 
   # Regression tests
 
