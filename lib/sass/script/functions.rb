@@ -1983,8 +1983,8 @@ MESSAGE
     # list. If both lists have fewer than two items, spaces are used for the
     # resulting list.
     #
-    # Unless `$bracketed` is passed, if one list is bracketed and one is not,
-    # the resulting list if the first parameter is.
+    # Unless `$bracketed` is passed, the resulting list is bracketed if the
+    # first parameter is.
     #
     # Like all list functions, `join()` returns a new list rather than modifying
     # its arguments in place.
