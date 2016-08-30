@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.5.0 (UNRELEASED)
+## 3.5.0
 
 * Combine ids and `:root` when unifying selectors with `@extend` and selector
   functions.
