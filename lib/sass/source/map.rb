@@ -118,12 +118,14 @@ module Sass::Source
       @data.each do |m|
         file, importer = m.input.file, m.input.importer
 
+        next unless importer
+
         if options[:type] == :inline
           source_uri = file
         else
           sourcemap_dir = sourcemap_path && sourcemap_path.dirname.to_s
           sourcemap_dir = nil if options[:type] == :file
-          source_uri = importer && importer.public_url(file, sourcemap_dir)
+          source_uri = importer.public_url(file, sourcemap_dir)
           next unless source_uri
         end
 
