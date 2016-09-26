@@ -28,10 +28,10 @@ a {
 CSS
 {
 "version": 3,
-"mappings": "AAAA,CAAE;EACA,GAAG,EAAE,GAAG;EACV,kBAAkB;EAChB,SAAS,EAAE,IAAI",
+"file": "test.css",
 "sources": ["test_simple_mapping_scss_inline.scss"],
 "names": [],
-"file": "test.css"
+"mappings": "AAAA,CAAE;EACA,GAAG,EAAE,GAAG;EACV,kBAAkB;EAChB,SAAS,EAAE,IAAI"
 }
 JSON
   end
@@ -52,10 +52,10 @@ a {
 CSS
 {
 "version": 3,
-"mappings": "AAAA,CAAC;EACC,GAAG,EAAE,GAAG;;EAEP,SAAS,EAAC,IAAI",
+"file": "test.css",
 "sources": ["test_simple_mapping_sass_inline.sass"],
 "names": [],
-"file": "test.css"
+"mappings": "AAAA,CAAC;EACC,GAAG,EAAE,GAAG;;EAEP,SAAS,EAAC,IAAI"
 }
 JSON
   end
@@ -78,10 +78,10 @@ a {
 CSS
 {
 "version": 3,
-"mappings": "AAAA,CAAE;EACA,GAAG,EAAE,GAAG;EACV,kBAAkB;EAChB,SAAS,EAAE,IAAI",
+"file": "test.css",
 "sources": ["#{uri}"],
 "names": [],
-"file": "test.css"
+"mappings": "AAAA,CAAE;EACA,GAAG,EAAE,GAAG;EACV,kBAAkB;EAChB,SAAS,EAAE,IAAI"
 }
 JSON
   end
@@ -104,10 +104,10 @@ a {
 CSS
 {
 "version": 3,
-"mappings": "AAAA,CAAE;EACA,GAAG,EAAE,GAAG;EACV,kBAAkB;EAChB,SAAS,EAAE,IAAI",
+"file": "style.css",
 "sources": ["../scss/style.scss"],
 "names": [],
-"file": "style.css"
+"mappings": "AAAA,CAAE;EACA,GAAG,EAAE,GAAG;EACV,kBAAkB;EAChB,SAAS,EAAE,IAAI"
 }
 JSON
   end
@@ -129,10 +129,10 @@ a {
 CSS
 {
 "version": 3,
-"mappings": "AAAA,CAAC;EACC,GAAG,EAAE,GAAG;;EAEP,SAAS,EAAC,IAAI",
+"file": "style.css",
 "sources": ["../sass/style.sass"],
 "names": [],
-"file": "style.css"
+"mappings": "AAAA,CAAC;EACC,GAAG,EAAE,GAAG;;EAEP,SAAS,EAAC,IAAI"
 }
 JSON
   end
@@ -151,10 +151,10 @@ a {
 CSS
 {
 "version": 3,
-"mappings": ";AAAA,CAAE;EACA,GAAG,EAAE,GAAG",
+"file": "test.css",
 "sources": ["test_simple_charset_mapping_scss_inline.scss"],
 "names": [],
-"file": "test.css"
+"mappings": ";AAAA,CAAE;EACA,GAAG,EAAE,GAAG"
 }
 JSON
   end
@@ -172,10 +172,10 @@ a {
 CSS
 {
 "version": 3,
-"mappings": ";AAAA,CAAC;EACC,GAAG,EAAE,GAAG",
+"file": "test.css",
 "sources": ["test_simple_charset_mapping_sass_inline.sass"],
 "names": [],
-"file": "test.css"
+"mappings": ";AAAA,CAAC;EACC,GAAG,EAAE,GAAG"
 }
 JSON
   end
@@ -195,10 +195,10 @@ fЖЖ {
 CSS
 {
 "version": 3,
-"mappings": ";AACA,GAAI;EACF,CAAC,EAAE,CAAC",
+"file": "test.css",
 "sources": ["test_different_charset_than_encoding_scss_inline.scss"],
 "names": [],
-"file": "test.css"
+"mappings": ";AACA,GAAI;EACF,CAAC,EAAE,CAAC"
 }
 JSON
   end
@@ -217,10 +217,10 @@ fЖЖ {
 CSS
 {
 "version": 3,
-"mappings": ";AACA,GAAG;EACD,CAAC,EAAE,CAAC",
+"file": "test.css",
 "sources": ["test_different_charset_than_encoding_sass_inline.sass"],
 "names": [],
-"file": "test.css"
+"mappings": ";AACA,GAAG;EACD,CAAC,EAAE,CAAC"
 }
 JSON
   end
@@ -836,10 +836,10 @@ SCSS
     assert_equal json, <<JSON.rstrip
 {
 "version": 3,
-"mappings": "DADD,UAAU",
+"file": "output%20file.css",
 "sources": ["source%20file.scss"],
 "names": [],
-"file": "output%20file.css"
+"mappings": "DADD,UAAU"
 }
 JSON
   end

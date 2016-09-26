@@ -101,6 +101,8 @@ module Sass::Source
       result = "{\n"
       write_json_field(result, "version", 3, true)
 
+      write_json_field(result, "file", css_uri)
+
       source_uri_to_id = {}
       id_to_source_uri = {}
       id_to_contents = {} if options[:type] == :inline
@@ -178,7 +180,6 @@ module Sass::Source
         end
       end
       line_data.push(segment_data_for_line.join(","))
-      write_json_field(result, "mappings", line_data.join(";"))
 
       source_names = []
       (0...next_source_id).each {|id| source_names.push(id_to_source_uri[id].to_s)}
@@ -190,7 +191,8 @@ module Sass::Source
       end
 
       write_json_field(result, "names", [])
-      write_json_field(result, "file", css_uri)
+
+      write_json_field(result, "mappings", line_data.join(";"))
 
       result << "\n}"
       result
