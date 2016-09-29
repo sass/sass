@@ -51,11 +51,11 @@ module Sass
       # @raise [Sass::SyntaxError] If a parent selector is invalid
       def resolve_parent_refs(super_cseq, implicit_parent)
         members = @members.dup
-        nl = (members.first == "\n" && members.shift)
         contains_parent_ref = contains_parent_ref?
         return CommaSequence.new([self]) if !implicit_parent && !contains_parent_ref
 
         unless contains_parent_ref
+          nl = (members.first == "\n" && members.shift)
           old_members, members = members, []
           members << nl if nl
           members << SimpleSequence.new([Parent.new], false)
