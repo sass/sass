@@ -36,6 +36,7 @@ module Sass
         @lexer = lexer_class.new(str, line, offset, options)
         @stop_at = nil
         @css_variable_warning = nil
+        @in_interpolant = false
       end
 
       # Parses a SassScript expression within an interpolated segment (`#{}`).
@@ -312,7 +313,12 @@ RUBY
               start_pos = source_position
 
               @css_variable_warning.warn! if @css_variable_warning
-              node(Tree::UnaryOperation.new(assert_expr(:unary_#{op}), :#{op}), start_pos)
+              e = Tree::UnaryOperation.new(assert_expr(:unary_#{op}), :#{op})
+              if @in_interpolant
+                str = e.operator == :minus ? e.to_sass : e.operand.to_sass
+                return literal_node(Script::Value::String.new(str), start_pos)
+              end
+              node(e, start_pos)
             end
 RUBY
         end
@@ -432,6 +438,8 @@ RUBY
       end
 
       def interpolation(first = space)
+        old_in_interpolant = @in_interpolant
+        @in_interpolant = true
         e = first
         while (interp = try_tok(:begin_interpolation))
           wb = @lexer.whitespace?(interp)
@@ -460,6 +468,7 @@ RUBY
             Script::Tree::Interpolation.new(e, mid, after, wb, wa, :deprecation => deprecation),
             (e || interp).source_range.start_pos)
         end
+        @in_interpolant = old_in_interpolant
         e
       end
 
