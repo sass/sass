@@ -3522,36 +3522,33 @@ SCSS
   end
 
   def test_parent_in_mid_selector_error
-    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
-Invalid CSS after ".foo": expected "{", was "&.bar"
-
-"&.bar" may only be used at the beginning of a compound selector.
-MESSAGE
-flim {
+    assert_equal <<CSS, render(<<SCSS)
+.foo.flim.bar {
+  a: b; }
+CSS
+.flim {
   .foo&.bar {a: b}
 }
 SCSS
   end
 
   def test_parent_after_selector_error
-    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
-Invalid CSS after ".foo.bar": expected "{", was "&"
-
-"&" may only be used at the beginning of a compound selector.
-MESSAGE
-flim {
+    assert_equal <<CSS, render(<<SCSS)
+.foo.bar.flim {
+  a: b; }
+CSS
+.flim {
   .foo.bar& {a: b}
 }
 SCSS
   end
 
   def test_double_parent_selector_error
-    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
-Invalid CSS after "&": expected "{", was "&"
-
-"&" may only be used at the beginning of a compound selector.
-MESSAGE
-flim {
+    assert_equal <<CSS, render(<<SCSS)
+.flim.flim {
+  a: b; }
+CSS
+.flim {
   && {a: b}
 }
 SCSS
