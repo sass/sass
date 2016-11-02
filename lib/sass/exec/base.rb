@@ -23,7 +23,7 @@ module Sass::Exec
         # at_exit is a bit of a hack, but it allows us to rethrow when --trace
         # is active and get both the built-in exception formatting and the
         # correct exit code.
-        at_exit {exit 65} if e.is_a?(Sass::SyntaxError)
+        at_exit {exit Sass::Util.windows? ? 13 : 65} if e.is_a?(Sass::SyntaxError)
 
         raise e if @options[:trace] || e.is_a?(SystemExit)
 
