@@ -300,7 +300,7 @@ module Sass::Script
   # \{#call call($function, $args...)}
   # : Dynamically calls a Sass function reference returned by `get-function`.
   #
-  # \{#get_function get-function($name)}
+  # \{#get_function get-function($name, $css: false)}
   # : Looks up a function with the given name in the current lexical scope
   #   and returns a reference to it.
   #
@@ -1685,13 +1685,11 @@ MESSAGE
     end
     declare :feature_exists, [:feature]
 
-    # Returns a reference to a function for later invocation with the `call` function.
+    # Returns a reference to a function for later invocation with the `call()` function.
     #
-    # The function reference created may refer to a function defined in
-    # your stylesheet, built-in to the host environment, or a CSS native
-    # function. As such, this function never returns an error, but the
-    # you can use `function-exists()` to check if the function reference
-    # created points at a Sass function.
+    # If `$css` is `false`, the function reference may refer to a function
+    # defined in your stylesheet or built-in to the host environment. If it's
+    # `true` it will refer to a plain-CSS function.
     #
     # @example
     #   get-function("rgb")
@@ -1699,8 +1697,9 @@ MESSAGE
     #   @function myfunc { @return "something"; }
     #   get-function("myfunc")
     #
-    # @overload get_function($name)
+    # @overload get_function($name, $css: false)
     #   @param name [Sass::Script::Value::String] The name of the function being referenced.
+    #   @param css [Sass::Script::Value::Bool] Whether to get a plain CSS function.
     #
     # @return [Sass::Script::Value::Function] A function reference.
     def get_function(name, kwargs = {})
@@ -1978,8 +1977,8 @@ MESSAGE
     # list. If both lists have fewer than two items, spaces are used for the
     # resulting list.
     #
-    # Unless `$bracketed` is passed, if one list is bracketed and one is not,
-    # the resulting list if the first parameter is.
+    # Unless `$bracketed` is passed, the resulting list is bracketed if the
+    # first parameter is.
     #
     # Like all list functions, `join()` returns a new list rather than modifying
     # its arguments in place.

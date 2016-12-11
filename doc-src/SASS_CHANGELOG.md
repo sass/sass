@@ -23,7 +23,7 @@ instead of doing the same thing as `unquote("foo + #{$var}")`.
 For more details, see [this blog post][interp-blog] and
 [the GitHub issue in which it was planned][interp-issue].
 
-## 3.5.0 (UNRELEASED)
+## 3.5.0
 
 * Combine ids and `:root` when unifying selectors with `@extend` and selector
   functions.

@@ -288,7 +288,9 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
               child.line + 1 == nxt.line) ||
             (child.is_a?(Sass::Tree::VariableNode) && nxt.is_a?(Sass::Tree::VariableNode) &&
               child.line + 1 == nxt.line) ||
-            (child.is_a?(Sass::Tree::PropNode) && nxt.is_a?(Sass::Tree::PropNode))
+            (child.is_a?(Sass::Tree::PropNode) && nxt.is_a?(Sass::Tree::PropNode)) ||
+            (child.is_a?(Sass::Tree::MixinNode) && nxt.is_a?(Sass::Tree::MixinNode) &&
+              child.line + 1 == nxt.line)
           ""
         else
           "\n"
