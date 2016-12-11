@@ -18,7 +18,7 @@ fi
 
 >&2 echo "Fetching pull request $TRAVIS_PULL_REQUEST..."
 
-JSON=$(curl -L -sS https://api.github.com/repos/sass/dart-sass/pulls/$TRAVIS_PULL_REQUEST)
+JSON=$(curl -L -sS https://api.github.com/repos/sass/sass/pulls/$TRAVIS_PULL_REQUEST)
 
 RE_SPEC_PR="sass\/sass-spec(#|\/pull\/)([0-9]+)"
 
