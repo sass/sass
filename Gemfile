@@ -36,5 +36,4 @@ gem 'minitest', '>= 5.0.0', '< 6.0.0', :group => :test
 
 #gem "sass-spec", :path => "../sass-spec"
 pr = ENV['TRAVIS_PULL_REQUEST']
-gem "sass-spec", :git => 'https://github.com/sass/sass-spec.git',
-    :ref => (pr ? `#{File.dirname(__FILE__)}/extra/sass-spec-ref.sh`.rstrip : 'master')
+gem "sass-spec", :git => 'https://github.com/sass/sass-spec.git', :branch => 'master'
