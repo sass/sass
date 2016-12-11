@@ -48,7 +48,7 @@ namespace :test do
         end
         default_options = {
           :spec_directory => SassSpec::SPEC_DIR,
-          :engine_adapter => SassEngineAdapter.new("sass"),
+          :engine_adapter => SassEngineAdapter.new,
           :generate => false,
           :tap => false,
           :skip => false,
