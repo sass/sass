@@ -654,7 +654,7 @@ module Sass::Script
     # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if any parameter is the wrong type or out of bounds
     def rgb(red, green, blue)
-      if calc?(red) || calc?(green) || calc?(blue)
+      if special_number?(red) || special_number?(green) || special_number?(blue)
         return unquoted_string("rgb(#{red}, #{green}, #{blue})")
       end
       assert_type red, :Number, :red
@@ -715,7 +715,7 @@ module Sass::Script
         color, alpha = args
 
         assert_type color, :Color, :color
-        if calc?(alpha)
+        if special_number?(alpha)
           unquoted_string("rgba(#{color.red}, #{color.green}, #{color.blue}, #{alpha})")
         else
           assert_type alpha, :Number, :alpha
@@ -724,7 +724,8 @@ module Sass::Script
         end
       when 4
         red, green, blue, alpha = args
-        if calc?(red) || calc?(green) || calc?(blue) || calc?(alpha)
+        if special_number?(red) || special_number?(green) ||
+           special_number?(blue) || special_number?(alpha)
           unquoted_string("rgba(#{red}, #{green}, #{blue}, #{alpha})")
         else
           rgba(rgb(red, green, blue), alpha)
@@ -753,7 +754,7 @@ module Sass::Script
     # @raise [ArgumentError] if `$saturation` or `$lightness` are out of bounds
     #   or any parameter is the wrong type
     def hsl(hue, saturation, lightness)
-      if calc?(hue) || calc?(saturation) || calc?(lightness)
+      if special_number?(hue) || special_number?(saturation) || special_number?(lightness)
         unquoted_string("hsl(#{hue}, #{saturation}, #{lightness})")
       else
         hsla(hue, saturation, lightness, number(1))
@@ -781,7 +782,8 @@ module Sass::Script
     # @raise [ArgumentError] if `$saturation`, `$lightness`, or `$alpha` are out
     #   of bounds or any parameter is the wrong type
     def hsla(hue, saturation, lightness, alpha)
-      if calc?(hue) || calc?(saturation) || calc?(lightness) || calc?(alpha)
+      if special_number?(hue) || special_number?(saturation) ||
+         special_number?(lightness) || special_number?(alpha)
         return unquoted_string("hsla(#{hue}, #{saturation}, #{lightness}, #{alpha})")
       end
       assert_type hue, :Number, :hue
