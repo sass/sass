@@ -510,7 +510,7 @@ module Sass::Script::Value
       },
       {
         'dpi'  => Rational(1),
-        'dpcm' => Rational(2.54),
+        'dpcm' => Rational(254, 100),
         'dppx' => Rational(96)
       }
     ]
