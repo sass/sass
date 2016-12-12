@@ -28,6 +28,8 @@
 * Fix conversions between numbers with `dpi`, `dpcm`, and `dppx` units.
   Previously these conversions were inverted.
 
+* Support `url()`s containing quoted strings within unknown directives.
+
 ## 3.4.22 (28 March 2016)
 
 * Sass now runs without warnings when running ruby with code style
