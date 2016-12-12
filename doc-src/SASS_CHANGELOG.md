@@ -64,6 +64,9 @@
   declarations as per the CSS specification.
   [Issue #1967](https://github.com/sass/sass/issues/1967)
 
+* Fix a bug where, under some circumstances, `str-slice()` would go to the end
+  of the string even if `$end-at` was set.
+
 ## 3.4.22 (28 March 2016)
 
 * Sass now runs without warnings when running ruby with code style
