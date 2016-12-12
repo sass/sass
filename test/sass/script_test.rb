@@ -558,9 +558,9 @@ WARNING
   end
 
   def test_resolution_units
-    assert_equal "2.54", resolve("(1dpi/1dpcm)")
-    assert_equal "37.79528", resolve("(1dpcm/1dppx)")
-    assert_equal "0.01042", resolve("(1dppx/1dpi)")
+    assert_equal "0.3937", resolve("(1dpi/1dpcm)")
+    assert_equal "0.02646", resolve("(1dpcm/1dppx)")
+    assert_equal "96", resolve("(1dppx/1dpi)")
   end
 
   def test_operations_have_options
