@@ -67,7 +67,7 @@ For more details, see [this blog post][interp-blog] and
   CSS. The only exception is `#{}`, which will inject a SassScript value as
   before.
 
-## 3.4.23 (UNRELEASED)
+## 3.4.23 (19 December 2016)
 
 * The Sass logger is now instantiated on a per-thread/per-fiber basis
   and can now be configured to output to any IO object. This can help
