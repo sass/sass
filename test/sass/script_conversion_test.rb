@@ -343,6 +343,15 @@ RUBY
     assert_equal '"foo#{$bar}baz"', render("'foo\#{$bar}baz'")
   end
 
+  def test_bracketed_lists
+    assert_renders("[]")
+    assert_renders("[foo, bar]")
+    assert_renders("[[foo]]")
+    assert_renders("[(foo bar)]")
+    assert_renders("[foo bar,]")
+    assert_renders("[(foo,)]")
+  end
+
   private
 
   def assert_renders(script, options = {})

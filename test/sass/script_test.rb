@@ -284,10 +284,10 @@ SASS
   end
 
   def test_adding_functions_directly_to_functions_module
-    assert !Functions.callable?('nonexistant')
-    Functions.class_eval { def nonexistant; end }
-    assert Functions.callable?('nonexistant')
-    Functions.send :remove_method, :nonexistant
+    assert !Functions.callable?('nonexistent')
+    Functions.class_eval { def nonexistent; end }
+    assert Functions.callable?('nonexistent')
+    Functions.send :remove_method, :nonexistent
   end
 
   def test_default_functions
@@ -1132,9 +1132,8 @@ SASS
     assert_equal "#2", resolve('"##{1 + 1}"')
   end
 
-  def test_misplaced_comma_in_funcall
-    assert_raise_message(Sass::SyntaxError,
-      'Invalid CSS after "foo(bar, ": expected function argument, was ")"') {eval('foo(bar, )')}
+  def test_func_call_arglist_trailing_comma
+    assert_equal eval('foo(bar)'), eval('foo(bar, )')
   end
 
   def test_color_prefixed_identifier

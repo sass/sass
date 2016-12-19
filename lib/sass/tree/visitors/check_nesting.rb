@@ -31,7 +31,7 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
     if parent.is_a?(Sass::Tree::AtRootNode) && parent.resolved_value
       old_parents = @parents
       @parents = @parents.reject {|p| parent.exclude_node?(p)}
-      @parent = Sass::Util.enum_with_index(@parents.reverse).
+      @parent = @parents.reverse.each_with_index.
         find {|p, i| !transparent_parent?(p, @parents[-i - 2])}.first
 
       begin

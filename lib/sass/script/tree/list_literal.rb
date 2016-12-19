@@ -13,13 +13,20 @@ module Sass::Script::Tree
     # @return [Symbol]
     attr_reader :separator
 
+    # Whether the list is surrounded by square brackets.
+    #
+    # @return [Boolean]
+    attr_reader :bracketed
+
     # Creates a new list literal.
     #
     # @param elements [Array<Node>] See \{#elements}
     # @param separator [Symbol] See \{#separator}
-    def initialize(elements, separator)
+    # @param bracketed [Boolean] See \{#bracketed}
+    def initialize(elements, separator: nil, bracketed: false)
       @elements = elements
       @separator = separator
+      @bracketed = bracketed
     end
 
     # @see Node#children
@@ -27,7 +34,7 @@ module Sass::Script::Tree
 
     # @see Value#to_sass
     def to_sass(opts = {})
-      return "()" if elements.empty?
+      return bracketed ? "[]" : "()" if elements.empty?
       members = elements.map do |v|
         if element_needs_parens?(v)
           "(#{v.to_sass(opts)})"
@@ -36,9 +43,12 @@ module Sass::Script::Tree
         end
       end
 
-      return "(#{members.first},)" if separator == :comma && members.length == 1
+      if separator == :comma && members.length == 1
+        return "#{bracketed ? '[' : '('}#{members.first},#{bracketed ? ']' : ')'}"
+      end
 
-      members.join(sep_str(nil))
+      contents = members.join(sep_str(nil))
+      bracketed ? "[#{contents}]" : contents
     end
 
     # @see Node#deep_copy
@@ -49,7 +59,9 @@ module Sass::Script::Tree
     end
 
     def inspect
-      "(#{elements.map {|e| e.inspect}.join(separator == :space ? ' ' : ', ')})"
+      (bracketed ? '[' : '(') +
+        elements.map {|e| e.inspect}.join(separator == :space ? ' ' : ', ') +
+        (bracketed ? ']' : ')')
     end
 
     def force_division!
@@ -61,7 +73,8 @@ module Sass::Script::Tree
     def _perform(environment)
       list = Sass::Script::Value::List.new(
         elements.map {|e| e.perform(environment)},
-        separator)
+        separator: separator,
+        bracketed: bracketed)
       list.source_range = source_range
       list.options = options
       list
@@ -73,8 +86,10 @@ module Sass::Script::Tree
     # when serialized to Sass.
     def element_needs_parens?(element)
       if element.is_a?(ListLiteral)
-        return Sass::Script::Parser.precedence_of(element.separator) <=
-               Sass::Script::Parser.precedence_of(separator)
+        return false if element.elements.length < 2
+        return false if element.bracketed
+        return Sass::Script::Parser.precedence_of(element.separator || :space) <=
+               Sass::Script::Parser.precedence_of(separator || :space)
       end
 
       return false unless separator == :space

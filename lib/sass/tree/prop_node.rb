@@ -20,7 +20,11 @@ module Sass::Tree
 
     # The value of the property.
     #
-    # @return [Sass::Script::Tree::Node]
+    # For most properties, this will just contain a single Node. However, for
+    # CSS variables, it will contain multiple strings and nodes representing
+    # interpolation. Any adjacent strings will be merged together.
+    #
+    # @return [Array<String, Sass::Script::Tree::Node>]
     attr_accessor :value
 
     # The value of the property
@@ -52,14 +56,22 @@ module Sass::Tree
     # @return [Sass::Source::Range]
     attr_accessor :value_source_range
 
+    # Whether this represents a CSS custom property.
+    #
+    # @return [Boolean]
+    def custom_property?
+      name.first.is_a?(String) && name.first.start_with?("--")
+    end
+
     # @param name [Array<String, Sass::Script::Tree::Node>] See \{#name}
-    # @param value [Sass::Script::Tree::Node] See \{#value}
+    # @param value [Array<String, Sass::Script::Tree::Node>] See \{#value}
     # @param prop_syntax [Symbol] `:new` if this property uses `a: b`-style syntax,
     #   `:old` if it uses `:a b`-style syntax
     def initialize(name, value, prop_syntax)
       @name = Sass::Util.strip_string_array(
         Sass::Util.merge_adjacent_strings(name))
-      @value = value
+      @value = Sass::Util.merge_adjacent_strings(value)
+      @value = Sass::Util.strip_string_array(@value) unless custom_property?
       @tabs = 0
       @prop_syntax = prop_syntax
       super()
@@ -81,9 +93,10 @@ module Sass::Tree
     # @return [String] The message
     def pseudo_class_selector_message
       if @prop_syntax == :new ||
-          !value.is_a?(Sass::Script::Tree::Literal) ||
-          !value.value.is_a?(Sass::Script::Value::String) ||
-          !value.value.value.empty?
+          custom_property? ||
+          !value.first.is_a?(Sass::Script::Tree::Literal) ||
+          !value.first.value.is_a?(Sass::Script::Value::String) ||
+          !value.first.value.value.empty?
         return ""
       end
 
@@ -98,73 +111,52 @@ module Sass::Tree
     # @param fmt [Symbol] `:scss` or `:sass`.
     def declaration(opts = {:old => @prop_syntax == :old}, fmt = :sass)
       name = self.name.map {|n| n.is_a?(String) ? n : n.to_sass(opts)}.join
+      value = self.value.map {|n| n.is_a?(String) ? n : n.to_sass(opts)}.join
+      value = "(#{value})" if value_needs_parens?
+
       if name[0] == ?:
-        raise Sass::SyntaxError.new("The \"#{name}: #{self.class.val_to_sass(value, opts)}\"" +
+        raise Sass::SyntaxError.new("The \"#{name}: #{value}\"" +
                                     " hack is not allowed in the Sass indented syntax")
       end
 
+      # The indented syntax doesn't support newlines in custom property values,
+      # but we can losslessly convert them to spaces instead.
+      value = value.tr("\n", " ") if fmt == :sass
+
       old = opts[:old] && fmt == :sass
-      initial = old ? ':' : ''
-      mid = old ? '' : ':'
-      "#{initial}#{name}#{mid} #{self.class.val_to_sass(value, opts)}".rstrip
+      "#{old ? ':' : ''}#{name}#{old ? '' : ':'}#{custom_property? ? '' : ' '}#{value}".rstrip
     end
 
     # A property node is invisible if its value is empty.
     #
     # @return [Boolean]
     def invisible?
-      resolved_value.empty?
+      !custom_property? && resolved_value.empty?
     end
 
     private
+
+    # Returns whether \{#value} neesd parentheses in order to be parsed
+    # properly as division.
+    def value_needs_parens?
+      return false if custom_property?
+
+      root = value.first
+      root.is_a?(Sass::Script::Tree::Operation) &&
+        root.operator == :div &&
+        root.operand1.is_a?(Sass::Script::Tree::Literal) &&
+        root.operand1.value.is_a?(Sass::Script::Value::Number) &&
+        root.operand1.value.original.nil? &&
+        root.operand2.is_a?(Sass::Script::Tree::Literal) &&
+        root.operand2.value.is_a?(Sass::Script::Value::Number) &&
+        root.operand2.value.original.nil?
+    end
 
     def check!
       return unless @options[:property_syntax] && @options[:property_syntax] != @prop_syntax
       raise Sass::SyntaxError.new(
         "Illegal property syntax: can't use #{@prop_syntax} syntax when " +
         ":property_syntax => #{@options[:property_syntax].inspect} is set.")
-    end
-
-    class << self
-      # @private
-      def val_to_sass(value, opts)
-        val_to_sass_comma(value, opts).to_sass(opts)
-      end
-
-      private
-
-      def val_to_sass_comma(node, opts)
-        return node unless node.is_a?(Sass::Script::Tree::Operation)
-        return val_to_sass_concat(node, opts) unless node.operator == :comma
-
-        Sass::Script::Tree::Operation.new(
-          val_to_sass_concat(node.operand1, opts),
-          val_to_sass_comma(node.operand2, opts),
-          node.operator)
-      end
-
-      def val_to_sass_concat(node, opts)
-        return node unless node.is_a?(Sass::Script::Tree::Operation)
-        return val_to_sass_div(node, opts) unless node.operator == :space
-
-        Sass::Script::Tree::Operation.new(
-          val_to_sass_div(node.operand1, opts),
-          val_to_sass_concat(node.operand2, opts),
-          node.operator)
-      end
-
-      def val_to_sass_div(node, opts)
-        unless node.is_a?(Sass::Script::Tree::Operation) && node.operator == :div &&
-            node.operand1.is_a?(Sass::Script::Tree::Literal) &&
-            node.operand1.value.is_a?(Sass::Script::Value::Number) &&
-            node.operand2.is_a?(Sass::Script::Tree::Literal) &&
-            node.operand2.value.is_a?(Sass::Script::Value::Number) &&
-            (!node.operand1.value.original || !node.operand2.value.original)
-          return node
-        end
-
-        Sass::Script::Value::String.new("(#{node.to_sass(opts)})")
-      end
     end
   end
 end

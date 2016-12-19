@@ -283,6 +283,9 @@ module Sass
           next unless s1.first.is_a?(SimpleSequence) && s2.first.is_a?(SimpleSequence)
           next s2 if parent_superselector?(s1, s2)
           next s1 if parent_superselector?(s2, s1)
+          next unless must_unify?(s1, s2)
+          next unless (unified = Sequence.new(s1).unify(Sequence.new(s2)))
+          unified.members.first.members if unified.members.length == 1
         end
 
         diff = [[init]]
@@ -494,7 +497,7 @@ module Sass
         return if seq1.size > seq2.size
         return seq1.first.superselector?(seq2.last, seq2[0...-1]) if seq1.size == 1
 
-        _, si = Sass::Util.enum_with_index(seq2).find do |e, i|
+        _, si = seq2.each_with_index.find do |e, i|
           return if i == seq2.size - 1
           next if e.is_a?(String)
           seq1.first.superselector?(e, seq2[0...i])
@@ -535,6 +538,30 @@ module Sass
         base = Sass::Selector::SimpleSequence.new([Sass::Selector::Placeholder.new('<temp>')],
                                                   false)
         _superselector?(seq1 + [base], seq2 + [base])
+      end
+
+      # Returns whether two selectors must be unified to produce a valid
+      # combined selector. This is true when both selectors contain the same
+      # unique simple selector such as an id.
+      #
+      # @param seq1 [Array<SimpleSequence or String>]
+      # @param seq2 [Array<SimpleSequence or String>]
+      # @return [Boolean]
+      def must_unify?(seq1, seq2)
+        unique_selectors = seq1.map do |sseq|
+          next [] if sseq.is_a?(String)
+          sseq.members.select {|sel| sel.unique?}
+        end.flatten.to_set
+
+        return false if unique_selectors.empty?
+
+        seq2.any? do |sseq|
+          next false if sseq.is_a?(String)
+          sseq.members.any? do |sel|
+            next unless sel.unique?
+            unique_selectors.include?(sel)
+          end
+        end
       end
 
       # Removes redundant selectors from between multiple lists of
@@ -596,8 +623,6 @@ module Sass
       def _eql?(other)
         other.members.reject {|m| m == "\n"}.eql?(members.reject {|m| m == "\n"})
       end
-
-      private
 
       def path_has_two_subjects?(path)
         subject = false

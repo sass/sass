@@ -98,8 +98,28 @@ module Sass
       with_frame(filename, line, :mixin, name) {yield}
     end
 
+    # Pushes a function frame onto the stack.
+    #
+    # @param filename [String] See \{Frame#filename}.
+    # @param line [String] See \{Frame#line}.
+    # @param name [String] See \{Frame#name}.
+    # @yield [] A block in which the new frame is on the stack.
+    def with_function(filename, line, name)
+      with_frame(filename, line, :function, name) {yield}
+    end
+
+    # Pushes a function frame onto the stack.
+    #
+    # @param filename [String] See \{Frame#filename}.
+    # @param line [String] See \{Frame#line}.
+    # @param name [String] See \{Frame#name}.
+    # @yield [] A block in which the new frame is on the stack.
+    def with_directive(filename, line, name)
+      with_frame(filename, line, :directive, name) {yield}
+    end
+
     def to_s
-      Sass::Util.enum_with_index(Sass::Util.enum_cons(frames.reverse + [nil], 2)).
+      (frames.reverse + [nil]).each_cons(2).each_with_index.
           map do |(frame, caller), i|
         "#{i == 0 ? 'on' : 'from'} line #{frame.line}" +
           " of #{frame.filename || 'an unknown file'}" +

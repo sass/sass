@@ -51,8 +51,7 @@ module Sass
       raise err
     end
 
-    # Returns the original encoding of the document,
-    # or `nil` under Ruby 1.8.
+    # Returns the original encoding of the document.
     #
     # @return [Encoding, nil]
     # @raise [Encoding::UndefinedConversionError] if the source encoding

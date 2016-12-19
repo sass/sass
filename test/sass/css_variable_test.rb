@@ -3,103 +3,209 @@
 require File.dirname(__FILE__) + '/../test_helper'
 require 'sass/engine'
 
+# Most CSS variable tests are in sass-spec, but a few relate to formatting or
+# conversion and so belong here.
 class CssVariableTest < MiniTest::Test
-  def test_variable_warning_for_operators
-    resolve_with_variable_warning("1 == 2")
-    resolve_with_variable_warning("1 != 2")
-    resolve_with_variable_warning("1 < 2")
-    resolve_with_variable_warning("1 <= 2")
-    resolve_with_variable_warning("1 > 2")
-    resolve_with_variable_warning("1 >= 2")
-    resolve_with_variable_warning("1 + 1")
-    resolve_with_variable_warning("1 - 1")
-    resolve_with_variable_warning("1 * 1")
-    resolve_with_variable_warning("1 % 1")
+  def test_folded_inline_whitespace
+    assert_variable_value "foo bar baz", "foo    bar        baz"
+    assert_variable_value "foo bar", "foo \t   bar"
   end
 
-  def test_variable_warning_for_variable
-    render_with_variable_warning(<<SCSS, "$var", 3)
+  def test_folded_multiline_whitespace
+    # We don't want to reformat newlines in nested and expanded mode, so we just
+    # remove trailing whitespace before them.
+    assert_equal <<CSS, render(<<SCSS)
 .foo {
-  $var: value;
-  --var: $var;
+  --multiline: foo
+    bar; }
+CSS
+.foo {
+  --multiline: foo\s
+    bar;
+}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  --multiline: foo
+
+
+    bar; }
+CSS
+.foo {
+  --multiline: foo\s
+
+
+    bar;
+}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS, style: :expanded)
+.foo {
+  --multiline: foo
+    bar;
+}
+CSS
+.foo {
+  --multiline: foo\s
+    bar;
+}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS, style: :expanded)
+.foo {
+  --multiline: foo
+
+
+    bar;
+}
+CSS
+.foo {
+  --multiline: foo\s
+
+
+    bar;
+}
+SCSS
+
+    # In compact and compressed mode, we fold all whitespace around newlines
+    # together.
+    assert_equal <<CSS, render(<<SCSS, style: :compact)
+.foo { --multiline: foo bar; }
+CSS
+.foo {
+  --multiline: foo\s
+    bar;
+}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS, style: :compact)
+.foo { --multiline: foo bar; }
+CSS
+.foo {
+  --multiline: foo\s
+
+
+    bar;
+}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS, style: :compressed)
+.foo{--multiline: foo bar}
+CSS
+.foo {
+  --multiline: foo\s
+    bar;
+}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS, style: :compressed)
+.foo{--multiline: foo bar}
+CSS
+.foo {
+  --multiline: foo\s
+
+
+    bar;
 }
 SCSS
   end
 
-  def test_variable_warning_for_core_function
-    resolve_with_variable_warning("alpha(#abc)")
-  end
+  # Conversion.
 
-  def test_variable_warning_for_sass_function
-    render_with_variable_warning(<<SCSS, "my-fn()", 2)
-@function my-fn() {@return null}
-.foo {--var: my-fn()}
+  def test_static_values_convert
+    assert_converts <<SASS, <<SCSS
+.foo
+  --bar: baz
+SASS
+.foo {
+  --bar: baz;
+}
+SCSS
+
+    assert_converts <<SASS, <<SCSS
+.foo
+  --bar: [({{([!;])}})]
+SASS
+.foo {
+  --bar: [({{([!;])}})];
+}
+SCSS
+
+    assert_converts <<SASS, <<SCSS
+.foo
+  --bar: {a: b; c: d}
+SASS
+.foo {
+  --bar: {a: b; c: d};
+}
 SCSS
   end
 
-  def test_variable_warning_for_parens
-    resolve_with_variable_warning("(foo)", "foo")
-    resolve_with_variable_warning("(foo,)")
-  end
-
-  def test_variable_warning_for_selector
-    resolve_with_variable_warning("&")
-  end
-
-  def test_variable_warning_for_nested_properties
-    assert_warning(<<WARNING) {render(<<SCSS)}
-DEPRECATION WARNING on line 2 of #{filename_for_test :scss}:
-Sass 3.6 will change the way CSS variables are parsed. Instead of being parsed as
-normal properties, they will not allow any Sass-specific behavior other than \#{}.
-WARNING
+  def test_dynamic_values_convert
+    assert_converts <<SASS, <<SCSS
+.foo
+  --bar: baz \#{bang} qux
+SASS
 .foo {
-  --var: {
+  --bar: baz \#{bang} qux;
+}
+SCSS
+
+    assert_converts <<SASS, <<SCSS
+.foo
+  --bar: "baz \#{bang} qux"
+SASS
+.foo {
+  --bar: "baz \#{bang} qux";
+}
+SCSS
+  end
+
+  def test_multiline_value_converts
+    assert_scss_to_scss <<SCSS
+.foo {
+  --bar: {
     a: b;
-  }
+    c: d;
+  };
 }
 SCSS
-  end
 
-  def test_no_warning
-    assert_no_variable_warning("foo")
-    assert_no_variable_warning("true")
-    assert_no_variable_warning("1, 2")
-    assert_no_variable_warning("1 2")
-    assert_no_variable_warning("1 / 2")
-    assert_no_variable_warning("foo / bar")
-    assert_no_variable_warning("asdf(foo)")
-    assert_no_variable_warning("calc(1 + 1)")
-    assert_no_variable_warning("asdf(foo=2)")
-  end
-
-  def test_no_warning_within_interpolation
-    assert_no_variable_warning('#{1 + 1}')
-    assert_no_variable_warning('#{alpha(#abc)}')
+    assert_scss_to_sass <<SASS, <<SCSS
+.foo
+  --bar: {     a: b;     c: d;   }
+SASS
+.foo {
+  --bar: {
+    a: b;
+    c: d;
+  };
+}
+SCSS
   end
 
   private
 
-  def assert_no_variable_warning(str)
-    assert_no_warning {render("a {--var: #{str}}")}
-    assert_no_warning {render("a\n  --var: #{str}", :syntax => :sass)}
+  def assert_variable_value(expected, source)
+    expected = <<CSS
+x {
+  --variable: #{expected}; }
+CSS
+
+    assert_equal expected, render_variable(source)
+    assert_equal expected, render_variable(source, syntax: :sass)
   end
 
-  def resolve_with_variable_warning(str, expression = nil)
-    render_with_variable_warning("a {--var: #{str}}", expression || str, 1)
-    render_with_variable_warning(
-      "a\n  --var: #{str}", expression || str, 2, :syntax => :sass)
-  end
-
-  def render_with_variable_warning(sass, expression, line, opts = {})
-    opts[:syntax] ||= :scss
-    assert_warning(<<WARNING) {render(sass, opts)}
-DEPRECATION WARNING on line #{line} of #{filename_for_test(opts[:syntax])}:
-Sass 3.6 will change the way CSS variables are parsed. Instead of being parsed as
-normal properties, they will not allow any Sass-specific behavior other than \#{}.
-For forwards-compatibility, use \#{}:
-
-  --variable: \#{#{expression}};
-WARNING
+  def render_variable(source, syntax: :scss)
+    render(syntax == :scss ? <<SCSS : <<SASS, :syntax => syntax)
+x {
+  --variable: #{source};
+}
+SCSS
+x
+  --variable: #{source}
+SASS
   end
 
   def render(sass, options = {})

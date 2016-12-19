@@ -49,26 +49,13 @@ baz {bar: baz}
 SCSS
   end
 
-  if Sass::Util.ruby1_8?
-    def test_unicode
-      assert_parses <<SCSS
+  def test_unicode
+    assert_parses <<SCSS
 @charset "UTF-8";
 foo {
   bar: föö bâr; }
 SCSS
-      assert_parses <<SCSS
-foo {
-  bar: föö bâr; }
-SCSS
-    end
-  else
-    def test_unicode
-      assert_parses <<SCSS
-@charset "UTF-8";
-foo {
-  bar: föö bâr; }
-SCSS
-      assert_equal <<CSS, render(<<SCSS)
+    assert_equal <<CSS, render(<<SCSS)
 @charset "UTF-8";
 foo {
   bar: föö bâr; }
@@ -76,7 +63,6 @@ CSS
 foo {
   bar: föö bâr; }
 SCSS
-    end
   end
 
   def test_invisible_comments

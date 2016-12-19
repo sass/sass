@@ -146,8 +146,8 @@ module Sass
           Sass::Script::Value::List.new(seq.members.map do |component|
             next if component == "\n"
             Sass::Script::Value::String.new(component.to_s)
-          end.compact, :space)
-        end, :comma)
+          end.compact, separator: :space)
+        end, separator: :comma)
       end
 
       # Returns a string representation of the sequence.

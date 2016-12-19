@@ -3,6 +3,48 @@
 * Table of contents
 {:toc}
 
+## 3.5.0
+
+* Combine ids and `:root` when unifying selectors with `@extend` and selector
+  functions.
+
+* Add a `$weight` parameter to `invert()`.
+
+* The last argument in an argument list can now have a trailing comma.
+
+* Adds support for CSS's grid template areas and named lines. We support
+  this syntax through a new type of list called a "bracketed list".
+  Bracketed lists can be created by wrapping a list with square brackets.
+  For example: `[this is bracketed]` and `[this, is, also, bracketed]`.
+  Bracketed lists will output their square brackets when used as a CSS
+  value. Bracketed lists may be either space-separated or comma-separated.
+  The `is-bracketed()` function, when passed a list will return a boolean
+  indicating whether that list will output with brackets. The `join()`
+  function now accepts a `$bracketed` parameter that controls whether the
+  returned list has brackets.
+
+* A new function `content-exists()` will return true when called within
+  a mixin that was passed content for use by the `@content` directive.
+
+* Passing a string to `call($function-name, $args...)` indicating which
+  function to invoke is now deprecated. Instead pass a function reference
+  returned from `get-function($function-name)`.  This allows function name
+  resolution to be performed in the correct lexical context and then
+  invoked in a different context. This is required so that the
+  module-based resolver in Sass 4.0 will invoke the correct function when
+  calling across module boundaries. Developers of frameworks that use
+  `call` should not do the function lookup for callers of their framework;
+  this is likely to result in a situation where the framework cannot
+  resolve the function in 4.0.
+
+### Backwards Incompatibilities -- Must Read!
+
+* The way [CSS variables][] are handled has changed to better correspond to the
+  CSS spec. They no longer allow arbitrary SassScript in their values; instead,
+  almost all text in the property values will be passed through unchanged to
+  CSS. The only exception is `#{}`, which will inject a SassScript value as
+  before.
+
 ## 3.4.23 (UNRELEASED)
 
 * The Sass logger is now instantiated on a per-thread/per-fiber basis

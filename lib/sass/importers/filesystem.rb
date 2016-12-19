@@ -67,7 +67,7 @@ module Sass
       end
 
       def public_url(name, sourcemap_directory)
-        file_pathname = Sass::Util.cleanpath(Sass::Util.absolute_path(name, @root))
+        file_pathname = Sass::Util.cleanpath(File.absolute_path(name, @root))
         return Sass::Util.file_uri_from_path(file_pathname) if sourcemap_directory.nil?
 
         sourcemap_pathname = Sass::Util.cleanpath(sourcemap_directory)
@@ -133,7 +133,7 @@ module Sass
 
       REDUNDANT_DIRECTORY = /#{Regexp.escape(File::SEPARATOR)}\.#{Regexp.escape(File::SEPARATOR)}/
       # Given a base directory and an `@import`ed name,
-      # finds an existant file that matches the name.
+      # finds an existent file that matches the name.
       #
       # @param dir [String] The directory relative to which to search.
       # @param name [String] The filename to search for.

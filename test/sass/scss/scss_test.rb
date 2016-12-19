@@ -3387,22 +3387,22 @@ SCSS
   def test_uses_property_exception_with_star_hack
     render <<SCSS
 foo {
-  *bar:baz [fail]; }
+  *bar:baz <fail>; }
 SCSS
     assert(false, "Expected syntax error")
   rescue Sass::SyntaxError => e
-    assert_equal 'Invalid CSS after "  *bar:baz ": expected ";", was "[fail]; }"', e.message
+    assert_equal 'Invalid CSS after "  *bar:baz <fail>": expected expression (e.g. 1px, bold), was "; }"', e.message
     assert_equal 2, e.sass_line
   end
 
   def test_uses_property_exception_with_colon_hack
     render <<SCSS
 foo {
-  :bar:baz [fail]; }
+  :bar:baz <fail>; }
 SCSS
     assert(false, "Expected syntax error")
   rescue Sass::SyntaxError => e
-    assert_equal 'Invalid CSS after "  :bar:baz ": expected ";", was "[fail]; }"', e.message
+    assert_equal 'Invalid CSS after "  :bar:baz <fail>": expected expression (e.g. 1px, bold), was "; }"', e.message
     assert_equal 2, e.sass_line
   end
 
@@ -3420,22 +3420,22 @@ SCSS
   def test_uses_property_exception_with_space_after_name
     render <<SCSS
 foo {
-  bar: baz [fail]; }
+  bar: baz <fail>; }
 SCSS
     assert(false, "Expected syntax error")
   rescue Sass::SyntaxError => e
-    assert_equal 'Invalid CSS after "  bar: baz ": expected ";", was "[fail]; }"', e.message
+    assert_equal 'Invalid CSS after "  bar: baz <fail>": expected expression (e.g. 1px, bold), was "; }"', e.message
     assert_equal 2, e.sass_line
   end
 
   def test_uses_property_exception_with_non_identifier_after_name
     render <<SCSS
 foo {
-  bar:1px [fail]; }
+  bar:1px <fail>; }
 SCSS
     assert(false, "Expected syntax error")
   rescue Sass::SyntaxError => e
-    assert_equal 'Invalid CSS after "  bar:1px ": expected ";", was "[fail]; }"', e.message
+    assert_equal 'Invalid CSS after "  bar:1px <fail>": expected expression (e.g. 1px, bold), was "; }"', e.message
     assert_equal 2, e.sass_line
   end
 
@@ -3927,12 +3927,13 @@ a.\#{"foo"} b
 SCSS
   end
 
-  def test_extra_comma_in_mixin_arglist_error
-    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
-Invalid CSS after "...clude foo(bar, ": expected mixin argument, was ");"
-MESSAGE
-@mixin foo($a1, $a2) {
-  baz: $a1 $a2;
+  def test_extra_comma_in_mixin_arglist
+    assert_equal <<CSS, render(<<SCSS)
+.bar {
+  baz: bar; }
+CSS
+@mixin foo($a1,) {
+  baz: $a1;
 }
 
 .bar {
@@ -3940,6 +3941,39 @@ MESSAGE
 }
 SCSS
   end
+
+
+  def test_extra_comma_between_parameters_in_mixin_arglist
+    assert_raise_message(Sass::SyntaxError, "Invalid CSS after \"...nclude foo(bar,\": expected \")\", was \", baz );\"") {render <<SCSS}
+@mixin foo($a1, $a2) {
+  baz: $a1;
+  bef: $a2;
+}
+
+.bar {
+  @include foo(bar,, baz );
+}
+SCSS
+  end
+
+
+  def test_extra_comma_in_mixin_arglist_ending_needs_have_parentheses_after
+    assert_raise_message(Sass::SyntaxError, "Invalid CSS after \"    bri,\": expected \")\", was \"};\"") {render <<SCSS}
+@mixin foo($a1, $a2) {
+  baz: $a1;
+  bal: $a2;
+}
+
+.bar {
+  @include foo(
+    bar,
+    bri,
+  };
+}
+SCSS
+  end
+
+
 
   def test_interpolation
     assert_equal <<CSS, render(<<SCSS)
