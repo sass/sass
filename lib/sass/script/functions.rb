@@ -1594,7 +1594,7 @@ MESSAGE
       s = string.value.length + s if s < 0
       s = 0 if s < 0
       e = string.value.length + e if e < 0
-      e = 0 if e < 0
+      return Sass::Script::Value::String.new("", string.type) if e < 0
       extracted = string.value.slice(s..e)
       Sass::Script::Value::String.new(extracted || "", string.type)
     end
