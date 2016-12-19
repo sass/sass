@@ -1321,7 +1321,7 @@ module Sass::Script
     #   @param $color1 [Sass::Script::Value::Color]
     #   @param $color2 [Sass::Script::Value::Color]
     #   @param $weight [Sass::Script::Value::Number] The relative weight of each
-    #     color. Closer to `0%` gives more weight to `$color1`, closer to `100%`
+    #     color. Closer to `100%` gives more weight to `$color1`, closer to `0%`
     #     gives more weight to `$color2`
     # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if `$weight` is out of bounds or any parameter is
@@ -1569,7 +1569,7 @@ MESSAGE
     #   @param $start-at [Sass::Script::Value::Number] The index of the first
     #     character of the substring. If this is negative, it counts from the end
     #     of `$string`
-    #   @param $end-before [Sass::Script::Value::Number] The index of the last
+    #   @param $end-at [Sass::Script::Value::Number] The index of the last
     #     character of the substring. If this is negative, it counts from the end
     #     of `$string`. Defaults to -1
     #   @return [Sass::Script::Value::String] The substring. This will be quoted
@@ -1588,7 +1588,7 @@ MESSAGE
       s = string.value.length + s if s < 0
       s = 0 if s < 0
       e = string.value.length + e if e < 0
-      e = 0 if s < 0
+      e = 0 if e < 0
       extracted = string.value.slice(s..e)
       Sass::Script::Value::String.new(extracted || "", string.type)
     end

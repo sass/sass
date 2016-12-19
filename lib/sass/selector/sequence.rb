@@ -624,8 +624,6 @@ module Sass
         other.members.reject {|m| m == "\n"}.eql?(members.reject {|m| m == "\n"})
       end
 
-      private
-
       def path_has_two_subjects?(path)
         subject = false
         path.each do |sseq_or_op|

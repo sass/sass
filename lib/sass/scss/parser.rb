@@ -864,6 +864,9 @@ module Sass
             (?!url\()
             [^"'/\#!;\{\}] # "
           |
+            # interp_uri will handle most url() calls, but not ones that take strings
+            url\(#{W}(?=")
+          |
             /(?![/*])
           |
             \#(?!\{)
