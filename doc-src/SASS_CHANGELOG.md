@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.4.23 (UNRELEASED)
+## 3.4.23 (19 December 2016)
 
 * The Sass logger is now instantiated on a per-thread/per-fiber basis
   and can now be configured to output to any IO object. This can help
