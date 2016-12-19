@@ -32,7 +32,9 @@ For more details, see [this blog post][interp-blog] and
 
 * The last argument in an argument list can now have a trailing comma.
 
-* Adds support for CSS's grid template areas and named lines. We support
+* Allow `var()` to be passed to `rgb()`, `rgba()`, `hsl()`, and `hsla()`.
+
+* Add support for CSS's grid template areas and named lines. We support
   this syntax through a new type of list called a "bracketed list".
   Bracketed lists can be created by wrapping a list with square brackets.
   For example: `[this is bracketed]` and `[this, is, also, bracketed]`.
