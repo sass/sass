@@ -205,12 +205,23 @@ module Sass::Script::Value
       raise ArgumentError.new(err)
     end
 
-    # Returns true when the literal is a string containing a calc()
+    # Returns true when the literal is a string containing a calc().
+    #
+    # Use \{#special_number?} in preference to this.
     #
     # @param literal [Sass::Script::Value::Base] The value to check
-    # @return boolean
+    # @return Boolean
     def calc?(literal)
       literal.is_a?(Sass::Script::Value::String) && literal.value =~ /calc\(/
+    end
+
+    # Returns whether the literal is a special CSS value that may evaluate to a
+    # number, such as `calc()` or `var()`.
+    #
+    # @param literal [Sass::Script::Value::Base] The value to check
+    # @return Boolean
+    def special_number?(literal)
+      literal.is_a?(Sass::Script::Value::String) && literal.value =~ /(calc|var)\(/
     end
 
     private
