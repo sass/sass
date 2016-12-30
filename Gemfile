@@ -19,6 +19,11 @@ unless RUBY_VERSION =~ /^1\.8/
   end
 end
 
+# A dependency of Rubocop. Later versions of this gem break on Ruby 1.9.2.
+if RUBY_VERSION == '1.9.2'
+  gem 'rainbow', '= 2.1.0'
+end
+
 if RUBY_VERSION =~ /^1\.8/
   gem 'listen', '~> 1.1.0'
 elsif RUBY_VERSION =~ /^1\.9\.[012]$/
