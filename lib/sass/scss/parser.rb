@@ -1022,7 +1022,7 @@ WARNING
       end
 
       def str
-        @strs.push ""
+        @strs.push String.new("")
         yield
         @strs.last
       ensure
