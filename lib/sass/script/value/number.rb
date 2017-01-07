@@ -306,7 +306,7 @@ module Sass::Script::Value
     end
     alias_method :to_sass, :inspect
 
-    # @return [Fixnum] The integer value of the number
+    # @return [Integer] The integer value of the number
     # @raise [Sass::SyntaxError] if the number isn't an integer
     def to_i
       super unless int?

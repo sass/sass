@@ -431,8 +431,8 @@ module Sass::Script
     # If no signatures match, the first signature is returned for error messaging.
     #
     # @param method_name [Symbol] The name of the Ruby function to be called.
-    # @param arg_arity [Fixnum] The number of unnamed arguments the function was passed.
-    # @param kwarg_arity [Fixnum] The number of keyword arguments the function was passed.
+    # @param arg_arity [Integer] The number of unnamed arguments the function was passed.
+    # @param kwarg_arity [Integer] The number of keyword arguments the function was passed.
     #
     # @return [{Symbol => Object}, nil]
     #   The signature options for the matching signature,

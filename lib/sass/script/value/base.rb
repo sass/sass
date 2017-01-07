@@ -149,7 +149,7 @@ MSG
     # Returns the hash code of this value. Two objects' hash codes should be
     # equal if the objects are equal.
     #
-    # @return [Fixnum] The hash code.
+    # @return [Integer for Ruby 2.4.0+, Fixnum for earlier Ruby versions] The hash code.
     def hash
       value.hash
     end
@@ -176,7 +176,7 @@ MSG
       eq(other).to_bool
     end
 
-    # @return [Fixnum] The integer value of this value
+    # @return [Integer] The integer value of this value
     # @raise [Sass::SyntaxError] if this value isn't an integer
     def to_i
       raise Sass::SyntaxError.new("#{inspect} is not an integer.")

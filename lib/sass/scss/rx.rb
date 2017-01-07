@@ -40,7 +40,7 @@ module Sass
       # escaping all significant characters.
       #
       # @param str [String] The text of the regexp
-      # @param flags [Fixnum] Flags for the created regular expression
+      # @param flags [Integer] Flags for the created regular expression
       # @return [Regexp]
       # @private
       def self.quote(str, flags = 0)

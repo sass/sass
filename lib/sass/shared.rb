@@ -31,7 +31,7 @@ module Sass
     #   A `Fixnum` in 1.8, a `String` in 1.9
     # @param finish [Character] The character closing the balanced pair.
     #   A `Fixnum` in 1.8, a `String` in 1.9
-    # @param count [Fixnum] The number of opening characters matched
+    # @param count [Integer] The number of opening characters matched
     #   before calling this method
     # @return [(String, String)] The string matched within the balanced pair
     #   and the rest of the string.

@@ -5,7 +5,7 @@ module Sass
     class Simple
       # The line of the Sass template on which this selector was declared.
       #
-      # @return [Fixnum]
+      # @return [Integer]
       attr_accessor :line
 
       # The name of the file in which this selector was declared,
@@ -36,7 +36,7 @@ module Sass
       # so if that contains information irrelevant to the identity of the selector,
       # this should be overridden.
       #
-      # @return [Fixnum]
+      # @return [Integer]
       def hash
         @_hash ||= equality_key.hash
       end

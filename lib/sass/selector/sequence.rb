@@ -6,8 +6,8 @@ module Sass
       # Sets the line of the Sass template on which this selector was declared.
       # This also sets the line for all child selectors.
       #
-      # @param line [Fixnum]
-      # @return [Fixnum]
+      # @param line [Integer]
+      # @return [Integer]
       def line=(line)
         members.each {|m| m.line = line if m.is_a?(SimpleSequence)}
         @line = line

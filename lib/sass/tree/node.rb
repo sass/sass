@@ -69,7 +69,7 @@ module Sass
 
       # The line of the document on which this node appeared.
       #
-      # @return [Fixnum]
+      # @return [Integer]
       attr_accessor :line
 
       # The source range in the document on which this node appeared.

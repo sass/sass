@@ -94,13 +94,13 @@ module Sass
     # `text`: `String`
     # : The text in the line, without any whitespace at the beginning or end.
     #
-    # `tabs`: `Fixnum`
+    # `tabs`: `Integer`
     # : The level of indentation of the line.
     #
-    # `index`: `Fixnum`
+    # `index`: `Integer`
     # : The line number in the original document.
     #
-    # `offset`: `Fixnum`
+    # `offset`: `Integer`
     # : The number of bytes in on the line that the text begins.
     #   This ends up being the number of bytes of leading whitespace.
     #
