@@ -8,7 +8,7 @@ module Sass
   # if it was installed from Git.
   module Version
     # Returns a hash representing the version of Sass.
-    # The `:major`, `:minor`, and `:teeny` keys have their respective numbers as Fixnums.
+    # The `:major`, `:minor`, and `:teeny` keys have their respective numbers as Integers.
     # The `:name` key has the name of the version.
     # The `:string` key contains a human-readable string representation of the version.
     # The `:number` key is the major, minor, and teeny keys separated by periods.
@@ -41,7 +41,7 @@ module Sass
     #       :prerelease_number => 1
     #     }
     #
-    # @return [{Symbol => String/Fixnum}] The version hash
+    # @return [{Symbol => String/Integer}] The version hash
     # @comment
     #   rubocop:disable ClassVars
     def version

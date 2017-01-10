@@ -39,7 +39,7 @@ module Sass::Tree
     # * This is a child property of another property
     # * The parent property has a value, and thus will be rendered
     #
-    # @return [Fixnum]
+    # @return [Integer]
     attr_accessor :tabs
 
     # The source range in which the property name appears.

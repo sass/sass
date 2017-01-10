@@ -418,7 +418,7 @@ module Sass
     # Returns information about the caller of the previous method.
     #
     # @param entry [String] An entry in the `#caller` list, or a similarly formatted string
-    # @return [[String, Fixnum, (String, nil)]]
+    # @return [[String, Integer, (String, nil)]]
     #   An array containing the filename, line, and method name of the caller.
     #   The method name may be nil
     def caller_info(entry = nil)
@@ -636,7 +636,7 @@ module Sass
 
     # Returns an array of ints representing the JRuby version number.
     #
-    # @return [Array<Fixnum>]
+    # @return [Array<Integer>]
     def jruby_version
       @jruby_version ||= ::JRUBY_VERSION.split(".").map {|s| s.to_i}
     end
@@ -941,7 +941,7 @@ module Sass
     # A version of `Enumerable#enum_cons` that works in Ruby 1.8 and 1.9.
     #
     # @param enum [Enumerable] The enumerable to get the enumerator for
-    # @param n [Fixnum] The size of each cons
+    # @param n [Integer] The size of each cons
     # @return [Enumerator] The consed enumerator
     def enum_cons(enum, n)
       ruby1_8? ? enum.enum_cons(n) : enum.each_cons(n)
@@ -950,7 +950,7 @@ module Sass
     # A version of `Enumerable#enum_slice` that works in Ruby 1.8 and 1.9.
     #
     # @param enum [Enumerable] The enumerable to get the enumerator for
-    # @param n [Fixnum] The size of each slice
+    # @param n [Integer] The size of each slice
     # @return [Enumerator] The consed enumerator
     def enum_slice(enum, n)
       ruby1_8? ? enum.enum_slice(n) : enum.each_slice(n)
@@ -977,7 +977,7 @@ module Sass
     # Returns the ASCII code of the given character.
     #
     # @param c [String] All characters but the first are ignored.
-    # @return [Fixnum] The ASCII code of `c`.
+    # @return [Integer] The ASCII code of `c`.
     def ord(c)
       ruby1_8? ? c[0] : c.ord
     end
@@ -1102,11 +1102,11 @@ module Sass
 
     # Converts the argument into a valid JSON value.
     #
-    # @param v [Fixnum, String, Array, Boolean, nil]
+    # @param v [Integer, String, Array, Boolean, nil]
     # @return [String]
     def json_value_of(v)
       case v
-      when Fixnum
+      when Integer
         v.to_s
       when String
         "\"" + json_escape_string(v) + "\""
@@ -1139,7 +1139,7 @@ module Sass
 
     # Encodes `value` as VLQ (http://en.wikipedia.org/wiki/VLQ).
     #
-    # @param value [Fixnum]
+    # @param value [Integer]
     # @return [String] The encoded value
     def encode_vlq(value)
       if value < 0

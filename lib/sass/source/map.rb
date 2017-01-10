@@ -37,7 +37,7 @@ module Sass::Source
 
     # Shifts all output source ranges forward one or more lines.
     #
-    # @param delta [Fixnum] The number of lines to shift the ranges forward.
+    # @param delta [Integer] The number of lines to shift the ranges forward.
     def shift_output_lines(delta)
       return if delta == 0
       @data.each do |m|
@@ -49,7 +49,7 @@ module Sass::Source
     # Shifts any output source ranges that lie on the first line forward one or
     # more characters on that line.
     #
-    # @param delta [Fixnum] The number of characters to shift the ranges
+    # @param delta [Integer] The number of characters to shift the ranges
     #   forward.
     def shift_output_offsets(delta)
       return if delta == 0

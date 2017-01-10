@@ -8,22 +8,22 @@ module Sass
     class Parser
       # The line number of the parser's current position.
       #
-      # @return [Fixnum]
+      # @return [Integer]
       def line
         @lexer.line
       end
 
       # The column number of the parser's current position.
       #
-      # @return [Fixnum]
+      # @return [Integer]
       def offset
         @lexer.offset
       end
 
       # @param str [String, StringScanner] The source text to parse
-      # @param line [Fixnum] The line on which the SassScript appears.
+      # @param line [Integer] The line on which the SassScript appears.
       #   Used for error reporting and sourcemap building
-      # @param offset [Fixnum] The character (not byte) offset where the script starts in the line.
+      # @param offset [Integer] The character (not byte) offset where the script starts in the line.
       #   Used for error reporting and sourcemap building
       # @param options [{Symbol => Object}] An options hash; see
       #   {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
