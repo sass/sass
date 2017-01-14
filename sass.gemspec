@@ -19,8 +19,8 @@ SASS_GEMSPEC = Gem::Specification.new do |spec|
     END
 
   spec.required_ruby_version = '>= 1.8.7'
-  spec.add_development_dependency 'yard', '>= 0.5.3'
-  spec.add_development_dependency 'maruku', '>= 0.5.9'
+  spec.add_development_dependency 'yard', '>= 0.9.8'
+  spec.add_development_dependency 'redcarpet', '~> 2.3.0'
   spec.add_development_dependency 'minitest', '>= 5'
 
   readmes = Dir['*'].reject{ |x| x =~ /(^|[^.a-z])[a-z]+/ || x == "TODO" }
