@@ -1,6 +1,6 @@
 --readme          README.md
 --markup          markdown
---markup-provider maruku
+--markup-provider redcarpet
 --default-return  ""
 --title           "Sass Documentation"
 --query           'object.type != :classvariable'
