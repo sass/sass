@@ -167,42 +167,52 @@ SCSS
   end
 
   def test_universal_unification_with_namespaceless_universal_target
+    assert_extend_doesnt_match('ns|*', '.foo', :failed_to_unify, 2) do
+      render_unification '*.foo', 'ns|* {@extend .foo}'
+    end
+
     assert_unification '*.foo', '* {@extend .foo}', '*'
     assert_unification '*.foo', '*|* {@extend .foo}', '*'
     assert_unification '*|*.foo', '* {@extend .foo}', '*|*.foo, *'
     assert_unification '*|*.foo', '*|* {@extend .foo}', '*|*'
-    assert_unification '*.foo', 'ns|* {@extend .foo}', '*.foo, ns|*'
     assert_unification '*|*.foo', 'ns|* {@extend .foo}', '*|*.foo, ns|*'
   end
 
   def test_universal_unification_with_namespaced_universal_target
-    assert_unification 'ns|*.foo', '* {@extend .foo}', 'ns|*'
-    assert_unification 'ns|*.foo', '*|* {@extend .foo}', 'ns|*'
+    assert_extend_doesnt_match('*', '.foo', :failed_to_unify, 2) do
+      render_unification 'ns|*.foo', '* {@extend .foo}'
+    end
 
     assert_extend_doesnt_match('ns2|*', '.foo', :failed_to_unify, 2) do
       render_unification 'ns1|*.foo', 'ns2|* {@extend .foo}'
     end
 
+    assert_unification 'ns|*.foo', '*|* {@extend .foo}', 'ns|*'
     assert_unification 'ns|*.foo', 'ns|* {@extend .foo}', 'ns|*'
   end
 
   def test_universal_unification_with_namespaceless_element_target
+    assert_extend_doesnt_match('ns|*', '.foo', :failed_to_unify, 2) do
+      render_unification 'a.foo', 'ns|* {@extend .foo}'
+    end
+
     assert_unification 'a.foo', '* {@extend .foo}', 'a'
     assert_unification 'a.foo', '*|* {@extend .foo}', 'a'
     assert_unification '*|a.foo', '* {@extend .foo}', '*|a.foo, a'
     assert_unification '*|a.foo', '*|* {@extend .foo}', '*|a'
-    assert_unification 'a.foo', 'ns|* {@extend .foo}', 'a.foo, ns|a'
     assert_unification '*|a.foo', 'ns|* {@extend .foo}', '*|a.foo, ns|a'
   end
 
   def test_universal_unification_with_namespaced_element_target
-    assert_unification 'ns|a.foo', '* {@extend .foo}', 'ns|a'
-    assert_unification 'ns|a.foo', '*|* {@extend .foo}', 'ns|a'
+    assert_extend_doesnt_match('*', '.foo', :failed_to_unify, 2) do
+      render_unification 'ns|a.foo', '* {@extend .foo}'
+    end
 
     assert_extend_doesnt_match('ns2|*', '.foo', :failed_to_unify, 2) do
       render_unification 'ns1|a.foo', 'ns2|* {@extend .foo}'
     end
 
+    assert_unification 'ns|a.foo', '*|* {@extend .foo}', 'ns|a'
     assert_unification 'ns|a.foo', 'ns|* {@extend .foo}', 'ns|a'
   end
 
@@ -214,46 +224,56 @@ SCSS
   end
 
   def test_element_unification_with_namespaceless_universal_target
+    assert_extend_doesnt_match('ns|a', '.foo', :failed_to_unify, 2) do
+      render_unification '*.foo', 'ns|a {@extend .foo}'
+    end
+
     assert_unification '*.foo', 'a {@extend .foo}', '*.foo, a'
     assert_unification '*.foo', '*|a {@extend .foo}', '*.foo, a'
     assert_unification '*|*.foo', 'a {@extend .foo}', '*|*.foo, a'
     assert_unification '*|*.foo', '*|a {@extend .foo}', '*|*.foo, *|a'
-    assert_unification '*.foo', 'ns|a {@extend .foo}', '*.foo, ns|a'
     assert_unification '*|*.foo', 'ns|a {@extend .foo}', '*|*.foo, ns|a'
   end
 
   def test_element_unification_with_namespaced_universal_target
-    assert_unification 'ns|*.foo', 'a {@extend .foo}', 'ns|*.foo, ns|a'
-    assert_unification 'ns|*.foo', '*|a {@extend .foo}', 'ns|*.foo, ns|a'
+    assert_extend_doesnt_match('a', '.foo', :failed_to_unify, 2) do
+      render_unification 'ns|*.foo', 'a {@extend .foo}'
+    end
 
     assert_extend_doesnt_match('ns2|a', '.foo', :failed_to_unify, 2) do
       render_unification 'ns1|*.foo', 'ns2|a {@extend .foo}'
     end
 
+    assert_unification 'ns|*.foo', '*|a {@extend .foo}', 'ns|*.foo, ns|a'
     assert_unification 'ns|*.foo', 'ns|a {@extend .foo}', 'ns|*.foo, ns|a'
   end
 
   def test_element_unification_with_namespaceless_element_target
-    assert_unification 'a.foo', 'a {@extend .foo}', 'a'
-    assert_unification 'a.foo', '*|a {@extend .foo}', 'a'
-    assert_unification '*|a.foo', 'a {@extend .foo}', '*|a.foo, a'
-    assert_unification '*|a.foo', '*|a {@extend .foo}', '*|a'
-    assert_unification 'a.foo', 'ns|a {@extend .foo}', 'a.foo, ns|a'
-    assert_unification '*|a.foo', 'ns|a {@extend .foo}', '*|a.foo, ns|a'
+    assert_extend_doesnt_match('ns|a', '.foo', :failed_to_unify, 2) do
+      render_unification 'a.foo', 'ns|a {@extend .foo}'
+    end
 
     assert_extend_doesnt_match('h1', '.foo', :failed_to_unify, 2) do
       render_unification 'a.foo', 'h1 {@extend .foo}'
     end
+
+    assert_unification 'a.foo', 'a {@extend .foo}', 'a'
+    assert_unification 'a.foo', '*|a {@extend .foo}', 'a'
+    assert_unification '*|a.foo', 'a {@extend .foo}', '*|a.foo, a'
+    assert_unification '*|a.foo', '*|a {@extend .foo}', '*|a'
+    assert_unification '*|a.foo', 'ns|a {@extend .foo}', '*|a.foo, ns|a'
   end
 
   def test_element_unification_with_namespaced_element_target
-    assert_unification 'ns|a.foo', 'a {@extend .foo}', 'ns|a'
-    assert_unification 'ns|a.foo', '*|a {@extend .foo}', 'ns|a'
+    assert_extend_doesnt_match('a', '.foo', :failed_to_unify, 2) do
+      render_unification 'ns|a.foo', 'a {@extend .foo}'
+    end
 
     assert_extend_doesnt_match('ns2|a', '.foo', :failed_to_unify, 2) do
       render_unification 'ns1|a.foo', 'ns2|a {@extend .foo}'
     end
 
+    assert_unification 'ns|a.foo', '*|a {@extend .foo}', 'ns|a'
     assert_unification 'ns|a.foo', 'ns|a {@extend .foo}', 'ns|a'
   end
 
@@ -567,7 +587,7 @@ SCSS
   end
 
   def test_long_extendee_runs_unification
-    assert_extends 'ns|*.foo.bar', 'a.baz {@extend .foo.bar}', 'ns|*.foo.bar, ns|a.baz'
+    assert_extends 'ns|*.foo.bar', '*|a.baz {@extend .foo.bar}', 'ns|*.foo.bar, ns|a.baz'
   end
 
   ## Long Extenders
@@ -577,7 +597,7 @@ SCSS
   end
 
   def test_long_extender_runs_unification
-    assert_extends 'ns|*.foo.bar', 'a.baz {@extend .foo}', 'ns|*.foo.bar, ns|a.bar.baz'
+    assert_extends 'ns|*.foo.bar', '*|a.baz {@extend .foo}', 'ns|*.foo.bar, ns|a.bar.baz'
   end
 
   def test_long_extender_aborts_unification
