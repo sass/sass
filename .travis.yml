@@ -17,8 +17,6 @@ rvm:
   - 2.1.7
   - 2.2.3
   - 2.3.0
-  - jruby-9.0.0.0
-  - rbx-2.2.7
 gemfile: Gemfile
 env:
   - MATHN=true RUBOCOP=false
@@ -32,9 +30,6 @@ branches:
 notifications:
   irc: {channels: "irc.freenode.org#sass"}
 matrix:
-  allow_failures:
-    - rvm: rbx-2.2.7
-    - rvm: jruby-9.0.0.0
   include:
     - rvm: 2.2.3
       env: MATHN=true RUBOCOP=true
