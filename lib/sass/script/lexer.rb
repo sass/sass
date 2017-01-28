@@ -19,13 +19,13 @@ module Sass
       # `source_range`: \[`Sass::Source::Range`\]
       # : The range in the source file in which the token appeared.
       #
-      # `pos`: \[`Fixnum`\]
+      # `pos`: \[`Integer`\]
       # : The scanner position at which the SassScript token appeared.
       Token = Struct.new(:type, :value, :source_range, :pos)
 
       # The line number of the lexer's current position.
       #
-      # @return [Fixnum]
+      # @return [Integer]
       def line
         return @line unless @tok
         @tok.source_range.start_pos.line
@@ -34,7 +34,7 @@ module Sass
       # The number of bytes into the current line
       # of the lexer's current position (1-based).
       #
-      # @return [Fixnum]
+      # @return [Integer]
       def offset
         return @offset unless @tok
         @tok.source_range.start_pos.offset
@@ -146,9 +146,9 @@ module Sass
       }
 
       # @param str [String, StringScanner] The source text to lex
-      # @param line [Fixnum] The 1-based line on which the SassScript appears.
+      # @param line [Integer] The 1-based line on which the SassScript appears.
       #   Used for error reporting and sourcemap building
-      # @param offset [Fixnum] The 1-based character (not byte) offset in the line in the source.
+      # @param offset [Integer] The 1-based character (not byte) offset in the line in the source.
       #   Used for error reporting and sourcemap building
       # @param options [{Symbol => Object}] An options hash;
       #   see {file:SASS_REFERENCE.md#options the Sass options documentation}

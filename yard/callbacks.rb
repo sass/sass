@@ -4,7 +4,7 @@ class CallbacksHandler < YARD::Handlers::Ruby::Legacy::Base
   def process
     callback_name = tokval(statement.tokens[2])
     attr_index = statement.comments.each_with_index {|c, i| break i if c[0] == ?@}
-    if attr_index.is_a?(Fixnum)
+    if attr_index.is_a?(Integer)
       docstring = statement.comments[0...attr_index]
       attrs = statement.comments[attr_index..-1]
     else
