@@ -59,6 +59,16 @@ For more details, see [this blog post][interp-blog] and
   this is likely to result in a situation where the framework cannot
   resolve the function in 4.0.
 
+* Values that can be interpreted as
+  [hex colors with alpha channels][hex alpha spec] and also as
+  [ID values][directional focus spec], such as `#abcd`, now emit deprecation
+  warnings in preparation for being parsed differently Sass 3.6. They were
+  previously parsed as strings, and in 3.6 they will be parsed as colors
+  instead.
+
+[hex alpha spec]: https://drafts.csswg.org/css-color/#hex-notation
+[directional focus spec]: https://www.w3.org/TR/css-ui-3/#nav-dir
+
 ### Backwards Incompatibilities -- Must Read!
 
 * The way [CSS variables][] are handled has changed to better correspond to the
