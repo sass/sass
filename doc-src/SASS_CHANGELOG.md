@@ -57,6 +57,13 @@
   CSS. The only exception is `#{}`, which will inject a SassScript value as
   before.
 
+## 3.4.24 (Unreleased)
+
+* Elements without a namespace (such as `div`) are no longer unified with
+  elements with the empty namespace (such as `|div`). This unification didn't
+  match the results returned by `is-superselector()`, and was not guaranteed to
+  be valid.
+
 ## 3.4.23 (19 December 2016)
 
 * The Sass logger is now instantiated on a per-thread/per-fiber basis

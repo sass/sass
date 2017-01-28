@@ -40,7 +40,7 @@ module Sass::Tree
     # * This is a child rule of another rule
     # * The parent rule has properties, and thus will be rendered
     #
-    # @return [Fixnum]
+    # @return [Integer]
     attr_accessor :tabs
 
     # The entire selector source range for this rule.

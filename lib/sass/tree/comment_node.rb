@@ -59,7 +59,7 @@ module Sass::Tree
 
     # Returns the number of lines in the comment.
     #
-    # @return [Fixnum]
+    # @return [Integer]
     def lines
       @value.inject(0) do |s, e|
         next s + e.count("\n") if e.is_a?(String)

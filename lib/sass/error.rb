@@ -69,14 +69,14 @@ module Sass
     # The name of the mixin in which the error occurred.
     # This could be `nil` if the error occurred outside a mixin.
     #
-    # @return [Fixnum]
+    # @return [String]
     def sass_mixin
       sass_backtrace.first[:mixin]
     end
 
     # The line of the Sass template on which the error occurred.
     #
-    # @return [Fixnum]
+    # @return [Integer]
     def sass_line
       sass_backtrace.first[:line]
     end
@@ -153,7 +153,7 @@ module Sass
       # Returns an error report for an exception in CSS format.
       #
       # @param e [Exception]
-      # @param line_offset [Fixnum] The number of the first line of the Sass template.
+      # @param line_offset [Integer] The number of the first line of the Sass template.
       # @return [String] The error report
       # @raise [Exception] `e`, if the
       #   {file:SASS_REFERENCE.md#full_exception-option `:full_exception`} option

@@ -17,8 +17,8 @@ module Sass::Script::Value
     # @private
     #
     # Convert a ruby integer to a rgba components
-    # @param color [Fixnum]
-    # @return [Array<Fixnum>] Array of 4 numbers representing r,g,b and alpha
+    # @param color [Integer]
+    # @return [Array<Integer>] Array of 4 numbers representing r,g,b and alpha
     def self.int_to_rgba(color)
       rgba = (0..3).map {|n| color >> (n << 3) & 0xff}.reverse
       rgba[-1] = rgba[-1] / 255.0
@@ -293,7 +293,7 @@ module Sass::Script::Value
 
     # The red component of the color.
     #
-    # @return [Fixnum]
+    # @return [Integer]
     def red
       hsl_to_rgb!
       @attrs[:red]
@@ -301,7 +301,7 @@ module Sass::Script::Value
 
     # The green component of the color.
     #
-    # @return [Fixnum]
+    # @return [Integer]
     def green
       hsl_to_rgb!
       @attrs[:green]
@@ -309,7 +309,7 @@ module Sass::Script::Value
 
     # The blue component of the color.
     #
-    # @return [Fixnum]
+    # @return [Integer]
     def blue
       hsl_to_rgb!
       @attrs[:blue]
@@ -342,7 +342,7 @@ module Sass::Script::Value
     # The alpha channel (opacity) of the color.
     # This is 1 unless otherwise defined.
     #
-    # @return [Fixnum]
+    # @return [Integer]
     def alpha
       @attrs[:alpha].to_f
     end
@@ -357,7 +357,7 @@ module Sass::Script::Value
 
     # Returns the red, green, and blue components of the color.
     #
-    # @return [Array<Fixnum>] A frozen three-element array of the red, green, and blue
+    # @return [Array<Integer>] A frozen three-element array of the red, green, and blue
     #   values (respectively) of the color
     def rgb
       [red, green, blue].freeze
@@ -365,7 +365,7 @@ module Sass::Script::Value
 
     # Returns the red, green, blue, and alpha components of the color.
     #
-    # @return [Array<Fixnum>] A frozen four-element array of the red, green,
+    # @return [Array<Integer>] A frozen four-element array of the red, green,
     #   blue, and alpha values (respectively) of the color
     def rgba
       [red, green, blue, alpha].freeze
@@ -373,7 +373,7 @@ module Sass::Script::Value
 
     # Returns the hue, saturation, and lightness components of the color.
     #
-    # @return [Array<Fixnum>] A frozen three-element array of the
+    # @return [Array<Integer>] A frozen three-element array of the
     #   hue, saturation, and lightness values (respectively) of the color
     def hsl
       [hue, saturation, lightness].freeze
@@ -381,7 +381,7 @@ module Sass::Script::Value
 
     # Returns the hue, saturation, lightness, and alpha components of the color.
     #
-    # @return [Array<Fixnum>] A frozen four-element array of the hue,
+    # @return [Array<Integer>] A frozen four-element array of the hue,
     #   saturation, lightness, and alpha values (respectively) of the color
     def hsla
       [hue, saturation, lightness, alpha].freeze

@@ -5,7 +5,7 @@ module Sass
     class Simple
       # The line of the Sass template on which this selector was declared.
       #
-      # @return [Fixnum]
+      # @return [Integer]
       attr_accessor :line
 
       # The name of the file in which this selector was declared,
@@ -44,7 +44,7 @@ module Sass
       # so if that contains information irrelevant to the identity of the selector,
       # this should be overridden.
       #
-      # @return [Fixnum]
+      # @return [Integer]
       def hash
         @_hash ||= equality_key.hash
       end
@@ -113,10 +113,10 @@ module Sass
       #   could be found at all.
       #   If the second value is `false`, the first should be ignored.
       def unify_namespaces(ns1, ns2)
-        return nil, false unless ns1 == ns2 || ns1.nil? || ns1 == '*' || ns2.nil? || ns2 == '*'
         return ns2, true if ns1 == '*'
         return ns1, true if ns2 == '*'
-        [ns1 || ns2, true]
+        return nil, false unless ns1 == ns2
+        [ns1, true]
       end
     end
   end

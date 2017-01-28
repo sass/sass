@@ -16,9 +16,9 @@ module Sass
       #   warnings and source maps.
       # @param importer [Sass::Importers::Base] The importer used to import the
       #   file being parsed. Used for source maps.
-      # @param line [Fixnum] The 1-based line on which the source string appeared,
+      # @param line [Integer] The 1-based line on which the source string appeared,
       #   if it's part of another document.
-      # @param offset [Fixnum] The 1-based character (not byte) offset in the line on
+      # @param offset [Integer] The 1-based character (not byte) offset in the line on
       #   which the source string starts. Used for error reporting and sourcemap
       #   building.
       def initialize(str, filename, importer, line = 1, offset = 1)
@@ -1093,7 +1093,7 @@ module Sass
       end
 
       def str
-        @strs.push ""
+        @strs.push String.new("")
         yield
         @strs.last
       ensure

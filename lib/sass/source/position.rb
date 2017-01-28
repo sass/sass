@@ -2,17 +2,17 @@ module Sass::Source
   class Position
     # The one-based line of the document associated with the position.
     #
-    # @return [Fixnum]
+    # @return [Integer]
     attr_accessor :line
 
     # The one-based offset in the line of the document associated with the
     # position.
     #
-    # @return [Fixnum]
+    # @return [Integer]
     attr_accessor :offset
 
-    # @param line [Fixnum] The source line
-    # @param offset [Fixnum] The source offset
+    # @param line [Integer] The source line
+    # @param offset [Integer] The source offset
     def initialize(line, offset)
       @line = line
       @offset = offset

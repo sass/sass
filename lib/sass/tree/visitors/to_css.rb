@@ -12,7 +12,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     @tabs = 0
     @line = 1
     @offset = 1
-    @result = ""
+    @result = String.new("")
     @source_mapping = build_source_mapping ? Sass::Source::Map.new : nil
     @lstrip = nil
     @in_directive = false
