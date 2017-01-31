@@ -799,6 +799,13 @@ module Sass
       return @jruby1_6 if defined?(@jruby1_6)
       @jruby1_6 = jruby? && jruby_version[0] == 1 && jruby_version[1] < 7
     end
+    
+    # Whether or not this is running under MacRuby.
+    #
+    # @return [Boolean]
+    def macruby?
+      RUBY_ENGINE == 'macruby'
+    end
 
     # Whether or not this is running under MacRuby.
     #
