@@ -94,6 +94,23 @@ module Sass::Plugin
     #   The location of the sourcemap being generated, if any.
     define_callback :compilation_starting
 
+    # Register a callback to be run after a single stylesheet is updated.
+    # This callback allows for post-processing that requires the file to be written.
+    # The callback is only run if the stylesheet is guaranteed to be updated;
+    # if the CSS file is fresh, this won't be run.
+    #
+    # Even if the \{file:SASS_REFERENCE.md#full_exception-option `:full_exception` option}
+    # is enabled, this callback won't be run
+    # when an exception CSS file is being written.
+    # To run an action for those files, use \{#on\_compilation\_error}.
+    #
+    # @yield [template, css]
+    # @yieldparam template [String]
+    #   The location of the Sass/SCSS file being updated.
+    # @yieldparam css [String]
+    #   The location of the CSS file being generated.
+    define_callback :stylesheet_updated
+
     # Register a callback to be run when Sass decides not to update a stylesheet.
     # In particular, the callback is run when Sass finds that
     # the template file and none of its dependencies
@@ -517,6 +534,8 @@ module Sass::Plugin
         file.set_encoding(content.encoding) unless Sass::Util.ruby1_8?
         file.print(content)
       end
+
+      run_stylesheet_updated filename, css
     end
 
     def try_delete_css(css)
