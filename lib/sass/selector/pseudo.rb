@@ -130,6 +130,9 @@ module Sass
       #
       # @see SimpleSequence#unify
       def unify(sels)
+        if sels.length == 1 && sels.first.is_a?(Universal)
+          return sels.first.unify([self])
+        end
         return if type == :element && sels.any? do |sel|
           sel.is_a?(Pseudo) && sel.type == :element &&
             (sel.name != name || sel.arg != arg || sel.selector != selector)
