@@ -1801,7 +1801,7 @@ selector containing `.notice` is `h1.notice`, since `h1` conflicts with `a` and
 so no new selector would be generated.
 
 Sometimes, though, you want to allow an `@extend` not to produce any new
-selectors. To do so, just add the `!optional` flag after the selector. For
+selectors. To do so, just add the `!optional` flag after the directive. For
 example:
 
     a.important {
