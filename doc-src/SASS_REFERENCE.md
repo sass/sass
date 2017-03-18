@@ -1260,6 +1260,10 @@ Additional search directories may be specified
 using the [`:load_paths`](#load_paths-option) option,
 or the `--load-path` option on the command line.
 
+Sass will also import a directory of Sass/SCSS files
+using syntax like `@import "pages/*"` to import all
+the files in the "pages" folder.
+
 `@import` takes a filename to import.
 By default, it looks for a Sass file to import directly,
 but there are a few circumstances under which it will compile to a CSS `@import` rule:
