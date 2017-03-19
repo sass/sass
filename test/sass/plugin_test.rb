@@ -170,7 +170,7 @@ CSS
     File.open(tempfile_loc('subdir/import_up1')) do |file|
       assert_equal(<<CSS.strip, file.read.split("\n")[0...5].join("\n"))
 /*
-Error: File to import not found or unreadable: ../subdir/import_up3.scss.
+Error: File to import not found or unreadable: ../subdir/import_up3.scss.  Attempting to import from: #{Dir.pwd}/test/sass/templates/subdir/import_up1.scss.
        Load path: #{template_loc}
         on line 1 of #{template_loc 'subdir/import_up2'}
         from line 1 of #{template_loc 'subdir/import_up1'}
