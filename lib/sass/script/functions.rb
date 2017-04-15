@@ -2689,5 +2689,10 @@ deprecated and will be an error in future versions of Sass. Use #{alpha.value} i
 WARNING
       end
     end
+	
+	# Generates a random number between 1 and max. Default 100. Stolen from https://gist.github.com/chriseppstein/1561650
+	def random(max = Sass::Script::Number.new(100))
+		Sass::Script::Number.new(rand(max.value), max.numerator_units, max.denominator_units)
+	end
   end
 end
