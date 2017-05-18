@@ -1583,7 +1583,7 @@ MESSAGE
     # @raise [ArgumentError] if `$string` isn't a string
     def to_upper_case(string)
       assert_type string, :String, :string
-      Sass::Script::Value::String.new(string.value.upcase, string.type)
+      Sass::Script::Value::String.new(Sass::Util.upcase(string.value), string.type)
     end
     declare :to_upper_case, [:string]
 
@@ -1598,7 +1598,7 @@ MESSAGE
     # @raise [ArgumentError] if `$string` isn't a string
     def to_lower_case(string)
       assert_type string, :String, :string
-      Sass::Script::Value::String.new(string.value.downcase, string.type)
+      Sass::Script::Value::String.new(Sass::Util.downcase(string.value), string.type)
     end
     declare :to_lower_case, [:string]
 
