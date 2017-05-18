@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.4.24 (Unreleased)
+## 3.4.24 (18 May 2017)
 
 * Elements without a namespace (such as `div`) are no longer unified with
   elements with the empty namespace (such as `|div`). This unification didn't
