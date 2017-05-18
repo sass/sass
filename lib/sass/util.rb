@@ -342,13 +342,13 @@ module Sass
     # Like `String.upcase`, but only ever upcases ASCII letters.
     def upcase(string)
       return string.upcase unless ruby2_4?
-      return string.upcase(:ascii)
+      string.upcase(:ascii)
     end
 
     # Like `String.downcase`, but only ever downcases ASCII letters.
     def downcase(string)
       return string.downcase unless ruby2_4?
-      return string.downcase(:ascii)
+      string.downcase(:ascii)
     end
 
     # Returns a sub-array of `minuend` containing only elements that are also in
