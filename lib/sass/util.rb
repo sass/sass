@@ -290,6 +290,18 @@ module Sass
       lcs_backtrace(lcs_table(x, y, &block), x, y, x.size - 1, y.size - 1, &block)
     end
 
+    # Like `String.upcase`, but only ever upcases ASCII letters.
+    def upcase(string)
+      return string.upcase unless ruby2_4?
+      return string.upcase(:ascii)
+    end
+
+    # Like `String.downcase`, but only ever downcases ASCII letters.
+    def downcase(string)
+      return string.downcase unless ruby2_4?
+      return string.downcase(:ascii)
+    end
+
     # Returns a sub-array of `minuend` containing only elements that are also in
     # `subtrahend`. Ensures that the return value has the same order as
     # `minuend`, even on Rubinius where that's not guaranteed by `Array#-`.
@@ -699,6 +711,21 @@ module Sass
     UTF_8_BOM = bom.encode("UTF-8").force_encoding('BINARY')
     UTF_16BE_BOM = bom.encode("UTF-16BE").force_encoding('BINARY')
     UTF_16LE_BOM = bom.encode("UTF-16LE").force_encoding('BINARY')
+
+    ## Cross-Ruby-Version Compatibility
+
+    # Whether or not this is running under Ruby 2.4 or higher.
+    #
+    # @return [Boolean]
+    def ruby2_4?
+      return @ruby2_4 if defined?(@ruby2_4)
+      @ruby2_4 =
+        if RUBY_VERSION_COMPONENTS[0] == 2
+          RUBY_VERSION_COMPONENTS[1] >= 4
+        else
+          RUBY_VERSION_COMPONENTS[0] > 2
+        end
+    end
 
     # Like {\#check\_encoding}, but also checks for a `@charset` declaration
     # at the beginning of the file and uses that encoding if it exists.
