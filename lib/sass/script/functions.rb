@@ -47,6 +47,9 @@ module Sass::Script
   # : Creates a {Sass::Script::Value::Color Color} from hue, saturation,
   #   lightness, and alpha values.
   #
+  # \{#gray gray($lightness, $alpha)}
+  # : Creates a {Sass::Script::Value::Color Color} lightness and alpha values.
+  #
   # \{#hue hue($color)}
   # : Gets the hue component of a color.
   #
@@ -782,6 +785,29 @@ module Sass::Script
         :hue => h, :saturation => s, :lightness => l, :alpha => alpha.value)
     end
     declare :hsla, [:hue, :saturation, :lightness, :alpha]
+
+    # Creates a {Sass::Script::Value::Color Color} from lightness and alpha values.
+    #
+    # @overload gray($lightness)
+    #   @param $lightness [Sass::Script::Value::Number] The lightness of the
+    #     color. Must be between `0%` and `100%`, inclusive
+    #
+    # @overload gray($lightness, $alpha)
+    #   @param $lightness [Sass::Script::Value::Number] The lightness of the
+    #     color. Must be between `0%` and `100%`, inclusive
+    #   @param $alpha [Sass::Script::Value::Number] The opacity of the color.
+    #     Must be between 0 and 1 inclusive
+    # @return [Sass::Script::Value::Color]
+    # @raise [ArgumentError] if `$lightness` or `$alpha` is the wrong type or out of bounds
+    def gray(lightness, alpha = nil)
+      if alpha.nil?
+        hsl(number(0), number(0), lightness)
+      else
+        hsla(number(0), number(0), lightness, alpha)
+      end
+    end
+    declare :gray, [:lightness]
+    declare :gray, [:lightness, :alpha]
 
     # Gets the red component of a color. Calculated from HSL where necessary via
     # [this algorithm][hsl-to-rgb].
