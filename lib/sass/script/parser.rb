@@ -518,7 +518,7 @@ RUBY
 
       def ident
         return funcall unless @lexer.peek && @lexer.peek.type == :ident
-        return if @stop_at && @stop_at.include?(@lexer.peek.value)
+        return if instance_variable_defined?(:@stop_at) && @stop_at.include?(@lexer.peek.value)
 
         name = @lexer.next
         if (color = Sass::Script::Value::Color::COLOR_NAMES[name.value.downcase])

@@ -408,6 +408,9 @@ WARNING
   # Runs SassScript interpolation in the selector,
   # and then parses the result into a {Sass::Selector::CommaSequence}.
   def visit_rule(node)
+    @at_root_without_rule ||= nil
+    @in_keyframes ||= nil
+
     old_at_root_without_rule = @at_root_without_rule
     parser = Sass::SCSS::StaticParser.new(run_interp(node.rule),
       node.filename, node.options[:importer], node.line)
