@@ -41,7 +41,7 @@ module Sass
           environment.set_var(name, val.perform(environment))
         end
 
-        p environment.var(name)
+        p Script::Parser.parse("$#{name}", @line, 0).perform(environment)
       else
         p Script::Parser.parse(text, @line, 0).perform(environment)
       end
