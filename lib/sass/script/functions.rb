@@ -2229,6 +2229,27 @@ MESSAGE
       perform(funcall)
     end
     declare :call, [:name], :var_args => true, :var_kwargs => true
+    
+    # Calling a variable with the given name in the current scope or
+    # in the global scope.
+    #
+    # @example
+    #   $a-example-var: value;
+    #   $var1: a-example;
+    #   $var2: -var;
+    #
+    #   call_var(#{$var1}#{$var2})
+    #
+    #   call_var(a-example-var)
+    #
+    # @overload call_var($name)
+    #   @param $name [Sass::Script::Value::String] The name of the variable to
+    #     call. The name should not include the `$`.
+    def call_var(name)
+      assert_type name, :String, :name
+      perform(environment.caller.var(name.value))
+    end
+    declare :call_var, [:name]
 
     # This function only exists as a workaround for IE7's [`content:
     # counter` bug](http://jes.st/2013/ie7s-css-breaking-content-counter-bug/).
