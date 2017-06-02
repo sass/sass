@@ -78,7 +78,7 @@ class SassScriptTest < MiniTest::Test
   def test_color_names
     assert_equal "white", resolve("white")
     assert_equal "#ffffff", resolve("#ffffff")
-    assert_equal "#fffffe", resolve("white - #000001")
+    silence_warnings {assert_equal "#fffffe", resolve("white - #000001")}
     assert_equal "transparent", resolve("transparent")
     assert_equal "transparent", resolve("rgba(0, 0, 0, 0)")
   end
@@ -97,23 +97,23 @@ class SassScriptTest < MiniTest::Test
   end
 
   def test_rgba_color_math
-    assert_equal "rgba(50, 50, 100, 0.35)", resolve("rgba(1, 1, 2, 0.35) * rgba(50, 50, 50, 0.35)")
-    assert_equal "rgba(52, 52, 52, 0.25)", resolve("rgba(2, 2, 2, 0.25) + rgba(50, 50, 50, 0.25)")
+    silence_warnings {assert_equal "rgba(50, 50, 100, 0.35)", resolve("rgba(1, 1, 2, 0.35) * rgba(50, 50, 50, 0.35)")}
+    silence_warnings {assert_equal "rgba(52, 52, 52, 0.25)", resolve("rgba(2, 2, 2, 0.25) + rgba(50, 50, 50, 0.25)")}
 
     assert_raise_message(Sass::SyntaxError, "Alpha channels must be equal: rgba(1, 2, 3, 0.15) + rgba(50, 50, 50, 0.75)") do
-      resolve("rgba(1, 2, 3, 0.15) + rgba(50, 50, 50, 0.75)")
+      silence_warnings {resolve("rgba(1, 2, 3, 0.15) + rgba(50, 50, 50, 0.75)")}
     end
     assert_raise_message(Sass::SyntaxError, "Alpha channels must be equal: #123456 * rgba(50, 50, 50, 0.75)") do
-      resolve("#123456 * rgba(50, 50, 50, 0.75)")
+      silence_warnings {resolve("#123456 * rgba(50, 50, 50, 0.75)")}
     end
     assert_raise_message(Sass::SyntaxError, "Alpha channels must be equal: rgba(50, 50, 50, 0.75) / #123456") do
-      resolve("rgba(50, 50, 50, 0.75) / #123456")
+      silence_warnings {resolve("rgba(50, 50, 50, 0.75) / #123456")}
     end
   end
 
   def test_rgba_number_math
-    assert_equal "rgba(49, 49, 49, 0.75)", resolve("rgba(50, 50, 50, 0.75) - 1")
-    assert_equal "rgba(100, 100, 100, 0.75)", resolve("rgba(50, 50, 50, 0.75) * 2")
+    silence_warnings {assert_equal "rgba(49, 49, 49, 0.75)", resolve("rgba(50, 50, 50, 0.75) - 1")}
+    silence_warnings {assert_equal "rgba(100, 100, 100, 0.75)", resolve("rgba(50, 50, 50, 0.75) * 2")}
   end
 
   def test_rgba_rounding
@@ -504,7 +504,7 @@ SASS
 
   def test_functions
     assert_equal "#80ff80", resolve("hsl(120, 100%, 75%)")
-    assert_equal "#81ff81", resolve("hsl(120, 100%, 75%) + #010001")
+    silence_warnings {assert_equal "#81ff81", resolve("hsl(120, 100%, 75%) + #010001")}
   end
 
   def test_operator_unit_conversion
@@ -988,7 +988,7 @@ SCSS
   end
 
   def test_color_format_isnt_preserved_when_modified
-    assert_equal "magenta", resolve("#f00 + #00f")
+    assert_equal "magenta", resolve("change-color(#f00, $blue: 255)")
   end
 
   def test_ids
