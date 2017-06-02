@@ -5,6 +5,8 @@
 
 ## 3.5.0
 
+* Default to ten digits of numeric precision.
+
 * Combine ids and `:root` when unifying selectors with `@extend` and selector
   functions.
 
