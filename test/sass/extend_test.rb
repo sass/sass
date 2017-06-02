@@ -585,21 +585,27 @@ SCSS
   ## Long Extendees
 
   def test_long_extendee
-    assert_extends '.foo.bar', '.baz {@extend .foo.bar}', '.foo.bar, .baz'
+    assert_warning(<<WARNING) {assert_extends '.foo.bar', '.baz {@extend .foo.bar}', '.foo.bar, .baz'}
+DEPRECATION WARNING on line 2 of test_long_extendee_inline.scss:
+Extending a compound selector, .foo.bar, is deprecated and will not be supported in a future release.
+See https://github.com/sass/sass/issues/1599 for details.
+WARNING
   end
 
   def test_long_extendee_requires_all_selectors
-    assert_extend_doesnt_match('.baz', '.foo.bar', :not_found, 2) do
-      render_extends '.foo', '.baz {@extend .foo.bar}'
+    silence_warnings do
+      assert_extend_doesnt_match('.baz', '.foo.bar', :not_found, 2) do
+        render_extends '.foo', '.baz {@extend .foo.bar}'
+      end
     end
   end
 
   def test_long_extendee_matches_supersets
-    assert_extends '.foo.bar.bap', '.baz {@extend .foo.bar}', '.foo.bar.bap, .bap.baz'
+    silence_warnings {assert_extends '.foo.bar.bap', '.baz {@extend .foo.bar}', '.foo.bar.bap, .bap.baz'}
   end
 
   def test_long_extendee_runs_unification
-    assert_extends 'ns|*.foo.bar', '*|a.baz {@extend .foo.bar}', 'ns|*.foo.bar, ns|a.baz'
+    silence_warnings {assert_extends 'ns|*.foo.bar', '*|a.baz {@extend .foo.bar}', 'ns|*.foo.bar, ns|a.baz'}
   end
 
   ## Long Extenders
