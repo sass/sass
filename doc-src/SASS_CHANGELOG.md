@@ -3,6 +3,19 @@
 * Table of contents
 {:toc}
 
+## 3.4.25 (Unreleased)
+
+### Deprecation -- Must Read!
+
+* Extending compound selectors such as `.a.b` is deprecated. This never followed
+  the stated semantics of extend: elements that match the extending selector are
+  styled as though they matches the extended selector.
+
+  When you write `h1 {@extend .a.b}`, this *should* mean that all `h1` elements
+  are styled as though they match `.a.b`—that is, as though they have `class="a
+  b"`, which means they'd match both `.a` and `.b` separately. But instead we
+  extend only selectors that contain *both* `.a` and `.b`, which is incorrect.
+
 ## 3.4.24 (18 May 2017)
 
 * Elements without a namespace (such as `div`) are no longer unified with
