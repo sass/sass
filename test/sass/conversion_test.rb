@@ -13,7 +13,7 @@ foo bar {
   bip: bop;
 }
 SCSS
-    assert_renders <<SASS, <<SCSS, :old => true
+    silence_warnings {assert_renders <<SASS, <<SCSS, :old => true}
 foo bar
   :baz bang
   :bip bop
@@ -183,7 +183,7 @@ SCSS
   end
 
   def test_dynamic_properties_with_old
-    assert_renders <<SASS, <<SCSS, :old => true
+    silence_warnings {assert_renders <<SASS, <<SCSS, :old => true}
 foo bar
   :baz 12 $bang "bip"
 SASS
@@ -1436,7 +1436,7 @@ SCSS
   end
 
   def test_old_declaration_hacks
-    assert_renders <<SASS, <<SCSS, :old => true
+    silence_warnings {assert_renders <<SASS, <<SCSS, :old => true}
 foo
   :_name val
   :*name val

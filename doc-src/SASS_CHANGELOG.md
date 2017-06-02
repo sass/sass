@@ -21,6 +21,9 @@
   [color functions][] are a much cleaner and more comprehensible way of
   manipulating colors dynamically.
 
+* The old-style `:name value` property syntax is deprecated. This syntax is not
+  widely used, and is unnecessarily different from CSS.
+
 [color functions]: http://sass-lang.com/documentation/Sass/Script/Functions.html#other_color_functions
 
 ## 3.4.24 (18 May 2017)
