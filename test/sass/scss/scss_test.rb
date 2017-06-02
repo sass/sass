@@ -3791,7 +3791,7 @@ SCSS
   def test_parsing_decimals_followed_by_comments_doesnt_take_forever
     assert_equal(<<CSS, render(<<SCSS))
 .foo {
-  padding: 4.21053% 4.21053% 5.63158%; }
+  padding: 4.2105263158% 4.2105263158% 5.6315789474%; }
 CSS
 .foo {
   padding: 4.21052631578947% 4.21052631578947% 5.631578947368421% /**/

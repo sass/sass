@@ -23,7 +23,7 @@ class SassScriptConversionTest < MiniTest::Test
     assert_renders "12px"
     assert_renders "12.45px"
 
-    assert_equal "12.34568", render("12.345678901")
+    assert_equal "12.3456789013", render("12.34567890129")
   end
 
   def test_string

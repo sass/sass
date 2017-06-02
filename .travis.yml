@@ -14,9 +14,10 @@ install:
   - bundle update sass-spec
 rvm:
   - 2.0.0
-  - 2.1.7
-  - 2.2.3
-  - 2.3.0
+  - 2.1.10
+  - 2.2.7
+  - 2.3.4
+  - 2.4.1
 gemfile: Gemfile
 env:
   - MATHN=true RUBOCOP=false
@@ -31,10 +32,9 @@ notifications:
   irc: {channels: "irc.freenode.org#sass"}
 matrix:
   include:
-    - rvm: 2.2.3
+    - rvm: 2.2.7
       env: MATHN=true RUBOCOP=true
-    - rvm: 2.1.7
+    - rvm: 2.1.10
       env: MATHN=true RUBOCOP=true
     - rvm: 2.0.0
       env: MATHN=true RUBOCOP=true
-

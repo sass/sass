@@ -96,8 +96,11 @@ module Sass
       #   The node that caused this extension.
       # @param parent_directives [Array<Sass::Tree::DirectiveNode>]
       #   The parent directives containing `extend_node`.
+      # @param allow_compound_target [Boolean]
+      #   Whether `extendee` is allowed to contain compound selectors.
       # @raise [Sass::SyntaxError] if this extension is invalid.
-      def populate_extends(extends, extendee, extend_node = nil, parent_directives = [])
+      def populate_extends(extends, extendee, extend_node = nil, parent_directives = [],
+          allow_compound_target = false)
         extendee.members.each do |seq|
           if seq.members.size > 1
             raise Sass::SyntaxError.new("Can't extend #{seq}: can't extend nested selectors")
@@ -111,6 +114,14 @@ module Sass
           end
 
           sel = sseq.members
+          if !allow_compound_target && sel.length > 1
+            Sass::Util.sass_warn <<WARNING
+DEPRECATION WARNING on line #{sseq.line}#{" of #{sseq.filename}" if sseq.filename}:
+Extending a compound selector, #{sseq}, is deprecated and will not be supported in a future release.
+See https://github.com/sass/sass/issues/1599 for details.
+WARNING
+          end
+
           members.each do |member|
             unless member.members.last.is_a?(Sass::Selector::SimpleSequence)
               raise Sass::SyntaxError.new("#{member} can't extend: invalid selector")
