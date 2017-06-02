@@ -3,6 +3,13 @@
 * Table of contents
 {:toc}
 
+## 3.4.25 (Unreleased)
+
+### Deprecation -- Must Read!
+
+* The reference combinator, `/foo/`, is deprecated since it hasn't been in the
+  CSS specification for some time.
+
 ## 3.4.24 (18 May 2017)
 
 * Elements without a namespace (such as `div`) are no longer unified with
