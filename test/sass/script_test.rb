@@ -117,7 +117,7 @@ class SassScriptTest < MiniTest::Test
   end
 
   def test_rgba_rounding
-    assert_equal "rgba(10, 1, 0, 0.12346)", resolve("rgba(10.0, 1.23456789, 0.0, 0.1234567)")
+    assert_equal "rgba(10, 1, 0, 0.1234567892)", resolve("rgba(10.0, 1.23456789, 0.0, 0.12345678919)")
   end
 
   def test_rgb_calc
@@ -533,19 +533,19 @@ WARNING
 
   def test_length_units
     assert_equal "2.54", resolve("(1in/1cm)")
-    assert_equal "2.3622", resolve("(1cm/1pc)")
-    assert_equal "4.23333", resolve("(1pc/1mm)")
-    assert_equal "2.83465", resolve("(1mm/1pt)")
-    assert_equal "1.33333", resolve("(1pt/1px)")
-    assert_equal "0.01042", resolve("(1px/1in)")
-    assert_equal "1.05833", resolve("(1px/1q)")
-    assert_equal "0.05906", resolve("(1q/1pc)")
+    assert_equal "2.3622047244", resolve("(1cm/1pc)")
+    assert_equal "4.2333333333", resolve("(1pc/1mm)")
+    assert_equal "2.8346456693", resolve("(1mm/1pt)")
+    assert_equal "1.3333333333", resolve("(1pt/1px)")
+    assert_equal "0.0104166667", resolve("(1px/1in)")
+    assert_equal "1.0583333333", resolve("(1px/1q)")
+    assert_equal "0.0590551181", resolve("(1q/1pc)")
   end
 
   def test_angle_units
-    assert_equal "1.11111", resolve("(1deg/1grad)")
-    assert_equal "0.01571", resolve("(1grad/1rad)")
-    assert_equal "0.15915", resolve("(1rad/1turn)")
+    assert_equal "1.1111111111", resolve("(1deg/1grad)")
+    assert_equal "0.0157079633", resolve("(1grad/1rad)")
+    assert_equal "0.1591549431", resolve("(1rad/1turn)")
     assert_equal "360", resolve("(1turn/1deg)")
   end
 
@@ -558,8 +558,8 @@ WARNING
   end
 
   def test_resolution_units
-    assert_equal "0.3937", resolve("(1dpi/1dpcm)")
-    assert_equal "0.02646", resolve("(1dpcm/1dppx)")
+    assert_equal "0.3937007874", resolve("(1dpi/1dpcm)")
+    assert_equal "0.0264583333", resolve("(1dpcm/1dppx)")
     assert_equal "96", resolve("(1dppx/1dpi)")
   end
 
@@ -1175,8 +1175,8 @@ SASS
     assert_equal "1", resolve("1.0")
     assert_equal "1000000000", resolve("1000000000")
     assert_equal "0.00001", resolve("0.00001")
-    assert_equal "1.12121", resolve("1.121214")
-    assert_equal "1.12122", resolve("1.121215")
+    assert_equal "1.1212121212", resolve("1.12121212124")
+    assert_equal "1.1212121213", resolve("1.12121212125")
     assert_equal "Infinity", resolve("(1.0/0.0)")
     assert_equal "-Infinity", resolve("(-1.0/0.0)")
     assert_equal "NaN", resolve("(0.0/0.0)")

@@ -1682,7 +1682,7 @@ SCSS
 
   def test_random
     Sass::Script::Functions.random_seed = 1
-    assert_equal "0.41702", evaluate("random()")
+    assert_equal "0.4170220047", evaluate("random()")
     assert_equal "13", evaluate("random(100)")
   end
 

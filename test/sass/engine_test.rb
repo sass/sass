@@ -139,7 +139,7 @@ MSG
     '@for $a from "foo" to 1' => '"foo" is not an integer.',
     '@for $a from 1 to "2"' => '"2" is not an integer.',
     '@for $a from 1 to "foo"' => '"foo" is not an integer.',
-    '@for $a from 1 to 1.232323' => '1.23232 is not an integer.',
+    '@for $a from 1 to 1.23232323232' => '1.2323232323 is not an integer.',
     '@for $a from 1px to 3em' => "Incompatible units: 'em' and 'px'.",
     '@if' => "Invalid if directive '@if': expected expression.",
     '@while' => "Invalid while directive '@while': expected expression.",
@@ -1793,7 +1793,7 @@ SASS
 
   def test_loud_comment_is_evaluated
     assert_equal <<CSS, render(<<SASS)
-/*! Hue: 327.21649deg */
+/*! Hue: 327.2164948454deg */
 CSS
 /*! Hue: \#{hue(#f836a0)}
 SASS
@@ -3315,13 +3315,13 @@ SASS
 
   def test_numeric_formatting_of_integers
     assert_equal(<<CSS, render(<<SASS, :syntax => :scss, :style => :compressed))
-a{near:3.00001;plus:3;minus:3;negative:-3}
+a{near:3.0000000001;plus:3;minus:3;negative:-3}
 CSS
 a {
-  near: (3 + 0.00001);
-  plus: (3 + 0.0000001);
-  minus: (3 - 0.0000001);
-  negative: (-3 + 0.0000001);
+  near: (3 + 0.0000000001);
+  plus: (3 + 0.000000000001);
+  minus: (3 - 0.000000000001);
+  negative: (-3 + 0.000000000001);
 }
 SASS
   end

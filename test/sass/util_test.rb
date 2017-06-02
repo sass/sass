@@ -320,8 +320,10 @@ WARNING
 
   def test_round_respects_precision
     original_precision = Sass::Script::Value::Number.precision
-    assert_equal 0, Sass::Util.round(0.49999)
-    assert_equal 1, Sass::Util.round(0.499999)
+    assert_equal 0, Sass::Util.round(0.4999999999)
+    # 10 9s doesn't work because 0.49999999999 - 0.5 is very slightly greater
+    # than -0.1e11 due to float nonsense.
+    assert_equal 1, Sass::Util.round(0.499999999999)
     Sass::Script::Value::Number.precision = 6
     assert_equal 0, Sass::Util.round(0.499999)
     assert_equal 1, Sass::Util.round(0.49999999)

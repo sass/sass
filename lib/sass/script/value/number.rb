@@ -34,7 +34,7 @@ module Sass::Script::Value
     attr_accessor :original
 
     def self.precision
-      Thread.current[:sass_numeric_precision] || Thread.main[:sass_numeric_precision] || 5
+      Thread.current[:sass_numeric_precision] || Thread.main[:sass_numeric_precision] || 10
     end
 
     # Sets the number of digits of precision
