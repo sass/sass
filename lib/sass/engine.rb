@@ -630,6 +630,12 @@ WARNING
           raise SyntaxError.new("Invalid property: \"#{line.text}\".",
             :line => @line) if name.nil? || value.nil?
 
+          Sass::Util.sass_warn(<<WARNING.strip)
+DEPRECATION WARNING on line #{@line}#{" of #{@options[:filename]}" if @options[:filename]}:
+Old-style properties like "#{line.text}" are deprecated and will be an error in future versions of Sass.
+Use "#{name}: #{value}" instead.
+WARNING
+
           value_start_offset = name_end_offset = name_start_offset + name.length
           unless value.empty?
             # +1 and -1 both compensate for the leading ':', which is part of line.text

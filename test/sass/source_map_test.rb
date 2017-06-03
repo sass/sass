@@ -37,7 +37,7 @@ JSON
   end
 
   def test_simple_mapping_sass
-    assert_parses_with_sourcemap <<SASS, <<CSS, <<JSON, :syntax => :sass
+    silence_warnings {assert_parses_with_sourcemap <<SASS, <<CSS, <<JSON, :syntax => :sass}
 a
   foo: bar
   /* SOME COMMENT */
@@ -114,7 +114,7 @@ JSON
 
   def test_mapping_with_directory_sass
     options = {:filename => "sass/style.sass", :output => "css/style.css", :syntax => :sass}
-    assert_parses_with_sourcemap <<SASS, <<CSS, <<JSON, options
+    silence_warnings {assert_parses_with_sourcemap <<SASS, <<CSS, <<JSON, options}
 a
   foo: bar
   /* SOME COMMENT */
@@ -661,7 +661,7 @@ CSS
   end
 
 def test_mixin_sourcemap_sass
-  assert_parses_with_mapping <<'SASS', <<'CSS', :syntax => :sass
+  silence_warnings {assert_parses_with_mapping <<'SASS', <<'CSS', :syntax => :sass}
 =large-text
   :font
     {{2}}size{{/2}}: {{3}}20px{{/3}}
@@ -755,7 +755,7 @@ CSS
   # Regression tests
 
   def test_properties_sass
-    assert_parses_with_mapping <<SASS, <<CSS, :syntax => :sass
+    silence_warnings {assert_parses_with_mapping <<SASS, <<CSS, :syntax => :sass}
 {{1}}.foo{{/1}}
   :{{2}}name{{/2}} {{3}}value{{/3}}
   {{4}}name{{/4}}: {{5}}value{{/5}}

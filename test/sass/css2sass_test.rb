@@ -14,7 +14,7 @@ CSS
 h1
   color: red
 SASS
-    assert_equal(<<SASS, css2sass(css, :old => true))
+    silence_warnings {assert_equal(<<SASS, css2sass(css, :old => true))}
 h1
   :color red
 SASS
