@@ -5,7 +5,7 @@
 
 ## 3.4.25 (Unreleased)
 
-### Deprecation -- Must Read!
+### Deprecations -- Must Read!
 
 * Extending compound selectors such as `.a.b` is deprecated. This never followed
   the stated semantics of extend: elements that match the extending selector are
@@ -15,6 +15,13 @@
   are styled as though they match `.a.b`—that is, as though they have `class="a
   b"`, which means they'd match both `.a` and `.b` separately. But instead we
   extend only selectors that contain *both* `.a` and `.b`, which is incorrect.
+
+* Color arithmetic is deprecated. Channel-by-channel arithmetic doesn't
+  correspond closely to intuitive understandings of color. Sass's suite of
+  [color functions][] are a much cleaner and more comprehensible way of
+  manipulating colors dynamically.
+
+[color functions]: http://sass-lang.com/documentation/Sass/Script/Functions.html#other_color_functions
 
 ## 3.4.24 (18 May 2017)
 
