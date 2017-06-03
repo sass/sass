@@ -44,7 +44,7 @@ class SassPluginTest < MiniTest::Test
 
   @@templates.each do |name|
     define_method("test_template_renders_correctly (#{name})") do
-      assert_renders_correctly(name)
+      silence_warnings {assert_renders_correctly(name)}
     end
   end
 
@@ -116,7 +116,7 @@ Error: Undefined variable: "$bork".
         on line 2 of #{template_loc('bork1')}
 
 1: bork
-2:   :bork $bork
+2:   bork: $bork
 CSS
     end
     File.delete(tempfile_loc('bork1'))
@@ -133,7 +133,7 @@ Error: Undefined variable: "$bork".
 
 1: bork
 2:   /* foo *\\/
-3:   :bork $bork
+3:   bork: $bork
 CSS
     end
     File.delete(tempfile_loc('bork1'))
