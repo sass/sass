@@ -113,8 +113,17 @@ module Sass
     # `comment_tab_str`: `String?`
     # : The prefix indentation for this comment, if it is a comment.
     class Line < Struct.new(:text, :tabs, :index, :offset, :filename, :children, :comment_tab_str)
+      attr_accessor :multiline
+
       def comment?
         text[0] == COMMENT_CHAR && (text[1] == SASS_COMMENT_CHAR || text[1] == CSS_COMMENT_CHAR)
+      end
+
+      def initialize(*args)
+        super
+        return unless text[-1] == MULTILINE_CHAR
+        text.chop!
+        @multiline = true
       end
     end
 
@@ -152,6 +161,9 @@ module Sass
     # The regex that matches and extracts data from
     # properties of the form `:name prop`.
     PROPERTY_OLD = /^:([^\s=:"]+)\s*(?:\s+|$)(.*)/
+
+    # Indicates that row is long one and its content is defined in nested block
+    MULTILINE_CHAR = ?\\
 
     # The default options for Sass::Engine.
     # @api public
@@ -441,6 +453,7 @@ ERR
       comment_tab_str = nil
       first = true
       lines = []
+
       string.scan(/^[^\n]*?$/).each_with_index do |line, index|
         index += (@options[:line] || 1)
         if line.strip.empty?
@@ -486,9 +499,22 @@ END
           raise SyntaxError.new(message, :line => index)
         end
 
+        next if try_multiline(line, lines.last, line_tabs)
+
         lines << Line.new(line.strip, line_tabs, index, line_tab_str.size, @options[:filename], [])
       end
+
       lines
+    end
+
+    def try_multiline(line, last, tabs)
+      return false unless last.multiline
+      line = Line.new(line.strip)
+      unless line.comment?
+        last.text << ' ' << line.text
+        last.multiline = line.multiline
+      end
+      true
     end
 
     # @comment
