@@ -1155,7 +1155,7 @@ module Sass
         :media_expr => "media expression (e.g. (min-device-width: 800px))",
         :at_root_query => "@at-root query (e.g. (without: media))",
         :at_root_directive_list => '* or identifier',
-        :pseudo_args => "expression (e.g. fr, 2n+1)",
+        :declaration_value => "expression (e.g. fr, 2n+1)",
         :interp_ident => "identifier",
         :qualified_name => "identifier",
         :expr => "expression (e.g. 1px, bold)",
