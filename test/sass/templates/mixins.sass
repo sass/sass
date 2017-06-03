@@ -1,19 +1,19 @@
 $yellow: #fc0
 
 =bordered
-  :border
-    :top
-      :width 2px
-      :color $yellow
-    :left
-      :width 1px
-      :color #000
+  border:
+    top:
+      width: 2px
+      color: $yellow
+    left:
+      width: 1px
+      color: #000
   -moz-border-radius: 10px
 
 =header-font
-  :color #f00
-  :font
-    :size 20px
+  color: #f00
+  font:
+    size: 20px
 
 =compound
   +header-font
@@ -34,32 +34,32 @@ $yellow: #fc0
     +header-font
 =deep
   a:hover
-    :text-decoration underline
+    text-decoration: underline
     +compound
 
 
 #main
-  :width 15em
-  :color #0000ff
+  width: 15em
+  color: #0000ff
   p
     +bordered
-    :border
-      :style dotted
-      :width 2px
+    border:
+      style: dotted
+      width: 2px
   .cool
-    :width 100px
+    width: 100px
 
 #left
   +bordered
-  :font
-    :size 2em
-    :weight bold
-  :float left
+  font:
+    size: 2em
+    weight: bold
+  float: left
 
 #right
   +bordered
   +header-font
-  :float right
+  float: right
 
 .bordered
   +bordered
