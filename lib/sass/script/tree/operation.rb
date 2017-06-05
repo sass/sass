@@ -92,27 +92,53 @@ module Sass::Script::Tree
         raise Sass::SyntaxError.new("Undefined operation: \"#{value1} #{@operator} #{value2}\".")
       end
 
-      if (@operator == :eq || @operator == :neq) && value1.is_a?(Sass::Script::Value::Number) &&
-         value2.is_a?(Sass::Script::Value::Number) && value1.unitless? != value2.unitless? &&
-         result == (if @operator == :eq
-                      Sass::Script::Value::Bool::TRUE
-                    else
-                      Sass::Script::Value::Bool::FALSE
-                    end)
-
-        operation = "#{value1.to_sass} #{@operator == :eq ? '==' : '!='} #{value2.to_sass}"
-        future_value = @operator == :neq
-        Sass::Util.sass_warn <<WARNING
-DEPRECATION WARNING on line #{line}#{" of #{filename}" if filename}:
-The result of `#{operation}` will be `#{future_value}` in future releases of Sass.
-Unitless numbers will no longer be equal to the same numbers with units.
-WARNING
-      end
+      warn_for_color_arithmetic(value1, value2)
+      warn_for_unitless_equals(value1, value2, result)
 
       result
     end
 
     private
+
+    def warn_for_color_arithmetic(value1, value2)
+      return unless @operator == :plus || @operator == :times || @operator == :minus ||
+                    @operator == :div || @operator == :mod
+
+      if value1.is_a?(Sass::Script::Value::Number)
+        return unless value2.is_a?(Sass::Script::Value::Color)
+      elsif value1.is_a?(Sass::Script::Value::Color)
+        return unless value2.is_a?(Sass::Script::Value::Color) || value2.is_a?(Sass::Script::Value::Number)
+      else
+        return
+      end
+
+      Sass::Util.sass_warn <<WARNING
+DEPRECATION WARNING on line #{line}#{" of #{filename}" if filename}:
+The operation `#{value1} #{@operator} #{value2}` is deprecated and will be an error in future versions.
+Consider using Sass's color functions instead.
+http://sass-lang.com/documentation/Sass/Script/Functions.html#other_color_functions
+WARNING
+    end
+
+    def warn_for_unitless_equals(value1, value2, result)
+      return unless @operator == :eq || @operator == :neq
+      return unless value1.is_a?(Sass::Script::Value::Number)
+      return unless value2.is_a?(Sass::Script::Value::Number)
+      return unless value1.unitless? != value2.unitless?
+      return unless result == (if @operator == :eq
+                                 Sass::Script::Value::Bool::TRUE
+                               else
+                                 Sass::Script::Value::Bool::FALSE
+                               end)
+
+      operation = "#{value1.to_sass} #{@operator == :eq ? '==' : '!='} #{value2.to_sass}"
+      future_value = @operator == :neq
+      Sass::Util.sass_warn <<WARNING
+DEPRECATION WARNING on line #{line}#{" of #{filename}" if filename}:
+The result of `#{operation}` will be `#{future_value}` in future releases of Sass.
+Unitless numbers will no longer be equal to the same numbers with units.
+WARNING
+    end
 
     def operand_to_sass(op, side, opts)
       return "(#{op.to_sass(opts)})" if op.is_a?(Sass::Script::Tree::ListLiteral)

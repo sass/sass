@@ -55,7 +55,7 @@ class Sass::Tree::Visitors::DeepCopy < Sass::Tree::Visitors::Base
 
   def visit_mixin(node)
     node.args = node.args.map {|a| a.deep_copy}
-    node.keywords = Hash[node.keywords.map {|k, v| [k, v.deep_copy]}]
+    node.keywords = Sass::Util::NormalizedMap.new(Hash[node.keywords.map {|k, v| [k, v.deep_copy]}])
     yield
   end
 

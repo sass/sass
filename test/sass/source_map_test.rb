@@ -37,7 +37,7 @@ JSON
   end
 
   def test_simple_mapping_sass
-    assert_parses_with_sourcemap <<SASS, <<CSS, <<JSON, :syntax => :sass
+    silence_warnings {assert_parses_with_sourcemap <<SASS, <<CSS, <<JSON, :syntax => :sass}
 a
   foo: bar
   /* SOME COMMENT */
@@ -114,7 +114,7 @@ JSON
 
   def test_mapping_with_directory_sass
     options = {:filename => "sass/style.sass", :output => "css/style.css", :syntax => :sass}
-    assert_parses_with_sourcemap <<SASS, <<CSS, <<JSON, options
+    silence_warnings {assert_parses_with_sourcemap <<SASS, <<CSS, <<JSON, options}
 a
   foo: bar
   /* SOME COMMENT */
@@ -362,8 +362,7 @@ $translucent-red: rgba(255, 0, 0, 0.5);
     }
   }
   {{22}}&:active {{/22}}{
-    {{23}}color{{/23}}: {{24}}#010203 + #040506{{/24}};
-    {{25}}border{{/25}}: {{26}}$width solid black{{/26}};
+    {{23}}border{{/23}}: {{24}}$width solid black{{/24}};
   }
 {{2}}/* SOME COMMENT */{{/2}}
   {{3}}font{{/3}}: {{4}}2px/3px {{/4}}{
@@ -386,8 +385,7 @@ SCSS
     {{19}}a .special:after{{/19}} {
       {{20}}content{{/20}}: {{21}}"I ate 15 pies 2px thick!"{{/21}}; }
   {{22}}a:active{{/22}} {
-    {{23}}color{{/23}}: {{24}}#050709{{/24}};
-    {{25}}border{{/25}}: {{26}}2px solid black{{/26}}; }
+    {{23}}border{{/23}}: {{24}}2px solid black{{/24}}; }
 
 /*# sourceMappingURL=test.css.map */
 CSS
@@ -407,8 +405,7 @@ $translucent-red: rgba(255, 0, 0, 0.5)
     {{19}}&:after{{/19}}
       {{20}}content{{/20}}: {{21}}"I ate #{5 + 10} pies #{$width} thick!"{{/21}}
   {{22}}&:active{{/22}}
-    {{23}}color{{/23}}: {{24}}#010203 + #040506{{/24}}
-    {{25}}border{{/25}}: {{26}}$width solid black{{/26}}
+    {{23}}border{{/23}}: {{24}}$width solid black{{/24}}
 
   {{2}}/* SOME COMMENT */{{/2}}
   {{3}}font{{/3}}: {{4}}2px/3px{{/4}}
@@ -429,8 +426,7 @@ SASS
     {{19}}a .special:after{{/19}} {
       {{20}}content{{/20}}: {{21}}"I ate 15 pies 2px thick!"{{/21}}; }
   {{22}}a:active{{/22}} {
-    {{23}}color{{/23}}: {{24}}#050709{{/24}};
-    {{25}}border{{/25}}: {{26}}2px solid black{{/26}}; }
+    {{23}}border{{/23}}: {{24}}2px solid black{{/24}}; }
 
 /*# sourceMappingURL=test.css.map */
 CSS
@@ -667,7 +663,7 @@ CSS
   end
 
 def test_mixin_sourcemap_sass
-  assert_parses_with_mapping <<'SASS', <<'CSS', :syntax => :sass
+  silence_warnings {assert_parses_with_mapping <<'SASS', <<'CSS', :syntax => :sass}
 =large-text
   :font
     {{2}}size{{/2}}: {{3}}20px{{/3}}
@@ -761,7 +757,7 @@ CSS
   # Regression tests
 
   def test_properties_sass
-    assert_parses_with_mapping <<SASS, <<CSS, :syntax => :sass
+    silence_warnings {assert_parses_with_mapping <<SASS, <<CSS, :syntax => :sass}
 {{1}}.foo{{/1}}
   :{{2}}name{{/2}} {{3}}value{{/3}}
   {{4}}name{{/4}}: {{5}}value{{/5}}
