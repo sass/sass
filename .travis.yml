@@ -12,8 +12,6 @@ install:
 
   - bundle install --jobs=3 --retry=3 --path=${BUNDLE_PATH:-vendor/bundle}
   - bundle update sass-spec
-script:
-  - extra/rake_with_matrix.rb
 rvm:
   - 2.0.0
   - 2.1.10
