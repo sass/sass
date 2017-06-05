@@ -2510,7 +2510,7 @@ MESSAGE
 
       extends = Sass::Util::SubsetMap.new
       begin
-        extender.populate_extends(extends, extendee)
+        extender.populate_extends(extends, extendee, nil, [], true)
         selector.do_extend(extends).to_sass_script
       rescue Sass::SyntaxError => e
         raise ArgumentError.new(e.to_s)
@@ -2553,7 +2553,7 @@ MESSAGE
 
       extends = Sass::Util::SubsetMap.new
       begin
-        replacement.populate_extends(extends, original)
+        replacement.populate_extends(extends, original, nil, [], true)
         selector.do_extend(extends, [], true).to_sass_script
       rescue Sass::SyntaxError => e
         raise ArgumentError.new(e.to_s)
