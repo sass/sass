@@ -132,8 +132,15 @@ module Sass
             end
           end
 
+          resolution = parent_sub + resolved_members[1..-1]
+          resolution.sort_by! {|e| e.is_a?(Pseudo) ? 1 : 0}
+          resolution.uniq!
+          if resolution.any? {|e| [Element, Class, Id].include? e.class}
+            resolution.delete_if {|e| e.is_a? Universal}
+          end
+
           Sequence.new(members[0...-1] +
-            [SimpleSequence.new(parent_sub + resolved_members[1..-1], subject?)] +
+            [SimpleSequence.new(resolution, subject?)] +
             [newline].compact)
           end)
       end
