@@ -156,7 +156,7 @@ MESSAGE
 
         # The tok(/\*/) allows the "E*" hack
         while (v = id_selector || class_selector || placeholder_selector ||
-                   attrib || pseudo || (tok(/\*/) && Selector::Universal.new(nil)))
+                   attrib || pseudo || parent_selector || (tok(/\*/) && Selector::Universal.new(nil)))
           res << v
         end
 

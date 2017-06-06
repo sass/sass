@@ -83,8 +83,8 @@ module Sass
       def contains_parent_ref?
         members.any? do |sseq_or_op|
           next false unless sseq_or_op.is_a?(SimpleSequence)
-          next true if sseq_or_op.members.first.is_a?(Parent)
           sseq_or_op.members.any? do |sel|
+            sel.is_a?(Parent) ||
             sel.is_a?(Pseudo) && sel.selector && sel.selector.contains_parent_ref?
           end
         end

@@ -91,8 +91,10 @@ module Sass
           sel.with_selector(sel.selector.resolve_parent_refs(super_cseq, false))
         end.flatten
 
-        # Parent selector only appears as the first selector in the sequence
-        unless (parent = resolved_members.first).is_a?(Parent)
+        parent = resolved_members.find do |sym|
+          sym.is_a? Parent
+        end
+        unless parent
           return CommaSequence.new([Sequence.new([SimpleSequence.new(resolved_members, subject?)])])
         end
 
@@ -132,8 +134,9 @@ module Sass
             end
           end
 
+          replaced = resolved_members.map {|sel| sel.is_a?(Parent) ? parent_sub : sel}.flatten
           Sequence.new(members[0...-1] +
-            [SimpleSequence.new(parent_sub + resolved_members[1..-1], subject?)] +
+            [SimpleSequence.new(replaced, subject?)] +
             [newline].compact)
           end)
       end
