@@ -217,10 +217,10 @@ SCSS
     assert_equal <<JSON.strip, sourcemap.to_json(:css_uri => 'css_uri')
 {
 "version": 3,
-"mappings": "AAAA,QAAS;EACP,KAAK,EAAE,IAAI",
+"file": "css_uri",
 "sources": ["http://orange.example.com/style.scss"],
 "names": [],
-"file": "css_uri"
+"mappings": "AAAA,QAAS;EACP,KAAK,EAAE,IAAI"
 }
 JSON
   end
@@ -259,10 +259,10 @@ CSS
     assert_equal <<JSON.strip, map
 {
 "version": 3,
-"mappings": "AACA,OAAQ",
+"file": "css_uri",
 "sources": ["source_uri"],
 "names": [],
-"file": "css_uri"
+"mappings": "AACA,OAAQ"
 }
 JSON
   end
@@ -286,10 +286,10 @@ SCSS
     assert_equal <<JSON.strip, sourcemap.to_json(:css_uri => 'css_uri')
 {
 "version": 3,
-"mappings": "AAAA,IAAK;EAAC,CAAC,EAAE,CAAC",
+"file": "css_uri",
 "sources": ["#{uri}"],
 "names": [],
-"file": "css_uri"
+"mappings": "AAAA,IAAK;EAAC,CAAC,EAAE,CAAC"
 }
 JSON
   end
@@ -313,10 +313,10 @@ SCSS
     assert_equal <<JSON.strip, sourcemap.to_json(:css_uri => 'css_uri', :css_path => 'css_path')
 {
 "version": 3,
-"mappings": "AAAA,IAAK;EAAC,CAAC,EAAE,CAAC",
+"file": "css_uri",
 "sources": ["#{uri}"],
 "names": [],
-"file": "css_uri"
+"mappings": "AAAA,IAAK;EAAC,CAAC,EAAE,CAAC"
 }
 JSON
   end
@@ -343,10 +343,10 @@ SCSS
     assert_equal <<JSON.strip, sourcemap.to_json(:css_uri => css_uri, :sourcemap_path => sourcemap_path)
 {
 "version": 3,
-"mappings": "AAAA,IAAK;EAAC,CAAC,EAAE,CAAC",
+"file": "css_uri",
 "sources": ["../sass/style.scss"],
 "names": [],
-"file": "css_uri"
+"mappings": "AAAA,IAAK;EAAC,CAAC,EAAE,CAAC"
 }
 JSON
   end
@@ -371,10 +371,10 @@ SCSS
     assert_equal <<JSON.strip, sourcemap.to_json(:css_path => css_path, :sourcemap_path => sourcemap_path)
 {
 "version": 3,
-"mappings": "AAAA,IAAK;EAAC,CAAC,EAAE,CAAC",
+"file": "../static/style.css",
 "sources": ["../sass/style.scss"],
 "names": [],
-"file": "../static/style.css"
+"mappings": "AAAA,IAAK;EAAC,CAAC,EAAE,CAAC"
 }
 JSON
   end
