@@ -68,6 +68,10 @@ For more details, see [this blog post][interp-blog] and
   previously parsed as strings, and in 3.6 they will be parsed as colors
   instead.
 
+* Pseudo selectors that take arguments now allow any
+  [`<declaration-value>`][declaration-value] production in their argument list.
+  This will provide better forwards-compatibility for future CSS syntax.
+
 [hex alpha spec]: https://drafts.csswg.org/css-color/#hex-notation
 [directional focus spec]: https://www.w3.org/TR/css-ui-3/#nav-dir
 

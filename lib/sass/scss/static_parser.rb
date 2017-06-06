@@ -282,35 +282,12 @@ MESSAGE
           elsif s == ':' && PREFIXED_SELECTOR_PSEUDO_CLASSES.include?(deprefixed)
             arg, sel = prefixed_selector_pseudo
           else
-            arg = expr!(:pseudo_args)
+            arg = expr!(:declaration_value).join
           end
 
           tok!(/\)/)
         end
         Selector::Pseudo.new(s == ':' ? :class : :element, name, arg, sel)
-      end
-
-      def pseudo_args
-        arg = expr!(:pseudo_expr)
-        while tok(/,/)
-          arg << ',' << str {ss}
-          arg.concat expr!(:pseudo_expr)
-        end
-        arg
-      end
-
-      def pseudo_expr
-        res = pseudo_expr_token
-        return unless res
-        res << str {ss}
-        while (e = pseudo_expr_token)
-          res << e << str {ss}
-        end
-        res
-      end
-
-      def pseudo_expr_token
-        tok(PLUS) || tok(/[-*]/) || tok(NUMBER) || tok(STRING) || tok(IDENT)
       end
 
       def prefixed_selector_pseudo

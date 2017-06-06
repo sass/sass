@@ -19,9 +19,6 @@ rvm:
   - 2.3.4
   - 2.4.1
 gemfile: Gemfile
-env:
-  - MATHN=true RUBOCOP=false
-  - MATHN=false RUBOCOP=false
 branches:
   only:
     - master
@@ -30,11 +27,3 @@ branches:
     - next
 notifications:
   irc: {channels: "irc.freenode.org#sass"}
-matrix:
-  include:
-    - rvm: 2.2.7
-      env: MATHN=true RUBOCOP=true
-    - rvm: 2.1.10
-      env: MATHN=true RUBOCOP=true
-    - rvm: 2.0.0
-      env: MATHN=true RUBOCOP=true
