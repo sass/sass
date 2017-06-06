@@ -14,14 +14,14 @@ module Sass
     #       :never_update => environment != :production,
     #       :full_exception => environment != :production)
     #
-    # {file:SASS_REFERENCE.md#options See the Reference for more options}.
+    # {file:SASS_REFERENCE.md#Options See the Reference for more options}.
     #
     # ## Use
     #
     # Put your Sass files in `public/stylesheets/sass`.
     # Your CSS will be generated in `public/stylesheets`,
     # and regenerated every request if necessary.
-    # The locations and frequency {file:SASS_REFERENCE.md#options can be customized}.
+    # The locations and frequency {file:SASS_REFERENCE.md#Options can be customized}.
     # That's all there is to it!
     class Rack
       # The delay, in seconds, between update checks.

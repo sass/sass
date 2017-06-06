@@ -39,7 +39,7 @@ module Sass
       # for checking the staleness of several stylesheets at once.
       #
       # @param options [{Symbol => Object}]
-      #   See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
+      #   See {file:SASS_REFERENCE.md#Options the Sass options documentation}.
       def initialize(options)
         # URIs that are being actively checked for staleness. Protects against
         # import loops.

@@ -19,7 +19,7 @@ SASS_GEMSPEC = Gem::Specification.new do |spec|
     END
 
   spec.required_ruby_version = '>= 1.8.7'
-  spec.add_development_dependency 'yard', '>= 0.9.8'
+  spec.add_development_dependency 'yard', '~> 0.8.7.6'
   spec.add_development_dependency 'redcarpet', '~> 2.3.0'
   spec.add_development_dependency 'minitest', '>= 5'
 
