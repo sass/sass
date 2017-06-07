@@ -181,7 +181,7 @@ module Sass
       end
 
       def tree(uri, importer)
-        @parse_trees[[uri, importer]] ||= importer.find(uri, @options).to_tree
+        @parse_trees[[uri, importer]] ||= importer.find(uri, @options.merge({:staleness_check => true})).to_tree
       end
 
       # Get access to the global dependency cache in a threadsafe manner.
