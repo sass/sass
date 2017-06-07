@@ -3178,6 +3178,25 @@ CSS
 SCSS
   end
 
+  def test_selector_script_through_mixin_with_parent_created_in_mixin
+	assert_equal(<<CSS, render(<<SCSS))
+.foo {
+  content: ".foo"; }
+CSS
+@mixin mixin1 {
+  .foo {
+    @include mixin2;
+  }
+}
+
+@mixin mixin2 {
+  content: "\#{&}";
+}
+
+@include mixin1;
+SCSS
+  end
+
   def test_selector_script_through_content
     assert_equal(<<CSS, render(<<SCSS))
 .foo {
