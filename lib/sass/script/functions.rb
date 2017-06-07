@@ -160,6 +160,9 @@ module Sass::Script
   # \{#random random([$limit])\}
   # : Returns a random number.
   #
+  # \{#clamp clamp($value, $min, $max)\}
+  # : Returns a number between minimum and maximum allowed values.
+  #
   # ## List Functions {#list-functions}
   #
   # Lists in Sass are immutable; all list functions return a new list rather
@@ -1895,6 +1898,23 @@ MESSAGE
       values.inject {|max, val| max.gt(val).to_bool ? max : val}
     end
     declare :max, [], :var_args => :true
+
+    # Returns a number between minimum and maximum allowed values.
+    #
+    # @example
+    #   clamp(-10px, 1px, 10px) => 1px
+    #   clamp(5px, 0px, 10px) => 5px
+    #   clamp(110%, 0%, 100%) => 100%
+    # @return [Number] The number between minimum and maximum values.
+    # @raise [ArgumentError] if any argument isn't a number, or if not all of
+    #   the arguments have comparable units
+    def clamp(value, min, max)
+      assert_type value, :Number
+      assert_type min, :Number
+      assert_type max, :Number
+      (value.lt(min).to_bool ? min : (value.gt(max).to_bool ? max : value))
+    end
+    declare :clamp, [:value, :min, :max]
 
     # Return the length of a list.
     #

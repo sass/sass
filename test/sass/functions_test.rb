@@ -217,6 +217,32 @@ WARNING
     assert_error_message("Incompatible units: 'px' and 'em'.", "max(3em, 4em, 1px)")
   end
 
+  def test_clamp
+    assert_equal("1", evaluate("clamp(0, 1, 3)"))
+    assert_equal("1", evaluate("clamp(1, 1, 3)"))
+    assert_equal("2", evaluate("clamp(2, 1, 3)"))
+    assert_equal("3", evaluate("clamp(3, 1, 3)"))
+    assert_equal("3", evaluate("clamp(4, 1, 3)"))
+
+    assert_equal("1.11", evaluate("clamp(0.00, 1.11, 3.33)"))
+    assert_equal("1.11", evaluate("clamp(1.11, 1.11, 3.33)"))
+    assert_equal("2.22", evaluate("clamp(2.22, 1.11, 3.33)"))
+    assert_equal("3.33", evaluate("clamp(3.33, 1.11, 3.33)"))
+    assert_equal("3.33", evaluate("clamp(4.44, 1.11, 3.33)"))
+
+    assert_equal("100%", evaluate("clamp(110%, 0%, 100%)"))
+    assert_equal("10em", evaluate("clamp(1em, 10em, 100em)"))
+
+    assert_equal("1in", evaluate("clamp(1cm, 1in, 2in)"))
+    assert_equal("2in", evaluate("clamp(10cm, 1in, 2in)"))
+
+    assert_error_message("#000000 is not a number for `clamp'", "clamp(0, #000000, #ffffff)")
+    assert_error_message("#cccccc is not a number for `clamp'", "clamp(#cccccc, #000000, #ffffff)")
+    assert_error_message("#ffffff is not a number for `clamp'", "clamp(0, 0, #ffffff)")
+
+    assert_error_message("Incompatible units: 'em' and 'px'.", "clamp(1px, 0em, 2em)")
+  end
+
   def test_rgb
     assert_equal("#123456", evaluate("rgb(18, 52, 86)"))
     assert_equal("#beaded", evaluate("rgb(190, 173, 237)"))
