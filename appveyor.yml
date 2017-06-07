@@ -1,0 +1,72 @@
+# see: http://www.appveyor.com/docs/build-configuration
+
+init:
+  - git config --global core.autocrlf input
+
+clone_folder: c:\projects\sass
+
+version: "{build}"
+
+# list some environment info
+install:
+  - ps: Get-Date
+  - ps: $env:Path = $env:RUBYPATH + "\bin;" + $env:Path
+  - ruby -v
+  - gem -v
+  - gem install bundler
+  - gem list bundler
+  - bundle install
+
+# any building is done during test using rake
+build: off
+
+# run rake
+test_script:
+  - ps: Write-Host "Getting ready to test..." -ForegroundColor Magenta
+  - cd C:\projects\sass
+  - bundle exec rake
+
+after_test:
+  - ps: Get-Date
+
+on_success:
+  - ps: Write-Host "Done testing (SUCCESS)" -ForegroundColor Green
+  
+on_failure:
+  - ps: Write-Host "Done testing (FAILURE)" -ForegroundColor Red
+
+environment:
+
+  matrix:
+  - myEnv: 193-mathn-true
+    MATHN: true
+    RUBOCOP: false
+    RUBYPATH: C:\Ruby193
+  
+  - myEnv: 193-mathn-false
+    MATHN: false
+    RUBOCOP: false
+    RUBYPATH: C:\Ruby193
+
+  - myEnv: 200-mathn-true
+    MATHN: true
+    RUBOCOP: false
+    RUBYPATH: C:\Ruby200
+  
+  - myEnv: 200-mathn-false
+    MATHN: false
+    RUBOCOP: false
+    RUBYPATH: C:\Ruby200
+
+  - myEnv: 200-mathn-true-x64
+    MATHN: true
+    RUBOCOP: false
+    RUBYPATH: C:\Ruby200-x64
+  
+  - myEnv: 200-mathn-false-x64
+    MATHN: false
+    RUBOCOP: false
+    RUBYPATH: C:\Ruby200-x64
+
+matrix:
+  fast_finish: false
