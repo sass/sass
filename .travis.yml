@@ -1,7 +1,7 @@
 sudo: false
 language: ruby
 cache: bundler
-install:
+before_install:
   # If we're running for a pull request, check out the revision of sass-spec
   # referenced by that pull request.
   - if-pr() { if [ ! -z "$TRAVIS_PULL_REQUEST" -a "$TRAVIS_PULL_REQUEST" != false ]; then "$@"; fi }
@@ -10,46 +10,33 @@ install:
   - if-pr git -C sass-spec pull --depth=1 git://github.com/sass/sass-spec `extra/sass-spec-ref.sh`
   - if-pr bundle config local.sass-spec "`pwd`/sass-spec"
 
+install:
   - bundle install --jobs=3 --retry=3 --path=${BUNDLE_PATH:-vendor/bundle}
+
+after_install:
   - bundle update sass-spec
-rvm:
-  - 1.8.7
-  - 1.9.2
-  - 1.9.3
-  - 2.0.0
-  - 2.1.7
-  - 2.2.3
-  - 2.3.0
-  - jruby-18mode
-  - jruby-19mode
-  - jruby-21mode
-  - jruby-9.0.0.0
-  - rbx
-  - ree
+
 gemfile: Gemfile
+
 env:
-  - MATHN=true RUBOCOP=false
-  - MATHN=false RUBOCOP=false
+  - MATHN=true RUBOCOP=true
+
 branches:
   only:
     - master
     - stable
     - stable_3_2
+
 notifications:
   irc: {channels: "irc.freenode.org#sass"}
-matrix:
-  allow_failures:
-    - rvm: rbx
-    - rvm: jruby-18mode
-    - rvm: jruby-19mode
-    - rvm: jruby-21mode
-    - rvm: jruby-9.0.0.0
+
+jobs:
   include:
-    - rvm: 2.2.3
-      env: MATHN=true RUBOCOP=true
-    - rvm: 2.1.7
-      env: MATHN=true RUBOCOP=true
-    - rvm: 2.0.0
-      env: MATHN=true RUBOCOP=true
-    - rvm: 1.9.3
-      env: MATHN=true RUBOCOP=true
+    - stage: test
+      rvm: 2.2.3
+    - stage: test
+      rvm: 2.1.7
+    - stage: test
+      rvm: 2.0.0
+    - stage: test
+      rvm: 1.9.3
