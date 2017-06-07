@@ -30,6 +30,8 @@ For more details, see [this blog post][interp-blog] and
 * Combine ids and `:root` when unifying selectors with `@extend` and selector
   functions.
 
+* Add a `str-is-quoted($string)` function to detect whether a not a string is quoted or not (e.g. is an identifier)
+
 * Add a `$weight` parameter to `invert()`.
 
 * The last argument in an argument list can now have a trailing comma.
