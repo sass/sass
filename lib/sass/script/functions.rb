@@ -199,11 +199,16 @@ module Sass::Script
   # Maps in Sass are immutable; all map functions return a new map rather than
   # updating the existing map in-place.
   #
-  # \{#map_get map-get($map, $key)}
-  # : Returns the value in a map associated with a given key.
+  # \{#map_get map-get($map, $keys...)}
+  # : Returns the value in a (potentially nested) map associated with a given series of keys.
   #
   # \{#map_merge map-merge($map1, $map2)}
   # : Merges two maps together into a new map.
+  # \{#map_merge map-merge($map1, [$keys...], $map2)}
+  # : Merges a map into another map with the specified keys
+  #
+  # \{#map_set map-set($map, $keys..., $value)
+  # : Sets in the specified keys into a new map, supporting one or more keys, creating nested maps as needed
   #
   # \{#map_remove map-remove($map, $keys...)}
   # : Returns a new map with keys removed.
@@ -214,8 +219,8 @@ module Sass::Script
   # \{#map_values map-values($map)}
   # : Returns a list of all values in a map.
   #
-  # \{#map_has_key map-has-key($map, $key)}
-  # : Returns whether a map has a value associated with a given key.
+  # \{#map_has_key map-has-key($map, $keys...)}
+  # : Returns whether a map has a (potentially nested) value associated with the given key(s).
   #
   # \{#keywords keywords($args)}
   # : Returns the keywords passed to a function that takes variable arguments.
@@ -2185,15 +2190,21 @@ MESSAGE
     #   map-get(("foo": 1, "bar": 2), "baz") => null
     # @overload map_get($map, $key)
     #   @param $map [Sass::Script::Value::Map]
-    #   @param $key [Sass::Script::Value::Base]
-    # @return [Sass::Script::Value::Base] The value indexed by `$key`, or `null`
+    #   @param $keys [[Sass::Script::Value::Base]]
+    # @return [Sass::Script::Value::Base] The value indexed by `$keys`, or `null`
     #   if the map doesn't contain the given key
     # @raise [ArgumentError] if `$map` is not a map
-    def map_get(map, key)
+    def map_get(map, *keys)
       assert_type map, :Map, :map
-      map.to_h[key] || null
+      result = map
+      keys.each do |key|
+        return null unless result.is_a?(Sass::Script::Value::Map)
+        result = result.to_h[key]
+      end
+      result || null
     end
     declare :map_get, [:map, :key]
+    declare :map_get, [:map], :var_args => true
 
     # Merges two maps together into a new map. Keys in `$map2` will take
     # precedence over keys in `$map1`.
@@ -2210,17 +2221,61 @@ MESSAGE
     # @example
     #   map-merge(("foo": 1), ("bar": 2)) => ("foo": 1, "bar": 2)
     #   map-merge(("foo": 1, "bar": 2), ("bar": 3)) => ("foo": 1, "bar": 3)
-    # @overload map_merge($map1, $map2)
+    #   map-merge((a: (b: c)), a, (d: e)) => (a: (b: c, d: e))
+    #   map-merge((a: (b: c)), (a: (d: e))) => (a: (d: e))
+    # @overload map_merge($map1, $keys..., $map2)
     #   @param $map1 [Sass::Script::Value::Map]
+    #   @param $keys [[Sass::Script::Value]]
     #   @param $map2 [Sass::Script::Value::Map]
     # @return [Sass::Script::Value::Map]
     # @raise [ArgumentError] if either parameter is not a map
-    def map_merge(map1, map2)
+    def map_merge(map1, *keys)
       assert_type map1, :Map, :map1
+
+      # Empty Maps arrive as Lists, so ensure we are a list if we are empty
+      # but since Lists don't define the merge functions, we need to ensure
+      # we have a proper Map.
+      map1 = map(map1.to_h)
+
+      # The last argument is always the map we are merging in
+      map2 = keys.pop
+
+      # Make sure that the last argument is Map-like, however it
+      # can be a List, and we're fine with that.
       assert_type map2, :Map, :map2
-      map(map1.to_h.merge(map2.to_h))
+
+      map1.recursive_merge(keys, map2)
     end
     declare :map_merge, [:map1, :map2]
+    declare :map_merge, [:map1], :var_args => true
+
+    # Allows the setting of specific values in a
+    # map by passing in a series of keys, with the
+    # final argument setting the value of that key.
+    #
+    # If no keys exist, they are created along with
+    # any needed nested maps.
+    #
+    # @example
+    #   map-set((a: 1), b, 2) => (a: 1, b: 2)
+    #   map-set((a: (b: 1)), a, c, 2) => (a: (b: 1, c: 2))
+    #   map-set((), a, b, c) => (a: (b: c))
+    # @overload map-set($map, $keys..., $value)
+    #   @param $map1 [Sass::Script::Value::Map]
+    #   @param $keys [[Sass::Script::Value::Base]]
+    #   @param $value [Sass::Script::Value::Base]
+    # @return [Sass::Script::Value::Map]
+    # @raise [ArgumentError] if the first parameter is not a map
+    def map_set(map, *keys)
+      assert_type map, :Map, :map
+      new_value = keys.pop
+      if map.is_a?(Sass::Script::Value::List)
+        map = map(map.to_h)
+      end
+      map.recursive_set(keys, new_value)
+    end
+    declare :map_set, [:map, :value]
+    declare :map_set, [:map, :keys], :var_args => true
 
     # Returns a new map with keys removed.
     #
@@ -2279,16 +2334,21 @@ MESSAGE
     # @example
     #   map-has-key(("foo": 1, "bar": 2), "foo") => true
     #   map-has-key(("foo": 1, "bar": 2), "baz") => false
-    # @overload map_has_key($map, $key)
+    #   map-has-key((foo: (bar: 1)), foo, bar)   => true
+    # @overload map_has_key($map, $keys)
     #   @param $map [Sass::Script::Value::Map]
-    #   @param $key [Sass::Script::Value::Base]
+    #   @param $keys [[Sass::Script::Value::Base]]
     # @return [Sass::Script::Value::Bool]
     # @raise [ArgumentError] if `$map` is not a map
-    def map_has_key(map, key)
+    def map_has_key(map, *keys)
       assert_type map, :Map, :map
-      bool(map.to_h.has_key?(key))
+      bool(keys.all? do |key|
+        return bool(false) unless map.is_a?(Sass::Script::Value::Map)
+        map = map.to_h[key]
+      end)
     end
     declare :map_has_key, [:map, :key]
+    declare :map_has_key, [:map], :var_args => true
 
     # Returns the map of named arguments passed to a function or mixin that
     # takes a variable argument list. The argument names are strings, and they

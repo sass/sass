@@ -43,6 +43,45 @@ module Sass::Script::Value
       Bool.new(other.is_a?(Map) && value == other.value)
     end
 
+    # Walks the Map, directed by the list of keys specified in the `keys` array
+    # creating nested Maps as needed, and when there is only one key left,
+    # setting the value to what is specified in `new_value`.
+    #
+    # If a nested map specified in a key doesn't exist, it is created.
+    #
+    # @param keys [Array<Value>]
+    # @param new_value [Value]
+    # @return new_map [Map]
+    def recursive_set(keys, new_value)
+      new_map = value.dup
+      my_key, *child_keys = keys
+      if child_keys.any?
+        child = new_map[my_key] || Map.new({})
+        new_map[my_key] = child.recursive_set(child_keys, new_value)
+      else
+        new_map[my_key] = new_value
+      end
+      Map.new(new_map)
+    end
+
+    # Returns a new map, after following the nestd keys specified in the second
+    # argument, until a final merge is called with the last value.
+    #
+    # @param keys [Array<Value>]
+    # @param map_to_merge [Map]
+    # @return new_map [Map]
+    def recursive_merge(keys, map_to_merge)
+      new_map = value.dup
+      my_key, *child_keys = keys
+      if my_key
+        child = new_map[my_key] || Map.new({})
+        new_map[my_key] = child.recursive_merge(child_keys, map_to_merge)
+      else
+        new_map = new_map.merge(map_to_merge.to_h)
+      end
+      Map.new(new_map)
+    end
+
     def hash
       @hash ||= value.hash
     end
