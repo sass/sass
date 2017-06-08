@@ -12,7 +12,7 @@ module Sass
   # when it's used as a plugin for various frameworks.
   # All Rack-enabled frameworks are supported out of the box.
   # The plugin is
-  # {file:SASS_REFERENCE.md#rails_merb_plugin automatically activated for Rails and Merb}.
+  # {file:SASS_REFERENCE.md#Rack_Rails_Merb_Plugin automatically activated for Rails and Merb}.
   # Other frameworks must enable it explicitly; see {Sass::Plugin::Rack}.
   #
   # This module has a large set of callbacks available
