@@ -20,7 +20,7 @@
   correspond closely to intuitive understandings of color. Sass's suite of
   [color functions][] are a much cleaner and more comprehensible way of
   manipulating colors dynamically.
-  
+
 * The reference combinator, `/foo/`, is deprecated since it hasn't been in the
   CSS specification for some time.
 
