@@ -51,6 +51,7 @@ require 'sass/importers'
 require 'sass/shared'
 require 'sass/media'
 require 'sass/supports'
+Encoding.default_external = Encoding.find('utf-8');
 
 module Sass
   # A Sass mixin or function.
