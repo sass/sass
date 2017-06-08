@@ -12,8 +12,42 @@ task :default => :test
 
 require 'rake/testtask'
 
+LINE_SIZE = 80
+DECORATION_CHAR = '#'
+
+def print_header(string)
+  length = string.length
+  puts DECORATION_CHAR * LINE_SIZE
+  puts string.center(length + 2, ' ').center(LINE_SIZE, DECORATION_CHAR)
+  puts DECORATION_CHAR * LINE_SIZE
+end
+
 desc "Run all tests"
-task :test => ["test:ruby", "test:spec"]
+task :test do
+  test_cases = [
+    {
+      'env'   => {'MATHN' => 'true'},
+      'tasks' => ['test:ruby', 'test:spec', :rubocop]
+    },
+    {
+      'env'   => {'MATHN' => 'false'},
+      'tasks' => ['test:ruby']
+    }
+  ]
+
+  test_cases.each do |test_case|
+    env = test_case['env']
+    tasks = test_case['tasks']
+
+    env.each do |key, value|
+      ENV[key] = value
+    end
+    tasks.each do |task|
+      print_header("Running task: #{task}, env: #{env}")
+      Rake::Task[task].execute
+    end
+  end
+end
 
 namespace :test do
   desc "Run the ruby tests (without sass-spec)"
@@ -76,24 +110,19 @@ def ruby_version_at_least?(version_string)
   ruby_version >= version
 end
 
-if ruby_version_at_least?("2.2.0") &&
-    (ENV.has_key?("RUBOCOP") && ENV["RUBOCOP"] == "true" ||
-      !(ENV.has_key?("RUBOCOP") || ENV.has_key?("TEST")))
+begin
   require 'rubocop/rake_task'
   RuboCop = Rubocop unless defined?(RuboCop)
   RuboCop::RakeTask.new do |t|
     t.patterns = FileList["lib/**/*"]
   end
-else
+rescue LoadError
   task :rubocop do
-    puts "Skipping rubocop style check."
-    next if ENV.has_key?("RUBOCOP") && ENV["RUBOCOP"] != "true"
+    puts "Rubocop is disabled."
     puts "Passing this check is required in order for your patch to be accepted."
-    puts "Use Ruby 2.2 or greater and then run the style check with: rake rubocop"
+    puts "Install Rubocop and then run the style check with: rake rubocop."
   end
 end
-
-task :test => :rubocop
 
 # ----- Packaging -----
 
