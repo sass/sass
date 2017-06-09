@@ -21,6 +21,9 @@
   [color functions][] are a much cleaner and more comprehensible way of
   manipulating colors dynamically.
 
+* The reference combinator, `/foo/`, is deprecated since it hasn't been in the
+  CSS specification for some time.
+
 * The old-style `:name value` property syntax is deprecated. This syntax is not
   widely used, and is unnecessarily different from CSS.
 
