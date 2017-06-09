@@ -518,17 +518,19 @@ SASS
     assert_equal "true", resolve("2mm == 8q")
     assert_equal "false", resolve("2px > 3q")
 
-    assert_warning(<<WARNING) {assert_equal "true", resolve("1 == 1cm")}
+    Sass::Deprecation.allow_double_warnings do
+      assert_warning(<<WARNING) {assert_equal "true", resolve("1 == 1cm")}
 DEPRECATION WARNING on line 1 of test_operator_unit_conversion_inline.sass:
 The result of `1 == 1cm` will be `false` in future releases of Sass.
 Unitless numbers will no longer be equal to the same numbers with units.
 WARNING
 
-    assert_warning(<<WARNING) {assert_equal "false", resolve("1 != 1cm")}
+      assert_warning(<<WARNING) {assert_equal "false", resolve("1 != 1cm")}
 DEPRECATION WARNING on line 1 of test_operator_unit_conversion_inline.sass:
 The result of `1 != 1cm` will be `true` in future releases of Sass.
 Unitless numbers will no longer be equal to the same numbers with units.
 WARNING
+    end
   end
 
   def test_length_units
@@ -1307,32 +1309,37 @@ SASS
   end
 
   def test_active_lazy_interpolation_deprecation_warning
-    assert_equal "1, 2, 3", resolve_with_lazy_interp_warning('quote((1, #{2}, 3))', '"1, 2, 3"')
-    assert_equal "1", resolve_with_lazy_interp_warning('length((1, #{2}, 3))', '"1, 2, 3"')
-    assert_equal "1, 2, 3", resolve_with_lazy_interp_warning('inspect((1, #{2}, 3))', '"1, 2, 3"')
-    assert_equal "string", resolve_with_lazy_interp_warning('type-of((1, #{2}, 3))', '"1, 2, 3"')
+    Sass::Deprecation.allow_double_warnings do
+      assert_equal "1, 2, 3", resolve_with_lazy_interp_warning('quote((1, #{2}, 3))', '"1, 2, 3"')
+      assert_equal "1", resolve_with_lazy_interp_warning('length((1, #{2}, 3))', '"1, 2, 3"')
+      assert_equal "1, 2, 3", resolve_with_lazy_interp_warning('inspect((1, #{2}, 3))', '"1, 2, 3"')
+      assert_equal "string", resolve_with_lazy_interp_warning('type-of((1, #{2}, 3))', '"1, 2, 3"')
 
-    assert_equal "+1 2 3", resolve_with_lazy_interp_warning('quote((+#{1} 2 3))', '"+1 #{2 3}"')
-    assert_equal "/1 2 3", resolve_with_lazy_interp_warning('quote((/#{1} 2 3))', '"/1 #{2 3}"')
-    assert_equal "-1 2 3", resolve_with_lazy_interp_warning('quote((-#{1} 2 3))', '"-1 #{2 3}"')
+      assert_equal "+1 2 3", resolve_with_lazy_interp_warning('quote((+#{1} 2 3))', '"+1 #{2 3}"')
+      assert_equal "/1 2 3", resolve_with_lazy_interp_warning('quote((/#{1} 2 3))', '"/1 #{2 3}"')
+      assert_equal "-1 2 3", resolve_with_lazy_interp_warning('quote((-#{1} 2 3))', '"-1 #{2 3}"')
+    end
   end
 
   def test_comparison_of_complex_units
     # Tests for issue #1960
-    assert_warning(<<WARNING) do
+    Sass::Deprecation.allow_double_warnings do
+      assert_warning(<<WARNING) do
 DEPRECATION WARNING on line 1 of test_comparison_of_complex_units_inline.sass:
 The result of `10 == 10px` will be `false` in future releases of Sass.
 Unitless numbers will no longer be equal to the same numbers with units.
 WARNING
-      assert_equal "true", resolve("10 == 2 * 5px")
-    end
-    assert_warning(<<WARNING) do
+        assert_equal "true", resolve("10 == 2 * 5px")
+      end
+      assert_warning(<<WARNING) do
 DEPRECATION WARNING on line 1 of test_comparison_of_complex_units_inline.sass:
 The result of `10 == 10px*px` will be `false` in future releases of Sass.
 Unitless numbers will no longer be equal to the same numbers with units.
 WARNING
-      assert_equal "true", resolve("10 == 2px * 5px")
+        assert_equal "true", resolve("10 == 2px * 5px")
+      end
     end
+
     assert_equal "true", resolve("10px * 1px == 2px * 5px")
     assert_equal "true", resolve("5px * 1px < 2px * 5px")
   end
@@ -1342,8 +1349,9 @@ WARNING
   def resolve_with_lazy_interp_warning(str, contents = nil, environment = env)
     contents ||= "\"#{str}\""
     result = assert_warning(<<WARNING) {resolve(str, {}, environment)}
-DEPRECATION WARNING on line 1 of #{filename_for_test}: \#{} interpolation near operators will be simplified
-in a future version of Sass. To preserve the current behavior, use quotes:
+DEPRECATION WARNING on line 1 of #{filename_for_test}:
+\#{} interpolation near operators will be simplified in a future version of Sass.
+To preserve the current behavior, use quotes:
 
   unquote(#{contents})
 WARNING
@@ -1354,8 +1362,9 @@ WARNING
   def resolve_with_interp_warning(str, contents = nil, environment = env)
     contents ||= "\"#{str}\""
     assert_warning(<<WARNING) {resolve(str, {}, environment)}
-DEPRECATION WARNING on line 1 of #{filename_for_test}: \#{} interpolation near operators will be simplified
-in a future version of Sass. To preserve the current behavior, use quotes:
+DEPRECATION WARNING on line 1 of #{filename_for_test}:
+\#{} interpolation near operators will be simplified in a future version of Sass.
+To preserve the current behavior, use quotes:
 
   unquote(#{contents})
 

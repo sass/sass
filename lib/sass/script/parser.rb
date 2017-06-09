@@ -818,8 +818,9 @@ RUBY
         location = "on line #{interpolation.line}"
         location << " of #{interpolation.filename}" if interpolation.filename
         Sass::Util.sass_warn <<WARNING
-DEPRECATION WARNING #{location}: \#{} interpolation near operators will be simplified
-in a future version of Sass. To preserve the current behavior, use quotes:
+DEPRECATION WARNING #{location}:
+\#{} interpolation near operators will be simplified in a future version of Sass.
+To preserve the current behavior, use quotes:
 
   #{interpolation.to_quoted_equivalent.to_sass}
 
