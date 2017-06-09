@@ -701,9 +701,9 @@ WARNING
   end
 
   def test_nested_extender_doesnt_find_common_selectors_around_reference_selector
-    assert_extends 'a /for/ b c .c1', 'a c .c2 {@extend .c1}', 'a /for/ b c .c1, a /for/ b a c .c2, a a /for/ b c .c2'
-    assert_extends 'a /for/ b c .c1', 'a b .c2 {@extend .c1}', 'a /for/ b c .c1, a a /for/ b c .c2'
-    assert_extends 'a /for/ b c .c1', 'b c .c2 {@extend .c1}', 'a /for/ b c .c1, a /for/ b c .c2'
+    silence_warnings {assert_extends 'a /for/ b c .c1', 'a c .c2 {@extend .c1}', 'a /for/ b c .c1, a /for/ b a c .c2, a a /for/ b c .c2'}
+    silence_warnings {assert_extends 'a /for/ b c .c1', 'a b .c2 {@extend .c1}', 'a /for/ b c .c1, a a /for/ b c .c2'}
+    silence_warnings {assert_extends 'a /for/ b c .c1', 'b c .c2 {@extend .c1}', 'a /for/ b c .c1, a /for/ b c .c2'}
   end
 
   def test_nested_extender_with_early_child_selectors_doesnt_subseq_them

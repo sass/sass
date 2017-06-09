@@ -805,10 +805,10 @@ SCSS
     assert_selector_parses('E > F')
     assert_selector_parses('E + F')
     assert_selector_parses('E ~ F')
-    assert_selector_parses('E /foo/ F')
+    silence_warnings {assert_selector_parses('E /foo/ F')}
     silence_warnings {assert_selector_parses('E! > F')}
 
-    assert_selector_parses('E /ns|foo/ F')
+    silence_warnings {assert_selector_parses('E /ns|foo/ F')}
 
     # From http://dev.w3.org/csswg/css-scoping-1/
     assert_selector_parses('E:host(s)')

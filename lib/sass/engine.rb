@@ -174,7 +174,7 @@ module Sass
     # default values and resolving aliases.
     #
     # @param options [{Symbol => Object}] The options hash;
-    #   see {file:SASS_REFERENCE.md#options the Sass options documentation}
+    #   see {file:SASS_REFERENCE.md#Options the Sass options documentation}
     # @return [{Symbol => Object}] The normalized options hash.
     # @private
     def self.normalize_options(options)
@@ -228,7 +228,7 @@ module Sass
     #
     # @param filename [String] The path to the Sass or SCSS file
     # @param options [{Symbol => Object}] The options hash;
-    #   See {file:SASS_REFERENCE.md#options the Sass options documentation}.
+    #   See {file:SASS_REFERENCE.md#Options the Sass options documentation}.
     # @return [Sass::Engine] The Engine for the given Sass or SCSS file.
     # @raise [Sass::SyntaxError] if there's an error in the document.
     def self.for_file(filename, options)
@@ -246,7 +246,7 @@ module Sass
     end
 
     # The options for the Sass engine.
-    # See {file:SASS_REFERENCE.md#options the Sass options documentation}.
+    # See {file:SASS_REFERENCE.md#Options the Sass options documentation}.
     #
     # @return [{Symbol => Object}]
     attr_reader :options
@@ -263,9 +263,9 @@ module Sass
     #   that can be converted to Unicode.
     #   If the template contains an `@charset` declaration,
     #   that overrides the Ruby encoding
-    #   (see {file:SASS_REFERENCE.md#encodings the encoding documentation})
+    #   (see {file:SASS_REFERENCE.md#Encodings the encoding documentation})
     # @param options [{Symbol => Object}] An options hash.
-    #   See {file:SASS_REFERENCE.md#options the Sass options documentation}.
+    #   See {file:SASS_REFERENCE.md#Options the Sass options documentation}.
     # @see {Sass::Engine.for_file}
     # @see {Sass::Plugin}
     def initialize(template, options = {})
@@ -522,10 +522,6 @@ MSG
       nodes = []
       while (line = arr[i]) && line.tabs >= base
         if line.tabs > base
-          raise SyntaxError.new(
-            "The line was indented #{line.tabs - base} levels deeper than the previous line.",
-            :line => line.index) if line.tabs > base + 1
-
           nodes.last.children, i = tree(arr, i)
         else
           nodes << line

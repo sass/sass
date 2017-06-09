@@ -72,6 +72,9 @@ For more details, see [this blog post][interp-blog] and
   [`<declaration-value>`][declaration-value] production in their argument list.
   This will provide better forwards-compatibility for future CSS syntax.
 
+* The indented syntax now allows different indentation to be used for different
+  lines, as long as they define a consistent tree structure.
+
 [hex alpha spec]: https://drafts.csswg.org/css-color/#hex-notation
 [directional focus spec]: https://www.w3.org/TR/css-ui-3/#nav-dir
 
@@ -100,6 +103,9 @@ For more details, see [this blog post][interp-blog] and
   correspond closely to intuitive understandings of color. Sass's suite of
   [color functions][] are a much cleaner and more comprehensible way of
   manipulating colors dynamically.
+
+* The reference combinator, `/foo/`, is deprecated since it hasn't been in the
+  CSS specification for some time.
 
 * The old-style `:name value` property syntax is deprecated. This syntax is not
   widely used, and is unnecessarily different from CSS.

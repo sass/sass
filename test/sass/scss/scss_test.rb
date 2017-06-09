@@ -2172,7 +2172,7 @@ SCSS
   end
 
   def test_selector_interpolation_in_reference_combinator
-    assert_equal <<CSS, render(<<SCSS)
+    silence_warnings {assert_equal <<CSS, render(<<SCSS)}
 .foo /a/ .bar /b|c/ .baz {
   a: b; }
 CSS
@@ -3824,7 +3824,19 @@ SCSS
   end
 
   def test_reference_combinator_with_parent_ref
-    assert_equal <<CSS, render(<<SCSS)
+    silence_warnings {assert_equal <<CSS, render(<<SCSS)}
+a /foo/ b {
+  c: d; }
+CSS
+a {& /foo/ b {c: d}}
+SCSS
+  end
+
+  def test_reference_combinator_warning
+    assert_warning(<<WARNING) {assert_equal <<CSS, render(<<SCSS)}
+DEPRECATION WARNING on line 1, column 8 of test_reference_combinator_warning_inline.scss:
+The reference combinator /foo/ is deprecated and will be removed in a future release.
+WARNING
 a /foo/ b {
   c: d; }
 CSS
