@@ -522,10 +522,6 @@ MSG
       nodes = []
       while (line = arr[i]) && line.tabs >= base
         if line.tabs > base
-          raise SyntaxError.new(
-            "The line was indented #{line.tabs - base} levels deeper than the previous line.",
-            :line => line.index) if line.tabs > base + 1
-
           nodes.last.children, i = tree(arr, i)
         else
           nodes << line
