@@ -25,7 +25,7 @@ module Sass
       # @param offset [Integer] The character (not byte) offset where the script starts in the line.
       #   Used for error reporting and sourcemap building
       # @param options [{Symbol => Object}] An options hash; see
-      #   {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
+      #   {file:SASS_REFERENCE.md#Options the Sass options documentation}.
       #   This supports an additional `:allow_extra_text` option that controls
       #   whether the parser throws an error when extra text is encountered
       #   after the parsed construct.

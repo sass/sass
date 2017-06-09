@@ -81,7 +81,7 @@ module Sass
     inherited_hash_reader :function
 
     # @param options [{Symbol => Object}] The options hash. See
-    #   {file:SASS_REFERENCE.md#options the Sass options documentation}.
+    #   {file:SASS_REFERENCE.md#Options the Sass options documentation}.
     # @param parent [Environment] See \{#parent}
     def initialize(parent = nil, options = nil)
       @parent = parent
