@@ -1,6 +1,7 @@
 require 'set'
 require 'digest/sha1'
 require 'sass/cache_stores'
+require 'sass/deprecation'
 require 'sass/source/position'
 require 'sass/source/range'
 require 'sass/source/map'
@@ -95,6 +96,8 @@ module Sass
   #     output = sass_engine.render
   #     puts output
   class Engine
+    @@old_property_deprecation = Deprecation.new
+
     # A line of Sass code.
     #
     # `text`: `String`
@@ -626,8 +629,7 @@ WARNING
           raise SyntaxError.new("Invalid property: \"#{line.text}\".",
             :line => @line) if name.nil? || value.nil?
 
-          Sass::Util.sass_warn(<<WARNING.strip)
-DEPRECATION WARNING on line #{@line}#{" of #{@options[:filename]}" if @options[:filename]}:
+          @@old_property_deprecation.warn(@options[:filename], @line, <<WARNING)
 Old-style properties like "#{line.text}" are deprecated and will be an error in future versions of Sass.
 Use "#{name}: #{value}" instead.
 WARNING
