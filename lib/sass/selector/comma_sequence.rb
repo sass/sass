@@ -2,6 +2,8 @@ module Sass
   module Selector
     # A comma-separated sequence of selectors.
     class CommaSequence < AbstractSequence
+      @@compound_extend_deprecation = Sass::Deprecation.new
+
       # The comma-separated selector sequences
       # represented by this class.
       #
@@ -115,8 +117,7 @@ module Sass
 
           sel = sseq.members
           if !allow_compound_target && sel.length > 1
-            Sass::Util.sass_warn <<WARNING
-DEPRECATION WARNING on line #{sseq.line}#{" of #{sseq.filename}" if sseq.filename}:
+            @@compound_extend_deprecation.warn(sseq.filename, sseq.line, <<WARNING)
 Extending a compound selector, #{sseq}, is deprecated and will not be supported in a future release.
 See https://github.com/sass/sass/issues/1599 for details.
 WARNING

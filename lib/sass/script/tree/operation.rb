@@ -2,6 +2,9 @@ module Sass::Script::Tree
   # A SassScript parse node representing a binary operation,
   # such as `$a + $b` or `"foo" + 1`.
   class Operation < Node
+    @@color_arithmetic_deprecation = Sass::Deprecation.new
+    @@unitless_equals_deprecation = Sass::Deprecation.new
+
     attr_reader :operand1
     attr_reader :operand2
     attr_reader :operator
@@ -105,8 +108,7 @@ module Sass::Script::Tree
         return
       end
 
-      Sass::Util.sass_warn <<WARNING
-DEPRECATION WARNING on line #{line}#{" of #{filename}" if filename}:
+      @@color_arithmetic_deprecation.warn(filename, line, <<WARNING)
 The operation `#{value1} #{@operator} #{value2}` is deprecated and will be an error in future versions.
 Consider using Sass's color functions instead.
 http://sass-lang.com/documentation/Sass/Script/Functions.html#other_color_functions
@@ -126,8 +128,7 @@ WARNING
 
       operation = "#{value1.to_sass} #{@operator == :eq ? '==' : '!='} #{value2.to_sass}"
       future_value = @operator == :neq
-      Sass::Util.sass_warn <<WARNING
-DEPRECATION WARNING on line #{line}#{" of #{filename}" if filename}:
+      @@unitless_equals_deprecation.warn(filename, line, <<WARNING)
 The result of `#{operation}` will be `#{future_value}` in future releases of Sass.
 Unitless numbers will no longer be equal to the same numbers with units.
 WARNING

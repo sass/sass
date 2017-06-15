@@ -2,6 +2,8 @@
 module Sass::Script::Value
   # A SassScript object representing a CSS string *or* a CSS identifier.
   class String < Base
+    @@interpolation_deprecation = Sass::Deprecation.new
+
     # The Ruby value of the string.
     #
     # @return [String]
@@ -121,18 +123,9 @@ module Sass::Script::Value
     def check_deprecated_interp
       return unless @deprecated_interp_equivalent
 
-      # rubocop:disable GlobalVars
-      $_sass_deprecated_interp_warnings ||= Set.new
-      key = [source_range.start_pos.line, source_range.file, @deprecated_interp_equivalent]
-      return if $_sass_deprecated_interp_warnings.include?(key)
-      $_sass_deprecated_interp_warnings << key
-      # rubocop:enable GlobalVars
-
-      location = "on line #{source_range.start_pos.line}"
-      location << " of #{source_range.file}" if source_range.file
-      Sass::Util.sass_warn <<WARNING
-DEPRECATION WARNING #{location}: \#{} interpolation near operators will be simplified
-in a future version of Sass. To preserve the current behavior, use quotes:
+      @@interpolation_deprecation.warn(source_range.file, source_range.start_pos.line, <<WARNING)
+\#{} interpolation near operators will be simplified in a future version of Sass.
+To preserve the current behavior, use quotes:
 
   #{@deprecated_interp_equivalent}
 WARNING

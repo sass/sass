@@ -1,5 +1,7 @@
 # A visitor for converting a dynamic Sass tree into a static Sass tree.
 class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
+  @@function_name_deprecation = Sass::Deprecation.new
+
   class << self
     # @param root [Tree::Node] The root node of the tree to visit.
     # @param environment [Sass::Environment] The lexical environment.
@@ -280,8 +282,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
     if node.normalized_name == 'calc' || node.normalized_name == 'element' ||
         node.name == 'expression' || node.name == 'url'
-      Sass::Util.sass_warn <<WARNING
-DEPRECATION WARNING on line #{node.line}#{" of #{node.filename}" if node.filename}:
+      @@function_name_deprecation.warn(node.filename, node.line, <<WARNING)
 Naming a function "#{node.name}" is disallowed and will be an error in future versions of Sass.
 This name conflicts with an existing CSS function with special parse rules.
 WARNING
