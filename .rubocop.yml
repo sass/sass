@@ -37,6 +37,10 @@ Style/AlignParameters:
 Style/CharacterLiteral:
   # Character literals are pretty useful when working with text like we do.
   Enabled: false
+Style/ClassVars:
+  # Class variables are useful for managing deprecation, and class instance
+  # variables would be much more cumbersome.
+  Enabled: false
 Style/CollectionMethods:
   PreferredMethods:
     collect: 'map'
