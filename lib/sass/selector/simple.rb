@@ -72,6 +72,9 @@ module Sass
       #   by the time extension and unification happen,
       #   this exception will only ever be raised as a result of programmer error
       def unify(sels)
+        if sels.length == 1 && sels.first.is_a?(Universal)
+          return sels.first.unify([self])
+        end
         return sels if sels.any? {|sel2| eql?(sel2)}
         sels_with_ix = Sass::Util.enum_with_index(sels)
         if !is_a?(Pseudo) || (sels.last.is_a?(Pseudo) && sels.last.type == :element)
