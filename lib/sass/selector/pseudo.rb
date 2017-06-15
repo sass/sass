@@ -1,3 +1,4 @@
+# coding: utf-8
 module Sass
   module Selector
     # A pseudoclass (e.g. `:visited`) or pseudoelement (e.g. `::first-line`)
@@ -50,6 +51,14 @@ module Sass
 
       def unique?
         type == :class && normalized_name == 'root'
+      end
+
+      # Whether or not this selector should be hidden due to containing a
+      # placeholder.
+      def invisible?
+        # :not() is a special case—if you eliminate all the placeholders from
+        # it, it should match anything.
+        name != 'not' && @selector && @selector.members.all? {|s| s.invisible?}
       end
 
       # Returns a copy of this with \{#selector} set to \{#new\_selector}.
@@ -118,6 +127,10 @@ module Sass
 
       # @see Selector#to_s
       def to_s(opts = {})
+        # :not() is a special case, because :not(<nothing>) should match
+        # everything.
+        return '' if name == 'not' && @selector && @selector.members.all? {|m| m.invisible?}
+
         res = (syntactic_type == :class ? ":" : "::") + @name
         if @arg || @selector
           res << "("

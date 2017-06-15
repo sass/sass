@@ -127,7 +127,7 @@ module Sass::Tree
 
     # A rule node is invisible if it has only placeholder selectors.
     def invisible?
-      resolved_rules.members.all? {|seq| seq.has_placeholder?}
+      resolved_rules.members.all? {|seq| seq.invisible?}
     end
 
     private
