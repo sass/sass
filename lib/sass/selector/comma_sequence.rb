@@ -129,7 +129,7 @@ WARNING
             end
 
             extends[sel] = Sass::Tree::Visitors::Cssize::Extend.new(
-              member, sel, extend_node, parent_directives, :not_found)
+              member, sel, extend_node, parent_directives, false)
           end
         end
       end

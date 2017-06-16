@@ -106,11 +106,9 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
   # @attr node [Sass::Tree::ExtendNode] The node that produced this extend.
   # @attr directives [Array<Sass::Tree::DirectiveNode>]
   #   The directives containing the `@extend`.
-  # @attr result [Symbol]
-  #   The result of this extend. One of `:not_found` (the target doesn't exist
-  #   in the document), `:failed_to_unify` (the target exists but cannot be
-  #   unified with the extender), or `:succeeded`.
-  Extend = Struct.new(:extender, :target, :node, :directives, :result)
+  # @attr success [Boolean]
+  #   Whether this extend successfully matched a selector.
+  Extend = Struct.new(:extender, :target, :node, :directives, :success)
 
   # Registers an extension in the `@extends` subset map.
   def visit_extend(node)

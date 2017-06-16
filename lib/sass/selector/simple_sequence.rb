@@ -191,10 +191,9 @@ module Sass
           # seq is A, sels is B, and self is C
 
           self_without_sel = Sass::Util.array_minus(members, sels)
-          group.each {|e| e.result = :failed_to_unify unless e.result == :succeeded}
+          group.each {|e| e.success = true}
           unified = seq.members.last.unify(SimpleSequence.new(self_without_sel, subject?))
           next unless unified
-          group.each {|e| e.result = :succeeded}
           group.each {|e| check_directives_match!(e, parent_directives)}
           new_seq = Sequence.new(seq.members[0...-1] + [unified])
           new_seq.add_sources!(sources + [seq])

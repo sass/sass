@@ -10,6 +10,9 @@
 * Combine ids and `:root` when unifying selectors with `@extend` and selector
   functions.
 
+* It's no longer an error to `@extend` a selector that exists in the stylesheet,
+  but for which unification fails.
+
 * Add a `$weight` parameter to `invert()`.
 
 * The last argument in an argument list can now have a trailing comma.
