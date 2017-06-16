@@ -208,7 +208,7 @@ module Sass::Script::Value
       rescue Sass::UnitConversionError
         return Bool::FALSE
       end
-      Bool.new(basically_equal?(self.value, other.value))
+      Bool.new(basically_equal?(value, other.value))
     end
 
     def hash
