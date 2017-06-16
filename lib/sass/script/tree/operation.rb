@@ -2,7 +2,6 @@ module Sass::Script::Tree
   # A SassScript parse node representing a binary operation,
   # such as `$a + $b` or `"foo" + 1`.
   class Operation < Node
-    @@color_arithmetic_deprecation = Sass::Deprecation.new
     @@unitless_equals_deprecation = Sass::Deprecation.new
 
     attr_reader :operand1
@@ -88,7 +87,6 @@ module Sass::Script::Tree
         raise Sass::SyntaxError.new("Undefined operation: \"#{value1} #{@operator} #{value2}\".")
       end
 
-      warn_for_color_arithmetic(value1, value2)
       warn_for_unitless_equals(value1, value2, result)
 
       result
@@ -96,24 +94,6 @@ module Sass::Script::Tree
 
     private
 
-    def warn_for_color_arithmetic(value1, value2)
-      return unless @operator == :plus || @operator == :times || @operator == :minus ||
-                    @operator == :div || @operator == :mod
-
-      if value1.is_a?(Sass::Script::Value::Number)
-        return unless value2.is_a?(Sass::Script::Value::Color)
-      elsif value1.is_a?(Sass::Script::Value::Color)
-        return unless value2.is_a?(Sass::Script::Value::Color) || value2.is_a?(Sass::Script::Value::Number)
-      else
-        return
-      end
-
-      @@color_arithmetic_deprecation.warn(filename, line, <<WARNING)
-The operation `#{value1} #{@operator} #{value2}` is deprecated and will be an error in future versions.
-Consider using Sass's color functions instead.
-http://sass-lang.com/documentation/Sass/Script/Functions.html#other_color_functions
-WARNING
-    end
 
     def warn_for_unitless_equals(value1, value2, result)
       return unless @operator == :eq || @operator == :neq

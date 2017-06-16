@@ -73,8 +73,6 @@ MSG
     "$a: 1b >= 2c" => "Incompatible units: 'c' and 'b'.",
     "a\n  b: 1b * 2c" => "2b*c isn't a valid CSS value.",
     "a\n  b: 1b % 2c" => "Incompatible units: 'c' and 'b'.",
-    "$a: 2px + #ccc" => "Cannot add a number with units (2px) to a color (#ccc).",
-    "$a: #ccc + 2px" => "Cannot add a number with units (2px) to a color (#ccc).",
     "& a\n  :b c" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 1],
     "a\n  :b\n    c" => "Illegal nesting: Only properties may be nested beneath properties.",
     "$a: b\n  :c d\n" => "Illegal nesting: Nothing may be nested beneath variable declarations.",
@@ -175,8 +173,6 @@ MSG
     "& foo\n  bar: baz\n  blat: bang" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 1],
     "a\n  b: c\n& foo\n  bar: baz\n  blat: bang" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 3],
     "@" => "Invalid directive: '@'.",
-    "$r: 20em * #ccc" => ["Cannot multiply a number with units (20em) to a color (#ccc).", 1],
-    "$r: #ccc / 1em" => ["Cannot divide a number with units (1em) to a color (#ccc).", 1],
   }
 
   def teardown
