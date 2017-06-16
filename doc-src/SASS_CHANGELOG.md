@@ -25,6 +25,8 @@
 
 * The reference combinator, `/foo/` is no longer supported.
 
+* Unitless numbers are no longer equal to numbers with units.
+
 ## 3.5.0
 
 * Default to ten digits of numeric precision.

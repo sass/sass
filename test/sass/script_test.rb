@@ -476,19 +476,8 @@ SASS
     assert_equal "true", resolve("2mm == 8q")
     assert_equal "false", resolve("2px > 3q")
 
-    Sass::Deprecation.allow_double_warnings do
-      assert_warning(<<WARNING) {assert_equal "true", resolve("1 == 1cm")}
-DEPRECATION WARNING on line 1 of test_operator_unit_conversion_inline.sass:
-The result of `1 == 1cm` will be `false` in future releases of Sass.
-Unitless numbers will no longer be equal to the same numbers with units.
-WARNING
-
-      assert_warning(<<WARNING) {assert_equal "false", resolve("1 != 1cm")}
-DEPRECATION WARNING on line 1 of test_operator_unit_conversion_inline.sass:
-The result of `1 != 1cm` will be `true` in future releases of Sass.
-Unitless numbers will no longer be equal to the same numbers with units.
-WARNING
-    end
+    assert_equal "false", resolve("1 == 1cm")
+    assert_equal "true", resolve("1 != 1cm")
   end
 
   def test_length_units
@@ -1158,22 +1147,8 @@ SASS
 
   def test_comparison_of_complex_units
     # Tests for issue #1960
-    Sass::Deprecation.allow_double_warnings do
-      assert_warning(<<WARNING) do
-DEPRECATION WARNING on line 1 of test_comparison_of_complex_units_inline.sass:
-The result of `10 == 10px` will be `false` in future releases of Sass.
-Unitless numbers will no longer be equal to the same numbers with units.
-WARNING
-        assert_equal "true", resolve("10 == 2 * 5px")
-      end
-      assert_warning(<<WARNING) do
-DEPRECATION WARNING on line 1 of test_comparison_of_complex_units_inline.sass:
-The result of `10 == 10px*px` will be `false` in future releases of Sass.
-Unitless numbers will no longer be equal to the same numbers with units.
-WARNING
-        assert_equal "true", resolve("10 == 2px * 5px")
-      end
-    end
+    assert_equal "false", resolve("10 == 2 * 5px")
+    assert_equal "false", resolve("10 == 2px * 5px")
 
     assert_equal "true", resolve("10px * 1px == 2px * 5px")
     assert_equal "true", resolve("5px * 1px < 2px * 5px")

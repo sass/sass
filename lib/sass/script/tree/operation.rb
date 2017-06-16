@@ -3,7 +3,6 @@ module Sass::Script::Tree
   # such as `$a + $b` or `"foo" + 1`.
   class Operation < Node
     @@color_arithmetic_deprecation = Sass::Deprecation.new
-    @@unitless_equals_deprecation = Sass::Deprecation.new
 
     attr_reader :operand1
     attr_reader :operand2
@@ -89,7 +88,6 @@ module Sass::Script::Tree
       end
 
       warn_for_color_arithmetic(value1, value2)
-      warn_for_unitless_equals(value1, value2, result)
 
       result
     end
@@ -112,25 +110,6 @@ module Sass::Script::Tree
 The operation `#{value1} #{@operator} #{value2}` is deprecated and will be an error in future versions.
 Consider using Sass's color functions instead.
 http://sass-lang.com/documentation/Sass/Script/Functions.html#other_color_functions
-WARNING
-    end
-
-    def warn_for_unitless_equals(value1, value2, result)
-      return unless @operator == :eq || @operator == :neq
-      return unless value1.is_a?(Sass::Script::Value::Number)
-      return unless value2.is_a?(Sass::Script::Value::Number)
-      return unless value1.unitless? != value2.unitless?
-      return unless result == (if @operator == :eq
-                                 Sass::Script::Value::Bool::TRUE
-                               else
-                                 Sass::Script::Value::Bool::FALSE
-                               end)
-
-      operation = "#{value1.to_sass} #{@operator == :eq ? '==' : '!='} #{value2.to_sass}"
-      future_value = @operator == :neq
-      @@unitless_equals_deprecation.warn(filename, line, <<WARNING)
-The result of `#{operation}` will be `#{future_value}` in future releases of Sass.
-Unitless numbers will no longer be equal to the same numbers with units.
 WARNING
     end
 
