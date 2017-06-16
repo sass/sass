@@ -3394,7 +3394,13 @@ SASS
   private
 
   def assert_hash_has(hash, expected)
-    expected.each {|k, v| assert_equal(v, hash[k])}
+    expected.each do |k, v|
+      if v.nil?
+        assert_nil(hash[k])
+      else
+        assert_equal(v, hash[k])
+      end
+    end
   end
 
   def assert_renders_encoded(css, sass)

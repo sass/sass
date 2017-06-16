@@ -140,8 +140,16 @@ unless Sass::Util.ruby1_8?
     def assert_scanner_state(pos, byte_pos, matched_size, byte_matched_size)
       assert_equal pos, @scanner.pos, 'pos'
       assert_equal byte_pos, @scanner.byte_pos, 'byte_pos'
-      assert_equal matched_size, @scanner.matched_size, 'matched_size'
-      assert_equal byte_matched_size, @scanner.byte_matched_size, 'byte_matched_size'
+      if matched_size.nil?
+        assert_nil @scanner.matched_size, 'matched_size'
+      else
+        assert_equal matched_size, @scanner.matched_size, 'matched_size'
+      end
+      if byte_matched_size.nil?
+        assert_nil @scanner.byte_matched_size, 'byte_matched_size'
+      else
+        assert_equal byte_matched_size, @scanner.byte_matched_size, 'byte_matched_size'
+      end
     end
   end
 end

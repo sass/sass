@@ -984,7 +984,11 @@ CSS
   def assert_ranges_equal(expected, actual, lines, prefix)
     assert_positions_equal(expected.start_pos, actual.start_pos, lines, prefix + " start position")
     assert_positions_equal(expected.end_pos, actual.end_pos, lines, prefix + " end position")
-    assert_equal(expected.file, actual.file)
+    if expected.file.nil?
+      assert_nil(actual.file)
+    else
+      assert_equal(expected.file, actual.file)
+    end
   end
 
   def assert_sourcemaps_equal(source, css, expected, actual)
