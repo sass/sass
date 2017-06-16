@@ -163,7 +163,7 @@ module Sass
           next sel if seen.include?([sel])
           extended = sel.selector.do_extend(extends, parent_directives, replace, seen, false)
           next sel if extended == sel.selector
-          extended.members.reject! {|seq| seq.has_placeholder?}
+          extended.members.reject! {|seq| seq.invisible?}
 
           # For `:not()`, we usually want to get rid of any complex
           # selectors because that will cause the selector to fail to
@@ -287,6 +287,11 @@ module Sass
       # @see Simple#to_s
       def to_s(opts = {})
         res = @members.map {|m| m.to_s(opts)}.join
+
+        # :not(%foo) may resolve to the empty string, but it should match every
+        # selector so we replace it with "*".
+        res = '*' if res.empty?
+
         res << '!' if subject?
         res
       end

@@ -52,6 +52,10 @@
   [`<declaration-value>`][declaration-value] production in their argument list.
   This will provide better forwards-compatibility for future CSS syntax.
 
+* Pseudo selectors that take selectors as arguments will no longer always be
+  eliminated if they contain placeholder selectors that aren't extended.
+  Instead, they'll be reduced to valid CSS selectors if possible.
+
 * The indented syntax now allows different indentation to be used for different
   lines, as long as they define a consistent tree structure.
 

@@ -172,7 +172,10 @@ WARNING
 
       # @see AbstractSequence#to_s
       def to_s(opts = {})
-        @members.map {|m| m.to_s(opts)}.
+        @members.map do |m|
+          next if opts[:placeholder] == false && m.invisible?
+          m.to_s(opts)
+        end.compact.
           join(opts[:style] == :compressed ? "," : ", ").
           gsub(", \n", ",\n")
       end
