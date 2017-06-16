@@ -44,24 +44,17 @@ class SassEngineTest < MiniTest::Test
     "$a: foo(\"bar\"" => 'Invalid CSS after "foo("bar"": expected ")", was ""',
     "$a: 1 }" => 'Invalid CSS after "1 ": expected expression (e.g. 1px, bold), was "}"',
     "$a: 1 }foo\"" => 'Invalid CSS after "1 ": expected expression (e.g. 1px, bold), was "}foo""',
-    ":" => 'Invalid property: ":".',
-    ": a" => 'Invalid property: ": a".',
-    "a\n  :b" => <<MSG,
-Invalid property: ":b" (no value).
-If ":b" should be a selector, use "\\:b" instead.
-MSG
-    "a\n  b:" => 'Invalid property: "b:" (no value).',
-    "a\n  :b: c" => 'Invalid property: ":b: c".',
-    "a\n  :b:c d" => 'Invalid property: ":b:c d".',
-    "a\n  :b c;" => 'Invalid CSS after "c": expected expression (e.g. 1px, bold), was ";"',
-    "a\n  b: c;" => 'Invalid CSS after "c": expected expression (e.g. 1px, bold), was ";"',
+    ":" => "Invalid CSS after \":\": expected pseudoclass or pseudoelement, was \"\"",
+    ": a" => "Invalid CSS after \":\": expected pseudoclass or pseudoelement, was \" a\"",
+    "a\n  :b: c" => "Invalid CSS after \":b:\": expected pseudoclass or pseudoelement, was \" c\"",
+    "a\n  :b c;" => "Invalid CSS after \":b c\": expected selector, was \";\"",
+    "a\n  b: c;" => "Invalid CSS after \"c\": expected expression (e.g. 1px, bold), was \";\"",
     ".foo ^bar\n  a: b" => ['Invalid CSS after ".foo ": expected selector, was "^bar"', 1],
     "a\n  @extend .foo ^bar" => 'Invalid CSS after ".foo ": expected selector, was "^bar"',
     "a\n  @extend .foo .bar" => "Can't extend .foo .bar: can't extend nested selectors",
     "a\n  @extend >" => "Can't extend >: invalid selector",
     "a\n  @extend &.foo" => "Can't extend &.foo: can't extend parent selectors",
     "a: b" => 'Properties are only allowed within rules, directives, mixin includes, or other properties.',
-    ":a b" => 'Properties are only allowed within rules, directives, mixin includes, or other properties.',
     "$" => 'Invalid variable: "$".',
     "$a" => 'Invalid variable: "$a".',
     "$ a" => 'Invalid variable: "$ a".',
@@ -76,7 +69,7 @@ MSG
     "$a: 2px + #ccc" => "Cannot add a number with units (2px) to a color (#ccc).",
     "$a: #ccc + 2px" => "Cannot add a number with units (2px) to a color (#ccc).",
     "& a\n  :b c" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 1],
-    "a\n  :b\n    c" => "Illegal nesting: Only properties may be nested beneath properties.",
+    "a\n  b:\n    c" => "Illegal nesting: Only properties may be nested beneath properties.",
     "$a: b\n  :c d\n" => "Illegal nesting: Nothing may be nested beneath variable declarations.",
     "@import templates/basic\n  foo" => "Illegal nesting: Nothing may be nested beneath import directives.",
     "foo\n  @import foo.css" => "CSS import directives may only be used at the root of a document.",
@@ -767,28 +760,6 @@ SASS
 
   def test_complex_multiline_selector
     renders_correctly "multiline"
-  end
-
-  def test_colon_only
-    begin
-      render("a\n  b: c", :property_syntax => :old)
-    rescue Sass::SyntaxError => e
-      assert_equal("Illegal property syntax: can't use new syntax when :property_syntax => :old is set.",
-                   e.message)
-      assert_equal(2, e.sass_line)
-    else
-      assert(false, "SyntaxError not raised for :property_syntax => :old")
-    end
-
-    begin
-      silence_warnings {render("a\n  :b c", :property_syntax => :new)}
-      assert_equal(2, e.sass_line)
-    rescue Sass::SyntaxError => e
-      assert_equal("Illegal property syntax: can't use old syntax when :property_syntax => :new is set.",
-                   e.message)
-    else
-      assert(false, "SyntaxError not raised for :property_syntax => :new")
-    end
   end
 
   def test_pseudo_elements
@@ -1868,8 +1839,8 @@ g
 SASS
   end
 
-  def test_root_level_pseudo_class_with_new_properties
-    assert_equal(<<CSS, render(<<SASS, :property_syntax => :new))
+  def test_root_level_pseudo_class
+    assert_equal(<<CSS, render(<<SASS))
 :focus {
   outline: 0; }
 CSS
@@ -1878,8 +1849,8 @@ CSS
 SASS
   end
 
-  def test_pseudo_class_with_new_properties
-    assert_equal(<<CSS, render(<<SASS, :property_syntax => :new))
+  def test_pseudo_class
+    assert_equal(<<CSS, render(<<SASS))
 p :focus {
   outline: 0; }
 CSS

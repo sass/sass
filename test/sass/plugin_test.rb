@@ -19,7 +19,7 @@ end
 
 class SassPluginTest < MiniTest::Test
   @@templates = %w{
-    complex script parent_ref import scss_import alt
+    complex script parent_ref import scss_import
     subdir/subdir subdir/nested_subdir/nested_subdir
     options import_content filename_fn import_charset
     import_charset_ibm866

@@ -25,6 +25,9 @@
 
 * The reference combinator, `/foo/` is no longer supported.
 
+* The old-style `:name value` property syntax is no longer supported. This
+  syntax is not widely used, and is unnecessarily different from CSS.
+
 * `@extend` no longer supports extending compound selectors such as `.foo.bar`.
 
 * Unitless numbers are no longer equal to numbers with units.

@@ -13,16 +13,6 @@ foo bar {
   bip: bop;
 }
 SCSS
-    silence_warnings {assert_converts <<SASS, <<SCSS, options: {old: true}}
-foo bar
-  :baz bang
-  :bip bop
-SASS
-foo bar {
-  baz: bang;
-  bip: bop;
-}
-SCSS
   end
 
   def test_empty_selector
@@ -175,17 +165,6 @@ SCSS
     assert_converts <<SASS, <<SCSS
 foo bar
   baz: 12 $bang "bip"
-SASS
-foo bar {
-  baz: 12 $bang "bip";
-}
-SCSS
-  end
-
-  def test_dynamic_properties_with_old
-    silence_warnings {assert_converts <<SASS, <<SCSS, options: {old: true}}
-foo bar
-  :baz 12 $bang "bip"
 SASS
 foo bar {
   baz: 12 $bang "bip";
@@ -1430,25 +1409,6 @@ foo {
   .name: val;
   name/**/: val;
   name/*\\**/: val;
-  name: val;
-}
-SCSS
-  end
-
-  def test_old_declaration_hacks
-    silence_warnings {assert_converts <<SASS, <<SCSS, options: {old: true}}
-foo
-  :_name val
-  :*name val
-  :#name val
-  :.name val
-  :name val
-SASS
-foo {
-  _name: val;
-  *name: val;
-  #name: val;
-  .name: val;
   name: val;
 }
 SCSS
