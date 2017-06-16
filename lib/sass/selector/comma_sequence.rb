@@ -117,10 +117,7 @@ module Sass
 
           sel = sseq.members
           if !allow_compound_target && sel.length > 1
-            @@compound_extend_deprecation.warn(sseq.filename, sseq.line, <<WARNING)
-Extending a compound selector, #{sseq}, is deprecated and will not be supported in a future release.
-See https://github.com/sass/sass/issues/1599 for details.
-WARNING
+            raise Sass::SyntaxError.new("Can't extend #{seq}: invalid selector")
           end
 
           members.each do |member|
