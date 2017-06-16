@@ -2862,7 +2862,7 @@ SASS
   end
 
   def test_comment_like_selector
-    assert_raise_message(Sass::SyntaxError, 'Invalid CSS after "/": expected identifier, was " foo"') {render(<<SASS)}
+    assert_raise_message(Sass::SyntaxError, 'Invalid CSS after "": expected selector, was "/ foo"') {render(<<SASS)}
 / foo
   a: b
 SASS
