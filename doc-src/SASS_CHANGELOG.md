@@ -30,6 +30,9 @@ For more details, see [this blog post][interp-blog] and
 * Combine ids and `:root` when unifying selectors with `@extend` and selector
   functions.
 
+* It's no longer an error to `@extend` a selector that exists in the stylesheet,
+  but for which unification fails.
+
 * Add a `$weight` parameter to `invert()`.
 
 * The last argument in an argument list can now have a trailing comma.
@@ -72,6 +75,10 @@ For more details, see [this blog post][interp-blog] and
   [`<declaration-value>`][declaration-value] production in their argument list.
   This will provide better forwards-compatibility for future CSS syntax.
 
+* Pseudo selectors that take selectors as arguments will no longer always be
+  eliminated if they contain placeholder selectors that aren't extended.
+  Instead, they'll be reduced to valid CSS selectors if possible.
+
 * The indented syntax now allows different indentation to be used for different
   lines, as long as they define a consistent tree structure.
 
@@ -87,6 +94,8 @@ For more details, see [this blog post][interp-blog] and
   before.
 
 ## 3.4.25 (Unreleased)
+
+* Fix a bug where `*` wouldn't always be eliminated during selector unification.
 
 ### Deprecations -- Must Read!
 

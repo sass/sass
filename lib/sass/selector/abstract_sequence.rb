@@ -59,12 +59,11 @@ module Sass
       end
       alias_method :==, :eql?
 
-      # Whether or not this selector sequence contains a placeholder selector.
-      # Checks recursively.
-      def has_placeholder?
-        @has_placeholder ||= members.any? do |m|
-          next m.has_placeholder? if m.is_a?(AbstractSequence)
-          next m.selector && m.selector.has_placeholder? if m.is_a?(Pseudo)
+      # Whether or not this selector should be hidden due to containing a
+      # placeholder.
+      def invisible?
+        @invisible ||= members.any? do |m|
+          next m.invisible? if m.is_a?(AbstractSequence) || m.is_a?(Pseudo)
           m.is_a?(Placeholder)
         end
       end
@@ -73,6 +72,8 @@ module Sass
       #
       # @param opts [Hash] rendering options.
       # @option opts [Symbol] :style The css rendering style.
+      # @option placeholders [Boolean] :placeholders
+      #   Whether to include placeholder selectors. Defaults to `true`.
       # @return [String]
       def to_s(opts = {})
         Sass::Util.abstract(self)

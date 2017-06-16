@@ -49,19 +49,13 @@ class Sass::Tree::Visitors::Extend < Sass::Tree::Visitors::Base
 
     def check_extends_fired!(extends)
       extends.each_value do |ex|
-        next if ex.result == :succeeded || ex.node.optional?
+        next if ex.success || ex.node.optional?
         message = "\"#{ex.extender}\" failed to @extend \"#{ex.target.join}\"."
-        reason =
-          if ex.result == :not_found
-            "The selector \"#{ex.target.join}\" was not found."
-          else
-            "No selectors matching \"#{ex.target.join}\" could be unified with \"#{ex.extender}\"."
-          end
 
         # TODO(nweiz): this should use the Sass stack trace of the extend node.
         raise Sass::SyntaxError.new(<<MESSAGE, :filename => ex.node.filename, :line => ex.node.line)
 #{message}
-#{reason}
+The selector "#{ex.target.join}" was not found.
 Use "@extend #{ex.target.join} !optional" if the extend should be able to fail.
 MESSAGE
       end

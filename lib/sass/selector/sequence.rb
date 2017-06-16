@@ -119,7 +119,7 @@ module Sass
           # specificity greater than or equal to that of the original selector.
           # In order to ensure that, we record the original selector's
           # (`extended.first`) original specificity.
-          extended.first.add_sources!([self]) if original && !has_placeholder?
+          extended.first.add_sources!([self]) if original && !invisible?
 
           extended.map {|seq| seq.members}
         end
