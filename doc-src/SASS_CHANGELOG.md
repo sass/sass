@@ -23,6 +23,11 @@
   For more details, see [this blog post][interp-blog] and
   [the GitHub issue in which it was planned][interp-issue].
 
+* Color arithmetic is no longer supported. Channel-by-channel arithmetic doesn't
+  correspond closely to intuitive understandings of color. Sass's suite of
+  [color functions][] are a much cleaner and more comprehensible way of
+  manipulating colors dynamically.
+
 * The reference combinator, `/foo/` is no longer supported.
 
 * The old-style `:name value` property syntax is no longer supported. This

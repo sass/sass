@@ -78,7 +78,6 @@ class SassScriptTest < MiniTest::Test
   def test_color_names
     assert_equal "white", resolve("white")
     assert_equal "#ffffff", resolve("#ffffff")
-    silence_warnings {assert_equal "#fffffe", resolve("white - #000001")}
     assert_equal "transparent", resolve("transparent")
     assert_equal "transparent", resolve("rgba(0, 0, 0, 0)")
   end
@@ -94,26 +93,6 @@ class SassScriptTest < MiniTest::Test
     assert_equal Sass::Script::Value::Color.new([1, 2, 3, 1]), eval("rgba(1, 2, 3, 1)")
     assert_equal "#010203", resolve("rgba(1, 2, 3, 1)")
     assert_equal "white", resolve("rgba(255, 255, 255, 1)")
-  end
-
-  def test_rgba_color_math
-    silence_warnings {assert_equal "rgba(50, 50, 100, 0.35)", resolve("rgba(1, 1, 2, 0.35) * rgba(50, 50, 50, 0.35)")}
-    silence_warnings {assert_equal "rgba(52, 52, 52, 0.25)", resolve("rgba(2, 2, 2, 0.25) + rgba(50, 50, 50, 0.25)")}
-
-    assert_raise_message(Sass::SyntaxError, "Alpha channels must be equal: rgba(1, 2, 3, 0.15) + rgba(50, 50, 50, 0.75)") do
-      silence_warnings {resolve("rgba(1, 2, 3, 0.15) + rgba(50, 50, 50, 0.75)")}
-    end
-    assert_raise_message(Sass::SyntaxError, "Alpha channels must be equal: #123456 * rgba(50, 50, 50, 0.75)") do
-      silence_warnings {resolve("#123456 * rgba(50, 50, 50, 0.75)")}
-    end
-    assert_raise_message(Sass::SyntaxError, "Alpha channels must be equal: rgba(50, 50, 50, 0.75) / #123456") do
-      silence_warnings {resolve("rgba(50, 50, 50, 0.75) / #123456")}
-    end
-  end
-
-  def test_rgba_number_math
-    silence_warnings {assert_equal "rgba(49, 49, 49, 0.75)", resolve("rgba(50, 50, 50, 0.75) - 1")}
-    silence_warnings {assert_equal "rgba(100, 100, 100, 0.75)", resolve("rgba(50, 50, 50, 0.75) * 2")}
   end
 
   def test_rgba_rounding
@@ -460,9 +439,8 @@ SASS
     assert_equal "11", resolve("1 + 2 * 3 + 4")
   end
 
-  def test_functions
+  def test_hsl
     assert_equal "#80ff80", resolve("hsl(120, 100%, 75%)")
-    silence_warnings {assert_equal "#81ff81", resolve("hsl(120, 100%, 75%) + #010001")}
   end
 
   def test_operator_unit_conversion
