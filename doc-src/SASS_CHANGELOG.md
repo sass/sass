@@ -25,6 +25,9 @@
 
 * The reference combinator, `/foo/` is no longer supported.
 
+* The old-style `:name value` property syntax is no longer supported. This
+  syntax is not widely used, and is unnecessarily different from CSS.
+
 ## 3.5.0
 
 * Default to ten digits of numeric precision.

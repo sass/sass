@@ -164,20 +164,6 @@ Available options are:
   it's automatically set properly when using {Sass::Plugin}.
   Defaults to `:sass`.
 
-{#property_syntax-option} `:property_syntax`
-: Forces indented-syntax documents to use one syntax for properties.
-  If the correct syntax isn't used, an error is thrown.
-  `:new` forces the use of a colon
-  after the property name.
-  For example: `color: #0f3`
-  or `width: $main_width`.
-  `:old` forces the use of a colon
-  before the property name.
-  For example: `:color #0f3`
-  or `:width $main_width`.
-  By default, either syntax is valid.
-  This has no effect on SCSS documents.
-
 {#cache-option} `:cache`
 : Whether parsed Sass files should be cached,
   allowing greater speed. Defaults to true.
