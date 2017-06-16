@@ -75,6 +75,8 @@
 
 ## 3.4.25 (Unreleased)
 
+* Fix a bug where `*` wouldn't always be eliminated during selector unification.
+
 ### Deprecations -- Must Read!
 
 * Extending compound selectors such as `.a.b` is deprecated. This never followed
