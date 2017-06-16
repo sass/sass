@@ -34,6 +34,9 @@ Style/AccessorMethodName:
 Style/AlignParameters:
   # Natalie doesn't like to align parameters to the method call.
   Enabled: false
+Style/AsciiComments:
+  # Why even have this restriction?
+  Enabled: false
 Style/CharacterLiteral:
   # Character literals are pretty useful when working with text like we do.
   Enabled: false
