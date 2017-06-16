@@ -94,7 +94,6 @@ module Sass::Script::Tree
 
     private
 
-
     def warn_for_unitless_equals(value1, value2, result)
       return unless @operator == :eq || @operator == :neq
       return unless value1.is_a?(Sass::Script::Value::Number)
