@@ -25,6 +25,8 @@
 
 * The reference combinator, `/foo/` is no longer supported.
 
+* `@extend` no longer supports extending compound selectors such as `.foo.bar`.
+
 ## 3.5.0
 
 * Default to ten digits of numeric precision.
