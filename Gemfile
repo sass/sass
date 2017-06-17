@@ -34,6 +34,7 @@ end
 
 if RUBY_VERSION =~ /^1\.8/ || RUBY_VERSION =~ /^1\.9/
   gem 'json_pure', '<2.0.2'
+  gem 'rb-inotify', '<0.9.9'
 end
 
 gem 'minitest', '>= 5.0.0', '< 6.0.0', :group => :test
