@@ -1,4 +1,4 @@
-# Sass [![Gem Version](https://badge.fury.io/rb/sass.svg)](http://badge.fury.io/rb/sass) [![Inline docs](http://inch-ci.org/github/sass/sass.svg)](http://inch-ci.org/github/sass/sass)
+# Sass [![Backers on Open Collective](https://opencollective.com/sass/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/sass/sponsors/badge.svg)](#sponsors) [![Gem Version](https://badge.fury.io/rb/sass.svg)](http://badge.fury.io/rb/sass) [![Inline docs](http://inch-ci.org/github/sass/sass.svg)](http://inch-ci.org/github/sass/sass)
 
 **Sass makes CSS fun again**. Sass is an extension of CSS,
 adding nested rules, variables, mixins, selector inheritance, and more.
@@ -224,4 +224,36 @@ thank you. Here's a few that we endorse:
 * [United Mitochondrial Disease Foundation](http://umdf.org/compass)
 * [Girl Develop It](https://www.girldevelopit.com/donate)
 
+
+## Contributors
+
+This project exists thanks to all the people who contribute. [[Contribute]](blob/master/CONTRIBUTING.md).
+<a href="graphs/contributors"><img src="https://opencollective.com/sass/contributors.svg?width=890" /></a>
+
+
+## Backers
+
+Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/sass#backer)]
+
+<a href="https://opencollective.com/sass#backers" target="_blank"><img src="https://opencollective.com/sass/backers.svg?width=890"></a>
+
+
+## Sponsors
+
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/sass#sponsor)]
+
+<a href="https://opencollective.com/sass/sponsor/0/website" target="_blank"><img src="https://opencollective.com/sass/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/sass/sponsor/1/website" target="_blank"><img src="https://opencollective.com/sass/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/sass/sponsor/2/website" target="_blank"><img src="https://opencollective.com/sass/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/sass/sponsor/3/website" target="_blank"><img src="https://opencollective.com/sass/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/sass/sponsor/4/website" target="_blank"><img src="https://opencollective.com/sass/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/sass/sponsor/5/website" target="_blank"><img src="https://opencollective.com/sass/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/sass/sponsor/6/website" target="_blank"><img src="https://opencollective.com/sass/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/sass/sponsor/7/website" target="_blank"><img src="https://opencollective.com/sass/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/sass/sponsor/8/website" target="_blank"><img src="https://opencollective.com/sass/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/sass/sponsor/9/website" target="_blank"><img src="https://opencollective.com/sass/sponsor/9/avatar.svg"></a>
+
+---
 Sass is licensed under the MIT License.
+
+
