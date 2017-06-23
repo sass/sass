@@ -164,20 +164,6 @@ Available options are:
   it's automatically set properly when using {Sass::Plugin}.
   Defaults to `:sass`.
 
-{#property_syntax-option} `:property_syntax`
-: Forces indented-syntax documents to use one syntax for properties.
-  If the correct syntax isn't used, an error is thrown.
-  `:new` forces the use of a colon
-  after the property name.
-  For example: `color: #0f3`
-  or `width: $main_width`.
-  `:old` forces the use of a colon
-  before the property name.
-  For example: `:color #0f3`
-  or `:width $main_width`.
-  By default, either syntax is valid.
-  This has no effect on SCSS documents.
-
 {#cache-option} `:cache`
 : Whether parsed Sass files should be cached,
   allowing greater speed. Defaults to true.
@@ -667,7 +653,7 @@ called `$main-width`, you can access it as `$main_width`, and vice versa.
 
 ### Data Types
 
-SassScript supports seven main data types:
+SassScript supports eight data types:
 
 * numbers (e.g. `1.2`, `13`, `10px`)
 * strings of text, with and without quotes (e.g. `"foo"`, `'bar'`, `baz`)
@@ -676,6 +662,7 @@ SassScript supports seven main data types:
 * nulls (e.g. `null`)
 * lists of values, separated by spaces or commas (e.g. `1.5em 1em 0 2em`, `Helvetica, Arial, sans-serif`)
 * maps from one value to another (e.g. `(key1: value1, key2: value2)`)
+* function references
 
 SassScript also supports all other types of CSS property value,
 such as Unicode ranges and `!important` declarations.
@@ -757,6 +744,15 @@ example, `(1,)` is a list containing `1` and `(1 2 3,)` is a
 comma-separated list containing a space-separated list containing `1`,
 `2`, and `3`.
 
+##### Bracketed Lists
+
+Lists can also be written with square brackets—we call these bracketed lists.
+Bracketed lists containing are used as line names in [CSS Grid Layout][], but
+they can also be used in pure Sass code just like any other list. Bracketed
+lists can be comma- or space-separated.
+
+[CSS Grid Layout]: https://www.w3.org/TR/css-grid-1/
+
 #### Maps
 
 Maps represent an association between keys and values, where keys are used to
@@ -810,6 +806,13 @@ prefers the same output format as was typed in other output modes, a
 color interpolated into a selector becomes invalid syntax when
 compressed. To avoid this, always quote named colors if they are meant
 to be used in the construction of a selector.
+
+#### First Class Functions
+
+A function reference is returned by `get-function($function-name)`.
+The function can be passed to `call($function, $args...)` and the
+function it refers to will be invoked. First class functions cannot be used
+directly as CSS output and any attempt to do so will result in an error.
 
 ### Operations
 
@@ -2370,6 +2373,13 @@ providing many arguments without becoming difficult to call.
 Named arguments can be passed in any order, and arguments with default values can be omitted.
 Since the named arguments are variable names, underscores and dashes can be used interchangeably.
 
+#### Trailing Commas
+
+When the last argument to a mixin or function is a positional or
+keyword-style argument, that argument can be followed by a trailing
+comma. Some prefer this coding style as it can lead to more concise
+diffs and fewer syntax errors when refactoring.
+
 #### Variable Arguments
 
 Sometimes it makes sense for a mixin or function to take an unknown number of
@@ -2490,7 +2500,14 @@ The same mixins can be done in the `.sass` shorthand syntax:
       #logo
         background-image: url(/logo.gif)
 
-**Note:** when the `@content` directive is specified more than once or in a loop, the style block will be duplicated with each invocation.
+**Note:** when the `@content` directive is specified more than once or
+ in a loop, the style block will be duplicated with each invocation.
+
+Some mixins may require a passed content block or may have different
+behavior depending on whether a content block was passed. The
+[`content-exists()` function](Sass/Script/Functions.html#content_exists-instance_method)
+will return true when a content block is passed to the current
+mixin and can be used to implement such behaviors.
 
 #### Variable Scope and Content Blocks
 

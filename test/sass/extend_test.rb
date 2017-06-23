@@ -152,10 +152,7 @@ SCSS
   def test_id_unification
     assert_unification '.foo.bar', '#baz {@extend .foo}', '.foo.bar, .bar#baz'
     assert_unification '.foo#baz', '#baz {@extend .foo}', '#baz'
-
-    assert_extend_doesnt_match('#bar', '.foo', :failed_to_unify, 2) do
-      render_unification '.foo#baz', '#bar {@extend .foo}'
-    end
+    assert_unification '.foo#baz', '#bar {@extend .foo}', '.foo#baz'
   end
 
   def test_universal_unification_with_simple_target
@@ -167,10 +164,7 @@ SCSS
   end
 
   def test_universal_unification_with_namespaceless_universal_target
-    assert_extend_doesnt_match('ns|*', '.foo', :failed_to_unify, 2) do
-      render_unification '*.foo', 'ns|* {@extend .foo}'
-    end
-
+    assert_unification '*.foo', 'ns|* {@extend .foo}', '*.foo'
     assert_unification '*.foo', '* {@extend .foo}', '*'
     assert_unification '*.foo', '*|* {@extend .foo}', '*'
     assert_unification '*|*.foo', '* {@extend .foo}', '*|*.foo, *'
@@ -179,23 +173,14 @@ SCSS
   end
 
   def test_universal_unification_with_namespaced_universal_target
-    assert_extend_doesnt_match('*', '.foo', :failed_to_unify, 2) do
-      render_unification 'ns|*.foo', '* {@extend .foo}'
-    end
-
-    assert_extend_doesnt_match('ns2|*', '.foo', :failed_to_unify, 2) do
-      render_unification 'ns1|*.foo', 'ns2|* {@extend .foo}'
-    end
-
+    assert_unification 'ns|*.foo', '* {@extend .foo}', 'ns|*.foo'
+    assert_unification 'ns1|*.foo', 'ns2|* {@extend .foo}', 'ns1|*.foo'
     assert_unification 'ns|*.foo', '*|* {@extend .foo}', 'ns|*'
     assert_unification 'ns|*.foo', 'ns|* {@extend .foo}', 'ns|*'
   end
 
   def test_universal_unification_with_namespaceless_element_target
-    assert_extend_doesnt_match('ns|*', '.foo', :failed_to_unify, 2) do
-      render_unification 'a.foo', 'ns|* {@extend .foo}'
-    end
-
+    assert_unification 'a.foo', 'ns|* {@extend .foo}', 'a.foo'
     assert_unification 'a.foo', '* {@extend .foo}', 'a'
     assert_unification 'a.foo', '*|* {@extend .foo}', 'a'
     assert_unification '*|a.foo', '* {@extend .foo}', '*|a.foo, a'
@@ -204,14 +189,8 @@ SCSS
   end
 
   def test_universal_unification_with_namespaced_element_target
-    assert_extend_doesnt_match('*', '.foo', :failed_to_unify, 2) do
-      render_unification 'ns|a.foo', '* {@extend .foo}'
-    end
-
-    assert_extend_doesnt_match('ns2|*', '.foo', :failed_to_unify, 2) do
-      render_unification 'ns1|a.foo', 'ns2|* {@extend .foo}'
-    end
-
+    assert_unification 'ns|a.foo', '* {@extend .foo}', 'ns|a.foo'
+    assert_unification 'ns1|a.foo', 'ns2|* {@extend .foo}', 'ns1|a.foo'
     assert_unification 'ns|a.foo', '*|* {@extend .foo}', 'ns|a'
     assert_unification 'ns|a.foo', 'ns|* {@extend .foo}', 'ns|a'
   end
@@ -224,10 +203,7 @@ SCSS
   end
 
   def test_element_unification_with_namespaceless_universal_target
-    assert_extend_doesnt_match('ns|a', '.foo', :failed_to_unify, 2) do
-      render_unification '*.foo', 'ns|a {@extend .foo}'
-    end
-
+    assert_unification '*.foo', 'ns|a {@extend .foo}', '*.foo'
     assert_unification '*.foo', 'a {@extend .foo}', '*.foo, a'
     assert_unification '*.foo', '*|a {@extend .foo}', '*.foo, a'
     assert_unification '*|*.foo', 'a {@extend .foo}', '*|*.foo, a'
@@ -236,27 +212,15 @@ SCSS
   end
 
   def test_element_unification_with_namespaced_universal_target
-    assert_extend_doesnt_match('a', '.foo', :failed_to_unify, 2) do
-      render_unification 'ns|*.foo', 'a {@extend .foo}'
-    end
-
-    assert_extend_doesnt_match('ns2|a', '.foo', :failed_to_unify, 2) do
-      render_unification 'ns1|*.foo', 'ns2|a {@extend .foo}'
-    end
-
+    assert_unification 'ns|*.foo', 'a {@extend .foo}', 'ns|*.foo'
+    assert_unification 'ns1|*.foo', 'ns2|a {@extend .foo}', 'ns1|*.foo'
     assert_unification 'ns|*.foo', '*|a {@extend .foo}', 'ns|*.foo, ns|a'
     assert_unification 'ns|*.foo', 'ns|a {@extend .foo}', 'ns|*.foo, ns|a'
   end
 
   def test_element_unification_with_namespaceless_element_target
-    assert_extend_doesnt_match('ns|a', '.foo', :failed_to_unify, 2) do
-      render_unification 'a.foo', 'ns|a {@extend .foo}'
-    end
-
-    assert_extend_doesnt_match('h1', '.foo', :failed_to_unify, 2) do
-      render_unification 'a.foo', 'h1 {@extend .foo}'
-    end
-
+    assert_unification 'a.foo', 'ns|a {@extend .foo}', 'a.foo'
+    assert_unification 'a.foo', 'h1 {@extend .foo}', 'a.foo'
     assert_unification 'a.foo', 'a {@extend .foo}', 'a'
     assert_unification 'a.foo', '*|a {@extend .foo}', 'a'
     assert_unification '*|a.foo', 'a {@extend .foo}', '*|a.foo, a'
@@ -265,14 +229,8 @@ SCSS
   end
 
   def test_element_unification_with_namespaced_element_target
-    assert_extend_doesnt_match('a', '.foo', :failed_to_unify, 2) do
-      render_unification 'ns|a.foo', 'a {@extend .foo}'
-    end
-
-    assert_extend_doesnt_match('ns2|a', '.foo', :failed_to_unify, 2) do
-      render_unification 'ns1|a.foo', 'ns2|a {@extend .foo}'
-    end
-
+    assert_unification 'ns|a.foo', 'a {@extend .foo}', 'ns|a.foo'
+    assert_unification 'ns1|a.foo', 'ns2|a {@extend .foo}', 'ns1|a.foo'
     assert_unification 'ns|a.foo', '*|a {@extend .foo}', 'ns|a'
     assert_unification 'ns|a.foo', 'ns|a {@extend .foo}', 'ns|a'
   end
@@ -288,15 +246,8 @@ SCSS
   def test_pseudo_unification
     assert_unification ':foo.baz', ':foo(2n+1) {@extend .baz}', ':foo.baz, :foo:foo(2n+1)'
     assert_unification ':foo.baz', '::foo {@extend .baz}', ':foo.baz, :foo::foo'
-
-    assert_extend_doesnt_match('::bar', '.baz', :failed_to_unify, 2) do
-      render_unification '::foo.baz', '::bar {@extend .baz}'
-    end
-
-    assert_extend_doesnt_match('::foo(2n+1)', '.baz', :failed_to_unify, 2) do
-      render_unification '::foo.baz', '::foo(2n+1) {@extend .baz}'
-    end
-
+    assert_unification '::foo.baz', '::bar {@extend .baz}', '::foo.baz'
+    assert_unification '::foo.baz', '::foo(2n+1) {@extend .baz}', '::foo.baz'
     assert_unification '::foo.baz', '::foo {@extend .baz}', '::foo'
     assert_unification '::foo(2n+1).baz', '::foo(2n+1) {@extend .baz}', '::foo(2n+1)'
     assert_unification ':foo.baz', ':bar {@extend .baz}', ':foo.baz, :foo:bar'
@@ -313,6 +264,18 @@ SCSS
   def test_pseudoclass_remains_at_end_of_selector
     assert_extends '.foo:bar', '.baz {@extend .foo}', '.foo:bar, .baz:bar'
     assert_extends 'a.foo:bar', '.baz {@extend .foo}', 'a.foo:bar, a.baz:bar'
+  end
+
+  def test_id_unification_again
+    assert_unification('#id.foo .bar', '#id.baz .qux {@extend .bar}',
+        '#id.foo .bar, #id.baz.foo .qux')
+  end
+
+  def test_root_unification
+    assert_extends(
+      ".foo:root .bar",
+      ".baz:root .qux {@extend .bar}",
+      ".foo:root .bar, .baz.foo:root .qux")
   end
 
   def test_not_remains_at_end_of_selector
@@ -570,32 +533,6 @@ CSS
 SCSS
   end
 
-  ## Long Extendees
-
-  def test_long_extendee
-    assert_warning(<<WARNING) {assert_extends '.foo.bar', '.baz {@extend .foo.bar}', '.foo.bar, .baz'}
-DEPRECATION WARNING on line 2 of test_long_extendee_inline.scss:
-Extending a compound selector, .foo.bar, is deprecated and will not be supported in a future release.
-See https://github.com/sass/sass/issues/1599 for details.
-WARNING
-  end
-
-  def test_long_extendee_requires_all_selectors
-    silence_warnings do
-      assert_extend_doesnt_match('.baz', '.foo.bar', :not_found, 2) do
-        render_extends '.foo', '.baz {@extend .foo.bar}'
-      end
-    end
-  end
-
-  def test_long_extendee_matches_supersets
-    silence_warnings {assert_extends '.foo.bar.bap', '.baz {@extend .foo.bar}', '.foo.bar.bap, .bap.baz'}
-  end
-
-  def test_long_extendee_runs_unification
-    silence_warnings {assert_extends 'ns|*.foo.bar', '*|a.baz {@extend .foo.bar}', 'ns|*.foo.bar, ns|a.baz'}
-  end
-
   ## Long Extenders
 
   def test_long_extender
@@ -606,14 +543,9 @@ WARNING
     assert_extends 'ns|*.foo.bar', '*|a.baz {@extend .foo}', 'ns|*.foo.bar, ns|a.bar.baz'
   end
 
-  def test_long_extender_aborts_unification
-    assert_extend_doesnt_match('h1.baz', '.foo', :failed_to_unify, 2) do
-      render_extends 'a.foo#bar', 'h1.baz {@extend .foo}'
-    end
-
-    assert_extend_doesnt_match('.bang#baz', '.foo', :failed_to_unify, 2) do
-      render_extends 'a.foo#bar', '.bang#baz {@extend .foo}'
-    end
+  def test_long_extender_doesnt_unify
+    assert_extends 'a.foo#bar', 'h1.baz {@extend .foo}', 'a.foo#bar'
+    assert_extends 'a.foo#bar', '.bang#baz {@extend .foo}', 'a.foo#bar'
   end
 
   ## Nested Extenders
@@ -626,10 +558,8 @@ WARNING
     assert_extends '.foo.bar', 'foo bar {@extend .foo}', '.foo.bar, foo bar.bar'
   end
 
-  def test_nested_extender_aborts_unification
-    assert_extend_doesnt_match('foo bar', '.foo', :failed_to_unify, 2) do
-      render_extends 'baz.foo', 'foo bar {@extend .foo}'
-    end
+  def test_nested_extender_doesnt_unify
+    assert_extends 'baz.foo', 'foo bar {@extend .foo}', 'baz.foo'
   end
 
   def test_nested_extender_alternates_parents
@@ -686,12 +616,6 @@ WARNING
     assert_extends 'a ~ b c .c1', 'a c .c2 {@extend .c1}', 'a ~ b c .c1, a ~ b a c .c2, a a ~ b c .c2'
     assert_extends 'a ~ b c .c1', 'a b .c2 {@extend .c1}', 'a ~ b c .c1, a a ~ b c .c2'
     assert_extends 'a ~ b c .c1', 'b c .c2 {@extend .c1}', 'a ~ b c .c1, a ~ b c .c2'
-  end
-
-  def test_nested_extender_doesnt_find_common_selectors_around_reference_selector
-    silence_warnings {assert_extends 'a /for/ b c .c1', 'a c .c2 {@extend .c1}', 'a /for/ b c .c1, a /for/ b a c .c2, a a /for/ b c .c2'}
-    silence_warnings {assert_extends 'a /for/ b c .c1', 'a b .c2 {@extend .c1}', 'a /for/ b c .c1, a a /for/ b c .c2'}
-    silence_warnings {assert_extends 'a /for/ b c .c1', 'b c .c2 {@extend .c1}', 'a /for/ b c .c1, a /for/ b c .c2'}
   end
 
   def test_nested_extender_with_early_child_selectors_doesnt_subseq_them
@@ -1057,13 +981,14 @@ SCSS
   end
 
   def test_placeholder_selector_as_modifier
-    assert_extend_doesnt_match('div', '%foo', :failed_to_unify, 3) do
-      render(<<SCSS)
+    assert_equal <<CSS, render(<<SCSS)
+a.baz.bar {
+  color: blue; }
+CSS
 a%foo.baz {color: blue}
 .bar {@extend %foo}
 div {@extend %foo}
 SCSS
-    end
   end
 
   def test_placeholder_interpolation
@@ -1328,17 +1253,6 @@ The selector ".bar" was not found.
 Use "@extend .bar !optional" if the extend should be able to fail.
 ERR
 .foo {@extend .bar}
-SCSS
-  end
-
-  def test_extend_warns_when_extension_fails
-    assert_raise_message(Sass::SyntaxError, <<ERR) {render(<<SCSS)}
-"b.foo" failed to @extend ".bar".
-No selectors matching ".bar" could be unified with "b.foo".
-Use "@extend .bar !optional" if the extend should be able to fail.
-ERR
-a.bar {a: b}
-b.foo {@extend .bar}
 SCSS
   end
 

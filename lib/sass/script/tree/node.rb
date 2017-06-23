@@ -23,14 +23,6 @@ module Sass::Script::Tree
     # @return [String]
     attr_accessor :filename
 
-    # The warning that this node should emit if it executes in a way that's not
-    # safe for a CSS variable value.
-    #
-    # This is `nil` if this is not in a CSS variable value.
-    #
-    # @return [Sass::Script::CssVariableWarning]
-    attr_accessor :css_variable_warning
-
     # Sets the options hash for this node,
     # as well as for all child nodes.
     # See {file:SASS_REFERENCE.md#Options the Sass options documentation}.

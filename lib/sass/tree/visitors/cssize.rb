@@ -56,8 +56,7 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
     @parents.pop
   end
 
-  # In Ruby 1.8, ensures that there's only one `@charset` directive
-  # and that it's at the top of the document.
+  # Converts the entire document to CSS.
   #
   # @return [(Tree::Node, Sass::Util::SubsetMap)] The resulting tree of static nodes
   #   *and* the extensions defined for this tree
@@ -65,14 +64,6 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
     yield
 
     if parent.nil?
-      # In Ruby 1.9 we can make all @charset nodes invisible
-      # and infer the final @charset from the encoding of the final string.
-      if Sass::Util.ruby1_8?
-        charset = node.children.find {|c| c.is_a?(Sass::Tree::CharsetNode)}
-        node.children.reject! {|c| c.is_a?(Sass::Tree::CharsetNode)}
-        node.children.unshift charset if charset
-      end
-
       imports_to_move = []
       import_limit = nil
       i = -1
@@ -115,11 +106,9 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
   # @attr node [Sass::Tree::ExtendNode] The node that produced this extend.
   # @attr directives [Array<Sass::Tree::DirectiveNode>]
   #   The directives containing the `@extend`.
-  # @attr result [Symbol]
-  #   The result of this extend. One of `:not_found` (the target doesn't exist
-  #   in the document), `:failed_to_unify` (the target exists but cannot be
-  #   unified with the extender), or `:succeeded`.
-  Extend = Struct.new(:extender, :target, :node, :directives, :result)
+  # @attr success [Boolean]
+  #   Whether this extend successfully matched a selector.
+  Extend = Struct.new(:extender, :target, :node, :directives, :success)
 
   # Registers an extension in the `@extends` subset map.
   def visit_extend(node)
@@ -157,10 +146,7 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
     yield
 
     result = node.children.dup
-    if !node.resolved_value.empty? || node.children.empty?
-      node.send(:check!)
-      result.unshift(node)
-    end
+    result.unshift(node) if !node.resolved_value.empty? || node.children.empty?
 
     result
   end

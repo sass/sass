@@ -49,26 +49,13 @@ baz {bar: baz}
 SCSS
   end
 
-  if Sass::Util.ruby1_8?
-    def test_unicode
-      assert_parses <<SCSS
+  def test_unicode
+    assert_parses <<SCSS
 @charset "UTF-8";
 foo {
   bar: föö bâr; }
 SCSS
-      assert_parses <<SCSS
-foo {
-  bar: föö bâr; }
-SCSS
-    end
-  else
-    def test_unicode
-      assert_parses <<SCSS
-@charset "UTF-8";
-foo {
-  bar: föö bâr; }
-SCSS
-      assert_equal <<CSS, render(<<SCSS)
+    assert_equal <<CSS, render(<<SCSS)
 @charset "UTF-8";
 foo {
   bar: föö bâr; }
@@ -76,7 +63,6 @@ CSS
 foo {
   bar: föö bâr; }
 SCSS
-    end
   end
 
   def test_invisible_comments
@@ -819,10 +805,7 @@ SCSS
     assert_selector_parses('E > F')
     assert_selector_parses('E + F')
     assert_selector_parses('E ~ F')
-    silence_warnings {assert_selector_parses('E /foo/ F')}
     silence_warnings {assert_selector_parses('E! > F')}
-
-    silence_warnings {assert_selector_parses('E /ns|foo/ F')}
 
     # From http://dev.w3.org/csswg/css-scoping-1/
     assert_selector_parses('E:host(s)')
@@ -1181,7 +1164,7 @@ SCSS
 
   def test_long_unclosed_comment_doesnt_take_forever
     assert_raise_message(Sass::SyntaxError,
-      'Invalid CSS after "/*": expected "/", was "//*************..."') {render(<<SCSS)}
+      'Invalid CSS after "": expected selector or at-rule, was "/*"') {render(<<SCSS)}
 /*
 //**************************************************************************
 SCSS

@@ -49,14 +49,14 @@ module Sass::Script::Tree
     # @see Node#_perform
     def _perform(environment)
       keys = Set.new
-      map = Sass::Script::Value::Map.new(Sass::Util.to_hash(pairs.map do |(k, v)|
+      map = Sass::Script::Value::Map.new(Hash[pairs.map do |(k, v)|
         k, v = k.perform(environment), v.perform(environment)
         if keys.include?(k)
           raise Sass::SyntaxError.new("Duplicate key #{k.inspect} in map #{to_sass}.")
         end
         keys << k
         [k, v]
-      end))
+      end])
       map.options = options
       map
     end

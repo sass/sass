@@ -2173,18 +2173,6 @@ div { -foo-\#{$a}-\#{$b}-foo: foo }
 SCSS
   end
 
-  def test_selector_interpolation_in_reference_combinator
-    silence_warnings {assert_equal <<CSS, render(<<SCSS)}
-.foo /a/ .bar /b|c/ .baz {
-  a: b; }
-CSS
-$a: a;
-$b: b;
-$c: c;
-.foo /\#{$a}/ .bar /\#{$b}|\#{$c}/ .baz {a: b}
-SCSS
-  end
-
   def test_parent_selector_with_parent_and_subject
     silence_warnings {assert_equal <<CSS, render(<<SCSS)}
 bar foo.baz! .bip {
@@ -3389,22 +3377,22 @@ SCSS
   def test_uses_property_exception_with_star_hack
     render <<SCSS
 foo {
-  *bar:baz [fail]; }
+  *bar:baz <fail>; }
 SCSS
     assert(false, "Expected syntax error")
   rescue Sass::SyntaxError => e
-    assert_equal 'Invalid CSS after "  *bar:baz ": expected ";", was "[fail]; }"', e.message
+    assert_equal 'Invalid CSS after "  *bar:baz <fail>": expected expression (e.g. 1px, bold), was "; }"', e.message
     assert_equal 2, e.sass_line
   end
 
   def test_uses_property_exception_with_colon_hack
     render <<SCSS
 foo {
-  :bar:baz [fail]; }
+  :bar:baz <fail>; }
 SCSS
     assert(false, "Expected syntax error")
   rescue Sass::SyntaxError => e
-    assert_equal 'Invalid CSS after "  :bar:baz ": expected ";", was "[fail]; }"', e.message
+    assert_equal 'Invalid CSS after "  :bar:baz <fail>": expected expression (e.g. 1px, bold), was "; }"', e.message
     assert_equal 2, e.sass_line
   end
 
@@ -3422,22 +3410,22 @@ SCSS
   def test_uses_property_exception_with_space_after_name
     render <<SCSS
 foo {
-  bar: baz [fail]; }
+  bar: baz <fail>; }
 SCSS
     assert(false, "Expected syntax error")
   rescue Sass::SyntaxError => e
-    assert_equal 'Invalid CSS after "  bar: baz ": expected ";", was "[fail]; }"', e.message
+    assert_equal 'Invalid CSS after "  bar: baz <fail>": expected expression (e.g. 1px, bold), was "; }"', e.message
     assert_equal 2, e.sass_line
   end
 
   def test_uses_property_exception_with_non_identifier_after_name
     render <<SCSS
 foo {
-  bar:1px [fail]; }
+  bar:1px <fail>; }
 SCSS
     assert(false, "Expected syntax error")
   rescue Sass::SyntaxError => e
-    assert_equal 'Invalid CSS after "  bar:1px ": expected ";", was "[fail]; }"', e.message
+    assert_equal 'Invalid CSS after "  bar:1px <fail>": expected expression (e.g. 1px, bold), was "; }"', e.message
     assert_equal 2, e.sass_line
   end
 
@@ -3651,40 +3639,6 @@ SCSS
 
   # Regression
 
-  # Regression test for #2031.
-  def test_no_interpolation_warning_in_nested_selector
-    assert_no_warning {assert_equal(<<CSS, render(<<SCSS))}
-z a:b(n+1) {
-  x: y; }
-CSS
-z {
-  a:b(n+\#{1}) {
-    x: y;
-  }
-}
-SCSS
-  end
-
-  # Ensures that the fix for #2031 doesn't hide legitimate warnings.
-  def test_interpolation_warning_in_selector_like_property
-    assert_warning(<<WARNING) {assert_equal(<<CSS, render(<<SCSS))}
-DEPRECATION WARNING on line 2 of #{filename_for_test :scss}:
-\#{} interpolation near operators will be simplified in a future version of Sass.
-To preserve the current behavior, use quotes:
-
-  unquote("n+1")
-
-You can use the sass-convert command to automatically fix most cases.
-WARNING
-z {
-  a: b(n+1); }
-CSS
-z {
-  a:b(n+\#{1});
-}
-SCSS
-  end
-
   def test_escape_in_selector
     assert_equal(<<CSS, render(".\\!foo {a: b}"))
 .\\!foo {
@@ -3827,7 +3781,7 @@ SCSS
   def test_parsing_decimals_followed_by_comments_doesnt_take_forever
     assert_equal(<<CSS, render(<<SCSS))
 .foo {
-  padding: 4.21053% 4.21053% 5.63158%; }
+  padding: 4.2105263158% 4.2105263158% 5.6315789474%; }
 CSS
 .foo {
   padding: 4.21052631578947% 4.21052631578947% 5.631578947368421% /**/
@@ -3856,27 +3810,6 @@ CSS
 @import "foo.css", // this is a comment
         "bar.css", /* this is another comment */
         "baz.css"; // this is a third comment
-SCSS
-  end
-
-  def test_reference_combinator_with_parent_ref
-    silence_warnings {assert_equal <<CSS, render(<<SCSS)}
-a /foo/ b {
-  c: d; }
-CSS
-a {& /foo/ b {c: d}}
-SCSS
-  end
-
-  def test_reference_combinator_warning
-    assert_warning(<<WARNING) {assert_equal <<CSS, render(<<SCSS)}
-DEPRECATION WARNING on line 1, column 8 of test_reference_combinator_warning_inline.scss:
-The reference combinator /foo/ is deprecated and will be removed in a future release.
-WARNING
-a /foo/ b {
-  c: d; }
-CSS
-a {& /foo/ b {c: d}}
 SCSS
   end
 
@@ -3942,12 +3875,13 @@ a.\#{"foo"} b
 SCSS
   end
 
-  def test_extra_comma_in_mixin_arglist_error
-    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
-Invalid CSS after "...clude foo(bar, ": expected mixin argument, was ");"
-MESSAGE
-@mixin foo($a1, $a2) {
-  baz: $a1 $a2;
+  def test_extra_comma_in_mixin_arglist
+    assert_equal <<CSS, render(<<SCSS)
+.bar {
+  baz: bar; }
+CSS
+@mixin foo($a1,) {
+  baz: $a1;
 }
 
 .bar {
@@ -3955,6 +3889,39 @@ MESSAGE
 }
 SCSS
   end
+
+
+  def test_extra_comma_between_parameters_in_mixin_arglist
+    assert_raise_message(Sass::SyntaxError, "Invalid CSS after \"...nclude foo(bar,\": expected \")\", was \", baz );\"") {render <<SCSS}
+@mixin foo($a1, $a2) {
+  baz: $a1;
+  bef: $a2;
+}
+
+.bar {
+  @include foo(bar,, baz );
+}
+SCSS
+  end
+
+
+  def test_extra_comma_in_mixin_arglist_ending_needs_have_parentheses_after
+    assert_raise_message(Sass::SyntaxError, "Invalid CSS after \"    bri,\": expected \")\", was \"};\"") {render <<SCSS}
+@mixin foo($a1, $a2) {
+  baz: $a1;
+  bal: $a2;
+}
+
+.bar {
+  @include foo(
+    bar,
+    bri,
+  };
+}
+SCSS
+  end
+
+
 
   def test_interpolation
     assert_equal <<CSS, render(<<SCSS)

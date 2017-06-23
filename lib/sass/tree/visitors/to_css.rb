@@ -135,7 +135,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
 
     output "\n"
 
-    unless Sass::Util.ruby1_8? || @result.ascii_only?
+    unless @result.ascii_only?
       if node.style == :compressed
         # A byte order mark is sufficient to tell browsers that this
         # file is UTF-8 encoded, and will override any other detection
@@ -261,18 +261,20 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   end
 
   def visit_prop(node)
-    return if node.resolved_value.empty?
+    return if node.resolved_value.empty? && !node.custom_property?
     tab_str = '  ' * (@tabs + node.tabs)
     output(tab_str)
     for_node(node, :name) {output(node.resolved_name)}
-    if node.style == :compressed
-      output(":")
-      for_node(node, :value) {output(node.resolved_value)}
-    else
-      output(": ")
-      for_node(node, :value) {output(node.resolved_value)}
-      output(";")
+    output(":")
+    output(" ") unless node.style == :compressed || node.custom_property?
+    for_node(node, :value) do
+      output(if node.custom_property?
+               format_custom_property_value(node)
+             else
+               node.resolved_value
+             end)
     end
+    output(";") unless node.style == :compressed
   end
 
   # @comment
@@ -294,8 +296,8 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
                                       end
 
       joined_rules = node.resolved_rules.members.map do |seq|
-        next if seq.has_placeholder?
-        rule_part = seq.to_s(:style => node.style)
+        next if seq.invisible?
+        rule_part = seq.to_s(style: node.style, placeholder: false)
         if node.style == :compressed
           rule_part.gsub!(/([^,])\s*\n\s*/m, '\1 ')
           rule_part.gsub!(/\s*([+>])\s*/m, '\1')
@@ -384,9 +386,41 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
 
   private
 
+  # Reformats the value of `node` so that it's nicely indented, preserving its
+  # existing relative indentation.
+  #
+  # @param node [Sass::Script::Tree::PropNode] A custom property node.
+  # @return [String]
+  def format_custom_property_value(node)
+    if node.style == :compact || node.style == :compressed || !node.resolved_value.include?("\n")
+      # Folding not involving newlines was done in the parser. We can safely
+      # fold newlines here because tokens like strings can't contain literal
+      # newlines, so we know any adjacent whitespace is tokenized as whitespace.
+      return node.resolved_value.gsub(/[ \t\r\f]*\n[ \t\r\f\n]*/, ' ')
+    end
+
+    # Find the smallest amount of indentation in the custom property and use
+    # that as the base indentation level.
+    lines = node.resolved_value.split("\n")
+    indented_lines = lines[1..-1]
+    min_indentation = indented_lines.
+      map {|line| line[/^[ \t]*/]}.
+      reject {|line| line.empty?}.
+      min_by {|line| line.length}
+
+    # Limit the base indentation to the same indentation level as the node name
+    # so that if *every* line is indented relative to the property name that's
+    # preserved.
+    if node.name_source_range
+      base_indentation = min_indentation[0...node.name_source_range.start_pos.offset - 1]
+    end
+
+    lines.first + "\n" + indented_lines.join("\n").gsub(/^#{base_indentation}/, '  ' * @tabs)
+  end
+
   def debug_info_rule(debug_info, options)
     node = Sass::Tree::DirectiveNode.resolved("@media -sass-debug-info")
-    Sass::Util.hash_to_a(debug_info.map {|k, v| [k.to_s, v.to_s]}).each do |k, v|
+    debug_info.map {|k, v| [k.to_s, v.to_s]}.to_a.each do |k, v|
       rule = Sass::Tree::RuleNode.new([""])
       rule.resolved_rules = Sass::Selector::CommaSequence.new(
         [Sass::Selector::Sequence.new(
@@ -395,7 +429,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
             false)
           ])
         ])
-      prop = Sass::Tree::PropNode.new([""], Sass::Script::Value::String.new(''), :new)
+      prop = Sass::Tree::PropNode.new([""], [""], :new)
       prop.resolved_name = "font-family"
       prop.resolved_value = Sass::SCSS::RX.escape_ident(v.to_s)
       rule << prop

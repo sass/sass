@@ -44,24 +44,17 @@ class SassEngineTest < MiniTest::Test
     "$a: foo(\"bar\"" => 'Invalid CSS after "foo("bar"": expected ")", was ""',
     "$a: 1 }" => 'Invalid CSS after "1 ": expected expression (e.g. 1px, bold), was "}"',
     "$a: 1 }foo\"" => 'Invalid CSS after "1 ": expected expression (e.g. 1px, bold), was "}foo""',
-    ":" => 'Invalid property: ":".',
-    ": a" => 'Invalid property: ": a".',
-    "a\n  :b" => <<MSG,
-Invalid property: ":b" (no value).
-If ":b" should be a selector, use "\\:b" instead.
-MSG
-    "a\n  b:" => 'Invalid property: "b:" (no value).',
-    "a\n  :b: c" => 'Invalid property: ":b: c".',
-    "a\n  :b:c d" => 'Invalid property: ":b:c d".',
-    "a\n  :b c;" => 'Invalid CSS after "c": expected expression (e.g. 1px, bold), was ";"',
-    "a\n  b: c;" => 'Invalid CSS after "c": expected expression (e.g. 1px, bold), was ";"',
+    ":" => "Invalid CSS after \":\": expected pseudoclass or pseudoelement, was \"\"",
+    ": a" => "Invalid CSS after \":\": expected pseudoclass or pseudoelement, was \" a\"",
+    "a\n  :b: c" => "Invalid CSS after \":b:\": expected pseudoclass or pseudoelement, was \" c\"",
+    "a\n  :b c;" => "Invalid CSS after \":b c\": expected selector, was \";\"",
+    "a\n  b: c;" => "Invalid CSS after \"c\": expected expression (e.g. 1px, bold), was \";\"",
     ".foo ^bar\n  a: b" => ['Invalid CSS after ".foo ": expected selector, was "^bar"', 1],
     "a\n  @extend .foo ^bar" => 'Invalid CSS after ".foo ": expected selector, was "^bar"',
     "a\n  @extend .foo .bar" => "Can't extend .foo .bar: can't extend nested selectors",
     "a\n  @extend >" => "Can't extend >: invalid selector",
     "a\n  @extend &.foo" => "Can't extend &.foo: can't extend parent selectors",
     "a: b" => 'Properties are only allowed within rules, directives, mixin includes, or other properties.',
-    ":a b" => 'Properties are only allowed within rules, directives, mixin includes, or other properties.',
     "$" => 'Invalid variable: "$".',
     "$a" => 'Invalid variable: "$a".',
     "$ a" => 'Invalid variable: "$ a".',
@@ -73,10 +66,8 @@ MSG
     "$a: 1b >= 2c" => "Incompatible units: 'c' and 'b'.",
     "a\n  b: 1b * 2c" => "2b*c isn't a valid CSS value.",
     "a\n  b: 1b % 2c" => "Incompatible units: 'c' and 'b'.",
-    "$a: 2px + #ccc" => "Cannot add a number with units (2px) to a color (#ccc).",
-    "$a: #ccc + 2px" => "Cannot add a number with units (2px) to a color (#ccc).",
     "& a\n  :b c" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 1],
-    "a\n  :b\n    c" => "Illegal nesting: Only properties may be nested beneath properties.",
+    "a\n  b:\n    c" => "Illegal nesting: Only properties may be nested beneath properties.",
     "$a: b\n  :c d\n" => "Illegal nesting: Nothing may be nested beneath variable declarations.",
     "@import templates/basic\n  foo" => "Illegal nesting: Nothing may be nested beneath import directives.",
     "foo\n  @import foo.css" => "CSS import directives may only be used at the root of a document.",
@@ -98,8 +89,6 @@ MSG
     "a\n\t\tb: c\n\tb: c" => ["Inconsistent indentation: 1 tab was used for indentation, but the rest of the document was indented using 2 tabs.", 3],
     "a\n  b: c\n   b: c" => ["Inconsistent indentation: 3 spaces were used for indentation, but the rest of the document was indented using 2 spaces.", 3],
     "a\n  b: c\n  a\n   d: e" => ["Inconsistent indentation: 3 spaces were used for indentation, but the rest of the document was indented using 2 spaces.", 4],
-    "a\n  b: c\na\n    d: e" => ["The line was indented 2 levels deeper than the previous line.", 4],
-    "a\n  b: c\n  a\n        d: e" => ["The line was indented 3 levels deeper than the previous line.", 4],
     "a\n \tb: c" => ["Indentation can't use both tabs and spaces.", 2],
     "=a(" => 'Invalid CSS after "(": expected variable (e.g. $foo), was ""',
     "=a(b)" => 'Invalid CSS after "(": expected variable (e.g. $foo), was "b)"',
@@ -139,7 +128,7 @@ MSG
     '@for $a from "foo" to 1' => '"foo" is not an integer.',
     '@for $a from 1 to "2"' => '"2" is not an integer.',
     '@for $a from 1 to "foo"' => '"foo" is not an integer.',
-    '@for $a from 1 to 1.232323' => '1.23232 is not an integer.',
+    '@for $a from 1 to 1.23232323232' => '1.2323232323 is not an integer.',
     '@for $a from 1px to 3em' => "Incompatible units: 'em' and 'px'.",
     '@if' => "Invalid if directive '@if': expected expression.",
     '@while' => "Invalid while directive '@while': expected expression.",
@@ -177,8 +166,6 @@ MSG
     "& foo\n  bar: baz\n  blat: bang" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 1],
     "a\n  b: c\n& foo\n  bar: baz\n  blat: bang" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 3],
     "@" => "Invalid directive: '@'.",
-    "$r: 20em * #ccc" => ["Cannot multiply a number with units (20em) to a color (#ccc).", 1],
-    "$r: #ccc / 1em" => ["Cannot divide a number with units (1em) to a color (#ccc).", 1],
   }
 
   def teardown
@@ -769,28 +756,6 @@ SASS
 
   def test_complex_multiline_selector
     renders_correctly "multiline"
-  end
-
-  def test_colon_only
-    begin
-      render("a\n  b: c", :property_syntax => :old)
-    rescue Sass::SyntaxError => e
-      assert_equal("Illegal property syntax: can't use new syntax when :property_syntax => :old is set.",
-                   e.message)
-      assert_equal(2, e.sass_line)
-    else
-      assert(false, "SyntaxError not raised for :property_syntax => :old")
-    end
-
-    begin
-      silence_warnings {render("a\n  :b c", :property_syntax => :new)}
-      assert_equal(2, e.sass_line)
-    rescue Sass::SyntaxError => e
-      assert_equal("Illegal property syntax: can't use old syntax when :property_syntax => :new is set.",
-                   e.message)
-    else
-      assert(false, "SyntaxError not raised for :property_syntax => :new")
-    end
   end
 
   def test_pseudo_elements
@@ -1793,7 +1758,7 @@ SASS
 
   def test_loud_comment_is_evaluated
     assert_equal <<CSS, render(<<SASS)
-/*! Hue: 327.21649deg */
+/*! Hue: 327.2164948454deg */
 CSS
 /*! Hue: \#{hue(#f836a0)}
 SASS
@@ -1870,8 +1835,8 @@ g
 SASS
   end
 
-  def test_root_level_pseudo_class_with_new_properties
-    assert_equal(<<CSS, render(<<SASS, :property_syntax => :new))
+  def test_root_level_pseudo_class
+    assert_equal(<<CSS, render(<<SASS))
 :focus {
   outline: 0; }
 CSS
@@ -1880,8 +1845,8 @@ CSS
 SASS
   end
 
-  def test_pseudo_class_with_new_properties
-    assert_equal(<<CSS, render(<<SASS, :property_syntax => :new))
+  def test_pseudo_class
+    assert_equal(<<CSS, render(<<SASS))
 p :focus {
   outline: 0; }
 CSS
@@ -2700,15 +2665,6 @@ a
 SASS
   end
 
-  def test_mixin_no_arg_error
-    assert_raise_message(Sass::SyntaxError, 'Invalid CSS after "($bar,": expected variable (e.g. $foo), was ")"') do
-      render(<<SASS)
-=foo($bar,)
-  bip: bap
-SASS
-    end
-  end
-
   def test_import_with_commas_in_url
     assert_equal <<CSS, render(<<SASS)
 @import url(foo.css?bar,baz);
@@ -2873,7 +2829,7 @@ SASS
   end
 
   def test_comment_like_selector
-    assert_raise_message(Sass::SyntaxError, 'Invalid CSS after "/": expected identifier, was " foo"') {render(<<SASS)}
+    assert_raise_message(Sass::SyntaxError, 'Invalid CSS after "": expected selector, was "/ foo"') {render(<<SASS)}
 / foo
   a: b
 SASS
@@ -3324,13 +3280,13 @@ SASS
 
   def test_numeric_formatting_of_integers
     assert_equal(<<CSS, render(<<SASS, :syntax => :scss, :style => :compressed))
-a{near:3.00001;plus:3;minus:3;negative:-3}
+a{near:3.0000000001;plus:3;minus:3;negative:-3}
 CSS
 a {
-  near: (3 + 0.00001);
-  plus: (3 + 0.0000001);
-  minus: (3 - 0.0000001);
-  negative: (-3 + 0.0000001);
+  near: (3 + 0.0000000001);
+  plus: (3 + 0.000000000001);
+  minus: (3 - 0.000000000001);
+  negative: (-3 + 0.000000000001);
 }
 SASS
   end
@@ -3388,6 +3344,70 @@ SASS
 CSS
 .classname[a="1, 2, 3"], .another[b="4, 5, 6"]
   color: red
+SASS
+  end
+
+  def test_trailing_commas_in_arglists
+    assert_equal(<<CSS, render(<<SASS, :style => :nested))
+.includes {
+  one-positional-arg: positional 1 a;
+  two-positional-args: positional 2 a b;
+  one-keyword-arg: keyword 1 z;
+  two-keyword-args: keyword 2 y z;
+  mixed-args: mixed 2 y z; }
+
+.calls {
+  one-positional-arg: positional 1 a;
+  two-positional-args: positional 2 a b;
+  one-keyword-arg: keyword 1 z;
+  two-keyword-args: keyword 2 y z;
+  mixed-args: mixed 2 y z; }
+CSS
+=one-positional-arg($a,)
+  one-positional-arg: positional 1 $a
+
+=two-positional-args($a, $b,)
+  two-positional-args: positional 2 $a $b
+
+=one-keyword-arg($a: a,)
+  one-keyword-arg: keyword 1 $a
+
+=two-keyword-args($a: a, $b: b,)
+  two-keyword-args: keyword 2 $a $b
+
+=mixed-args($a, $b: b,)
+  mixed-args: mixed 2 $a $b
+
+@function one-positional-arg($a)
+  @return positional 1 $a
+
+@function two-positional-args($a, $b)
+  @return positional 2 $a $b
+
+@function one-keyword-arg($a: a)
+  @return keyword 1 $a
+
+@function two-keyword-args($a: a, $b: b)
+  @return keyword 2 $a $b
+
+@function mixed-args($a, $b: b)
+  @return mixed 2 $a $b
+
+
+.includes
+  +one-positional-arg(a,)
+  +two-positional-args(a, b,)
+  +one-keyword-arg($a: z,)
+  +two-keyword-args($a: y, $b: z,)
+  +mixed-args(y, $b: z,)
+
+
+.calls
+  one-positional-arg: one-positional-arg(a)
+  two-positional-args: two-positional-args(a, b)
+  one-keyword-arg: one-keyword-arg($a: z)
+  two-keyword-args: two-keyword-args($a: y, $b: z)
+  mixed-args: mixed-args(y, $b: z)
 SASS
   end
 

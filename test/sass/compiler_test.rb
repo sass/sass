@@ -40,12 +40,10 @@ class CompilerTest < MiniTest::Test
       @run_during_start = run_during_start
     end
 
-    # used for Listen < 2.0
     def start!
       @run_during_start.call(self) if @run_during_start
     end
 
-    # used for Listen >= 2.0
     def start
       parent = Thread.current
       @thread = Thread.new do
@@ -86,18 +84,10 @@ class CompilerTest < MiniTest::Test
 
     private
     def create_listener(*args, &on_filesystem_event)
-      if Sass::Util.listen_geq_2?
-        args.pop if args.last.is_a?(Hash)
-        args.map do |dir|
-          @fake_listener = FakeListener.new(*args, &on_filesystem_event)
-          @fake_listener.on_start!(&run_during_start)
-          @fake_listener
-        end
-      else
-        @fake_listener = FakeListener.new(*args, &on_filesystem_event)
-        @fake_listener.on_start!(&run_during_start)
-        @fake_listener
-      end
+      args.pop if args.last.is_a?(Hash)
+      @fake_listener = FakeListener.new(*args, &on_filesystem_event)
+      @fake_listener.on_start!(&run_during_start)
+      @fake_listener
     end
   end
 

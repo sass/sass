@@ -129,7 +129,7 @@ end
 # Don't use Rake::GemPackageTast because we want prerequisites to run
 # before we load the gemspec.
 desc "Build all the packages."
-task :package => [:revision_file, :date_file, :submodules, :permissions] do
+task :package => [:revision_file, :date_file, :permissions] do
   version = get_version
   File.open(scope('VERSION'), 'w') {|f| f.puts(version)}
   load scope('sass.gemspec')
@@ -222,49 +222,10 @@ def changed_since?(rev, *files)
   return !$?.success?
 end
 
-task :submodules do
-  if File.exist?(File.dirname(__FILE__) + "/.git")
-    sh %{git submodule sync}
-    sh %{git submodule update --init}
-  elsif !File.exist?(File.dirname(__FILE__) + "/vendor/listen/lib")
-    warn <<WARN
-WARNING: vendor/listen doesn't exist, and this isn't a git repository so
-I can't get it automatically!
-WARN
-  end
-end
-
-task :release_edge do
-  ensure_git_cleanup do
-    puts "#{'=' * 50} Running rake release_edge"
-
-    sh %{git checkout master}
-    sh %{git reset --hard origin/master}
-    sh %{rake package}
-    version = get_version
-    if version.include?('.rc.')
-      puts "#{'=' * 20} Not releasing edge gem for RC version"
-      next
-    end
-
-    sh %{gem push pkg/sass-#{version}.gem}
-  end
-end
-
 # Get the version string. If this is being installed from Git,
 # this includes the proper prerelease version.
 def get_version
-  written_version = File.read(scope('VERSION').strip)
-  return written_version unless File.exist?(scope('.git'))
-
-  # Get the current master branch version
-  version = written_version.split('.')
-  version.map! {|n| n =~ /^[0-9]+$/ ? n.to_i : n}
-  return written_version unless version.size == 5 && version[3] == "alpha" # prerelease
-
-  return written_version if (commit_count = `git log --pretty=oneline HEAD ^stable | wc -l`).empty?
-  version[4] = commit_count.strip
-  version.join('.')
+  File.read(scope('VERSION').strip)
 end
 
 task :watch_for_update do
@@ -336,27 +297,6 @@ rescue LoadError
   task :yard => :rdoc
 end
 
-task :pages do
-  ensure_git_cleanup do
-    puts "#{'=' * 50} Running rake pages"
-    sh %{git checkout sass-pages}
-    sh %{git reset --hard origin/sass-pages}
-
-    Dir.chdir("/var/www/sass-pages") do
-      sh %{git fetch origin}
-
-      sh %{git checkout stable}
-      sh %{git reset --hard origin/stable}
-
-      sh %{git checkout sass-pages}
-      sh %{git reset --hard origin/sass-pages}
-      sh %{rake build --trace}
-      sh %{mkdir -p tmp}
-      sh %{touch tmp/restart.txt}
-    end
-  end
-end
-
 # ----- Coverage -----
 
 begin
@@ -396,58 +336,3 @@ END
     RubyProf.const_get("#{(ENV['OUTPUT'] || 'Flat').capitalize}Printer").new(result).print
   end
 rescue LoadError; end
-
-# ----- Handling Updates -----
-
-def email_on_error
-  yield
-rescue Exception => e
-  IO.popen("sendmail nex342@gmail.com", "w") do |sm|
-    sm << "From: nex3@nex-3.com\n" <<
-      "To: nex342@gmail.com\n" <<
-      "Subject: Exception when running rake #{Rake.application.top_level_tasks.join(', ')}\n" <<
-      e.message << "\n\n" <<
-      e.backtrace.join("\n")
-  end
-ensure
-  raise e if e
-end
-
-def ensure_git_cleanup
-  email_on_error {yield}
-ensure
-  sh %{git reset --hard HEAD}
-  sh %{git clean -xdf}
-  sh %{git checkout master}
-end
-
-task :handle_update do
-  email_on_error do
-    unless ENV["REF"] =~ %r{^refs/heads/(master|stable|sass-pages)$}
-      puts "#{'=' * 20} Ignoring rake handle_update REF=#{ENV["REF"].inspect}"
-      next
-    end
-    branch = $1
-
-    puts
-    puts
-    puts '=' * 150
-    puts "Running rake handle_update REF=#{ENV["REF"].inspect}"
-
-    sh %{git fetch origin}
-    sh %{git checkout stable}
-    sh %{git reset --hard origin/stable}
-    sh %{git checkout master}
-    sh %{git reset --hard origin/master}
-
-    case branch
-    when "master"
-      sh %{rake release_edge --trace}
-    when "stable", "sass-pages"
-      sh %{rake pages --trace}
-    end
-
-    puts 'Done running handle_update'
-    puts '=' * 150
-  end
-end

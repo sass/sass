@@ -192,6 +192,12 @@ MSG
     # @return [Symbol]
     def separator; nil; end
 
+    # Whether the value is surrounded by square brackets. For non-list values,
+    # this will be `false`.
+    #
+    # @return [Boolean]
+    def bracketed; false; end
+
     # Returns the value of this value as a list.
     # Single values are considered the same as single-element lists.
     #
@@ -226,6 +232,17 @@ MSG
     # @return [Boolean] `false`
     def null?
       false
+    end
+
+    # Creates a new list containing `contents` but with the same brackets and
+    # separators as this object, when interpreted as a list.
+    #
+    # @param contents [Array<Value>] The contents of the new list.
+    # @param separator [Symbol] The separator of the new list. Defaults to \{#separator}.
+    # @param bracketed [Boolean] Whether the new list is bracketed. Defaults to \{#bracketed}.
+    # @return [Sass::Script::Value::List]
+    def with_contents(contents, separator: self.separator, bracketed: self.bracketed)
+      Sass::Script::Value::List.new(contents, separator: separator, bracketed: bracketed)
     end
 
     protected

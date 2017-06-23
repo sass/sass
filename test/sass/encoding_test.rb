@@ -8,8 +8,6 @@ class EncodingTest < MiniTest::Test
   include Sass::Util::Test
 
   def test_encoding_error
-    return skip "Can't be run on Ruby 1.8." if Sass::Util.ruby1_8?
-
     render("foo\nbar\nb\xFEaz".force_encoding("utf-8"))
     assert(false, "Expected exception")
   rescue Sass::SyntaxError => e
@@ -18,8 +16,6 @@ class EncodingTest < MiniTest::Test
   end
 
   def test_ascii_incompatible_encoding_error
-    return skip "Can't be run on Ruby 1.8." if Sass::Util.ruby1_8?
-
     template = "foo\nbar\nb_z".encode("utf-16le")
     template[9] = "\xFE".force_encoding("utf-16le")
     render(template)
@@ -30,8 +26,6 @@ class EncodingTest < MiniTest::Test
   end
 
   def test_prefers_charset_to_ruby_encoding
-    return skip "Can't be run on Ruby 1.8." if Sass::Util.ruby1_8?
-
     assert_renders_encoded(<<CSS, <<SASS.encode("IBM866").force_encoding("UTF-8"))
 @charset "UTF-8";
 fЖЖ {
@@ -44,8 +38,6 @@ SASS
   end
 
   def test_uses_ruby_encoding_without_charset
-    return skip "Can't be run on Ruby 1.8." if Sass::Util.ruby1_8?
-
     assert_renders_encoded(<<CSS, <<SASS.encode("IBM866"))
 @charset "UTF-8";
 тАЬ {
@@ -57,8 +49,6 @@ SASS
   end
 
   def test_multibyte_charset_without_bom_declared_as_binary
-    return skip "Can't be run on Ruby 1.8." if Sass::Util.ruby1_8?
-
     engine = Sass::Engine.new(<<SASS.encode("UTF-16LE").force_encoding("BINARY"))
 @charset "utf-16le"
 fóó
@@ -71,8 +61,6 @@ SASS
   end
 
   def test_multibyte_charset_without_bom_declared_as_utf_8
-    return skip "Can't be run on Ruby 1.8." if Sass::Util.ruby1_8?
-
     engine = Sass::Engine.new(<<SASS.encode("UTF-16LE").force_encoding("UTF-8"))
 @charset "utf-16le"
 fóó
@@ -85,8 +73,6 @@ SASS
   end
 
   def test_utf_16le_with_bom
-    return skip "Can't be run on Ruby 1.8." if Sass::Util.ruby1_8?
-
     assert_renders_encoded(<<CSS, <<SASS.encode("UTF-16LE").force_encoding("BINARY"))
 @charset "UTF-8";
 fóó {
@@ -98,8 +84,6 @@ SASS
   end
 
   def test_utf_16be_with_bom
-    return skip "Can't be run on Ruby 1.8." if Sass::Util.ruby1_8?
-
     assert_renders_encoded(<<CSS, <<SASS.encode("UTF-16BE").force_encoding("BINARY"))
 @charset "UTF-8";
 fóó {
@@ -111,8 +95,6 @@ SASS
   end
 
   def test_utf_8_with_bom
-    return skip "Can't be run on Ruby 1.8." if Sass::Util.ruby1_8?
-
     assert_renders_encoded(<<CSS, <<SASS.force_encoding("BINARY"))
 @charset "UTF-8";
 fóó {
@@ -124,8 +106,6 @@ SASS
   end
 
   def test_charset_with_multibyte_encoding
-    return skip "Can't be run on Ruby 1.8." if Sass::Util.ruby1_8?
-
     engine = Sass::Engine.new(<<SASS)
 @charset "utf-32be"
 fóó
@@ -137,8 +117,6 @@ SASS
   end
 
   def test_charset_with_special_case_encoding
-    return skip "Can't be run on Ruby 1.8." if Sass::Util.ruby1_8?
-
     # For some reason, a file with an ASCII-compatible UTF-16 charset
     # declaration is specced to be parsed as UTF-8.
     assert_renders_encoded(<<CSS, <<SASS.force_encoding("BINARY"))
@@ -153,8 +131,6 @@ SASS
   end
 
   def test_compressed_output_uses_bom
-    return skip "Can't be run on Ruby 1.8." if Sass::Util.ruby1_8?
-
     assert_equal("\uFEFFfóó{a:b}\n", render(<<SASS, :style => :compressed))
 fóó
   a: b
@@ -167,19 +143,15 @@ SASS
   end
 
   def test_null_normalization
-    return skip "Can't be run on Ruby 1.8." if Sass::Util.ruby1_8?
-    
     assert_equal(<<CSS, render("/* foo\x00bar\x00baz */", :syntax => :scss))
-#{"@charset \"UTF-8\";\n" unless Sass::Util.ruby1_8?
-}/* foo�bar�baz */
+@charset "UTF-8";
+/* foo�bar�baz */
 CSS
   end
 
   # Regression
 
   def test_multibyte_prop_name
-    return skip "Can't be run on Ruby 1.8." if Sass::Util.ruby1_8?
-
     assert_equal(<<CSS, render(<<SASS))
 @charset "UTF-8";
 #bar {
@@ -191,8 +163,6 @@ SASS
   end
 
   def test_multibyte_and_interpolation
-    return skip "Can't be run on Ruby 1.8." if Sass::Util.ruby1_8?
-
     assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))
 #bar {
   background: a 0%; }

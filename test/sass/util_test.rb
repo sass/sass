@@ -10,14 +10,6 @@ class UtilTest < MiniTest::Test
     assert(File.exist?(scope("Rakefile")))
   end
 
-  def test_to_hash
-    assert_equal({
-        :foo => 1,
-        :bar => 2,
-        :baz => 3
-      }, to_hash([[:foo, 1], [:bar, 2], [:baz, 3]]))
-  end
-
   def test_map_keys
     assert_equal({
         "foo" => 1,
@@ -52,7 +44,6 @@ class UtilTest < MiniTest::Test
   end
 
   def test_powerset
-    return unless Set[Set[]] == Set[Set[]] # There's a bug in Ruby 1.8.6 that breaks nested set equality
     assert_equal([[].to_set].to_set,
       powerset([]))
     assert_equal([[].to_set, [1].to_set].to_set,
@@ -139,13 +130,6 @@ class UtilTest < MiniTest::Test
       lcs([-5, 3, 2, 8], [-4, 1, 8]) {|a, b| (a - b).abs <= 1 && [a, b].max})
   end
 
-  def test_group_by_to_a
-    assert_equal([[1, [1, 3, 5, 7]], [0, [2, 4, 6, 8]]],
-      group_by_to_a(1..8) {|i| i % 2})
-    assert_equal([[1, [1, 4, 7, 10]], [2, [2, 5, 8, 11]], [0, [3, 6, 9, 12]]],
-      group_by_to_a(1..12) {|i| i % 3})
-  end
-
   def test_subsequence
     assert(subsequence?([1, 2, 3], [1, 2, 3]))
     assert(subsequence?([1, 2, 3], [1, :a, 2, :b, 3]))
@@ -180,30 +164,10 @@ class UtilTest < MiniTest::Test
     $stderr = old_stderr
   end
 
-  def test_has
-    assert(has?(:instance_method, String, :chomp!))
-    assert(has?(:private_instance_method, Sass::Engine, :parse_interp))
-  end
-
-  def test_enum_with_index
-    assert_equal(%w[foo0 bar1 baz2],
-      enum_with_index(%w[foo bar baz]).map {|s, i| "#{s}#{i}"})
-  end
-
-  def test_enum_cons
-    assert_equal(%w[foobar barbaz],
-      enum_cons(%w[foo bar baz], 2).map {|s1, s2| "#{s1}#{s2}"})
-  end
-
   def test_extract
     arr = [1, 2, 3, 4, 5]
     assert_equal([1, 3, 5], extract!(arr) {|e| e % 2 == 1})
     assert_equal([2, 4], arr)
-  end
-
-  def test_ord
-    assert_equal(102, ord("f"))
-    assert_equal(98, ord("bar"))
   end
 
   def test_flatten_vertically
@@ -356,8 +320,10 @@ WARNING
 
   def test_round_respects_precision
     original_precision = Sass::Script::Value::Number.precision
-    assert_equal 0, Sass::Util.round(0.49999)
-    assert_equal 1, Sass::Util.round(0.499999)
+    assert_equal 0, Sass::Util.round(0.4999999999)
+    # 10 9s doesn't work because 0.49999999999 - 0.5 is very slightly greater
+    # than -0.1e11 due to float nonsense.
+    assert_equal 1, Sass::Util.round(0.499999999999)
     Sass::Script::Value::Number.precision = 6
     assert_equal 0, Sass::Util.round(0.499999)
     assert_equal 1, Sass::Util.round(0.49999999)

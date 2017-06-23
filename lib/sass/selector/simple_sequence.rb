@@ -163,7 +163,7 @@ module Sass
           next sel if seen.include?([sel])
           extended = sel.selector.do_extend(extends, parent_directives, replace, seen, false)
           next sel if extended == sel.selector
-          extended.members.reject! {|seq| seq.has_placeholder?}
+          extended.members.reject! {|seq| seq.invisible?}
 
           # For `:not()`, we usually want to get rid of any complex
           # selectors because that will cause the selector to fail to
@@ -184,17 +184,16 @@ module Sass
           result
         end.flatten
 
-        groups = Sass::Util.group_by_to_a(extends[members.to_set]) {|ex| ex.extender}
+        groups = extends[members.to_set].group_by {|ex| ex.extender}.to_a
         groups.map! do |seq, group|
           sels = group.map {|e| e.target}.flatten
           # If A {@extend B} and C {...},
           # seq is A, sels is B, and self is C
 
           self_without_sel = Sass::Util.array_minus(members, sels)
-          group.each {|e| e.result = :failed_to_unify unless e.result == :succeeded}
+          group.each {|e| e.success = true}
           unified = seq.members.last.unify(SimpleSequence.new(self_without_sel, subject?))
           next unless unified
-          group.each {|e| e.result = :succeeded}
           group.each {|e| check_directives_match!(e, parent_directives)}
           new_seq = Sequence.new(seq.members[0...-1] + [unified])
           new_seq.add_sources!(sources + [seq])
@@ -287,6 +286,11 @@ module Sass
       # @see Simple#to_s
       def to_s(opts = {})
         res = @members.map {|m| m.to_s(opts)}.join
+
+        # :not(%foo) may resolve to the empty string, but it should match every
+        # selector so we replace it with "*".
+        res = '*' if res.empty?
+
         res << '!' if subject?
         res
       end

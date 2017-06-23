@@ -8,10 +8,20 @@ module Sass::Script::Tree
   # {Sass::Script::Functions}, or if no function with the given name exists it
   # returns a string representation of the function call.
   class Funcall < Node
-    # The name of the function.
+    # The name of the function, interspersed with {Sass::Script::Tree::Node}s
+    # representing `#{}`-interpolation. Any adjacent strings will be merged
+    # together.
     #
-    # @return [String]
+    # If there's any interpolation in the name, it will always be resolved as
+    # a plain CSS function.
+    #
+    # @return [Array<String, Sass::Script::Tree::Node>]
     attr_reader :name
+
+    # The callable to be invoked
+    #
+    # @return [Sass::Callable] or nil if no callable is provided.
+    attr_reader :callable
 
     # The arguments to the function.
     #
@@ -39,13 +49,21 @@ module Sass::Script::Tree
     # @return [Node?]
     attr_accessor :kwarg_splat
 
-    # @param name [String] See \{#name}
+    # @param name_or_callable [Array<[String, Sass::Callable],
+    #   Sass::Script::Tree::Node>] See \{#name}
     # @param args [Array<Node>] See \{#args}
     # @param keywords [Sass::Util::NormalizedMap<Node>] See \{#keywords}
     # @param splat [Node] See \{#splat}
     # @param kwarg_splat [Node] See \{#kwarg_splat}
-    def initialize(name, args, keywords, splat, kwarg_splat)
-      @name = name
+    def initialize(name_or_callable, args, keywords, splat, kwarg_splat)
+      if name_or_callable.first.is_a?(Sass::Callable)
+        @callable = name_or_callable.first
+        @name = name_or_callable
+        @name[0] = @name.first.name
+      else
+        @callable = nil
+        @name = Sass::Util.merge_adjacent_strings(name_or_callable)
+      end
       @args = args
       @keywords = keywords
       @splat = splat
@@ -55,9 +73,9 @@ module Sass::Script::Tree
 
     # @return [String] A string representation of the function call
     def inspect
+      name = @name.map {|e| e.is_a?(String) ? e : "\#{#{e.inspect}}"}.join
       args = @args.map {|a| a.inspect}.join(', ')
-      keywords = Sass::Util.hash_to_a(@keywords.as_stored).
-          map {|k, v| "$#{k}: #{v.inspect}"}.join(', ')
+      keywords = @keywords.as_stored.to_a.map {|k, v| "$#{k}: #{v.inspect}"}.join(', ')
       # rubocop:disable RedundantSelf
       if self.splat
         splat = args.empty? && keywords.empty? ? "" : ", "
@@ -76,9 +94,9 @@ module Sass::Script::Tree
         sass
       end
 
+      name = @name.map {|e| e.is_a?(String) ? dasherize(e, opts) : "\#{#{e.to_sass opts}}"}.join
       args = @args.map(&arg_to_sass)
-      keywords = Sass::Util.hash_to_a(@keywords.as_stored).
-        map {|k, v| "$#{dasherize(k, opts)}: #{arg_to_sass[v]}"}
+      keywords = @keywords.as_stored.to_a.map {|k, v| "$#{dasherize(k, opts)}: #{arg_to_sass[v]}"}
 
       # rubocop:disable RedundantSelf
       if self.splat
@@ -120,52 +138,54 @@ module Sass::Script::Tree
     # @return [Sass::Script::Value] The SassScript object that is the value of the function call
     # @raise [Sass::SyntaxError] if the function call raises an ArgumentError
     def _perform(environment)
-      args = Sass::Util.enum_with_index(@args).
+      name = @name.map {|c| c.is_a?(String) ? c : c.perform(environment)}.join
+      args = @args.each_with_index.
         map {|a, i| perform_arg(a, environment, signature && signature.args[i])}
       keywords = Sass::Util.map_hash(@keywords) do |k, v|
         [k, perform_arg(v, environment, k.tr('-', '_'))]
       end
       splat = Sass::Tree::Visitors::Perform.perform_splat(
         @splat, keywords, @kwarg_splat, environment)
-      if (fn = environment.function(@name))
-        css_variable_warning.warn! if css_variable_warning
-        return without_original(perform_sass_fn(fn, args, splat, environment))
+
+      fn = @callable || environment.function(name)
+      if @name.length > 1 ||
+         (fn && fn.origin == :css) ||
+         (fn.nil? && !Sass::Script::Functions.callable?(ruby_name))
+        return opts(to_value(name, args + splat.to_a)) if splat.keywords.empty?
+        raise Sass::SyntaxError.new(
+          "Plain CSS function #{name} doesn't support keyword arguments")
+      end
+
+      if fn && fn.origin == :stylesheet
+        environment.stack.with_function(filename, line, name) do
+          return without_original(perform_sass_fn(fn, args, splat, environment))
+        end
       end
 
       args = construct_ruby_args(ruby_name, args, splat, environment)
-
-      if Sass::Script::Functions.callable?(ruby_name)
-        css_variable_warning.warn! if css_variable_warning
-
-        local_environment = Sass::Environment.new(environment.global_env, environment.options)
-        local_environment.caller = Sass::ReadOnlyEnvironment.new(environment, environment.options)
-        result = opts(Sass::Script::Functions::EvaluationContext.new(
+      local_environment = Sass::Environment.new(environment.global_env, environment.options)
+      local_environment.caller = Sass::ReadOnlyEnvironment.new(environment, environment.options)
+      result = local_environment.stack.with_function(filename, line, name) do
+        opts(Sass::Script::Functions::EvaluationContext.new(
           local_environment).send(ruby_name, *args))
-        without_original(result)
-      else
-        opts(to_literal(args))
       end
+      without_original(result)
     rescue ArgumentError => e
-      reformat_argument_error(e)
-    end
-
-    # Compass historically overrode this before it changed name to {Funcall#to_value}.
-    # We should get rid of it in the future.
-    def to_literal(args)
-      to_value(args)
+      reformat_argument_error(name, e)
     end
 
     # This method is factored out from `_perform` so that compass can override
     # it with a cross-browser implementation for functions that require vendor prefixes
     # in the generated css.
-    def to_value(args)
+    def to_value(name, args)
       Sass::Script::Value::String.new("#{name}(#{args.join(', ')})")
     end
 
     private
 
     def ruby_name
-      @ruby_name ||= @name.tr('-', '_')
+      return nil if @name.length > 1
+      @ruby_name ||= @name.first.tr('-', '_')
     end
 
     def perform_arg(argument, environment, name)
@@ -174,7 +194,9 @@ module Sass::Script::Tree
     end
 
     def signature
-      @signature ||= Sass::Script::Functions.signature(name.to_sym, @args.size, @keywords.size)
+      return nil if name.length > 1
+      @signature ||= Sass::Script::Functions.signature(
+        name.first.to_sym, @args.size, @keywords.size)
     end
 
     def without_original(value)
@@ -185,7 +207,7 @@ module Sass::Script::Tree
     end
 
     def construct_ruby_args(name, args, splat, environment)
-      args += splat.to_a if splat
+      args += splat.to_a
 
       # All keywords are contained in splat.keywords for consistency,
       # even if there were no splats passed in.
@@ -206,6 +228,7 @@ module Sass::Script::Tree
         raise Sass::SyntaxError.new(
           "#{args[signature.args.size].inspect} is not a keyword argument for `#{name}'")
       elsif keywords.empty?
+        args << {} if signature.var_kwargs
         return args
       end
 
@@ -217,7 +240,7 @@ module Sass::Script::Tree
         elsif deprecated_argname && keywords.has_key?(deprecated_argname)
           deprecated_argname = keywords.denormalize(deprecated_argname)
           Sass::Util.sass_warn("DEPRECATION WARNING: The `$#{deprecated_argname}' argument for " +
-            "`#{@name}()' has been renamed to `$#{argname}'.")
+            "`#{@name.first}()' has been renamed to `$#{argname}'.")
           keywords.delete(deprecated_argname)
         else
           raise Sass::SyntaxError.new("Function #{name} requires an argument named $#{argname}")
@@ -249,13 +272,13 @@ module Sass::Script::Tree
 
         val = catch :_sass_return do
           function.tree.each {|c| Sass::Tree::Visitors::Perform.visit(c, env)}
-          raise Sass::SyntaxError.new("Function #{@name} finished without @return")
+          raise Sass::SyntaxError.new("Function #{name.first} finished without @return")
         end
         val
       end
     end
 
-    def reformat_argument_error(e)
+    def reformat_argument_error(name, e)
       message = e.message
 
       # If this is a legitimate Ruby-raised argument error, re-raise it.
@@ -271,30 +294,21 @@ module Sass::Script::Tree
           message = "wrong number of arguments (#{given} for #{expected})"
         end
       elsif Sass::Util.jruby?
-        if Sass::Util.jruby1_6?
-          should_maybe_raise = e.message =~ /^wrong number of arguments \((\d+) for (\d+)\)/ &&
-            # The one case where JRuby does include the Ruby name of the function
-            # is manually-thrown ArgumentErrors, which are indistinguishable from
-            # legitimate ArgumentErrors. We treat both of these as
-            # Sass::SyntaxErrors even though it can hide Ruby errors.
-            e.backtrace[0] !~ /:in `(block in )?#{ruby_name}'$/
-        else
-          should_maybe_raise =
-            e.message =~ /^wrong number of arguments calling `[^`]+` \((\d+) for (\d+)\)/
-          given, expected = $1, $2
-        end
+        should_maybe_raise =
+          e.message =~ /^wrong number of arguments calling `[^`]+` \((\d+) for (\d+)\)/
+        given, expected = $1, $2
 
         if should_maybe_raise
           # JRuby 1.7 includes __send__ before send and _perform.
           trace = e.backtrace.dup
-          raise e if !Sass::Util.jruby1_6? && trace.shift !~ /:in `__send__'$/
+          raise e if trace.shift !~ /:in `__send__'$/
 
           # JRuby (as of 1.7.2) doesn't put the actual method
           # for which the argument error was thrown in the backtrace, so we
           # detect whether our send threw an argument error.
           if !(trace[0] =~ /:in `send'$/ && trace[1] =~ /:in `_perform'$/)
             raise e
-          elsif !Sass::Util.jruby1_6?
+          else
             # JRuby 1.7 doesn't use standard formatting for its ArgumentErrors.
             message = "wrong number of arguments (#{given} for #{expected})"
           end

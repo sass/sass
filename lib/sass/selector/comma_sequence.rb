@@ -117,10 +117,7 @@ module Sass
 
           sel = sseq.members
           if !allow_compound_target && sel.length > 1
-            @@compound_extend_deprecation.warn(sseq.filename, sseq.line, <<WARNING)
-Extending a compound selector, #{sseq}, is deprecated and will not be supported in a future release.
-See https://github.com/sass/sass/issues/1599 for details.
-WARNING
+            raise Sass::SyntaxError.new("Can't extend #{seq}: invalid selector")
           end
 
           members.each do |member|
@@ -129,7 +126,7 @@ WARNING
             end
 
             extends[sel] = Sass::Tree::Visitors::Cssize::Extend.new(
-              member, sel, extend_node, parent_directives, :not_found)
+              member, sel, extend_node, parent_directives, false)
           end
         end
       end
@@ -158,8 +155,8 @@ WARNING
           Sass::Script::Value::List.new(seq.members.map do |component|
             next if component == "\n"
             Sass::Script::Value::String.new(component.to_s)
-          end.compact, :space)
-        end, :comma)
+          end.compact, separator: :space)
+        end, separator: :comma)
       end
 
       # Returns a string representation of the sequence.
@@ -172,7 +169,10 @@ WARNING
 
       # @see AbstractSequence#to_s
       def to_s(opts = {})
-        @members.map {|m| m.to_s(opts)}.
+        @members.map do |m|
+          next if opts[:placeholder] == false && m.invisible?
+          m.to_s(opts)
+        end.compact.
           join(opts[:style] == :compressed ? "," : ", ").
           gsub(", \n", ",\n")
       end

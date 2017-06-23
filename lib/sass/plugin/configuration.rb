@@ -26,8 +26,8 @@ module Sass
         clear_callbacks!
       end
 
-      # An options hash.
-      # See {file:SASS_REFERENCE.md#Options the Sass options documentation}.
+      # An options hash. See {file:SASS_REFERENCE.md#Options the Sass options
+      # documentation}.
       #
       # @return [{Symbol => Object}]
       def options

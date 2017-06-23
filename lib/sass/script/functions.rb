@@ -77,7 +77,7 @@ module Sass::Script
   # \{#complement complement($color)}
   # : Returns the complement of a color.
   #
-  # \{#invert invert($color)}
+  # \{#invert invert($color, \[$weight\])}
   # : Returns the inverse of a color.
   #
   # ## Opacity Functions
@@ -176,7 +176,7 @@ module Sass::Script
   # \{#set-nth set-nth($list, $n, $value)}
   # : Replaces the nth item in a list.
   #
-  # \{#join join($list1, $list2, \[$separator\])}
+  # \{#join join($list1, $list2, \[$separator, $bracketed\])}
   # : Joins together two lists into one.
   #
   # \{#append append($list1, $val, \[$separator\])}
@@ -190,6 +190,9 @@ module Sass::Script
   #
   # \{#list_separator list-separator($list)}
   # : Returns the separator of a list.
+  #
+  # \{#is_bracketed is-bracketed($list)}
+  # : Returns whether a list has square brackets.
   #
   # ## Map Functions {#map-functions}
   #
@@ -276,6 +279,9 @@ module Sass::Script
   # \{#mixin_exists mixin-exists($name)}
   # : Returns whether a mixin with the given name exists.
   #
+  # \{#content_exists content-exists()}
+  # : Returns whether the current mixin was passed a content block.
+  #
   # \{#inspect inspect($value)}
   # : Returns the string representation of a value as it would be represented in Sass.
   #
@@ -291,8 +297,12 @@ module Sass::Script
   # \{#comparable comparable($number1, $number2)}
   # : Returns whether two numbers can be added, subtracted, or compared.
   #
-  # \{#call call($name, $args...)}
-  # : Dynamically calls a Sass function.
+  # \{#call call($function, $args...)}
+  # : Dynamically calls a Sass function reference returned by `get-function`.
+  #
+  # \{#get_function get-function($name, $css: false)}
+  # : Looks up a function with the given name in the current lexical scope
+  #   and returns a reference to it.
   #
   # ## Miscellaneous Functions
   #
@@ -471,14 +481,14 @@ module Sass::Script
     # @param seed [Integer]
     # @return [Integer] The same seed.
     def self.random_seed=(seed)
-      @random_number_generator = Sass::Util::CrossPlatformRandom.new(seed)
+      @random_number_generator = Random.new(seed)
     end
 
     # Get Sass's internal random number generator.
     #
     # @return [Random]
     def self.random_number_generator
-      @random_number_generator ||= Sass::Util::CrossPlatformRandom.new
+      @random_number_generator ||= Random.new
     end
 
     # The context in which methods in {Script::Functions} are evaluated.
@@ -522,18 +532,24 @@ module Sass::Script
       #   assert_type value, :String
       #   assert_type value, :Number
       # @param value [Sass::Script::Value::Base] A SassScript value
-      # @param type [Symbol] The name of the type the value is expected to be
+      # @param type [Symbol, Array<Symbol>] The name(s) of the type the value is expected to be
       # @param name [String, Symbol, nil] The name of the argument.
       # @raise [ArgumentError] if value is not of the correct type.
       def assert_type(value, type, name = nil)
-        klass = Sass::Script::Value.const_get(type)
-        if value.is_a?(klass)
-          value.check_deprecated_interp if type == :String
-          return
+        valid_types = Array(type)
+        found_type = valid_types.find do |t|
+          value.is_a?(Sass::Script::Value.const_get(t)) ||
+            t == :Map && value.is_a?(Sass::Script::Value::List) && value.value.empty?
         end
 
-        return if value.is_a?(Sass::Script::Value::List) && type == :Map && value.value.empty?
-        err = "#{value.inspect} is not a #{TYPE_NAMES[type] || type.to_s.downcase}"
+        return if found_type
+
+        err = if valid_types.size == 1
+                "#{value.inspect} is not a #{TYPE_NAMES[type] || type.to_s.downcase}"
+              else
+                type_names = valid_types.map {|t| TYPE_NAMES[t] || t.to_s.downcase}
+                "#{value.inspect} is not any of #{type_names.join(', ')}"
+              end
         err = "$#{name.to_s.tr('_', '-')}: " + err if name
         raise ArgumentError.new(err)
       end
@@ -635,7 +651,7 @@ module Sass::Script
     # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if any parameter is the wrong type or out of bounds
     def rgb(red, green, blue)
-      if calc?(red) || calc?(green) || calc?(blue)
+      if special_number?(red) || special_number?(green) || special_number?(blue)
         return unquoted_string("rgb(#{red}, #{green}, #{blue})")
       end
       assert_type red, :Number, :red
@@ -696,7 +712,7 @@ module Sass::Script
         color, alpha = args
 
         assert_type color, :Color, :color
-        if calc?(alpha)
+        if special_number?(alpha)
           unquoted_string("rgba(#{color.red}, #{color.green}, #{color.blue}, #{alpha})")
         else
           assert_type alpha, :Number, :alpha
@@ -705,7 +721,8 @@ module Sass::Script
         end
       when 4
         red, green, blue, alpha = args
-        if calc?(red) || calc?(green) || calc?(blue) || calc?(alpha)
+        if special_number?(red) || special_number?(green) ||
+           special_number?(blue) || special_number?(alpha)
           unquoted_string("rgba(#{red}, #{green}, #{blue}, #{alpha})")
         else
           rgba(rgb(red, green, blue), alpha)
@@ -734,7 +751,7 @@ module Sass::Script
     # @raise [ArgumentError] if `$saturation` or `$lightness` are out of bounds
     #   or any parameter is the wrong type
     def hsl(hue, saturation, lightness)
-      if calc?(hue) || calc?(saturation) || calc?(lightness)
+      if special_number?(hue) || special_number?(saturation) || special_number?(lightness)
         unquoted_string("hsl(#{hue}, #{saturation}, #{lightness})")
       else
         hsla(hue, saturation, lightness, number(1))
@@ -762,7 +779,8 @@ module Sass::Script
     # @raise [ArgumentError] if `$saturation`, `$lightness`, or `$alpha` are out
     #   of bounds or any parameter is the wrong type
     def hsla(hue, saturation, lightness, alpha)
-      if calc?(hue) || calc?(saturation) || calc?(lightness) || calc?(alpha)
+      if special_number?(hue) || special_number?(saturation) ||
+         special_number?(lightness) || special_number?(alpha)
         return unquoted_string("hsla(#{hue}, #{saturation}, #{lightness}, #{alpha})")
       end
       assert_type hue, :Number, :hue
@@ -1384,20 +1402,28 @@ module Sass::Script
     #
     # @overload invert($color)
     #   @param $color [Sass::Script::Value::Color]
+    # @overload invert($color, $weight: 100%)
+    #   @param $color [Sass::Script::Value::Color]
+    #   @param $weight [Sass::Script::Value::Number] The relative weight of the
+    #     color color's inverse
     # @return [Sass::Script::Value::Color]
-    # @raise [ArgumentError] if `$color` isn't a color
-    def invert(color)
+    # @raise [ArgumentError] if `$color` isn't a color or `$weight`
+    #   isn't a percentage between 0% and 100%
+    def invert(color, weight = number(100))
       if color.is_a?(Sass::Script::Value::Number)
         return identifier("invert(#{color})")
       end
 
       assert_type color, :Color, :color
-      color.with(
+      inv = color.with(
         :red => (255 - color.red),
         :green => (255 - color.green),
         :blue => (255 - color.blue))
+
+      mix(inv, color, weight)
     end
     declare :invert, [:color]
+    declare :invert, [:color, :weight]
 
     # Removes quotes from a string. If the string is already unquoted, this will
     # return it unmodified.
@@ -1429,7 +1455,6 @@ MESSAGE
         return string
       end
 
-      string.check_deprecated_interp
       return string if string.type == :identifier
       identifier(string.value)
     end
@@ -1612,12 +1637,15 @@ MESSAGE
     #   type-of(#fff)   => color
     #   type-of(blue)   => color
     #   type-of(null)   => null
+    #   type-of(a b c)  => list
+    #   type-of((a: 1, b: 2)) => map
+    #   type-of(get-function("foo")) => function
+    #
     # @overload type_of($value)
     #   @param $value [Sass::Script::Value::Base] The value to inspect
     # @return [Sass::Script::Value::String] The unquoted string name of the
     #   value's type
     def type_of(value)
-      value.check_deprecated_interp if value.is_a?(Sass::Script::Value::String)
       identifier(value.class.name.gsub(/Sass::Script::Value::/, '').downcase)
     end
     declare :type_of, [:value]
@@ -1639,6 +1667,12 @@ MESSAGE
     #
     # * `at-error` indicates that the Sass `@error` directive is supported.
     #
+    # * `custom-property` indicates that the [Custom Properties Level 1][] spec
+    #   is supported. This means that custom properties are parsed statically,
+    #   with only interpolation treated as SassScript.
+    #
+    # [Custom Properties Level 1]: https://www.w3.org/TR/css-variables-1/
+    #
     # @example
     #   feature-exists(some-feature-that-exists) => true
     #   feature-exists(what-is-this-i-dont-know) => false
@@ -1652,6 +1686,55 @@ MESSAGE
       bool(Sass.has_feature?(feature.value))
     end
     declare :feature_exists, [:feature]
+
+    # Returns a reference to a function for later invocation with the `call()` function.
+    #
+    # If `$css` is `false`, the function reference may refer to a function
+    # defined in your stylesheet or built-in to the host environment. If it's
+    # `true` it will refer to a plain-CSS function.
+    #
+    # @example
+    #   get-function("rgb")
+    #
+    #   @function myfunc { @return "something"; }
+    #   get-function("myfunc")
+    #
+    # @overload get_function($name, $css: false)
+    #   @param name [Sass::Script::Value::String] The name of the function being referenced.
+    #   @param css [Sass::Script::Value::Bool] Whether to get a plain CSS function.
+    #
+    # @return [Sass::Script::Value::Function] A function reference.
+    def get_function(name, kwargs = {})
+      assert_type name, :String, :name
+
+      css = if kwargs.has_key?("css")
+              v = kwargs.delete("css")
+              assert_type v, :Bool, :css
+              v.value
+            else
+              false
+            end
+
+      if kwargs.any?
+        raise ArgumentError.new("Illegal keyword argument '#{kwargs.keys.first}'")
+      end
+
+      if css
+        return Sass::Script::Value::Function.new(
+          Sass::Callable.new(name.value, nil, nil, nil, nil, nil, "function", :css))
+      end
+
+      callable = environment.caller.function(name.value) ||
+        (Sass::Script::Functions.callable?(name.value.tr("-", "_")) &&
+         Sass::Callable.new(name.value, nil, nil, nil, nil, nil, "function", :builtin))
+
+      if callable
+        Sass::Script::Value::Function.new(callable)
+      else
+        raise Sass::SyntaxError.new("Function not found: #{name}")
+      end
+    end
+    declare :get_function, [:name], :var_kwargs => true
 
     # Returns the unit(s) associated with a number. Complex units are sorted in
     # alphabetical order by numerator and denominator.
@@ -1855,7 +1938,7 @@ MESSAGE
       index = n.to_i > 0 ? n.to_i - 1 : n.to_i
       new_list = list.to_a.dup
       new_list[index] = value
-      Sass::Script::Value::List.new(new_list, list.separator)
+      list.with_contents(new_list)
     end
     declare :set_nth, [:list, :n, :value]
 
@@ -1896,6 +1979,9 @@ MESSAGE
     # list. If both lists have fewer than two items, spaces are used for the
     # resulting list.
     #
+    # Unless `$bracketed` is passed, the resulting list is bracketed if the
+    # first parameter is.
+    #
     # Like all list functions, `join()` returns a new list rather than modifying
     # its arguments in place.
     #
@@ -1905,27 +1991,73 @@ MESSAGE
     #   join(10px, 20px) => 10px 20px
     #   join(10px, 20px, comma) => 10px, 20px
     #   join((blue, red), (#abc, #def), space) => blue red #abc #def
-    # @overload join($list1, $list2, $separator: auto)
+    #   join([10px], 20px) => [10px 20px]
+    # @overload join($list1, $list2, $separator: auto, $bracketed: auto)
     #   @param $list1 [Sass::Script::Value::Base]
     #   @param $list2 [Sass::Script::Value::Base]
     #   @param $separator [Sass::Script::Value::String] The list separator to use.
     #     If this is `comma` or `space`, that separator will be used. If this is
     #     `auto` (the default), the separator is determined as explained above.
+    #   @param $bracketed [Sass::Script::Value::Base] Whether the resulting list
+    #     will be bracketed. If this is `auto` (the default), the separator is
+    #     determined as explained above.
     # @return [Sass::Script::Value::List]
-    def join(list1, list2, separator = identifier("auto"))
+    # @comment
+    #   rubocop:disable ParameterLists
+    def join(list1, list2,
+             separator = identifier("auto"), bracketed = identifier("auto"),
+             kwargs = nil, *rest)
+      # rubocop:enable ParameterLists
+      if separator.is_a?(Hash)
+        kwargs = separator
+        separator = identifier("auto")
+      elsif bracketed.is_a?(Hash)
+        kwargs = bracketed
+        bracketed = identifier("auto")
+      elsif rest.last.is_a?(Hash)
+        rest.unshift kwargs
+        kwargs = rest.pop
+      end
+
+      unless rest.empty?
+        # Add 4 to rest.length because we don't want to count the kwargs hash,
+        # which is always passed.
+        raise ArgumentError.new("wrong number of arguments (#{rest.length + 4} for 2..4)")
+      end
+
+      if kwargs
+        separator = kwargs.delete("separator") || separator
+        bracketed = kwargs.delete("bracketed") || bracketed
+
+        unless kwargs.empty?
+          name, val = kwargs.to_a.first
+          raise ArgumentError.new("Unknown argument $#{name} (#{val})")
+        end
+      end
+
       assert_type separator, :String, :separator
       unless %w(auto space comma).include?(separator.value)
         raise ArgumentError.new("Separator name must be space, comma, or auto")
       end
-      sep = if separator.value == 'auto'
-              list1.separator || list2.separator || :space
-            else
-              separator.value.to_sym
-            end
-      list(list1.to_a + list2.to_a, sep)
+
+      list(list1.to_a + list2.to_a,
+        separator:
+          if separator.value == 'auto'
+            list1.separator || list2.separator || :space
+          else
+            separator.value.to_sym
+          end,
+        bracketed:
+          if bracketed.is_a?(Sass::Script::Value::String) && bracketed.value == 'auto'
+            list1.bracketed
+          else
+            bracketed.to_bool
+          end)
     end
-    declare :join, [:list1, :list2]
-    declare :join, [:list1, :list2, :separator]
+    # We don't actually take variable arguments or keyword arguments, but this
+    # is the best way to take either `$separator` or `$bracketed` as keywords
+    # without complaining about the other missing.
+    declare :join, [:list1, :list2], :var_args => true, :var_kwargs => true
 
     # Appends a single value onto the end of a list.
     #
@@ -1953,12 +2085,13 @@ MESSAGE
       unless %w(auto space comma).include?(separator.value)
         raise ArgumentError.new("Separator name must be space, comma, or auto")
       end
-      sep = if separator.value == 'auto'
-              list.separator || :space
-            else
-              separator.value.to_sym
-            end
-      list(list.to_a + [val], sep)
+      list.with_contents(list.to_a + [val],
+        separator:
+          if separator.value == 'auto'
+            list.separator || :space
+          else
+            separator.value.to_sym
+          end)
     end
     declare :append, [:list, :val]
     declare :append, [:list, :val, :separator]
@@ -2028,7 +2161,20 @@ MESSAGE
     def list_separator(list)
       identifier((list.separator || :space).to_s)
     end
-    declare :separator, [:list]
+    declare :list_separator, [:list]
+
+    # Returns whether a list uses square brackets.
+    #
+    # @example
+    #   is-bracketed(1px 2px 3px) => false
+    #   is-bracketed([1px, 2px, 3px]) => true
+    # @overload is_bracketed($list)
+    #   @param $list [Sass::Script::Value::Base]
+    # @return [Sass::Script::Value::Bool]
+    def is_bracketed(list)
+      bool(list.bracketed)
+    end
+    declare :is_bracketed, [:list]
 
     # Returns the value in a map associated with the given key. If the map
     # doesn't have such a key, returns `null`.
@@ -2214,17 +2360,33 @@ MESSAGE
     #   $fn: nth;
     #   call($fn, (a b c), 2) => b
     #
-    # @overload call($name, $args...)
-    #   @param $name [String] The name of the function to call.
+    # @overload call($function, $args...)
+    #   @param $function [Sass::Script::Value::Function] The function to call.
     def call(name, *args)
-      assert_type name, :String, :name
+      unless name.is_a?(Sass::Script::Value::String) ||
+             name.is_a?(Sass::Script::Value::Function)
+        assert_type name, :Function, :function
+      end
+      if name.is_a?(Sass::Script::Value::String)
+        name = if function_exists(name).to_bool
+                 get_function(name)
+               else
+                 get_function(name, "css" => bool(true))
+               end
+        Sass::Util.sass_warn(<<WARNING)
+DEPRECATION WARNING: Passing a string to call() is deprecated and will be illegal
+in Sass 4.0. Use call(#{name.to_sass}) instead.
+WARNING
+      end
       kwargs = args.last.is_a?(Hash) ? args.pop : {}
       funcall = Sass::Script::Tree::Funcall.new(
-        name.value,
+        [name.value],
         args.map {|a| Sass::Script::Tree::Literal.new(a)},
         Sass::Util.map_vals(kwargs) {|v| Sass::Script::Tree::Literal.new(v)},
         nil,
         nil)
+      funcall.line = environment.stack.frames.last.line
+      funcall.filename = environment.stack.frames.last.filename
       funcall.options = options
       perform(funcall)
     end
@@ -2313,12 +2475,12 @@ MESSAGE
     #
     # @overload function_exists($name)
     #   @param name [Sass::Script::Value::String] The name of the function to
-    #     check.
+    #     check or a function reference.
     # @return [Sass::Script::Value::Bool] Whether the function is defined.
     def function_exists(name)
       assert_type name, :String, :name
       exists = Sass::Script::Functions.callable?(name.value.tr("-", "_"))
-      exists ||= environment.function(name.value)
+      exists ||= environment.caller.function(name.value)
       bool(exists)
     end
     declare :function_exists, [:name]
@@ -2341,6 +2503,31 @@ MESSAGE
     end
     declare :mixin_exists, [:name]
 
+    # Check whether a mixin was passed a content block.
+    #
+    # Unless `content-exists()` is called directly from a mixin, an error will be raised.
+    #
+    # @example
+    #   @mixin needs-content {
+    #     @if not content-exists() {
+    #       @error "You must pass a content block!"
+    #     }
+    #     @content;
+    #   }
+    #
+    # @overload content_exists()
+    # @return [Sass::Script::Value::Bool] Whether a content block was passed to the mixin.
+    def content_exists
+      # frames.last is the stack frame for this function,
+      # so we use frames[-2] to get the frame before that.
+      mixin_frame = environment.stack.frames[-2]
+      unless mixin_frame && mixin_frame.type == :mixin
+        raise Sass::SyntaxError.new("Cannot call content-exists() except within a mixin.")
+      end
+      bool(!environment.caller.content.nil?)
+    end
+    declare :content_exists, []
+
     # Return a string containing the value as its Sass representation.
     #
     # @overload inspect($value)
@@ -2348,7 +2535,6 @@ MESSAGE
     # @return [Sass::Script::Value::String] A representation of the value as
     #   it would be written in Sass.
     def inspect(value)
-      value.check_deprecated_interp if value.is_a?(Sass::Script::Value::String)
       unquoted_string(value.to_sass)
     end
     declare :inspect, [:value]

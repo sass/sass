@@ -68,26 +68,35 @@ module Sass::Script::Value
       Number.new(number, *parse_unit_string(unit_string))
     end
 
-    # @overload list(*elements, separator)
+    # @overload list(*elements, separator:, bracketed: false)
     #   Create a space-separated list from the arguments given.
     #   @param elements [Array<Sass::Script::Value::Base>] Each argument will be a list element.
     #   @param separator [Symbol] Either :space or :comma.
+    #   @param bracketed [Boolean] Whether the list uses square brackets.
     #   @return [Sass::Script::Value::List] The space separated list.
     #
-    # @overload list(array, separator)
+    # @overload list(array, separator:, bracketed: false)
     #   Create a space-separated list from the array given.
     #   @param array [Array<Sass::Script::Value::Base>] A ruby array of Sass values
     #     to make into a list.
+    #   @param separator [Symbol] Either :space or :comma.
+    #   @param bracketed [Boolean] Whether the list uses square brackets.
     #   @return [Sass::Script::Value::List] The space separated list.
-    def list(*elements)
-      unless elements.last.is_a?(Symbol)
-        raise ArgumentError.new("A list type of :space or :comma must be specified.")
+    def list(*elements, separator: nil, bracketed: false)
+      # Support passing separator as the last value in elements for
+      # backwards-compatibility.
+      if separator.nil?
+        if elements.last.is_a?(Symbol)
+          separator = elements.pop
+        else
+          raise ArgumentError.new("A separator of :space or :comma must be specified.")
+        end
       end
-      separator = elements.pop
+
       if elements.size == 1 && elements.first.is_a?(Array)
         elements = elements.first
       end
-      Sass::Script::Value::List.new(elements, separator)
+      Sass::Script::Value::List.new(elements, separator: separator, bracketed: bracketed)
     end
 
     # Construct a Sass map.
@@ -196,12 +205,23 @@ module Sass::Script::Value
       raise ArgumentError.new(err)
     end
 
-    # Returns true when the literal is a string containing a calc()
+    # Returns true when the literal is a string containing a calc().
+    #
+    # Use \{#special_number?} in preference to this.
     #
     # @param literal [Sass::Script::Value::Base] The value to check
-    # @return boolean
+    # @return Boolean
     def calc?(literal)
       literal.is_a?(Sass::Script::Value::String) && literal.value =~ /calc\(/
+    end
+
+    # Returns whether the literal is a special CSS value that may evaluate to a
+    # number, such as `calc()` or `var()`.
+    #
+    # @param literal [Sass::Script::Value::Base] The value to check
+    # @return Boolean
+    def special_number?(literal)
+      literal.is_a?(Sass::Script::Value::String) && literal.value =~ /(calc|var)\(/
     end
 
     private

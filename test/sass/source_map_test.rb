@@ -41,7 +41,7 @@ JSON
 a
   foo: bar
   /* SOME COMMENT */
-  :font-size 12px
+  font-size: 12px
 SASS
 a {
   foo: bar;
@@ -52,7 +52,7 @@ a {
 CSS
 {
 "version": 3,
-"mappings": "AAAA,CAAC;EACC,GAAG,EAAE,GAAG;;EAEP,SAAS,EAAC,IAAI",
+"mappings": "AAAA,CAAC;EACC,GAAG,EAAE,GAAG;;EAER,SAAS,EAAE,IAAI",
 "sources": ["test_simple_mapping_sass_inline.sass"],
 "names": [],
 "file": "test.css"
@@ -61,7 +61,7 @@ JSON
   end
 
   def test_simple_mapping_with_file_uris
-    uri = Sass::Util.file_uri_from_path(Sass::Util.absolute_path(filename_for_test(:scss)))
+    uri = Sass::Util.file_uri_from_path(File.absolute_path(filename_for_test(:scss)))
     assert_parses_with_sourcemap <<SCSS, <<CSS, <<JSON, :sourcemap => :file
 a {
   foo: bar;
@@ -118,7 +118,7 @@ JSON
 a
   foo: bar
   /* SOME COMMENT */
-  :font-size 12px
+  font-size: 12px
 SASS
 a {
   foo: bar;
@@ -129,7 +129,7 @@ a {
 CSS
 {
 "version": 3,
-"mappings": "AAAA,CAAC;EACC,GAAG,EAAE,GAAG;;EAEP,SAAS,EAAC,IAAI",
+"mappings": "AAAA,CAAC;EACC,GAAG,EAAE,GAAG;;EAER,SAAS,EAAE,IAAI",
 "sources": ["../sass/style.sass"],
 "names": [],
 "file": "style.css"
@@ -137,9 +137,8 @@ CSS
 JSON
   end
 
-  unless Sass::Util.ruby1_8?
-    def test_simple_charset_mapping_scss
-      assert_parses_with_sourcemap <<SCSS, <<CSS, <<JSON
+  def test_simple_charset_mapping_scss
+    assert_parses_with_sourcemap <<SCSS, <<CSS, <<JSON
 a {
   fóó: bár;
 }
@@ -158,10 +157,10 @@ CSS
 "file": "test.css"
 }
 JSON
-    end
+  end
 
-    def test_simple_charset_mapping_sass
-      assert_parses_with_sourcemap <<SASS, <<CSS, <<JSON, :syntax => :sass
+  def test_simple_charset_mapping_sass
+    assert_parses_with_sourcemap <<SASS, <<CSS, <<JSON, :syntax => :sass
 a
   fóó: bár
 SASS
@@ -179,10 +178,10 @@ CSS
 "file": "test.css"
 }
 JSON
-    end
+  end
 
-    def test_different_charset_than_encoding_scss
-      assert_parses_with_sourcemap(<<SCSS.force_encoding("IBM866"), <<CSS, <<JSON)
+  def test_different_charset_than_encoding_scss
+    assert_parses_with_sourcemap(<<SCSS.force_encoding("IBM866"), <<CSS, <<JSON)
 @charset "IBM866";
 f\x86\x86 {
   \x86: b;
@@ -202,10 +201,10 @@ CSS
 "file": "test.css"
 }
 JSON
-    end
+  end
 
-    def test_different_charset_than_encoding_sass
-      assert_parses_with_sourcemap(<<SASS.force_encoding("IBM866"), <<CSS, <<JSON, :syntax => :sass)
+  def test_different_charset_than_encoding_sass
+    assert_parses_with_sourcemap(<<SASS.force_encoding("IBM866"), <<CSS, <<JSON, :syntax => :sass)
 @charset "IBM866"
 f\x86\x86
   \x86: b
@@ -224,7 +223,6 @@ CSS
 "file": "test.css"
 }
 JSON
-    end
   end
 
   def test_import_sourcemap_scss
@@ -665,7 +663,7 @@ CSS
 def test_mixin_sourcemap_sass
   silence_warnings {assert_parses_with_mapping <<'SASS', <<'CSS', :syntax => :sass}
 =large-text
-  :font
+  font:
     {{2}}size{{/2}}: {{3}}20px{{/3}}
     {{4}}weight{{/4}}: {{5}}bold{{/5}}
   {{6}}color{{/6}}: {{7}}#ff0000{{/7}}
@@ -759,9 +757,9 @@ CSS
   def test_properties_sass
     silence_warnings {assert_parses_with_mapping <<SASS, <<CSS, :syntax => :sass}
 {{1}}.foo{{/1}}
-  :{{2}}name{{/2}} {{3}}value{{/3}}
+  {{2}}name{{/2}}: {{3}}value{{/3}}
   {{4}}name{{/4}}: {{5}}value{{/5}}
-  :{{6}}name{{/6}}  {{7}}value{{/7}}
+  {{6}}name{{/6}}:  {{7}}value{{/7}}
   {{8}}name{{/8}}:  {{9}}value{{/9}}
 SASS
 {{1}}.foo{{/1}} {
@@ -796,7 +794,7 @@ SCSS
 
     interpolated = engine.to_tree.children.
       first.children.
-      first.value.children[1]
+      first.value.first.children.first
     assert_equal "123", interpolated.to_sass
     range = interpolated.source_range
     assert_equal 3, range.start_pos.line

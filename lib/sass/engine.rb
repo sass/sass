@@ -80,7 +80,13 @@ module Sass
   #
   # `type`: `String`
   # : The user-friendly name of the type of the callable.
-  Callable = Struct.new(:name, :args, :splat, :environment, :tree, :has_content, :type)
+  #
+  # `origin`: `Symbol`
+  # : From whence comes the callable: `:stylesheet`, `:builtin`, `:css`
+  #   A callable with an origin of `:stylesheet` was defined in the stylesheet itself.
+  #   A callable with an origin of `:builtin` was defined in ruby.
+  #   A callable (function) with an origin of `:css` returns a function call with arguments to CSS.
+  Callable = Struct.new(:name, :args, :splat, :environment, :tree, :has_content, :type, :origin)
 
   # This class handles the parsing and compilation of the Sass template.
   # Example usage:
@@ -205,12 +211,6 @@ module Sass
           end
       end
 
-      # Backwards compatibility
-      options[:property_syntax] ||= options[:attribute_syntax]
-      case options[:property_syntax]
-      when :alternate; options[:property_syntax] = :new
-      when :normal; options[:property_syntax] = :old
-      end
       options[:sourcemap] = :auto if options[:sourcemap] == true
       options[:sourcemap] = :none if options[:sourcemap] == false
 
@@ -316,8 +316,7 @@ module Sass
                 end
     end
 
-    # Returns the original encoding of the document,
-    # or `nil` under Ruby 1.8.
+    # Returns the original encoding of the document.
     #
     # @return [Encoding, nil]
     # @raise [Encoding::UndefinedConversionError] if the source encoding
@@ -386,7 +385,7 @@ ERR
       rendered << "\n" if rendered[-1] != ?\n
       rendered << "\n" unless compressed
       rendered << "/*# sourceMappingURL="
-      rendered << Sass::Util.escape_uri(sourcemap_uri)
+      rendered << URI::DEFAULT_PARSER.escape(sourcemap_uri)
       rendered << " */\n"
       return rendered, sourcemap
     end
@@ -520,10 +519,6 @@ MSG
       nodes = []
       while (line = arr[i]) && line.tabs >= base
         if line.tabs > base
-          raise SyntaxError.new(
-            "The line was indented #{line.tabs - base} levels deeper than the previous line.",
-            :line => line.index) if line.tabs > base + 1
-
           nodes.last.children, i = tree(arr, i)
         else
           nodes << line
@@ -614,38 +609,7 @@ WARNING
     def parse_line(parent, line, root)
       case line.text[0]
       when PROPERTY_CHAR
-        if line.text[1] == PROPERTY_CHAR ||
-            (@options[:property_syntax] == :new &&
-             line.text =~ PROPERTY_OLD && $2.empty?)
-          # Support CSS3-style pseudo-elements,
-          # which begin with ::,
-          # as well as pseudo-classes
-          # if we're using the new property syntax
-          Tree::RuleNode.new(parse_interp(line.text), full_line_range(line))
-        else
-          name_start_offset = line.offset + 1 # +1 for the leading ':'
-          name, value = line.text.scan(PROPERTY_OLD)[0]
-          raise SyntaxError.new("Invalid property: \"#{line.text}\".",
-            :line => @line) if name.nil? || value.nil?
-
-          @@old_property_deprecation.warn(@options[:filename], @line, <<WARNING)
-Old-style properties like "#{line.text}" are deprecated and will be an error in future versions of Sass.
-Use "#{name}: #{value}" instead.
-WARNING
-
-          value_start_offset = name_end_offset = name_start_offset + name.length
-          unless value.empty?
-            # +1 and -1 both compensate for the leading ':', which is part of line.text
-            value_start_offset = name_start_offset + line.text.index(value, name.length + 1) - 1
-          end
-
-          property = parse_property(name, parse_interp(name), value, :old, line, value_start_offset)
-          property.name_source_range = Sass::Source::Range.new(
-            Sass::Source::Position.new(@line, to_parser_offset(name_start_offset)),
-            Sass::Source::Position.new(@line, to_parser_offset(name_end_offset)),
-            @options[:filename], @options[:importer])
-          property
-        end
+        Tree::RuleNode.new(parse_interp(line.text), full_line_range(line))
       when ?$
         parse_variable(line)
       when COMMENT_CHAR
@@ -695,7 +659,14 @@ WARNING
       end
 
       name = line.text[0...scanner.pos]
-      if (scanned = scanner.scan(/\s*:(?:\s+|$)/)) # test for a property
+      could_be_property =
+        if name.start_with?('--')
+          (scanned = scanner.scan(/\s*:/))
+        else
+          (scanned = scanner.scan(/\s*:(?:\s+|$)/))
+        end
+
+      if could_be_property # test for a property
         offset += scanned.length
         property = parse_property(name, res, scanner.rest, :new, line, offset)
         property.name_source_range = ident_range
@@ -722,22 +693,32 @@ WARNING
     #   rubocop:disable ParameterLists
     def parse_property(name, parsed_name, value, prop, line, start_offset)
       # rubocop:enable ParameterLists
-      if value.strip.empty?
-        expr = Sass::Script::Tree::Literal.new(Sass::Script::Value::String.new(""))
+
+      if name.start_with?('--')
+        unless line.children.empty?
+          raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath custom properties.",
+            :line => @line + 1)
+        end
+
+        parser = Sass::SCSS::Parser.new(value,
+          @options[:filename], @options[:importer],
+          @line, to_parser_offset(@offset))
+        parsed_value = parser.parse_declaration_value
+        end_offset = start_offset + value.length
+      elsif value.strip.empty?
+        parsed_value = [Sass::Script::Tree::Literal.new(Sass::Script::Value::String.new(""))]
         end_offset = start_offset
       else
-        expr = parse_script(value,
-          :offset => to_parser_offset(start_offset),
-          :css_variable => name.start_with?("--"))
+        expr = parse_script(value, :offset => to_parser_offset(start_offset))
         end_offset = expr.source_range.end_pos.offset - 1
+        parsed_value = [expr]
       end
-
-      node = Tree::PropNode.new(parse_interp(name), expr, prop)
+      node = Tree::PropNode.new(parse_interp(name), parsed_value, prop)
       node.value_source_range = Sass::Source::Range.new(
         Sass::Source::Position.new(line.index, to_parser_offset(start_offset)),
         Sass::Source::Position.new(line.index, to_parser_offset(end_offset)),
         @options[:filename], @options[:importer])
-      if value.strip.empty? && line.children.empty?
+      if !node.custom_property? && value.strip.empty? && line.children.empty?
         raise SyntaxError.new(
           "Invalid property: \"#{node.declaration}\" (no value)." +
           node.pseudo_class_selector_message)
@@ -1154,9 +1135,9 @@ WARNING
     end
 
     def parse_script(script, options = {})
-      line = options.delete(:line) || @line
-      offset = options.delete(:offset) || @offset + 1
-      Script.parse(script, line, offset, @options.merge(options))
+      line = options[:line] || @line
+      offset = options[:offset] || @offset + 1
+      Script.parse(script, line, offset, @options)
     end
 
     def format_comment_text(text, silent)

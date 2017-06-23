@@ -303,42 +303,30 @@ module Sass::Plugin
       directories += @inferred_directories
       directories = remove_redundant_directories(directories)
 
-      # A Listen version prior to 2.0 will write a test file to a directory to
-      # see if a watcher supports watching that directory. That breaks horribly
-      # on read-only directories, so we filter those out.
-      unless Sass::Util.listen_geq_2?
-        directories = directories.select {|d| File.directory?(d) && File.writable?(d)}
-      end
-
       # TODO: Keep better track of what depends on what
       # so we don't have to run a global update every time anything changes.
       # XXX The :additional_watch_paths option exists for Compass to use until
       # a deprecated feature is removed. It may be removed without warning.
-      listener_args = directories +
-                      Array(options[:additional_watch_paths]) +
-                      [{:relative_paths => false}]
+      directories += Array(options[:additional_watch_paths])
 
-      # The native windows listener is much slower than the polling option, according to
-      # https://github.com/nex3/sass/commit/a3031856b22bc834a5417dedecb038b7be9b9e3e
-      poll = @options[:poll] || Sass::Util.windows?
-      if poll && Sass::Util.listen_geq_2?
-        # In Listen 2.0.0 and on, :force_polling is an option. In earlier
-        # versions, it's a method on the listener (called below).
-        listener_args.last[:force_polling] = true
-      end
+      options = {
+        :relative_paths => false,
+        # The native windows listener is much slower than the polling option, according to
+        # https://github.com/nex3/sass/commit/a3031856b22bc834a5417dedecb038b7be9b9e3e
+        :force_polling => @options[:poll] || Sass::Util.windows?
+      }
 
-      listener = create_listener(*listener_args) do |modified, added, removed|
+      listener = create_listener(*directories, options) do |modified, added, removed|
         on_file_changed(individual_files, modified, added, removed)
         yield(modified, added, removed) if block_given?
       end
 
-      if poll && !Sass::Util.listen_geq_2?
-        # In Listen 2.0.0 and on, :force_polling is an option (set above). In
-        # earlier versions, it's a method on the listener.
-        listener.force_polling(true)
+      begin
+        listener.start
+        sleep
+      rescue Interrupt
+        # Squelch Interrupt for clean exit from Listen::Listener
       end
-
-      listen_to(listener)
     end
 
     # Non-destructively modifies \{#options} so that default values are properly set,
@@ -387,28 +375,10 @@ module Sass::Plugin
 
     private
 
+    # This is mocked out in compiler_test.rb.
     def create_listener(*args, &block)
-      Sass::Util.load_listen!
-      if Sass::Util.listen_geq_2?
-        # Work around guard/listen#243.
-        options = args.pop if args.last.is_a?(Hash)
-        args.map do |dir|
-          Listen.to(dir, options, &block)
-        end
-      else
-        Listen::Listener.new(*args, &block)
-      end
-    end
-
-    def listen_to(listener)
-      if Sass::Util.listen_geq_2?
-        listener.map {|l| l.start}
-        sleep
-      else
-        listener.start!
-      end
-    rescue Interrupt
-      # Squelch Interrupt for clean exit from Listen::Listener
+      require 'listen'
+      Listen.to(*args, &block)
     end
 
     def remove_redundant_directories(directories)
@@ -494,7 +464,7 @@ module Sass::Plugin
           rendered = engine.render
         end
       rescue StandardError => e
-        compilation_error_occured = true
+        compilation_error_occurred = true
         run_compilation_error e, filename, css, sourcemap
         raise e unless options[:full_exception]
         rendered = Sass::SyntaxError.exception_to_css(e, options[:line] || 1)
@@ -507,14 +477,14 @@ module Sass::Plugin
           mapping.to_json(
             :css_path => css, :sourcemap_path => sourcemap, :type => options[:sourcemap]))
       end
-      run_updated_stylesheet(filename, css, sourcemap) unless compilation_error_occured
+      run_updated_stylesheet(filename, css, sourcemap) unless compilation_error_occurred
     end
 
     def write_file(fileName, content)
       flag = 'w'
       flag = 'wb' if Sass::Util.windows? && options[:unix_newlines]
       File.open(fileName, flag) do |file|
-        file.set_encoding(content.encoding) unless Sass::Util.ruby1_8?
+        file.set_encoding(content.encoding)
         file.print(content)
       end
     end

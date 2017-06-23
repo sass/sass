@@ -3,6 +3,110 @@
 * Table of contents
 {:toc}
 
+## 4.0.0 (UNRELEASED)
+
+### Backwards Incompatibilities -- Must Read!
+
+* Certain ways of using `#{}` without quotes in property and variable values,
+  which were deprecated in version 3.4.20, have been removed entirely in order
+  to simplify the feature.
+
+  Previously, `#{}` behaved unpredictably. If it was used near operators, it
+  would cause those operators to become part of an unquoted string instead of
+  having their normal meaning. This wan't an especially useful feature, and it
+  made it hard to reason about some code that included `#{}`.
+
+  Now `#{}` just returns an unquoted string that acts like any other unquoted
+  string. For example, `foo + #{$var}` does the same thing as `foo + $var`,
+  instead of doing the same thing as `unquote("foo + #{$var}")`.
+
+  For more details, see [this blog post][interp-blog] and
+  [the GitHub issue in which it was planned][interp-issue].
+
+* Color arithmetic is no longer supported. Channel-by-channel arithmetic doesn't
+  correspond closely to intuitive understandings of color. Sass's suite of
+  [color functions][] are a much cleaner and more comprehensible way of
+  manipulating colors dynamically.
+
+* The reference combinator, `/foo/` is no longer supported.
+
+* The old-style `:name value` property syntax is no longer supported. This
+  syntax is not widely used, and is unnecessarily different from CSS.
+
+* `@extend` no longer supports extending compound selectors such as `.foo.bar`.
+
+* Unitless numbers are no longer equal to numbers with units.
+
+## 3.5.0
+
+* Default to ten digits of numeric precision.
+
+* Combine ids and `:root` when unifying selectors with `@extend` and selector
+  functions.
+
+* It's no longer an error to `@extend` a selector that exists in the stylesheet,
+  but for which unification fails.
+
+* Add a `$weight` parameter to `invert()`.
+
+* The last argument in an argument list can now have a trailing comma.
+
+* Allow `var()` to be passed to `rgb()`, `rgba()`, `hsl()`, and `hsla()`.
+
+* Add support for CSS's grid template areas and named lines. We support
+  this syntax through a new type of list called a "bracketed list".
+  Bracketed lists can be created by wrapping a list with square brackets.
+  For example: `[this is bracketed]` and `[this, is, also, bracketed]`.
+  Bracketed lists will output their square brackets when used as a CSS
+  value. Bracketed lists may be either space-separated or comma-separated.
+  The `is-bracketed()` function, when passed a list will return a boolean
+  indicating whether that list will output with brackets. The `join()`
+  function now accepts a `$bracketed` parameter that controls whether the
+  returned list has brackets.
+
+* A new function `content-exists()` will return true when called within
+  a mixin that was passed content for use by the `@content` directive.
+
+* Passing a string to `call($function-name, $args...)` indicating which
+  function to invoke is now deprecated. Instead pass a function reference
+  returned from `get-function($function-name)`.  This allows function name
+  resolution to be performed in the correct lexical context and then
+  invoked in a different context. This is required so that the
+  module-based resolver in Sass 4.0 will invoke the correct function when
+  calling across module boundaries. Developers of frameworks that use
+  `call` should not do the function lookup for callers of their framework;
+  this is likely to result in a situation where the framework cannot
+  resolve the function in 4.0.
+
+* Values that can be interpreted as
+  [hex colors with alpha channels][hex alpha spec] and also as
+  [ID values][directional focus spec], such as `#abcd`, now emit deprecation
+  warnings in preparation for being parsed differently Sass 3.6. They were
+  previously parsed as strings, and in 3.6 they will be parsed as colors
+  instead.
+
+* Pseudo selectors that take arguments now allow any
+  [`<declaration-value>`][declaration-value] production in their argument list.
+  This will provide better forwards-compatibility for future CSS syntax.
+
+* Pseudo selectors that take selectors as arguments will no longer always be
+  eliminated if they contain placeholder selectors that aren't extended.
+  Instead, they'll be reduced to valid CSS selectors if possible.
+
+* The indented syntax now allows different indentation to be used for different
+  lines, as long as they define a consistent tree structure.
+
+[hex alpha spec]: https://drafts.csswg.org/css-color/#hex-notation
+[directional focus spec]: https://www.w3.org/TR/css-ui-3/#nav-dir
+
+### Backwards Incompatibilities -- Must Read!
+
+* The way [CSS variables][] are handled has changed to better correspond to the
+  CSS spec. They no longer allow arbitrary SassScript in their values; instead,
+  almost all text in the property values will be passed through unchanged to
+  CSS. The only exception is `#{}`, which will inject a SassScript value as
+  before.
+
 ## 3.4.25 (Unreleased)
 
 * Fix a bug where `*` wouldn't always be eliminated during selector unification.

@@ -31,7 +31,7 @@ module Sass
         template = template.read
       end
 
-      @options = options.merge(:_convert => true)
+      @options = options.dup
       # Backwards compatibility
       @options[:old] = true if @options[:alternate] == false
       @template = template
@@ -51,8 +51,7 @@ module Sass
       raise err
     end
 
-    # Returns the original encoding of the document,
-    # or `nil` under Ruby 1.8.
+    # Returns the original encoding of the document.
     #
     # @return [Encoding, nil]
     # @raise [Encoding::UndefinedConversionError] if the source encoding

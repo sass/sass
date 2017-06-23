@@ -51,6 +51,8 @@ module Sass
         ':' => :colon,
         '(' => :lparen,
         ')' => :rparen,
+        '[' => :lsquare,
+        ']' => :rsquare,
         ',' => :comma,
         'and' => :and,
         'or' => :or,
@@ -72,7 +74,8 @@ module Sass
 
       TOKEN_NAMES = Sass::Util.map_hash(OPERATORS_REVERSE) {|k, v| [k, v.inspect]}.merge(
         :const => "variable (e.g. $foo)",
-        :ident => "identifier (e.g. middle)")
+        :ident => "identifier (e.g. middle)",
+        :special_fun => '")"')
 
       # A list of operator strings ordered with longer names first
       # so that `>` and `<` don't clobber `>=` and `<=`.
@@ -91,6 +94,7 @@ module Sass
         :single_line_comment => SINGLE_LINE_COMMENT,
         :variable => /(\$)(#{IDENT})/,
         :ident => /(#{IDENT})(\()?/,
+        :mid_ident => /(#{NMCHAR}+)(\()?/,
         :number => PARSEABLE_NUMBER,
         :unary_minus_number => /-#{PARSEABLE_NUMBER}/,
         :color => HEXCOLOR,
@@ -159,6 +163,13 @@ module Sass
         @next_tok = nil
       end
 
+      # Returns whether or not there's whitespace before the given token.
+      #
+      # @return [Boolean]
+      def whitespace_before?(tok)
+        @scanner.string[0...tok.pos] =~ /\s\Z/
+      end
+
       # Moves the lexer forward one token.
       #
       # @return [Token] The token that was moved past
@@ -167,25 +178,6 @@ module Sass
         @tok, tok = nil, @tok
         @prev = tok
         tok
-      end
-
-      # Returns whether or not there's whitespace before the next token.
-      #
-      # @return [Boolean]
-      def whitespace?(tok = @tok)
-        if tok
-          @scanner.string[0...tok.pos] =~ /\s\Z/
-        else
-          @scanner.string[@scanner.pos, 1] =~ /^\s/ ||
-            @scanner.string[@scanner.pos - 1, 1] =~ /\s\Z/
-        end
-      end
-
-      # Returns the given character.
-      #
-      # @return [String]
-      def char(pos = @scanner.pos)
-        @scanner.string[pos, 1]
       end
 
       # Returns the next token without moving the lexer forward.
@@ -209,11 +201,6 @@ module Sass
         return if @next_tok
         whitespace unless after_interpolation? && !@interpolation_stack.empty?
         @scanner.eos? && @tok.nil?
-      end
-
-      # @return [Boolean] Whether or not the last token lexed was `:end_interpolation`.
-      def after_interpolation?
-        @prev && @prev.type == :end_interpolation
       end
 
       # Raise an error to the effect that `name` was expected in the input stream
@@ -243,6 +230,11 @@ module Sass
 
       private
 
+      # @return [Boolean] Whether or not the last token lexed was `:end_interpolation`.
+      def after_interpolation?
+        @prev && @prev.type == :end_interpolation
+      end
+
       def read_token
         if (tok = @next_tok)
           @next_tok = nil
@@ -264,10 +256,14 @@ module Sass
       end
 
       def token
-        if after_interpolation? && (interp = @interpolation_stack.pop)
-          interp_type, interp_value = interp
+        if after_interpolation?
+          interp_type, interp_value = @interpolation_stack.pop
           if interp_type == :special_fun
             return special_fun_body(interp_value)
+          elsif interp_type.nil?
+            if @scanner.string[@scanner.pos - 1] == '}' && scan(REGULAR_EXPRESSIONS[:mid_ident])
+              return [@scanner[2] ? :funcall : :ident, @scanner[1]]
+            end
           else
             raise "[BUG]: Unknown interp_type #{interp_type}" unless interp_type == :string
             return string(interp_value, true)
@@ -366,8 +362,17 @@ MESSAGE
         # IDs in properties are used in the Basic User Interface Module
         # (http://www.w3.org/TR/css3-ui/).
         return unless scan(REGULAR_EXPRESSIONS[:id])
-        if @scanner[0] =~ /^\#[0-9a-fA-F]+$/ && (@scanner[0].length == 4 || @scanner[0].length == 7)
-          return [:color, Script::Value::Color.from_hex(@scanner[0])]
+        if @scanner[0] =~ /^\#[0-9a-fA-F]+$/
+          if @scanner[0].length == 4 || @scanner[0].length == 7
+            return [:color, Script::Value::Color.from_hex(@scanner[0])]
+          elsif @scanner[0].length == 5 || @scanner[0].length == 9
+            filename = @options[:filename]
+            Sass::Util.sass_warn <<MESSAGE
+DEPRECATION WARNING on line #{line}, column #{offset}#{" of #{filename}" if filename}:
+The value "#{@scanner[0]}" is currently parsed as a string, but it will be parsed as a color in
+future versions of Sass. Use "unquote('#{@scanner[0]}')" to continue parsing it as a string.
+MESSAGE
+          end
         end
         [:ident, @scanner[0]]
       end
@@ -433,7 +438,19 @@ MESSAGE
         op = scan(REGULAR_EXPRESSIONS[:op])
         return unless op
         name = OPERATORS[op]
-        @interpolation_stack << nil if name == :begin_interpolation
+
+        if name == :begin_interpolation
+          @interpolation_stack << nil
+        elsif name == :end_interpolation && @interpolation_stack.last.nil?
+          # Interpolation followed immediately by a parenthesis should be
+          # considered part of a function call.
+          start_pos = Sass::Source::Position.new(@line, @offset)
+          if @scanner.string[@scanner.pos] == ?(
+            @scanner.pos += 1
+            @next_tok = Token.new(:funcall, '', range(start_pos), @scanner.pos - 1)
+          end
+        end
+
         [name]
       end
 

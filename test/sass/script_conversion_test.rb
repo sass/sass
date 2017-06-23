@@ -23,7 +23,7 @@ class SassScriptConversionTest < MiniTest::Test
     assert_renders "12px"
     assert_renders "12.45px"
 
-    assert_equal "12.34568", render("12.345678901")
+    assert_equal "12.3456789013", render("12.34567890129")
   end
 
   def test_string
@@ -264,66 +264,15 @@ RUBY
   end
 
   def test_interpolation
-    assert_equal 'unquote("#{$foo}#{$bar}#{$baz}")', render("$foo\#{$bar}$baz")
-    assert_equal 'unquote("#{$foo}#{$bar} #{$baz}")', render("$foo\#{$bar} $baz")
-    assert_equal 'unquote("#{$foo} #{$bar}#{$baz}")', render("$foo \#{$bar}$baz")
-    assert_renders "$foo \#{$bar} $baz"
-    assert_renders "$foo \#{$bar}\#{$bang} $baz"
-    assert_renders "$foo \#{$bar} \#{$bang} $baz"
-    assert_equal 'unquote("#{$bar}#{$baz}")', render("\#{$bar}$baz")
-    assert_equal 'unquote("#{$foo}#{$bar}")', render("$foo\#{$bar}")
+    assert_equal "$foo \#{$bar} $baz", render("$foo\#{$bar}$baz")
+    assert_equal "$foo \#{$bar} $baz", render("$foo\#{$bar} $baz")
+    assert_equal "$foo \#{$bar} $baz", render("$foo \#{$bar}$baz")
     assert_renders "\#{$bar}"
-  end
-
-  def test_interpolation_in_function
-    assert_renders 'flabnabbit(#{1 + "foo"})'
-    assert_equal 'flabnabbit(unquote("#{$foo} #{1 + "foo"}#{$baz}"))',
-                 render('flabnabbit($foo #{1 + "foo"}$baz)')
-    assert_renders 'flabnabbit($foo #{1 + "foo"}#{2 + "bar"} $baz)'
   end
 
   def test_interpolation_in_string_function
     assert_renders 'calc(#{1 + "foo"})'
     assert_renders 'calc(foo#{1 + "foo"}baz)'
-  end
-
-  def test_interpolation_near_operators
-    assert_renders '#{1 + 2} , #{3 + 4}'
-    assert_renders '#{1 + 2}, #{3 + 4}'
-    assert_renders '#{1 + 2} ,#{3 + 4}'
-    assert_renders '#{1 + 2},#{3 + 4}'
-    assert_renders '#{1 + 2}, #{3 + 4}, #{5 + 6}'
-    assert_renders '3, #{3 + 4}, 11'
-
-    assert_renders '3 / #{3 + 4}'
-    assert_renders '3 /#{3 + 4}'
-    assert_renders '3/ #{3 + 4}'
-    assert_renders '3/#{3 + 4}'
-
-    assert_equal 'unquote("#{1 + 2} * 7")', render('#{1 + 2} * 7')
-    assert_equal 'unquote("#{1 + 2}* 7")', render('#{1 + 2}* 7')
-    assert_equal 'unquote("#{1 + 2} *7")', render('#{1 + 2} *7')
-    assert_equal 'unquote("#{1 + 2}*7")', render('#{1 + 2}*7')
-
-    assert_renders '-#{1 + 2}'
-    assert_equal 'unquote("- #{1 + 2}")', render('- #{1 + 2}')
-
-    assert_equal 'unquote("5 + #{1 + 2} * #{3 + 4}")', render('5 + #{1 + 2} * #{3 + 4}')
-    assert_equal 'unquote("5 +#{1 + 2} * #{3 + 4}")', render('5 +#{1 + 2} * #{3 + 4}')
-    assert_equal 'unquote("5+#{1 + 2} * #{3 + 4}")', render('5+#{1 + 2} * #{3 + 4}')
-    assert_equal 'unquote("#{1 + 2} * #{3 + 4} + 5")', render('#{1 + 2} * #{3 + 4} + 5')
-    assert_equal 'unquote("#{1 + 2} * #{3 + 4}+ 5")', render('#{1 + 2} * #{3 + 4}+ 5')
-    assert_equal 'unquote("#{1 + 2} * #{3 + 4}+5")', render('#{1 + 2} * #{3 + 4}+5')
-
-    assert_equal '5 / unquote("#{1 + 2} + #{3 + 4}")', render('5 / (#{1 + 2} + #{3 + 4})')
-    assert_equal '5 / unquote("#{1 + 2} + #{3 + 4}")', render('5 /(#{1 + 2} + #{3 + 4})')
-    assert_equal '5 / unquote("#{1 + 2} + #{3 + 4}")', render('5 /( #{1 + 2} + #{3 + 4} )')
-    assert_equal 'unquote("#{1 + 2} + #{3 + 4}") / 5', render('(#{1 + 2} + #{3 + 4}) / 5')
-    assert_equal 'unquote("#{1 + 2} + #{3 + 4}") / 5', render('(#{1 + 2} + #{3 + 4})/ 5')
-    assert_equal 'unquote("#{1 + 2} + #{3 + 4}") / 5', render('( #{1 + 2} + #{3 + 4} )/ 5')
-
-    assert_equal 'unquote("#{1 + 2} + #{2 + 3}")', render('#{1 + 2} + 2 + 3')
-    assert_equal 'unquote("#{1 + 2} +#{2 + 3}")', render('#{1 + 2} +2 + 3')
   end
 
   def test_string_interpolation
@@ -343,6 +292,15 @@ RUBY
     assert_equal '"foo#{$bar}baz"', render("'foo\#{$bar}baz'")
   end
 
+  def test_bracketed_lists
+    assert_renders("[]")
+    assert_renders("[foo, bar]")
+    assert_renders("[[foo]]")
+    assert_renders("[(foo bar)]")
+    assert_renders("[foo bar,]")
+    assert_renders("[(foo,)]")
+  end
+
   private
 
   def assert_renders(script, options = {})
@@ -351,7 +309,7 @@ RUBY
 
   def render(script, options = {})
     munge_filename(options)
-    node = Sass::Script.parse(script, 1, 0, options.merge(:_convert => true))
+    node = Sass::Script.parse(script, 1, 0, options)
     node.to_sass
   end
 end

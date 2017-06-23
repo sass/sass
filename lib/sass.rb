@@ -100,10 +100,3 @@ require 'sass/engine'
 require 'sass/plugin' if defined?(Merb::Plugins)
 require 'sass/railtie'
 require 'sass/features'
-
-if Sass::Util.ruby1?
-  Sass::Util.sass_warn(
-    "DEPRECATION WARNING:\n" +
-    "Sass 3.5 will no longer support Ruby #{RUBY_VERSION}.\n" +
-    "Please upgrade to Ruby 2.0.0 or greater as soon as possible.\n")
-end

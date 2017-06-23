@@ -14,10 +14,6 @@ CSS
 h1
   color: red
 SASS
-    silence_warnings {assert_equal(<<SASS, css2sass(css, :old => true))}
-h1
-  :color red
-SASS
   end
 
   def test_nesting
@@ -498,24 +494,22 @@ CSS
 
   # Encodings
 
-  unless Sass::Util.ruby1_8?
-    def test_encoding_error
-      css2sass("foo\nbar\nb\xFEaz".force_encoding("utf-8"))
-      assert(false, "Expected exception")
-    rescue Sass::SyntaxError => e
-      assert_equal(3, e.sass_line)
-      assert_equal('Invalid UTF-8 character "\xFE"', e.message)
-    end
+  def test_encoding_error
+    css2sass("foo\nbar\nb\xFEaz".force_encoding("utf-8"))
+    assert(false, "Expected exception")
+  rescue Sass::SyntaxError => e
+    assert_equal(3, e.sass_line)
+    assert_equal('Invalid UTF-8 character "\xFE"', e.message)
+  end
 
-    def test_ascii_incompatible_encoding_error
-      template = "foo\nbar\nb_z".encode("utf-16le")
-      template[9] = "\xFE".force_encoding("utf-16le")
-      css2sass(template)
-      assert(false, "Expected exception")
-    rescue Sass::SyntaxError => e
-      assert_equal(3, e.sass_line)
-      assert_equal('Invalid UTF-16LE character "\xFE"', e.message)
-    end
+  def test_ascii_incompatible_encoding_error
+    template = "foo\nbar\nb_z".encode("utf-16le")
+    template[9] = "\xFE".force_encoding("utf-16le")
+    css2sass(template)
+    assert(false, "Expected exception")
+  rescue Sass::SyntaxError => e
+    assert_equal(3, e.sass_line)
+    assert_equal('Invalid UTF-16LE character "\xFE"', e.message)
   end
 
   private
