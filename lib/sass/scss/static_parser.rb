@@ -276,6 +276,8 @@ MESSAGE
 
       PREFIXED_SELECTOR_PSEUDO_CLASSES = %w(nth-child nth-last-child).to_set
 
+      SELECTOR_PSEUDO_ELEMENTS = %w(slotted).to_set
+
       def pseudo
         s = tok(/::?/)
         return unless s
@@ -288,6 +290,8 @@ MESSAGE
             sel = selector_comma_sequence
           elsif s == ':' && PREFIXED_SELECTOR_PSEUDO_CLASSES.include?(deprefixed)
             arg, sel = prefixed_selector_pseudo
+          elsif s == '::' && SELECTOR_PSEUDO_ELEMENTS.include?(deprefixed)
+            sel = selector_comma_sequence
           else
             arg = expr!(:declaration_value).join
           end
