@@ -40,11 +40,11 @@ module Sass::Script::Value
     def eq(other)
       Sass::Script::Value::Bool.new(
         other.is_a?(List) && value == other.value &&
-        separator == other.separator)
+        separator == other.separator && bracketed == other.bracketed)
     end
 
     def hash
-      @hash ||= [value, separator].hash
+      @hash ||= [value, separator, bracketed].hash
     end
 
     # @see Value#to_s
