@@ -19,6 +19,8 @@
 
 * Allow `var()` to be passed to `rgb()`, `rgba()`, `hsl()`, and `hsla()`.
 
+* Add support for the `::slotted()` pseudo-element.
+
 * Add support for CSS's grid template areas and named lines. We support
   this syntax through a new type of list called a "bracketed list".
   Bracketed lists can be created by wrapping a list with square brackets.
