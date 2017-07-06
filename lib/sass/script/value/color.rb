@@ -563,6 +563,11 @@ module Sass::Script::Value
     def to_s(opts = {})
       return smallest if options[:style] == :compressed
       return representation if representation
+
+      # IE10 doesn't properly support the color name "transparent", so we emit
+      # generated transparent colors as rgba(0, 0, 0, 0) in favor of that. See
+      # #1782.
+      return rgba_str if Number.basically_equal?(alpha, 0)
       return name if name
       alpha? ? rgba_str : hex_str
     end
