@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.4.25 (Unreleased)
+## 3.4.25 (7 July 2017)
 
 * Fix a bug where `*` wouldn't always be eliminated during selector unification.
 
