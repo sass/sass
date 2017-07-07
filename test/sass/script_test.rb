@@ -80,7 +80,7 @@ class SassScriptTest < MiniTest::Test
     assert_equal "#ffffff", resolve("#ffffff")
     silence_warnings {assert_equal "#fffffe", resolve("white - #000001")}
     assert_equal "transparent", resolve("transparent")
-    assert_equal "transparent", resolve("rgba(0, 0, 0, 0)")
+    assert_equal "rgba(0, 0, 0, 0)", resolve("rgba(0, 0, 0, 0)")
   end
 
   def test_rgba_color_literals
