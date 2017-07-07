@@ -95,6 +95,10 @@
   eliminated if they contain placeholder selectors that aren't extended.
   Instead, they'll be reduced to valid CSS selectors if possible.
 
+* Generated transparent colors will now be emitted as `rgba(0, 0, 0, 0)` rather
+  than `transparent`. This works around a bug wherein IE incorrectly handles the
+  latter format.
+
 * The indented syntax now allows different indentation to be used for different
   lines, as long as they define a consistent tree structure.
 
