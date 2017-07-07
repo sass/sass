@@ -79,7 +79,7 @@
   CSS. The only exception is `#{}`, which will inject a SassScript value as
   before.
 
-## 3.4.25 (Unreleased)
+## 3.4.25 (7 July 2017)
 
 * Fix a bug where `*` wouldn't always be eliminated during selector unification.
 
