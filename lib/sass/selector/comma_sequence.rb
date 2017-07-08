@@ -1,3 +1,5 @@
+require 'sass/deprecation'
+
 module Sass
   module Selector
     # A comma-separated sequence of selectors.
