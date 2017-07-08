@@ -1,3 +1,5 @@
+require 'sass/deprecation'
+
 # -*- coding: utf-8 -*-
 module Sass::Script::Value
   # A SassScript object representing a CSS string *or* a CSS identifier.
