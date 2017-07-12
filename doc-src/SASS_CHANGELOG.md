@@ -37,7 +37,7 @@
 
 * Unitless numbers are no longer equal to numbers with units.
 
-## 3.5.0
+## 3.5.0 (12 July 2017)
 
 * Default to ten digits of numeric precision.
 
