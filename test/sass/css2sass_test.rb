@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 require 'minitest/autorun'
 require File.dirname(__FILE__) + '/../test_helper'
 require 'sass/css'
