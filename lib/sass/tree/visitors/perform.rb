@@ -494,7 +494,7 @@ WARNING
     res = node.expr.perform(@environment)
     res = res.value if res.is_a?(Sass::Script::Value::String)
     @environment.stack.with_directive(node.filename, node.line, "@warn") do
-      msg = "WARNING: #{res}\n         "
+      msg = "WARNING: #{res}\n         ".dup
       msg << @environment.stack.to_s.gsub("\n", "\n         ") << "\n"
       Sass::Util.sass_warn msg
     end
@@ -561,7 +561,7 @@ WARNING
   end
 
   def handle_import_loop!(node)
-    msg = "An @import loop has been found:"
+    msg = "An @import loop has been found:".dup
     files = @environment.stack.frames.select {|f| f.is_import?}.map {|f| f.filename}.compact
     if node.filename == node.imported_file.options[:filename]
       raise Sass::SyntaxError.new("#{msg} #{node.filename} imports itself")

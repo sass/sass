@@ -98,7 +98,7 @@ module Sass::Source
       css_uri ||= Sass::Util.file_uri_from_path(
         Sass::Util.relative_path_from(css_path, sourcemap_path.dirname))
 
-      result = "{\n"
+      result = "{\n".dup
       write_json_field(result, "version", 3, true)
 
       source_uri_to_id = {}
@@ -156,7 +156,7 @@ module Sass::Source
           end
 
           # `segment` is a data chunk for a single position mapping.
-          segment = ""
+          segment = "".dup
 
           # Field 1: zero-based starting offset.
           segment << Sass::Util.encode_vlq(target_pos.offset - previous_target_offset)

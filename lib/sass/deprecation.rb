@@ -45,7 +45,7 @@ module Sass
         message = column_or_message
       end
 
-      location = "line #{line}"
+      location = "line #{line}".dup
       location << ", column #{column}" if column
       location << " of #{filename}" if filename
 

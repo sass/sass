@@ -7,7 +7,7 @@ class EncodingTest < MiniTest::Test
   include Sass::Util::Test
 
   def test_encoding_error
-    render("foo\nbar\nb\xFEaz".force_encoding("utf-8"))
+    render("foo\nbar\nb\xFEaz".dup.force_encoding("utf-8"))
     assert(false, "Expected exception")
   rescue Sass::SyntaxError => e
     assert_equal(3, e.sass_line)
@@ -16,7 +16,7 @@ class EncodingTest < MiniTest::Test
 
   def test_ascii_incompatible_encoding_error
     template = "foo\nbar\nb_z".encode("utf-16le")
-    template[9] = "\xFE".force_encoding("utf-16le")
+    template[9] = "\xFE".dup.force_encoding("utf-16le")
     render(template)
     assert(false, "Expected exception")
   rescue Sass::SyntaxError => e
@@ -94,7 +94,7 @@ SASS
   end
 
   def test_utf_8_with_bom
-    assert_renders_encoded(<<CSS, <<SASS.force_encoding("BINARY"))
+    assert_renders_encoded(<<CSS, <<SASS.dup.force_encoding("BINARY"))
 @charset "UTF-8";
 fóó {
   a: b; }
@@ -118,7 +118,7 @@ SASS
   def test_charset_with_special_case_encoding
     # For some reason, a file with an ASCII-compatible UTF-16 charset
     # declaration is specced to be parsed as UTF-8.
-    assert_renders_encoded(<<CSS, <<SASS.force_encoding("BINARY"))
+    assert_renders_encoded(<<CSS, <<SASS.dup.force_encoding("BINARY"))
 @charset "UTF-8";
 fóó {
   a: b; }

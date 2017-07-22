@@ -1104,7 +1104,7 @@ module Sass
         pos = @scanner.pos
         line = @line
         offset = @offset
-        @strs.push ""
+        @strs.push "".dup
         throw_error {yield} && @strs.last
       rescue Sass::SyntaxError
         @scanner.pos = pos
@@ -1276,7 +1276,7 @@ module Sass
         was = was[0...15] + "..." if was.size > 18
 
         raise Sass::SyntaxError.new(
-          "Invalid CSS after \"#{after}\": expected #{expected}, was \"#{was}\"",
+          "Invalid CSS after \"#{after}\": expected #{expected}, was \"#{was}\"".dup,
           :line => line)
       end
 

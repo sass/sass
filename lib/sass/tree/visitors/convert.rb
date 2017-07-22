@@ -92,8 +92,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   end
 
   def visit_directive(node)
-    res = "#{tab_str}#{interp_to_src(node.value)}"
-    res.gsub!(/^@import \#\{(.*)\}([^}]*)$/, '@import \1\2')
+    res = "#{tab_str}#{interp_to_src(node.value)}".gsub(/^@import \#\{(.*)\}([^}]*)$/, '@import \1\2')
     return res + "#{semi}\n" unless node.has_children
     res + yield
   end
@@ -135,7 +134,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
         "else"
       end
     @is_else = false
-    str = "#{tab_str}@#{name}"
+    str = "#{tab_str}@#{name}".dup
     str << " #{node.expr.to_sass(@options)}" if node.expr
     str << yield
     @is_else = true
@@ -160,9 +159,9 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
 
   def visit_cssimport(node)
     if node.uri.is_a?(Sass::Script::Tree::Node)
-      str = "#{tab_str}@import #{node.uri.to_sass(@options)}"
+      str = "#{tab_str}@import #{node.uri.to_sass(@options)}".dup
     else
-      str = "#{tab_str}@import #{node.uri}"
+      str = "#{tab_str}@import #{node.uri}".dup
     end
     str << " supports(#{node.supports_condition.to_src(@options)})" if node.supports_condition
     str << " #{interp_to_src(node.query)}" unless node.query.empty?
@@ -174,7 +173,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
       if node.args.empty? && node.splat.nil?
         ""
       else
-        str = '('
+        str = '('.dup
         str << node.args.map do |v, d|
           if d
             "#{v.to_sass(@options)}: #{d.to_sass(@options)}"

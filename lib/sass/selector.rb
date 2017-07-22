@@ -310,7 +310,7 @@ module Sass
 
       # @see Selector#to_s
       def to_s(opts = {})
-        res = "["
+        res = "[".dup
         res << @namespace << "|" if @namespace
         res << @name
         res << @operator << @value if @value

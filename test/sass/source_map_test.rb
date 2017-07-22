@@ -4,7 +4,7 @@ require File.dirname(__FILE__) + '/test_helper'
 
 class SourcemapTest < MiniTest::Test
   def test_to_json_requires_args
-    _, sourcemap = render_with_sourcemap('')
+    _, sourcemap = render_with_sourcemap(''.dup)
     assert_raises(ArgumentError) {sourcemap.to_json({})}
     assert_raises(ArgumentError) {sourcemap.to_json({:css_path => 'foo'})}
     assert_raises(ArgumentError) {sourcemap.to_json({:sourcemap_path => 'foo'})}
@@ -180,7 +180,7 @@ JSON
   end
 
   def test_different_charset_than_encoding_scss
-    assert_parses_with_sourcemap(<<SCSS.force_encoding("IBM866"), <<CSS, <<JSON)
+    assert_parses_with_sourcemap(<<SCSS.dup.force_encoding("IBM866"), <<CSS, <<JSON)
 @charset "IBM866";
 f\x86\x86 {
   \x86: b;
@@ -203,7 +203,7 @@ JSON
   end
 
   def test_different_charset_than_encoding_sass
-    assert_parses_with_sourcemap(<<SASS.force_encoding("IBM866"), <<CSS, <<JSON, :syntax => :sass)
+    assert_parses_with_sourcemap(<<SASS.dup.force_encoding("IBM866"), <<CSS, <<JSON, :syntax => :sass)
 @charset "IBM866"
 f\x86\x86
   \x86: b
@@ -955,8 +955,8 @@ CSS
     options[:syntax] ||= :scss
     input_filename = filename_for_test(options[:syntax])
     mapping = build_mapping_from_annotations(source, css, input_filename)
-    source.gsub!(ANNOTATION_REGEX, "")
-    css.gsub!(ANNOTATION_REGEX, "")
+    source = source.gsub(ANNOTATION_REGEX, "")
+    css = css.gsub(ANNOTATION_REGEX, "")
     rendered, sourcemap = render_with_sourcemap(source, options)
     assert_equal css.rstrip, rendered.rstrip
     assert_sourcemaps_equal source, css, mapping, sourcemap

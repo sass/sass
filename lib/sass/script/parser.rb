@@ -817,8 +817,8 @@ RUBY
       # @param node [Sass::Script::Tree::Node]
       def interpolation_deprecation(interpolation)
         return if @options[:_convert]
-        location = "on line #{interpolation.line}"
-        location << " of #{interpolation.filename}" if interpolation.filename
+        location  = "on line #{interpolation.line}"
+        location += " of #{interpolation.filename}" if interpolation.filename
         Sass::Util.sass_warn <<WARNING
 DEPRECATION WARNING #{location}:
 \#{} interpolation near operators will be simplified in a future version of Sass.

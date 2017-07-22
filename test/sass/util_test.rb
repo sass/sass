@@ -98,11 +98,11 @@ class UtilTest < MiniTest::Test
 
   def test_strip_string_array
     assert_equal(["foo ", " bar ", " baz"],
-      strip_string_array([" foo ", " bar ", " baz "]))
+      strip_string_array([" foo ".dup, " bar ".dup, " baz ".dup]))
     assert_equal([:foo, " bar ", " baz"],
-      strip_string_array([:foo, " bar ", " baz "]))
+      strip_string_array([:foo, " bar ".dup, " baz ".dup]))
     assert_equal(["foo ", " bar ", :baz],
-      strip_string_array([" foo ", " bar ", :baz]))
+      strip_string_array([" foo ".dup, " bar ".dup, :baz]))
   end
 
   def test_paths

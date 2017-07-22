@@ -898,7 +898,7 @@ module Sass
     def json_escape_string(s)
       return s if s !~ /["\\\b\f\n\r\t]/
 
-      result = ""
+      result = "".dup
       s.split("").each do |c|
         case c
         when '"', "\\"
@@ -963,7 +963,7 @@ module Sass
         value <<= 1
       end
 
-      result = ''
+      result = ''.dup
       begin
         digit = value & VLQ_BASE_MASK
         value >>= VLQ_BASE_SHIFT

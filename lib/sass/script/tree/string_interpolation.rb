@@ -52,7 +52,7 @@ module Sass::Script::Tree
       quote = type == :string ? opts[:quote] || quote_for(self) || '"' : :none
       opts = opts.merge(:quote => quote)
 
-      res = ""
+      res = "".dup
       res << quote if quote != :none
       res << _to_sass(before, opts)
       res << '#{' << @mid.to_sass(opts.merge(:quote => nil)) << '}'
@@ -87,7 +87,7 @@ module Sass::Script::Tree
     # @return [Sass::Script::Value::String]
     #   The SassScript string that is the value of the interpolation
     def _perform(environment)
-      res = ""
+      res = "".dup
       before = @before.perform(environment)
       res << before.value
       mid = @mid.perform(environment)

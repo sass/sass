@@ -498,7 +498,7 @@ CSS
   # Encodings
 
   def test_encoding_error
-    css2sass("foo\nbar\nb\xFEaz".force_encoding("utf-8"))
+    css2sass("foo\nbar\nb\xFEaz".dup.force_encoding("utf-8"))
     assert(false, "Expected exception")
   rescue Sass::SyntaxError => e
     assert_equal(3, e.sass_line)
@@ -507,7 +507,7 @@ CSS
 
   def test_ascii_incompatible_encoding_error
     template = "foo\nbar\nb_z".encode("utf-16le")
-    template[9] = "\xFE".force_encoding("utf-16le")
+    template[9] = "\xFE".dup.force_encoding("utf-16le")
     css2sass(template)
     assert(false, "Expected exception")
   rescue Sass::SyntaxError => e

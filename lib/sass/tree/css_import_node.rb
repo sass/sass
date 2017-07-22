@@ -58,7 +58,7 @@ module Sass::Tree
     def resolved_value
       @resolved_value ||=
         begin
-          str = "@import #{resolved_uri}"
+          str = "@import #{resolved_uri}".dup
           str << " supports(#{supports_condition.to_css})" if supports_condition
           str << " #{resolved_query.to_css}" if resolved_query
           str

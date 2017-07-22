@@ -70,7 +70,7 @@ module Sass::Script::Tree
     def to_sass(opts = {})
       return to_quoted_equivalent.to_sass if deprecation == :immediate
 
-      res = ""
+      res = "".dup
       res << @before.to_sass(opts) if @before
       res << ' ' if @before && @whitespace_before
       res << '#{' unless @originally_text
@@ -163,7 +163,7 @@ module Sass::Script::Tree
     # @return [Sass::Script::Value::String]
     #   The SassScript string that is the value of the interpolation
     def _perform(environment)
-      res = ""
+      res = "".dup
       res << @before.perform(environment).to_s if @before
       res << " " if @before && @whitespace_before
 

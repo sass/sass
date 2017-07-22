@@ -14,7 +14,7 @@ module Sass
       def self.escape_ident(str)
         return "" if str.empty?
         return "\\#{str}" if str == '-' || str == '_'
-        out = ""
+        out = "".dup
         value = str.dup
         out << value.slice!(0...1) if value =~ /^[-_]/
         if value[0...1] =~ NMSTART

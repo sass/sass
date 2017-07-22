@@ -405,7 +405,7 @@ MESSAGE
       end
 
       def special_fun_body(parens, prefix = nil)
-        str = prefix || ''
+        str = prefix || ''.dup
         while (scanned = scan(/.*?([()]|\#\{)/m))
           str << scanned
           if scanned[-1] == ?(

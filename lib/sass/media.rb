@@ -147,7 +147,7 @@ module Sass::Media
     #
     # @return [String]
     def to_css
-      css = ''
+      css = ''.dup
       css << resolved_modifier
       css << ' ' unless resolved_modifier.empty?
       css << resolved_type
