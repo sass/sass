@@ -377,8 +377,8 @@ module Sass::Plugin
 
     # This is mocked out in compiler_test.rb.
     def create_listener(*args, &block)
-      require 'listen'
-      Listen.to(*args, &block)
+      require 'sass-listen'
+      SassListen.to(*args, &block)
     end
 
     def remove_redundant_directories(directories)

@@ -37,6 +37,10 @@
 
 * Unitless numbers are no longer equal to numbers with units.
 
+## 3.5.1 (13 July 2017)
+
+* Avoid conflicts with the `listen` gem.
+
 ## 3.5.0 (12 July 2017)
 
 * Default to ten digits of numeric precision.
