@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.5.2 (Unreleased)
+
+* Properly parse CSS variables that begin with interpolation (for example,
+  `--#{$foo}: ...`).
+
 ## 3.5.1 (13 July 2017)
 
 * Avoid conflicts with the `listen` gem.
