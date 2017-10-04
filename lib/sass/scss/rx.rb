@@ -121,7 +121,7 @@ module Sass
       OPTIONAL = /!#{W}optional/i
       IDENT_START = /-|#{NMSTART}/
 
-      IDENT_HYPHEN_INTERP = /-(?=#\{)/
+      IDENT_HYPHEN_INTERP = /-+(?=#\{)/
       STRING1_NOINTERP = /\"((?:[^\n\r\f\\"#]|#(?!\{)|#{ESCAPE})*)\"/
       STRING2_NOINTERP = /\'((?:[^\n\r\f\\'#]|#(?!\{)|#{ESCAPE})*)\'/
       STRING_NOINTERP = /#{STRING1_NOINTERP}|#{STRING2_NOINTERP}/
