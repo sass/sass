@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.5.2 (Unreleased)
+## 3.5.2 (4 October 2017)
 
 * Properly parse CSS variables that begin with interpolation (for example,
   `--#{$foo}: ...`).
