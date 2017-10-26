@@ -323,6 +323,7 @@ RUBY
           pair = map_pair
           return map unless pair
           map.pairs << pair
+          map.source_range.end_pos = map.pairs.last.last.source_range.end_pos
         end
         map
       end
