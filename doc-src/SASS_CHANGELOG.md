@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.5.3 (26 October 2017)
+
+* Generate correct source maps for map literals.
+
 ## 3.5.2 (4 October 2017)
 
 * Properly parse CSS variables that begin with interpolation (for example,
