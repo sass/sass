@@ -18,9 +18,10 @@ install:
 rvm:
   - 2.0.0
   - 2.1.10
-  - 2.2.7
-  - 2.3.4
-  - 2.4.1
+  - 2.2.8
+  - 2.3.5
+  - 2.4.2
+  - ruby-head
 gemfile: Gemfile
 branches:
   only:
@@ -28,5 +29,8 @@ branches:
     - stable
     - stable_3_2
     - next
+matrix:
+  allow_failures:
+    - rvm: ruby-head
 notifications:
   irc: {channels: "irc.freenode.org#sass"}
