@@ -1,8 +1,5 @@
 # Sass (Syntactically Awesome StyleSheets)
 
-* Table of contents
-{:toc}
-
 Sass is an extension of CSS
 that adds power and elegance to the basic language.
 It allows you to use [variables](#variables_), [nested rules](#nested_rules),
@@ -153,190 +150,215 @@ All relevant options are also available via flags
 to the `sass` and `scss` command-line executables.
 Available options are:
 
-{#style-option} `:style`
-: Sets the style of the CSS output.
-  See [Output Style](#output_style).
+#### `:style`
 
-{#syntax-option} `:syntax`
-: The syntax of the input file, `:sass` for the indented syntax
-  and `:scss` for the CSS-extension syntax.
-  This is only useful when you're constructing {Sass::Engine} instances yourself;
-  it's automatically set properly when using {Sass::Plugin}.
-  Defaults to `:sass`.
+Sets the style of the CSS output.
+See [Output Style](#output_style).
 
-{#property_syntax-option} `:property_syntax`
-: Forces indented-syntax documents to use one syntax for properties.
-  If the correct syntax isn't used, an error is thrown.
-  `:new` forces the use of a colon
-  after the property name.
-  For example: `color: #0f3`
-  or `width: $main_width`.
-  `:old` forces the use of a colon
-  before the property name.
-  For example: `:color #0f3`
-  or `:width $main_width`.
-  By default, either syntax is valid.
-  This has no effect on SCSS documents.
+#### `:syntax`
 
-{#cache-option} `:cache`
-: Whether parsed Sass files should be cached,
-  allowing greater speed. Defaults to true.
+The syntax of the input file, `:sass` for the indented syntax
+and `:scss` for the CSS-extension syntax.
+This is only useful when you're constructing {Sass::Engine} instances yourself;
+it's automatically set properly when using {Sass::Plugin}.
+Defaults to `:sass`.
 
-{#read_cache-option} `:read_cache`
-: If this is set and `:cache` is not,
-  only read the Sass cache if it exists,
-  don't write to it if it doesn't.
+#### `:property_syntax`
 
-{#cache_store-option} `:cache_store`
-: If this is set to an instance of a subclass of {Sass::CacheStores::Base},
-  that cache store will be used to store and retrieve
-  cached compilation results.
-  Defaults to a {Sass::CacheStores::Filesystem} that is
-  initialized using the [`:cache_location` option](#cache_location-option).
+Forces indented-syntax documents to use one syntax for properties.
+If the correct syntax isn't used, an error is thrown.
+`:new` forces the use of a colon
+after the property name.
+For example: `color: #0f3`
+or `width: $main_width`.
+`:old` forces the use of a colon
+before the property name.
+For example: `:color #0f3`
+or `:width $main_width`.
+By default, either syntax is valid.
+This has no effect on SCSS documents.
 
-{#never_update-option} `:never_update`
-: Whether the CSS files should never be updated,
-  even if the template file changes.
-  Setting this to true may give small performance gains.
-  It always defaults to false.
-  Only has meaning within Rack, Ruby on Rails, or Merb.
+#### `:cache`
 
-{#always_update-option} `:always_update`
-: Whether the CSS files should be updated every
-  time a controller is accessed,
-  as opposed to only when the template has been modified.
-  Defaults to false.
-  Only has meaning within Rack, Ruby on Rails, or Merb.
+Whether parsed Sass files should be cached,
+allowing greater speed. Defaults to true.
 
-{#always_check-option} `:always_check`
-: Whether a Sass template should be checked for updates every
-  time a controller is accessed,
-  as opposed to only when the server starts.
-  If a Sass template has been updated,
-  it will be recompiled and will overwrite the corresponding CSS file.
-  Defaults to false in production mode, true otherwise.
-  Only has meaning within Rack, Ruby on Rails, or Merb.
+#### `:read_cache`
 
-{#poll-option} `:poll`
-: When true, always use the polling backend for {Sass::Plugin::Compiler#watch}
-  rather than the native filesystem backend.
+If this is set and `:cache` is not,
+only read the Sass cache if it exists,
+don't write to it if it doesn't.
 
-{#full_exception-option} `:full_exception`
-: Whether an error in the Sass code
-  should cause Sass to provide a detailed description
-  within the generated CSS file.
-  If set to true, the error will be displayed
-  along with a line number and source snippet
-  both as a comment in the CSS file
-  and at the top of the page (in supported browsers).
-  Otherwise, an exception will be raised in the Ruby code.
-  Defaults to false in production mode, true otherwise.
+#### `:cache_store`
 
-{#template_location-option} `:template_location`
-: A path to the root sass template directory for your application.
-  If a hash, `:css_location` is ignored and this option designates
-  a mapping between input and output directories.
-  May also be given a list of 2-element lists, instead of a hash.
-  Defaults to `css_location + "/sass"`.
-  Only has meaning within Rack, Ruby on Rails, or Merb.
-  Note that if multiple template locations are specified, all
-  of them are placed in the import path, allowing you to import
-  between them.
-  **Note that due to the many possible formats it can take,
-  this option should only be set directly, not accessed or modified.
-  Use the {Sass::Plugin::Configuration#template_location_array Sass::Plugin#template_location_array},
-  {Sass::Plugin::Configuration#add_template_location Sass::Plugin#add_template_location},
-  and {Sass::Plugin::Configuration#remove_template_location Sass::Plugin#remove_template_location} methods instead**.
+If this is set to an instance of a subclass of {Sass::CacheStores::Base},
+that cache store will be used to store and retrieve
+cached compilation results.
+Defaults to a {Sass::CacheStores::Filesystem} that is
+initialized using the [`:cache_location` option](#cache_location-option).
 
-{#css_location-option} `:css_location`
-: The path where CSS output should be written to.
-  This option is ignored when `:template_location` is a Hash.
-  Defaults to `"./public/stylesheets"`.
-  Only has meaning within Rack, Ruby on Rails, or Merb.
+#### `:never_update`
 
-{#cache_location-option} `:cache_location`
-: The path where the cached `sassc` files should be written to.
-  Defaults to `"./tmp/sass-cache"` in Rails and Merb,
-  or `"./.sass-cache"` otherwise.
-  If the [`:cache_store` option](#cache_location-option) is set,
-  this is ignored.
+Whether the CSS files should never be updated,
+even if the template file changes.
+Setting this to true may give small performance gains.
+It always defaults to false.
+Only has meaning within Rack, Ruby on Rails, or Merb.
 
-{#unix_newlines-option} `:unix_newlines`
-: If true, use Unix-style newlines when writing files.
-  Only has meaning on Windows, and only when Sass is writing the files
-  (in Rack, Rails, or Merb, when using {Sass::Plugin} directly,
-  or when using the command-line executable).
+#### `:always_update`
 
-{#filename-option} `:filename`
-: The filename of the file being rendered.
-  This is used solely for reporting errors,
-  and is automatically set when using Rack, Rails, or Merb.
+Whether the CSS files should be updated every
+time a controller is accessed,
+as opposed to only when the template has been modified.
+Defaults to false.
+Only has meaning within Rack, Ruby on Rails, or Merb.
 
-{#line-option} `:line`
-: The number of the first line of the Sass template.
-  Used for reporting line numbers for errors.
-  This is useful to set if the Sass template is embedded in a Ruby file.
+#### `:always_check`
 
-{#load_paths-option} `:load_paths`
-: An array of filesystem paths or importers which should be searched
-  for Sass templates imported with the [`@import`](#import) directive.
-  These may be strings, `Pathname` objects, or subclasses of {Sass::Importers::Base}.
-  This defaults to the working directory and, in Rack, Rails, or Merb,
-  whatever `:template_location` is.
-  The load path is also informed by {Sass.load_paths}
-  and the `SASS_PATH` environment variable.
+Whether a Sass template should be checked for updates every
+time a controller is accessed,
+as opposed to only when the server starts.
+If a Sass template has been updated,
+it will be recompiled and will overwrite the corresponding CSS file.
+Defaults to false in production mode, true otherwise.
+Only has meaning within Rack, Ruby on Rails, or Merb.
 
-{#filesystem_importer-option} `:filesystem_importer`
-: A {Sass::Importers::Base} subclass used to handle plain string load paths.
-  This should import files from the filesystem.
-  It should be a Class object inheriting from {Sass::Importers::Base}
-  with a constructor that takes a single string argument (the load path).
-  Defaults to {Sass::Importers::Filesystem}.
+#### `:poll`
 
-{#sourcemap-option} `:sourcemap`
-: Controls how sourcemaps are generated. These sourcemaps tell the browser how
-  to find the Sass styles that caused each CSS style to be generated. This has
-  three valid values: **`:auto`** uses relative URIs where possible, assuming
-  that that the source stylesheets will be made available on whatever server
-  you're using, and that their relative location will be the same as it is on
-  the local filesystem. If a relative URI is unavailable, a "file:" URI is used
-  instead. **`:file`** always uses "file:" URIs, which will work locally but
-  can't be deployed to a remote server. **`:inline`** includes the full source
-  text in the sourcemap, which is maximally portable but can create very large
-  sourcemap files. Finally, **`:none`** causes no sourcemaps to be generated at
-  all.
+When true, always use the polling backend for {Sass::Plugin::Compiler#watch}
+rather than the native filesystem backend.
 
-{#line_numbers-option} `:line_numbers`
-: When set to true, causes the line number and file
-  where a selector is defined to be emitted into the compiled CSS
-  as a comment. Useful for debugging, especially when using imports
-  and mixins.
-  This option may also be called `:line_comments`.
-  Automatically disabled when using the `:compressed` output style
-  or the `:debug_info`/`:trace_selectors` options.
+#### `:full_exception`
 
-{#trace_selectors-option} `:trace_selectors`
-: When set to true, emit a full trace of imports and mixins before
-  each selector. This can be helpful for in-browser debugging of
-  stylesheet imports and mixin includes. This option supersedes
-  the `:line_comments` option and is superseded by the
-  `:debug_info` option. Automatically disabled when using the
-  `:compressed` output style.
+Whether an error in the Sass code
+should cause Sass to provide a detailed description
+within the generated CSS file.
+If set to true, the error will be displayed
+along with a line number and source snippet
+both as a comment in the CSS file
+and at the top of the page (in supported browsers).
+Otherwise, an exception will be raised in the Ruby code.
+Defaults to false in production mode, true otherwise.
 
-{#debug_info-option} `:debug_info`
-: When set to true, causes the line number and file
-  where a selector is defined to be emitted into the compiled CSS
-  in a format that can be understood by the browser.
-  Useful in conjunction with [the FireSass Firebug extension](https://addons.mozilla.org/en-US/firefox/addon/103988)
-  for displaying the Sass filename and line number.
-  Automatically disabled when using the `:compressed` output style.
+#### `:template_location`
 
-{#custom-option} `:custom`
-: An option that's available for individual applications to set
-  to make data available to {Sass::Script::Functions custom Sass functions}.
+A path to the root sass template directory for your application.
+If a hash, `:css_location` is ignored and this option designates
+a mapping between input and output directories.
+May also be given a list of 2-element lists, instead of a hash.
+Defaults to `css_location + "/sass"`.
+Only has meaning within Rack, Ruby on Rails, or Merb.
+Note that if multiple template locations are specified, all
+of them are placed in the import path, allowing you to import
+between them.
+**Note that due to the many possible formats it can take,
+this option should only be set directly, not accessed or modified.
+Use the {Sass::Plugin::Configuration#template_location_array Sass::Plugin#template_location_array},
+{Sass::Plugin::Configuration#add_template_location Sass::Plugin#add_template_location},
+and {Sass::Plugin::Configuration#remove_template_location Sass::Plugin#remove_template_location} methods instead**.
 
-{#quiet-option} `:quiet`
-: When set to true, causes warnings to be disabled.
+#### `:css_location`
+
+The path where CSS output should be written to.
+This option is ignored when `:template_location` is a Hash.
+Defaults to `"./public/stylesheets"`.
+Only has meaning within Rack, Ruby on Rails, or Merb.
+
+#### `:cache_location`
+
+The path where the cached `sassc` files should be written to.
+Defaults to `"./tmp/sass-cache"` in Rails and Merb,
+or `"./.sass-cache"` otherwise.
+If the [`:cache_store` option](#cache_location-option) is set,
+this is ignored.
+
+#### `:unix_newlines`
+
+If true, use Unix-style newlines when writing files.
+Only has meaning on Windows, and only when Sass is writing the files
+(in Rack, Rails, or Merb, when using {Sass::Plugin} directly,
+or when using the command-line executable).
+
+#### `:filename`
+
+The filename of the file being rendered.
+This is used solely for reporting errors,
+and is automatically set when using Rack, Rails, or Merb.
+
+#### `:line`
+
+The number of the first line of the Sass template.
+Used for reporting line numbers for errors.
+This is useful to set if the Sass template is embedded in a Ruby file.
+
+#### `:load_paths`
+
+An array of filesystem paths or importers which should be searched
+for Sass templates imported with the [`@import`](#import) directive.
+These may be strings, `Pathname` objects, or subclasses of {Sass::Importers::Base}.
+This defaults to the working directory and, in Rack, Rails, or Merb,
+whatever `:template_location` is.
+The load path is also informed by {Sass.load_paths}
+and the `SASS_PATH` environment variable.
+
+#### `:filesystem_importer`
+
+A {Sass::Importers::Base} subclass used to handle plain string load paths.
+This should import files from the filesystem.
+It should be a Class object inheriting from {Sass::Importers::Base}
+with a constructor that takes a single string argument (the load path).
+Defaults to {Sass::Importers::Filesystem}.
+
+#### `:sourcemap`
+
+Controls how sourcemaps are generated. These sourcemaps tell the browser how
+to find the Sass styles that caused each CSS style to be generated. This has
+three valid values: **`:auto`** uses relative URIs where possible, assuming
+that that the source stylesheets will be made available on whatever server
+you're using, and that their relative location will be the same as it is on
+the local filesystem. If a relative URI is unavailable, a "file:" URI is used
+instead. **`:file`** always uses "file:" URIs, which will work locally but
+can't be deployed to a remote server. **`:inline`** includes the full source
+text in the sourcemap, which is maximally portable but can create very large
+sourcemap files. Finally, **`:none`** causes no sourcemaps to be generated at
+all.
+
+#### `:line_numbers`
+
+When set to true, causes the line number and file
+where a selector is defined to be emitted into the compiled CSS
+as a comment. Useful for debugging, especially when using imports
+and mixins.
+This option may also be called `:line_comments`.
+Automatically disabled when using the `:compressed` output style
+or the `:debug_info`/`:trace_selectors` options.
+
+#### `:trace_selectors`
+
+When set to true, emit a full trace of imports and mixins before
+each selector. This can be helpful for in-browser debugging of
+stylesheet imports and mixin includes. This option supersedes
+the `:line_comments` option and is superseded by the
+`:debug_info` option. Automatically disabled when using the
+`:compressed` output style.
+
+#### `:debug_info`
+
+When set to true, causes the line number and file
+where a selector is defined to be emitted into the compiled CSS
+in a format that can be understood by the browser.
+Useful in conjunction with [the FireSass Firebug extension](https://addons.mozilla.org/en-US/firefox/addon/103988)
+for displaying the Sass filename and line number.
+Automatically disabled when using the `:compressed` output style.
+
+#### `:custom`
+
+An option that's available for individual applications to set
+to make data available to {Sass::Script::Functions custom Sass functions}.
+
+#### `:quiet`
+
+When set to true, causes warnings to be disabled.
 
 [source maps]: https://docs.google.com/document/d/1U1RGAehQwRypUTovF1KRlpiOFze0b-_2gc6fAH0KY0k/edit?hl=en_US&pli=1&pli=1
 
