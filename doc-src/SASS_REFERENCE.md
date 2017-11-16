@@ -150,215 +150,190 @@ All relevant options are also available via flags
 to the `sass` and `scss` command-line executables.
 Available options are:
 
-#### `:style`
+* **`:style`**:
+  Sets the style of the CSS output.
+  See [Output Style](#output_style).
 
-Sets the style of the CSS output.
-See [Output Style](#output_style).
+* **`:syntax`**:
+  The syntax of the input file, `:sass` for the indented syntax
+  and `:scss` for the CSS-extension syntax.
+  This is only useful when you're constructing {Sass::Engine} instances yourself;
+  it's automatically set properly when using {Sass::Plugin}.
+  Defaults to `:sass`.
 
-#### `:syntax`
+* **`:property_syntax`**:
+  Forces indented-syntax documents to use one syntax for properties.
+  If the correct syntax isn't used, an error is thrown.
+  `:new` forces the use of a colon
+  after the property name.
+  For example: `color: #0f3`
+  or `width: $main_width`.
+  `:old` forces the use of a colon
+  before the property name.
+  For example: `:color #0f3`
+  or `:width $main_width`.
+  By default, either syntax is valid.
+  This has no effect on SCSS documents.
 
-The syntax of the input file, `:sass` for the indented syntax
-and `:scss` for the CSS-extension syntax.
-This is only useful when you're constructing {Sass::Engine} instances yourself;
-it's automatically set properly when using {Sass::Plugin}.
-Defaults to `:sass`.
+* **`:cache`**:
+  Whether parsed Sass files should be cached,
+  allowing greater speed. Defaults to true.
 
-#### `:property_syntax`
+* **`:read_cache`**:
+  If this is set and `:cache` is not,
+  only read the Sass cache if it exists,
+  don't write to it if it doesn't.
 
-Forces indented-syntax documents to use one syntax for properties.
-If the correct syntax isn't used, an error is thrown.
-`:new` forces the use of a colon
-after the property name.
-For example: `color: #0f3`
-or `width: $main_width`.
-`:old` forces the use of a colon
-before the property name.
-For example: `:color #0f3`
-or `:width $main_width`.
-By default, either syntax is valid.
-This has no effect on SCSS documents.
+* **`:cache_store`**:
+  If this is set to an instance of a subclass of {Sass::CacheStores::Base},
+  that cache store will be used to store and retrieve
+  cached compilation results.
+  Defaults to a {Sass::CacheStores::Filesystem} that is
+  initialized using the [`:cache_location` option](#cache_location-option).
 
-#### `:cache`
+* **`:never_update`**:
+  Whether the CSS files should never be updated,
+  even if the template file changes.
+  Setting this to true may give small performance gains.
+  It always defaults to false.
+  Only has meaning within Rack, Ruby on Rails, or Merb.
 
-Whether parsed Sass files should be cached,
-allowing greater speed. Defaults to true.
+* **`:always_update`**:
+  Whether the CSS files should be updated every
+  time a controller is accessed,
+  as opposed to only when the template has been modified.
+  Defaults to false.
+  Only has meaning within Rack, Ruby on Rails, or Merb.
 
-#### `:read_cache`
+* **`:always_check`**:
+  Whether a Sass template should be checked for updates every
+  time a controller is accessed,
+  as opposed to only when the server starts.
+  If a Sass template has been updated,
+  it will be recompiled and will overwrite the corresponding CSS file.
+  Defaults to false in production mode, true otherwise.
+  Only has meaning within Rack, Ruby on Rails, or Merb.
 
-If this is set and `:cache` is not,
-only read the Sass cache if it exists,
-don't write to it if it doesn't.
+* **`:poll`**:
+  When true, always use the polling backend for {Sass::Plugin::Compiler#watch}
+  rather than the native filesystem backend.
 
-#### `:cache_store`
+* **`:full_exception`**:
+  Whether an error in the Sass code
+  should cause Sass to provide a detailed description
+  within the generated CSS file.
+  If set to true, the error will be displayed
+  along with a line number and source snippet
+  both as a comment in the CSS file
+  and at the top of the page (in supported browsers).
+  Otherwise, an exception will be raised in the Ruby code.
+  Defaults to false in production mode, true otherwise.
 
-If this is set to an instance of a subclass of {Sass::CacheStores::Base},
-that cache store will be used to store and retrieve
-cached compilation results.
-Defaults to a {Sass::CacheStores::Filesystem} that is
-initialized using the [`:cache_location` option](#cache_location-option).
+* **`:template_location`**:
+  A path to the root sass template directory for your application.
+  If a hash, `:css_location` is ignored and this option designates
+  a mapping between input and output directories.
+  May also be given a list of 2-element lists, instead of a hash.
+  Defaults to `css_location + "/sass"`.
+  Only has meaning within Rack, Ruby on Rails, or Merb.
+  Note that if multiple template locations are specified, all
+  of them are placed in the import path, allowing you to import
+  between them.
+  **Note that due to the many possible formats it can take,
+  this option should only be set directly, not accessed or modified.
+  Use the {Sass::Plugin::Configuration#template_location_array Sass::Plugin#template_location_array},
+  {Sass::Plugin::Configuration#add_template_location Sass::Plugin#add_template_location},
+  and {Sass::Plugin::Configuration#remove_template_location Sass::Plugin#remove_template_location} methods instead**.
 
-#### `:never_update`
+* **`:css_location`**:
+  The path where CSS output should be written to.
+  This option is ignored when `:template_location` is a Hash.
+  Defaults to `"./public/stylesheets"`.
+  Only has meaning within Rack, Ruby on Rails, or Merb.
 
-Whether the CSS files should never be updated,
-even if the template file changes.
-Setting this to true may give small performance gains.
-It always defaults to false.
-Only has meaning within Rack, Ruby on Rails, or Merb.
+* **`:cache_location`**:
+  The path where the cached `sassc` files should be written to.
+  Defaults to `"./tmp/sass-cache"` in Rails and Merb,
+  or `"./.sass-cache"` otherwise.
+  If the [`:cache_store` option](#cache_location-option) is set,
+  this is ignored.
 
-#### `:always_update`
+* **`:unix_newlines`**:
+  If true, use Unix-style newlines when writing files.
+  Only has meaning on Windows, and only when Sass is writing the files
+  (in Rack, Rails, or Merb, when using {Sass::Plugin} directly,
+  or when using the command-line executable).
 
-Whether the CSS files should be updated every
-time a controller is accessed,
-as opposed to only when the template has been modified.
-Defaults to false.
-Only has meaning within Rack, Ruby on Rails, or Merb.
+* **`:filename`**:
+  The filename of the file being rendered.
+  This is used solely for reporting errors,
+  and is automatically set when using Rack, Rails, or Merb.
 
-#### `:always_check`
+* **`:line`**:
+  The number of the first line of the Sass template.
+  Used for reporting line numbers for errors.
+  This is useful to set if the Sass template is embedded in a Ruby file.
 
-Whether a Sass template should be checked for updates every
-time a controller is accessed,
-as opposed to only when the server starts.
-If a Sass template has been updated,
-it will be recompiled and will overwrite the corresponding CSS file.
-Defaults to false in production mode, true otherwise.
-Only has meaning within Rack, Ruby on Rails, or Merb.
+* **`:load_paths`**:
+  An array of filesystem paths or importers which should be searched
+  for Sass templates imported with the [`@import`](#import) directive.
+  These may be strings, `Pathname` objects, or subclasses of {Sass::Importers::Base}.
+  This defaults to the working directory and, in Rack, Rails, or Merb,
+  whatever `:template_location` is.
+  The load path is also informed by {Sass.load_paths}
+  and the `SASS_PATH` environment variable.
 
-#### `:poll`
+* **`:filesystem_importer`**:
+  A {Sass::Importers::Base} subclass used to handle plain string load paths.
+  This should import files from the filesystem.
+  It should be a Class object inheriting from {Sass::Importers::Base}
+  with a constructor that takes a single string argument (the load path).
+  Defaults to {Sass::Importers::Filesystem}.
 
-When true, always use the polling backend for {Sass::Plugin::Compiler#watch}
-rather than the native filesystem backend.
+* **`:sourcemap`**:
+  Controls how sourcemaps are generated. These sourcemaps tell the browser how
+  to find the Sass styles that caused each CSS style to be generated. This has
+  three valid values: **`:auto`** uses relative URIs where possible, assuming
+  that that the source stylesheets will be made available on whatever server
+  you're using, and that their relative location will be the same as it is on
+  the local filesystem. If a relative URI is unavailable, a "file:" URI is used
+  instead. **`:file`** always uses "file:" URIs, which will work locally but
+  can't be deployed to a remote server. **`:inline`** includes the full source
+  text in the sourcemap, which is maximally portable but can create very large
+  sourcemap files. Finally, **`:none`** causes no sourcemaps to be generated at
+  all.
 
-#### `:full_exception`
+* **`:line_numbers`**:
+  When set to true, causes the line number and file
+  where a selector is defined to be emitted into the compiled CSS
+  as a comment. Useful for debugging, especially when using imports
+  and mixins.
+  This option may also be called `:line_comments`.
+  Automatically disabled when using the `:compressed` output style
+  or the `:debug_info`/`:trace_selectors` options.
 
-Whether an error in the Sass code
-should cause Sass to provide a detailed description
-within the generated CSS file.
-If set to true, the error will be displayed
-along with a line number and source snippet
-both as a comment in the CSS file
-and at the top of the page (in supported browsers).
-Otherwise, an exception will be raised in the Ruby code.
-Defaults to false in production mode, true otherwise.
+* **`:trace_selectors`**:
+  When set to true, emit a full trace of imports and mixins before
+  each selector. This can be helpful for in-browser debugging of
+  stylesheet imports and mixin includes. This option supersedes
+  the `:line_comments` option and is superseded by the
+  `:debug_info` option. Automatically disabled when using the
+  `:compressed` output style.
 
-#### `:template_location`
+* **`:debug_info`**:
+  When set to true, causes the line number and file
+  where a selector is defined to be emitted into the compiled CSS
+  in a format that can be understood by the browser.
+  Useful in conjunction with [the FireSass Firebug extension](https://addons.mozilla.org/en-US/firefox/addon/103988)
+  for displaying the Sass filename and line number.
+  Automatically disabled when using the `:compressed` output style.
 
-A path to the root sass template directory for your application.
-If a hash, `:css_location` is ignored and this option designates
-a mapping between input and output directories.
-May also be given a list of 2-element lists, instead of a hash.
-Defaults to `css_location + "/sass"`.
-Only has meaning within Rack, Ruby on Rails, or Merb.
-Note that if multiple template locations are specified, all
-of them are placed in the import path, allowing you to import
-between them.
-**Note that due to the many possible formats it can take,
-this option should only be set directly, not accessed or modified.
-Use the {Sass::Plugin::Configuration#template_location_array Sass::Plugin#template_location_array},
-{Sass::Plugin::Configuration#add_template_location Sass::Plugin#add_template_location},
-and {Sass::Plugin::Configuration#remove_template_location Sass::Plugin#remove_template_location} methods instead**.
+* **`:custom`**:
+  An option that's available for individual applications to set
+  to make data available to {Sass::Script::Functions custom Sass functions}.
 
-#### `:css_location`
-
-The path where CSS output should be written to.
-This option is ignored when `:template_location` is a Hash.
-Defaults to `"./public/stylesheets"`.
-Only has meaning within Rack, Ruby on Rails, or Merb.
-
-#### `:cache_location`
-
-The path where the cached `sassc` files should be written to.
-Defaults to `"./tmp/sass-cache"` in Rails and Merb,
-or `"./.sass-cache"` otherwise.
-If the [`:cache_store` option](#cache_location-option) is set,
-this is ignored.
-
-#### `:unix_newlines`
-
-If true, use Unix-style newlines when writing files.
-Only has meaning on Windows, and only when Sass is writing the files
-(in Rack, Rails, or Merb, when using {Sass::Plugin} directly,
-or when using the command-line executable).
-
-#### `:filename`
-
-The filename of the file being rendered.
-This is used solely for reporting errors,
-and is automatically set when using Rack, Rails, or Merb.
-
-#### `:line`
-
-The number of the first line of the Sass template.
-Used for reporting line numbers for errors.
-This is useful to set if the Sass template is embedded in a Ruby file.
-
-#### `:load_paths`
-
-An array of filesystem paths or importers which should be searched
-for Sass templates imported with the [`@import`](#import) directive.
-These may be strings, `Pathname` objects, or subclasses of {Sass::Importers::Base}.
-This defaults to the working directory and, in Rack, Rails, or Merb,
-whatever `:template_location` is.
-The load path is also informed by {Sass.load_paths}
-and the `SASS_PATH` environment variable.
-
-#### `:filesystem_importer`
-
-A {Sass::Importers::Base} subclass used to handle plain string load paths.
-This should import files from the filesystem.
-It should be a Class object inheriting from {Sass::Importers::Base}
-with a constructor that takes a single string argument (the load path).
-Defaults to {Sass::Importers::Filesystem}.
-
-#### `:sourcemap`
-
-Controls how sourcemaps are generated. These sourcemaps tell the browser how
-to find the Sass styles that caused each CSS style to be generated. This has
-three valid values: **`:auto`** uses relative URIs where possible, assuming
-that that the source stylesheets will be made available on whatever server
-you're using, and that their relative location will be the same as it is on
-the local filesystem. If a relative URI is unavailable, a "file:" URI is used
-instead. **`:file`** always uses "file:" URIs, which will work locally but
-can't be deployed to a remote server. **`:inline`** includes the full source
-text in the sourcemap, which is maximally portable but can create very large
-sourcemap files. Finally, **`:none`** causes no sourcemaps to be generated at
-all.
-
-#### `:line_numbers`
-
-When set to true, causes the line number and file
-where a selector is defined to be emitted into the compiled CSS
-as a comment. Useful for debugging, especially when using imports
-and mixins.
-This option may also be called `:line_comments`.
-Automatically disabled when using the `:compressed` output style
-or the `:debug_info`/`:trace_selectors` options.
-
-#### `:trace_selectors`
-
-When set to true, emit a full trace of imports and mixins before
-each selector. This can be helpful for in-browser debugging of
-stylesheet imports and mixin includes. This option supersedes
-the `:line_comments` option and is superseded by the
-`:debug_info` option. Automatically disabled when using the
-`:compressed` output style.
-
-#### `:debug_info`
-
-When set to true, causes the line number and file
-where a selector is defined to be emitted into the compiled CSS
-in a format that can be understood by the browser.
-Useful in conjunction with [the FireSass Firebug extension](https://addons.mozilla.org/en-US/firefox/addon/103988)
-for displaying the Sass filename and line number.
-Automatically disabled when using the `:compressed` output style.
-
-#### `:custom`
-
-An option that's available for individual applications to set
-to make data available to {Sass::Script::Functions custom Sass functions}.
-
-#### `:quiet`
-
-When set to true, causes warnings to be disabled.
+* **`:quiet`**:
+  When set to true, causes warnings to be disabled.
 
 [source maps]: https://docs.google.com/document/d/1U1RGAehQwRypUTovF1KRlpiOFze0b-_2gc6fAH0KY0k/edit?hl=en_US&pli=1&pli=1
 
@@ -446,7 +421,7 @@ is compiled to:
       #main pre {
         font-size: 3em; }
 
-### Referencing Parent Selectors: `&` {#parent-selector}
+### Referencing Parent Selectors: `&`
 
 Sometimes it's useful to use a nested rule's parent selector
 in other ways than the default.
@@ -570,7 +545,7 @@ for more information see [`@extend`-Only Selectors](#placeholders).
 On their own, without any use of `@extend`, rulesets that use placeholder selectors
 will not be rendered to CSS.
 
-## Comments: `/* */` and `//` {#comments}
+## Comments: `/* */` and `//`
 
 Sass supports standard multiline CSS comments with `/* */`,
 as well as single-line comments with `//`.
@@ -615,7 +590,7 @@ is compiled to:
 
     /* This CSS is generated by My Snazzy Framework version 1.2.3. */
 
-## SassScript {#sassscript}
+## SassScript
 
 In addition to the plain CSS property syntax,
 Sass supports a small set of extensions called SassScript.
@@ -644,7 +619,7 @@ and the result printed out for you:
     >> #777 + #888
     white
 
-### Variables: `$` {#variables_}
+### Variables: `$`
 
 The most straightforward way to use SassScript
 is to use variables.
@@ -705,7 +680,7 @@ such as Unicode ranges and `!important` declarations.
 However, it has no special handling for these types.
 They're treated just like unquoted strings.
 
-#### Strings {#sass-script-strings}
+#### Strings
 
 CSS specifies two kinds of strings: those with quotes,
 such as `"Lucida Grande"` or `'http://sass-lang.com'`,
@@ -869,7 +844,6 @@ and equality operators
 are supported for all types.
 
 ##### Division and `/`
-{#division-and-slash}
 
 CSS allows `/` to appear in property values
 as a way of separating numbers.
@@ -923,7 +897,6 @@ is compiled to:
       font: 12px/30px; }
 
 ##### Subtraction, Negative Numbers, and `-`
-{#subtraction}
 
 There are a number of different things `-` can mean in CSS and in Sass. It can
 be a subtraction operator (as in `5px - 3px`), the beginning of a negative
@@ -1172,7 +1145,6 @@ See {Sass::Script::Functions} for a full listing of Sass functions and their arg
 as well as instructions on defining your own in Ruby.
 
 ### Interpolation: `#{}`
-{#interpolation_}
 
 You can also use SassScript variables in selectors
 and property names using `#{}` interpolation syntax:
@@ -1205,7 +1177,7 @@ is compiled to:
     p {
       font: 12px/30px; }
 
-### `&` in SassScript {#parent-script}
+### `&` in SassScript
 
 Just like when it's used [in selectors](#parent-selector), `&` in SassScript
 refers to the current parent selector. It's a comma-separated list of
@@ -1275,7 +1247,7 @@ is compiled to:
     #main {
       content: "Non-null content"; }
 
-## `@`-Rules and Directives {#directives}
+## `@`-Rules and Directives
 
 Sass supports all CSS3 `@`-rules,
 as well as some additional Sass-specific ones
@@ -1284,7 +1256,7 @@ These have various effects in Sass, detailed below.
 See also [control directives](#control_directives)
 and [mixin directives](#mixins).
 
-### `@import` {#import}
+### `@import`
 
 Sass extends the CSS `@import` rule
 to allow it to import SCSS and Sass files.
@@ -1357,7 +1329,7 @@ would compile to
 
     @import url("http://fonts.googleapis.com/css?family=Droid+Sans");
 
-#### Partials {#partials}
+#### Partials
 
 If you have a SCSS or Sass file that you want to import
 but don't want to compile to a CSS file,
@@ -1377,7 +1349,7 @@ Note that you may not include a partial and a non-partial with the same name in
 the same directory. For example, `_colors.scss` may not exist alongside
 `colors.scss`.
 
-#### Nested `@import` {#nested-import}
+#### Nested `@import`
 
 Although most of the time it's most useful to just have `@import`s
 at the top level of the document,
@@ -1409,7 +1381,7 @@ in a nested context.
 
 It's not possible to nest `@import` within mixins or control directives.
 
-### `@media` {#media}
+### `@media`
 
 `@media` directives in Sass behave just like they do in plain CSS,
 with one extra capability: they can be nested in CSS rules.
@@ -1474,7 +1446,7 @@ is compiled to:
       .sidebar {
         width: 500px; } }
 
-### `@extend` {#extend}
+### `@extend`
 
 There are often cases when designing a page
 when one class should have all the styles of another class,
@@ -1789,7 +1761,7 @@ This is compiled to:
     #admin .overview .tabbar .fakelink {
       font-weight: bold; }
 
-#### `@extend`-Only Selectors {#placeholders}
+#### `@extend`-Only Selectors
 
 Sometimes you'll write styles for a class
 that you only ever want to `@extend`,
@@ -1887,7 +1859,7 @@ But this is an error:
 Someday we hope to have `@extend` supported natively in the browser, which will
 allow it to be used within `@media` and other directives.
 
-### `@at-root` {#at-root}
+### `@at-root`
 
 The `@at-root` directive causes one or more rules to be emitted at the root of
 the document, rather than being nested beneath their parent selectors. It can
@@ -2119,7 +2091,7 @@ is compiled to:
     .item-3 {
       width: 6em; }
 
-### `@each` {#each-directive}
+### `@each`
 
 The `@each` directive usually has the form `@each $var in <list or map>`. `$var`
 can be any variable name, like `$length` or `$name`, and `<list or map>` is a
@@ -2146,7 +2118,7 @@ is compiled to:
     .salamander-icon {
       background-image: url('/images/salamander.png'); }
 
-#### Multiple Assignment {#each-multi-assign}
+#### Multiple Assignment
 
 The `@each` directive can also use multiple variables, as in `@each $var1,
 $var2, ... in <list>`. If `<list>` is a list of lists, each element of the
@@ -2222,7 +2194,7 @@ is compiled to:
     .item-2 {
       width: 4em; }
 
-## Mixin Directives {#mixins}
+## Mixin Directives
 
 Mixins allow you to define styles
 that can be re-used throughout the stylesheet
@@ -2233,7 +2205,7 @@ They can even take [arguments](#mixin-arguments)
 which allows you to produce a wide variety of styles
 with very few mixins.
 
-### Defining a Mixin: `@mixin` {#defining_a_mixin}
+### Defining a Mixin: `@mixin`
 
 Mixins are defined with the `@mixin` directive.
 It's followed by the name of the mixin
@@ -2271,7 +2243,7 @@ For historical reasons, mixin names (and all other Sass identifiers) can use
 hyphens and underscores interchangeably. For example, if you define a mixin
 called `add-column`, you can include it as `add_column`, and vice versa.
 
-### Including a Mixin: `@include` {#including_a_mixin}
+### Including a Mixin: `@include`
 
 Mixins are included in the document
 with the `@include` directive.
@@ -2335,7 +2307,7 @@ Sass versions prior to 3.3, where mixin recursion was forbidden.
 Mixins that only define descendent selectors can be safely mixed
 into the top most level of a document.
 
-### Arguments {#mixin-arguments}
+### Arguments
 
 Mixins can take SassScript values as arguments,
 which are given when the mixin is included
@@ -2501,7 +2473,7 @@ get directly passed through to the wrapped mixin. For example:
       @include wrapped-stylish-mixin(#00ff00, $width: 100px);
     }
 
-### Passing Content Blocks to a Mixin {#mixin-content}
+### Passing Content Blocks to a Mixin
 
 It is possible to pass a block of styles to the mixin for placement within the styles included by
 the mixin. The styles will appear at the location of any `@content` directives found within the mixin. This makes it possible to define abstractions relating to the construction of
@@ -2581,7 +2553,7 @@ passed block are related to the other styles around where the block is defined. 
     }
 
 
-## Function Directives {#function_directives}
+## Function Directives
 
 It is possible to define your own functions in sass and use them in any
 value or script context. For example:
