@@ -137,8 +137,13 @@ module Sass
     def round(value)
       # If the number is within epsilon of X.5, round up (or down for negative
       # numbers).
-      return value.round if (value % 1) - 0.5 <= -1 * Script::Value::Number.epsilon
-      value > 0 ? value.ceil : value.floor
+      mod = value % 1
+      mod_is_half = (mod - 0.5).abs < Script::Value::Number.epsilon
+      if value > 0
+        !mod_is_half && mod < 0.5 ? value.floor : value.ceil
+      else
+        mod_is_half || mod < 0.5 ? value.floor : value.ceil
+      end
     end
 
     # Concatenates all strings that are adjacent in an array,
