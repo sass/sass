@@ -451,16 +451,6 @@ module Sass
       Sass::Util.sass_warn full_message
     end
 
-    # Silence all output to STDERR within a block.
-    #
-    # @yield A block in which no output will be printed to STDERR
-    def silence_warnings
-      the_real_stderr, $stderr = $stderr, StringIO.new
-      yield
-    ensure
-      $stderr = the_real_stderr
-    end
-
     # Silences all Sass warnings within a block.
     #
     # @yield A block in which no Sass warnings will be printed

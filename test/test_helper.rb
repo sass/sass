@@ -74,7 +74,7 @@ class MiniTest::Test
   end
 
   def silence_warnings(&block)
-    Sass::Util.silence_warnings(&block)
+    Sass::Util.silence_sass_warnings(&block)
   end
 
   def assert_raise_message(klass, message)

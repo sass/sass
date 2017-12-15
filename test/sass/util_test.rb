@@ -139,16 +139,6 @@ class UtilTest < MiniTest::Test
     assert(!subsequence?([1, 2, 3], [3, 2, 1]))
   end
 
-  def test_silence_warnings
-    old_stderr, $stderr = $stderr, StringIO.new
-    warn "Out"
-    assert_equal("Out\n", $stderr.string)
-    silence_warnings {warn "In"}
-    assert_equal("Out\n", $stderr.string)
-  ensure
-    $stderr = old_stderr
-  end
-
   def test_sass_warn
     assert_warning("Foo!") {sass_warn "Foo!"}
   end

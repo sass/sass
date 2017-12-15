@@ -375,7 +375,7 @@ Error generating source map: couldn't determine public URL for "#{filename}".
   Without a public URL, there's nothing for the source map to link to.
   An importer was not set for this file.
 ERR
-      elsif Sass::Util.silence_warnings do
+      elsif Sass::Util.silence_sass_warnings do
               sourcemap_dir = nil if @options[:sourcemap] == :file
               importer.public_url(filename, sourcemap_dir).nil?
             end
