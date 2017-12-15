@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.5.4 (Unreleased)
+## 3.5.4 (15 December 2017)
 
 * `round()` now returns the correct results for negative numbers that should
   round down.
