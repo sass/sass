@@ -137,8 +137,13 @@ module Sass
     def round(value)
       # If the number is within epsilon of X.5, round up (or down for negative
       # numbers).
-      return value.round if (value % 1) - 0.5 <= -1 * Script::Value::Number.epsilon
-      value > 0 ? value.ceil : value.floor
+      mod = value % 1
+      mod_is_half = (mod - 0.5).abs < Script::Value::Number.epsilon
+      if value > 0
+        !mod_is_half && mod < 0.5 ? value.floor : value.ceil
+      else
+        mod_is_half || mod < 0.5 ? value.floor : value.ceil
+      end
     end
 
     # Concatenates all strings that are adjacent in an array,
@@ -449,16 +454,6 @@ module Sass
       full_message = "DEPRECATION WARNING: #{obj_class}#{caller_info[2]} " +
         "will be removed in a future version of Sass.#{("\n" + message) if message}"
       Sass::Util.sass_warn full_message
-    end
-
-    # Silence all output to STDERR within a block.
-    #
-    # @yield A block in which no output will be printed to STDERR
-    def silence_warnings
-      the_real_stderr, $stderr = $stderr, StringIO.new
-      yield
-    ensure
-      $stderr = the_real_stderr
     end
 
     # Silences all Sass warnings within a block.

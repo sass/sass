@@ -919,7 +919,7 @@ SCSS
 
   def test_ids
     assert_equal "#foo", resolve("#foo")
-    assert_equal "#abcd", resolve("#abcd")
+    silence_warnings {assert_equal "#abcd", resolve("#abcd")}
     assert_equal "#abc-def", resolve("#abc-def")
     assert_equal "#abc_def", resolve("#abc_def")
     assert_equal "#uvw-xyz", resolve("#uvw-xyz")

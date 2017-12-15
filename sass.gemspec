@@ -23,7 +23,8 @@ SASS_GEMSPEC = Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'sass-listen', '~> 4.0.0'
   
   spec.add_development_dependency 'yard', '~> 0.8.7.6'
-  spec.add_development_dependency 'redcarpet', '~> 2.3.0'
+  spec.add_development_dependency 'redcarpet', '~> 3.3'
+  spec.add_development_dependency 'nokogiri', '~> 1.6.0'
   spec.add_development_dependency 'minitest', '>= 5'
 
   readmes = Dir['*'].reject{ |x| x =~ /(^|[^.a-z])[a-z]+/ || x == "TODO" }

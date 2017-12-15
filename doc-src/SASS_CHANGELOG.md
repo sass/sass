@@ -37,7 +37,18 @@
 
 * Unitless numbers are no longer equal to numbers with units.
 
-## 3.5.2 (Unreleased)
+## 3.5.4 (Unreleased)
+
+* `round()` now returns the correct results for negative numbers that should
+  round down.
+
+* Avoid thread-unsafely modifying `$stderr`.
+
+## 3.5.3 (26 October 2017)
+
+* Generate correct source maps for map literals.
+
+## 3.5.2 (4 October 2017)
 
 * Properly parse CSS variables that begin with interpolation (for example,
   `--#{$foo}: ...`).
