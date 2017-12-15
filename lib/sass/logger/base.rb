@@ -28,7 +28,7 @@ class Sass::Logger::Base
     old_io = io
     self.io = StringIO.new
     yield
-    io.to_s
+    io.string
   ensure
     self.io = old_io
   end
