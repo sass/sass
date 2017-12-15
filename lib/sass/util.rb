@@ -454,11 +454,18 @@ module Sass
     # Silence all output to STDERR within a block.
     #
     # @yield A block in which no output will be printed to STDERR
+    require 'monitor'
+    MONITOR = Monitor.new
+
     def silence_warnings
-      the_real_stderr, $stderr = $stderr, StringIO.new
-      yield
-    ensure
-      $stderr = the_real_stderr
+      MONITOR.synchronize do
+        begin
+          the_real_stderr, $stderr = $stderr, StringIO.new
+          yield
+        ensure
+          $stderr = the_real_stderr
+        end
+      end
     end
 
     # Silences all Sass warnings within a block.
