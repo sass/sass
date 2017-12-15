@@ -22,6 +22,17 @@ class Sass::Logger::Base
     !disabled && self.class.log_level?(level, log_level)
   end
 
+  # Captures all logger messages emitted during a block and returns them as a
+  # string.
+  def capture
+    old_io = io
+    self.io = StringIO.new
+    yield
+    io.to_s
+  ensure
+    self.io = old_io
+  end
+
   def log(level, message)
     _log(level, message) if logging_level?(level)
   end

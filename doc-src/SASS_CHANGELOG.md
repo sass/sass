@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.5.4 (Unreleased)
+
+* Avoid thread-unsafely modifying `$stderr`.
+
 ## 3.5.3 (26 October 2017)
 
 * Generate correct source maps for map literals.
