@@ -8,6 +8,8 @@
 * `round()` now returns the correct results for negative numbers that should
   round down.
 
+* Avoid thread-unsafely modifying `$stderr`.
+
 ## 3.5.3 (26 October 2017)
 
 * Generate correct source maps for map literals.
