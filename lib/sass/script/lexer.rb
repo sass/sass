@@ -387,6 +387,15 @@ MESSAGE
       def selector
         start_pos = source_position
         return unless scan(REGULAR_EXPRESSIONS[:selector])
+
+        if @scanner.peek(1) == '&'
+          filename = @options[:filename]
+          Sass::Util.sass_warn <<MESSAGE
+WARNING on line #{line}, column #{offset}#{" of #{filename}" if filename}:
+In Sass, "&&" means two copies of the parent selector. You probably want to use "and" instead.
+MESSAGE
+        end
+
         script_selector = Script::Tree::Selector.new
         script_selector.source_range = range(start_pos)
         [:selector, script_selector]
