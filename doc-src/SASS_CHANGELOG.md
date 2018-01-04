@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.5.5 (Unreleased)
+
+* Emit a warning when `&&` is used, since it's probably not what the user means.
+
 ## 3.5.4 (15 December 2017)
 
 * `round()` now returns the correct results for negative numbers that should
