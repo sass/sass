@@ -37,9 +37,13 @@
 
 * Unitless numbers are no longer equal to numbers with units.
 
-## 3.5.5 (Unreleased)
+## 3.5.5 (4 January 2018)
 
 * Emit a warning when `&&` is used, since it's probably not what the user means.
+
+* Add a suggested replacement for extended compound selectors.
+
+* Fix a bug where an unparseable selector produced an unuseful error.
 
 ## 3.5.4 (15 December 2017)
 
