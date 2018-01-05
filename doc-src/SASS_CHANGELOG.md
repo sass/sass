@@ -9,6 +9,8 @@
 
 * Add a suggested replacement for extended compound selectors.
 
+* Fix a bug where an unparseable selector produced an unuseful error.
+
 ## 3.5.4 (15 December 2017)
 
 * `round()` now returns the correct results for negative numbers that should
