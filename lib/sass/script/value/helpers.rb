@@ -215,6 +215,14 @@ module Sass::Script::Value
       literal.is_a?(Sass::Script::Value::String) && literal.value =~ /calc\(/
     end
 
+    # Returns true when the literal is a string containing a var().
+    #
+    # @param literal [Sass::Script::Value::Base] The value to check
+    # @return Boolean
+    def var?(literal)
+      literal.is_a?(Sass::Script::Value::String) && literal.value =~ /var\(/
+    end
+
     # Returns whether the literal is a special CSS value that may evaluate to a
     # number, such as `calc()` or `var()`.
     #

@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.5.6 (Unreleased)
+
+* `var()` may now be passed in place of multiple arguments to `rgb()`, `rgba()`,
+  `hsl()` and `hsla()`.
+
 ## 3.5.5 (4 January 2018)
 
 * Emit a warning when `&&` is used, since it's probably not what the user means.
