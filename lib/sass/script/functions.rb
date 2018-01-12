@@ -650,7 +650,15 @@ module Sass::Script
     #     inclusive
     # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if any parameter is the wrong type or out of bounds
-    def rgb(red, green, blue)
+    def rgb(red, green = nil, blue = nil)
+      if green.nil?
+        return unquoted_string("rgb(#{red})") if var?(red)
+        raise ArgumentError.new("wrong number of arguments (1 for 3)")
+      elsif blue.nil?
+        return unquoted_string("rgb(#{red}, #{green})") if var?(red) || var?(green)
+        raise ArgumentError.new("wrong number of arguments (2 for 3)")
+      end
+
       if special_number?(red) || special_number?(green) || special_number?(blue)
         return unquoted_string("rgb(#{red}, #{green}, #{blue})")
       end
@@ -674,6 +682,8 @@ module Sass::Script
       Sass::Script::Value::Color.new(color_attrs)
     end
     declare :rgb, [:red, :green, :blue]
+    declare :rgb, [:red, :green]
+    declare :rgb, [:red]
 
     # Creates a {Sass::Script::Value::Color Color} from red, green, blue, and
     # alpha values.
@@ -708,8 +718,21 @@ module Sass::Script
     #     is the wrong type
     def rgba(*args)
       case args.size
+      when 1
+        return unquoted_string("rgba(#{args.first})") if var?(args.first)
+        raise ArgumentError.new("wrong number of arguments (1 for 4)")
       when 2
         color, alpha = args
+
+        if var?(color)
+          return unquoted_string("rgba(#{color}, #{alpha})")
+        elsif var?(alpha)
+          if color.is_a?(Sass::Script::Value::Color)
+            return unquoted_string("rgba(#{color.red}, #{color.green}, #{color.blue}, #{alpha})")
+          else
+            return unquoted_string("rgba(#{color}, #{alpha})")
+          end
+        end
 
         assert_type color, :Color, :color
         if special_number?(alpha)
@@ -718,6 +741,12 @@ module Sass::Script
           assert_type alpha, :Number, :alpha
           check_alpha_unit alpha, 'rgba'
           color.with(:alpha => alpha.value)
+        end
+      when 3
+        if var?(args[0]) || var?(args[1]) || var?(args[2])
+          unquoted_string("rgba(#{args.join(', ')})")
+        else
+          raise ArgumentError.new("wrong number of arguments (3 for 4)")
         end
       when 4
         red, green, blue, alpha = args
@@ -732,7 +761,9 @@ module Sass::Script
       end
     end
     declare :rgba, [:red, :green, :blue, :alpha]
+    declare :rgba, [:red, :green, :blue]
     declare :rgba, [:color, :alpha]
+    declare :rgba, [:red]
 
     # Creates a {Sass::Script::Value::Color Color} from hue, saturation, and
     # lightness values. Uses the algorithm from the [CSS3 spec][].
@@ -750,7 +781,15 @@ module Sass::Script
     # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if `$saturation` or `$lightness` are out of bounds
     #   or any parameter is the wrong type
-    def hsl(hue, saturation, lightness)
+    def hsl(hue, saturation = nil, lightness = nil)
+      if saturation.nil?
+        return unquoted_string("hsl(#{hue})") if var?(hue)
+        raise ArgumentError.new("wrong number of arguments (1 for 3)")
+      elsif lightness.nil?
+        return unquoted_string("hsl(#{hue}, #{saturation})") if var?(hue) || var?(saturation)
+        raise ArgumentError.new("wrong number of arguments (2 for 3)")
+      end
+
       if special_number?(hue) || special_number?(saturation) || special_number?(lightness)
         unquoted_string("hsl(#{hue}, #{saturation}, #{lightness})")
       else
@@ -758,6 +797,8 @@ module Sass::Script
       end
     end
     declare :hsl, [:hue, :saturation, :lightness]
+    declare :hsl, [:hue, :saturation]
+    declare :hsl, [:hue]
 
     # Creates a {Sass::Script::Value::Color Color} from hue,
     # saturation, lightness, and alpha values. Uses the algorithm from
@@ -778,7 +819,21 @@ module Sass::Script
     # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if `$saturation`, `$lightness`, or `$alpha` are out
     #   of bounds or any parameter is the wrong type
-    def hsla(hue, saturation, lightness, alpha)
+    def hsla(hue, saturation = nil, lightness = nil, alpha = nil)
+      if saturation.nil?
+        return unquoted_string("hsla(#{hue})") if var?(hue)
+        raise ArgumentError.new("wrong number of arguments (1 for 4)")
+      elsif lightness.nil?
+        return unquoted_string("hsla(#{hue}, #{saturation})") if var?(hue) || var?(saturation)
+        raise ArgumentError.new("wrong number of arguments (2 for 4)")
+      elsif alpha.nil?
+        if var?(hue) || var?(saturation) || var?(lightness)
+          return unquoted_string("hsla(#{hue}, #{saturation}, #{lightness})")
+        else
+          raise ArgumentError.new("wrong number of arguments (2 for 4)")
+        end
+      end
+
       if special_number?(hue) || special_number?(saturation) ||
          special_number?(lightness) || special_number?(alpha)
         return unquoted_string("hsla(#{hue}, #{saturation}, #{lightness}, #{alpha})")
@@ -800,6 +855,9 @@ module Sass::Script
         :hue => h, :saturation => s, :lightness => l, :alpha => alpha.value)
     end
     declare :hsla, [:hue, :saturation, :lightness, :alpha]
+    declare :hsla, [:hue, :saturation, :lightness]
+    declare :hsla, [:hue, :saturation]
+    declare :hsla, [:hue]
 
     # Gets the red component of a color. Calculated from HSL where necessary via
     # [this algorithm][hsl-to-rgb].

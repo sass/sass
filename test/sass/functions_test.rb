@@ -1318,7 +1318,7 @@ SCSS
     evaluate("rgb($red: 255, $green: 255)")
     flunk("Expected exception")
   rescue Sass::SyntaxError => e
-    assert_equal("Function rgb requires an argument named $blue", e.message)
+    assert_equal("wrong number of arguments (2 for 3) for `rgb'", e.message)
   end
 
   def test_keyword_args_with_extra_argument
