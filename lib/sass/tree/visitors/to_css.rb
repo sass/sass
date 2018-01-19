@@ -392,7 +392,8 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   # @param node [Sass::Script::Tree::PropNode] A custom property node.
   # @return [String]
   def format_custom_property_value(node)
-    if node.style == :compact || node.style == :compressed || !node.resolved_value.include?("\n")
+    value = node.resolved_value.gsub(/\n[ \t\r\f\n]*/, ' ')
+    if node.style == :compact || node.style == :compressed || !value.include?("\n")
       # Folding not involving newlines was done in the parser. We can safely
       # fold newlines here because tokens like strings can't contain literal
       # newlines, so we know any adjacent whitespace is tokenized as whitespace.
@@ -401,7 +402,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
 
     # Find the smallest amount of indentation in the custom property and use
     # that as the base indentation level.
-    lines = node.resolved_value.split("\n")
+    lines = value.split("\n")
     indented_lines = lines[1..-1]
     min_indentation = indented_lines.
       map {|line| line[/^[ \t]*/]}.
