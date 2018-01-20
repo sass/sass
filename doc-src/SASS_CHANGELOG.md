@@ -41,6 +41,8 @@
 
 * `var()` may now be passed in place of multiple arguments to `rgb()`, `rgba()`,
   `hsl()` and `hsla()`.
+  
+* Don't crash on custom properties that aren't followed by semicolons.
 
 ## 3.5.5 (4 January 2018)
 
