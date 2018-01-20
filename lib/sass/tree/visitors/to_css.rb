@@ -392,7 +392,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   # @param node [Sass::Script::Tree::PropNode] A custom property node.
   # @return [String]
   def format_custom_property_value(node)
-    value = node.resolved_value.gsub(/\n[ \t\r\f\n]*/, ' ')
+    value = node.resolved_value.sub(/\n[ \t\r\f\n]*\Z/, ' ')
     if node.style == :compact || node.style == :compressed || !value.include?("\n")
       # Folding not involving newlines was done in the parser. We can safely
       # fold newlines here because tokens like strings can't contain literal
