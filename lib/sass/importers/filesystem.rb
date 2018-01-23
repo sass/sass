@@ -154,7 +154,13 @@ module Sass
             [Sass::Util.cleanpath(full_path).to_s, s]
           end
         end.flatten(1)
-        return if found.empty?
+        if found.empty?
+          if File.directory?("#{dir}/#{name}")
+            return find_real_file("#{dir}/#{name}", "index", options)
+          end
+
+          return
+        end
 
         if found.size > 1 && !@same_name_warnings.include?(found.first.first)
           found.each {|(f, _)| @same_name_warnings << f}

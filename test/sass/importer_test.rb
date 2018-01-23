@@ -145,6 +145,38 @@ CSS
     assert_equal css_file, Sass::Engine.new(scss_file, options).render
   end
 
+  def test_uses_index_if_directory_given 
+    FileUtils.mkdir_p(absolutize("tmp"))
+    FileUtils.mkdir_p(absolutize("tmp/bob"))
+    open(absolutize("tmp/bob/index.ssas"), "w") {|f| f.write(".foo\n  reversed: true\n")}
+    scss_file = %Q{
+      @import "bob";
+    }
+    css_file = <<CSS
+.foo { reversed: true; }
+CSS
+    options = {:style => :compact, :load_paths => [ReversedExtImporter.new(absolutize("tmp"))], :syntax => :scss}
+    assert_equal css_file, Sass::Engine.new(scss_file, options).render
+  ensure
+    FileUtils.rm_rf(absolutize("tmp"))
+  end
+
+  def test_uses_underscore_index_if_directory_given 
+    FileUtils.mkdir_p(absolutize("tmp"))
+    FileUtils.mkdir_p(absolutize("tmp/bob"))
+    open(absolutize("tmp/bob/_index.ssas"), "w") {|f| f.write(".foo\n  reversed: true\n")}
+    scss_file = %Q{
+      @import "bob";
+    }
+    css_file = <<CSS
+.foo { reversed: true; }
+CSS
+    options = {:style => :compact, :load_paths => [ReversedExtImporter.new(absolutize("tmp"))], :syntax => :scss}
+    assert_equal css_file, Sass::Engine.new(scss_file, options).render
+  ensure
+    FileUtils.rm_rf(absolutize("tmp"))
+  end
+
   def test_extension_overrides
     FileUtils.mkdir_p(absolutize("tmp"))
     open(absolutize("tmp/foo.ssas"), "w") {|f| f.write(".foo\n  reversed: true\n")}
