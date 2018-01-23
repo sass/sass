@@ -9,6 +9,8 @@
   `hsl()` and `hsla()`.
   
 * Don't crash on custom properties that aren't followed by semicolons.
+  
+* Don't crash when normalizing numbers with complex units.
 
 ## 3.5.5 (4 January 2018)
 
