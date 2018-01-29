@@ -154,12 +154,8 @@ module Sass
             [Sass::Util.cleanpath(full_path).to_s, s]
           end
         end.flatten(1)
-        if found.empty?
-          if File.directory?("#{dir}/#{name}")
+        if found.empty? && _extension?(name) && File.directory?("#{dir}/#{name}")
             return find_real_file("#{dir}/#{name}", "index", options)
-          end
-
-          return
         end
 
         if found.size > 1 && !@same_name_warnings.include?(found.first.first)
@@ -219,6 +215,14 @@ WARNING
         options[:filename] = full_filename
         options[:importer] = self
         Sass::Engine.new(File.read(full_filename), options)
+      end
+
+      # Given a name checks for any extentions
+      #
+      # @param name [String] The filename.
+      # @return [Boolean] Wheather a exetntion exits or not.
+      def _extension?(name)
+        split(name)[2].nil?
       end
     end
   end
