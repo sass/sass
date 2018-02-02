@@ -154,7 +154,7 @@ module Sass
             [Sass::Util.cleanpath(full_path).to_s, s]
           end
         end.flatten(1)
-        if found.empty? && !extensions.keys.include?(split(name)[2]) && File.directory?("#{dir}/#{name}")
+        if found.empty? && split(name)[2].nil? && File.directory?("#{dir}/#{name}")
             return find_real_file("#{dir}/#{name}", "index", options)
         end
 
