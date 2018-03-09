@@ -37,6 +37,11 @@
 
 * Unitless numbers are no longer equal to numbers with units.
 
+## 3.6.0 (Unreleased)
+
+* Add support for importing an `_index.scss` or `_index.sass` file when
+  importing a directory.
+
 ## 3.5.6 (Unreleased)
 
 * `var()` may now be passed in place of multiple arguments to `rgb()`, `rgba()`,

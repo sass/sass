@@ -1335,6 +1335,14 @@ Note that you may not include a partial and a non-partial with the same name in
 the same directory. For example, `_colors.scss` may not exist alongside
 `colors.scss`.
 
+#### Index Files
+
+If you write a file with the special name `_index.scss` or `_index.sass`, it
+will be loaded if you import the directory that contains it. For example, if you
+have `dir/_index.scss`, you can write `@import "dir";` and it will load your
+file. However, if you have a file named `_dir.scss` *and* a file named
+`dir/_index.scss`, `_dir.scss` will take precedence.
+
 #### Nested `@import`
 
 Although most of the time it's most useful to just have `@import`s

@@ -154,7 +154,9 @@ module Sass
             [Sass::Util.cleanpath(full_path).to_s, s]
           end
         end.flatten(1)
-        return if found.empty?
+        if found.empty? && split(name)[2].nil? && File.directory?("#{dir}/#{name}")
+          return find_real_file("#{dir}/#{name}", "index", options)
+        end
 
         if found.size > 1 && !@same_name_warnings.include?(found.first.first)
           found.each {|(f, _)| @same_name_warnings << f}
@@ -202,7 +204,7 @@ WARNING
 
       def _find(dir, name, options)
         full_filename, syntax = Sass::Util.destructure(find_real_file(dir, name, options))
-        return unless full_filename && File.readable?(full_filename)
+        return unless full_filename && File.file?(full_filename) && File.readable?(full_filename)
 
         # TODO: this preserves historical behavior, but it's possible
         # :filename should be either normalized to the native format
