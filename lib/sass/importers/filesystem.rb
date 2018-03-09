@@ -155,7 +155,7 @@ module Sass
           end
         end.flatten(1)
         if found.empty? && split(name)[2].nil? && File.directory?("#{dir}/#{name}")
-            return find_real_file("#{dir}/#{name}", "index", options)
+          return find_real_file("#{dir}/#{name}", "index", options)
         end
 
         if found.size > 1 && !@same_name_warnings.include?(found.first.first)
