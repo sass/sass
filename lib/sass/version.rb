@@ -76,7 +76,6 @@ module Sass
         end
       end
 
-      @@version[:string] << " (#{name})"
       @@version
     end
 

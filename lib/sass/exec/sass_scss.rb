@@ -92,7 +92,7 @@ END
       end
 
       opts.on("-v", "--version", "Print the Sass version.") do
-        puts("Sass #{Sass.version[:string]}")
+        puts("Ruby Sass #{Sass.version[:string]}")
         exit
       end
     end
