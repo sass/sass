@@ -189,6 +189,7 @@ module Sass::Script::Value
     # @raise [Sass::UnitConversionError] if `other` has incompatible units
     def mod(other)
       if other.is_a?(Number)
+        return Number.new(Float::NAN) if other.value == 0
         operate(other, :%)
       else
         raise NoMethodError.new(nil, :mod)

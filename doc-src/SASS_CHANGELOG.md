@@ -11,6 +11,8 @@
 * Don't crash on custom properties that aren't followed by semicolons.
   
 * Don't crash when normalizing numbers with complex units.
+  
+* Don't crash on `$x % 0`.
 
 ## 3.5.5 (4 January 2018)
 
