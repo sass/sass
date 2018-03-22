@@ -211,12 +211,6 @@ module Sass
           end
       end
 
-      # Backwards compatibility
-      options[:property_syntax] ||= options[:attribute_syntax]
-      case options[:property_syntax]
-      when :alternate; options[:property_syntax] = :new
-      when :normal; options[:property_syntax] = :old
-      end
       options[:sourcemap] = :auto if options[:sourcemap] == true
       options[:sourcemap] = :none if options[:sourcemap] == false
 
@@ -615,38 +609,7 @@ WARNING
     def parse_line(parent, line, root)
       case line.text[0]
       when PROPERTY_CHAR
-        if line.text[1] == PROPERTY_CHAR ||
-            (@options[:property_syntax] == :new &&
-             line.text =~ PROPERTY_OLD && $2.empty?)
-          # Support CSS3-style pseudo-elements,
-          # which begin with ::,
-          # as well as pseudo-classes
-          # if we're using the new property syntax
-          Tree::RuleNode.new(parse_interp(line.text), full_line_range(line))
-        else
-          name_start_offset = line.offset + 1 # +1 for the leading ':'
-          name, value = line.text.scan(PROPERTY_OLD)[0]
-          raise SyntaxError.new("Invalid property: \"#{line.text}\".",
-            :line => @line) if name.nil? || value.nil?
-
-          @@old_property_deprecation.warn(@options[:filename], @line, <<WARNING)
-Old-style properties like "#{line.text}" are deprecated and will be an error in future versions of Sass.
-Use "#{name}: #{value}" instead.
-WARNING
-
-          value_start_offset = name_end_offset = name_start_offset + name.length
-          unless value.empty?
-            # +1 and -1 both compensate for the leading ':', which is part of line.text
-            value_start_offset = name_start_offset + line.text.index(value, name.length + 1) - 1
-          end
-
-          property = parse_property(name, parse_interp(name), value, :old, line, value_start_offset)
-          property.name_source_range = Sass::Source::Range.new(
-            Sass::Source::Position.new(@line, to_parser_offset(name_start_offset)),
-            Sass::Source::Position.new(@line, to_parser_offset(name_end_offset)),
-            @options[:filename], @options[:importer])
-          property
-        end
+        Tree::RuleNode.new(parse_interp(line.text), full_line_range(line))
       when ?$
         parse_variable(line)
       when COMMENT_CHAR

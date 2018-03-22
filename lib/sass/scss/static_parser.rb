@@ -135,23 +135,7 @@ MESSAGE
       end
 
       def combinator
-        tok(PLUS) || tok(GREATER) || tok(TILDE) || reference_combinator
-      end
-
-      def reference_combinator
-        return unless tok(%r{/})
-        res = '/'
-        ns, name = expr!(:qualified_name)
-        res << ns << '|' if ns
-        res << name << tok!(%r{/})
-
-        location = " of #{@filename}" if @filename
-        Sass::Util.sass_warn <<MESSAGE
-DEPRECATION WARNING on line #{@line}, column #{@offset}#{location}:
-The reference combinator #{res} is deprecated and will be removed in a future release.
-MESSAGE
-
-        res
+        tok(PLUS) || tok(GREATER) || tok(TILDE)
       end
 
       def simple_selector_sequence

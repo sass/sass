@@ -2172,18 +2172,6 @@ div { -foo-\#{$a}-\#{$b}-foo: foo }
 SCSS
   end
 
-  def test_selector_interpolation_in_reference_combinator
-    silence_warnings {assert_equal <<CSS, render(<<SCSS)}
-.foo /a/ .bar /b|c/ .baz {
-  a: b; }
-CSS
-$a: a;
-$b: b;
-$c: c;
-.foo /\#{$a}/ .bar /\#{$b}|\#{$c}/ .baz {a: b}
-SCSS
-  end
-
   def test_parent_selector_with_parent_and_subject
     silence_warnings {assert_equal <<CSS, render(<<SCSS)}
 bar foo.baz! .bip {
@@ -3650,40 +3638,6 @@ SCSS
 
   # Regression
 
-  # Regression test for #2031.
-  def test_no_interpolation_warning_in_nested_selector
-    assert_no_warning {assert_equal(<<CSS, render(<<SCSS))}
-z a:b(n+1) {
-  x: y; }
-CSS
-z {
-  a:b(n+\#{1}) {
-    x: y;
-  }
-}
-SCSS
-  end
-
-  # Ensures that the fix for #2031 doesn't hide legitimate warnings.
-  def test_interpolation_warning_in_selector_like_property
-    assert_warning(<<WARNING) {assert_equal(<<CSS, render(<<SCSS))}
-DEPRECATION WARNING on line 2 of #{filename_for_test :scss}:
-\#{} interpolation near operators will be simplified in a future version of Sass.
-To preserve the current behavior, use quotes:
-
-  unquote("n+1")
-
-You can use the sass-convert command to automatically fix most cases.
-WARNING
-z {
-  a: b(n+1); }
-CSS
-z {
-  a:b(n+\#{1});
-}
-SCSS
-  end
-
   def test_escape_in_selector
     assert_equal(<<CSS, render(".\\!foo {a: b}"))
 .\\!foo {
@@ -3855,27 +3809,6 @@ CSS
 @import "foo.css", // this is a comment
         "bar.css", /* this is another comment */
         "baz.css"; // this is a third comment
-SCSS
-  end
-
-  def test_reference_combinator_with_parent_ref
-    silence_warnings {assert_equal <<CSS, render(<<SCSS)}
-a /foo/ b {
-  c: d; }
-CSS
-a {& /foo/ b {c: d}}
-SCSS
-  end
-
-  def test_reference_combinator_warning
-    assert_warning(<<WARNING) {assert_equal <<CSS, render(<<SCSS)}
-DEPRECATION WARNING on line 1, column 8 of test_reference_combinator_warning_inline.scss:
-The reference combinator /foo/ is deprecated and will be removed in a future release.
-WARNING
-a /foo/ b {
-  c: d; }
-CSS
-a {& /foo/ b {c: d}}
 SCSS
   end
 

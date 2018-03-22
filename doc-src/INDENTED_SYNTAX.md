@@ -70,21 +70,6 @@ and indentation instead of braces.
 However, there are some cases where there are differences or subtleties,
 which are detailed below.
 
-## Property Syntax
-
-The indented syntax supports two ways of declaring CSS properties.
-The first is just like CSS, except without the semicolon.
-The second, however, places the colon *before* the property name.
-For example:
-
-    #main
-      :color blue
-      :font-size 0.3em
-
-By default, both ways may be used.
-However, the {file:SASS_REFERENCE.md#property_syntax-option `:property_syntax` option}
-may be used to specify that only one property syntax is allowed.
-
 ### Multiline Selectors
 
 Normally in the indented syntax, a single selector must take up a single line.

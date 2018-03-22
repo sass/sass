@@ -151,12 +151,5 @@ module Sass::Tree
         root.operand2.value.is_a?(Sass::Script::Value::Number) &&
         root.operand2.value.original.nil?
     end
-
-    def check!
-      return unless @options[:property_syntax] && @options[:property_syntax] != @prop_syntax
-      raise Sass::SyntaxError.new(
-        "Illegal property syntax: can't use #{@prop_syntax} syntax when " +
-        ":property_syntax => #{@options[:property_syntax].inspect} is set.")
-    end
   end
 end

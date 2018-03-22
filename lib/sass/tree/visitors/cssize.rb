@@ -146,10 +146,7 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
     yield
 
     result = node.children.dup
-    if !node.resolved_value.empty? || node.children.empty?
-      node.send(:check!)
-      result.unshift(node)
-    end
+    result.unshift(node) if !node.resolved_value.empty? || node.children.empty?
 
     result
   end

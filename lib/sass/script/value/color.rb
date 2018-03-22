@@ -461,7 +461,7 @@ module Sass::Script::Value
     # @raise [Sass::SyntaxError] if `other` is a number with units
     def plus(other)
       if other.is_a?(Sass::Script::Value::Number) || other.is_a?(Sass::Script::Value::Color)
-        piecewise(other, :+)
+        raise NoMethodError.new(nil, :plus)
       else
         super
       end
@@ -484,29 +484,9 @@ module Sass::Script::Value
     # @raise [Sass::SyntaxError] if `other` is a number with units
     def minus(other)
       if other.is_a?(Sass::Script::Value::Number) || other.is_a?(Sass::Script::Value::Color)
-        piecewise(other, :-)
+        raise NoMethodError.new(nil, :minus)
       else
         super
-      end
-    end
-
-    # The SassScript `*` operation.
-    # Its functionality depends on the type of its argument:
-    #
-    # {Number}
-    # : Multiplies the number by each of the RGB color channels.
-    #
-    # {Color}
-    # : Multiplies each of the RGB color channels together.
-    #
-    # @param other [Number, Color] The right-hand side of the operator
-    # @return [Color] The resulting color
-    # @raise [Sass::SyntaxError] if `other` is a number with units
-    def times(other)
-      if other.is_a?(Sass::Script::Value::Number) || other.is_a?(Sass::Script::Value::Color)
-        piecewise(other, :*)
-      else
-        raise NoMethodError.new(nil, :times)
       end
     end
 
@@ -526,32 +506,10 @@ module Sass::Script::Value
     # @return [Color] The resulting color
     # @raise [Sass::SyntaxError] if `other` is a number with units
     def div(other)
-      if other.is_a?(Sass::Script::Value::Number) ||
-          other.is_a?(Sass::Script::Value::Color)
-        piecewise(other, :/)
+      if other.is_a?(Sass::Script::Value::Number) || other.is_a?(Sass::Script::Value::Color)
+        raise NoMethodError.new(nil, :plus)
       else
         super
-      end
-    end
-
-    # The SassScript `%` operation.
-    # Its functionality depends on the type of its argument:
-    #
-    # {Number}
-    # : Takes each of the RGB color channels module the number.
-    #
-    # {Color}
-    # : Takes each of this color's RGB color channels modulo the other color's.
-    #
-    # @param other [Number, Color] The right-hand side of the operator
-    # @return [Color] The resulting color
-    # @raise [Sass::SyntaxError] if `other` is a number with units
-    def mod(other)
-      if other.is_a?(Sass::Script::Value::Number) ||
-          other.is_a?(Sass::Script::Value::Color)
-        piecewise(other, :%)
-      else
-        raise NoMethodError.new(nil, :mod)
       end
     end
 

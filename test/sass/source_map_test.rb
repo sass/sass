@@ -40,7 +40,7 @@ JSON
 a
   foo: bar
   /* SOME COMMENT */
-  :font-size 12px
+  font-size: 12px
 SASS
 a {
   foo: bar;
@@ -51,7 +51,7 @@ a {
 CSS
 {
 "version": 3,
-"mappings": "AAAA,CAAC;EACC,GAAG,EAAE,GAAG;;EAEP,SAAS,EAAC,IAAI",
+"mappings": "AAAA,CAAC;EACC,GAAG,EAAE,GAAG;;EAER,SAAS,EAAE,IAAI",
 "sources": ["test_simple_mapping_sass_inline.sass"],
 "names": [],
 "file": "test.css"
@@ -117,7 +117,7 @@ JSON
 a
   foo: bar
   /* SOME COMMENT */
-  :font-size 12px
+  font-size: 12px
 SASS
 a {
   foo: bar;
@@ -128,7 +128,7 @@ a {
 CSS
 {
 "version": 3,
-"mappings": "AAAA,CAAC;EACC,GAAG,EAAE,GAAG;;EAEP,SAAS,EAAC,IAAI",
+"mappings": "AAAA,CAAC;EACC,GAAG,EAAE,GAAG;;EAER,SAAS,EAAE,IAAI",
 "sources": ["../sass/style.sass"],
 "names": [],
 "file": "style.css"
@@ -662,7 +662,7 @@ CSS
 def test_mixin_sourcemap_sass
   silence_warnings {assert_parses_with_mapping <<'SASS', <<'CSS', :syntax => :sass}
 =large-text
-  :font
+  font:
     {{2}}size{{/2}}: {{3}}20px{{/3}}
     {{4}}weight{{/4}}: {{5}}bold{{/5}}
   {{6}}color{{/6}}: {{7}}#ff0000{{/7}}
@@ -756,9 +756,9 @@ CSS
   def test_properties_sass
     silence_warnings {assert_parses_with_mapping <<SASS, <<CSS, :syntax => :sass}
 {{1}}.foo{{/1}}
-  :{{2}}name{{/2}} {{3}}value{{/3}}
+  {{2}}name{{/2}}: {{3}}value{{/3}}
   {{4}}name{{/4}}: {{5}}value{{/5}}
-  :{{6}}name{{/6}}  {{7}}value{{/7}}
+  {{6}}name{{/6}}:  {{7}}value{{/7}}
   {{8}}name{{/8}}:  {{9}}value{{/9}}
 SASS
 {{1}}.foo{{/1}} {
@@ -793,7 +793,7 @@ SCSS
 
     interpolated = engine.to_tree.children.
       first.children.
-      first.value.first.children[1]
+      first.value.first.children.first
     assert_equal "123", interpolated.to_sass
     range = interpolated.source_range
     assert_equal 3, range.start_pos.line

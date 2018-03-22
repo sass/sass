@@ -532,33 +532,6 @@ CSS
 SCSS
   end
 
-  ## Long Extendees
-
-  def test_long_extendee
-    assert_warning(<<WARNING) {assert_extends '.foo.bar', '.baz {@extend .foo.bar}', '.foo.bar, .baz'}
-DEPRECATION WARNING on line 2 of test_long_extendee_inline.scss:
-Extending a compound selector, .foo.bar, is deprecated and will not be supported in a future release.
-Consider "@extend .foo, .bar" instead.
-See https://github.com/sass/sass/issues/1599 for details.
-WARNING
-  end
-
-  def test_long_extendee_requires_all_selectors
-    silence_warnings do
-      assert_extend_doesnt_match('.baz', '.foo.bar', :not_found, 2) do
-        render_extends '.foo', '.baz {@extend .foo.bar}'
-      end
-    end
-  end
-
-  def test_long_extendee_matches_supersets
-    silence_warnings {assert_extends '.foo.bar.bap', '.baz {@extend .foo.bar}', '.foo.bar.bap, .bap.baz'}
-  end
-
-  def test_long_extendee_runs_unification
-    silence_warnings {assert_extends 'ns|*.foo.bar', '*|a.baz {@extend .foo.bar}', 'ns|*.foo.bar, ns|a.baz'}
-  end
-
   ## Long Extenders
 
   def test_long_extender
@@ -642,12 +615,6 @@ WARNING
     assert_extends 'a ~ b c .c1', 'a c .c2 {@extend .c1}', 'a ~ b c .c1, a ~ b a c .c2, a a ~ b c .c2'
     assert_extends 'a ~ b c .c1', 'a b .c2 {@extend .c1}', 'a ~ b c .c1, a a ~ b c .c2'
     assert_extends 'a ~ b c .c1', 'b c .c2 {@extend .c1}', 'a ~ b c .c1, a ~ b c .c2'
-  end
-
-  def test_nested_extender_doesnt_find_common_selectors_around_reference_selector
-    silence_warnings {assert_extends 'a /for/ b c .c1', 'a c .c2 {@extend .c1}', 'a /for/ b c .c1, a /for/ b a c .c2, a a /for/ b c .c2'}
-    silence_warnings {assert_extends 'a /for/ b c .c1', 'a b .c2 {@extend .c1}', 'a /for/ b c .c1, a a /for/ b c .c2'}
-    silence_warnings {assert_extends 'a /for/ b c .c1', 'b c .c2 {@extend .c1}', 'a /for/ b c .c1, a /for/ b c .c2'}
   end
 
   def test_nested_extender_with_early_child_selectors_doesnt_subseq_them

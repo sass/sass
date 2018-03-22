@@ -1885,11 +1885,8 @@ WARNING
     assert_equal(".bar", evaluate("selector-replace('.foo', '.foo', '.bar')"))
     assert_equal(".foo.baz", evaluate("selector-replace('.foo.bar', '.bar', '.baz')"))
     assert_equal(".a .foo.baz", evaluate("selector-replace('.foo.bar', '.bar', '.a .baz')"))
-
-    # These shouldn't warn since we still support componud targets for selector
-    # functions.
-    assert_no_warning {assert_equal(".foo.bar", evaluate("selector-replace('.foo.bar', '.baz.bar', '.qux')"))}
-    assert_no_warning {assert_equal(".bar.qux", evaluate("selector-replace('.foo.bar.baz', '.foo.baz', '.qux')"))}
+    assert_equal(".foo.bar", evaluate("selector-replace('.foo.bar', '.baz.bar', '.qux')"))
+    assert_equal(".bar.qux", evaluate("selector-replace('.foo.bar.baz', '.foo.baz', '.qux')"))
 
     assert_equal(":not(.bar)", evaluate("selector-replace(':not(.foo)', '.foo', '.bar')"))
     assert_equal(".bar", evaluate("selector-replace(':not(.foo)', ':not(.foo)', '.bar')"))

@@ -202,17 +202,14 @@ module Sass::Script::Value
     # @return [Boolean] Whether this number is equal to the other object
     def eq(other)
       return Bool::FALSE unless other.is_a?(Sass::Script::Value::Number)
-      this = self
+      return Bool::FALSE if unitless? != other.unitless?
+
       begin
-        if unitless?
-          this = this.coerce(other.numerator_units, other.denominator_units)
-        else
-          other = other.coerce(@numerator_units, @denominator_units)
-        end
+        other = other.coerce(@numerator_units, @denominator_units)
       rescue Sass::UnitConversionError
         return Bool::FALSE
       end
-      Bool.new(basically_equal?(this.value, other.value))
+      Bool.new(basically_equal?(value, other.value))
     end
 
     def hash

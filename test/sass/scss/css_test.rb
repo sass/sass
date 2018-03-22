@@ -804,10 +804,7 @@ SCSS
     assert_selector_parses('E > F')
     assert_selector_parses('E + F')
     assert_selector_parses('E ~ F')
-    silence_warnings {assert_selector_parses('E /foo/ F')}
     silence_warnings {assert_selector_parses('E! > F')}
-
-    silence_warnings {assert_selector_parses('E /ns|foo/ F')}
 
     # From http://dev.w3.org/csswg/css-scoping-1/
     assert_selector_parses('E:host(s)')
@@ -1166,7 +1163,7 @@ SCSS
 
   def test_long_unclosed_comment_doesnt_take_forever
     assert_raise_message(Sass::SyntaxError,
-      'Invalid CSS after "/*": expected "/", was "//*************..."') {render(<<SCSS)}
+      'Invalid CSS after "": expected selector or at-rule, was "/*"') {render(<<SCSS)}
 /*
 //**************************************************************************
 SCSS

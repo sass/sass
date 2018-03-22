@@ -542,10 +542,7 @@ module Sass::Script
             t == :Map && value.is_a?(Sass::Script::Value::List) && value.value.empty?
         end
 
-        if found_type
-          value.check_deprecated_interp if found_type == :String
-          return
-        end
+        return if found_type
 
         err = if valid_types.size == 1
                 "#{value.inspect} is not a #{TYPE_NAMES[type] || type.to_s.downcase}"
@@ -1516,7 +1513,6 @@ MESSAGE
         return string
       end
 
-      string.check_deprecated_interp
       return string if string.type == :identifier
       identifier(string.value)
     end
@@ -1708,7 +1704,6 @@ MESSAGE
     # @return [Sass::Script::Value::String] The unquoted string name of the
     #   value's type
     def type_of(value)
-      value.check_deprecated_interp if value.is_a?(Sass::Script::Value::String)
       identifier(value.class.name.gsub(/Sass::Script::Value::/, '').downcase)
     end
     declare :type_of, [:value]
@@ -2443,7 +2438,7 @@ WARNING
       end
       kwargs = args.last.is_a?(Hash) ? args.pop : {}
       funcall = Sass::Script::Tree::Funcall.new(
-        name.value,
+        [name.value],
         args.map {|a| Sass::Script::Tree::Literal.new(a)},
         Sass::Util.map_vals(kwargs) {|v| Sass::Script::Tree::Literal.new(v)},
         nil,
@@ -2598,7 +2593,6 @@ WARNING
     # @return [Sass::Script::Value::String] A representation of the value as
     #   it would be written in Sass.
     def inspect(value)
-      value.check_deprecated_interp if value.is_a?(Sass::Script::Value::String)
       unquoted_string(value.to_sass)
     end
     declare :inspect, [:value]

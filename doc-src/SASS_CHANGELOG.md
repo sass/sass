@@ -3,6 +3,40 @@
 * Table of contents
 {:toc}
 
+## 4.0.0 (UNRELEASED)
+
+### Backwards Incompatibilities -- Must Read!
+
+* Certain ways of using `#{}` without quotes in property and variable values,
+  which were deprecated in version 3.4.20, have been removed entirely in order
+  to simplify the feature.
+
+  Previously, `#{}` behaved unpredictably. If it was used near operators, it
+  would cause those operators to become part of an unquoted string instead of
+  having their normal meaning. This wan't an especially useful feature, and it
+  made it hard to reason about some code that included `#{}`.
+
+  Now `#{}` just returns an unquoted string that acts like any other unquoted
+  string. For example, `foo + #{$var}` does the same thing as `foo + $var`,
+  instead of doing the same thing as `unquote("foo + #{$var}")`.
+
+  For more details, see [this blog post][interp-blog] and
+  [the GitHub issue in which it was planned][interp-issue].
+
+* Color arithmetic is no longer supported. Channel-by-channel arithmetic doesn't
+  correspond closely to intuitive understandings of color. Sass's suite of
+  [color functions][] are a much cleaner and more comprehensible way of
+  manipulating colors dynamically.
+
+* The reference combinator, `/foo/` is no longer supported.
+
+* The old-style `:name value` property syntax is no longer supported. This
+  syntax is not widely used, and is unnecessarily different from CSS.
+
+* `@extend` no longer supports extending compound selectors such as `.foo.bar`.
+
+* Unitless numbers are no longer equal to numbers with units.
+
 ## 3.5.6 (Unreleased)
 
 * `var()` may now be passed in place of multiple arguments to `rgb()`, `rgba()`,

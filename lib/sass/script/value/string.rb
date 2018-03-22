@@ -78,13 +78,9 @@ module Sass::Script::Value
     #
     # @param value [String] See \{#value}
     # @param type [Symbol] See \{#type}
-    # @param deprecated_interp_equivalent [String?]
-    #   If this was created via a potentially-deprecated string interpolation,
-    #   this is the replacement expression that should be suggested to the user.
-    def initialize(value, type = :identifier, deprecated_interp_equivalent = nil)
+    def initialize(value, type = :identifier)
       super(value)
       @type = type
-      @deprecated_interp_equivalent = deprecated_interp_equivalent
     end
 
     # @see Value#plus
@@ -106,29 +102,6 @@ module Sass::Script::Value
     # @see Value#to_sass
     def to_sass(opts = {})
       to_s(opts.merge(:sass => true))
-    end
-
-    def separator
-      check_deprecated_interp
-      super
-    end
-
-    def to_a
-      check_deprecated_interp
-      super
-    end
-
-    # Prints a warning if this string was created using potentially-deprecated
-    # interpolation.
-    def check_deprecated_interp
-      return unless @deprecated_interp_equivalent
-
-      @@interpolation_deprecation.warn(source_range.file, source_range.start_pos.line, <<WARNING)
-\#{} interpolation near operators will be simplified in a future version of Sass.
-To preserve the current behavior, use quotes:
-
-  #{@deprecated_interp_equivalent}
-WARNING
     end
 
     def inspect
