@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.5.6 (Unreleased)
+## 3.5.6
 
 * Allow `!` in custom property values.
 
