@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.5.6
+## 3.5.6 (22 March 2018)
 
 * Allow `!` in custom property values.
 
