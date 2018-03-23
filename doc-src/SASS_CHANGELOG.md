@@ -44,6 +44,8 @@
 
 ## 3.5.6 (Unreleased)
 
+* Allow `!` in custom property values.
+
 * `var()` may now be passed in place of multiple arguments to `rgb()`, `rgba()`,
   `hsl()` and `hsla()`.
   
