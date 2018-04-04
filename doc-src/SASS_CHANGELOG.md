@@ -8,7 +8,7 @@
 * Add support for importing an `_index.scss` or `_index.sass` file when
   importing a directory.
 
-## 3.5.6
+## 3.5.6 (22 March 2018)
 
 * Allow `!` in custom property values.
 

@@ -1,6 +1,13 @@
 dir = File.dirname(__FILE__)
 $LOAD_PATH.unshift dir unless $LOAD_PATH.include?(dir)
 
+$stderr.puts <<DEPRECATION
+WARNING: Ruby Sass's Git repository is moving, and the old repository will be
+deled on 26 March 2019! Please update your Git URLs to point to the new
+repository at https://github.com/sass/ruby-sass.
+
+DEPRECATION
+
 require 'sass/version'
 
 # The module that contains everything Sass-related:
