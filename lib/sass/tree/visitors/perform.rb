@@ -351,7 +351,7 @@ WARNING
       mixin = @environment.mixin(node.name)
       raise Sass::SyntaxError.new("Undefined mixin '#{node.name}'.") unless mixin
 
-      if node.children.any? && !mixin.has_content
+      if node.has_children && !mixin.has_content
         raise Sass::SyntaxError.new(%(Mixin "#{node.name}" does not accept a content block.))
       end
 

@@ -354,6 +354,12 @@ SASS
     end
   end
 
+  def test_empty_block_in_no_content_mixin
+    assert_raise_message Sass::SyntaxError, 'Mixin "foo" does not accept a content block.' do
+      render "@mixin foo() {}\n @include foo() {}", :syntax => :scss
+    end
+  end
+
   def test_selector_tracing
     actual_css = render(<<-SCSS, :syntax => :scss, :trace_selectors => true)
       @mixin mixed {
@@ -858,7 +864,7 @@ foo {
 CSS
 foo
   bar : baz
-  bizz	: bap
+  bizz : bap
 SASS
   end
 
