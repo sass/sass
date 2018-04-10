@@ -1,4 +1,4 @@
-# The Next-Generation Sass Module System: Draft 1
+# The Next-Generation Sass Module System: Draft 2
 
 This repository houses a proposal for the `@use` directive and associated module
 system, which is intended to be the headlining feature for Sass 4. This is a
@@ -34,9 +34,11 @@ mind—these will be called out explicitly in block-quoted "implementation note"
   * [Import Context](#import-context)
 * [Syntax](#syntax)
   * [`@forward`](#forward)
+  * [Member References](#member-references)
 * [Procedures](#procedures)
   * [Loading Modules](#loading-modules)
   * [Resolving Extensions](#resolving-extensions)
+  * [Canonicalizing URIs](#canonicalizing-uris)
 * [Semantics](#semantics)
   * [Compilation Process](#compilation-process)
   * [Executing Files](#executing-files)
@@ -46,6 +48,8 @@ mind—these will be called out explicitly in block-quoted "implementation note"
   * [Forwarding Modules](#forwarding-modules)
   * [Importing Files](#importing-files)
 * [Built-In Modules](#built-in-modules)
+  * [New Functions](#new-functions)
+  * [New Features For Existing Functions](#new-features-for-existing-functions)
 
 ## Background
 
@@ -144,24 +148,12 @@ expected to land in Sass 4.
 
 ### Member
 
-A *member* is anything that's defined either by the user or the implementation 
-and is identified by a Sass identifier. This currently includes variables,
-mixins, functions, and placeholder selectors. Each member type has its own
-namespace, so for example the variable `$name` doesn't conflict with the
-placeholder selector `%name`.
-
-All members have definitions associated with them, whose specific structure
-depends on the type of the given member. Variables, mixins, and functions have
-intuitive definitions, but placeholder selectors' definitions just indicate
-which [module](#module) they come from.
-
-There's some question of whether placeholders ought to be considered members,
-and consequently [namespaced](#resolving-members) like other members. On one
-hand, they're frequently used in parallel with mixins as the API exposed by a
-library, which suggests that they should be namespaced like the mixins they
-parallel. On the other hand, this usage is somewhat discouraged since it doesn't
-treat them like selectors, and not namespacing them would potentially free up
-characters like `.` or `:` to be used as namespace separators.
+A *member* is a Sass construct that's defined either by the user or the
+implementation and is identified by a Sass identifier. This currently includes
+variables, mixins, and functions (but *not* placeholder selectors). Each member
+type has its own namespace, so for example the variable `$name` doesn't conflict
+with the mixin `name`. All members have definitions associated with them, whose
+specific structure depends on the type of the given member.
 
 ### Extension
 
@@ -207,13 +199,13 @@ another.
 A *module* is an abstract collection of [members](#members) and
 [extensions](#extensions), as well as a [CSS tree](#css-tree) (although that
 tree may be empty). Each module may have only one member of a given type and
-name (for example, a module may not have two variables named `$name`). To
-satisfy this requirement, placeholder selectors are de-duplicated.
+name (for example, a module may not have two variables named `$name`).
 
-Each module is uniquely identified by the combination of a URI and a
-[configuration](#configuration). A given module can be produced by
-[executing](#executing-files) the [source file](#source-file) identified by the
-module's URI with the module's configuration.
+Each module is uniquely identified by the combination of a
+[canonical](#canonicalizing-uris) URI and a [configuration](#configuration). A
+given module can be produced by [executing](#executing-files) the
+[source file](#source-file) identified by the module's URI with the module's
+configuration.
 
 ### Module Graph
 
@@ -233,12 +225,13 @@ loading a module, which means those members may be executed.
 
 ### Source File
 
-A *source file* is an entity uniquely identified by a URI. It can be
-[executed](#executing-files) with a [configuration](#configuration) to produce a
-[module](#module). The names (and mixin and function signatures) of this
-module's members are static, and can be determined without executing the file.
-This means that all modules for a given source file have the same member names
-regardless of the configurations used for those modules.
+A *source file* is an entity uniquely identified by a
+[canonical](#canonicalizing-uris) URI. It can be [executed](#executing-files)
+with a [configuration](#configuration) to produce a [module](#module). The names
+(and mixin and function signatures) of this module's members are static, and can
+be determined without executing the file. This means that all modules for a
+given source file have the same member names regardless of the configurations
+used for those modules.
 
 There are five types of source file:
 
@@ -288,10 +281,10 @@ in this document. As the document becomes more complete, the grammar will be
 expanded accordingly.*
 
 `@use` directives must be at the top level of the document, and must come before
-any directives other than `@charset`. Because each `@use` directive affects the
-namespace of the entire [source file](#source-file) that contains it, whereas
-most other Sass constructs are purely imperative, keeping it at the top of the
-file helps reduce confusion.
+any directives other than `@charset` or `@forward`. Because each `@use`
+directive affects the namespace of the entire [source file](#source-file) that
+contains it, whereas most other Sass constructs are purely imperative, keeping
+it at the top of the file helps reduce confusion.
 
 The mixin clause is not allowed for unprefixed modules because the mixin name
 is derived from the module's prefix.
@@ -309,13 +302,34 @@ This proposal introduces an additional new directive, called `@forward`. The
 grammar for this directive is as follows:
 
 ```
-ForwardDirective ::= '@forward' QuotedString (ShowClause | HideClause)?
+ForwardDirective ::= '@forward' (QuotedString | Identifier)
+                       (ShowClause | HideClause)?
 ShowClause       ::= 'show' Identifier (',' Identifier)*
 HideClause       ::= 'hide' Identifier (',' Identifier)*
 ```
 
 `@forward` directives must be at the top level of the document, and must come
 before any directives other than `@charset` or `@use`.
+
+### Member References
+
+This proposal updates the syntax for using members. For functions and mixins,
+this update affects only calls, not definitions. Variables, on the other hand,
+may use this syntax for either assignment or reference.
+
+```
+NamespacedIdentifier ::= (Identifier '.')? Identifier
+Variable             ::= '$' NamespacedIdentifier
+```
+
+The dot-separated syntax (`namespace.name`) was chosen in preference to a
+hyphenated syntax (for example `namespace-name`) because it makes the difference
+between module-based namespaces and manually-separated identifiers very clear.
+It also matches the conventions of many other languages. We're
+[reasonably confident][Tab comment] that the syntax will not conflict with
+future CSS syntax additions.
+
+[Tab comment]: https://github.com/sass/proposal.module-system/issues/1#issuecomment-174755061
 
 ## Procedures
 
@@ -346,8 +360,9 @@ various other semantics described below. To load a module with a given URI,
   resulting module.
 
 * If the source file contained a `@use` directive with a `mixin` clause and a
-  `@forward` directive with the same URI, and if that `@use` directive's mixin
-  was not included during the execution of the source file, loading fails.
+  `@forward` directive with an identifier that's the same as the `@use`
+  directive's prefix, and if that `@use` directive's mixin was not included
+  during the execution of the source file, loading fails.
 
 * Otherwise, use the resulting module.
 
@@ -366,12 +381,60 @@ The module system also scopes the resolution of the `@extend` directive. This
 helps satisfy locality, making selector extension more predictable than it is
 using `@import`s.
 
-Extension is scoped to CSS in [module](#module)s *transitively used* by the
-module in which the `@extend` appears. This transitivity is necessary because
-CSS is not considered a [member](#member) of a module, and can't be controlled
-as explicitly as members can. Extending all transitively-used modules means that
-the `@extend` affects exactly that CSS that is guaranteed to exist by the `@use`
-directives.
+Extension is scoped to CSS in [module](#module)s *transitively used* by or
+*transitively using* the module in which the `@extend` appears. This
+transitivity is necessary because CSS is not considered a [member](#member) of a
+module, and can't be controlled as explicitly as members can. Extending all
+transitively-used and -using modules means that the `@extend` affects all CSS
+that has the same semantic notion of a given selector.
+
+Another way to think about it is that `@extend` affects upstream and downstream
+CSS, but not sibling CSS.
+
+```scss
+// upstream.scss
+.bad-error {
+  font-weight: bold;
+
+  // This works because "downstream" uses "upstream".
+  @extend .error;
+}
+
+.success {
+  color: green;
+}
+
+// sibling.scss
+.no-extend-error {
+  // This doesn't work, because "sibling" doesn't use "upstream" and "upstream"
+  // doesn't use "sibling".
+  @extend .error;
+}
+
+// downstream.scss
+@use "upstream";
+@use "sibling";
+
+.error {
+  color: red;
+}
+
+.huge-success {
+  font-weight: bold;
+
+  // This works because "downstream" uses "upstream".
+  @extend .success;
+}
+
+// output.css
+.bad-error {
+  font-weight: bold;
+}
+
+.error, .bad-error {
+  font-weight: bold;
+}
+```
 
 We define a general process for resolving extensions for a given module (call it
 the *starting module*). This process emits CSS for that module and everything it
@@ -413,6 +476,10 @@ transitively uses.
 
   * For each CSS rule in the domestic module:
 
+    * For each module transitively reachable in the module graph from the
+      domestic module in reverse [topological][] order, apply that module's
+      extensions to the rule's selector.
+
     * Apply the domestic module's extensions to the rule's selector.
 
     * Add the resulting selector to the domestic module's extended selectors,
@@ -425,11 +492,42 @@ transitively uses.
     replaced by the corresponding selector in the starting module's extended
     selectors.
 
-There is intentionally no way for a module to affect the extensions of another
-module that doesn't transitively use it. This promotes locality, and matches the
-behavior of mixins and functions in that monkey-patching is disallowed.
+> **Implementation note**:
+>
+> As written, this algorithm is O(n²) in the number of modules because resolving
+> extends for each local CSS rule requires iterating over all its transitive
+> modules. However, it's intended to be straightforwardly implementable in O(n)
+> time by cumulatively tracking the extends as the algorithm proceeds.
+
+To promote locality, there is intentionally no way for a module to affect the
+extensions of another module that doesn't transitively use it or isn't
+transitively used by it.
 
 [topological]: https://en.wikipedia.org/wiki/Topological_sorting
+
+### Canonicalizing URIs
+
+[Module](#module)s and [source file](#source-file)s are uniquely identified by
+URIs, which means we must be able to determine the canonical form of URIs
+written by users. Given a non-canonical URI and a canonicalized base URI
+representing the context in which it's being resolved:
+
+* If the non-canonical URI's scheme is `sass`, return it as-is.
+  [Built-in module](#built-in-modules) URIs are compared textually, and have no
+  special canonicalization logic.
+
+* If the base URI's scheme is `file` and the non-canonical URI is relative,
+  prepend the base URI without its final path component to the non-canonical
+  URI. For example, if the base URI is `file:///foo/bar/baz` and the
+  non-canonical URI was `bang/qux`, it is now `file:///foo/bar/bang/qux`.
+
+* If the non-canonical URI's scheme is `file`, resolve any `..` or `.`
+  components and remove any duplicate separators in the path component, then
+  return the URI with the new path component.
+
+* Otherwise, canonicalization proceeds in an implementation-defined manner. This
+  allows individual implementations to support user-defined means of resolving
+  URIs.
 
 ## Semantics
 
@@ -471,8 +569,14 @@ optionally an [import context](#import-context):
 * When an `@extend` directive is encountered, add its extension to the current
   module.
 
-* When a CSS rule or a plain CSS directive is encountered, execute it as normal
-  and add the resulting CSS to the current module's CSS.
+* When a CSS rule or a plain CSS directive is encountered:
+
+  * Execute the rule or directive as normal.
+
+  * Remove any rules containing a placeholder selector that begins with `-` or
+    `_`.
+
+  * Add the resulting CSS to the current module's CSS.
 
 * When a [member](#member) definition is encountered, if its member's name
   doesn't begin with `-` or `_`, add it to the current module. In addition, if
@@ -482,7 +586,19 @@ optionally an [import context](#import-context):
 * When a member use is encountered, [resolve it](#resolving-members) using the
   set of used modules and the current import context.
 
-* Once all top-level statements are executed, return the current module.
+* Once all top-level statements are executed, for every global variable
+  assignment in the source file:
+
+  * If the module has a variable with the same name as the assigned variable, do
+    nothing.
+
+  * If the variable name begin with `-` or `_`, do nothing.
+
+  * Otherwise, add the assigned variable to the current module, with a `null`
+    value. This ensures that the module exposes the same set of members
+    regardless of its execution.
+
+* Finally, return the current module.
 
 Note that members that begin with `-` or `_` (which Sass considers equivalent)
 are considered private. Private members are not added to the module's member
@@ -513,9 +629,12 @@ are resolved across files—that is, to find the definition corresponding to a
 given name. Given a set of [module](#module)s loaded via `@use` and a member
 type and name to resolve:
 
-* If the name begins with a module's prefix followed by a hyphen:
+* If the name is a [namespaced identifier](#member-references):
 
-  * Strip the prefix and hyphen to get the *unprefixed name*.
+  * Take the module whose prefix is the initial identifier. If there is no such
+    module, resolution fails.
+
+  * Strip the prefix and period to get the *unprefixed name*.
 
   * If the module doesn't have a member of the given type with the unprefixed
     name, resolution fails.
@@ -548,18 +667,6 @@ type and name to resolve:
 * Otherwise, if such a member isn't defined in any unprefixed module, resolution
   fails.
 
-The hyphenated syntax (`namespace-name`) was chosen in preference to other
-syntaxes (for example `namespace.name`, `namespace::name`, or `namespace|name`)
-because it's likely to be compatible with existing code that uses manual
-namespaces, and because it doesn't overlap with plain CSS syntax. This is
-especially relevant for namespaced placeholder selectors, because most other
-reasonable characters are already meaningful in selector contexts.
-
-The downside to hyphens are that they look like normal identifiers, which makes
-it less locally clear what's a namespace and what's a normal member name. It
-also allows module prefixes to shadow other members, and introduces the
-possibility of conflicting prefixes between modules.
-
 ### Using Modules
 
 When encountering a `@use` directive without a `mixin` clause, the first step is
@@ -577,7 +684,7 @@ directive's module is determined as follows:
 
 * If the directive has a `no-prefix` clause, then it has no prefix.
 
-* If the module's URI doesn't match the regular expression
+* If the module's URI (as written) doesn't match the regular expression
   `(.*/)?([^/]+)(\.[^/]*)?`, the `@use` directive is malformed.
 
 * Call the text captured by the second group of the regular expression the
@@ -619,8 +726,8 @@ mitigating it is a benefit.
 
 // Both packages define their own "gutters()" functions. But because the members
 // are prefixed, there's no conflict and the user can use both at once.
-#susy {@include susy-gutters()}
-#bourbon {@include bbn-gutters()}
+#susy {@include susy.gutters()}
+#bourbon {@include bbn.gutters()}
 
 // Users can also import without a prefix at all, which lets them use the
 // original member names.
@@ -643,8 +750,15 @@ file's namespace.
 The module mixin's arguments are derived from the module's members (which we can
 determine without executing the module). For every variable in module that has a
 `!default` flag, the module mixin has an argument with the same name and a
-default value of `null`. These arguments are in the order the variables are
-defined, although users should be strongly encouraged to only pass them by name.
+default value of `null`. The mixin does not allow positional arguments, nor does
+it allow named arguments that are not derived from variables.
+
+> **Design note**:
+>
+> It may become useful to provide the ability to customize the behavior of
+> module mixins at the language level. It may be wise to define a convention for
+> reserved argument names so that we can add arguments to all module mixins in
+> the future. It's not clear what a good convention would be for this, though.
 
 When this mixin is included:
 
@@ -654,9 +768,10 @@ When this mixin is included:
 * [Load](#loading-modules) the module with the `@use` directive's URI and this
   configuration.
 
-* If the current source file contains a `@forward` directive with the same URI
-  as the `@use` directive, [forward](#forwarding-modules) the loaded module with
-  that `@forward` directive.
+* If the current source file contains a `@forward` directive with an identifier
+  that's the same as the `@use` directive's prefix,
+  [forward](#forwarding-modules) the loaded module with that `@forward`
+  directive.
 
 * [Resolve extensions](#resolving-extensions) for the loaded module, then emit
   the resulting CSS to the location of the `@include`.
@@ -728,18 +843,16 @@ First, we define a general procedure for forward a module (call it the
 Note that the procedure defined above is not directly executed when encountering
 a `@forward` directive. To execute a `@forward` directive:
 
-* If the current source file contains a `@use` directive with the same URI as
-  the `@forward` directive and a `mixin` clause:
+* If the directive has an identifier rather than a quoted string:
 
-  * If there are multiple `@use` directives with that URI, the `@forward`
-    directive is malformed. This is true regardless of whether the additional
-    `@use` directives have `mixin` declarations.
+  * If there's no `@use` directive with the identifier as its prefix and with a
+    `mixin` clause, the `@forward` directive is malformed.
 
-  * Otherwise, do nothing. The module will be forwarded when the module is
+  * Otherwise, do nothing. The module will be forwarded when its mixin is
     included.
 
-* Otherwise, [load](#loading-modules) the module for the directive's URI with
-  the empty configuration.
+* Otherwise, [load](#loading-modules) the module for the URI in the directive's
+  quoted string with the empty configuration.
 
 * Forward the loaded module.
 
@@ -748,13 +861,6 @@ errors when a new member gets added to a forwarded module. It's likely that most
 packages will already break up their definitions into many smaller modules which
 will all be forwarded, which makes the API definition explicit enough without
 requiring additional explicitness here.
-
-> **Design note:**
->
-> There should definitely be a way to forward members from a configured module,
-> but I'm not sure whether this is the best way to do it. It weirds me out that
-> an identical `@forward` declaration can mean different things based on `@use`
-> directives around it. But I haven't come up with a better alternative.
 
 ```scss
 // _susy.scss would forward its component files so users would see its full API
@@ -800,8 +906,8 @@ When executing an `@import` directive:
 
 * Add any members of the resulting module that don't conflict with the current
   import context to that context, and to the current module. This makes
-  forwarded members available in the importing module, but does not them to
-  overwrite existing members with the same names and types.
+  forwarded members available in the importing module, but does not allow them
+  to overwrite existing members with the same names and types.
 
 When a stylesheet contains only `@import`s without any `@use`s, the `@import`s
 are intended to work exactly as they did in previous Sass versions. Any
@@ -823,7 +929,7 @@ organization to the set of built-in functions that comprise Sass's core library.
 These functions currently reside in the same global namespace as everything
 else, which makes it difficult to add new functions without risking conflict
 with either user code or future CSS functions (which has
-[happened in practice][issue-631]).
+[happened in practice][issue 631]).
 
 [issue 631]: https://github.com/sass/sass/issues/631
 
@@ -902,9 +1008,9 @@ but CSS will not be added to existing modules.
 // Adapted from https://css-tricks.com/snippets/sass/luminance-color-function/.
 @function luminance($color) {
   $colors: (
-    'red': color-red($color),
-    'green': color-green($color),
-    'blue': color-blue($color)
+    'red': color.red($color),
+    'green': color.green($color),
+    'blue': color.blue($color)
   );
 
   @each $name, $value in $colors {
@@ -915,14 +1021,44 @@ but CSS will not be added to existing modules.
       $value: $value / 12.92;
     } @else {
       $value: ($value + .055) / 1.055;
-      $value: math-pow($value, 2.4);
+      $value: math.pow($value, 2.4);
     }
 
-    $colors: map-merge($colors, ($name: $value));
+    $colors: map.merge($colors, ($name: $value));
   }
 
-  @return map-get($colors, 'red') * .2126 +
-      map-get($colors, 'green') * .7152 +
-      map-get($colors, 'blue') * .0722;
+  @return map.get($colors, 'red') * .2126 +
+      map.get($colors, 'green') * .7152 +
+      map.get($colors, 'blue') * .0722;
 }
 ```
+
+### New Functions
+
+The module system brings with it the need for additional introspection
+abilities. To that end, several new built-in functions will be defined in
+the `sass:meta` module.
+
+The `module-variables`, `module-functions`, and `module-mixins` functions each
+take a `$module` parameter. This parameter must be a string, and it must match
+the prefix of a module used by the current module. These functions return
+comma-separated lists of the names of all members of their respective types
+defined in the given module. These names are quoted strings; the
+`module-variables` function's strings do not include the leading `$`.
+
+Because a module's member names are knowable statically, these functions may be
+safely called even before a module mixin is included. Note that (like the
+existing `-defined` functions) their behavior depends on the lexical context in
+which they're invoked.
+
+### New Features For Existing Functions
+
+Several functions will get additional features in the new module-system world.
+
+The `global-variable-exists`, `function-exists`, and `mixin-exists` functions
+will all take an optional `$module` parameter. This parameter must be a string
+or `null`, and it must match the prefix of a module used by the current module.
+If it's not `null`, the function returns whether the module has a member with
+the given name and type. If it's `null`, it looks for members defined so far in
+the current module, members of any modules that have been used without prefixes,
+or global built-in definitions.
