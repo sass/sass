@@ -61,6 +61,9 @@ implementation of Sass, which runs somewhat slower than the other options listed
 here. But it has the same interface, so it'll be easy to swap in another
 implementation later if you need a bit more speed!
 
+See [the Sass website](http://sass-lang.com/install) for more ways to install
+Sass.
+
 Once you have Sass installed, you can run the `sass` executable to compile
 `.sass` and `.scss` files to `.css` files. For example:
 
@@ -91,6 +94,7 @@ contains:
 
 [`spec/`]: https://github.com/sass/language/tree/master/spec
 [`proposal/`]: https://github.com/sass/language/tree/master/proposal
+[`accepted/`]: https://github.com/sass/language/tree/master/accepted
 
 Note that this doesn't contain a full specification of Sass. Instead, feature
 specifications are written as needed when a new feature is being designed or
