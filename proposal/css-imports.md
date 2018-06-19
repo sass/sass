@@ -243,7 +243,6 @@ This algorithm takes a string, `text`, and returns a Sass abstract syntax tree.
 
 > This algorithm is designed with two goals in mind:
 >
-
 > 1. CSS imported from Sass should be as compatible with standard CSS as
 >    possible. In some cases we err even more towards CSS compatibility than
 >    SCSS does, because the CSS being imported is likely not written by someone
