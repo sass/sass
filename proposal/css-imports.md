@@ -108,6 +108,12 @@ Importers should be considered to effectively replace the algorithm for
 [loading an import](#loading-an-import), possibly with another algorithm that
 calls the existing algorithm to handle filesystem imports.
 
+> Other than support for importing plain CSS, this algorithm is designed to
+> accurately capture the current behavior of Ruby Sass and Dart Sass (when only
+> filesystem importers are involved). It closely matches the implementation of
+> Dart Sass, whereas Ruby Sass treats imported URLs as plain strings and
+> operates on filesystem paths rather than `file:` URLs.
+
 ### Handling an Import Rule
 
 To evaluate an `@import` rule:
