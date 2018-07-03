@@ -16,6 +16,7 @@ compatibility with the existing LibSass implementation. See
 * [Definitions](#definitions)
   * [Basename](#basename)
   * [Dirname](#dirname)
+  * [Canonical URL of a Stylesheet](#canonical-url-of-a-stylesheet)
 * [Semantics](#semantics)
   * [Handling an Import Rule](#handling-an-import-rule)
   * [Loading an Import](#loading-an-import)
@@ -96,6 +97,15 @@ The **basename** of a URL is the final component of that URL's path.
 The **dirname** of a URL is the prefix of that URL up to, but not including, the
 beginning of its [basename](#basename).
 
+### Canonical URL of a Stylesheet
+
+The **canonical URL** of a stylesheet is a URL associated with that stylesheet
+that represents the location from which it was loaded.
+
+The entrypoint stylesheet's canonical URL is the `file:` URL of the path it was
+loaded from on disk, or `null` if it was loaded from standard input. Otherwise,
+the canonical URL of a stylesheet is defined by the algorithm below.
+
 ## Semantics
 
 This proposal defines a new algorithm for
@@ -143,8 +153,10 @@ To evaluate an `@import` rule:
 
     If this returns null, throw an error.
 
-  * If an AST with the same canonical URL as `stylesheet` is currently being
+  * If an AST with the same [canonical URL][] as `stylesheet` is currently being
     evaluated, throw an error.
+
+    [canonical URL]: #canonical-url-of-a-stylesheet
 
   * Evaluate `stylesheet` in the global scope.
 
@@ -152,8 +164,8 @@ To evaluate an `@import` rule:
 
 This algorithm takes a string, `argument`, and returns a Sass stylesheet.
 
-* Let `root` be the current stylesheet's canonical URL if its scheme is `file`,
-  otherwise null.
+* Let `root` be the current stylesheet's [canonical URL][] if its scheme is
+  `file`, otherwise null.
 
 * Let `bases` be a list beginning with `root` if it's non-null, followed by the
   absolute `file:` URLs of all import paths.
@@ -194,7 +206,7 @@ This algorithm takes a string, `argument`, and returns a Sass stylesheet.
     > The algorithm for [resolving a `file:` URL](#resolving-a-file-url)
     > guarantees that `resolved` will have one of these extensions.
 
-  * Return `ast` with the canonical URL `resolved`.
+  * Return `ast` with the [canonical URL][] `resolved`.
 
 * Return null.
 
