@@ -397,7 +397,7 @@ It returns a Sass stylesheet.
   > The algorithm for [resolving a `file:` URL](#resolving-a-file-url)
   > guarantees that `resolved` will have one of these extensions.
 
-* Return `ast` with the [canonical URL][] `resolved`.
+* Return `ast` with the [canonical URL][] `url`.
 
 ## Deprecation process
 
