@@ -1,4 +1,4 @@
-# CSS Imports: Draft 1
+# CSS Imports: Draft 2
 
 This proposal covers a long-awaited Sass feature: the ability to import plain
 CSS files from Sass. Although the original plan was to wait on this support
@@ -23,6 +23,7 @@ compatibility with the existing LibSass implementation. See
   * [Resolving a `file:` URL](#resolving-a-file-url)
   * [Resolving a `file:` URL for partials](#resolving-a-file-url-for-partials)
   * [Parsing text as CSS](#parsing-text-as-css)
+  * [Loading an entrypoint path](#loading-an-entrypoint-path)
 * [Deprecation process](#deprecation-process)
 
 ## Background
@@ -102,9 +103,9 @@ beginning of its [basename](#basename).
 The **canonical URL** of a stylesheet is a URL associated with that stylesheet
 that represents the location from which it was loaded.
 
-The entrypoint stylesheet's canonical URL is the `file:` URL of the path it was
-loaded from on disk, or `null` if it was loaded from standard input. Otherwise,
-the canonical URL of a stylesheet is defined by the algorithm below.
+The canonical URL for stylesheets are set by the algorithms for
+[loading an import](#loading-an-import) and
+[loading an entrypoint path](#loading-an-entrypoint-path).
 
 ## Semantics
 
@@ -123,6 +124,12 @@ calls the existing algorithm to handle filesystem imports.
 > filesystem importers are involved). It closely matches the implementation of
 > Dart Sass, whereas Ruby Sass treats imported URLs as plain strings and
 > operates on filesystem paths rather than `file:` URLs.
+
+This proposal also defines a new algorithm for
+[loading an entrypoint path](#loading-an-entrypoint-path), which is also
+intended to replace the existing algorithm. This defines how a Sass
+implementation should compile a file passed on the command line or through a
+programming language API.
 
 ### Handling an Import Rule
 
@@ -369,6 +376,28 @@ SCSS:
   > parentheses, functions that return numbers, and all other arithmetic
   > expressions are disallowed, it will always compile to slash-separated values
   > rather than performing division.
+
+### Loading an entrypoint path
+
+This algorithm takes a string, `path`, that represents a file on the filesystem.
+It returns a Sass stylesheet.
+
+* Let `url` be the absolute `file:` URL corresponding to `path`.
+
+* Let `text` be the contents of the file at `path`.
+
+* Let `ast` be:
+
+  * The result of parsing `text` as the indented syntax if `url` ends in
+    `.sass`.
+  * The result of [parsing `text` as CSS](#parsing-text-as-css) if `url` ends in
+    `.css`.
+  * The result of parsing `text` as SCSS otherwise.
+
+  > The algorithm for [resolving a `file:` URL](#resolving-a-file-url)
+  > guarantees that `resolved` will have one of these extensions.
+
+* Return `ast` with the [canonical URL][] `resolved`.
 
 ## Deprecation process
 
