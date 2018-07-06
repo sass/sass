@@ -1,5 +1,7 @@
 # CSS Imports: Draft 2
 
+*([Changelog](css-imports.changes.md))*
+
 This proposal covers a long-awaited Sass feature: the ability to import plain
 CSS files from Sass. Although the original plan was to wait on this support
 until the [module system][] was in place and support CSS imports only with
