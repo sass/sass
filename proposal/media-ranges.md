@@ -1,4 +1,4 @@
-# Range-Context Media Features: Draft 1
+# Range-Context Media Features: Draft 2
 
 This proposal defines how Sass handles media queries with features written in a
 [range context][].
@@ -92,15 +92,20 @@ Plain CSS media queries are parsed using the following syntax:
 CssMediaQueryList ::= CssMediaQuery (',' CssMediaQuery)*
 CssMediaQuery     ::= CssMediaType
                     | (CssMediaType 'and')? CssMediaFeature ('and' CssMediaFeature)*
-CssMediaType      ::= Identifier Identifier¹?
+CssMediaType      ::= <ident-token> <ident-token>¹?
 CssMediaFeature   ::= '(' <declaration-value> ')'
 ```
 
 1: This `Identifier` may not be the identifier `"and"`.
 
-The `<declaration-value>` production is defined in [CSS Syntax Level 3][].
+The `<ident-token>` production matches the [railroad diagram][ident-token]
+listed in CSS Syntax Level 3. The `<declaration-value>` production uses
+[the definition][declaration-value] from CSS Syntax Level 3,
+[consuming tokens][] only as needed until the production terminates.
 
-[CSS Syntax Level 3]: https://drafts.csswg.org/css-syntax-3/#typedef-declaration-value
+[ident-token]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
+[declaration-value]: https://drafts.csswg.org/css-syntax-3/#typedef-declaration-value
+[consuming tokens]: https://drafts.csswg.org/css-syntax-3/#consume-a-token
 
 > This is the existing syntax Sass uses to reparse plain CSS media queries.
 > Since they're already parsed using `<declaration-value>`, no change in
