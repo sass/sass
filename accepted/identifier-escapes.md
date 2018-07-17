@@ -1,6 +1,6 @@
 # Escapes in Identifiers: Draft 2
 
-*([Issue](https://github.com/sass/sass/issues/1542))*
+*([Issue](https://github.com/sass/sass/issues/1542), [Changelog](identifier-escapes.changes.md))*
 
 This proposal adjusts how escaped code points are handled by Sass outside of
 string contexts. It's intended to bring Sass's semantics more in line with how
@@ -138,6 +138,8 @@ The grammar for this production is:
 
 [name-start code point]: https://drafts.csswg.org/css-syntax-3/#name-start-code-point
 [escape]: https://drafts.csswg.org/css-syntax-3/#escape-diagram
+
+No whitespace is allowed between components of an `InterpolatedIdentifier`.
 
 * Let `components` be an empty list of strings and/or expressions.
 
