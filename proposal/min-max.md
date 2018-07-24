@@ -1,4 +1,6 @@
-# Plain CSS `min()` and `max()`: Draft 1
+# Plain CSS `min()` and `max()`: Draft 2
+
+*([Issue](https://github.com/sass/sass/issues/2378), [Changelog](min-max.changes.md))*
 
 This proposal defines how Sass handles CSS's `min()` and `max()`
 [math functions][].

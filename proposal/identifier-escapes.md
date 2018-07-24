@@ -1,5 +1,7 @@
 # Escapes in Identifiers: Draft 1
 
+*([Issue](https://github.com/sass/sass/issues/1542))*
+
 This proposal adjusts how escaped code points are handled by Sass outside of
 string contexts. It's intended to bring Sass's semantics more in line with how
 CSS handles escapes.

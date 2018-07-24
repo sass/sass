@@ -1,6 +1,6 @@
 # The Next-Generation Sass Module System: Draft 2
 
-*([Changelog](module-system.changes.md))*
+*([Issues](https://github.com/sass/sass/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A%22%40use%22), [Changelog](module-system.changes.md))*
 
 This repository houses a proposal for the `@use` directive and associated module
 system, which is intended to be the headlining feature for Sass 4. This is a

@@ -1,6 +1,6 @@
 # CSS Imports: Draft 2
 
-*([Changelog](css-imports.changes.md))*
+*([Issue](https://github.com/sass/sass/issues/556), [Changelog](css-imports.changes.md))*
 
 This proposal covers a long-awaited Sass feature: the ability to import plain
 CSS files from Sass. Although the original plan was to wait on this support

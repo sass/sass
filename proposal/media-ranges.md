@@ -1,5 +1,7 @@
 # Range-Context Media Features: Draft 2
 
+*([Issue](https://github.com/sass/sass/issues/1864), [Changelog](media-ranges.changes.md))*
+
 This proposal defines how Sass handles media queries with features written in a
 [range context][].
 
