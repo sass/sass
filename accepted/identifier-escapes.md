@@ -1,4 +1,4 @@
-# Escapes in Identifiers: Draft 1
+# Escapes in Identifiers: Draft 2
 
 *([Issue](https://github.com/sass/sass/issues/1542))*
 
@@ -207,8 +207,8 @@ This production has the same grammar as [`escape`][escape] in CSS Syntax Level 3
 * Otherwise, if `codepoint` is a [name code point][] and the `start` flag is
   not set, return `character`.
 
-* Otherwise, if `codepoint` is a [non-printable code point][] or U+000A LINE
-  FEED:
+* Otherwise, if `codepoint` is a [non-printable code point][], U+000A LINE
+  FEED, U+000D CARRIAGE RETURN, or U+000C FORM FEED:
 
   [non-printable code point]: https://drafts.csswg.org/css-syntax-3/#non-printable-code-point
 
