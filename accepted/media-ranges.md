@@ -1,4 +1,4 @@
-# Range-Context Media Features: Draft 2
+# Range-Context Media Features: Draft 3
 
 *([Issue](https://github.com/sass/sass/issues/1864), [Changelog](media-ranges.changes.md))*
 
@@ -62,7 +62,7 @@ MediaQueryList ::= MediaQuery (',' MediaQuery)*
 MediaQuery     ::= MediaType | (MediaType 'and')? MediaFeature ('and' MediaFeature)*
 MediaType      ::= InterpolatedIdentifier InterpolatedIdentifier¹?
 MediaFeature   ::= Interpolation
-                 | '(' Expression ')'
+                 | '(' Expression² ')'
                  | '(' Expression² ':' Expression ')'
                  | '(' Expression² <mf-comparison> Expression² ')'
                  | '(' Expression² <mf-lt> Expression² <mf-lt> Expression² ')'
