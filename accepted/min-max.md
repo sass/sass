@@ -1,4 +1,4 @@
-# Plain CSS `min()` and `max()`: Draft 2
+# Plain CSS `min()` and `max()`: Draft 3
 
 *([Issue](https://github.com/sass/sass/issues/2378), [Changelog](min-max.changes.md))*
 
@@ -85,7 +85,7 @@ The grammar for this production is:
 **CalcValue**        ::= CalcValue (('+' | '-' | '*' | '/') CalcValue)+
 &#32;                  | '(' CalcValue ')'
 &#32;                  | ('calc(' | 'env(' | 'var(') InterpolatedDeclarationValue ')'
-&#32;                  | MinMaxExpression
+&#32;                  | CssMinMax
 &#32;                  | Interpolation
 &#32;                  | Number
 </pre></x>
