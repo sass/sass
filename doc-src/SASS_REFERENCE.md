@@ -1549,49 +1549,55 @@ to avoid unnecessary duplication,
 so something like `.seriousError.seriousError` gets translated to `.seriousError`.
 In addition, it won't produce selectors that can't match anything, like `#main#footer`.
 
-#### Extending Complex Selectors
+#### Extending Non-Class Selectors
 
 Class selectors aren't the only things that can be extended.
-It's possible to extend any selector involving only a single element,
-such as `.special.cool`, `a:hover`, or `a.user[href^="http://"]`.
+It's possible to extend any simple selector, such as `.special`, `a`, or `[href^="http://"]`.
 For example:
 
-    .hoverlink {
-      @extend a:hover;
+    .link {
+      @extend a;
     }
 
-Just like with classes, this means that all styles defined for `a:hover`
-are also applied to `.hoverlink`.
+Just like with classes, this means that all styles defined for `a`
+are also applied to `.link`.
 For example:
 
-    .hoverlink {
-      @extend a:hover;
+    .link {
+      @extend a;
     }
-    a:hover {
+    a {
       text-decoration: underline;
     }
 
 is compiled to:
 
-    a:hover, .hoverlink {
+    a, .link {
       text-decoration: underline; }
 
 Just like with `.error.intrusion` above,
-any rule that uses `a:hover` will also work for `.hoverlink`,
-even if they have other selectors as well.
+any rule that uses `a` will also work for `.link`,
+even if it has other selectors as well.
 For example:
 
-    .hoverlink {
+    .link {
       @extend a:hover;
     }
-    .comment a.user:hover {
+    .comment a.user {
       font-weight: bold;
     }
 
 is compiled to:
 
-    .comment a.user:hover, .comment .user.hoverlink {
+    .comment a.user, .comment .user.link {
       font-weight: bold; }
+
+**Historical note:** LibSass and Ruby Sass have also allowed users to @extend
+complex selectors that target a single element, such as `a:hover`.  This behavior
+is deprecated and will be removed in future versions.  This feature was not part
+of the original feature specification, and it was never implemented in Dart Sass.
+An [`@extend`-only placeholder selector](#placeholders) can be extended multiple
+times to generate the desired CSS in these cases.
 
 #### Multiple Extends
 
