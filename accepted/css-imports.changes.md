@@ -1,3 +1,12 @@
+## Draft 3
+
+* Add `@content` to the list of disallowed at-rules.
+
+* Allow `@media` rules within style rules and at-rules. Recent CSS specs allow
+  this, so we shouldn't forbid it.
+
+* Disallow silent comments.
+
 ## Draft 2
 
 * Explicitly defined the term "canonical URL" as it relates to stylesheets.

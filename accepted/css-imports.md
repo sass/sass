@@ -1,4 +1,4 @@
-# CSS Imports: Draft 2
+# CSS Imports: Draft 3
 
 *([Issue](https://github.com/sass/sass/issues/556), [Changelog](css-imports.changes.md))*
 
@@ -290,6 +290,7 @@ modifications. The following productions should produce errors:
   writing, this means:
 
   * `@at-root`
+  * `@content`
   * `@debug`
   * `@each`
   * `@error`
@@ -309,8 +310,6 @@ modifications. The following productions should produce errors:
 * An `@import` that appears within a style rule or at-rule.
 
 * An `@import` with more than one argument.
-
-* A `@media` rule that appears within a style rule or at-rule.
 
 * A declaration followed by an open curly brace (that is, a nested declaration).
 
@@ -361,6 +360,8 @@ modifications. The following productions should produce errors:
 * The empty list literal `(,)`.
 
 * Uses or declarations of Sass variables.
+
+* `//`-style ("silent") comments.
 
 In addition, some productions should be parsed differently than they would be in
 SCSS:
