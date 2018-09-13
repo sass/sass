@@ -6,9 +6,7 @@ It allows you to use [variables](#variables_), [nested rules](#nested_rules),
 [mixins](#mixins), [inline imports](#import), and more,
 all with a fully CSS-compatible syntax.
 Sass helps keep large stylesheets well-organized,
-and get small stylesheets up and running quickly,
-particularly with the help of
-[the Compass style library](http://compass-style.org).
+and get small stylesheets up and running quickly.
 
 ## Features
 
