@@ -100,3 +100,15 @@ Note that this doesn't contain a full specification of Sass. Instead, feature
 specifications are written as needed when a new feature is being designed or
 when an implementor needs additional clarity about how something is supposed to
 work.
+
+### Versioning Policy
+
+The proposals in this repository are versioned, to make it easy to track changes
+over time and to refer to older versions. Every version has a Git tag of the
+form `proposal.<name>.draft-<version>`. A new version should be created for each
+batch of changes.
+
+Every version has a major version, and they may have a minor version as well
+(indicated `<major>.<minor>`). The minor version should be incremented for
+changes that don't affect the intended semantics of the proposal; otherwise, the
+major version should be incremented.
