@@ -1,3 +1,30 @@
+## Draft 2.1
+
+* Removed the low-level "using CSS files" goal, since this is now covered by
+  [the CSS Imports proposal][].
+
+  [the CSS Imports proposal]: ../accepted/css-imports.md
+
+* Made the requirements for valid module URLs more explicit.
+
+* Merged the "Using Modules" section into the "Loading Modules" algorithm.
+
+* Added a separate section for "Determining Prefixes".
+
+* Consistently put non-normative asides in block quotes.
+
+* Refer to "URLs" rather than "URIs", per [the URL spec][].
+
+  [the URL spec]: https://url.spec.whatwg.org/#goals
+
+* Refer to "at-rules" rather than "directives".
+
+* Refer to "style rules" rather than "CSS rules".
+
+* Format and structure algorithms consistently with more recent proposals.
+
+* Other small non-semantic changes.
+
 ## Draft 2
 
 * The namespace separator is now a period rather than a hyphen.
