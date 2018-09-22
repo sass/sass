@@ -13,6 +13,8 @@
 
 * Consistently put non-normative asides in block quotes.
 
+* Refer to "namespaces" rather than "prefixes".
+
 * Refer to "URLs" rather than "URIs", per [the URL spec][].
 
   [the URL spec]: https://url.spec.whatwg.org/#goals

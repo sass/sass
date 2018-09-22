@@ -39,7 +39,7 @@ mind—these will be called out explicitly in block-quoted implementation notes.
   * [`@forward`](#forward)
   * [Member References](#member-references)
 * [Procedures](#procedures)
-  * [Determining Prefixes](#determining-prefixes)
+  * [Determining Namespaces](#determining-namespaces)
   * [Loading Modules](#loading-modules)
   * [Resolving Extensions](#resolving-extensions)
   * [Canonicalizing URLs](#canonicalizing-urls)
@@ -274,7 +274,7 @@ The new at-rule will be called `@use`. The grammar for this rule is as follows:
 <x><pre>
 **UseRule**     ::= '@use' QuotedString (AsClause? MixinClause? | NoPrefix?)
 **AsClause**    ::= 'as' Identifier
-**NoPrefix**    ::= 'no-prefix'
+**NoNamespace** ::= 'no-prefix'
 **MixinClause** ::= 'mixin'
 </pre></x>
 
@@ -290,14 +290,14 @@ URL scheme] base URL).
 > file](#source-file) that contains it, whereas most other Sass constructs are
 > purely imperative, keeping it at the top of the file helps reduce confusion.
 
-A `@use` rule's *prefix* is determined using [this
-algorithm](#determining-prefixes). If the algorithm for determining a prefix
-fails for a `@use` rule, that rule is invalid. If it returns `null`, that rule
-is called *unprefixed*. A prefix is used to identify the used
+A `@use` rule's *namespace* is determined using [this
+algorithm](#determining-namespaces). If the algorithm for determining a
+namespace fails for a `@use` rule, that rule is invalid. If it returns `null`,
+that rule is called *global*. A namespace is used to identify the used
 [module](#module)'s members within the current [source file](#source-file).
 
-The mixin clause is not allowed for unprefixed modules because the mixin name
-is derived from the module's prefix.
+The mixin clause is not allowed for global `@use` rules because the mixin name
+is derived from the rule's namespace.
 
 > I'm not at all sure about the mixin syntax here. `@use "foo" mixin` doesn't
 > read very well, and sounds less sentence-like than I'd prefer. But I'm having
@@ -349,17 +349,17 @@ The following procedures are not directly tied to the semantics of any single
 construct. Instead, they're used as components of multiple constructs'
 semantics. They can be thought of as re-usable functions.
 
-### Determining Prefixes
+### Determining Namespaces
 
-This describes how to determine the prefix for a `@use` rule. Given a rule
+This describes how to determine the namespace for a `@use` rule. Given a rule
 `rule`:
 
-> This algorithm is context-independent, so a prefix for a `@use` rule can be
+> This algorithm is context-independent, so a namespace for a `@use` rule can be
 > determined without reference to anything outside the syntax of that rule.
 
 * If `rule` has an `as` clause, return that clause's identifier.
 
-* If `rule` has a `no-prefix` clause, return `null`. The rule is unprefixed.
+* If `rule` has a `NoNamespace` clause, return `null`. The rule is global.
 
 * Let `path` be the `rule`'s URL's [path][URL path].
 
@@ -400,9 +400,9 @@ and [configuration](#configuration) `config`:
   with `config`.
 
 * If `file` contained a `@use` rule with a `mixin` clause and a `@forward` rule
-  with an identifier that's the same as the `@use` rule's prefix, *and* if that
-  `@use` rule's mixin was not included during the execution of the source file,
-  throw an error.
+  with an identifier that's the same as the `@use` rule's namespace, *and* if
+  that `@use` rule's mixin was not included during the execution of the source
+  file, throw an error.
 
 * Otherwise, return `module`.
 
@@ -602,8 +602,8 @@ optionally an [import context](#import-context) `import`:
 
 * When a `@use` rule `rule` without a `MixinClause` is encountered:
 
-  * If `rule` has a prefix that's the same as another `@use` rule's prefix in
-    `file`, throw an error.
+  * If `rule` has a namespace that's the same as another `@use` rule's namespace
+    in `file`, throw an error.
 
   * Let `module` be the result of [loading](#loading-modules) the module with
     `rule`'s URL and the empty [configuration](#configuration).
@@ -675,36 +675,36 @@ optionally an [import context](#import-context) `import`:
 > ```
 
 > This proposal follows Python and diverges from Dart in that `@use` imports
-> modules with a prefix by default. There are two reasons for this. First, it
+> modules with a namespace by default. There are two reasons for this. First, it
 > seems to be the case that language ecosystems with similar module systems
-> either prefix all imports by convention, or prefix almost none. Because Sass
-> is not object-oriented and doesn't have the built-in namespacing that classes
-> provide many other languages, its APIs tend to be much broader at the top
-> level and thus at higher risk for name conflict. Prefixing by default tilts
-> the balance towards always prefixing, which mitigates this risk.
+> either namespace all imports by convention, or namespace almost none. Because
+> Sass is not object-oriented and doesn't have the built-in namespacing that
+> classes provide many other languages, its APIs tend to be much broader at the
+> top level and thus at higher risk for name conflict. Namespacing by default
+> tilts the balance towards always namespacing, which mitigates this risk.
 >
-> Second, a default prefix scheme drastically reduces the potential for
-> inconsistency in prefix choice. If the prefix is left entirely up to the user,
-> different people may choose to prefix `strings.scss` as `strings`, `string`,
-> `str`, or `strs`. This taxes the reusability of code and knowledge, and
-> mitigating it is a benefit.
+> Second, a default namespace scheme drastically reduces the potential for
+> inconsistency in namespace choice. If the namespace is left entirely up to the
+> user, different people may choose to namespace `strings.scss` as `strings`,
+> `string`, `str`, or `strs`. This taxes the reusability of code and knowledge,
+> and mitigating it is a benefit.
 
 > ```scss
-> // This has the default prefix "susy".
+> // This has the default namespace "susy".
 > @use "susy";
 >
-> // This has the explicit prefix "bbn".
+> // This has the explicit namespace "bbn".
 > @use "bourbon" as bbn;
 >
-> // This has no prefix.
+> // This has no namespace.
 > @use "compass" no-prefix;
 >
 > // Both packages define their own "gutters()" functions. But because the members
-> // are prefixed, there's no conflict and the user can use both at once.
+> // are namespaced, there's no conflict and the user can use both at once.
 > #susy {@include susy.gutters()}
 > #bourbon {@include bbn.gutters()}
 >
-> // Users can also import without a prefix at all, which lets them use the
+> // Users can also import without a namespace at all, which lets them use the
 > // original member names.
 > #compass {@include gutters()}
 > ```
@@ -720,8 +720,8 @@ type `type`, and optionally an [import context](#import-context) `import`:
 * If `name` is a [namespaced identifier](#member-references)
   `namespace.raw-name`:
 
-  * Let `use` be the `@use` rule in `uses` whose prefix is `namespace`. If there
-    is no such rule, throw an error.
+  * Let `use` be the `@use` rule in `uses` whose namespace is `namespace`. If
+    there is no such rule, throw an error.
 
   * Let `module` be the module in `uses` associated with `use`.
 
@@ -734,8 +734,8 @@ type `type`, and optionally an [import context](#import-context) `import`:
 
   * Otherwise, return `member`.
 
-* If `type` is "mixin" and there exists a `@use` rule in `uses` whose prefix is
-  `name`, and that `@use` rule has a `mixin` clause, return its [module
+* If `type` is "mixin" and there exists a `@use` rule in `uses` whose namespace
+  is `name`, and that `@use` rule has a `mixin` clause, return its [module
   mixin](#module-mixins).
 
 * If `file` defines a member `member` of `type` named `name`:
@@ -748,11 +748,11 @@ type `type`, and optionally an [import context](#import-context) `import`:
     > file causes an immediate error rather than an unexpected behavioral
     > change.
 
-* If a member of type `type` named `name` is defined in exactly one unprefixed
-  module in `uses`, return that member.
+* If a member of type `type` named `name` is defined in exactly one module in
+  `uses` whose `@use` rule is global, return that member.
 
 * Otherwise, if a member of type `type` named `name` is defined in more than one
-  unprefixed module, throw an error.
+  module in `uses` whose `@use` rule is global, throw an error.
 
   > This ensures that, if a new version of a package produces a conflicting
   > name, it causes an immediate error.
@@ -772,7 +772,7 @@ uses.
 
 When executing a `@use` rule with a `mixin` clause, the rule's module isn't
 loaded as normal. Instead a special *module mixin*, with the same name as the
-rule's prefix, is made available in the current [source file](#source-file).
+rule's namespace, is made available in the current [source file](#source-file).
 
 The module mixin's arguments are derived from the module's members (which we can
 determine without executing the module). For every variable in module that has a
@@ -795,8 +795,8 @@ When this mixin is included:
   configuration.
 
 * If the current source file contains a `@forward` rule with an identifier
-  that's the same as the `@use` rule prefix, [forward](#forwarding-modules) the
-  loaded module with that `@forward` rule.
+  that's the same as the `@use` rule's namespace, [forward](#forwarding-modules)
+  the loaded module with that `@forward` rule.
 
 * [Resolve extensions](#resolving-extensions) for the loaded module, then emit
   the resulting CSS to the location of the `@include`.
@@ -874,10 +874,10 @@ First, we define a general procedure for forwarding a module `module` with a
 Note that the procedure defined above is not directly executed when encountering
 a `@forward` rule. To execute a `@forward` rule `rule`:
 
-* If `rule` has an identifier `prefix`:
+* If `rule` has an identifier `namespace`:
 
-  * If there's no `@use` rule in the current source file with prefix `prefix`
-    *and* with a `mixin` clause, throw an error.
+  * If there's no `@use` rule in the current source file with namespace
+    `namespace` *and* with a `mixin` clause, throw an error.
 
   * Otherwise, do nothing. The module will be forwarded when its mixin is
     included.
@@ -1080,10 +1080,10 @@ the `sass:meta` module.
 
 The `module-variables()`, `module-functions()`, and `module-mixins()` functions
 each take a `$module` parameter. This parameter must be a string, and it must
-match the prefix of a module used by the current module. These functions return
-comma-separated lists of the names of all members of their respective types
-defined in the given module. These names are quoted strings; the
-`module-variables()` function's strings do not include the leading `$`.
+match the namespace of a `@use` rule in the current source file. These functions
+return comma-separated lists of the names of all members of their respective
+types defined in the module loaded by that rule. These names are quoted strings;
+the `module-variables()` function's strings do not include the leading `$`.
 
 Because a module's member names are knowable statically, these functions may be
 safely called even before a module mixin is included. Note that (like the
@@ -1096,8 +1096,9 @@ Several functions will get additional features in the new module-system world.
 
 The `global-variable-exists()`, `function-exists()`, and `mixin-exists()`
 functions will all take an optional `$module` parameter. This parameter must be
-a string or `null`, and it must match the prefix of a module used by the current
-module. If it's not `null`, the function returns whether the module has a member
-with the given name and type. If it's `null`, it looks for members defined so
-far in the current module or import context, members of any modules that have
-been used without prefixes, or global built-in definitions.
+a string or `null`, and it must match the namespace of a `@use` rule in the
+current module. If it's not `null`, the function returns whether the module
+loaded by that rule has a member with the given name and type. If it's `null`,
+it looks for members defined so far in the current module or import context,
+members of any modules loaded by global `@use` rules, or global built-in
+definitions.
