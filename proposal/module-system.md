@@ -979,11 +979,16 @@ When executing an `@import` rule `rule` with an import context `import`:
   throw an error.
 
 * Let `module` be the result of [executing](#executing-files) `file` with an
-  empty configuration and `import` as its import context.
+  empty configuration and `import` as its import context, with the following
+  differences:
+
+  * If the `@import` rule is nested within at-rules and/or style rules, that
+    context is preserved when executing `file`.
+
+  * The generated CSS for style rules or at-rules in `file` is emitted to the
+    current module's CSS.
 
   > Note that this execution can mutate `import`.
-
-* Emit `module`'s CSS to the location of the `@import`.
 
 * Add the `module`'s [extensions](#extension) to the current module.
 

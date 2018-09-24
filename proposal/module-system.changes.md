@@ -1,5 +1,8 @@
 ## Draft 2.1
 
+* Make sure nested `@import`s preserve the parent selector/at-rule context of
+  the current stylesheet.
+
 * Removed the low-level "using CSS files" goal, since this is now covered by
   [the CSS Imports proposal][].
 
