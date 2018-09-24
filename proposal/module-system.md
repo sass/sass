@@ -53,6 +53,8 @@ mind—these will be called out explicitly in block-quoted implementation notes.
   * [Importing Files](#importing-files)
 * [Built-In Modules](#built-in-modules)
   * [New Functions](#new-functions)
+    * [`module-variables()`](#module-variables)
+    * [`module-functions()`](#module-functions)
   * [New Features For Existing Functions](#new-features-for-existing-functions)
 
 ## Background
@@ -1039,52 +1041,52 @@ relatively concise.
 
 The built-in functions will be organized as follows:
 
-| Current Name             | New Name    | Module        |   | Current Name             | New Name    | Module        |
-| ------------------------ | ------------| ------------- |---| ------------------------ | ------------| ------------- |
-| `rgb`                    |             | *global*      |   | `percentage`             |             | sass:math     |
-| `rgba`                   |             | *global*      |   | `round`                  |             | sass:math     |
-| `hsl`                    |             | *global*      |   | `ceil`                   |             | sass:math     |
-| `hsla`                   |             | *global*      |   | `floor`                  |             | sass:math     |
-| `if`                     |             | *global*      |   | `abs`                    |             | sass:math     |
-|                          |             |               |   | `min`                    |             | sass:math     |
-| `red`                    |             | sass:color    |   | `max`                    |             | sass:math     |
-| `blue`                   |             | sass:color    |   | `random`                 |             | sass:math     |
-| `green`                  |             | sass:color    |   | `unit`                   |             | sass:math     |
-| `mix`                    |             | sass:color    |   | `unitless`               |             | sass:math     |
-| `hue`                    |             | sass:color    |   | `comparable`             |             | sass:math     |
-| `saturation`             |             | sass:color    |   |                          |             |               |
-| `lightness`              |             | sass:color    |   | `length`                 |             | sass:list     |
-| `adjust-hue`             |             | sass:color    |   | `nth`                    |             | sass:list     |
-| `lighten`                |             | sass:color    |   | `set-nth`                |             | sass:list     |
-| `darken`                 |             | sass:color    |   | `join`                   |             | sass:list     |
-| `saturate`               |             | sass:color    |   | `append`                 |             | sass:list     |
-| `desaturate`             |             | sass:color    |   | `zip`                    |             | sass:list     |
-| `grayscale`              |             | sass:color    |   | `index`                  |             | sass:list     |
-| `complement`             |             | sass:color    |   | `list-separator`         | `separator` | sass:list     |
-| `invert`                 |             | sass:color    |   |                          |             |               |
-| `alpha`                  |             | sass:color    |   | `feature-exists`         |             | sass:meta     |
-| `opacify`                |             | sass:color    |   | `variable-exists`        |             | sass:meta     |
-| `transparentize`         |             | sass:color    |   | `global-variable-exists` |             | sass:meta     |
-| `adjust-color`           | `adjust`    | sass:color    |   | `function-exists`        |             | sass:meta     |
-| `scale-color`            | `scale`     | sass:color    |   | `mixin-exists`           |             | sass:meta     |
-| `change-color`           | `change`    | sass:color    |   | `inspect`                |             | sass:meta     |
-| `ie-hex-str`             |             | sass:color    |   | `get-function`           |             | sass:meta     |
-|                          |             |               |   | `type-of`                |             | sass:meta     |
-| `map-get`                | `get`       | sass:map      |   | `call`                   |             | sass:meta     |
-| `map-merge`              | `merge`     | sass:map      |   | `unique-id`              |             | sass:meta     |
-| `map-remove`             | `remove`    | sass:map      |   |                          |             |               |
-| `map-keys`               | `keys`      | sass:map      |   | `unquote`                |             | sass:string   |
-| `map-values`             | `values`    | sass:map      |   | `quote`                  |             | sass:string   |
-| `map-has-key`            | `has-key`   | sass:map      |   | `str-length`             | `length`    | sass:string   |
-| `keywords`               |             | sass:map      |   | `str-insert`             | `insert`    | sass:string   |
-|                          |             |               |   | `str-index`              | `index`     | sass:string   |
-| `selector-nest`          | `nest`      | sass:selector |   | `str-slice`              | `slice`     | sass:string   |
-| `selector-append`        | `append`    | sass:selector |   | `to-upper-case`          |             | sass:string   |
-| `selector-replace`       | `replace`   | sass:selector |   | `to-lower-case`          |             | sass:string   |
-| `selector-unify`         | `unify`     | sass:selector |   |                          |             |               |
-| `is-superselector`       |             | sass:selector |   |                          |             |               |
-| `simple-selectors`       |             | sass:selector |   |                          |             |               |
-| `selector-parse`         | `parse`     | sass:selector |   |                          |             |               |
+| Current Name             | New Name  | Module        |   | Current Name             | New Name           | Module        |
+| ------------------------ | ----------| ------------- |---| ------------------------ | ------------------ | ------------- |
+| `rgb`                    |           | *global*      |   | `percentage`             |                    | sass:math     |
+| `rgba`                   |           | *global*      |   | `round`                  |                    | sass:math     |
+| `hsl`                    |           | *global*      |   | `ceil`                   |                    | sass:math     |
+| `hsla`                   |           | *global*      |   | `floor`                  |                    | sass:math     |
+| `if`                     |           | *global*      |   | `abs`                    |                    | sass:math     |
+|                          |           |               |   | `min`                    |                    | sass:math     |
+| `red`                    |           | sass:color    |   | `max`                    |                    | sass:math     |
+| `blue`                   |           | sass:color    |   | `random`                 |                    | sass:math     |
+| `green`                  |           | sass:color    |   | `unit`                   |                    | sass:math     |
+| `mix`                    |           | sass:color    |   | `unitless`               |                    | sass:math     |
+| `hue`                    |           | sass:color    |   | `comparable`             |                    | sass:math     |
+| `saturation`             |           | sass:color    |   |                          |                    |               |
+| `lightness`              |           | sass:color    |   | `length`                 |                    | sass:list     |
+| `adjust-hue`             |           | sass:color    |   | `nth`                    |                    | sass:list     |
+| `lighten`                |           | sass:color    |   | `set-nth`                |                    | sass:list     |
+| `darken`                 |           | sass:color    |   | `join`                   |                    | sass:list     |
+| `saturate`               |           | sass:color    |   | `append`                 |                    | sass:list     |
+| `desaturate`             |           | sass:color    |   | `zip`                    |                    | sass:list     |
+| `grayscale`              |           | sass:color    |   | `index`                  |                    | sass:list     |
+| `complement`             |           | sass:color    |   | `list-separator`         | `separator`        | sass:list     |
+| `invert`                 |           | sass:color    |   |                          |                    |               |
+| `alpha`                  |           | sass:color    |   | `feature-exists`         |                    | sass:meta     |
+| `opacify`                |           | sass:color    |   | `variable-exists`        |                    | sass:meta     |
+| `transparentize`         |           | sass:color    |   | `global-variable-exists` |                    | sass:meta     |
+| `adjust-color`           | `adjust`  | sass:color    |   | `function-exists`        |                    | sass:meta     |
+| `scale-color`            | `scale`   | sass:color    |   | `mixin-exists`           |                    | sass:meta     |
+| `change-color`           | `change`  | sass:color    |   | `inspect`                |                    | sass:meta     |
+| `ie-hex-str`             |           | sass:color    |   | `get-function`           |                    | sass:meta     |
+|                          |           |               |   | `type-of`                |                    | sass:meta     |
+| `map-get`                | `get`     | sass:map      |   | `call`                   |                    | sass:meta     |
+| `map-merge`              | `merge`   | sass:map      |   | `unique-id`              |                    | sass:meta     |
+| `map-remove`             | `remove`  | sass:map      |   |                          | `module-variables` | sass:meta     |
+| `map-keys`               | `keys`    | sass:map      |   |                          | `module-functions` | sass:meta     |
+| `map-values`             | `values`  | sass:map      |   |                          |                    |               |
+| `map-has-key`            | `has-key` | sass:map      |   | `unquote`                |                    | sass:string   |
+| `keywords`               |           | sass:map      |   | `quote`                  |                    | sass:string   |
+|                          |           |               |   | `str-length`             | `length`           | sass:string   |
+| `selector-nest`          | `nest`    | sass:selector |   | `str-insert`             | `insert`           | sass:string   |
+| `selector-append`        | `append`  | sass:selector |   | `str-index`              | `index`            | sass:string   |
+| `selector-replace`       | `replace` | sass:selector |   | `str-slice`              | `slice`            | sass:string   |
+| `selector-unify`         | `unify`   | sass:selector |   | `to-upper-case`          |                    | sass:string   |
+| `is-superselector`       |           | sass:selector |   | `to-lower-case`          |                    | sass:string   |
+| `simple-selectors`       |           | sass:selector |   |                          |                    |               |
+| `selector-parse`         | `parse`   | sass:selector |   |                          |                    |               |
 
 Regardless of what configuration is used to load them, built-in modules will
 contain only the functions described above. They won't contain any other
@@ -1130,17 +1132,25 @@ The module system brings with it the need for additional introspection
 abilities. To that end, several new built-in functions will be defined in
 the `sass:meta` module.
 
-The `module-variables()`, `module-functions()`, and `module-mixins()` functions
-each take a `$module` parameter. This parameter must be a string, and it must
-match the namespace of a `@use` rule in the current source file. These functions
-return comma-separated lists of the names of all members of their respective
-types defined in the module loaded by that rule. These names are quoted strings;
-the `module-variables()` function's strings do not include the leading `$`.
-
 Because a module's member names are knowable statically, these functions may be
 safely called even before a module mixin is included. Note that (like the
 existing `*-defined()` functions) their behavior depends on the lexical context
 in which they're invoked.
+
+#### `module-variables()`
+
+The `module-variables()` function takes a `$module` parameter, which must be a
+string that matches the namespace of a `@use` rule in the current source file.
+It returns a map from variable names defined in the module loaded by that rule
+(as quoted strings, without `$`) to the current values of those variables.
+
+#### `module-functions()`
+
+The `module-functions()` function takes a `$module` parameter, which must be a
+string that matches the namespace of a `@use` rule in the current source file.
+It returns a map from function names defined in the module loaded by that rule
+(as quoted strings) to function values that can be used to invoke those
+functions.
 
 ### New Features For Existing Functions
 

@@ -1,5 +1,13 @@
 ## Draft 3
 
+* Update the `module-variables()` and `module-functions()` functions to return
+  maps from names to values, rather than just lists of names ([#12][]).
+  
+  [#12]: https://github.com/sass/language/issues/12
+
+* Remove the `module-mixins()` function until Sass supports first-class mixins
+  ([#12][]).
+
 * Clarify that `@forward` includes the forwarded module's CSS tree.
 
 ## Draft 2.1
