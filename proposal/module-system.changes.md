@@ -7,6 +7,8 @@
 
 * Add "Context-independent modules" as a non-goal.
 
+* Add a couple FAQs.
+
 * Made the requirements for valid module URLs more explicit.
 
 * Merged the "Using Modules" section into the "Loading Modules" algorithm.

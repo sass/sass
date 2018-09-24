@@ -24,6 +24,7 @@ mind—these will be called out explicitly in block-quoted implementation notes.
   * [High-Level](#high-level)
   * [Low-Level](#low-level)
   * [Non-Goals](#non-goals)
+* [Frequently Asked Questions](#frequently-asked-questions)
 * [Definitions](#definitions)
   * [Member](#member)
   * [Extension](#extension)
@@ -162,6 +163,27 @@ future work, but we don't consider them to be blocking the module system.
   the can statically determine to be context-independent, including source trees
   and potentially even constant-folded variable values and CSS trees. Full
   context independence isn't likely to provide much value in addition to that.
+
+## Frequently Asked Questions
+
+* **Why this privacy model?** We considered a number of models for declaring
+  members to be private, including a JS-like model where only members that were
+  explicitly exported from a module were visible and a C#-like model with an
+  explicit `@private` keyword. These models involve a lot more boilerplate,
+  though, and they work particularly poorly for placeholder selectors where
+  privacy may be mixed within a single style rule. Name-based privacy also
+  provides a degree of compatibility with conventions libraries are already
+  using.
+
+* **Can I make a member library-private?** There's no language-level notion of a
+  "library", so library-privacy isn't built in either. However, members imported
+  by one module aren't automatically visible to downstream modules. If a module
+  isn't [`@forward`ed](#forward) through the entrypoint to a library, it won't
+  be visible to downstream consumers and thus is effectively library-private.
+
+  As a convention, we recommend that libraries include library-private modules
+  that aren't intended to be imported directly by their users in a directory
+  named `src`.
 
 ## Definitions
 
