@@ -20,6 +20,10 @@
 
 * Clarify that `@forward` includes the forwarded module's CSS tree.
 
+* Explicitly indicate that extensions are dynamically scoped ([#7][]).
+
+  [#7]: https://github.com/sass/language/issues/7
+
 * Explicitly indicate which parts of a module are immutable.
 
 ## Draft 2.1
