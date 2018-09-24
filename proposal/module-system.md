@@ -164,6 +164,25 @@ future work, but we don't consider them to be blocking the module system.
   and potentially even constant-folded variable values and CSS trees. Full
   context independence isn't likely to provide much value in addition to that.
 
+* **Increased strictness**. Large teams with many people often want stricter
+  rules around how Sass libraries are written, to enforce best practices and
+  quickly catch mistakes. It's tempting to use a new module system as a lever to
+  push strictness further; for example, we could make it harder or even
+  impossible to have partials directly generate CSS, or we could decline to move
+  functions we'd prefer people avoid to the new built-in modules.
+
+  As tempting as it is, though, we want to make all existing use-cases as easy
+  as possible in the new system, *even if we think they should be avoided*. This
+  module system is already a major departure from the existing behavior, and
+  will require a substantial amount of work from Sass users to support. We want
+  to make this transition as easy as possible, and part of that is avoiding
+  adding any avoidable hoops users have to jump through to get their existing
+  stylesheets working in the new module system.
+
+  Once `@use` is thoroughly adopted in the ecosystem, we can start thinking
+  about increased strictness in the form of lints or TypeScript-style
+  `--strict-*` flags.
+
 ## Frequently Asked Questions
 
 * **Why this privacy model?** We considered a number of models for declaring
@@ -1060,11 +1079,6 @@ The built-in functions will be organized as follows:
 | `is-superselector`       |             | sass:selector |   |                          |             |               |
 | `simple-selectors`       |             | sass:selector |   |                          |             |               |
 | `selector-parse`         | `parse`     | sass:selector |   |                          |             |               |
-
-> For now, I've left in all existing functions. However, given that we'll be
-> asking users to make such a big transition anyway, it may be worth considering
-> whether we want to get rid of some. I'm thinking in particular of individual
-> color functions that are redundant with `adjust-color()`.
 
 Regardless of what configuration is used to load them, built-in modules will
 contain only the functions described above. They won't contain any other

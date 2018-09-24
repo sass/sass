@@ -5,7 +5,7 @@
 
   [the CSS Imports proposal]: ../accepted/css-imports.md
 
-* Add "Context-independent modules" as a non-goal.
+* Add "Context-independent modules" and "Increased strictness" as non-goals.
 
 * Add a couple FAQs.
 
