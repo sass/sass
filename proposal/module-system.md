@@ -705,10 +705,7 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
 
   * Otherwise, if `var`'s name begins with `-` or `_`, do nothing.
 
-  * Otherwise, add `var` to the current module, with a `null` value.
-
-    > This ensures that the module exposes the same set of members regardless of
-    > its execution.
+  * Otherwise, add `var` to the current module with the variable's value.
 
 * Finally, return `module`. It is now immutable.
 

@@ -8,6 +8,11 @@
 * Remove the `module-mixins()` function until Sass supports first-class mixins
   ([#12][]).
 
+* Initialize modules' variables with the values as declared in those modules
+  ([#13][]).
+
+  [#13]: https://github.com/sass/language/issues/13
+
 * Clarify that `@forward` includes the forwarded module's CSS tree.
 
 ## Draft 2.1
