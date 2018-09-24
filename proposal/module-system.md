@@ -325,6 +325,9 @@ An import context is mutable throughout its entire lifetime, unlike a module
 which doesn't change once it's been fully created. This allows it to behave as a
 shared namespace for a connected group of imports.
 
+> Note that an import context never includes members made visible by `@use`,
+> even if a file with `@use` rules is imported.
+
 ## Syntax
 
 ### `@use`
@@ -457,7 +460,7 @@ and [configuration](#configuration) `config`:
   > until they're fully initialized.
 
 * Otherwise, let `module` be the result of [executing](#executing-files) `file`
-  with `config`.
+  with `config` and a new [import context](#import-context).
 
 * If `file` contained a `@use` rule with a `mixin` clause and a `@forward` rule
   with an identifier that's the same as the `@use` rule's namespace, *and* if
@@ -465,6 +468,10 @@ and [configuration](#configuration) `config`:
   file, throw an error.
 
 * Otherwise, return `module`.
+
+> For simplicity, this proposal creates an import context for every module.
+> Implementations are encouraged to avoid eagerly allocating resources for
+> imports, though, to make use-cases only involving `@use` more efficient.
 
 ### Resolving Extensions
 
@@ -643,8 +650,8 @@ that are covered below. This procedure should be understood as modifying and
 expanding upon the existing execution process rather than being a comprehensive
 replacement.
 
-Given a source file `file`, a [configuration](#configuration) `config`, and
-optionally an [import context](#import-context) `import`:
+Given a source file `file`, a [configuration](#configuration) `config`, and an
+[import context](#import-context) `import`:
 
 * Let `module` be an empty module with the configuration `config` and same URL
   as `file`.
@@ -766,7 +773,7 @@ The main function of the module system is to control how [member](#member) names
 are resolved across files—that is, to find the definition corresponding to a
 given name. Given a source file `file`, a map `uses` from `@use` rules to the
 [modules](#module) loaded by those rules, a member to resolve named `name` of
-type `type`, and optionally an [import context](#import-context) `import`:
+type `type`, and an [import context](#import-context) `import`:
 
 * If `name` is a [namespaced identifier](#member-references)
   `namespace.raw-name`:
@@ -963,14 +970,7 @@ For a substantial amount of time, `@use` will coexist with the old `@import`
 rule in order to ease the burden of migration. This means that we need to define
 how the two rules interact.
 
-When executing an `@import` rule `rule`:
-
-* Let `import` be the current [import context](#import-context). If none exists
-  yet, create one that contains all of the current [module](#module)'s members
-  that have been defined so far.
-
-  > Note that this does not include members visible because of `@use`, nor does
-  > it include members from [forwarded](#forwarding-modules) modules.
+When executing an `@import` rule `rule` with an import context `import`:
 
 * Let `file` be the [source file](#source-file) with the given URL. If no such
   file can be found, throw an error.
@@ -992,8 +992,8 @@ When executing an `@import` rule `rule`:
   * If `member` has the same type and name as a member in `import`, do nothing.
 
     > Note that *all* members defined in `file` or in files it imports will
-    > already be in `import`. Only members brought in by `@use` or `@forward`
-    > are added to `import` in this step.
+    > already be in `import`. Only members brought in by `@forward` are added to
+    > `import` in this step.
 
   * Otherwise, add `member` to `import` and to the current module.
 

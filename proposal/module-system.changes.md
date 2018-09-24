@@ -15,6 +15,9 @@
 
 * Added a separate section for "Determining Prefixes".
 
+* Make the import context mandatory everywhere, to simplify logic.
+  Implementations are still free to allocate them lazily, though.
+
 * Consistently put non-normative asides in block quotes.
 
 * Refer to "namespaces" rather than "prefixes".
