@@ -20,6 +20,8 @@
 
 * Clarify that `@forward` includes the forwarded module's CSS tree.
 
+* Forbid whitespace in various member-reference productions.
+
 * Explicitly indicate that extensions are dynamically scoped ([#7][]).
 
   [#7]: https://github.com/sass/language/issues/7

@@ -399,6 +399,10 @@ hand, may use this syntax for either assignment or reference.
 **Include**              ::= '@include' NamespacedIdentifier ArgumentInvocation?
 </pre></x>
 
+No whitespace is allowed before or after the `'.'` in `NamespacedIdentifier`,
+after the `'$'` in `Variable`, or between the `NamespacedIdentifier` and the
+`ArgumentInvocation` in `FunctionCall`.
+
 > The dot-separated syntax (`namespace.name`) was chosen in preference to a
 > hyphenated syntax (for example `namespace-name`) because it makes the
 > difference between module-based namespaces and manually-separated identifiers
