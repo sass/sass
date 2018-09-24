@@ -3,10 +3,10 @@
 *([Issues](https://github.com/sass/sass/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A%22%40use%22), [Changelog](module-system.changes.md))*
 
 This repository houses a proposal for the `@use` rule and associated module
-system, which is intended to be the headlining feature for Sass 4. This is a
-*living proposal*: it's intended to evolve over time, and is hosted on GitHub to
-encourage community collaboration and contributions. Any suggestions or issues
-can be brought up and discussed on [the issue tracker][issues].
+system. This is a *living proposal*: it's intended to evolve over time, and is
+hosted on GitHub to encourage community collaboration and contributions. Any
+suggestions or issues can be brought up and discussed on [the issue
+tracker][issues].
 
 [issues]: https://github.com/sass/language/issues?q=is%3Aissue+is%3Aopen+label%3A%22proposal%3A+module+system%22
 
