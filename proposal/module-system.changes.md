@@ -1,5 +1,10 @@
 ## Draft 3
 
+* Limit extensions to affecting only modules transitively used by the module in
+  which the `@extend` appears ([#6][]).
+
+  [#6]: https://github.com/sass/language/issues/6
+
 * Update the `module-variables()` and `module-functions()` functions to return
   maps from names to values, rather than just lists of names ([#12][]).
   

@@ -481,62 +481,38 @@ The module system also scopes the resolution of the `@extend` rule. This helps
 satisfy locality, making selector extension more predictable than its global
 behavior under `@import`.
 
-Extension is scoped to CSS in [modules](#module) *transitively used by* or
-*transitively using* the module in which the `@extend` appears. This
-transitivity is necessary because CSS is not considered a [member](#member) of a
-module, and can't be controlled as explicitly as members can.
+Extension is scoped to CSS in [modules](#module) *transitively used by* the
+module in which the `@extend` appears. This transitivity is necessary because
+CSS is not considered a [member](#member) of a module, and can't be controlled
+as explicitly as members can.
 
-> Extending all transitively-used and -using modules is indented to reflect the
-> idea that the `@extend` should affect all CSS that has the same semantic
-> notion of a given selector.
+> We considered having extension also affect modules that were *downstream* of
+> the `@extend`, on the theory that they had a similar semantic notion of the
+> selector in question. However, because this didn't affect other modules
+> imported by the downstream stylesheet, it created a problem for the downstream
+> author. It should generally be safe to take a bunch of style rules from one
+> module and split them into multiple modules that are all imported by that
+> module, but doing so could cause those styles to stop being affected by
+> upstream extensions.
 >
-> Another way to think about it is that `@extend` affects upstream and downstream
-> CSS, but not sibling CSS.
+> Extending downstream stylesheets also meant that the semantics of a downstream
+> author's styles are affected by the specific extensions used in an upstream
+> stylesheet. For example,
 >
 > ```scss
-> // upstream.scss
-> .bad-error {
->   font-weight: bold;
->
->   // This works because "downstream" uses "upstream".
->   @extend .error;
-> }
->
-> .success {
->   color: green;
-> }
->
-> // sibling.scss
-> .no-extend-error {
->   // This doesn't work, because "sibling" doesn't use "upstream" and "upstream"
->   // doesn't use "sibling".
->   @extend .error;
-> }
->
-> // downstream.scss
-> @use "upstream";
-> @use "sibling";
->
-> .error {
->   color: red;
-> }
->
-> .huge-success {
->   font-weight: bold;
->
->   // This works because "downstream" uses "upstream".
->   @extend .success;
-> }
->
-> // output.css
-> .bad-error {
->   font-weight: bold;
-> }
->
-> .error, .bad-error {
->   font-weight: bold;
-> }
+> .foo { /* ... */ }
+> .bar { @extend .foo }
 > ```
+>
+> isn't identical (from a downstream user's perspective) to
+> 
+> ```scss
+> .foo, .bar { /* ... */ }
+> ```
+>
+> That could be a drawback or a benefit, but it's more likely that upstream
+> authors think of themselves as distributing a chunk of styles rather than an
+> API consisting of things they've extended.
 
 We define a general process for resolving extensions for a given module
 `starting-module`. This process emits CSS for that module and everything it
@@ -566,8 +542,8 @@ transitively uses.
         by either `foreign-selector` or `domestic-selector`.
 
       * If `foreign` module was used by `domestic` (as opposed to only being
-        forwarded), apply the `domestic`'s extensions to `new-selector`, and
-        replace it with the result.
+        forwarded), apply `domestic`'s extensions to `new-selector`, and replace
+        it with the result.
 
       * Add `new-selector` to `domestic`'s extended selectors, indexed by the
         `foreign-selector`'s original location. Replace `domestic-selector` in
@@ -575,34 +551,18 @@ transitively uses.
 
   * For each style rule `rule` in `domestic`:
 
-    * For each module transitively reachable in the module graph from `domestic`
-      in reverse [topological][] order, apply that module's extensions to
-      `rule`'s selector.
-
     * Apply `domestic`'s extensions to `rule`'s selector.
 
     * Add the resulting selector to `domestic`'s extended selectors, indexed by
       the rule's location.
 
-* For each module `domestic` in `extended` graph, in reverse [topological][]
-  order:
+* For each module `domestic` in `extended`, in reverse [topological][] order:
 
   * Emit each top-level statement in `domestic`'s [CSS tree](#css-tree), with
     any selectors replaced by the corresponding selector in `starting-module`'s
     extended selectors.
 
 [topological]: https://en.wikipedia.org/wiki/Topological_sorting
-
-> **Implementation note**:
->
-> As written, this algorithm is O(n²) in the number of modules because resolving
-> extends for each local style rule requires iterating over all its transitive
-> modules. However, it's intended to be straightforwardly implementable in O(n)
-> time by cumulatively tracking the extends as the algorithm proceeds.
-
-> To promote locality, there is intentionally no way for a module to affect the
-> extensions of another module that doesn't transitively use it or isn't
-> transitively used by it.
 
 ### Canonicalizing URLs
 
