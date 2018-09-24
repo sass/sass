@@ -337,9 +337,8 @@ shared namespace for a connected group of imports.
 The new at-rule will be called `@use`. The grammar for this rule is as follows:
 
 <x><pre>
-**UseRule**     ::= '@use' QuotedString (AsClause? MixinClause? | NoPrefix?)
-**AsClause**    ::= 'as' Identifier
-**NoNamespace** ::= 'no-prefix'
+**UseRule**     ::= '@use' QuotedString (AsClause? MixinClause? | AsClause?)
+**AsClause**    ::= 'as' ('*' | Identifier)
 **MixinClause** ::= 'mixin'
 </pre></x>
 
@@ -426,9 +425,11 @@ This describes how to determine the namespace for a `@use` rule. Given a rule
 > This algorithm is context-independent, so a namespace for a `@use` rule can be
 > determined without reference to anything outside the syntax of that rule.
 
-* If `rule` has an `as` clause, return that clause's identifier.
+* If `rule` has an `'as'` clause `as`:
 
-* If `rule` has a `NoNamespace` clause, return `null`. The rule is global.
+  * If `as` has an identifier, return it.
+
+  * Otherwise, return `null`. The rule is global.
 
 * Let `path` be the `rule`'s URL's [path][URL path].
 
@@ -723,7 +724,7 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
 > @use "bourbon" as bbn;
 >
 > // This has no namespace.
-> @use "compass" no-prefix;
+> @use "compass" as *;
 >
 > // Both packages define their own "gutters()" functions. But because the members
 > // are namespaced, there's no conflict and the user can use both at once.

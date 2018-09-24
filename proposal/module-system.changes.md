@@ -13,6 +13,11 @@
 * Remove the `module-mixins()` function until Sass supports first-class mixins
   ([#12][]).
 
+* Change the syntax for a `@use` rule without a namespace to `@use "..." as *`
+  ([#10][]).
+
+  [#10]: https://github.com/sass/language/issues/10
+
 * Initialize modules' variables with the values as declared in those modules
   ([#13][]).
 
