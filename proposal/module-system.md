@@ -1,4 +1,4 @@
-# The Next-Generation Sass Module System: Draft 2.1
+# The Next-Generation Sass Module System: Draft 3
 
 *([Issues](https://github.com/sass/sass/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A%22%40use%22), [Changelog](module-system.changes.md))*
 
@@ -901,7 +901,8 @@ The [`@forward`](#forward) rule forwards another [module](#module)'s public API
 as though it were part of the current module's.
 
 > Note that `@forward` *does not* make any APIs available to the current module;
-> that is purely the domain of `@use`.
+> that is purely the domain of `@use`. However, it *does* include the forwarded
+> module's CSS tree.
 
 First, we define a general procedure for forwarding a module `module` with a
 `@forward` rule `rule`:

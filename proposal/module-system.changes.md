@@ -1,3 +1,7 @@
+## Draft 3
+
+* Clarify that `@forward` includes the forwarded module's CSS tree.
+
 ## Draft 2.1
 
 * Make sure nested `@import`s preserve the parent selector/at-rule context of
