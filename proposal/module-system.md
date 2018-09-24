@@ -707,7 +707,7 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
 
   * Otherwise, add `var` to the current module with the variable's value.
 
-* Finally, return `module`. It is now immutable.
+* Finally, return `module`. Its functions, mixins, and CSS are now immutable.
 
 > Note that members that begin with `-` or `_` (which Sass considers equivalent)
 > are considered private. Private members are not added to the module's member

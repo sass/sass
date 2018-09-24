@@ -15,6 +15,8 @@
 
 * Clarify that `@forward` includes the forwarded module's CSS tree.
 
+* Explicitly indicate which parts of a module are immutable.
+
 ## Draft 2.1
 
 * Make sure nested `@import`s preserve the parent selector/at-rule context of
