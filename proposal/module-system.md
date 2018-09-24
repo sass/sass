@@ -144,6 +144,25 @@ future work, but we don't consider them to be blocking the module system.
   of extra work. This is the most likely feature to end up in a future release,
   but it's not central enough to include in the initial module system.
 
+* **Context-independent modules**. It's tempting to try to make the loaded form
+  of a module, including the CSS it generates and the resolved values of all its
+  variables, totally independent of the entrypoint that cause it to be loaded.
+  This would make it possible to share loaded modules across multiple
+  compilations and potentially even serialize them to the filesystem for
+  incremental compilation.
+
+  However, it's not feasible in practice. In practice, modules that generate CSS
+  almost always do so based on some configuration, which may be changed by
+  different entrypoints rendering caching useless. What's more, multiple modules
+  may depend on the same shared module, and one may modify its configuration
+  before the other uses it. Forbidding this case in general would effectively
+  amount to forbidding modules from generating CSS.
+
+  Fortunately, implementations have a lot of leeway to cache information that
+  the can statically determine to be context-independent, including source trees
+  and potentially even constant-folded variable values and CSS trees. Full
+  context independence isn't likely to provide much value in addition to that.
+
 ## Definitions
 
 ### Member
@@ -405,15 +424,6 @@ and [configuration](#configuration) `config`:
   file, throw an error.
 
 * Otherwise, return `module`.
-
-> **Implementation note:**
->
-> Although this specification only requires that modules be cached and reused
-> when compiling a single [entrypoint](#entrypoint), modules are intentionally
-> context-independent enough to store and re-use across multiple entrypoints, as
-> long as no source files change. For example, if the user requests that all
-> Sass files beneath `stylesheets/sass` be compiled, modules may be shared
-> between those separate compilations.
 
 ### Resolving Extensions
 
