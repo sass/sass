@@ -43,7 +43,6 @@ mind—these will be called out explicitly in block-quoted implementation notes.
   * [Determining Namespaces](#determining-namespaces)
   * [Loading Modules](#loading-modules)
   * [Resolving Extensions](#resolving-extensions)
-  * [Canonicalizing URLs](#canonicalizing-urls)
 * [Semantics](#semantics)
   * [Compilation Process](#compilation-process)
   * [Executing Files](#executing-files)
@@ -264,11 +263,12 @@ as well as a [CSS tree](#css-tree) (although that tree may be empty). Each
 module may have only one member of a given type and name (for example, a module
 may not have two variables named `$name`).
 
-Each module is uniquely identified by the combination of a
-[canonical](#canonicalizing-urls) URL and a [configuration](#configuration). A
-given module can be produced by [executing](#executing-files) the [source
-file](#source-file) identified by the module's URL with the module's
-configuration.
+Each module is uniquely identified by the combination of a [canonical URL][] and
+a [configuration](#configuration). A given module can be produced by
+[executing](#executing-files) the [source file](#source-file) identified by the
+module's URL with the module's configuration.
+
+[canonical URL]: ../spec/import.md#canonical-url-of-a-stylesheet
 
 ### Module Graph
 
@@ -289,9 +289,8 @@ invoked before the module is executed.
 
 ### Source File
 
-A *source file* is a Sass abstract syntax tree with an associated URL, known as
-the file's *canonical URL*. The canonical URL uniquely identifies the source
-file.
+A *source file* is a Sass abstract syntax tree along with its [canonical URL][].
+Each canonical URL is associated with zero or one source files.
 
 A source file can be [executed](#executing-files) with a
 [configuration](#configuration) to produce a [module](#module).
@@ -300,9 +299,6 @@ A source file can be [executed](#executing-files) with a
 > static, and can be determined without executing the file. This means that all
 > modules for a given source file have the same member names regardless of the
 > configurations used for those modules.
-
-A URL can be [canonicalized](#canonicalizing-urls) to convert it to its
-canonical form.
 
 > Note that [built-in modules](#built-in-modules) *do not* have source files
 > associated with them.
@@ -455,10 +451,12 @@ and [configuration](#configuration) `config`:
 
   * Otherwise, throw an error.
 
-* Let `file` be [source file](#source-file) for `url`. The process for
-  locating this file is out of scope of this document.
+* Let `file` be the [source file](#source-file) result of [loading][loading an
+  import] `url`.
 
-* If `file` can't be found, throw an error.
+  [loading an import]: ../spec/import.md#loading-an-import
+
+* If `file` is null, throw an error.
 
 * If `file` has already been [executed](#executing-files) with the given
   configuration, return the module that execution produced.
@@ -572,32 +570,6 @@ transitively uses.
     extended selectors.
 
 [topological]: https://en.wikipedia.org/wiki/Topological_sorting
-
-### Canonicalizing URLs
-
-[Modules](#module) and [source files](#source-file) are uniquely identified by
-URLs, which means we must be able to determine the canonical form of URLs
-written by users. Given a non-canonical URL `url` and a canonicalized URL `base`
-representing the context in which it's being resolved:
-
-* If the `url`'s scheme is `sass`, return it as-is.
-
-  > [Built-in module](#built-in-modules) URLs are compared textually, and have
-  > no special canonicalization logic.
-
-* If the `base`'s scheme is `file` and `url` is relative, return `base`
-  without its final path component concatenated with `url`.
-
-  > For example, if `base` is `file:///foo/bar/baz` and `url` is `bang/qux`,
-  > return `file:///foo/bar/bang/qux`.
-
-* If `url`'s scheme is `file`, resolve , then return a copy of `url` with any
-  `..` or `.` components resolved an any duplicate separators removed from the
-  path component.
-
-* Otherwise, canonicalization proceeds in an implementation-defined manner. This
-  allows individual implementations to support user-defined means of resolving
-  URLs.
 
 ## Semantics
 
@@ -946,8 +918,10 @@ how the two rules interact.
 
 When executing an `@import` rule `rule` with an import context `import`:
 
-* Let `file` be the [source file](#source-file) with the given URL. If no such
-  file can be found, throw an error.
+* Let `file` be the [source file](#source-file) result of [loading][loading an
+  import] `url`.
+
+* If `file` is null, throw an error.
 
 * If `file` is currently being executed with `import` as its import context,
   throw an error.
