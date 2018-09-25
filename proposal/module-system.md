@@ -116,7 +116,7 @@ most part, they're derived from user feedback that we've collected about
   compile and run that file multiple times. At best this hurts compilation time
   for little benefit, and it can also contribute to bloated CSS output when the
   styles themselves are duplicated. The new module system should only compile a
-  file once, at least for the default configuration.
+  file once.
 
 * **Backwards compatibility**. We want to make it as easy as possible for people
   to migrate to the new module system, and that means making it work in
@@ -207,6 +207,39 @@ future work, but we don't consider them to be blocking the module system.
   that aren't intended to be imported directly by their users in a directory
   named `src`.
 
+* **How do I make my library configurable?** If you have a large library made up
+  of many source files that all share some core `!default`-based configuration,
+  we recommend that you define that configuration in a file that gets forwarded
+  from your library's entrypoint and used by your library's files. For example:
+
+  ```scss
+  // bootstrap.scss
+  @forward "variables";
+  @use "reboot";
+  ```
+
+  ```scss
+  // _variables.scss
+  $paragraph-margin-bottom: 1rem !default;
+  ```
+
+  ```scss
+  // _reboot.scss
+  @use "variables" as *;
+
+  p {
+    margin-top: 0;
+    margin-bottom: $paragraph-margin-bottom;
+  }
+  ```
+
+  ```scss
+  // User's stylesheet
+  @use "bootstrap" with (
+    $paragraph-margin-bottom: 1.2rem
+  );
+  ```
+
 ## Definitions
 
 ### Member
@@ -254,10 +287,6 @@ A *configuration* is a map from variable names to SassScript values. It's used
 when [executing](#executing-files) a [source file](#source-file) to customize
 its execution. An *empty configuration* contains no entries.
 
-Two configurations are considered identical if they contain the same variable
-names, and if each pair of variables with the same name has values that are `==`
-to one another.
-
 ### Module
 
 A *module* is a collection of [members](#members) and [extensions](#extensions),
@@ -265,20 +294,18 @@ as well as a [CSS tree](#css-tree) (although that tree may be empty). Each
 module may have only one member of a given type and name (for example, a module
 may not have two variables named `$name`).
 
-Each module is uniquely identified by the combination of a [canonical URL][] and
-a [configuration](#configuration). A given module can be produced by
-[executing](#executing-files) the [source file](#source-file) identified by the
-module's URL with the module's configuration.
+A given module can be produced by [executing](#executing-files) the [source
+file](#source-file) identified by the module's [canonical URL][] with a
+[configuration](#configuration).
 
 [canonical URL]: ../spec/import.md#canonical-url-of-a-stylesheet
 
 ### Module Graph
 
 Modules also track their `@use` and [`@forward`](#forwarding-modules) at-rules,
-which point to other modules. In this sense, modules with empty configuration
-can be construed as a [directed acyclic graph][] where the vertices are modules
-and the edges are `@use` rules and/or `@forward` rules. We call this the *module
-graph*.
+which point to other modules. In this sense, modules can be construed as a
+[directed acyclic graph][] where the vertices are modules and the edges are
+`@use` rules and/or `@forward` rules. We call this the *module graph*.
 
 [directed acyclic graph]: https://en.wikipedia.org/wiki/Directed_acyclic_graph
 
@@ -300,7 +327,7 @@ A source file can be [executed](#executing-files) with a
 > The names (and mixin and function signatures) of this module's members are
 > static, and can be determined without executing the file. This means that all
 > modules for a given source file have the same member names regardless of the
-> configurations used for those modules.
+> context in which those modules are loaded.
 
 > Note that [built-in modules](#built-in-modules) *do not* have source files
 > associated with them.
@@ -332,14 +359,18 @@ shared namespace for a connected group of imports.
 The new at-rule will be called `@use`. The grammar for this rule is as follows:
 
 <x><pre>
-**UseRule**     ::= '@use' QuotedString AsClause?
-**AsClause**    ::= 'as' ('*' | Identifier)
+**UseRule**         ::= '@use' QuotedString AsClause? WithClause?
+**AsClause**        ::= 'as' ('*' | Identifier)
+**WithClause**      ::= 'with' '('
+                          KeywordArgument (',' KeywordArgument)* ','?
+                        ')'
+**KeywordArgument** ::= '$' Identifier ':' Expression
 </pre></x>
 
 `@use` rules must be at the top level of the document, and must come before any
 rules other than `@charset` or `@forward`. The `QuotedString`'s contents, known
 as the rule's *URL*, must be a [valid URL string][] (for non-[special][special
-URL scheme] base URL).
+URL scheme] base URL). No whitespace is allowed after `$` in `KeywordArgument`.
 
 [valid URL string]: https://url.spec.whatwg.org/#valid-url-string
 [special URL scheme]: https://url.spec.whatwg.org/#special-scheme
@@ -347,6 +378,18 @@ URL scheme] base URL).
 > Because each `@use` rule affects the namespace of the entire [source
 > file](#source-file) that contains it, whereas most other Sass constructs are
 > purely imperative, keeping it at the top of the file helps reduce confusion.
+>
+> Variable declarations aren't rules, and so *are* valid before or between
+> `@use` and `@forward` rules. This makes it possible to define intermediate
+> variables when passing configuration to a `WithClause`.
+>
+> ```scss
+> $base-color: #abc;
+> @use "library" with (
+>   $base-color: $base-color,
+>   $secondary-color: darken($base-color, 10%),
+> );
+> ```
 
 A `@use` rule's *namespace* is determined using [this
 algorithm](#determining-namespaces). If the algorithm for determining a
@@ -454,12 +497,15 @@ and [configuration](#configuration) `config`:
 
 * If `file` is null, throw an error.
 
-* If `file` has already been [executed](#executing-files) with the given
-  configuration, return the module that execution produced.
+* If `file` has already been [executed](#executing-files):
+
+  * If `config` is not empty, throw an error.
+
+  * Otherwise, return the module that execution produced.
 
   > This fulfills the "import once" low-level goal.
 
-* If `file` is currently being executed with `config`, throw an error.
+* If `file` is currently being executed, throw an error.
 
   > This disallows circular `@use`s, which ensures that modules can't be used
   > until they're fully initialized.
@@ -720,8 +766,7 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
       > Implementations may choose to verify this lazily, after `file` has been
       > executed.
 
-* Let `module` be an empty module with the configuration `config` and same URL
-  as `file`.
+* Let `module` be an empty module with the same URL as `file`.
 
 * Let `uses` be an empty map from `@use` rules to [modules](#modules).
 
@@ -730,8 +775,22 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
   * If `rule` has a namespace that's the same as another `@use` rule's namespace
     in `file`, throw an error.
 
+  * Let `rule-config` be the empty configuration.
+
+  * If `rule` has a `WithClause`:
+
+    * For each `KeywordArgument` `argument` in this clause:
+
+      * Let `value` be the result of evaluating `argument`'s expression.
+
+        > If the expression refers to a module that's used below `rule`, that's
+        > an error.
+
+      * Add a variable to `rule-config` with the same name as `argument`'s identifier
+        and with `value` as its value.
+
   * Let `module` be the result of [loading](#loading-modules) the module with
-    `rule`'s URL and the empty [configuration](#configuration).
+    `rule`'s URL and `rule-config`.
 
   * Associate `rule` with `module` in `uses`.
 
@@ -881,6 +940,8 @@ context](#import-context) `import`:
   * Let `use` be the `@use` rule in `uses` whose namespace is `namespace`. If
     there is no such rule, throw an error.
 
+  * If `use` hasn't been evaluated yet, throw an error.
+
   * Let `module` be the module in `uses` associated with `use`.
 
   * Let `member` be the member of `module` with type `type` with name
@@ -991,7 +1052,7 @@ When executing an `@import` rule `rule` with an import context `import`:
 * If `file` is currently being executed with `import` as its import context,
   throw an error.
 
-* Let `module` be the result of [executing](#executing-files) `file` with an
+* Let `module` be the result of [executing](#executing-files) `file` with the
   empty configuration and `import` as its import context, with the following
   differences:
 

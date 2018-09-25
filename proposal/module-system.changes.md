@@ -8,6 +8,8 @@
 * Replace module mixins with a built-in `load-css()` mixin that dynamically
   includes the CSS for a module with a given URL.
 
+* Add support for configuring modules using a new `with` clause.
+
 * Update the `module-variables()` and `module-functions()` functions to return
   maps from names to values, rather than just lists of names ([#12][]).
   
@@ -53,6 +55,8 @@
 * Explicitly describe how variable declarations are resolved.
 
 * Explicitly describe how a configuration affects file evaluation.
+
+* Explicitly mention that variable declarations are allowed before `@use`.
 
 * Loading a module with configuration variables it doesn't expose is now an
   error.
