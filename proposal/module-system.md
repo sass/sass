@@ -289,26 +289,23 @@ invoked before the module is executed.
 
 ### Source File
 
-A *source file* is an entity uniquely identified by a
-[canonical](#canonicalizing-urls) URL. It can be [executed](#executing-files)
-with a [configuration](#configuration) to produce a [module](#module). The names
-(and mixin and function signatures) of this module's members are static, and can
-be determined without executing the file. This means that all modules for a
-given source file have the same member names regardless of the configurations
-used for those modules.
+A *source file* is a Sass abstract syntax tree with an associated URL, known as
+the file's *canonical URL*. The canonical URL uniquely identifies the source
+file.
 
-There are five types of source file:
+A source file can be [executed](#executing-files) with a
+[configuration](#configuration) to produce a [module](#module).
 
-* Sass files, SCSS files, and CSS files are identified by `file:` URLs.
+> The names (and mixin and function signatures) of this module's members are
+> static, and can be determined without executing the file. This means that all
+> modules for a given source file have the same member names regardless of the
+> configurations used for those modules.
 
-* [Built-in modules](#built-in-modules) are identified by URLs beginning with
-  `sass:`.
+A URL can be [canonicalized](#canonicalizing-urls) to convert it to its
+canonical form.
 
-* Implementations may define implementation-specific or pluggable means of
-  defining source files, which can use any URL.
-
-Each one has different execution semantics that are beyond the scope of this
-document. Note that some of these may not actually be files on the file system.
+> Note that [built-in modules](#built-in-modules) *do not* have source files
+> associated with them.
 
 ### Entrypoint
 
@@ -450,6 +447,13 @@ This describes how to determine the namespace for a `@use` rule. Given a rule
 This describes the general process for loading a module. It's used as part of
 various other semantics described below. To load a module with a given URL `url`
 and [configuration](#configuration) `config`:
+
+* If `url`'s scheme is `sass`:
+
+  * If a [built-in module](#built-in-modules) exists with the exact given URL,
+    return it.
+
+  * Otherwise, throw an error.
 
 * Let `file` be [source file](#source-file) for `url`. The process for
   locating this file is out of scope of this document.

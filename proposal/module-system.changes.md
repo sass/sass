@@ -23,6 +23,9 @@
 
   [#13]: https://github.com/sass/language/issues/13
 
+* Define a source file as an AST plus a canonical URL. This means that built-in
+  modules are no longer source files, which seems more reasonable.
+
 * Clarify that `@forward` includes the forwarded module's CSS tree.
 
 * Forbid whitespace in various member-reference productions.
