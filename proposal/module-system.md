@@ -371,14 +371,16 @@ grammar for this rule is as follows:
 <x><pre>
 **ForwardRule** ::= '@forward' (QuotedString | Identifier)
 &#32;                 (ShowClause | HideClause)?
-**ShowClause**  ::= 'show' Identifier (',' Identifier)*
-**HideClause**  ::= 'hide' Identifier (',' Identifier)*
+**ShowClause**  ::= 'show' MemberName (',' MemberName)*
+**HideClause**  ::= 'hide' MemberName (',' MemberName)*
+**MemberName**  ::= '$'? Identifier
 </pre></x>
 
 `@forward` rules must be at the top level of the document, and must come before
 any rules other than `@charset` or `@use`. If they have a `QuotedString`, its
 contents, known as the rule's *URL*, must be a [valid URL string][] (for
-non-[special][special URL scheme] base URL).
+non-[special][special URL scheme] base URL). No whitespace is allowed after `$`
+in `MemberName`.
 
 ### Member References
 
@@ -987,10 +989,15 @@ First, we define a general procedure for forwarding a module `module` with a
     > member.
 
   * Otherwise, if `rule` has a `show` clause that doesn't include `member`'s
-    name, do nothing.
+    name (including `$` for variables), do nothing.
 
-  * Otherwise, if `rule` has a `hide` clause that does include `member`'s name,
-    do nothing.
+    > It's not possible to show/hide a mixin without showing/hiding the
+    > equivalent function, or to do the reverse. This is unlikely to come up in
+    > practice, though, and adding support for it isn't worth the extra
+    > syntactic complexity it would require.
+
+  * Otherwise, if `rule` has a `hide` clause that does include `member`'s name
+    (including `$` for variables), do nothing.
 
   * Otherwise, if another `@forward` rule's module has a member with the same
     name and type as `member`, throw an error.

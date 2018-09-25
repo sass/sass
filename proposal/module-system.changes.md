@@ -30,6 +30,8 @@
 
 * Allow comments to be emitted before dependencies' CSS.
 
+* Show or hide variables with their `$` prefixes in `@forward`.
+
 * Define a source file as an AST plus a canonical URL. This means that built-in
   modules are no longer source files, which seems more reasonable.
 
