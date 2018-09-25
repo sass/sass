@@ -5,6 +5,9 @@
 
   [#6]: https://github.com/sass/language/issues/6
 
+* Replace module mixins with a built-in `load-css()` mixin that dynamically
+  includes the CSS for a module with a given URL.
+
 * Update the `module-variables()` and `module-functions()` functions to return
   maps from names to values, rather than just lists of names ([#12][]).
   

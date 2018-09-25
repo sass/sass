@@ -49,11 +49,11 @@ mind—these will be called out explicitly in block-quoted implementation notes.
   * [Compilation Process](#compilation-process)
   * [Executing Files](#executing-files)
   * [Resolving Members](#resolving-members)
-  * [Module Mixins](#module-mixins)
   * [Forwarding Modules](#forwarding-modules)
   * [Importing Files](#importing-files)
 * [Built-In Modules](#built-in-modules)
   * [New Functions](#new-functions)
+    * [`load-css()`](#load-css)
     * [`module-variables()`](#module-variables)
     * [`module-functions()`](#module-functions)
   * [New Features For Existing Functions](#new-features-for-existing-functions)
@@ -277,8 +277,8 @@ module's URL with the module's configuration.
 Modules also track their `@use` and [`@forward`](#forwarding-modules) at-rules,
 which point to other modules. In this sense, modules with empty configuration
 can be construed as a [directed acyclic graph][] where the vertices are modules
-and the edges are `@use` rules (without `mixin` clauses) and/or `@forward`
-rules. We call this the *module graph*.
+and the edges are `@use` rules and/or `@forward` rules. We call this the *module
+graph*.
 
 [directed acyclic graph]: https://en.wikipedia.org/wiki/Directed_acyclic_graph
 
@@ -332,9 +332,8 @@ shared namespace for a connected group of imports.
 The new at-rule will be called `@use`. The grammar for this rule is as follows:
 
 <x><pre>
-**UseRule**     ::= '@use' QuotedString (AsClause? MixinClause? | AsClause?)
+**UseRule**     ::= '@use' QuotedString AsClause?
 **AsClause**    ::= 'as' ('*' | Identifier)
-**MixinClause** ::= 'mixin'
 </pre></x>
 
 `@use` rules must be at the top level of the document, and must come before any
@@ -355,22 +354,13 @@ namespace fails for a `@use` rule, that rule is invalid. If it returns `null`,
 that rule is called *global*. A namespace is used to identify the used
 [module](#module)'s members within the current [source file](#source-file).
 
-The mixin clause is not allowed for global `@use` rules because the mixin name
-is derived from the rule's namespace.
-
-> I'm not at all sure about the mixin syntax here. `@use "foo" mixin` doesn't
-> read very well, and sounds less sentence-like than I'd prefer. But I'm having
-> trouble determining what else would be better, and still remain orthogonal to
-> all the other modifiers that can be applied.
-
 ### `@forward`
 
 This proposal introduces an additional new at-rule, called `@forward`. The
 grammar for this rule is as follows:
 
 <x><pre>
-**ForwardRule** ::= '@forward' (QuotedString | Identifier)
-&#32;                 (ShowClause | HideClause)?
+**ForwardRule** ::= '@forward' QuotedString (ShowClause | HideClause)?
 **ShowClause**  ::= 'show' MemberName (',' MemberName)*
 **HideClause**  ::= 'hide' MemberName (',' MemberName)*
 **MemberName**  ::= '$'? Identifier
@@ -474,11 +464,6 @@ and [configuration](#configuration) `config`:
 
 * Otherwise, let `module` be the result of [executing](#executing-files) `file`
   with `config` and a new [import context](#import-context).
-
-* If `file` contained a `@use` rule with a `mixin` clause and a `@forward` rule
-  with an identifier that's the same as the `@use` rule's namespace, *and* if
-  that `@use` rule's mixin was not included during the execution of the source
-  file, throw an error.
 
 * Otherwise, return `module`.
 
@@ -723,7 +708,7 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
 
 * Let `uses` be an empty map from `@use` rules to [modules](#modules).
 
-* When a `@use` rule `rule` without a `MixinClause` is encountered:
+* When a `@use` rule `rule` is encountered:
 
   * If `rule` has a namespace that's the same as another `@use` rule's namespace
     in `file`, throw an error.
@@ -853,15 +838,7 @@ type `type`, and an [import context](#import-context) `import`:
   * Let `member` be the member of `module` with type `type` with name
     `raw-name`. If there is no such member, throw an error.
 
-  * If `use` has a `mixin` clause and the [module mixin](#module-mixins) with
-    the name `namespace` hasn't yet been included, or has been included more
-    than once, throw an error.
-
   * Otherwise, return `member`.
-
-* If `type` is "mixin" and there exists a `@use` rule in `uses` whose namespace
-  is `name`, and that `@use` rule has a `mixin` clause, return its [module
-  mixin](#module-mixins).
 
 * If `file` defines a member `member` of `type` named `name`:
 
@@ -886,86 +863,6 @@ type `type`, and an [import context](#import-context) `import`:
   it.
 
 * Otherwise, throw an error.
-
-### Module Mixins
-
-[Modules](#module) can be encapsulated in mixins by using `@use`'s `mixin`
-clause. This allows a module's CSS to only be conditionally included in a
-document, or to be included in a nested context. It also allows the user of the
-module to configure it by providing default values for variables that the module
-uses.
-
-When executing a `@use` rule with a `mixin` clause, the rule's module isn't
-loaded as normal. Instead a special *module mixin*, with the same name as the
-rule's namespace, is made available in the current [source file](#source-file).
-
-The module mixin's arguments are derived from the module's members (which we can
-determine without executing the module). For every variable in module that has a
-`!default` flag, the module mixin has an argument with the same name and a
-default value of `null`. The mixin does not allow positional arguments, nor does
-it allow named arguments that are not derived from variables.
-
-> It may become useful to provide the ability to customize the behavior of
-> module mixins at the language level. It may be wise to define a convention for
-> reserved argument names so that we can add arguments to all module mixins in
-> the future. It's not clear what a good convention would be for this, though.
-
-When this mixin is included:
-
-* Let `config` be a configuration whose variable names are the module mixin's
-  argument names. These variable's values are the values of the corresponding
-  arguments.
-
-* Let `module` be the result of [loading](#loading-modules)`@use` rule's URL
-  with this configuration.
-
-* If the current source file contains a `@forward` rule with an identifier
-  that's the same as the `@use` rule's namespace, [forward](#forwarding-modules)
-  `module` with that `@forward` rule.
-
-* Let `css` be the result of [resolving extensions](#resolving-extensions) for
-  `module`.
-
-  > This means that, if a mixed-in module shares some dependencies with the
-  > entrypoint module, those dependencies' CSS will be included twice.
-
-* Treat `css` as though it were the contents of the mixin.
-
-> There are several important things to note here. First, every time a module
-> mixin is used, its CSS is emitted, which means that the CSS may be emitted
-> multiple times. This behavior makes sense in context, and is unlikely to
-> surprise anyone, but it's good to note nonetheless as an exception to the
-> import-once goal.
->
-> Second, because module mixins' CSS is included directly in another module's,
-> `@use` rules with `mixin` clauses do not create edges on the module graph.
-> Those edges represent a *reference to* another module's CSS, whereas module
-> mixins *directly include* that CSS. Keeping them out of the module graph also
-> allows users to dynamically choose not to include the module at all and avoid
-> using its CSS at all.
->
-> Finally, module mixins don't affect name resolution at all, except in that a
-> name that refers to a member of the module will fail to load until the mixin
-> has been included. The scoping of these names is independent of the location
-> of the module mixin's `@include` rule, so even if it's included in a
-> deeply-nested selector hierarchy its members will be accessible at the root of
-> the document.
->
-> ```scss
-> // This defines a mixin named "susy" that loads the module with custom
-> // configuration.
-> @use "susy" mixin;
->
-> // Forward all the members from susy, with our customization included.
-> @forward "susy";
->
-> // These variables are set in the scope of susy's main module.
-> @include susy(
->   $columns: 4,
->   $gutters: 0.25,
->   $math: fluid
-> );
-> ```
 
 ### Forwarding Modules
 
@@ -1010,15 +907,7 @@ First, we define a general procedure for forwarding a module `module` with a
 Note that the procedure defined above is not directly executed when encountering
 a `@forward` rule. To execute a `@forward` rule `rule`:
 
-* If `rule` has an identifier `namespace`:
-
-  * If there's no `@use` rule in the current source file with namespace
-    `namespace` *and* with a `mixin` clause, throw an error.
-
-  * Otherwise, do nothing. The module will be forwarded when its mixin is
-    included.
-
-* Otherwise, [load](#loading-modules) the module for `rule`'s URL with the empty
+* [Load](#loading-modules) the module for `rule`'s URL with the empty
   configuration and forward it.
 
 > This forwards all members by default to reduce the churn and potential for
@@ -1165,6 +1054,12 @@ The built-in functions will be organized as follows:
 | `simple-selectors`       |           | sass:selector |   |                          |                    |               |
 | `selector-parse`         | `parse`   | sass:selector |   |                          |                    |               |
 
+In addition, one built-in mixin will be added:
+
+| Name       | Module    |
+| ---------- | --------- |
+| `load-css` | sass:meta |
+
 Regardless of what configuration is used to load them, built-in modules will
 contain only the functions described above. They won't contain any other
 [members](#member), CSS, or extensions. New members may be added in the future,
@@ -1209,17 +1104,15 @@ The module system brings with it the need for additional introspection
 abilities. To that end, several new built-in functions will be defined in
 the `sass:meta` module.
 
-Because a module's member names are knowable statically, these functions may be
-safely called even before a module mixin is included. Note that (like the
-existing `*-defined()` functions) their behavior depends on the lexical context
-in which they're invoked.
-
 #### `module-variables()`
 
 The `module-variables()` function takes a `$module` parameter, which must be a
 string that matches the namespace of a `@use` rule in the current source file.
 It returns a map from variable names defined in the module loaded by that rule
 (as quoted strings, without `$`) to the current values of those variables.
+
+Note that (like the existing `*-defined()` functions), this function's behavior
+depends on the lexical context in it's invoked.
 
 #### `module-functions()`
 
@@ -1228,6 +1121,65 @@ string that matches the namespace of a `@use` rule in the current source file.
 It returns a map from function names defined in the module loaded by that rule
 (as quoted strings) to function values that can be used to invoke those
 functions.
+
+Note that (like the existing `*-defined()` functions), this function's behavior
+depends on the lexical context in it's invoked.
+
+#### `load-css()`
+
+The `load-css()` mixin takes a `$url` parameter, which must be a string, and an
+optional `$with` parameter, which must be either a map with string keys or null.
+When this mixin is invoked:
+
+* Let `config` be a configuration whose variable names and values are given by
+  `$with` if `$with` is passed and non-null, or the empty configuration
+  otherwise.
+
+* Let `module` be the result of [loading](#loading-modules) `$url` with
+  `config`. The URL is loaded as though it appeared in a `@use` rule in the
+  stylesheet where `@include load-css()` was written.
+
+  > This means that `load-css()` doesn't see import-only stylesheets, and that
+  > URLs are resolved relative to the file that contains the `@include` call
+  > even if it's invoked from another mixin.
+
+* Let `css` be the result of [resolving extensions](#resolving-extensions) for
+  `module`.
+
+  > This means that, if a module loaded by `load-css()` shares some dependencies
+  > with the entrypoint module, those dependencies' CSS will be included twice.
+
+* Treat `css` as though it were the contents of the mixin.
+
+> The `load-css()` function is primarily intended to satisfy the use-cases that
+> are currently handled using nested imports. It clearly also goes some way
+> towards dynamic imports, which is listed as a non-goal. It's considered
+> acceptable because it doesn't dynamically alter the names available to
+> modules.
+
+> There are a couple important things to note here. First, *every time*
+> `load-css()` is included, its module's CSS is emitted, which means that the
+> CSS may be emitted multiple times. This behavior makes sense in context, and
+> is unlikely to surprise anyone, but it's good to note nonetheless as an
+> exception to the import-once goal.
+>
+> Second, `load-css()` doesn't affect name resolution at all. Although it loads
+> the module in an abstract sense, the user is only able to access the module's
+> CSS, not any functions, mixins, or variables that it defines.
+>
+> ```scss
+> // The CSS from the print module will be nested within the media rule.
+> @media print {
+>   @include load-css("print");
+> }
+>
+> // These variables are set in the scope of susy's main module.
+> @include load-css("susy", $with: (
+>   "columns": 4,
+>   "gutters": 0.25,
+>   "math": fluid
+> ));
+> ```
 
 ### New Features For Existing Functions
 
