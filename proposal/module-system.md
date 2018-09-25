@@ -43,6 +43,8 @@ mind—these will be called out explicitly in block-quoted implementation notes.
   * [Determining Namespaces](#determining-namespaces)
   * [Loading Modules](#loading-modules)
   * [Resolving Extensions](#resolving-extensions)
+  * [Resolving a `file:` URL](#resolving-a-file-url)
+  * [Resolving a `file:` URL for Extensions](#resolving-a-file-url-for-extensions)
 * [Semantics](#semantics)
   * [Compilation Process](#compilation-process)
   * [Executing Files](#executing-files)
@@ -570,6 +572,100 @@ transitively uses.
     extended selectors.
 
 [topological]: https://en.wikipedia.org/wiki/Topological_sorting
+
+### Resolving a `file:` URL
+
+This algorithm is intended to replace [the existing algorithm][] for resolving a
+`file:` URL to add support for `@import`-only files. This algorithm takes a URL,
+`url`, whose scheme must be `file` and returns either another URL that's
+guaranteed to point to a file on disk or null.
+
+[the existing algorithm]:  ../spec/import.md#resolving-a-file-url
+
+* If this algorithm is being run for an `@import`:
+
+  * If the result of [resolving `url` + `".import"` for extensions][resolving
+    for extensions] is not null, return it.
+
+* Otherwise, return the result of [resolving `url` for extensions][resolving for
+  extensions].
+
+[resolving for extensions]: #resolving-a-file-url-for-extensions
+
+> This allows a library to define two parallel entrypoints, one
+> (`_file.import.scss`) that's visible to `@import` and one (`_file.scss`)
+> that's visible to `@use`. This will allow it to maintain
+> backwards-compatibility even as it switches to supporting a `@use`-based API.
+>
+> The major design question here is whether the file for `@use` or `@import`
+> should be the special case. The main benefit to `_file.use.scss` would be that
+> users don't need to use a version of Sass that supports `@use` to get the
+> import-only stylesheet, but in practice it's likely that most library authors
+> will want to use `@use` or other new Sass features internally anyway.
+>
+> On the other hand, there are several benefits to `_file.import.scss`:
+>
+> * It makes the recommended entrypoint is the more obvious one.
+>
+> * It inherently limits the lifetime of language support for the extra
+>   entrypoint: once imports are removed from the language, import-only files
+>   will naturally die as well.
+>
+> * It will make `@use` resolution somewhat faster, since it has to check for
+>   half as many files every time.
+
+### Resolving a `file:` URL for Extensions
+
+> "Extensions" in this procedure's name refers to "file extensions", not [Sass
+> extensions](#extensions).
+
+This algorithm takes a URL, `url`, whose scheme must be `file` and returns
+either another URL that's guaranteed to point to a file on disk or null.
+
+* If `url` ends in `.scss`, `.sass`, or `.css`, return the result of [resolving
+  `url` for partials][resolving for partials].
+
+  > `@import`s whose URLs explicitly end in `.css` will have been treated as
+  > plain CSS `@import`s before this algorithm even runs, so `url` will only end
+  > in `.css` for `@use` rules.
+
+* Let `sass` be the result of [resolving `url` + `".sass"` for
+  partials][resolving for partials].
+
+* Let `scss` be the result of [resolving `url` + `".scss"` for
+  partials][resolving for partials].
+
+* Let `css` be the result of [resolving `url` + `".css"` for partials][resolving
+  for partials].
+
+* If this algorithm is being run for an `@import`:
+
+  * If neither `sass` nor `scss` are null, throw an error.
+
+  * Otherwise, if exactly one of `sass` and `scss` is null, return the other
+    one.
+
+  * Otherwise, return `css`.
+
+* Otherwise:
+
+  * If all of `sass`, `scss`, and `css` are null, return null.
+
+  * If exactly one of `sass`, `scss`, and `css` is *not* null, return it.
+
+  * Otherwise, throw an error.
+
+[resolving for partials]: ../spec/import.md#resolving-a-file-url-for-partials
+
+> This algorithm is based on the existing algorithm for [resolving a `file:`
+> URL][the existing algorithm]. The difference is that, when resolving for
+> `@use`, a `.css` file is treated with the same priority as a `.scss` and
+> `.sass` file.
+>
+> The only reason a `.css` file was ever treated as secondary was that CSS
+> imports were added later on, and backwards-compatibility needed to be
+> maintained for `@import`. `@use` allows us to make CSS more consistent with
+> the other extensions, at a very low risk of migration friction.
 
 ## Semantics
 

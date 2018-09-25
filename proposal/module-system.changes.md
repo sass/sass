@@ -13,6 +13,11 @@
 * Remove the `module-mixins()` function until Sass supports first-class mixins
   ([#12][]).
 
+* Add support for `_file.import.scss` as a file that only `@import`s will see
+  ([#11][]).
+
+  [#11]: https://github.com/sass/language/issues/11
+
 * Change the syntax for a `@use` rule without a namespace to `@use "..." as *`
   ([#10][]).
 
