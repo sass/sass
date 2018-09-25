@@ -740,16 +740,46 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
 
   * Add the resulting CSS to `module`'s CSS.
 
-* When a [member](#member) definition `member` is encountered:
+* When a variable declaration `variable` is encountered:
 
-  * If `member`'s name *doesn't* begin with `-` or `_`, add `member` to `module`.
+  * If `variable`'s name is a [namespaced identifier](#member-references) *and*
+    it has a `!global` flag, throw an error.
 
-  * If `import` exists, add `member` to `import`.
+  * If `variable` is at the top level of `file`, *or* its name is a namespaced
+    identifier, *or* it has a `!global` flag:
+
+    * Let `resolved` be the result of [resolving `variable`](#resolving-members)
+      using `file`, `uses`, and `import`.
+
+    * If `variable` has a `!default` flag, *and* `resolved` isn't null, *and*
+      `resolved`'s value isn't null, do nothing.
+
+    * Otherwise, if `resolved` is a variable in another module:
+
+      * Set `resolved`'s value to `variable`'s value.
+
+    * Otherwise:
+
+      * If `variable`'s name *doesn't* begin with `-` or `_`, add `variable` to
+        `module`.
+
+      * Add `variable` to `import`.
+
+  * Otherwise, evaluate it as usual.
+
+* When a top-level mixin or function declaration `member` is encountered:
+
+  > Mixins and functions defined within rules are never part of a module's API.
+
+  * Otherwise, if `member`'s name *doesn't* begin with `-` or `_`, add `member`
+    to `module`.
+
+  * Add `member` to `import`.
 
     > This happens regardless of whether or not it begins with `-` or `_`.
 
 * When a member use is encountered, [resolve it](#resolving-members) using
-  `file`, `uses`, and `import`.
+  `file`, `uses`, and `import`. If this returns null, throw an error.
 
 * Once all top-level statements are executed, for every global variable
   declaration `var` in `file`:
@@ -844,11 +874,7 @@ type `type`, and an [import context](#import-context) `import`:
 
   * If `member`'s definition has already been evaluated, return it.
 
-  * Otherwise, throw an error.
-
-    > This ensures that any change in name resolution caused by reordering a
-    > file causes an immediate error rather than an unexpected behavioral
-    > change.
+  * Otherwise, return null.
 
 * If a member of type `type` named `name` is defined in exactly one module in
   `uses` whose `@use` rule is global, return that member.
@@ -862,7 +888,7 @@ type `type`, and an [import context](#import-context) `import`:
 * If `import` exists and contains a member of type `type` named `name`, return
   it.
 
-* Otherwise, throw an error.
+* Otherwise, return null.
 
 ### Forwarding Modules
 

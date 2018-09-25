@@ -48,6 +48,10 @@
 
 * Explicitly indicate which parts of a module are immutable.
 
+* Explicitly describe how variable declarations are resolved.
+
+* Don't make nested mixin and function declarations part of a module's API.
+
 * Re-organize "Resolving Extensions" to make its behavior clearer.
 
 * Link to the existing import spec rather than redefining terms.
