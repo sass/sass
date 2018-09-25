@@ -28,6 +28,8 @@
 
   [#13]: https://github.com/sass/language/issues/13
 
+* Allow comments to be emitted before dependencies' CSS.
+
 * Define a source file as an AST plus a canonical URL. This means that built-in
   modules are no longer source files, which seems more reasonable.
 

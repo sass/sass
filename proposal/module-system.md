@@ -566,15 +566,31 @@ CSS for *all* modules transitively used or forwarded by `starting-module`.
 
 * Let `css` be an empty CSS tree.
 
-* For each module `domestic` in `extended`, in reverse [topological][] order:
+* Define a recursive procedure, "traversing", which takes a module `domestic`:
 
-  * For each top-level statement `statement` in `domestic`'s CSS tree:
+  * If `domestic` has already been traversed, do nothing.
+
+  * Otherwise, for each top-level statement `statement` in `domestic`'s CSS
+    tree:
+
+    * Traverse the modules of every `@use` or `@forward` rule that appears
+      before `statement`'s source location in `domestic`'s [source
+      file](#source-file).
+
+      > Most of the time, this means that all `@use` rules are traversed before
+      > any statements are copied into `css`, because `@use` and `@forward` must
+      > appear before any CSS rules. However, `/*` comments may appear before
+      > `@use` and `@forward`, and their relative location should be preserved.
+      >
+      > If there are no comments that appear before `@use` or `@forward` rules,
+      > this emits CSS in reverse topological order.
 
     * Add a copy of `statement` to `css`, with any style rules' selectors
       replaced with the corresponding selectors in `new-selectors`.
 
 * Return `css`.
 
+[queue]: https://en.wikipedia.org/wiki/Queue_(abstract_data_type)
 [topological]: https://en.wikipedia.org/wiki/Topological_sorting
 
 ### Resolving a `file:` URL
