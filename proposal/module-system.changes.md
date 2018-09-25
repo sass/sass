@@ -41,6 +41,8 @@
 
 * Explicitly indicate which parts of a module are immutable.
 
+* Re-organize "Resolving Extensions" to make its behavior clearer.
+
 * Link to the existing import spec rather than redefining terms.
 
 ## Draft 2.1

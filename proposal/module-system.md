@@ -524,52 +524,56 @@ as explicitly as members can.
 > API consisting of things they've extended.
 
 We define a general process for resolving extensions for a given module
-`starting-module`. This process emits CSS for that module and everything it
-transitively uses.
+`starting-module`. This process returns a [CSS tree](#css-tree) that includes
+CSS for *all* modules transitively used or forwarded by `starting-module`.
 
-* Let `extended` be the subgraph of the module graph containing modules that are
-  transitively reachable from `starting-module`.
+* Let `new-selectors` be an empty map from style rules to selectors. For the
+  purposes of this map, style rules are compared using *reference equality*,
+  meaning that style rules at different points in the CSS tree are always
+  considered different even if their contents are the same.
+
+* Let `extended` be the subgraph of the [module graph](#module-graph) containing
+  modules that are transitively reachable from `starting-module`.
 
 * For each module `domestic` in `extended`, in reverse [topological][] order:
 
-  * Create an empty map associated with `domestic` (call it `domestic`'s
-    *extended selectors*). This map will contain selectors defined for rules in
-    `domestic` and its transitively reachable modules, with extensions partially
-    resolved. This map is indexed by the locations of the rules for those
-    selectors. We say that this is the *original location* for a selector.
+  * Let `foreign-modules` be the set of modules used by `domestic`, as well as
+    the set of modules transitively used or forwarded by those modules.
 
-  * For each module `foreign` used or forwarded by `domestic`, in reverse
-    [topological][] order:
+    > This excludes modules that are *only* accessible from `domestic` because
+    > it forwarded them. `@extend` only applies to used CSS, not forwarded CSS.
 
-    * For each `foreign-selector` in `foreign`'s extended selectors:
+  * For each module in `foreign-modules`, in reverse [topological][] order:
 
-      * Let `domestic-selector` be `domestic`'s extended selector with the same
-        original location as `foreign-selector`, if one exists, or else a
-        synthetic selector that matches no elements.
+    * For each style rule `rule` in `foreign`'s CSS:
 
-      * Let `new-selector` be a new selector that matches all elements matched
-        by either `foreign-selector` or `domestic-selector`.
+      * Let `selector` be `new-selectors[rule]`.
 
-      * If `foreign` module was used by `domestic` (as opposed to only being
-        forwarded), apply `domestic`'s extensions to `new-selector`, and replace
-        it with the result.
+      * Set `new-selectors[rule]` to the result of applying `domestic`'s
+        extensions to `new-selectors[rule]`.
 
-      * Add `new-selector` to `domestic`'s extended selectors, indexed by the
-        `foreign-selector`'s original location. Replace `domestic-selector` in
-        `domsetic`'s extended selectors if necessary.
+        > This overwrites the previous value of `new-selectors[rule]`.
+
+        > `new-selectors[rule]` is guaranteed to exist at this point because
+        > `extended` is traversed in reverse topological order, which means that
+        > `foreign`'s own extensions will already have been resolved by the time
+        > we start working on its dependers.
 
   * For each style rule `rule` in `domestic`:
 
-    * Apply `domestic`'s extensions to `rule`'s selector.
+    * Set `new-selectors[rule]` to the result of applying `domestic`'s
+      extensions to `rule`'s selector.
 
-    * Add the resulting selector to `domestic`'s extended selectors, indexed by
-      the rule's location.
+* Let `css` be an empty CSS tree.
 
 * For each module `domestic` in `extended`, in reverse [topological][] order:
 
-  * Emit each top-level statement in `domestic`'s [CSS tree](#css-tree), with
-    any selectors replaced by the corresponding selector in `starting-module`'s
-    extended selectors.
+  * For each top-level statement `statement` in `domestic`'s CSS tree:
+
+    * Add a copy of `statement` to `css`, with any style rules' selectors
+      replaced with the corresponding selectors in `new-selectors`.
+
+* Return `css`.
 
 [topological]: https://en.wikipedia.org/wiki/Topological_sorting
 
@@ -672,14 +676,18 @@ either another URL that's guaranteed to point to a file on disk or null.
 ### Compilation Process
 
 First, let's look at the large-scale process that occurs when compiling a Sass
-[entrypoint](#entrypoint) to CSS.
+[entrypoint](#entrypoint) with the [canonical URL][] `url` to CSS.
 
-* [Load](#loading-modules) the [module](#module) with the entrypoint URL and the
-  empty configuration. Note that this transitively loads any referenced modules,
-  producing a [module graph](#module-graph).
+* Let `module` be the result of [loading](#loading-modules) `url` with the empty
+  configuration.
 
-* [Resolve extensions](#resolving-extensions) for the entrypoint's module. The
-  resulting CSS is the compilation's output.
+  > Note that this transitively loads any referenced modules, producing a
+  > [module graph](#module-graph).
+
+* Let `css` be the result of [resolving extensions](#resolving-extensions) for
+  `module`.
+
+* Convert `css` to a CSS string. This is the result of the compilation.
 
 ### Executing Files
 
@@ -890,15 +898,20 @@ When this mixin is included:
   argument names. These variable's values are the values of the corresponding
   arguments.
 
-* [Load](#loading-modules) the module with the `@use` rule's URL and this
-  configuration.
+* Let `module` be the result of [loading](#loading-modules)`@use` rule's URL
+  with this configuration.
 
 * If the current source file contains a `@forward` rule with an identifier
   that's the same as the `@use` rule's namespace, [forward](#forwarding-modules)
-  the loaded module with that `@forward` rule.
+  `module` with that `@forward` rule.
 
-* [Resolve extensions](#resolving-extensions) for the loaded module, then emit
-  the resulting CSS to the location of the `@include`.
+* Let `css` be the result of [resolving extensions](#resolving-extensions) for
+  `module`.
+
+  > This means that, if a mixed-in module shares some dependencies with the
+  > entrypoint module, those dependencies' CSS will be included twice.
+
+* Treat `css` as though it were the contents of the mixin.
 
 > There are several important things to note here. First, every time a module
 > mixin is used, its CSS is emitted, which means that the CSS may be emitted
