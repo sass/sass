@@ -50,6 +50,11 @@
 
 * Explicitly describe how variable declarations are resolved.
 
+* Explicitly describe how a configuration affects file evaluation.
+
+* Loading a module with configuration variables it doesn't expose is now an
+  error.
+
 * Don't make nested mixin and function declarations part of a module's API.
 
 * Re-organize "Resolving Extensions" to make its behavior clearer.

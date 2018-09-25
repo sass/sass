@@ -440,6 +440,8 @@ and [configuration](#configuration) `config`:
 
 * If `url`'s scheme is `sass`:
 
+  * If `config` is not empty, throw an error.
+
   * If a [built-in module](#built-in-modules) exists with the exact given URL,
     return it.
 
@@ -703,6 +705,11 @@ replacement.
 Given a source file `file`, a [configuration](#configuration) `config`, and an
 [import context](#import-context) `import`:
 
+* For every variable name `name` in `config`:
+
+  * If `file` doesn't contain a variable declaration named `name` with a
+    `!default` flag, throw an error.
+
 * Let `module` be an empty module with the configuration `config` and same URL
   as `file`.
 
@@ -749,7 +756,7 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
     identifier, *or* it has a `!global` flag:
 
     * Let `resolved` be the result of [resolving `variable`](#resolving-members)
-      using `file`, `uses`, and `import`.
+      using `file`, `uses`, `config`, and `import`.
 
     * If `variable` has a `!default` flag, *and* `resolved` isn't null, *and*
       `resolved`'s value isn't null, do nothing.
@@ -779,7 +786,7 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
     > This happens regardless of whether or not it begins with `-` or `_`.
 
 * When a member use is encountered, [resolve it](#resolving-members) using
-  `file`, `uses`, and `import`. If this returns null, throw an error.
+  `file`, `uses`, `config`, and `import`. If this returns null, throw an error.
 
 * Once all top-level statements are executed, for every global variable
   declaration `var` in `file`:
@@ -855,7 +862,8 @@ The main function of the module system is to control how [member](#member) names
 are resolved across files—that is, to find the definition corresponding to a
 given name. Given a source file `file`, a map `uses` from `@use` rules to the
 [modules](#module) loaded by those rules, a member to resolve named `name` of
-type `type`, and an [import context](#import-context) `import`:
+type `type`, a [configuration](#configuration) `config`, and an [import
+context](#import-context) `import`:
 
 * If `name` is a [namespaced identifier](#member-references)
   `namespace.raw-name`:
@@ -869,6 +877,9 @@ type `type`, and an [import context](#import-context) `import`:
     `raw-name`. If there is no such member, throw an error.
 
   * Otherwise, return `member`.
+
+* If `type` is "variable" and `config` contains a variable named `name`, return
+  it.
 
 * If `file` defines a member `member` of `type` named `name`:
 
@@ -1086,10 +1097,9 @@ In addition, one built-in mixin will be added:
 | ---------- | --------- |
 | `load-css` | sass:meta |
 
-Regardless of what configuration is used to load them, built-in modules will
-contain only the functions described above. They won't contain any other
-[members](#member), CSS, or extensions. New members may be added in the future,
-but CSS will not be added to existing modules.
+Built-in modules will contain only the functions described above. They won't
+contain any other [members](#member), CSS, or extensions. New members may be
+added in the future, but CSS will not be added to existing modules.
 
 > ```scss
 > @use "sass:color";
