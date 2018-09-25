@@ -40,6 +40,8 @@
 
 * Clarify that `@forward` includes the forwarded module's CSS tree.
 
+* Pass configuration for a module to any modules it `@forward`s.
+
 * Forbid whitespace in various member-reference productions.
 
 * Explicitly indicate that extensions are dynamically scoped ([#7][]).

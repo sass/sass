@@ -705,10 +705,20 @@ replacement.
 Given a source file `file`, a [configuration](#configuration) `config`, and an
 [import context](#import-context) `import`:
 
-* For every variable name `name` in `config`:
+* If this file isn't being executed for a `@forward` rule:
 
-  * If `file` doesn't contain a variable declaration named `name` with a
-    `!default` flag, throw an error.
+  * For every variable name `name` in `config`:
+
+    * If neither `file` nor any source file for a module transitively forwarded
+      by `file` contains a variable declaration named `name` with a `!default`
+      flag, throw an error.
+
+      > Although forwarded modules are not fully loaded at this point, it's
+      > still possible to statically determine where those modules are located
+      > and whether they contain variables with default declarations.
+      >
+      > Implementations may choose to verify this lazily, after `file` has been
+      > executed.
 
 * Let `module` be an empty module with the configuration `config` and same URL
   as `file`.
@@ -726,7 +736,7 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
   * Associate `rule` with `module` in `uses`.
 
 * When a `@forward` rule is encountered,
-  [forward the module](#forwarding-modules) it refers to.
+  [forward the module](#forwarding-modules) it refers to with `config`.
 
 * When an `@import` rule is encountered,
   [import the file](#importing-files) it refers to.
@@ -910,9 +920,12 @@ as though it were part of the current module's.
 > that is purely the domain of `@use`. However, it *does* include the forwarded
 > module's CSS tree.
 
-First, we define a general procedure for forwarding a module `module` with a
-`@forward` rule `rule`:
+This algorithm takes a `@forward` rule `rule` and a
+[configuration](#configuration) `config`. It modifies the current module.
 
+* [Load](#loading-modules) the module for `rule`'s URL with `config` and forward
+  it.
+  
 * For every member `member` in `module`:
 
   * If there's a member with the same name and type defined in the current
@@ -940,12 +953,6 @@ First, we define a general procedure for forwarding a module `module` with a
     > precedence, conflicts are detected as soon as possible.
 
   * Otherwise, add `member` to the current module's collection of members.
-
-Note that the procedure defined above is not directly executed when encountering
-a `@forward` rule. To execute a `@forward` rule `rule`:
-
-* [Load](#loading-modules) the module for `rule`'s URL with the empty
-  configuration and forward it.
 
 > This forwards all members by default to reduce the churn and potential for
 > errors when a new member gets added to a forwarded module. It's likely that
