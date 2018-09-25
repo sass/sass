@@ -24,6 +24,15 @@ mind—these will be called out explicitly in block-quoted implementation notes.
   * [High-Level](#high-level)
   * [Low-Level](#low-level)
   * [Non-Goals](#non-goals)
+* [Summary](#summary)
+  * [`@use`](#use)
+    * [Controlling Namespaces](#controlling-namespaces)
+    * [Configuring Libraries](#configuring-libraries)
+  * [`@forward`](#forward)
+    * [Visibility Controls](#visibility-controls)
+  * [`@import` Compatibility](#import-compatibility)
+  * [Built-In Modules](#built-in-modules)
+    * [`meta.load-css()`](#meta-load-css)
 * [Frequently Asked Questions](#frequently-asked-questions)
 * [Definitions](#definitions)
   * [Member](#member)
@@ -36,8 +45,8 @@ mind—these will be called out explicitly in block-quoted implementation notes.
   * [Entrypoint](#entrypoint)
   * [Import Context](#import-context)
 * [Syntax](#syntax)
-  * [`@use`](#use)
-  * [`@forward`](#forward)
+  * [`@use`](#use-1)
+  * [`@forward`](#forward-1)
   * [Member References](#member-references)
 * [Procedures](#procedures)
   * [Determining Namespaces](#determining-namespaces)
@@ -186,6 +195,162 @@ future work, but we don't consider them to be blocking the module system.
   about increased strictness in the form of lints or TypeScript-style
   `--strict-*` flags.
 
+## Summary
+
+This proposal adds two at-rules, `@use` and `@forward`, which may only appear at
+the top level of stylesheets before any rules (other than `@charset`). Together,
+they're intended to completely replace `@import`, which will eventually be
+deprecated and even more eventually removed from the language.
+
+### `@use`
+
+`@use` makes CSS, variables, mixins, and functions from another stylesheet
+accessible in the current stylesheet. By default, variables, mixins, and
+functions are available in a namespace based on the basename of the URL.
+
+```scss
+@use "bootstrap";
+
+.element {
+  @include bootstrap.float-left;
+}
+```
+
+In addition to namespacing, there are a few important differences between `@use`
+and `@import`:
+
+* `@use` only executes a stylesheet once, no matter how many times it's used.
+* `@use` only makes names available in the current stylesheet, as opposed to
+  globally.
+* Members whose names begin with `-` or `_` are private to the current
+  stylesheet with `@use`.
+* If one stylesheet includes an `@extend`, it's only applied to stylesheets it
+  imports, not stylesheets that import it.
+
+Note that placeholder selectors are *not* namespaced, but they *do* respect
+privacy.
+
+#### Controlling Namespaces
+
+Although a `@use` rule's default namespace is determined by the basename of its
+URL, it can also be set explicitly using `as`.
+
+```scss
+@use "bootstrap" as b;
+
+.element {
+  @include b.float-left;
+}
+```
+
+The special construct `as *` can also be used to include everything in the
+top-level namespace. Note that if multiple modules define the same name and are
+used with `as *`, Sass will produce an error.
+
+```scss
+@use "bootstrap" as *;
+
+.element {
+  @include float-left;
+}
+```
+
+#### Configuring Libraries
+
+With `@import`, libraries are often configured by setting global variables that
+override `!default` variables defined by those libraries. Because variables are
+no longer global with `@use`, it supports a more explicit way of configuring
+libraries: the `with` clause.
+
+```scss
+// bootstrap.scss
+$paragraph-margin-bottom: 1rem !default;
+
+p {
+  margin-top: 0;
+  margin-bottom: $paragraph-margin-bottom;
+}
+```
+
+```scss
+@use "bootstrap" with (
+  $paragraph-margin-bottom: 1.2rem
+);
+```
+
+This sets bootstrap's `$paragraph-margin-bottom` variable to `1.2rem` before
+evaluating it. The `with` clause only allows variables defined in (or forwarded
+by) the module being imported, and only if they're defined with `!default`, so
+users are protected against typos.
+
+### `@forward`
+
+The `@forward` rule includes another module's variables, mixins, and functions
+as part of the current module, without making those APIs visible in the current
+module. It allows library authors to be able to split up their library among
+many different source files without sacrificing locality within those files.
+Unlike `@use`, forward doesn't add any namespaces to names.
+
+```scss
+// bootstrap.scss
+@forward "functions";
+@forward "variables";
+@forward "mixins";
+```
+
+#### Visibility Controls
+
+A `@forward` rule can choose to show only specific names:
+
+```scss
+@forward "functions" show color-yiq;
+```
+
+It can also hide names that are intended to be library-private:
+
+```scss
+@forward "functions" hide assert-ascending;
+```
+
+### `@import` Compatibility
+
+The Sass ecosystem won't switch to `@use` overnight, so in the meantime it needs
+to interoperate well with `@import`. This is supported in both directions:
+
+* When a file that contains `@import`s is `@use`d, everything in its global
+  namespace is made into a single module that can then be namespaced and
+  referred to like any other module.
+
+* When a file that contains `@use`s is `@import`ed, everything in its public API
+  is added to the importing module's global scope. This allows a library to
+  control what specific names it exports, even for users who `@import` it rather
+  than `@use` it.
+
+In order to allow libraries to maintain their existing `@import`-oriented API,
+with explicit namespacing where necessary, this proposal also adds support for
+files that are only visible to `@import`, not to `@use`. They're written
+`"file.import.scss"`, and imported when the user writes `@import "file"`.
+
+### Built-In Modules
+
+The new module system will also add seven built-in modules: `math`, `color`,
+`string`, `list`, `map`, `selector`, and `meta`. These will hold all the
+existing built-in Sass functions. Because these modules will (typically) be
+imported with a namespace, this makes it much easier to use Sass functions
+without running into conflicts with plain CSS functions.
+
+This in turn will make it much safer for Sass to add new functions. We expect to
+add a number of convenience functions to these modules in the future.
+
+#### `meta.load-css()`
+
+This proposal also adds a new built-in mixin, `meta.load-css($url, $with: ())`.
+This mixin dynamically loads the module with the given URL and includes its CSS
+(although its functions, variables, and mixins are not made available). This is
+a replacement for nested imports, and it helps address some use-cases of dynamic
+imports without many of the problems that would arise if new members could be
+loaded dynamically.
+
 ## Frequently Asked Questions
 
 * **Why this privacy model?** We considered a number of models for declaring
@@ -200,8 +365,9 @@ future work, but we don't consider them to be blocking the module system.
 * **Can I make a member library-private?** There's no language-level notion of a
   "library", so library-privacy isn't built in either. However, members imported
   by one module aren't automatically visible to downstream modules. If a module
-  isn't [`@forward`ed](#forward) through the entrypoint to a library, it won't
-  be visible to downstream consumers and thus is effectively library-private.
+  isn't [`@forward`ed](#forwarding-modules) through the entrypoint to a library,
+  it won't be visible to downstream consumers and thus is effectively
+  library-private.
 
   As a convention, we recommend that libraries include library-private modules
   that aren't intended to be imported directly by their users in a directory
@@ -974,8 +1140,8 @@ context](#import-context) `import`:
 
 ### Forwarding Modules
 
-The [`@forward`](#forward) rule forwards another [module](#module)'s public API
-as though it were part of the current module's.
+The [`@forward`](#forward-1) rule forwards another [module](#module)'s public
+API as though it were part of the current module's.
 
 > Note that `@forward` *does not* make any APIs available to the current module;
 > that is purely the domain of `@use`. However, it *does* include the forwarded
