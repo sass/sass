@@ -66,6 +66,7 @@ mind—these will be called out explicitly in block-quoted implementation notes.
     * [`module-variables()`](#module-variables)
     * [`module-functions()`](#module-functions)
   * [New Features For Existing Functions](#new-features-for-existing-functions)
+* [Timeline](#timeline)
 
 ## Background
 
@@ -1463,3 +1464,28 @@ loaded by that rule has a member with the given name and type. If it's `null`,
 it looks for members defined so far in the current module or import context,
 members of any modules loaded by global `@use` rules, or global built-in
 definitions.
+
+## Timeline
+
+The exact timing of the release of the module system is up in the air, and
+depends on available resources and the practical difficulty of implementing it,
+both of which are currently major question marks. The best we can say for a
+launch date is that we *hope* to have it launched in Dart Sass by the end of
+September 2019. We also *hope* to launch it concurrently with a migration tool
+that will automatically convert `@import` to `@use` and adjust member references
+accordingly.
+
+Eventually, we will deprecate `@import` and all global function calls that can
+now be made through modules. We plan to do this *either* one year after both
+major Sass implementations support this proposal in full, *or* two years after
+one implementation does, whichever comes first. This gives LibSass plenty of
+time to implement the module system without completely gating the ecosystem on
+it.
+
+We want there to be a large amount of time when `@use` and `@import` can
+coexist, to help people migrate. However, doing away with `@import` entirely is
+the ultimate goal for simplicity, performance, and CSS compatibility. As such,
+one year after `@import` is deprecated, we plan to drop support for `@import`
+entirely. This will involve a major version release for all implementations.
+This means that there will be at least two full years when `@import` and `@use`
+are both usable at once.
