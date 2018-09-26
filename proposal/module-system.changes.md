@@ -1,3 +1,72 @@
+## Draft 3
+
+* Limit extensions to affecting only modules transitively used by the module in
+  which the `@extend` appears ([#6][]).
+
+  [#6]: https://github.com/sass/language/issues/6
+
+* Replace module mixins with a built-in `load-css()` mixin that dynamically
+  includes the CSS for a module with a given URL.
+
+* Add support for configuring modules using a new `with` clause.
+
+* Update the `module-variables()` and `module-functions()` functions to return
+  maps from names to values, rather than just lists of names ([#12][]).
+  
+  [#12]: https://github.com/sass/language/issues/12
+
+* Remove the `module-mixins()` function until Sass supports first-class mixins
+  ([#12][]).
+
+* Add support for `_file.import.scss` as a file that only `@import`s will see
+  ([#11][]).
+
+  [#11]: https://github.com/sass/language/issues/11
+
+* Change the syntax for a `@use` rule without a namespace to `@use "..." as *`
+  ([#10][]).
+
+  [#10]: https://github.com/sass/language/issues/10
+
+* Initialize modules' variables with the values as declared in those modules
+  ([#13][]).
+
+  [#13]: https://github.com/sass/language/issues/13
+
+* Allow comments to be emitted before dependencies' CSS.
+
+* Show or hide variables with their `$` prefixes in `@forward`.
+
+* Define a source file as an AST plus a canonical URL. This means that built-in
+  modules are no longer source files, which seems more reasonable.
+
+* Clarify that `@forward` includes the forwarded module's CSS tree.
+
+* Pass configuration for a module to any modules it `@forward`s.
+
+* Forbid whitespace in various member-reference productions.
+
+* Explicitly indicate that extensions are dynamically scoped ([#7][]).
+
+  [#7]: https://github.com/sass/language/issues/7
+
+* Explicitly indicate which parts of a module are immutable.
+
+* Explicitly describe how variable declarations are resolved.
+
+* Explicitly describe how a configuration affects file evaluation.
+
+* Explicitly mention that variable declarations are allowed before `@use`.
+
+* Loading a module with configuration variables it doesn't expose is now an
+  error.
+
+* Don't make nested mixin and function declarations part of a module's API.
+
+* Re-organize "Resolving Extensions" to make its behavior clearer.
+
+* Link to the existing import spec rather than redefining terms.
+
 ## Draft 2.1
 
 * Make sure nested `@import`s preserve the parent selector/at-rule context of
