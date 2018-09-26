@@ -15,7 +15,7 @@ semantics of the module system, these aren't meant to prescribe a specific
 implementation. Individual implementations are free to implement this feature
 however they want as long as the end result is the same. However, there are
 specific design decisions that were made with implementation efficiency in
-mind—these will be called out explicitly in block-quoted implementation notes.
+mind—these will be called out explicitly in non-normative block-quoted asides.
 
 ## Table of Contents
 
@@ -70,23 +70,27 @@ mind—these will be called out explicitly in block-quoted implementation notes.
 
 ## Background
 
+> This section is non-normative.
+
 The new `@use` at-rule is intended to supercede Sass's `@import` rule as the
 standard way of sharing styles across Sass files. `@import` is the simplest
 possible form of re-use: it does little more than directly include the target
 file in the source file. This has caused numerous problems in practice:
 including the same file more than once slows down compilation and produces
 redundant output; users must manually namespace everything in their libraries;
-there's no encapsulation to allow them to keep moving pieces hidden; and it's
-very difficult for either humans or tools to tell where a given variable, mixin,
-or function comes from.
+there's no encapsulation to allow them to keep implementation details hidden;
+and it's very difficult for either humans or tools to tell where a given
+variable, mixin, or function comes from.
 
 The new module system is intended to address these shortcomings (among others)
 and bring Sass's modularity into line with the best practices as demonstrated by
-other modern languages. As such, the semantics of `@use` are is heavily based on
+other modern languages. As such, the semantics of `@use` are heavily based on
 other languages' module systems, with Python and Dart being particularly strong
 influences.
 
 ## Goals
+
+> This section is non-normative.
 
 ### High-Level
 
@@ -104,16 +108,16 @@ motivations behind many of the lower-level design decisions.
 * **Encapsulation**. The module system should allow authors, particularly
   library authors, to choose what API they expose. They should be able to define
   entities for internal use without making those entities available for external
-  users to access or modify. This also includes the ability to "forward" public
-  APIs from another file.
+  users to access or modify. The organization of a library's implementation into
+  files should be flexible enough to change without changing the user-visible
+  API.
 
 * **Configuration**. Sass is unusual among languages in that its design leads to
   the use of files whose entire purpose is to produce side effects—specifically,
   to emit CSS. There's also a broader class of libraries that may not emit CSS
   directly, but do define configuration variables that are used in computations,
   including computation of other top-level variables' values. The module system
-  should allow the user to flexibly use modules with side-effects, and shouldn't
-  force global configuration.
+  should allow the user to flexibly use and configure modules with side-effects.
 
 ### Low-Level
 
@@ -144,8 +148,8 @@ future work, but we don't consider them to be blocking the module system.
 * **Dynamic imports**. Allowing the path to a module to be defined dynamically,
   whether by including variables or including it in a conditional block, moves
   away from being declarative. In addition to making stylesheets harder to read,
-  this makes any sort of static analysis more difficult—and actually impossible
-  in the general case. It also limits the possibility of future implementation
+  this makes any sort of static analysis more difficult (and actually impossible
+  in the general case). It also limits the possibility of future implementation
   optimizations.
 
 * **Importing multiple files at once**. In addition to the long-standing reason
@@ -165,12 +169,12 @@ future work, but we don't consider them to be blocking the module system.
   compilations and potentially even serialize them to the filesystem for
   incremental compilation.
 
-  However, it's not feasible in practice. In practice, modules that generate CSS
-  almost always do so based on some configuration, which may be changed by
-  different entrypoints rendering caching useless. What's more, multiple modules
-  may depend on the same shared module, and one may modify its configuration
-  before the other uses it. Forbidding this case in general would effectively
-  amount to forbidding modules from generating CSS.
+  However, it's not feasible in practice. Modules that generate CSS almost
+  always do so based on some configuration, which may be changed by different
+  entrypoints rendering caching useless. What's more, multiple modules may
+  depend on the same shared module, and one may modify its configuration before
+  the other uses it. Forbidding this case in general would effectively amount to
+  forbidding modules from generating CSS based on variables.
 
   Fortunately, implementations have a lot of leeway to cache information that
   the can statically determine to be context-independent, including source trees
@@ -178,18 +182,18 @@ future work, but we don't consider them to be blocking the module system.
   context independence isn't likely to provide much value in addition to that.
 
 * **Increased strictness**. Large teams with many people often want stricter
-  rules around how Sass libraries are written, to enforce best practices and
+  rules around how Sass stylesheets are written, to enforce best practices and
   quickly catch mistakes. It's tempting to use a new module system as a lever to
-  push strictness further; for example, we could make it harder or even
-  impossible to have partials directly generate CSS, or we could decline to move
-  functions we'd prefer people avoid to the new built-in modules.
+  push strictness further; for example, we could make it harder to have partials
+  directly generate CSS, or we could decline to move functions we'd prefer
+  people avoid to the new built-in modules.
 
   As tempting as it is, though, we want to make all existing use-cases as easy
   as possible in the new system, *even if we think they should be avoided*. This
   module system is already a major departure from the existing behavior, and
   will require a substantial amount of work from Sass users to support. We want
   to make this transition as easy as possible, and part of that is avoiding
-  adding any avoidable hoops users have to jump through to get their existing
+  adding any unnecessary hoops users have to jump through to get their existing
   stylesheets working in the new module system.
 
   Once `@use` is thoroughly adopted in the ecosystem, we can start thinking
@@ -197,6 +201,8 @@ future work, but we don't consider them to be blocking the module system.
   `--strict-*` flags.
 
 ## Summary
+
+> This section is non-normative.
 
 This proposal adds two at-rules, `@use` and `@forward`, which may only appear at
 the top level of stylesheets before any rules (other than `@charset`). Together,
@@ -220,13 +226,14 @@ functions are available in a namespace based on the basename of the URL.
 In addition to namespacing, there are a few important differences between `@use`
 and `@import`:
 
-* `@use` only executes a stylesheet once, no matter how many times it's used.
+* `@use` only executes a stylesheet and includes its CSS once, no matter how
+  many times that stylesheet is used.
 * `@use` only makes names available in the current stylesheet, as opposed to
   globally.
 * Members whose names begin with `-` or `_` are private to the current
   stylesheet with `@use`.
-* If one stylesheet includes an `@extend`, it's only applied to stylesheets it
-  imports, not stylesheets that import it.
+* If a stylesheet includes `@extend`, that extension is only applied to
+  stylesheets it imports, not stylesheets that import it.
 
 Note that placeholder selectors are *not* namespaced, but they *do* respect
 privacy.
@@ -245,8 +252,8 @@ URL, it can also be set explicitly using `as`.
 ```
 
 The special construct `as *` can also be used to include everything in the
-top-level namespace. Note that if multiple modules define the same name and are
-used with `as *`, Sass will produce an error.
+top-level namespace. Note that if multiple modules expose members with the same
+name and are used with `as *`, Sass will produce an error.
 
 ```scss
 @use "bootstrap" as *;
@@ -287,10 +294,10 @@ users are protected against typos.
 ### `@forward`
 
 The `@forward` rule includes another module's variables, mixins, and functions
-as part of the current module, without making those APIs visible in the current
-module. It allows library authors to be able to split up their library among
-many different source files without sacrificing locality within those files.
-Unlike `@use`, forward doesn't add any namespaces to names.
+as part of the API exposed by the current module, without making them visible to
+code within the current module. It allows library authors to be able to split up
+their library among many different source files without sacrificing locality
+within those files. Unlike `@use`, forward doesn't add any namespaces to names.
 
 ```scss
 // bootstrap.scss
@@ -319,11 +326,11 @@ The Sass ecosystem won't switch to `@use` overnight, so in the meantime it needs
 to interoperate well with `@import`. This is supported in both directions:
 
 * When a file that contains `@import`s is `@use`d, everything in its global
-  namespace is made into a single module that can then be namespaced and
-  referred to like any other module.
+  namespace is treated as a single module. This module's members are then
+  referred to using its namespace as normal.
 
 * When a file that contains `@use`s is `@import`ed, everything in its public API
-  is added to the importing module's global scope. This allows a library to
+  is added to the importing stylesheet's global scope. This allows a library to
   control what specific names it exports, even for users who `@import` it rather
   than `@use` it.
 
@@ -337,8 +344,8 @@ files that are only visible to `@import`, not to `@use`. They're written
 The new module system will also add seven built-in modules: `math`, `color`,
 `string`, `list`, `map`, `selector`, and `meta`. These will hold all the
 existing built-in Sass functions. Because these modules will (typically) be
-imported with a namespace, this makes it much easier to use Sass functions
-without running into conflicts with plain CSS functions.
+imported with a namespace, it will be much easier to use Sass functions without
+running into conflicts with plain CSS functions.
 
 This in turn will make it much safer for Sass to add new functions. We expect to
 add a number of convenience functions to these modules in the future.
@@ -354,6 +361,8 @@ loaded dynamically.
 
 ## Frequently Asked Questions
 
+> This section is non-normative.
+
 * **Why this privacy model?** We considered a number of models for declaring
   members to be private, including a JS-like model where only members that were
   explicitly exported from a module were visible and a C#-like model with an
@@ -364,15 +373,15 @@ loaded dynamically.
   using.
 
 * **Can I make a member library-private?** There's no language-level notion of a
-  "library", so library-privacy isn't built in either. However, members imported
-  by one module aren't automatically visible to downstream modules. If a module
-  isn't [`@forward`ed](#forwarding-modules) through the entrypoint to a library,
+  "library", so library-privacy isn't built in either. However, members used by
+  one module aren't automatically visible to downstream modules. If a module
+  isn't [`@forward`ed](#forwarding-modules) through a library's main stylesheet,
   it won't be visible to downstream consumers and thus is effectively
   library-private.
 
-  As a convention, we recommend that libraries include library-private modules
-  that aren't intended to be imported directly by their users in a directory
-  named `src`.
+  As a convention, we recommend that libraries write library-private stylesheets
+  that aren't intended to be used directly by their users in a directory named
+  `src`.
 
 * **How do I make my library configurable?** If you have a large library made up
   of many source files that all share some core `!default`-based configuration,
@@ -457,9 +466,10 @@ its execution. An *empty configuration* contains no entries.
 ### Module
 
 A *module* is a collection of [members](#members) and [extensions](#extensions),
-as well as a [CSS tree](#css-tree) (although that tree may be empty). Each
-module may have only one member of a given type and name (for example, a module
-may not have two variables named `$name`).
+as well as a [CSS tree](#css-tree) (although that tree may be empty).
+User-defined modules have an associated [source file](#source-file) as well.
+Each module may have only one member of a given type and name (for example, a
+module may not have two variables named `$name`).
 
 A given module can be produced by [executing](#executing-files) the [source
 file](#source-file) identified by the module's [canonical URL][] with a
@@ -469,10 +479,10 @@ file](#source-file) identified by the module's [canonical URL][] with a
 
 ### Module Graph
 
-Modules also track their `@use` and [`@forward`](#forwarding-modules) at-rules,
-which point to other modules. In this sense, modules can be construed as a
-[directed acyclic graph][] where the vertices are modules and the edges are
-`@use` rules and/or `@forward` rules. We call this the *module graph*.
+Modules also track their `@use` and `@forward` at-rules, which point to other
+modules. In this sense, modules can be construed as a [directed acyclic graph][]
+where the vertices are modules and the edges are `@use` rules and/or `@forward`
+rules. We call this the *module graph*.
 
 [directed acyclic graph]: https://en.wikipedia.org/wiki/Directed_acyclic_graph
 
@@ -513,8 +523,9 @@ names. It's used to ensure that the previous global-namespace behavior is
 preserved when `@import`s are used.
 
 An import context is mutable throughout its entire lifetime, unlike a module
-which doesn't change once it's been fully created. This allows it to behave as a
-shared namespace for a connected group of imports.
+whose CSS and function/mixin definitions don't change once it's been fully
+created. This allows it to behave as a shared namespace for a connected group of
+imports.
 
 > Note that an import context never includes members made visible by `@use`,
 > even if a file with `@use` rules is imported.
@@ -527,10 +538,10 @@ The new at-rule will be called `@use`. The grammar for this rule is as follows:
 
 <x><pre>
 **UseRule**         ::= '@use' QuotedString AsClause? WithClause?
-**AsClause**        ::= 'as' ('*' | Identifier)
+**AsClause**        ::= 'as' ('\*' | Identifier)
 **WithClause**      ::= 'with' '('
-                          KeywordArgument (',' KeywordArgument)* ','?
-                        ')'
+&#32;                     KeywordArgument (',' KeywordArgument)\* ','?
+&#32;                   ')'
 **KeywordArgument** ::= '$' Identifier ':' Expression
 </pre></x>
 
@@ -551,10 +562,12 @@ URL scheme] base URL). No whitespace is allowed after `$` in `KeywordArgument`.
 > variables when passing configuration to a `WithClause`.
 >
 > ```scss
+> @use "sass:color";
+>
 > $base-color: #abc;
 > @use "library" with (
 >   $base-color: $base-color,
->   $secondary-color: darken($base-color, 10%),
+>   $secondary-color: color.scale($base-color, $lightness: -10%),
 > );
 > ```
 
@@ -597,7 +610,7 @@ hand, may use this syntax for either assignment or reference.
 
 No whitespace is allowed before or after the `'.'` in `NamespacedIdentifier`,
 after the `'$'` in `Variable`, or between the `NamespacedIdentifier` and the
-`ArgumentInvocation` in `FunctionCall`.
+`ArgumentInvocation` in `FunctionCall` or `Include`.
 
 > The dot-separated syntax (`namespace.name`) was chosen in preference to a
 > hyphenated syntax (for example `namespace-name`) because it makes the
@@ -616,8 +629,8 @@ semantics. They can be thought of as re-usable functions.
 
 ### Determining Namespaces
 
-This describes how to determine the namespace for a `@use` rule. Given a rule
-`rule`:
+This algorithm takes a `@use` rule `rule`, and returns either a string or an
+identifier.
 
 > This algorithm is context-independent, so a namespace for a `@use` rule can be
 > determined without reference to anything outside the syntax of that rule.
@@ -677,10 +690,8 @@ and [configuration](#configuration) `config`:
   > This disallows circular `@use`s, which ensures that modules can't be used
   > until they're fully initialized.
 
-* Otherwise, let `module` be the result of [executing](#executing-files) `file`
-  with `config` and a new [import context](#import-context).
-
-* Otherwise, return `module`.
+* Otherwise, return the result of [executing](#executing-files) `file` with
+  `config` and a new [import context](#import-context).
 
 > For simplicity, this proposal creates an import context for every module.
 > Implementations are encouraged to avoid eagerly allocating resources for
@@ -749,8 +760,6 @@ CSS for *all* modules transitively used or forwarded by `starting-module`.
 
     * For each style rule `rule` in `foreign`'s CSS:
 
-      * Let `selector` be `new-selectors[rule]`.
-
       * Set `new-selectors[rule]` to the result of applying `domestic`'s
         extensions to `new-selectors[rule]`.
 
@@ -782,7 +791,8 @@ CSS for *all* modules transitively used or forwarded by `starting-module`.
       > Most of the time, this means that all `@use` rules are traversed before
       > any statements are copied into `css`, because `@use` and `@forward` must
       > appear before any CSS rules. However, `/*` comments may appear before
-      > `@use` and `@forward`, and their relative location should be preserved.
+      > `@use` and `@forward`, and their relative location should be preserved
+      > in the generated CSS.
       >
       > If there are no comments that appear before `@use` or `@forward` rules,
       > this emits CSS in reverse topological order.
@@ -965,7 +975,7 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
   [forward the module](#forwarding-modules) it refers to with `config`.
 
 * When an `@import` rule is encountered,
-  [import the file](#importing-files) it refers to.
+  [import the file](#importing-files) it refers to with `import`.
   
 * When an `@extend` rule is encountered, add its extension to `module`.
 
@@ -976,12 +986,16 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
 
 * When a style rule or a plain CSS at-rule is encountered:
 
-  * Execute the rule as normal.
+  * Let `css` be the result of executing the rule as normal.
 
-  * Remove any style rules containing a placeholder selector that begins with
-    `-` or `_`.
+  * Remove any [complex selectors][] containing a placeholder selector that
+    begins with `-` or `_` from `css`.
+    
+    [complex selectors]: https://drafts.csswg.org/selectors-4/#complex
 
-  * Add the resulting CSS to `module`'s CSS.
+  * Remove any style rules that now have no selector from `css`.
+
+  * Append `css` to `module`'s CSS.
 
 * When a variable declaration `variable` is encountered:
 
@@ -1006,6 +1020,8 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
       * If `variable`'s name *doesn't* begin with `-` or `_`, add `variable` to
         `module`.
 
+        > This overrides the previous definition, if one exists.
+
       * Add `variable` to `import`.
 
   * Otherwise, evaluate it as usual.
@@ -1014,8 +1030,10 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
 
   > Mixins and functions defined within rules are never part of a module's API.
 
-  * Otherwise, if `member`'s name *doesn't* begin with `-` or `_`, add `member`
-    to `module`.
+  * If `member`'s name *doesn't* begin with `-` or `_`, add `member` to
+    `module`.
+
+    > This overrides the previous definition, if one exists.
 
   * Add `member` to `import`.
 
@@ -1023,15 +1041,6 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
 
 * When a member use is encountered, [resolve it](#resolving-members) using
   `file`, `uses`, `config`, and `import`. If this returns null, throw an error.
-
-* Once all top-level statements are executed, for every global variable
-  declaration `var` in `file`:
-
-  * If `module` has a variable with the same name as `var`, do nothing.
-
-  * Otherwise, if `var`'s name begins with `-` or `_`, do nothing.
-
-  * Otherwise, add `var` to the current module with the variable's value.
 
 * Finally, return `module`. Its functions, mixins, and CSS are now immutable.
 
@@ -1082,8 +1091,9 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
 > // This has no namespace.
 > @use "compass" as *;
 >
-> // Both packages define their own "gutters()" functions. But because the members
-> // are namespaced, there's no conflict and the user can use both at once.
+> // Both libraries define their own "gutters()" functions. But because the
+> // members are namespaced, there's no conflict and the user can use both at
+> // once.
 > #susy {@include susy.gutters()}
 > #bourbon {@include bbn.gutters()}
 >
@@ -1111,10 +1121,8 @@ context](#import-context) `import`:
 
   * Let `module` be the module in `uses` associated with `use`.
 
-  * Let `member` be the member of `module` with type `type` with name
-    `raw-name`. If there is no such member, throw an error.
-
-  * Otherwise, return `member`.
+  * Return the member of `module` with type `type` and name `raw-name`. If there
+    is no such member, throw an error.
 
 * If `type` is "variable" and `config` contains a variable named `name`, return
   it.
@@ -1131,7 +1139,7 @@ context](#import-context) `import`:
 * Otherwise, if a member of type `type` named `name` is defined in more than one
   module in `uses` whose `@use` rule is global, throw an error.
 
-  > This ensures that, if a new version of a package produces a conflicting
+  > This ensures that, if a new version of a library produces a conflicting
   > name, it causes an immediate error.
 
 * If `import` exists and contains a member of type `type` named `name`, return
@@ -1145,14 +1153,14 @@ The [`@forward`](#forward-1) rule forwards another [module](#module)'s public
 API as though it were part of the current module's.
 
 > Note that `@forward` *does not* make any APIs available to the current module;
-> that is purely the domain of `@use`. However, it *does* include the forwarded
-> module's CSS tree.
+> that is purely the domain of `@use`. It *does* include the forwarded module's
+> CSS tree, but it's not visible to `@extend` without also using the module.
 
 This algorithm takes a `@forward` rule `rule` and a
 [configuration](#configuration) `config`. It modifies the current module.
 
-* [Load](#loading-modules) the module for `rule`'s URL with `config` and forward
-  it.
+* Let `module` be the result of [loading](#loading-modules) the module for
+  `rule`'s URL with `config`.
   
 * For every member `member` in `module`:
 
@@ -1167,9 +1175,9 @@ This algorithm takes a `@forward` rule `rule` and a
     name (including `$` for variables), do nothing.
 
     > It's not possible to show/hide a mixin without showing/hiding the
-    > equivalent function, or to do the reverse. This is unlikely to come up in
-    > practice, though, and adding support for it isn't worth the extra
-    > syntactic complexity it would require.
+    > equivalent function, or to do the reverse. This is unlikely to be a
+    > problem in practice, though, and adding support for it isn't worth the
+    > extra syntactic complexity it would require.
 
   * Otherwise, if `rule` has a `hide` clause that does include `member`'s name
     (including `$` for variables), do nothing.
@@ -1184,7 +1192,7 @@ This algorithm takes a `@forward` rule `rule` and a
 
 > This forwards all members by default to reduce the churn and potential for
 > errors when a new member gets added to a forwarded module. It's likely that
-> most packages will already break up their definitions into many smaller
+> most libraries will already break up their definitions into many smaller
 > modules which will all be forwarded, which makes the API definition explicit
 > enough without requiring additional explicitness here.
 >
@@ -1198,7 +1206,7 @@ This algorithm takes a `@forward` rule `rule` and a
 > @forward "susy/content";
 >
 > // You can show or hide members that are only meant to be used within the
-> // package. You could also choose not to forward this module at all and only
+> // library. You could also choose not to forward this module at all and only
 > // use it from internal modules.
 > @forward "susy/settings" hide susy-defaults;
 > ```
@@ -1216,8 +1224,7 @@ When executing an `@import` rule `rule` with an import context `import`:
 
 * If `file` is null, throw an error.
 
-* If `file` is currently being executed with `import` as its import context,
-  throw an error.
+* If `file` is currently being executed, throw an error.
 
 * Let `module` be the result of [executing](#executing-files) `file` with the
   empty configuration and `import` as its import context, with the following
@@ -1226,7 +1233,7 @@ When executing an `@import` rule `rule` with an import context `import`:
   * If the `@import` rule is nested within at-rules and/or style rules, that
     context is preserved when executing `file`.
 
-  * The generated CSS for style rules or at-rules in `file` is emitted to the
+  * The generated CSS for style rules or at-rules in `file` is appended to the
     current module's CSS.
 
   > Note that this execution can mutate `import`.
@@ -1254,8 +1261,8 @@ When executing an `@import` rule `rule` with an import context `import`:
 > This definition allows files that include `@use` to be imported. Doing so
 > includes those modules' CSS as well as any members they define or forward.
 > This makes it possible for users to continue using `@import` even when their
-> dependencies switch to `@use`, which conversely makes it safer for packages to
-> switch to `@use`.
+> dependencies switch to `@use`, which conversely makes it safer for libraries
+> to switch to `@use`.
 >
 > It also allows files that use `@import` to be used as modules. Doing so treats
 > them as though all CSS and members were included in the module itself.
@@ -1383,7 +1390,7 @@ It returns a map from variable names defined in the module loaded by that rule
 (as quoted strings, without `$`) to the current values of those variables.
 
 Note that (like the existing `*-defined()` functions), this function's behavior
-depends on the lexical context in it's invoked.
+depends on the lexical context in which it's invoked.
 
 #### `module-functions()`
 
@@ -1394,7 +1401,7 @@ It returns a map from function names defined in the module loaded by that rule
 functions.
 
 Note that (like the existing `*-defined()` functions), this function's behavior
-depends on the lexical context in it's invoked.
+depends on the lexical context in which it's invoked.
 
 #### `load-css()`
 
