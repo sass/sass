@@ -1,4 +1,4 @@
-# Escapes in Identifiers: Draft 2
+# Escapes in Identifiers: Draft 3
 
 *([Issue](https://github.com/sass/sass/issues/1542), [Changelog](identifier-escapes.changes.md))*
 
@@ -55,12 +55,16 @@ The canonical form of a code point is:
 * a backslash followed by the code point's lowercase hex code followed by a
   space if it's not printable or a newline; or
 
+* a backslash followed by the code point's lowercase hex code followed by a
+  space if it's a digit at the beginning of an identifier; or
+
 * a backslash followed by the literal code point.
 
 For example, in SassScript:
 
 * `ax`, `\61x`, and `\61 x` all parse to the unquoted string `ax`;
 * `\7f x`, `\7fx`, and `\7Fx` all parse to the unquoted string `\7f x`; and
+* `\31 x` and `\31x` parse to the unquoted string `\31 x`; and
 * `\@x`, `\40x`, and `\0040x` all parse to the unquoted string `\@x`.
 
 ### Compatibility
@@ -209,10 +213,12 @@ This production has the same grammar as [`escape`][escape] in CSS Syntax Level 3
 * Otherwise, if `codepoint` is a [name code point][] and the `start` flag is
   not set, return `character`.
 
-* Otherwise, if `codepoint` is a [non-printable code point][], U+000A LINE
-  FEED, U+000D CARRIAGE RETURN, or U+000C FORM FEED:
+* Otherwise, if `codepoint` is a [non-printable code point][], U+000A LINE FEED,
+  U+000D CARRIAGE RETURN, or U+000C FORM FEED; *or* if `codepoint` is a
+  [digit][] and the `start` flag is set:
 
   [non-printable code point]: https://drafts.csswg.org/css-syntax-3/#non-printable-code-point
+  [digit]: https://drafts.csswg.org/css-syntax-3/#digit
 
     * Let `code` be the lowercase hexadecimal representation of `codepoint`,
       with no leading `0`s.
@@ -220,3 +226,4 @@ This production has the same grammar as [`escape`][escape] in CSS Syntax Level 3
     * Return `"\"` + `code` + `" "`.
 
 * Otherwise, return `"\"` + `character`.
+
