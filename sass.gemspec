@@ -29,8 +29,7 @@ SASS_GEMSPEC = Gem::Specification.new do |spec|
 
   readmes = Dir['*'].reject{ |x| x =~ /(^|[^.a-z])[a-z]+/ || x == "TODO" }
   spec.executables = ['sass', 'sass-convert', 'scss']
-  spec.files = Dir['rails/init.rb', 'lib/**/*', 'bin/*', 'test/**/*',
-    'extra/**/*', 'Rakefile', 'init.rb', '.yardopts'] + readmes
+  spec.files = Dir['rails/init.rb', 'lib/**/*', 'bin/*', 'extra/**/*', 'Rakefile', 'init.rb', '.yardopts'] + readmes
   spec.homepage = 'http://sass-lang.com/'
   spec.has_rdoc = false
   spec.test_files = Dir['test/**/*_test.rb']
