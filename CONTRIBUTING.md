@@ -116,18 +116,32 @@ accepted.
   backwards-incompatible changes. It should explain Sass's current behavior, the
   original reasoning behind that behavior, and why it's insufficient.
 
+  See [Plain CSS `min()` and `max()`][min-max background] for a good example of
+  a Background section.
+
+  [min-max background]: https://github.com/sass/language/blob/master/accepted/min-max.md#background
+
 * **Summary**
 
   This non-normative section provides a concise, user-friendly summary of the
   behavior being proposed. It doesn't need to be fully explicit about every
   corner of the feature, it just needs to give users an idea of how it works and
   what use-cases it addresses. Code examples are encouraged.
+  
+  See [Escapes in Identifiers][] for a good example of a Summary section.
+
+  [Escapes in Identifiers]: https://github.com/sass/language/blob/master/accepted/identifier-escapes.md#summary
 
   * **Design Decisions**
   
     This sub-section goes into detail about decisions that were made during the
     design of the feature. It should describe alternatives that were considered,
     and explain why the final decision was made the way it was.
+
+    See [Plain CSS `min()` and `max()`][min-max design] for a good example
+    of a Design Decisions section.
+    
+    [min-max design]: https://github.com/sass/language/blob/master/accepted/min-max.md#design-decisions
 
 * **Syntax**
 
@@ -152,6 +166,10 @@ accepted.
   Syntax definitions can also refer to productions from CSS specs. The proposal
   should link to the specs in question.
 
+  See [Range-Context Media Features][] for an good example of a Syntax section.
+
+  [Range-Context Media Features]: https://github.com/sass/language/blob/master/accepted/media-ranges.md
+
 * **Semantics**
 
   This section describes the runtime behavior of the new feature. It may be
@@ -159,9 +177,21 @@ accepted.
   semantics section covers everything about how a stylesheet is evaluated,
   including how imports are resolved and the behavior of built-in functions.
 
+  See [CSS Imports][css-imports semantics] for a good example of a Semantics section.
+
+  [css-imports semantics]: https://github.com/sass/language/blob/master/accepted/css-imports.md#semantics
+
 * **Deprecation Process**
 
   All backwards-incompatible features should go through a deprecation process if
-  at all possible. This section describes the details of that process, including
-  what code will produce deprecation warnings and how those warnings will
-  indicate what the user should do to make their stylesheet forwards-compatible.
+  at all possible (see [Dart Sass's compatibility policy][]). This section
+  describes the details of that process, including what code will produce
+  deprecation warnings and how those warnings will indicate what the user should
+  do to make their stylesheet forwards-compatible.
+
+  [Dart Sass's compatibility policy]: https://github.com/sass/dart-sass#compatibility-policy
+
+  See [CSS Imports][css-imports deprecation] for a good example of a Deprecation
+  Process section.
+
+  [css-imports deprecation]: https://github.com/sass/dart-sass#compatibility-policy
