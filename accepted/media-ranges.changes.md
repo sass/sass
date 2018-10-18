@@ -1,3 +1,7 @@
+## Draft 3.1
+
+* Improve the formatting of the syntax examples.
+
 ## Draft 3
 
 * Disallow ambiguous binary operators in the `'(' Expression ')'` option for the
