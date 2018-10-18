@@ -1,4 +1,4 @@
-# Range-Context Media Features: Draft 3
+# Range-Context Media Features: Draft 3.1
 
 *([Issue](https://github.com/sass/sass/issues/1864), [Changelog](media-ranges.changes.md))*
 
@@ -57,17 +57,18 @@ intended to replace the existing syntax.
 > Other than support for the [range context][] syntax, this syntax is designed
 > to represent the current behavior of all Sass implementations.
 
-```
-MediaQueryList ::= MediaQuery (',' MediaQuery)*
-MediaQuery     ::= MediaType | (MediaType 'and')? MediaFeature ('and' MediaFeature)*
-MediaType      ::= InterpolatedIdentifier InterpolatedIdentifier¹?
-MediaFeature   ::= Interpolation
-                 | '(' Expression² ')'
-                 | '(' Expression² ':' Expression ')'
-                 | '(' Expression² <mf-comparison> Expression² ')'
-                 | '(' Expression² <mf-lt> Expression² <mf-lt> Expression² ')'
-                 | '(' Expression² <mf-gt> Expression² <mf-gt> Expression² ')'
-```
+<x><pre>
+**MediaQueryList** ::= MediaQuery (',' MediaQuery)*
+**MediaQuery**     ::= MediaType | (MediaType 'and')? MediaFeature ('and' MediaFeature)*
+**MediaType**      ::= InterpolatedIdentifier InterpolatedIdentifier¹?
+**MediaFeature**   ::= Interpolation
+&#32;                 | '(' Expression² ')'
+&#32;                 | '(' Expression² ':' Expression ')'
+&#32;                 | '(' Expression² <mf-comparison> Expression² ')'
+&#32;                 | '(' Expression² <mf-lt> Expression² <mf-lt> Expression² ')'
+&#32;                 | '(' Expression² <mf-gt> Expression² <mf-gt> Expression² ')'
+</pre></x>
+
 
 1: This `InterpolatedIdentifier` may not be the identifier `"and"`.
 
@@ -90,12 +91,13 @@ The `<mf-comparison>`, `<mf-lt>`, and `<mf-gt>` productions are defined in
 
 Plain CSS media queries are parsed using the following syntax:
 
-```
-CssMediaQueryList ::= CssMediaQuery (',' CssMediaQuery)*
-CssMediaQuery     ::= CssMediaType
-                    | (CssMediaType 'and')? CssMediaFeature ('and' CssMediaFeature)*
-CssMediaType      ::= <ident-token> <ident-token>¹?
-CssMediaFeature   ::= '(' <declaration-value> ')'
+<x><pre>
+**CssMediaQueryList** ::= CssMediaQuery (',' CssMediaQuery)*
+**CssMediaQuery**     ::= CssMediaType
+&#32;                    | (CssMediaType 'and')? CssMediaFeature ('and' CssMediaFeature)*
+**CssMediaType**      ::= <ident-token> <ident-token>¹?
+**CssMediaFeature**   ::= '(' <declaration-value> ')'
+</pre></x>
 ```
 
 1: This `Identifier` may not be the identifier `"and"`.
