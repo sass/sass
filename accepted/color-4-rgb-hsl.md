@@ -106,6 +106,12 @@ functions:
     * Call `rgba()` with `red`, `green`, `blue`, and `alpha` as arguments and
       return the result.
 
+  * Otherwise, if the third element of `$channels` is an unquoted string that
+    contains `/`:
+
+    * Return a plain CSS function string with the name `rgb` and the argument
+      `$channels`.
+
   * Otherwise:
 
     * Let `blue` be the third element of `$channels`.
@@ -159,6 +165,12 @@ functions:
 
     * Call `hsla()` with `hue`, `saturation`, `lightness`, and `alpha` as
       arguments and return the result.
+
+  * Otherwise, if the third element of `$channels` is an unquoted string that
+    contains `/`:
+
+    * Return a plain CSS function string with the name `hsl` and the argument
+      `$channels`.
 
   * Otherwise:
 
