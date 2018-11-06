@@ -1,6 +1,6 @@
 # Color Level 4 `rgb()` and `hsl()` Functions: Draft 1
 
-*([Issue](https://github.com/sass/sass/issues/2564))*
+*([Issue](https://github.com/sass/sass/issues/2564), [Changelog](color-4-rgb-hsl.changes.md))*
 
 This proposal expands Sass's built-in `rgb()`, `rgba()`, `hsl()`, and `hsla()`
 functions to support the new terse syntax defined in [CSS Color Level 4][].
