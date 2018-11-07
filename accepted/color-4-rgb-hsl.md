@@ -186,15 +186,6 @@ functions:
   * Call `hsla()` with the same arguments and return the result.
 
 * ```
-  hsl($color, $alpha)
-  ```
-
-  * If either argument is a [special variable string][], return a plain CSS
-    function string with the name `hsl` and the same arguments.
-
-  * Call `hsla()` with the same arguments and return the result.
-
-* ```
   rgba($channels)
   ```
 
