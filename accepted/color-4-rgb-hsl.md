@@ -1,6 +1,6 @@
 # Color Level 4 `rgb()` and `hsl()` Functions: Draft 1
 
-*([Issue](https://github.com/sass/sass/issues/2564))*
+*([Issue](https://github.com/sass/sass/issues/2564), [Changelog](color-4-rgb-hsl.changes.md))*
 
 This proposal expands Sass's built-in `rgb()`, `rgba()`, `hsl()`, and `hsla()`
 functions to support the new terse syntax defined in [CSS Color Level 4][].
@@ -10,6 +10,9 @@ functions to support the new terse syntax defined in [CSS Color Level 4][].
 ## Table of Contents
 
 * [Summary](#summary)
+* [Definitions](#definitions)
+  * [Special Number String](#special-number-string)
+  * [Special Variable String](#special-variable-string)
 * [Semantics](#semantics)
 
 ## Summary
@@ -37,6 +40,35 @@ Sass will continue generating colors with alpha channels as `rgba()` calls, for
 backwards-compatibility with older browsers that don't yet support Color Level
 4.
 
+## Definitions
+
+### Special Number String
+
+A *special number string* is an unquoted string that CSS will recognize as a
+function that may return a number. For the purposes of Sass, this is any
+unquoted string that begins with `calc(` or `var(`. This matching is
+case-insensitive.
+
+> Sass functions that shadow CSS functions must work with any invocation that
+> CSS allows, which includes allowing special number strings anywhere a number
+> would be allowed.
+>
+> This is intended to match the existing behavior for determining special number
+> strings for `rgb()`, `hsl()`, `rgba()`, and `hsla()`.
+
+### Special Variable String
+
+A *special variable string* is [special number string][] that begins with
+`var(`. This matching is case-insensitive.
+
+[special number string]: #special-number-string
+
+> Unlike other special number strings, variables can expand into multiple
+> arguments to a single function.
+>
+> This is intended to match the existing behavior for determining special
+> variable strings for `rgb()`, `hsl()`, `rgba()`, and `hsla()`.
+
 ## Semantics
 
 This proposal adds new overloads to the `rgb()`, `hsl()`, `rgba()`, and `hsla()`
@@ -45,10 +77,23 @@ functions:
 * ```
   rgb($channels)
   ```
+  
+  * If `$channels` is a [special variable string][], return a plain CSS function
+    string with the name `rgb` and the argument `$channels`.
+
+    [special variable string]: #special-variable-string
 
   * If `$channels` is not an unbracketed space-separated list, throw an error.
 
-  * If `$channels` doesn't have exactly three elements, throw an error.
+  * If `$channels` has more than three elements, throw an error.
+
+  * If `$channels` has fewer than three elements:
+
+    * If any element of `$channels` is a [special variable string][], return a
+      plain CSS function string with the name `rgb` and the argument
+      `$channels`.
+
+    * Otherwise, throw an error.
 
   * Let `red` and `green` be the first two elements of `$channels`.
 
@@ -60,6 +105,12 @@ functions:
 
     * Call `rgba()` with `red`, `green`, `blue`, and `alpha` as arguments and
       return the result.
+
+  * Otherwise, if the third element of `$channels` is an unquoted string that
+    contains `/`:
+
+    * Return a plain CSS function string with the name `rgb` and the argument
+      `$channels`.
 
   * Otherwise:
 
@@ -78,15 +129,31 @@ functions:
   rgb($color, $alpha)
   ```
 
+  * If either argument is a [special variable string][], return a plain CSS
+    function string with the name `rgb` and the same arguments.
+
   * Call `rgba()` with the same arguments and return the result.
 
 * ```
   hsl($channels)
   ```
 
+  * If `$channels` is a [special variable string][], return a plain CSS function
+    string with the name `hsl` and the argument `$channels`.
+
+    [special variable string]: #special-variable-string
+
   * If `$channels` is not an unbracketed space-separated list, throw an error.
 
-  * If `$channels` doesn't have exactly three elements, throw an error.
+  * If `$channels` has more than three elements, throw an error.
+
+  * If `$channels` has fewer than three elements:
+
+    * If any element of `$channels` is a [special variable string][], return a
+      plain CSS function string with the name `hsl` and the argument
+      `$channels`.
+
+    * Otherwise, throw an error.
 
   * Let `hue` and `saturation` be the first two elements of `$channels`.
 
@@ -98,6 +165,12 @@ functions:
 
     * Call `hsla()` with `hue`, `saturation`, `lightness`, and `alpha` as
       arguments and return the result.
+
+  * Otherwise, if the third element of `$channels` is an unquoted string that
+    contains `/`:
+
+    * Return a plain CSS function string with the name `hsl` and the argument
+      `$channels`.
 
   * Otherwise:
 
@@ -116,11 +189,17 @@ functions:
   hsl($color, $alpha)
   ```
 
+  * If either argument is a [special variable string][], return a plain CSS
+    function string with the name `hsl` and the same arguments.
+
   * Call `hsla()` with the same arguments and return the result.
 
 * ```
   rgba($channels)
   ```
+
+  * If `$channels` is a [special variable string][], return a plain CSS function
+    string with the name `rgba` and the argument `$channels`.
 
   * Call `rgb()` with the same argument and return the result.
 
@@ -128,16 +207,25 @@ functions:
   rgba($red, $green, $blue)
   ```
 
+  * If any argument is a [special variable string][], return a plain CSS
+    function string with the name `rgba` and the same arguments.
+
   * Call `rgb()` with the same arguments and return the result.
 
 * ```
   hsla($channels)
   ```
 
+  * If `$channels` is a [special variable string][], return a plain CSS function
+    string with the name `hsla` and the argument `$channels`.
+
   * Call `hsl()` with the same argument and return the result.
 
 * ```
   hsla($hue, $saturation, $lightness)
   ```
+
+  * If any argument is a [special variable string][], return a plain CSS
+    function string with the name `hsla` and the same arguments.
 
   * Call `hsl()` with the same arguments and return the result.
