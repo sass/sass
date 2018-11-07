@@ -79,7 +79,7 @@ functions:
   ```
   
   * If `$channels` is a [special variable string][], return a plain CSS function
-    string with the name `rgb` and the argument `$channels`.
+    string with the name `"rgb"` and the argument `$channels`.
 
     [special variable string]: #special-variable-string
 
@@ -90,7 +90,7 @@ functions:
   * If `$channels` has fewer than three elements:
 
     * If any element of `$channels` is a [special variable string][], return a
-      plain CSS function string with the name `rgb` and the argument
+      plain CSS function string with the name `"rgb"` and the argument
       `$channels`.
 
     * Otherwise, throw an error.
@@ -109,7 +109,7 @@ functions:
   * Otherwise, if the third element of `$channels` is an unquoted string that
     contains `/`:
 
-    * Return a plain CSS function string with the name `rgb` and the argument
+    * Return a plain CSS function string with the name `"rgb"` and the argument
       `$channels`.
 
   * Otherwise:
@@ -130,7 +130,7 @@ functions:
   ```
 
   * If either argument is a [special variable string][], return a plain CSS
-    function string with the name `rgb` and the same arguments.
+    function string with the name `"rgb"` and the same arguments.
 
   * Call `rgba()` with the same arguments and return the result.
 
@@ -139,7 +139,7 @@ functions:
   ```
 
   * If `$channels` is a [special variable string][], return a plain CSS function
-    string with the name `hsl` and the argument `$channels`.
+    string with the name `"hsl"` and the argument `$channels`.
 
     [special variable string]: #special-variable-string
 
@@ -150,7 +150,7 @@ functions:
   * If `$channels` has fewer than three elements:
 
     * If any element of `$channels` is a [special variable string][], return a
-      plain CSS function string with the name `hsl` and the argument
+      plain CSS function string with the name `"hsl"` and the argument
       `$channels`.
 
     * Otherwise, throw an error.
@@ -169,7 +169,7 @@ functions:
   * Otherwise, if the third element of `$channels` is an unquoted string that
     contains `/`:
 
-    * Return a plain CSS function string with the name `hsl` and the argument
+    * Return a plain CSS function string with the name `"hsl"` and the argument
       `$channels`.
 
   * Otherwise:
@@ -190,7 +190,7 @@ functions:
   ```
 
   * If `$channels` is a [special variable string][], return a plain CSS function
-    string with the name `rgba` and the argument `$channels`.
+    string with the name `"rgba"` and the argument `$channels`.
 
   * Call `rgb()` with the same argument and return the result.
 
@@ -199,7 +199,7 @@ functions:
   ```
 
   * If any argument is a [special variable string][], return a plain CSS
-    function string with the name `rgba` and the same arguments.
+    function string with the name `"rgba"` and the same arguments.
 
   * Call `rgb()` with the same arguments and return the result.
 
@@ -208,7 +208,7 @@ functions:
   ```
 
   * If `$channels` is a [special variable string][], return a plain CSS function
-    string with the name `hsla` and the argument `$channels`.
+    string with the name `"hsla"` and the argument `$channels`.
 
   * Call `hsl()` with the same argument and return the result.
 
@@ -217,6 +217,6 @@ functions:
   ```
 
   * If any argument is a [special variable string][], return a plain CSS
-    function string with the name `hsla` and the same arguments.
+    function string with the name `"hsla"` and the same arguments.
 
   * Call `hsl()` with the same arguments and return the result.
