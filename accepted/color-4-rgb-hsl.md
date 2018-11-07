@@ -93,6 +93,10 @@ functions:
       plain CSS function string with the name `"rgb"` and the argument
       `$channels`.
 
+    * If the last element of `$channels` is an unquoted string that contains
+      both `var(` and `/`, return a plain CSS function string with the name
+      `"rgb"` and the argument `$channels`.
+
     * Otherwise, throw an error.
 
   * Let `red` and `green` be the first two elements of `$channels`.
@@ -152,6 +156,10 @@ functions:
     * If any element of `$channels` is a [special variable string][], return a
       plain CSS function string with the name `"hsl"` and the argument
       `$channels`.
+
+    * If the last element of `$channels` is an unquoted string that contains
+      both `var(` and `/`, return a plain CSS function string with the name
+      `"rgb"` and the argument `$channels`.
 
     * Otherwise, throw an error.
 

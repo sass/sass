@@ -1,5 +1,8 @@
 ## Draft 1.2
 
+* Support `rgb(var(--foo) / 0.5)` and `hsl(var(--foo) / 0.5)`, since the
+  variable could expand to a list of arguments.
+
 * Remove the `hsl($color, $alpha)` overload, since it redirects to an `hsla()`
   overload that doesn't exist.
 
