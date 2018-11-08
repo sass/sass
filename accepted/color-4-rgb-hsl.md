@@ -1,4 +1,4 @@
-# Color Level 4 `rgb()` and `hsl()` Functions: Draft 1
+# Color Level 4 `rgb()` and `hsl()` Functions: Draft 1.2
 
 *([Issue](https://github.com/sass/sass/issues/2564), [Changelog](color-4-rgb-hsl.changes.md))*
 
