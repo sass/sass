@@ -11,6 +11,8 @@
 
 * Move `meta.unique-id()` to `string.unique-id()`.
 
+* Add "code splitting" as a non-goal.
+
 ## Draft 3
 
 * Limit extensions to affecting only modules transitively used by the module in

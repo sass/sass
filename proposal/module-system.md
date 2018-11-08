@@ -200,6 +200,20 @@ future work, but we don't consider them to be blocking the module system.
   about increased strictness in the form of lints or TypeScript-style
   `--strict-*` flags.
 
+* **Code splitting**. The ability to split monolithic CSS into separate chunks
+  that can be served lazily is important for maintaining quick load times for
+  very large applications. However, it's orthogonal to the problems that this
+  module system is trying to solve. This system is primarily concerned with
+  scoping Sass APIs (mixins, functions, and placeholders) rather than declaring
+  dependencies between chunks of generated CSS.
+
+  We believe that this module system can work in concert with external
+  code-splitting systems. For example, the module system can be used to load
+  libraries that are used to style individual components, each of which is
+  compiled to its own CSS file. These CSS files could then declare dependencies
+  on one another using special comments or custom at-rules and be stitched
+  together by a code-splitting post-processor.
+
 ## Summary
 
 > This section is non-normative.
