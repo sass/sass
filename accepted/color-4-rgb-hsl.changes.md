@@ -1,3 +1,7 @@
+## Draft 1.3
+
+* Fix a redirect that didn't get the extra text about renaming its plain CSS.
+
 ## Draft 1.2
 
 * Support `rgb(var(--foo) / 0.5)` and `hsl(var(--foo) / 0.5)`, since the

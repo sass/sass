@@ -1,4 +1,4 @@
-# Color Level 4 `rgb()` and `hsl()` Functions: Draft 1.2
+# Color Level 4 `rgb()` and `hsl()` Functions: Draft 1.3
 
 *([Issue](https://github.com/sass/sass/issues/2564), [Changelog](color-4-rgb-hsl.changes.md))*
 
@@ -127,7 +127,9 @@ functions:
   rgb($red, $green, $blue, $alpha)
   ```
 
-  * Call `rgba()` with the same arguments and return the result.
+  * Call `rgba()` with the same argument and return the result, except that if
+    it would return a plain CSS function named `"rgb"` that function is named
+    `"rgba"` instead.
 
 * ```
   rgb($color, $alpha)
@@ -201,7 +203,7 @@ functions:
 
   * Call `rgb()` with the same argument and return the result, except that if
     it would return a plain CSS function named `"rgb"` that function is named
-    `"rgba"` instead..
+    `"rgba"` instead.
 
 * ```
   rgba($red, $green, $blue)
@@ -209,7 +211,7 @@ functions:
 
   * Call `rgb()` with the same argument and return the result, except that if
     it would return a plain CSS function named `"rgb"` that function is named
-    `"rgba"` instead..
+    `"rgba"` instead.
 
 * ```
   hsla($channels)
