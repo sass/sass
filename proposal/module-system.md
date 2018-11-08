@@ -1,4 +1,4 @@
-# The Next-Generation Sass Module System: Draft 3
+# The Next-Generation Sass Module System: Draft 4
 
 *([Issues](https://github.com/sass/sass/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A%22%40use%22), [Changelog](module-system.changes.md))*
 
@@ -1297,8 +1297,8 @@ The built-in functions will be organized as follows:
 | `red`                    |           | sass:color    |   | `max`                    |                    | sass:math     |
 | `blue`                   |           | sass:color    |   | `random`                 |                    | sass:math     |
 | `green`                  |           | sass:color    |   | `unit`                   |                    | sass:math     |
-| `mix`                    |           | sass:color    |   | `unitless`               |                    | sass:math     |
-| `hue`                    |           | sass:color    |   | `comparable`             |                    | sass:math     |
+| `mix`                    |           | sass:color    |   | `unitless`               | `is-unitless`      | sass:math     |
+| `hue`                    |           | sass:color    |   | `comparable`             | `compatible`       | sass:math     |
 | `saturation`             |           | sass:color    |   |                          |                    |               |
 | `lightness`              |           | sass:color    |   | `length`                 |                    | sass:list     |
 | `adjust-hue`             |           | sass:color    |   | `nth`                    |                    | sass:list     |
@@ -1318,7 +1318,7 @@ The built-in functions will be organized as follows:
 | `ie-hex-str`             |           | sass:color    |   | `get-function`           |                    | sass:meta     |
 |                          |           |               |   | `type-of`                |                    | sass:meta     |
 | `map-get`                | `get`     | sass:map      |   | `call`                   |                    | sass:meta     |
-| `map-merge`              | `merge`   | sass:map      |   | `unique-id`              |                    | sass:meta     |
+| `map-merge`              | `merge`   | sass:map      |   | `content-exists`         |                    | sass:meta     |
 | `map-remove`             | `remove`  | sass:map      |   |                          | `module-variables` | sass:meta     |
 | `map-keys`               | `keys`    | sass:map      |   |                          | `module-functions` | sass:meta     |
 | `map-values`             | `values`  | sass:map      |   |                          |                    |               |
@@ -1330,7 +1330,7 @@ The built-in functions will be organized as follows:
 | `selector-replace`       | `replace` | sass:selector |   | `str-slice`              | `slice`            | sass:string   |
 | `selector-unify`         | `unify`   | sass:selector |   | `to-upper-case`          |                    | sass:string   |
 | `is-superselector`       |           | sass:selector |   | `to-lower-case`          |                    | sass:string   |
-| `simple-selectors`       |           | sass:selector |   |                          |                    |               |
+| `simple-selectors`       |           | sass:selector |   | `unique-id`              |                    | sass:string   |
 | `selector-parse`         | `parse`   | sass:selector |   |                          |                    |               |
 
 In addition, one built-in mixin will be added:
