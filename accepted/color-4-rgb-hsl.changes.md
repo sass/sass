@@ -1,5 +1,8 @@
 ## Draft 1.3
 
+* Refactor `rgb()` and `hsl()` to reduce repetition and ensure that they always
+  return plain CSS function calls with the correct names.
+
 * Fix a redirect that didn't get the extra text about renaming its plain CSS.
 
 ## Draft 1.2
