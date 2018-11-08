@@ -79,7 +79,7 @@ functions:
   ```
   
   * If `$channels` is a [special variable string][], return a plain CSS function
-    string with the name `rgb` and the argument `$channels`.
+    string with the name `"rgb"` and the argument `$channels`.
 
     [special variable string]: #special-variable-string
 
@@ -90,8 +90,12 @@ functions:
   * If `$channels` has fewer than three elements:
 
     * If any element of `$channels` is a [special variable string][], return a
-      plain CSS function string with the name `rgb` and the argument
+      plain CSS function string with the name `"rgb"` and the argument
       `$channels`.
+
+    * If the last element of `$channels` is an unquoted string that begins with
+      `var(` and contains `/`, return a plain CSS function string with the name
+      `"rgb"` and the argument `$channels`.
 
     * Otherwise, throw an error.
 
@@ -109,7 +113,7 @@ functions:
   * Otherwise, if the third element of `$channels` is an unquoted string that
     contains `/`:
 
-    * Return a plain CSS function string with the name `rgb` and the argument
+    * Return a plain CSS function string with the name `"rgb"` and the argument
       `$channels`.
 
   * Otherwise:
@@ -130,7 +134,7 @@ functions:
   ```
 
   * If either argument is a [special variable string][], return a plain CSS
-    function string with the name `rgb` and the same arguments.
+    function string with the name `"rgb"` and the same arguments.
 
   * Call `rgba()` with the same arguments and return the result.
 
@@ -139,7 +143,7 @@ functions:
   ```
 
   * If `$channels` is a [special variable string][], return a plain CSS function
-    string with the name `hsl` and the argument `$channels`.
+    string with the name `"hsl"` and the argument `$channels`.
 
     [special variable string]: #special-variable-string
 
@@ -150,8 +154,12 @@ functions:
   * If `$channels` has fewer than three elements:
 
     * If any element of `$channels` is a [special variable string][], return a
-      plain CSS function string with the name `hsl` and the argument
+      plain CSS function string with the name `"hsl"` and the argument
       `$channels`.
+
+    * If the last element of `$channels` is an unquoted string that begins with
+      `var(` and contains `/`, return a plain CSS function string with the name
+      `"hsl"` and the argument `$channels`.
 
     * Otherwise, throw an error.
 
@@ -169,7 +177,7 @@ functions:
   * Otherwise, if the third element of `$channels` is an unquoted string that
     contains `/`:
 
-    * Return a plain CSS function string with the name `hsl` and the argument
+    * Return a plain CSS function string with the name `"hsl"` and the argument
       `$channels`.
 
   * Otherwise:
@@ -183,49 +191,38 @@ functions:
   hsl($hue, $saturation, $lightness, $alpha)
   ```
 
-  * Call `hsla()` with the same arguments and return the result.
-
-* ```
-  hsl($color, $alpha)
-  ```
-
-  * If either argument is a [special variable string][], return a plain CSS
-    function string with the name `hsl` and the same arguments.
-
-  * Call `hsla()` with the same arguments and return the result.
+  * Call `hsla()` with the same arguments and return the result, except that if
+    it would return a plain CSS function named `"hsla"` that function is named
+    `"hsl"` instead.
 
 * ```
   rgba($channels)
   ```
 
-  * If `$channels` is a [special variable string][], return a plain CSS function
-    string with the name `rgba` and the argument `$channels`.
-
-  * Call `rgb()` with the same argument and return the result.
+  * Call `rgb()` with the same argument and return the result, except that if
+    it would return a plain CSS function named `"rgb"` that function is named
+    `"rgba"` instead..
 
 * ```
   rgba($red, $green, $blue)
   ```
 
-  * If any argument is a [special variable string][], return a plain CSS
-    function string with the name `rgba` and the same arguments.
-
-  * Call `rgb()` with the same arguments and return the result.
+  * Call `rgb()` with the same argument and return the result, except that if
+    it would return a plain CSS function named `"rgb"` that function is named
+    `"rgba"` instead..
 
 * ```
   hsla($channels)
   ```
 
-  * If `$channels` is a [special variable string][], return a plain CSS function
-    string with the name `hsla` and the argument `$channels`.
-
-  * Call `hsl()` with the same argument and return the result.
+  * Call `hsl()` with the same arguments and return the result, except that if
+    it would return a plain CSS function named `"hsl"` that function is named
+    `"hsla"` instead.
 
 * ```
   hsla($hue, $saturation, $lightness)
   ```
 
-  * If any argument is a [special variable string][], return a plain CSS
-    function string with the name `hsla` and the same arguments.
-
-  * Call `hsl()` with the same arguments and return the result.
+  * Call `hsl()` with the same arguments and return the result, except that if
+    it would return a plain CSS function named `"hsl"` that function is named
+    `"hsla"` instead.
