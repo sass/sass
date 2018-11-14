@@ -334,6 +334,30 @@ It can also hide names that are intended to be library-private:
 @forward "functions" hide assert-ascending;
 ```
 
+#### Extra Prefixing
+
+If you forward a child module through an all-in-one module, you may want to add
+some manual namespacing to that module. You can do what with the `as` clause,
+which adds a prefix to every member name that's forwarded:
+
+```scss
+// material/_index.scss
+@forward "theme" as theme-*;
+```
+
+This way users can use the all-in-one module with well-scoped names for theme
+variables:
+
+```scss
+@use "material" with ($theme-primary: blue);
+```
+
+or they can use the child module with simpler names:
+
+```scss
+@use "material/theme" with ($primary: blue);
+```
+
 ### `@import` Compatibility
 
 The Sass ecosystem won't switch to `@use` overnight, so in the meantime it needs
@@ -597,17 +621,18 @@ This proposal introduces an additional new at-rule, called `@forward`. The
 grammar for this rule is as follows:
 
 <x><pre>
-**ForwardRule** ::= '@forward' QuotedString (ShowClause | HideClause)?
+**ForwardRule** ::= '@forward' QuotedString (ShowClause | HideClause)? AsClause?
 **ShowClause**  ::= 'show' MemberName (',' MemberName)*
 **HideClause**  ::= 'hide' MemberName (',' MemberName)*
 **MemberName**  ::= '$'? Identifier
+**AsClause**    ::= 'as' Identifier '*'
 </pre></x>
 
 `@forward` rules must be at the top level of the document, and must come before
 any rules other than `@charset` or `@use`. If they have a `QuotedString`, its
 contents, known as the rule's *URL*, must be a [valid URL string][] (for
 non-[special][special URL scheme] base URL). No whitespace is allowed after `$`
-in `MemberName`.
+in `MemberName`, or before `*` in `AsClause`.
 
 ### Member References
 
@@ -1178,31 +1203,42 @@ This algorithm takes a `@forward` rule `rule` and a
   
 * For every member `member` in `module`:
 
-  * If there's a member with the same name and type defined in the current
-    [source file](#source-file), do nothing.
+  * Let `name` be `member`'s name.
+  
+  * If `rule` has an `AsClause` `as`, prepend `as`'s identifier to `name` (after
+    the `$` if `member` is a variable).
+
+  * If there's a member defined in the current [source file](#source-file) named
+    `name` with the same type as `member`, do nothing.
 
     > Giving local definitions precedence ensures that a module continues to
     > expose the same API if a forwarded module changes to include a conflicting
     > member.
 
-  * Otherwise, if `rule` has a `show` clause that doesn't include `member`'s
-    name (including `$` for variables), do nothing.
+  * Otherwise, if `rule` has a `show` clause that doesn't include `name`
+    (including `$` for variables), do nothing.
 
     > It's not possible to show/hide a mixin without showing/hiding the
     > equivalent function, or to do the reverse. This is unlikely to be a
     > problem in practice, though, and adding support for it isn't worth the
     > extra syntactic complexity it would require.
 
-  * Otherwise, if `rule` has a `hide` clause that does include `member`'s name
-    (including `$` for variables), do nothing.
+  * Otherwise, if `rule` has a `hide` clause that does include `name` (including
+    `$` for variables), do nothing.
 
-  * Otherwise, if another `@forward` rule's module has a member with the same
-    name and type as `member`, throw an error.
+  * Otherwise, if another `@forward` rule's module has a member named `name`
+    with the same type as `member`, throw an error.
 
     > Failing here ensures that, in the absence of an obvious member that takes
     > precedence, conflicts are detected as soon as possible.
 
-  * Otherwise, add `member` to the current module's collection of members.
+  * Otherwise, add `member` to the current module's collection of members with
+    the name `name`.
+
+    > It's possible for the same member to be added to a given module multiple
+    > times if it's forwarded with different prefixes. All of these names refer
+    > to the same logical member, so for example if a variable gets set that
+    > change will appear for all of its names.
 
 > This forwards all members by default to reduce the churn and potential for
 > errors when a new member gets added to a forwarded module. It's likely that

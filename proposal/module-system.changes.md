@@ -1,5 +1,7 @@
 ## Draft 4
 
+* Allow `@forward "module" as prefix-*` to add a prefix to forwarded module.
+
 * Rename `math.unitless()` to `math.is-unitless()`, to match
   `list.is-bracketed()` and make it clear that it doesn't remove units from a
   number.
