@@ -1,4 +1,4 @@
-# Color Level 4 `rgb()` and `hsl()` Functions: Draft 1.2
+# Color Level 4 `rgb()` and `hsl()` Functions: Draft 1.3
 
 *([Issue](https://github.com/sass/sass/issues/2564), [Changelog](color-4-rgb-hsl.changes.md))*
 
@@ -101,33 +101,31 @@ functions:
 
   * Let `red` and `green` be the first two elements of `$channels`.
 
-  * If the third element of `$channels` has preserved its status as two
-    slash-separated numbers:
-
-    * Let `blue` be the number before the slash and `alpha` the number after the
-      slash.
-
-    * Call `rgba()` with `red`, `green`, `blue`, and `alpha` as arguments and
-      return the result.
-
-  * Otherwise, if the third element of `$channels` is an unquoted string that
-    contains `/`:
+  * If the third element of `$channels` is an unquoted string that contains `/`:
 
     * Return a plain CSS function string with the name `"rgb"` and the argument
       `$channels`.
+
+  * Otherwise, if the third element of `$channels` has preserved its status as
+    two slash-separated numbers:
+
+    * Let `blue` be the number before the slash and `alpha` the number after the
+      slash.
 
   * Otherwise:
 
     * Let `blue` be the third element of `$channels`.
 
-    * Call `rgb()` with `red`, `green`, and `blue` as arguments and return the
-      result.
+  * Call `rgb()` with `red`, `green`, `blue`, and `alpha` (if it's defined) as
+    arguments and return the result.
 
 * ```
   rgb($red, $green, $blue, $alpha)
   ```
 
-  * Call `rgba()` with the same arguments and return the result.
+  * Call `rgba()` with the same argument and return the result, except that if
+    it would return a plain CSS function named `"rgb"` that function is named
+    `"rgba"` instead.
 
 * ```
   rgb($color, $alpha)
@@ -165,27 +163,23 @@ functions:
 
   * Let `hue` and `saturation` be the first two elements of `$channels`.
 
-  * If the third element of `$channels` has preserved its status as two
-    slash-separated numbers:
+  * If the third element of `$channels` is an unquoted string that contains `/`:
+
+    * Return a plain CSS function string with the name `"rgb"` and the argument
+      `$channels`.
+
+  * Otherwise, if the third element of `$channels` has preserved its status as
+    two slash-separated numbers:
 
     * Let `lightness` be the number before the slash and `alpha` the number
       after the slash.
-
-    * Call `hsla()` with `hue`, `saturation`, `lightness`, and `alpha` as
-      arguments and return the result.
-
-  * Otherwise, if the third element of `$channels` is an unquoted string that
-    contains `/`:
-
-    * Return a plain CSS function string with the name `"hsl"` and the argument
-      `$channels`.
 
   * Otherwise:
 
     * Let `lightness` be the third element of `$channels`.
 
-    * Call `hsl()` with `hue`, `saturation`, and `lightness` as arguments and
-      return the result.
+  * Call `hsl()` with `hue`, `saturation`, `lightness`, and `alpha` (if it's
+    defined) as arguments and return the result.
 
 * ```
   hsl($hue, $saturation, $lightness, $alpha)
@@ -201,7 +195,7 @@ functions:
 
   * Call `rgb()` with the same argument and return the result, except that if
     it would return a plain CSS function named `"rgb"` that function is named
-    `"rgba"` instead..
+    `"rgba"` instead.
 
 * ```
   rgba($red, $green, $blue)
@@ -209,7 +203,7 @@ functions:
 
   * Call `rgb()` with the same argument and return the result, except that if
     it would return a plain CSS function named `"rgb"` that function is named
-    `"rgba"` instead..
+    `"rgba"` instead.
 
 * ```
   hsla($channels)
