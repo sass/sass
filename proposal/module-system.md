@@ -1239,6 +1239,9 @@ This algorithm takes a `@forward` rule `rule` and a
     > times if it's forwarded with different prefixes. All of these names refer
     > to the same logical member, so for example if a variable gets set that
     > change will appear for all of its names.
+    >
+    > It's also possible for a module's members to have multiple prefixes added,
+    > if they're forwarded with prefixes multiple times.
 
 > This forwards all members by default to reduce the churn and potential for
 > errors when a new member gets added to a forwarded module. It's likely that
