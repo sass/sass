@@ -1,3 +1,20 @@
+## Draft 4
+
+* Allow `@forward "module" as prefix-*` to add a prefix to forwarded module.
+
+* Rename `math.unitless()` to `math.is-unitless()`, to match
+  `list.is-bracketed()` and make it clear that it doesn't remove units from a
+  number.
+
+* Rename `math.comparable()` to `math.compatible()`, to make it clear that it
+  also tests for compatibility for addition and subtraction.
+
+* Add the missing `content-exists()` function.
+
+* Move `meta.unique-id()` to `string.unique-id()`.
+
+* Add "code splitting" as a non-goal.
+
 ## Draft 3
 
 * Limit extensions to affecting only modules transitively used by the module in

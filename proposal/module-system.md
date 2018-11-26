@@ -1,4 +1,4 @@
-# The Next-Generation Sass Module System: Draft 3
+# The Next-Generation Sass Module System: Draft 4
 
 *([Issues](https://github.com/sass/sass/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A%22%40use%22), [Changelog](module-system.changes.md))*
 
@@ -200,6 +200,20 @@ future work, but we don't consider them to be blocking the module system.
   about increased strictness in the form of lints or TypeScript-style
   `--strict-*` flags.
 
+* **Code splitting**. The ability to split monolithic CSS into separate chunks
+  that can be served lazily is important for maintaining quick load times for
+  very large applications. However, it's orthogonal to the problems that this
+  module system is trying to solve. This system is primarily concerned with
+  scoping Sass APIs (mixins, functions, and placeholders) rather than declaring
+  dependencies between chunks of generated CSS.
+
+  We believe that this module system can work in concert with external
+  code-splitting systems. For example, the module system can be used to load
+  libraries that are used to style individual components, each of which is
+  compiled to its own CSS file. These CSS files could then declare dependencies
+  on one another using special comments or custom at-rules and be stitched
+  together by a code-splitting post-processor.
+
 ## Summary
 
 > This section is non-normative.
@@ -318,6 +332,30 @@ It can also hide names that are intended to be library-private:
 
 ```scss
 @forward "functions" hide assert-ascending;
+```
+
+#### Extra Prefixing
+
+If you forward a child module through an all-in-one module, you may want to add
+some manual namespacing to that module. You can do what with the `as` clause,
+which adds a prefix to every member name that's forwarded:
+
+```scss
+// material/_index.scss
+@forward "theme" as theme-*;
+```
+
+This way users can use the all-in-one module with well-scoped names for theme
+variables:
+
+```scss
+@use "material" with ($theme-primary: blue);
+```
+
+or they can use the child module with simpler names:
+
+```scss
+@use "material/theme" with ($primary: blue);
 ```
 
 ### `@import` Compatibility
@@ -583,17 +621,18 @@ This proposal introduces an additional new at-rule, called `@forward`. The
 grammar for this rule is as follows:
 
 <x><pre>
-**ForwardRule** ::= '@forward' QuotedString (ShowClause | HideClause)?
+**ForwardRule** ::= '@forward' QuotedString (ShowClause | HideClause)? AsClause?
 **ShowClause**  ::= 'show' MemberName (',' MemberName)*
 **HideClause**  ::= 'hide' MemberName (',' MemberName)*
 **MemberName**  ::= '$'? Identifier
+**AsClause**    ::= 'as' Identifier '*'
 </pre></x>
 
 `@forward` rules must be at the top level of the document, and must come before
 any rules other than `@charset` or `@use`. If they have a `QuotedString`, its
 contents, known as the rule's *URL*, must be a [valid URL string][] (for
 non-[special][special URL scheme] base URL). No whitespace is allowed after `$`
-in `MemberName`.
+in `MemberName`, or before `*` in `AsClause`.
 
 ### Member References
 
@@ -1164,31 +1203,45 @@ This algorithm takes a `@forward` rule `rule` and a
   
 * For every member `member` in `module`:
 
-  * If there's a member with the same name and type defined in the current
-    [source file](#source-file), do nothing.
+  * Let `name` be `member`'s name.
+  
+  * If `rule` has an `AsClause` `as`, prepend `as`'s identifier to `name` (after
+    the `$` if `member` is a variable).
+
+  * If there's a member defined in the current [source file](#source-file) named
+    `name` with the same type as `member`, do nothing.
 
     > Giving local definitions precedence ensures that a module continues to
     > expose the same API if a forwarded module changes to include a conflicting
     > member.
 
-  * Otherwise, if `rule` has a `show` clause that doesn't include `member`'s
-    name (including `$` for variables), do nothing.
+  * Otherwise, if `rule` has a `show` clause that doesn't include `name`
+    (including `$` for variables), do nothing.
 
     > It's not possible to show/hide a mixin without showing/hiding the
     > equivalent function, or to do the reverse. This is unlikely to be a
     > problem in practice, though, and adding support for it isn't worth the
     > extra syntactic complexity it would require.
 
-  * Otherwise, if `rule` has a `hide` clause that does include `member`'s name
-    (including `$` for variables), do nothing.
+  * Otherwise, if `rule` has a `hide` clause that does include `name` (including
+    `$` for variables), do nothing.
 
-  * Otherwise, if another `@forward` rule's module has a member with the same
-    name and type as `member`, throw an error.
+  * Otherwise, if another `@forward` rule's module has a member named `name`
+    with the same type as `member`, throw an error.
 
     > Failing here ensures that, in the absence of an obvious member that takes
     > precedence, conflicts are detected as soon as possible.
 
-  * Otherwise, add `member` to the current module's collection of members.
+  * Otherwise, add `member` to the current module's collection of members with
+    the name `name`.
+
+    > It's possible for the same member to be added to a given module multiple
+    > times if it's forwarded with different prefixes. All of these names refer
+    > to the same logical member, so for example if a variable gets set that
+    > change will appear for all of its names.
+    >
+    > It's also possible for a module's members to have multiple prefixes added,
+    > if they're forwarded with prefixes multiple times.
 
 > This forwards all members by default to reduce the churn and potential for
 > errors when a new member gets added to a forwarded module. It's likely that
@@ -1297,8 +1350,8 @@ The built-in functions will be organized as follows:
 | `red`                    |           | sass:color    |   | `max`                    |                    | sass:math     |
 | `blue`                   |           | sass:color    |   | `random`                 |                    | sass:math     |
 | `green`                  |           | sass:color    |   | `unit`                   |                    | sass:math     |
-| `mix`                    |           | sass:color    |   | `unitless`               |                    | sass:math     |
-| `hue`                    |           | sass:color    |   | `comparable`             |                    | sass:math     |
+| `mix`                    |           | sass:color    |   | `unitless`               | `is-unitless`      | sass:math     |
+| `hue`                    |           | sass:color    |   | `comparable`             | `compatible`       | sass:math     |
 | `saturation`             |           | sass:color    |   |                          |                    |               |
 | `lightness`              |           | sass:color    |   | `length`                 |                    | sass:list     |
 | `adjust-hue`             |           | sass:color    |   | `nth`                    |                    | sass:list     |
@@ -1318,7 +1371,7 @@ The built-in functions will be organized as follows:
 | `ie-hex-str`             |           | sass:color    |   | `get-function`           |                    | sass:meta     |
 |                          |           |               |   | `type-of`                |                    | sass:meta     |
 | `map-get`                | `get`     | sass:map      |   | `call`                   |                    | sass:meta     |
-| `map-merge`              | `merge`   | sass:map      |   | `unique-id`              |                    | sass:meta     |
+| `map-merge`              | `merge`   | sass:map      |   | `content-exists`         |                    | sass:meta     |
 | `map-remove`             | `remove`  | sass:map      |   |                          | `module-variables` | sass:meta     |
 | `map-keys`               | `keys`    | sass:map      |   |                          | `module-functions` | sass:meta     |
 | `map-values`             | `values`  | sass:map      |   |                          |                    |               |
@@ -1330,7 +1383,7 @@ The built-in functions will be organized as follows:
 | `selector-replace`       | `replace` | sass:selector |   | `str-slice`              | `slice`            | sass:string   |
 | `selector-unify`         | `unify`   | sass:selector |   | `to-upper-case`          |                    | sass:string   |
 | `is-superselector`       |           | sass:selector |   | `to-lower-case`          |                    | sass:string   |
-| `simple-selectors`       |           | sass:selector |   |                          |                    |               |
+| `simple-selectors`       |           | sass:selector |   | `unique-id`              |                    | sass:string   |
 | `selector-parse`         | `parse`   | sass:selector |   |                          |                    |               |
 
 In addition, one built-in mixin will be added:
