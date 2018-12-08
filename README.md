@@ -99,7 +99,8 @@ contains:
 Note that this doesn't contain a full specification of Sass. Instead, feature
 specifications are written as needed when a new feature is being designed or
 when an implementor needs additional clarity about how something is supposed to
-work.
+work. This means many of the specs in `spec/` only cover small portions of the
+features in question.
 
 ### Versioning Policy
 
