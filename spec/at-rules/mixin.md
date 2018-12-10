@@ -10,13 +10,12 @@
 The syntax for an `@include` rule is as follows:
 
 <x><pre>
-**IncludeRule**      ::= '@include' <ident-token> ArgumentInvocation? ContentBlock?
+**IncludeRule**      ::= '@include' [\<ident-token>][] ArgumentInvocation? ContentBlock?
 **ContentBlock**     ::= UsingDeclaration? '{' Statements '}'
 **UsingDeclaration** ::= 'using' ArgumentDeclaration
 </pre></x>
 
-The `<ident-token>` production matches the [railroad diagram][ident-token]
-listed in CSS Syntax Level 3.
+[\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
 
 ## `@content`
 
