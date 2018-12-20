@@ -1,6 +1,10 @@
 When we add a new feature to Sass, we want to make sure the feature is
 well-designed, clearly specified, feasible to implement, and that it meets the
-use-cases it's designed for.
+use-cases it's designed for. Although most features should follow the [full
+process][], very small features can follow the [fast-track process][] instead.
+
+[full process]: #process
+[fast-track process]: #fast-track
 
 ## Process
 
@@ -195,3 +199,77 @@ accepted.
   Process section.
 
   [css-imports deprecation]: https://github.com/sass/dart-sass#compatibility-policy
+
+## Fast Track
+
+Some features are too small and too unlikely to be controversial to warrant the
+full-fledged proposal process. Features like that can be *fast-tracked*, a
+process that requires less time and less reviewer energy than the normal flow.
+
+A feature is eligible for fast-tracking if it:
+
+* Is simple enough that it's unlikely to need to change substantially as a
+  result of review.
+
+* Modifies an existing spec in the `spec/` directory. It's fair game for a new
+  spec to be written or ported from [the `accepted/` directory] in order for a
+  proposal to be fast-tracked, but that must be done before the proposal can
+  move to step 2.
+
+* Requires adding or modifying only a single success [spec][specs]. Any number
+  of error specs are allowed.
+
+* Requires no deprecation's and introduces no backwards incompatibilities.
+
+The proposal author makes the initial decision about whether or not to
+fast-track a feature. However if anyone (whether they're a member of the Sass
+team or just a community member) requests that that feature be moved to the full
+process, it must be moved so that it can have a full discussion.
+
+The fast-track process works as follows:
+
+1. The feature is informally discussed on [the issue tracker][]. Once the Sass
+   team has agreed that a feature is desirable, it's marked as [Planned][] and
+   can move to step 2.
+
+2. Issues are opened for each individual implementation to add the feature.
+   These issues should link to the feature's main issue in the [sass/sass][]
+   issue tracker, and that issue should link back to the implementation issues.
+
+   Three pull requests are sent out concurrently.
+
+   1. A formal proposal is written for the feature as a pull request to this
+      repository, where the Sass team will discuss its specifics with the
+      author. *Unlike the full proposal process*, this pull request directly
+      modifies the appropriate spec in `specs/`.
+
+   2. A pull request is sent to [sass-spec][] that adds or updates specs for the
+      new feature. The new specs should have an `options.yml` file that marks
+      them as TODO for LibSass, with a reference to its issue for the new
+      feature, and marks them as ignored for Ruby Sass. For example:
+      
+      ```yaml
+      ---
+      :todo:
+      - libsass # sass/libsass#2701
+      :ignore_for:
+      - ruby-sass
+      ```
+
+      This pull request message should include `[skip dart-sass]`. This will
+      cause it not to run Dart Sass tests, which would otherwise fail because
+      the implementation of the new feature hasn't landed yet.
+
+   3. A pull request is sent to [Dart Sass][] that implements the new feature.
+      This pull request's message should link to the sass-spec pull request (for
+      example, `See sass/sass-spec#1293`). This will cause it to run against the
+      specs in that pull request and so test your new feature.
+
+   These pull requests should remain open for at least two full workdays to
+   ensure any interested parties have a chance to comment on them. After that
+   point, *and* after all three pull requests have been approved by reviewers,
+   they should be landed simultaneously.
+
+3. The feature is eventually implemented in LibSass. Once this happens, the
+   original issue can be closed, and the feature is considered fully
+   implemented.
