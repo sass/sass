@@ -219,7 +219,7 @@ A feature is eligible for fast-tracking if it:
 * Requires adding or modifying only a single success [spec][specs]. Any number
   of error specs are allowed.
 
-* Requires no deprecation's and introduces no backwards incompatibilities.
+* Requires no deprecations and introduces no backwards incompatibilities.
 
 The proposal author makes the initial decision about whether or not to
 fast-track a feature. However if anyone (whether they're a member of the Sass
