@@ -1,4 +1,4 @@
-# The Next-Generation Sass Module System: Draft 4
+# The Next-Generation Sass Module System: Draft 4.1
 
 *([Issues](https://github.com/sass/sass/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A%22%40use%22), [Changelog](module-system.changes.md))*
 
@@ -32,7 +32,7 @@ mind—these will be called out explicitly in non-normative block-quoted asides.
     * [Visibility Controls](#visibility-controls)
   * [`@import` Compatibility](#import-compatibility)
   * [Built-In Modules](#built-in-modules)
-    * [`meta.load-css()`](#meta-load-css)
+    * [`meta.load-css()`](#metaload-css)
 * [Frequently Asked Questions](#frequently-asked-questions)
 * [Definitions](#definitions)
   * [Member](#member)
