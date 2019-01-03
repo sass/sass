@@ -211,13 +211,16 @@ A feature is eligible for fast-tracking if it:
 * Is simple enough that it's unlikely to need to change substantially as a
   result of review.
 
-* Modifies an existing spec in the `spec/` directory. It's fair game for a new
-  spec to be written or ported from [the `accepted/` directory] in order for a
-  proposal to be fast-tracked, but that must be done before the proposal can
-  move to step 2.
+* Modifies an existing specification in the `spec/` directory. It's fair game
+  for a new spec to be written or ported from [the `accepted/` directory] in
+  order for a proposal to be fast-tracked, but that must be done before the
+  proposal can move to step 2.
 
-* Requires adding or modifying only a single success [spec][specs]. Any number
-  of error specs are allowed.
+* Requires very little modification of the specification and of the
+  implementation. Ideally a fast-tracked feature requires very little
+  modification of the sass-spec repo as well, but this may not always be
+  feasible for features with many small edge cases or that happen to appear in
+  many specs.
 
 * Requires no deprecations and introduces no backwards incompatibilities.
 
