@@ -165,17 +165,22 @@ This production has the same grammar as [`escape`][escape] in CSS Syntax Level 3
 * Otherwise, if `codepoint` is a [name code point][] and the `start` flag is
   not set, return `character`.
 
-* Otherwise, if `codepoint` is a [non-printable code point][], U+000A LINE FEED,
-  U+000D CARRIAGE RETURN, or U+000C FORM FEED; *or* if `codepoint` is a
-  [digit][] and the `start` flag is set:
+* Otherwise, if `codepoint` is a [non-printable code point][], U+0009 CHARACTER
+  TABULATION, U+000A LINE FEED, U+000D CARRIAGE RETURN, or U+000C FORM FEED;
+  *or* if `codepoint` is a [digit][] and the `start` flag is set:
 
   [non-printable code point]: https://drafts.csswg.org/css-syntax-3/#non-printable-code-point
   [digit]: https://drafts.csswg.org/css-syntax-3/#digit
 
-    * Let `code` be the lowercase hexadecimal representation of `codepoint`,
-      with no leading `0`s.
+  * Let `code` be the lowercase hexadecimal representation of `codepoint`,
+    with no leading `0`s.
 
-    * Return `"\"` + `code` + `" "`.
+  * Return `"\"` + `code` + `" "`.
+
+  > Tab characters are parsed as explicit escapes in order to support a browser
+  > hack that targets IE 10 and earlier, wherein ending a declaration value with
+  > `\9` would cause IE to interpret it as valid but other browsers to ignore
+  > it.
 
 * Otherwise, return `"\"` + `character`.
 
