@@ -1,5 +1,7 @@
 ## Draft 4.1
 
+* Make the release timeline more concrete.
+
 * Fix a broken link in the table of contents.
 
 ## Draft 4
