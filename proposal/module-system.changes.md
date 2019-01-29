@@ -1,3 +1,9 @@
+## Draft 4.1
+
+* Make the release timeline more concrete.
+
+* Fix a broken link in the table of contents.
+
 ## Draft 4
 
 * Allow `@forward "module" as prefix-*` to add a prefix to forwarded module.

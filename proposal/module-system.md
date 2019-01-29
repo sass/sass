@@ -1,4 +1,4 @@
-# The Next-Generation Sass Module System: Draft 4
+# The Next-Generation Sass Module System: Draft 4.1
 
 *([Issues](https://github.com/sass/sass/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A%22%40use%22), [Changelog](module-system.changes.md))*
 
@@ -32,7 +32,7 @@ mind—these will be called out explicitly in non-normative block-quoted asides.
     * [Visibility Controls](#visibility-controls)
   * [`@import` Compatibility](#import-compatibility)
   * [Built-In Modules](#built-in-modules)
-    * [`meta.load-css()`](#meta-load-css)
+    * [`meta.load-css()`](#metaload-css)
 * [Frequently Asked Questions](#frequently-asked-questions)
 * [Definitions](#definitions)
   * [Member](#member)
@@ -1527,25 +1527,36 @@ definitions.
 
 ## Timeline
 
-The exact timing of the release of the module system is up in the air, and
-depends on available resources and the practical difficulty of implementing it,
-both of which are currently major question marks. The best we can say for a
-launch date is that we *hope* to have it launched in Dart Sass by the end of
-September 2019. We also *hope* to launch it concurrently with a migration tool
-that will automatically convert `@import` to `@use` and adjust member references
-accordingly.
+Our target dates for implementing and launching the module system are as
+follows:
 
-Eventually, we will deprecate `@import` and all global function calls that can
-now be made through modules. We plan to do this *either* one year after both
-major Sass implementations support this proposal in full, *or* two years after
-one implementation does, whichever comes first. This gives LibSass plenty of
-time to implement the module system without completely gating the ecosystem on
-it.
+* 1 March 2019: Support for `@use` without configuration or core libraries
+  landed in a Dart Sass branch, with specs in a sass-spec branch.
+
+* 1 June 2019: Support for the same landed in a LibSass branch.
+
+* 1 August 2019: Full support for this spec landed in a Dart Sass branch, with
+  specs in a sass-spec branch. Alpha release for Dart Sass module system
+  support.
+
+* 1 October 2019: Full support for this spec landed in LibSass. Stable release
+  of both Dart Sass and LibSass module system support.
+
+The exact dates are very tentative, and depend on available resources and the
+practical difficulty of implementing the proposal. We feel strongly that the
+ecosystem would benefit from a simultaneous launch of the module system in both
+Dart Sass and LibSass, concurrently with a tool that can automatically migrate
+stylesheets from `@import` to `@use`.
+
+One year after both implementations have launched stable support for the full
+module system proposal (tentatively 1 October 2020), we will deprecate `@import`
+as well as all global core library function calls that could be made through
+modules.
 
 We want there to be a large amount of time when `@use` and `@import` can
 coexist, to help people migrate. However, doing away with `@import` entirely is
 the ultimate goal for simplicity, performance, and CSS compatibility. As such,
-one year after `@import` is deprecated, we plan to drop support for `@import`
-entirely. This will involve a major version release for all implementations.
-This means that there will be at least two full years when `@import` and `@use`
-are both usable at once.
+one year after `@import` is deprecated (tentatively 1 October 2021), we plan to
+drop support for `@import` entirely. This will involve a major version release
+for all implementations. This means that there will be at least two full years
+when `@import` and `@use` are both usable at once.
