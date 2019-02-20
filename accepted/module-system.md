@@ -139,6 +139,13 @@ most part, they're derived from user feedback that we've collected about
   versions of Sass, and stylesheets should be able to change parts to `@use`
   without changing the whole thing at once.
 
+* **Static analysis**. We want to make it possible for tools that consume Sass
+  files to understand where every variable, mixin, and function reference
+  points. In service of this, we want to ensure that every module has a "static
+  shape"—the set of variables, mixins, and functions it exposes, as well as
+  mixin and function signatures—that's entirely independent of how that module
+  might be executed.
+
 ### Non-Goals
 
 These are potential goals that we have explicitly decided to avoid pursuing as
@@ -1081,7 +1088,29 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
 * When a member use is encountered, [resolve it](#resolving-members) using
   `file`, `uses`, `config`, and `import`. If this returns null, throw an error.
 
-* Finally, return `module`. Its functions, mixins, and CSS are now immutable.
+* Finally:
+
+  * For each variable declaration `variable` with a `!global` flag in `file`,
+    whether or not it was evaluated:
+
+    * If `variable`'s name *doesn't* begin with `-` or `_` and `variable` is not
+      yet in `module`, set `variable` to `null` in `module`.
+
+      > This isn't necessary for implementations that follow the most recent
+      > [variables spec][] and don't allow `!global` assignments to variables
+      > that don't yet exist. However, at time of writing, all existing
+      > implementations are in the process of deprecating the old `!global`
+      > behavior, which allowed `!global` declarations to create new
+      > variables.
+      >
+      > Setting all `!global` variables to `null` if they weren't otherwise set
+      > guarantees [static analysis][] by ensuring that the set of variables a
+      > module exposes doesn't depend on how it was executed.
+      >
+      > [variables spec]: ../spec/variables.md
+      > [static analysis]: #low-level
+
+  * Return `module`. Its functions, mixins, and CSS are now immutable.
 
 > Note that members that begin with `-` or `_` (which Sass considers equivalent)
 > are considered private. Private members are not added to the module's member

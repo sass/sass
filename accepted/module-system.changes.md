@@ -1,5 +1,10 @@
 ## Draft 4.2
 
+* Add "static analysis" as a low-level goal.
+
+* Always add `!global` variables to a module's variable set, even if those
+  variable declarations aren't evaluated.
+
 * Explicitly define that `*-exists()` functions should throw an error for
   conflicting member names from global modules.
 
