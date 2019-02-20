@@ -1,4 +1,4 @@
-# The Next-Generation Sass Module System: Draft 4.1
+# The Next-Generation Sass Module System: Draft 4.2
 
 *([Issues](https://github.com/sass/sass/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A%22%40use%22), [Changelog](module-system.changes.md))*
 
@@ -1520,10 +1520,17 @@ The `global-variable-exists()`, `function-exists()`, and `mixin-exists()`
 functions will all take an optional `$module` parameter. This parameter must be
 a string or `null`, and it must match the namespace of a `@use` rule in the
 current module. If it's not `null`, the function returns whether the module
-loaded by that rule has a member with the given name and type. If it's `null`,
-it looks for members defined so far in the current module or import context,
-members of any modules loaded by global `@use` rules, or global built-in
-definitions.
+loaded by that rule has a member with the given name and type.
+
+If the `$module` parameter is `null`, or when the `variable-exists()` function
+is called, these functions will look for members defined so far in the current
+module or import context, members of any modules loaded by global `@use` rules,
+or global built-in definitions. If multiple global `@use` rules define a member
+of the given name and type, these functions will throw an error.
+
+> We considered having the functions return `true` in the case of a conflicting
+> member, but eventually decided that such a case was likely unexpected and
+> throwing an error would help the user notice more quickly.
 
 ## Timeline
 

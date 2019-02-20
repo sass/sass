@@ -1,3 +1,8 @@
+## Draft 4.2
+
+* Explicitly define that `*-exists()` functions should throw an error for
+  conflicting member names from global modules.
+
 ## Draft 4.1
 
 * Make the release timeline more concrete.
