@@ -41,9 +41,19 @@ Given a `VariableDeclaration` `declaration` and a SassScript value `value`:
 
 * Let `name` be `declaration`'s `Variable`'s name.
 
-* If `declaration` is outside of any block of statements or if `declaration` has
-  the `!global` flag, set the [global scope](#global-scope)'s variable `name` to
-  `value`.
+* If `declaration` has the `!global` flag:
+
+  * If the [global scope](#global-scope) already has a variable named `name`,
+    set it to `value`.
+
+  * Otherwise, throw an error.
+
+    > Older versions of Sass created a new global variable here rather than
+    > throwing an error. Implementations are encouraged to do so while emitting
+    > a deprecation warning before transitioning to the new behavior.
+
+* If `declaration` is outside of any block of statements, set the [global
+  scope](#global-scope)'s variable `name` to `value`.
 
 * Otherwise, if `declaration` is within one or more blocks associated with
   `@if`, `@each`, `@for`, and/or `@while` rules *and no other blocks*, and if
