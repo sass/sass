@@ -9,6 +9,13 @@
   (including comments) to the same location, rather than splitting it up if a
   comment appeared above a `@use`.
 
+* Forbid diamond extensions from interacting with one another. That is, if two
+  modules use the same upstream modules but don't use one another, ensure that
+  they cannot extend one another's selectors.
+
+* Explicitly indicate that only selectors explicitly written by hand are exempt
+  from being optimized away when resolving extensions.
+
 * Always add `!global` variables to a module's variable set, even if those
   variable declarations aren't evaluated.
 

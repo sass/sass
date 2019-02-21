@@ -52,6 +52,7 @@ mind—these will be called out explicitly in non-normative block-quoted asides.
   * [Determining Namespaces](#determining-namespaces)
   * [Loading Modules](#loading-modules)
   * [Resolving Extensions](#resolving-extensions)
+  * [Updating Extensions](#updating-extensions)
   * [Resolving a `file:` URL](#resolving-a-file-url)
   * [Resolving a `file:` URL for Extensions](#resolving-a-file-url-for-extensions)
 * [Semantics](#semantics)
@@ -794,35 +795,59 @@ CSS for *all* modules transitively used or forwarded by `starting-module`.
   meaning that style rules at different points in the CSS tree are always
   considered different even if their contents are the same.
 
+* Let `new-extensions` be an empty map from modules to sets of extensions.
+
 * Let `extended` be the subgraph of the [module graph](#module-graph) containing
   modules that are transitively reachable from `starting-module`.
 
 * For each module `domestic` in `extended`, in reverse [topological][] order:
 
-  * Let `foreign-modules` be the set of modules used by `domestic`, as well as
-    the set of modules transitively used or forwarded by those modules.
+  * Let `downstream` be the set of modules that use `domestic`, as well as the
+    set of modules that use a module that forwards `domestic`.
 
-    > This excludes modules that are *only* accessible from `domestic` because
-    > it forwarded them. `@extend` only applies to used CSS, not forwarded CSS.
+    > This excludes modules that *only* forward `domestic` without using it as
+    > well. `@extend` only applies to used CSS, not forwarded CSS.
 
-  * For each module in `foreign-modules`, in reverse [topological][] order:
+  * For each style rule `rule` in `domestic`'s CSS:
 
-    * For each style rule `rule` in `foreign`'s CSS:
+    * Let `selector` be the result of applying `domestic`'s extensions to
+      `rule`'s selector.
 
-      * Set `new-selectors[rule]` to the result of applying `domestic`'s
-        extensions to `new-selectors[rule]`.
+    * Let `selector-lists` be an empty set of selector lists.
 
-        > This overwrites the previous value of `new-selectors[rule]`.
+    * For each module `foreign` in `downstream`:
 
-        > `new-selectors[rule]` is guaranteed to exist at this point because
-        > `extended` is traversed in reverse topological order, which means that
-        > `foreign`'s own extensions will already have been resolved by the time
-        > we start working on its dependers.
+      * Let `extended-selector` be the result of applying
+        `new-extensions[foreign]` to `selector`.
 
-  * For each style rule `rule` in `domestic`:
+        > `new-extensions[foreign]` is guaranteed to be populated at this point
+        > because `extended` is traversed in reverse topological order, which
+        > means that `foreign`'s own extensions will already have been resolved
+        > by the time we start working on modules upstream of it.
 
-    * Set `new-selectors[rule]` to the result of applying `domestic`'s
-      extensions to `rule`'s selector.
+      * Add `selector` to `selector-lists`.
+
+    * Set `new-selectors[rule]` to a selector that matches the union of all
+      elements matched by selectors in `selector-lists`. This selector must obey
+      [the specificity laws of extend][] relative to the selectors from which it
+      was generated.
+
+      [the specificity laws of extend]: ../spec/at-rules/extend#specificity
+
+      > Implementations are expected to trim redundant selectors from
+      > `selector-lists` as much as possible. For the purposes of the first law
+      > of extend, "the original extendee" is *only* the selectors in `rule`'s
+      > selector. The new complex selectors in `selector` generated from
+      > `domestic`'s extensions don't count as "original", and may be optimized
+      > away.
+
+    * For every extension `extension` whose extender appears in `rule`'s
+      selector:
+
+      * For every complex selector `complex` in `new-selectors[rule]`:
+
+        * Add a copy of `extension` with its extender replaced by `complex` to
+          `new-extensions[domestic]`.
 
 * Let `css` be an empty CSS tree.
 
