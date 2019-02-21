@@ -830,24 +830,29 @@ CSS for *all* modules transitively used or forwarded by `starting-module`.
 
   * If `domestic` has already been traversed, do nothing.
 
-  * Otherwise, for each top-level statement `statement` in `domestic`'s CSS
-    tree:
+  * Otherwise, traverse every module `@use`d or `@forward`ed by `domestic`, in
+    the order their `@use` or `@forward` rules appear in `domestic`'s source.
 
-    * Traverse the modules of every `@use` or `@forward` rule that appears
-      before `statement`'s source location in `domestic`'s [source
-      file](#source-file).
+    > Because this traverses modules depth-first, it emits CSS in reverse
+    > topological order.
+    
+  * Let `initial-imports` be the longest initial subsequence of top-level
+    statements in `domestic`'s CSS that contains only comments and `@import`
+    rules *and* that ends with an `@import` rule.
 
-      > Most of the time, this means that all `@use` rules are traversed before
-      > any statements are copied into `css`, because `@use` and `@forward` must
-      > appear before any CSS rules. However, `/*` comments may appear before
-      > `@use` and `@forward`, and their relative location should be preserved
-      > in the generated CSS.
-      >
-      > If there are no comments that appear before `@use` or `@forward` rules,
-      > this emits CSS in reverse topological order.
+  * Insert a copy of `initial-imports` in `css` after the last `@import` rule, or
+    at the beginning of `css` if it doesn't contain any `@import` rules.
 
-    * Add a copy of `statement` to `css`, with any style rules' selectors
-      replaced with the corresponding selectors in `new-selectors`.
+  * For each top-level statement `statement` in `domestic`'s CSS tree after
+    `initial-imports`:
+
+    * If `statement` is an `@import` rule, insert a copy of `statement` in `css`
+      after the last `@import` rule, or at the beginning of `css` if it doesn't
+      contain any `@import` rules.
+
+    * Otherwise, add a copy of `statement` to the end of `css`, with any style
+      rules' selectors replaced with the corresponding selectors in
+      `new-selectors`.
 
 * Return `css`.
 

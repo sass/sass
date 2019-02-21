@@ -2,6 +2,13 @@
 
 * Add "static analysis" as a low-level goal.
 
+* Ensure that plain CSS imports always appear at the beginning of the generated
+  CSS.
+
+* Other than plain CSS imports, always emit the CSS for a given module
+  (including comments) to the same location, rather than splitting it up if a
+  comment appeared above a `@use`.
+
 * Always add `!global` variables to a module's variable set, even if those
   variable declarations aren't evaluated.
 
