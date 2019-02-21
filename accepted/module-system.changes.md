@@ -26,6 +26,8 @@
   `foo.-bar`). This is never valid, so making it a syntax error rather than just
   a runtime error ensures that the user will be notified as eagerly as possible.
 
+* Fix a few broken links.
+
 ## Draft 4.1
 
 * Make the release timeline more concrete.

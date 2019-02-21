@@ -521,7 +521,7 @@ A given module can be produced by [executing](#executing-files) the [source
 file](#source-file) identified by the module's [canonical URL][] with a
 [configuration](#configuration).
 
-[canonical URL]: ../spec/import.md#canonical-url-of-a-stylesheet
+[canonical URL]: ../spec/at-rules/import.md#canonical-url-of-a-stylesheet
 
 ### Module Graph
 
@@ -723,7 +723,7 @@ and [configuration](#configuration) `config`:
 * Let `file` be the [source file](#source-file) result of [loading][loading an
   import] `url`.
 
-  [loading an import]: ../spec/import.md#loading-an-import
+  [loading an import]: ../spec/at-rules/import.md#loading-an-import
 
 * If `file` is null, throw an error.
 
@@ -891,7 +891,7 @@ This algorithm is intended to replace [the existing algorithm][] for resolving a
 `url`, whose scheme must be `file` and returns either another URL that's
 guaranteed to point to a file on disk or null.
 
-[the existing algorithm]:  ../spec/import.md#resolving-a-file-url
+[the existing algorithm]:  ../spec/at-rules/import.md#resolving-a-file-url
 
 * If this algorithm is being run for an `@import`:
 
@@ -966,7 +966,7 @@ either another URL that's guaranteed to point to a file on disk or null.
 
   * Otherwise, throw an error.
 
-[resolving for partials]: ../spec/import.md#resolving-a-file-url-for-partials
+[resolving for partials]: ../spec/at-rules/import.md#resolving-a-file-url-for-partials
 
 > This algorithm is based on the existing algorithm for [resolving a `file:`
 > URL][the existing algorithm]. The difference is that, when resolving for
