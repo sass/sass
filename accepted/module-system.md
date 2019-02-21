@@ -648,15 +648,18 @@ mixins, this update affects only calls, not definitions. Variables, on the other
 hand, may use this syntax for either assignment or reference.
 
 <x><pre>
-**NamespacedIdentifier** ::= (Identifier '.')? Identifier
+**NamespacedIdentifier** ::= Identifier | Identifier '.' PublicIdentifier
+**PublicIdentifier**     ::= [\<ident-token>][] that doesn't begin with '-' or '_'
 **Variable**             ::= '$' NamespacedIdentifier
 **FunctionCall**         ::= NamespacedIdentifier ArgumentInvocation
 **Include**              ::= '@include' NamespacedIdentifier ArgumentInvocation?
 </pre></x>
 
+[\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
+
 No whitespace is allowed before or after the `'.'` in `NamespacedIdentifier`,
 after the `'$'` in `Variable`, or between the `NamespacedIdentifier` and the
-`ArgumentInvocation` in `FunctionCall` or `Include`.
+`ArgumentInvocation` in `FunctionCall` or `Include`. 
 
 > The dot-separated syntax (`namespace.name`) was chosen in preference to a
 > hyphenated syntax (for example `namespace-name`) because it makes the
