@@ -26,6 +26,10 @@
   `foo.-bar`). This is never valid, so making it a syntax error rather than just
   a runtime error ensures that the user will be notified as eagerly as possible.
 
+* Fix the logic for import-only files so that `@import "foo.scss"` doesn't try
+  to load `foo.scss.import` and `@import "foo"` doesn't try to load
+  `foo.import/index.scss`.
+
 * Fix a few broken links.
 
 ## Draft 4.1
