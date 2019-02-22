@@ -1083,19 +1083,26 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
 
   * Append `css` to `module`'s CSS.
 
-* When a variable declaration `variable` is encountered:
+* When a variable declaration `declaration` is encountered:
 
-  * If `variable`'s name is a [namespaced identifier](#member-references) *and*
-    it has a `!global` flag, throw an error.
+  > This algorithm is intended to replace [the existing algorithm][old
+  > assigning-to-a-variable] for assigning to a variable.
+  >
+  > [old assigning-to-a-variable]: ../spec/variables.md#assigning-to-a-variable
 
-  * If `variable` is at the top level of `file`, *or* its name is a namespaced
-    identifier, *or* it has a `!global` flag:
+  * Let `name` be `declaration`'s [`Variable`](#member-references)'s name.
+
+  * If `name` is a [namespaced identifier](#member-references) *and*
+    `declaration` has a `!global` flag, throw an error.
+
+  * Otherwise, if `declaration` is outside of any block of statements, *or*
+    `declaration` has a `!global` flag, *or* `name` is a namespaced identifier:
 
     * Let `resolved` be the result of [resolving `variable`](#resolving-members)
       using `file`, `uses`, `config`, and `import`.
 
     * If `variable` has a `!default` flag, *and* `resolved` isn't null, *and*
-      `resolved`'s value isn't null, do nothing.
+      `resolved`'s value isn't `null`, do nothing.
 
     * Otherwise, if `resolved` is a variable in another module:
 
@@ -1110,23 +1117,75 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
 
       * Add `variable` to `import`.
 
-  * Otherwise, evaluate it as usual.
+  * Otherwise, if `declaration` is within one or more blocks associated with
+    `@if`, `@each`, `@for`, and/or `@while` rules *and no other blocks*:
 
-* When a top-level mixin or function declaration `member` is encountered:
+    * Let `resolved` be the result of [resolving `variable`](#resolving-members)
+      using `file`, `uses`, `config`, and `import`.
+
+    * If `resolved` is not `null`:
+
+      * If `variable` has a `!default` flag and `resolved`'s value isn't `null`,
+        do nothing.
+
+      * Otherwise, if `resolved` is a variable in another module:
+
+        * Set `resolved`'s value to `variable`'s value.
+
+      * Otherwise:
+
+        * If `variable`'s name *doesn't* begin with `-` or `_`, add `variable`
+          to `module`.
+
+          > This overrides the previous definition, if one exists.
+
+        * Add `variable` to `import`.
+
+    > This makes it possible to write
+    >
+    > ```scss
+    > $variable: value1;
+    > @if $condition {
+    >   $variable: value2;
+    > }
+    > ```
+    >
+    > without needing to use `!global`.
+
+  * Otherwise, if no block containing `declaration` has a [scope][] with a
+    variable named `name`, set the innermost block's scope's variable `name` to
+    `value`.
+
+    [scope]: ../spec/variables.md#scope
+
+  * Otherwise, let `scope` be the scope of the innermost block such that `scope`
+    already has a variable named `name`. Set `scope`'s variable `name` to `value`.
+
+* When a top-level mixin or function declaration `declaration` is encountered:
 
   > Mixins and functions defined within rules are never part of a module's API.
 
-  * If `member`'s name *doesn't* begin with `-` or `_`, add `member` to
+  * If `declaration`'s name *doesn't* begin with `-` or `_`, add `declaration` to
     `module`.
 
     > This overrides the previous definition, if one exists.
 
-  * Add `member` to `import`.
+  * Add `declaration` to `import`.
 
     > This happens regardless of whether or not it begins with `-` or `_`.
 
-* When a member use is encountered, [resolve it](#resolving-members) using
-  `file`, `uses`, `config`, and `import`. If this returns null, throw an error.
+* When a member use `member` is encountered:
+
+  * Let `scope` be the [scope](#scope) of the innermost block containing
+    `member` such that `scope` has a member of `member`'s name and type, or
+    `null` if no such scope exists.
+
+  * If `scope` is not `null`, return `scope`'s member of `member`'s name and
+    type.
+
+  * Otherwise, return the result of [resolving `member`](#resolving-members)
+    using `file`, `uses`, `config`, and `import`. If this returns null, throw an
+    error.
 
 * Finally:
 
@@ -1219,6 +1278,10 @@ given name. Given a source file `file`, a map `uses` from `@use` rules to the
 type `type`, a [configuration](#configuration) `config`, and an [import
 context](#import-context) `import`:
 
+> Note that this procedure only covers non-local member resolution. Local
+> members that are scoped to individual blocks are covered in [Executing
+> Files](#executing-files).
+
 * If `name` is a [namespaced identifier](#member-references)
   `namespace.raw-name`:
 
@@ -1234,6 +1297,9 @@ context](#import-context) `import`:
 
 * If `type` is "variable" and `config` contains a variable named `name`, return
   it.
+
+  > In this case, the current module is guaranteed to define a top-level
+  > variable named `name`. Otherwise, the config creation would have failed.
 
 * If `file` defines a member `member` of `type` named `name`:
 
