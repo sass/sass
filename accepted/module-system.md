@@ -1290,34 +1290,48 @@ context](#import-context) `import`:
 
   * If `use` hasn't been evaluated yet, throw an error.
 
-  * Let `module` be the module in `uses` associated with `use`.
+  * Otherwise, let `module` be the module in `uses` associated with `use`.
 
   * Return the member of `module` with type `type` and name `raw-name`. If there
     is no such member, throw an error.
 
-* If `type` is "variable" and `config` contains a variable named `name`, return
-  it.
+* Otherwise, if `type` is "variable" and `config` contains a variable named
+  `name`, return it.
 
-  > In this case, the current module is guaranteed to define a top-level
-  > variable named `name`. Otherwise, the config creation would have failed.
+* If `type` is not "variable" and `file` contains a top-level definition of a
+  member of type `type` named `name`:
 
-* If `file` defines a member `member` of `type` named `name`:
+  > A top-level variable definition will set the module's variable value rather
+  > than defining a new variable local to this module.
 
-  * If `member`'s definition has already been evaluated, return it.
+  * If `import` contains a member `member` of type `type` named `name`, return
+    it.
 
-  * Otherwise, return null.
+    > This includes member definitions within the current module.
 
-* If a member of type `type` named `name` is defined in exactly one module in
-  `uses` whose `@use` rule is global, return that member.
+  * Otherwise, return `null`.
 
-* Otherwise, if a member of type `type` named `name` is defined in more than one
-  module in `uses` whose `@use` rule is global, throw an error.
+    > This ensures that it's an error to refer to a local member before it's
+    > defined, even if a member with the same name is defined in a loaded
+    > module. It also allows us to guarantee that the referent to a member
+    > doesn't change due to definitions later in the file.
+
+* Let `member-uses` be the set of modules in `uses` whose `@use` rules are
+  global, and which contain members of type `type` named `name`.
+
+* Otherwise, if `import` contains a member `member` of type `type` named `name`:
+
+  * If `member-uses` is not empty, throw an error.
+
+  * Otherwise, return `member`.
+
+* Otherwise, if `member-uses` contains more than one module, throw an error.
 
   > This ensures that, if a new version of a library produces a conflicting
   > name, it causes an immediate error.
 
-* If `import` exists and contains a member of type `type` named `name`, return
-  it.
+* Otherwise, if `member-uses` contains a single module, return the member of
+  type `type` named `name` in that module.
 
 * Otherwise, return null.
 

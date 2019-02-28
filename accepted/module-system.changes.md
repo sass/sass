@@ -24,6 +24,9 @@
 
 * Explicitly define how members are resolved locally versus globally.
 
+* Fix some faulty logic around resolving namespaceless members. If a member is
+  defined in both the import context and a global module that's now an error.
+
 * Syntactically forbid namespaced references to private identifiers (as in
   `foo.-bar`). This is never valid, so making it a syntax error rather than just
   a runtime error ensures that the user will be notified as eagerly as possible.
