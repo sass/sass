@@ -1057,8 +1057,12 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
 
   * Associate `rule` with `module` in `uses`.
 
-* When a `@forward` rule is encountered,
-  [forward the module](#forwarding-modules) it refers to with `config`.
+* When a `@forward` rule `rule` is encountered:
+
+    * Let `forwarded` be the result of [loading](#loading-modules) the module
+      with `rule`'s URL and `config`.
+
+    * [Forward `forwarded`](#forwarding-modules) with `file` through `module`.
 
 * When an `@import` rule is encountered,
   [import the file](#importing-files) it refers to with `import`.
@@ -1344,21 +1348,18 @@ API as though it were part of the current module's.
 > that is purely the domain of `@use`. It *does* include the forwarded module's
 > CSS tree, but it's not visible to `@extend` without also using the module.
 
-This algorithm takes a `@forward` rule `rule` and a
-[configuration](#configuration) `config`. It modifies the current module.
-
-* Let `module` be the result of [loading](#loading-modules) the module for
-  `rule`'s URL with `config`.
+This algorithm takes an immutable module `forwarded`, a [source
+file](#source-file) `file`, and a mutable module `module`.
   
-* For every member `member` in `module`:
+* For every member `member` in `forwarded`:
 
   * Let `name` be `member`'s name.
   
   * If `rule` has an `AsClause` `as`, prepend `as`'s identifier to `name` (after
     the `$` if `member` is a variable).
 
-  * If there's a member defined in the current [source file](#source-file) named
-    `name` with the same type as `member`, do nothing.
+  * If there's a member defined in `file` named `name` with the same type as
+    `member`, do nothing.
 
     > Giving local definitions precedence ensures that a module continues to
     > expose the same API if a forwarded module changes to include a conflicting
@@ -1381,8 +1382,7 @@ This algorithm takes a `@forward` rule `rule` and a
     > Failing here ensures that, in the absence of an obvious member that takes
     > precedence, conflicts are detected as soon as possible.
 
-  * Otherwise, add `member` to the current module's collection of members with
-    the name `name`.
+  * Otherwise, add `member` to `module` with the name `name`.
 
     > It's possible for the same member to be added to a given module multiple
     > times if it's forwarded with different prefixes. All of these names refer
