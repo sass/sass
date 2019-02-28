@@ -1,0 +1,91 @@
+// Copyright 2019 Google Inc. Use of this source code is governed by an
+// MIT-style license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/MIT.
+
+syntax = "proto3";
+
+// An inbound request that compiles an entrypoint to CSS.
+message CompileRequest {
+  // This compilation's request id. This is included in messages sent from the
+  // compiler to the host.
+  uint32 id = 1;
+
+  // Possible syntaxes for a Sass stylesheet.
+  enum Syntax {
+    // The CSS-superset `.scss` syntax.
+    SCSS = 0;
+
+    // The indented `.sass` syntax.
+    INDENTED = 1;
+
+    // Plain CSS syntax that doesn't support any special Sass features.
+    CSS = 2;
+  }
+
+  // An input stylesheet provided as plain text, rather than loaded from the
+  // filesystem.
+  message StringInput {
+    // The contents of the stylesheet.
+    string source = 1;
+
+    // The location from which `source` was lodaed. If this is empty, it
+    // indicates that the URL is unknown.
+    string url = 2;
+
+    // The syntax to use to parse `source`.
+    Syntax syntax = 3;
+  }
+
+  // The input stylesheet to parse. This must be set.
+  oneof input {
+    // A stylesheet loaded from its contents.
+    StringInput string = 2;
+
+    // A stylesheet loaded from the given path on the filesystem.
+    string path = 3;
+  }
+
+  // Possible ways to format the CSS output. The compiler is not required to
+  // support all possible options; if the embedder requests an unsupported
+  // style, the compiler should choose the closest supported style.
+  enum OutputStyle {
+    // Each selector and declaration is written on its own line.
+    EXPANDED = 0;
+
+    // The entire stylesheet is written on a single line, with as few characters
+    // as possible.
+    COMPRESSED = 1;
+
+    // CSS rules and declarations are indented to match the nesting of the Sass
+    // source.
+    NESTED = 2;
+
+    // Each CSS rule is written on its own single line, along with all its
+    // declarations.
+    COMPACT = 3;
+  }
+
+  // How to format the CSS output.
+  OutputStyle style = 4;
+
+  // Whether to generate a source map. Note that this will *not* add a source
+  // map comment to the stylesheet; that's up to the embedder or its users.
+  bool source_map = 5;
+}
+
+// An outbound response that contains the result of a compilation.
+message CompileResponse {
+  // The compilation's request id.
+  int32 id = 1;
+
+  // The compiled CSS.
+  string css = 2;
+
+  // The JSON-encoded source map, or the empty string if
+  // `CompileRequest.source_map` was `false`.
+  //
+  // The compiler must not add a `"file"` key to this source map. It's the
+  // embedder's (or the embedder's user's) responsibility to determine how the
+  // generated CSS can be reached from the source map.
+  string source_map = 3;
+}
