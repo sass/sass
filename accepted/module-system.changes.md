@@ -35,6 +35,9 @@
   to load `foo.scss.import` and `@import "foo"` doesn't try to load
   `foo.import/index.scss`.
 
+* Rename configuration variables when they're passed to a forwarded module with
+  an `AsClause`.
+
 * Only allow top-level members to shadow forwarded members.
   
 * Clean up the way "Forwarding Modules" is invoked.

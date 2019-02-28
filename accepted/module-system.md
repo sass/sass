@@ -1059,10 +1059,25 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
 
 * When a `@forward` rule `rule` is encountered:
 
-    * Let `forwarded` be the result of [loading](#loading-modules) the module
-      with `rule`'s URL and `config`.
+  * If `rule` has an `AsClause` with identifier `prefix`:
 
-    * [Forward `forwarded`](#forwarding-modules) with `file` through `module`.
+    * Let `rule-config` be an empty configuration.
+
+    * For each variable `variable` in `config`:
+
+      * If `variable`'s name begins with `prefix`:
+
+        * Let `suffix` be the portion of `variable`'s name after `prefix`.
+
+        * Add a variable to `rule-config` with the name `suffix` and with the
+          same value as `variable`.
+
+  * Otherwise, let `rule-config` be `config`.
+
+  * Let `forwarded` be the result of [loading](#loading-modules) the module with
+    `rule`'s URL and `rule-config`.
+
+  * [Forward `forwarded`](#forwarding-modules) with `file` through `module`.
 
 * When an `@import` rule is encountered,
   [import the file](#importing-files) it refers to with `import`.
