@@ -34,6 +34,8 @@
 * Fix the logic for import-only files so that `@import "foo.scss"` doesn't try
   to load `foo.scss.import` and `@import "foo"` doesn't try to load
   `foo.import/index.scss`.
+
+* Only allow top-level members to shadow forwarded members.
   
 * Clean up the way "Forwarding Modules" is invoked.
 

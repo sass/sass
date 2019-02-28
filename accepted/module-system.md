@@ -1358,8 +1358,8 @@ file](#source-file) `file`, and a mutable module `module`.
   * If `rule` has an `AsClause` `as`, prepend `as`'s identifier to `name` (after
     the `$` if `member` is a variable).
 
-  * If there's a member defined in `file` named `name` with the same type as
-    `member`, do nothing.
+  * If there's a member defined at the top level of `file` named `name` with the
+    same type as `member`, do nothing.
 
     > Giving local definitions precedence ensures that a module continues to
     > expose the same API if a forwarded module changes to include a conflicting
