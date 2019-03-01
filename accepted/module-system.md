@@ -1460,17 +1460,19 @@ context](#import-context) `import`, and a mutable [module](#module) `module`.
 
 * For each member `member` in `imported`:
 
-  * If `member` has the same type and name as a member in `import`, do nothing.
+  * If `member` doesn't have the same type and name as a member in `import`, add
+    it to `import`.
 
     > Note that *all* members defined in `file` or in files it imports will
     > already be in `import`. Only members brought in by `@forward` are added to
     > `import` in this step.
 
-  * Otherwise, add `member` to `import` and to `module`.
+  * Add `member` to `module`.
 
-    > This makes forwarded members available in the importing module, but does
-    > not allow them to overwrite existing members with the same names and
-    > types.
+    > *All* members of `imported` are made available in `module`, whether
+    > they're forwarded or defined in the module itself. They override any
+    > existing definitions in the current module, just like they override any
+    > values in the import context.
 
 > When a stylesheet contains only `@import`s without any `@use`s, the `@import`s
 > are intended to work exactly as they did in previous Sass versions. Any

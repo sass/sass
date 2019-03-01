@@ -39,6 +39,8 @@
   an `AsClause`.
 
 * Only allow top-level members to shadow forwarded members.
+
+* Add an imported file's members to the current module.
   
 * Clean up the way "Forwarding Modules" and "Importing Files" are invoked.
 
