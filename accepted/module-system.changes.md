@@ -41,7 +41,10 @@
 * Only allow top-level members to shadow forwarded members.
 
 * Add an imported file's members to the current module.
-  
+
+* Make config resolution part of evaluating a `!default` variable assignment
+  rather than part of resolving any variable.
+
 * Clean up the way "Forwarding Modules" and "Importing Files" are invoked.
 
 * Fix a few broken links.

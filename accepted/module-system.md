@@ -1122,30 +1122,41 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
   * Otherwise, if `declaration` is outside of any block of statements, *or*
     `declaration` has a `!global` flag, *or* `name` is a namespaced identifier:
 
-    * Let `resolved` be the result of [resolving `variable`](#resolving-members)
-      using `file`, `uses`, `config`, and `import`.
+    * Let `resolved` be the result of [resolving a variable named
+      `name`](#resolving-members) using `file`, `uses`, and `import`.
 
-    * If `variable` has a `!default` flag, *and* `resolved` isn't null, *and*
-      `resolved`'s value isn't `null`, do nothing.
+    * If `declaration` has a `!default` flag, `resolved` isn't null, *and*
+     `resolved`'s value isn't `null`, do nothing.
 
     * Otherwise, if `resolved` is a variable in another module:
 
-      * Set `resolved`'s value to `variable`'s value.
+      * Evaluate `declaration`'s value and set `resolved`'s value to the result.
 
     * Otherwise:
 
-      * If `variable`'s name *doesn't* begin with `-` or `_`, add `variable` to
-        `module`.
+      * If `declaration` is outside of any block of statements, it has a
+        `!default` flag, *and* `config` contains a variable named `name` whose
+        value is not `null`:
+
+        * Let `value` be the value of `config`'s variable named `name`.
+
+      * Otherwise, let `value` be the result of evaluating `declaration`'s
+        value.
+
+      * If `name` *doesn't* begin with `-` or `_`, add a variable with name
+        `name` and value `value` to `module`.
 
         > This overrides the previous definition, if one exists.
 
-      * Add `variable` to `import`.
+      * Add a variable with name `name` and value `value` to `import`.
+
+        > This also overrides the previous definition.
 
   * Otherwise, if `declaration` is within one or more blocks associated with
     `@if`, `@each`, `@for`, and/or `@while` rules *and no other blocks*:
 
-    * Let `resolved` be the result of [resolving `variable`](#resolving-members)
-      using `file`, `uses`, `config`, and `import`.
+    * Let `resolved` be the result of [resolving a variable named
+      `name`](#resolving-members) using `file`, `uses`, and `import`.
 
     * If `resolved` is not `null`:
 
@@ -1208,8 +1219,7 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
     type.
 
   * Otherwise, return the result of [resolving `member`](#resolving-members)
-    using `file`, `uses`, `config`, and `import`. If this returns null, throw an
-    error.
+    using `file`, `uses`, and `import`. If this returns null, throw an error.
 
 * Finally:
 
@@ -1299,8 +1309,7 @@ The main function of the module system is to control how [member](#member) names
 are resolved across files—that is, to find the definition corresponding to a
 given name. Given a source file `file`, a map `uses` from `@use` rules to the
 [modules](#module) loaded by those rules, a member to resolve named `name` of
-type `type`, a [configuration](#configuration) `config`, and an [import
-context](#import-context) `import`:
+type `type`, and an [import context](#import-context) `import`:
 
 > Note that this procedure only covers non-local member resolution. Local
 > members that are scoped to individual blocks are covered in [Executing
@@ -1318,9 +1327,6 @@ context](#import-context) `import`:
 
   * Return the member of `module` with type `type` and name `raw-name`. If there
     is no such member, throw an error.
-
-* Otherwise, if `type` is "variable" and `config` contains a variable named
-  `name`, return it.
 
 * If `type` is not "variable" and `file` contains a top-level definition of a
   member of type `type` named `name`:
