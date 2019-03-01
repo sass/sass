@@ -40,7 +40,7 @@
 
 * Only allow top-level members to shadow forwarded members.
   
-* Clean up the way "Forwarding Modules" is invoked.
+* Clean up the way "Forwarding Modules" and "Importing Files" are invoked.
 
 * Fix a few broken links.
 

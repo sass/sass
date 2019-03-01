@@ -1079,8 +1079,13 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
 
   * [Forward `forwarded`](#forwarding-modules) with `file` through `module`.
 
-* When an `@import` rule is encountered,
-  [import the file](#importing-files) it refers to with `import`.
+* When an `@import` rule `rule` is encountered:
+
+  * Let `file` be the result of [loading][loading an import] `rule`'s URL.
+
+  * If `file` is `null`, throw an error.
+
+  * [Import `file`](#importing-files) into `import` and `module`.
   
 * When an `@extend` rule is encountered, add its extension to `module`.
 
@@ -1434,16 +1439,12 @@ For a substantial amount of time, `@use` will coexist with the old `@import`
 rule in order to ease the burden of migration. This means that we need to define
 how the two rules interact.
 
-When executing an `@import` rule `rule` with an import context `import`:
-
-* Let `file` be the [source file](#source-file) result of [loading][loading an
-  import] `url`.
-
-* If `file` is null, throw an error.
+This algorithm takes a [source file](#source-file) `file`, an [import
+context](#import-context) `import`, and a mutable [module](#module) `module`.
 
 * If `file` is currently being executed, throw an error.
 
-* Let `module` be the result of [executing](#executing-files) `file` with the
+* Let `imported` be the result of [executing](#executing-files) `file` with the
   empty configuration and `import` as its import context, with the following
   differences:
 
@@ -1451,13 +1452,13 @@ When executing an `@import` rule `rule` with an import context `import`:
     context is preserved when executing `file`.
 
   * The generated CSS for style rules or at-rules in `file` is appended to the
-    current module's CSS.
+    `module`'s CSS.
 
   > Note that this execution can mutate `import`.
 
-* Add the `module`'s [extensions](#extension) to the current module.
+* Add `imported`'s [extensions](#extension) to `module`.
 
-* For each member `member` in `module`:
+* For each member `member` in `imported`:
 
   * If `member` has the same type and name as a member in `import`, do nothing.
 
@@ -1465,7 +1466,7 @@ When executing an `@import` rule `rule` with an import context `import`:
     > already be in `import`. Only members brought in by `@forward` are added to
     > `import` in this step.
 
-  * Otherwise, add `member` to `import` and to the current module.
+  * Otherwise, add `member` to `import` and to `module`.
 
     > This makes forwarded members available in the importing module, but does
     > not allow them to overwrite existing members with the same names and
