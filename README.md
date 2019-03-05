@@ -61,7 +61,7 @@ implementation of Sass, which runs somewhat slower than the other options listed
 here. But it has the same interface, so it'll be easy to swap in another
 implementation later if you need a bit more speed!
 
-See [the Sass website](http://sass-lang.com/install) for more ways to install
+See [the Sass website](https://sass-lang.com/install) for more ways to install
 Sass.
 
 Once you have Sass installed, you can run the `sass` executable to compile
@@ -73,7 +73,7 @@ sass source/stylesheets/index.scss build/stylesheets/index.css
 
 ## Learn Sass
 
-Check out [the Sass website](http://sass-lang.com/guide) for a guide on how to
+Check out [the Sass website](https://sass-lang.com/guide) for a guide on how to
 learn Sass!
 
 ## This Repository

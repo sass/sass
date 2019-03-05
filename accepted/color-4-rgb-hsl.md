@@ -26,7 +26,7 @@ syntax using [the normal rules][] for distinguishing between division and `/`,
 so `rgb(179 115 153 / 50%)` will return a 50%-opacity color but
 `rgb(179 115 $blue / 50%)` will not.
 
-[the normal rules]: http://sass-lang.com/documentation/file.SASS_REFERENCE.html#division-and-slash
+[the normal rules]: https://sass-lang.com/documentation/file.SASS_REFERENCE.html#division-and-slash
 
 Color Level 4 redefines `rgba()` and `hsla()` as pure aliases for `rgb()` and
 `hsl()`, which also means that `rgb()` and `hsl()` support the old syntax for
