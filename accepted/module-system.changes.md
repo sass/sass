@@ -1,3 +1,54 @@
+## Draft 4.2
+
+* Add "static analysis" as a low-level goal.
+
+* Ensure that plain CSS imports always appear at the beginning of the generated
+  CSS.
+
+* Other than plain CSS imports, always emit the CSS for a given module
+  (including comments) to the same location, rather than splitting it up if a
+  comment appeared above a `@use`.
+
+* Forbid diamond extensions from interacting with one another. That is, if two
+  modules use the same upstream modules but don't use one another, ensure that
+  they cannot extend one another's selectors.
+
+* Explicitly indicate that only selectors explicitly written by hand are exempt
+  from being optimized away when resolving extensions.
+
+* Always add `!global` variables to a module's variable set, even if those
+  variable declarations aren't evaluated.
+
+* Explicitly define that `*-exists()` functions should throw an error for
+  conflicting member names from global modules.
+
+* Explicitly define how members are resolved locally versus globally.
+
+* Fix some faulty logic around resolving namespaceless members. If a member is
+  defined in both the import context and a global module that's now an error.
+
+* Syntactically forbid namespaced references to private identifiers (as in
+  `foo.-bar`). This is never valid, so making it a syntax error rather than just
+  a runtime error ensures that the user will be notified as eagerly as possible.
+
+* Fix the logic for import-only files so that `@import "foo.scss"` doesn't try
+  to load `foo.scss.import` and `@import "foo"` doesn't try to load
+  `foo.import/index.scss`.
+
+* Rename configuration variables when they're passed to a forwarded module with
+  an `AsClause`.
+
+* Only allow top-level members to shadow forwarded members.
+
+* Add an imported file's members to the current module.
+
+* Make config resolution part of evaluating a `!default` variable assignment
+  rather than part of resolving any variable.
+
+* Clean up the way "Forwarding Modules" and "Importing Files" are invoked.
+
+* Fix a few broken links.
+
 ## Draft 4.1
 
 * Make the release timeline more concrete.

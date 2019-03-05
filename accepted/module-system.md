@@ -1,4 +1,4 @@
-# The Next-Generation Sass Module System: Draft 4.1
+# The Next-Generation Sass Module System: Draft 4.2
 
 *([Issues](https://github.com/sass/sass/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A%22%40use%22), [Changelog](module-system.changes.md))*
 
@@ -52,6 +52,7 @@ mind—these will be called out explicitly in non-normative block-quoted asides.
   * [Determining Namespaces](#determining-namespaces)
   * [Loading Modules](#loading-modules)
   * [Resolving Extensions](#resolving-extensions)
+  * [Updating Extensions](#updating-extensions)
   * [Resolving a `file:` URL](#resolving-a-file-url)
   * [Resolving a `file:` URL for Extensions](#resolving-a-file-url-for-extensions)
 * [Semantics](#semantics)
@@ -138,6 +139,13 @@ most part, they're derived from user feedback that we've collected about
   that only use `@import` should have identical importing behavior to earlier
   versions of Sass, and stylesheets should be able to change parts to `@use`
   without changing the whole thing at once.
+
+* **Static analysis**. We want to make it possible for tools that consume Sass
+  files to understand where every variable, mixin, and function reference
+  points. In service of this, we want to ensure that every module has a "static
+  shape"—the set of variables, mixins, and functions it exposes, as well as
+  mixin and function signatures—that's entirely independent of how that module
+  might be executed.
 
 ### Non-Goals
 
@@ -513,7 +521,7 @@ A given module can be produced by [executing](#executing-files) the [source
 file](#source-file) identified by the module's [canonical URL][] with a
 [configuration](#configuration).
 
-[canonical URL]: ../spec/import.md#canonical-url-of-a-stylesheet
+[canonical URL]: ../spec/at-rules/import.md#canonical-url-of-a-stylesheet
 
 ### Module Graph
 
@@ -641,15 +649,18 @@ mixins, this update affects only calls, not definitions. Variables, on the other
 hand, may use this syntax for either assignment or reference.
 
 <x><pre>
-**NamespacedIdentifier** ::= (Identifier '.')? Identifier
+**NamespacedIdentifier** ::= Identifier | Identifier '.' PublicIdentifier
+**PublicIdentifier**     ::= [\<ident-token>][] that doesn't begin with '-' or '_'
 **Variable**             ::= '$' NamespacedIdentifier
 **FunctionCall**         ::= NamespacedIdentifier ArgumentInvocation
 **Include**              ::= '@include' NamespacedIdentifier ArgumentInvocation?
 </pre></x>
 
+[\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
+
 No whitespace is allowed before or after the `'.'` in `NamespacedIdentifier`,
 after the `'$'` in `Variable`, or between the `NamespacedIdentifier` and the
-`ArgumentInvocation` in `FunctionCall` or `Include`.
+`ArgumentInvocation` in `FunctionCall` or `Include`. 
 
 > The dot-separated syntax (`namespace.name`) was chosen in preference to a
 > hyphenated syntax (for example `namespace-name`) because it makes the
@@ -712,7 +723,7 @@ and [configuration](#configuration) `config`:
 * Let `file` be the [source file](#source-file) result of [loading][loading an
   import] `url`.
 
-  [loading an import]: ../spec/import.md#loading-an-import
+  [loading an import]: ../spec/at-rules/import.md#loading-an-import
 
 * If `file` is null, throw an error.
 
@@ -784,35 +795,59 @@ CSS for *all* modules transitively used or forwarded by `starting-module`.
   meaning that style rules at different points in the CSS tree are always
   considered different even if their contents are the same.
 
+* Let `new-extensions` be an empty map from modules to sets of extensions.
+
 * Let `extended` be the subgraph of the [module graph](#module-graph) containing
   modules that are transitively reachable from `starting-module`.
 
 * For each module `domestic` in `extended`, in reverse [topological][] order:
 
-  * Let `foreign-modules` be the set of modules used by `domestic`, as well as
-    the set of modules transitively used or forwarded by those modules.
+  * Let `downstream` be the set of modules that use `domestic`, as well as the
+    set of modules that use a module that forwards `domestic`.
 
-    > This excludes modules that are *only* accessible from `domestic` because
-    > it forwarded them. `@extend` only applies to used CSS, not forwarded CSS.
+    > This excludes modules that *only* forward `domestic` without using it as
+    > well. `@extend` only applies to used CSS, not forwarded CSS.
 
-  * For each module in `foreign-modules`, in reverse [topological][] order:
+  * For each style rule `rule` in `domestic`'s CSS:
 
-    * For each style rule `rule` in `foreign`'s CSS:
+    * Let `selector` be the result of applying `domestic`'s extensions to
+      `rule`'s selector.
 
-      * Set `new-selectors[rule]` to the result of applying `domestic`'s
-        extensions to `new-selectors[rule]`.
+    * Let `selector-lists` be an empty set of selector lists.
 
-        > This overwrites the previous value of `new-selectors[rule]`.
+    * For each module `foreign` in `downstream`:
 
-        > `new-selectors[rule]` is guaranteed to exist at this point because
-        > `extended` is traversed in reverse topological order, which means that
-        > `foreign`'s own extensions will already have been resolved by the time
-        > we start working on its dependers.
+      * Let `extended-selector` be the result of applying
+        `new-extensions[foreign]` to `selector`.
 
-  * For each style rule `rule` in `domestic`:
+        > `new-extensions[foreign]` is guaranteed to be populated at this point
+        > because `extended` is traversed in reverse topological order, which
+        > means that `foreign`'s own extensions will already have been resolved
+        > by the time we start working on modules upstream of it.
 
-    * Set `new-selectors[rule]` to the result of applying `domestic`'s
-      extensions to `rule`'s selector.
+      * Add `selector` to `selector-lists`.
+
+    * Set `new-selectors[rule]` to a selector that matches the union of all
+      elements matched by selectors in `selector-lists`. This selector must obey
+      [the specificity laws of extend][] relative to the selectors from which it
+      was generated.
+
+      [the specificity laws of extend]: ../spec/at-rules/extend#specificity
+
+      > Implementations are expected to trim redundant selectors from
+      > `selector-lists` as much as possible. For the purposes of the first law
+      > of extend, "the original extendee" is *only* the selectors in `rule`'s
+      > selector. The new complex selectors in `selector` generated from
+      > `domestic`'s extensions don't count as "original", and may be optimized
+      > away.
+
+    * For every extension `extension` whose extender appears in `rule`'s
+      selector:
+
+      * For every complex selector `complex` in `new-selectors[rule]`:
+
+        * Add a copy of `extension` with its extender replaced by `complex` to
+          `new-extensions[domestic]`.
 
 * Let `css` be an empty CSS tree.
 
@@ -820,24 +855,29 @@ CSS for *all* modules transitively used or forwarded by `starting-module`.
 
   * If `domestic` has already been traversed, do nothing.
 
-  * Otherwise, for each top-level statement `statement` in `domestic`'s CSS
-    tree:
+  * Otherwise, traverse every module `@use`d or `@forward`ed by `domestic`, in
+    the order their `@use` or `@forward` rules appear in `domestic`'s source.
 
-    * Traverse the modules of every `@use` or `@forward` rule that appears
-      before `statement`'s source location in `domestic`'s [source
-      file](#source-file).
+    > Because this traverses modules depth-first, it emits CSS in reverse
+    > topological order.
+    
+  * Let `initial-imports` be the longest initial subsequence of top-level
+    statements in `domestic`'s CSS that contains only comments and `@import`
+    rules *and* that ends with an `@import` rule.
 
-      > Most of the time, this means that all `@use` rules are traversed before
-      > any statements are copied into `css`, because `@use` and `@forward` must
-      > appear before any CSS rules. However, `/*` comments may appear before
-      > `@use` and `@forward`, and their relative location should be preserved
-      > in the generated CSS.
-      >
-      > If there are no comments that appear before `@use` or `@forward` rules,
-      > this emits CSS in reverse topological order.
+  * Insert a copy of `initial-imports` in `css` after the last `@import` rule, or
+    at the beginning of `css` if it doesn't contain any `@import` rules.
 
-    * Add a copy of `statement` to `css`, with any style rules' selectors
-      replaced with the corresponding selectors in `new-selectors`.
+  * For each top-level statement `statement` in `domestic`'s CSS tree after
+    `initial-imports`:
+
+    * If `statement` is an `@import` rule, insert a copy of `statement` in `css`
+      after the last `@import` rule, or at the beginning of `css` if it doesn't
+      contain any `@import` rules.
+
+    * Otherwise, add a copy of `statement` to the end of `css`, with any style
+      rules' selectors replaced with the corresponding selectors in
+      `new-selectors`.
 
 * Return `css`.
 
@@ -847,58 +887,47 @@ CSS for *all* modules transitively used or forwarded by `starting-module`.
 ### Resolving a `file:` URL
 
 This algorithm is intended to replace [the existing algorithm][] for resolving a
-`file:` URL to add support for `@import`-only files. This algorithm takes a URL,
-`url`, whose scheme must be `file` and returns either another URL that's
-guaranteed to point to a file on disk or null.
+`file:` URL to add support for `@import`-only files, and to give `.css` files
+the same precedence as `.sass` and `.scss` files for `@use`. This algorithm
+takes a URL, `url`, whose scheme must be `file` and returns either another URL
+that's guaranteed to point to a file on disk or null.
 
-[the existing algorithm]:  ../spec/import.md#resolving-a-file-url
-
-* If this algorithm is being run for an `@import`:
-
-  * If the result of [resolving `url` + `".import"` for extensions][resolving
-    for extensions] is not null, return it.
-
-* Otherwise, return the result of [resolving `url` for extensions][resolving for
-  extensions].
-
-[resolving for extensions]: #resolving-a-file-url-for-extensions
-
-> This allows a library to define two parallel entrypoints, one
-> (`_file.import.scss`) that's visible to `@import` and one (`_file.scss`)
-> that's visible to `@use`. This will allow it to maintain
-> backwards-compatibility even as it switches to supporting a `@use`-based API.
->
-> The major design question here is whether the file for `@use` or `@import`
-> should be the special case. The main benefit to `_file.use.scss` would be that
-> users don't need to use a version of Sass that supports `@use` to get the
-> import-only stylesheet, but in practice it's likely that most library authors
-> will want to use `@use` or other new Sass features internally anyway.
->
-> On the other hand, there are several benefits to `_file.import.scss`:
->
-> * It makes the recommended entrypoint is the more obvious one.
->
-> * It inherently limits the lifetime of language support for the extra
->   entrypoint: once imports are removed from the language, import-only files
->   will naturally die as well.
->
-> * It will make `@use` resolution somewhat faster, since it has to check for
->   half as many files every time.
-
-### Resolving a `file:` URL for Extensions
-
-> "Extensions" in this procedure's name refers to "file extensions", not [Sass
-> extensions](#extensions).
+[the existing algorithm]:  ../spec/at-rules/import.md#resolving-a-file-url
 
 This algorithm takes a URL, `url`, whose scheme must be `file` and returns
 either another URL that's guaranteed to point to a file on disk or null.
 
-* If `url` ends in `.scss`, `.sass`, or `.css`, return the result of [resolving
-  `url` for partials][resolving for partials].
+* If `url` ends in `.scss`, `.sass`, or `.css`:
+
+  * If this algorithm is being run for an `@import`:
+
+    * Let `suffix` be the trailing `.scss`, `.sass`, `.css` in `url`, and
+      `prefix` the portion of `url` before `suffix`.
+
+    * If the result of [resolving `prefix` + `".import"` + `suffix` for
+      extensions][resolving for extensions] is not null, return it.
+
+  * Return the result of [resolving `url` for partials][resolving for partials].
 
   > `@import`s whose URLs explicitly end in `.css` will have been treated as
   > plain CSS `@import`s before this algorithm even runs, so `url` will only end
   > in `.css` for `@use` rules.
+
+* If this algorithm is being run for an `@import`:
+
+  * Let `sass` be the result of [resolving `url` + `".import.sass"` for
+    partials][resolving for partials].
+
+  * Let `scss` be the result of [resolving `url` + `".import.scss"` for
+    partials][resolving for partials].
+
+  * If neither `sass` nor `scss` are null, throw an error.
+
+  * Otherwise, if exactly one of `sass` and `scss` is null, return the other
+    one.
+
+  * Otherwise, if the result of [resolving `url` + `".import.css"` for
+    partials][resolving for partials] is not null, return it.
 
 * Let `sass` be the result of [resolving `url` + `".sass"` for
   partials][resolving for partials].
@@ -926,12 +955,30 @@ either another URL that's guaranteed to point to a file on disk or null.
 
   * Otherwise, throw an error.
 
-[resolving for partials]: ../spec/import.md#resolving-a-file-url-for-partials
+[resolving for partials]: ../spec/at-rules/import.md#resolving-a-file-url-for-partials
 
-> This algorithm is based on the existing algorithm for [resolving a `file:`
-> URL][the existing algorithm]. The difference is that, when resolving for
-> `@use`, a `.css` file is treated with the same priority as a `.scss` and
-> `.sass` file.
+> This allows a library to define two parallel entrypoints, one
+> (`_file.import.scss`) that's visible to `@import` and one (`_file.scss`)
+> that's visible to `@use`. This will allow it to maintain
+> backwards-compatibility even as it switches to supporting a `@use`-based API.
+>
+> The major design question here is whether the file for `@use` or `@import`
+> should be the special case. The main benefit to `_file.use.scss` would be that
+> users don't need to use a version of Sass that supports `@use` to get the
+> import-only stylesheet, but in practice it's likely that most library authors
+> will want to use `@use` or other new Sass features internally anyway.
+>
+> On the other hand, there are several benefits to `_file.import.scss`:
+>
+> * It makes the recommended entrypoint is the more obvious one.
+>
+> * It inherently limits the lifetime of language support for the extra
+>   entrypoint: once imports are removed from the language, import-only files
+>   will naturally die as well.
+>
+
+> When resolving for `@use`, this algorithm treats a `.css` file is treated with
+> the same priority as a `.scss` and `.sass` file.
 >
 > The only reason a `.css` file was ever treated as secondary was that CSS
 > imports were added later on, and backwards-compatibility needed to be
@@ -1010,11 +1057,35 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
 
   * Associate `rule` with `module` in `uses`.
 
-* When a `@forward` rule is encountered,
-  [forward the module](#forwarding-modules) it refers to with `config`.
+* When a `@forward` rule `rule` is encountered:
 
-* When an `@import` rule is encountered,
-  [import the file](#importing-files) it refers to with `import`.
+  * If `rule` has an `AsClause` with identifier `prefix`:
+
+    * Let `rule-config` be an empty configuration.
+
+    * For each variable `variable` in `config`:
+
+      * If `variable`'s name begins with `prefix`:
+
+        * Let `suffix` be the portion of `variable`'s name after `prefix`.
+
+        * Add a variable to `rule-config` with the name `suffix` and with the
+          same value as `variable`.
+
+  * Otherwise, let `rule-config` be `config`.
+
+  * Let `forwarded` be the result of [loading](#loading-modules) the module with
+    `rule`'s URL and `rule-config`.
+
+  * [Forward `forwarded`](#forwarding-modules) with `file` through `module`.
+
+* When an `@import` rule `rule` is encountered:
+
+  * Let `file` be the result of [loading][loading an import] `rule`'s URL.
+
+  * If `file` is `null`, throw an error.
+
+  * [Import `file`](#importing-files) into `import` and `module`.
   
 * When an `@extend` rule is encountered, add its extension to `module`.
 
@@ -1036,52 +1107,142 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
 
   * Append `css` to `module`'s CSS.
 
-* When a variable declaration `variable` is encountered:
+* When a variable declaration `declaration` is encountered:
 
-  * If `variable`'s name is a [namespaced identifier](#member-references) *and*
-    it has a `!global` flag, throw an error.
+  > This algorithm is intended to replace [the existing algorithm][old
+  > assigning-to-a-variable] for assigning to a variable.
+  >
+  > [old assigning-to-a-variable]: ../spec/variables.md#assigning-to-a-variable
 
-  * If `variable` is at the top level of `file`, *or* its name is a namespaced
-    identifier, *or* it has a `!global` flag:
+  * Let `name` be `declaration`'s [`Variable`](#member-references)'s name.
 
-    * Let `resolved` be the result of [resolving `variable`](#resolving-members)
-      using `file`, `uses`, `config`, and `import`.
+  * If `name` is a [namespaced identifier](#member-references) *and*
+    `declaration` has a `!global` flag, throw an error.
 
-    * If `variable` has a `!default` flag, *and* `resolved` isn't null, *and*
-      `resolved`'s value isn't null, do nothing.
+  * Otherwise, if `declaration` is outside of any block of statements, *or*
+    `declaration` has a `!global` flag, *or* `name` is a namespaced identifier:
+
+    * Let `resolved` be the result of [resolving a variable named
+      `name`](#resolving-members) using `file`, `uses`, and `import`.
+
+    * If `declaration` has a `!default` flag, `resolved` isn't null, *and*
+     `resolved`'s value isn't `null`, do nothing.
 
     * Otherwise, if `resolved` is a variable in another module:
 
-      * Set `resolved`'s value to `variable`'s value.
+      * Evaluate `declaration`'s value and set `resolved`'s value to the result.
 
     * Otherwise:
 
-      * If `variable`'s name *doesn't* begin with `-` or `_`, add `variable` to
-        `module`.
+      * If `declaration` is outside of any block of statements, it has a
+        `!default` flag, *and* `config` contains a variable named `name` whose
+        value is not `null`:
+
+        * Let `value` be the value of `config`'s variable named `name`.
+
+      * Otherwise, let `value` be the result of evaluating `declaration`'s
+        value.
+
+      * If `name` *doesn't* begin with `-` or `_`, add a variable with name
+        `name` and value `value` to `module`.
 
         > This overrides the previous definition, if one exists.
 
-      * Add `variable` to `import`.
+      * Add a variable with name `name` and value `value` to `import`.
 
-  * Otherwise, evaluate it as usual.
+        > This also overrides the previous definition.
 
-* When a top-level mixin or function declaration `member` is encountered:
+  * Otherwise, if `declaration` is within one or more blocks associated with
+    `@if`, `@each`, `@for`, and/or `@while` rules *and no other blocks*:
+
+    * Let `resolved` be the result of [resolving a variable named
+      `name`](#resolving-members) using `file`, `uses`, and `import`.
+
+    * If `resolved` is not `null`:
+
+      * If `declaration` has a `!default` flag and `resolved`'s value isn't
+        `null`, do nothing.
+
+      * Otherwise, let `value` be the result of evaluating `declaration`'s
+        value.
+
+      * If `name` *doesn't* begin with `-` or `_`, add a variable with name
+        `name` and value `value` to `module`.
+
+        > This overrides the previous definition, if one exists.
+
+      * Add a variable with name `name` and value `value` to `import`.
+
+        > This also overrides the previous definition.
+
+    > This makes it possible to write
+    >
+    > ```scss
+    > $variable: value1;
+    > @if $condition {
+    >   $variable: value2;
+    > }
+    > ```
+    >
+    > without needing to use `!global`.
+
+  * Otherwise, if no block containing `declaration` has a [scope][] with a
+    variable named `name`, set the innermost block's scope's variable `name` to
+    `value`.
+
+    [scope]: ../spec/variables.md#scope
+
+  * Otherwise, let `scope` be the scope of the innermost block such that `scope`
+    already has a variable named `name`. Set `scope`'s variable `name` to `value`.
+
+* When a top-level mixin or function declaration `declaration` is encountered:
 
   > Mixins and functions defined within rules are never part of a module's API.
 
-  * If `member`'s name *doesn't* begin with `-` or `_`, add `member` to
+  * If `declaration`'s name *doesn't* begin with `-` or `_`, add `declaration` to
     `module`.
 
     > This overrides the previous definition, if one exists.
 
-  * Add `member` to `import`.
+  * Add `declaration` to `import`.
 
     > This happens regardless of whether or not it begins with `-` or `_`.
 
-* When a member use is encountered, [resolve it](#resolving-members) using
-  `file`, `uses`, `config`, and `import`. If this returns null, throw an error.
+* When a member use `member` is encountered:
 
-* Finally, return `module`. Its functions, mixins, and CSS are now immutable.
+  * Let `scope` be the [scope](#scope) of the innermost block containing
+    `member` such that `scope` has a member of `member`'s name and type, or
+    `null` if no such scope exists.
+
+  * If `scope` is not `null`, return `scope`'s member of `member`'s name and
+    type.
+
+  * Otherwise, return the result of [resolving `member`](#resolving-members)
+    using `file`, `uses`, and `import`. If this returns null, throw an error.
+
+* Finally:
+
+  * For each variable declaration `variable` with a `!global` flag in `file`,
+    whether or not it was evaluated:
+
+    * If `variable`'s name *doesn't* begin with `-` or `_` and `variable` is not
+      yet in `module`, set `variable` to `null` in `module`.
+
+      > This isn't necessary for implementations that follow the most recent
+      > [variables spec][] and don't allow `!global` assignments to variables
+      > that don't yet exist. However, at time of writing, all existing
+      > implementations are in the process of deprecating the old `!global`
+      > behavior, which allowed `!global` declarations to create new
+      > variables.
+      >
+      > Setting all `!global` variables to `null` if they weren't otherwise set
+      > guarantees [static analysis][] by ensuring that the set of variables a
+      > module exposes doesn't depend on how it was executed.
+      >
+      > [variables spec]: ../spec/variables.md
+      > [static analysis]: #low-level
+
+  * Return `module`. Its functions, mixins, and CSS are now immutable.
 
 > Note that members that begin with `-` or `_` (which Sass considers equivalent)
 > are considered private. Private members are not added to the module's member
@@ -1147,8 +1308,11 @@ The main function of the module system is to control how [member](#member) names
 are resolved across files—that is, to find the definition corresponding to a
 given name. Given a source file `file`, a map `uses` from `@use` rules to the
 [modules](#module) loaded by those rules, a member to resolve named `name` of
-type `type`, a [configuration](#configuration) `config`, and an [import
-context](#import-context) `import`:
+type `type`, and an [import context](#import-context) `import`:
+
+> Note that this procedure only covers non-local member resolution. Local
+> members that are scoped to individual blocks are covered in [Executing
+> Files](#executing-files).
 
 * If `name` is a [namespaced identifier](#member-references)
   `namespace.raw-name`:
@@ -1158,31 +1322,45 @@ context](#import-context) `import`:
 
   * If `use` hasn't been evaluated yet, throw an error.
 
-  * Let `module` be the module in `uses` associated with `use`.
+  * Otherwise, let `module` be the module in `uses` associated with `use`.
 
   * Return the member of `module` with type `type` and name `raw-name`. If there
     is no such member, throw an error.
 
-* If `type` is "variable" and `config` contains a variable named `name`, return
-  it.
+* If `type` is not "variable" and `file` contains a top-level definition of a
+  member of type `type` named `name`:
 
-* If `file` defines a member `member` of `type` named `name`:
+  > A top-level variable definition will set the module's variable value rather
+  > than defining a new variable local to this module.
 
-  * If `member`'s definition has already been evaluated, return it.
+  * If `import` contains a member `member` of type `type` named `name`, return
+    it.
 
-  * Otherwise, return null.
+    > This includes member definitions within the current module.
 
-* If a member of type `type` named `name` is defined in exactly one module in
-  `uses` whose `@use` rule is global, return that member.
+  * Otherwise, return `null`.
 
-* Otherwise, if a member of type `type` named `name` is defined in more than one
-  module in `uses` whose `@use` rule is global, throw an error.
+    > This ensures that it's an error to refer to a local member before it's
+    > defined, even if a member with the same name is defined in a loaded
+    > module. It also allows us to guarantee that the referent to a member
+    > doesn't change due to definitions later in the file.
+
+* Let `member-uses` be the set of modules in `uses` whose `@use` rules are
+  global, and which contain members of type `type` named `name`.
+
+* Otherwise, if `import` contains a member `member` of type `type` named `name`:
+
+  * If `member-uses` is not empty, throw an error.
+
+  * Otherwise, return `member`.
+
+* Otherwise, if `member-uses` contains more than one module, throw an error.
 
   > This ensures that, if a new version of a library produces a conflicting
   > name, it causes an immediate error.
 
-* If `import` exists and contains a member of type `type` named `name`, return
-  it.
+* Otherwise, if `member-uses` contains a single module, return the member of
+  type `type` named `name` in that module.
 
 * Otherwise, return null.
 
@@ -1195,21 +1373,18 @@ API as though it were part of the current module's.
 > that is purely the domain of `@use`. It *does* include the forwarded module's
 > CSS tree, but it's not visible to `@extend` without also using the module.
 
-This algorithm takes a `@forward` rule `rule` and a
-[configuration](#configuration) `config`. It modifies the current module.
-
-* Let `module` be the result of [loading](#loading-modules) the module for
-  `rule`'s URL with `config`.
+This algorithm takes an immutable module `forwarded`, a [source
+file](#source-file) `file`, and a mutable module `module`.
   
-* For every member `member` in `module`:
+* For every member `member` in `forwarded`:
 
   * Let `name` be `member`'s name.
   
   * If `rule` has an `AsClause` `as`, prepend `as`'s identifier to `name` (after
     the `$` if `member` is a variable).
 
-  * If there's a member defined in the current [source file](#source-file) named
-    `name` with the same type as `member`, do nothing.
+  * If there's a member defined at the top level of `file` named `name` with the
+    same type as `member`, do nothing.
 
     > Giving local definitions precedence ensures that a module continues to
     > expose the same API if a forwarded module changes to include a conflicting
@@ -1232,8 +1407,7 @@ This algorithm takes a `@forward` rule `rule` and a
     > Failing here ensures that, in the absence of an obvious member that takes
     > precedence, conflicts are detected as soon as possible.
 
-  * Otherwise, add `member` to the current module's collection of members with
-    the name `name`.
+  * Otherwise, add `member` to `module` with the name `name`.
 
     > It's possible for the same member to be added to a given module multiple
     > times if it's forwarded with different prefixes. All of these names refer
@@ -1270,16 +1444,12 @@ For a substantial amount of time, `@use` will coexist with the old `@import`
 rule in order to ease the burden of migration. This means that we need to define
 how the two rules interact.
 
-When executing an `@import` rule `rule` with an import context `import`:
-
-* Let `file` be the [source file](#source-file) result of [loading][loading an
-  import] `url`.
-
-* If `file` is null, throw an error.
+This algorithm takes a [source file](#source-file) `file`, an [import
+context](#import-context) `import`, and a mutable [module](#module) `module`.
 
 * If `file` is currently being executed, throw an error.
 
-* Let `module` be the result of [executing](#executing-files) `file` with the
+* Let `imported` be the result of [executing](#executing-files) `file` with the
   empty configuration and `import` as its import context, with the following
   differences:
 
@@ -1287,25 +1457,27 @@ When executing an `@import` rule `rule` with an import context `import`:
     context is preserved when executing `file`.
 
   * The generated CSS for style rules or at-rules in `file` is appended to the
-    current module's CSS.
+    `module`'s CSS.
 
   > Note that this execution can mutate `import`.
 
-* Add the `module`'s [extensions](#extension) to the current module.
+* Add `imported`'s [extensions](#extension) to `module`.
 
-* For each member `member` in `module`:
+* For each member `member` in `imported`:
 
-  * If `member` has the same type and name as a member in `import`, do nothing.
+  * If `member` doesn't have the same type and name as a member in `import`, add
+    it to `import`.
 
     > Note that *all* members defined in `file` or in files it imports will
     > already be in `import`. Only members brought in by `@forward` are added to
     > `import` in this step.
 
-  * Otherwise, add `member` to `import` and to the current module.
+  * Add `member` to `module`.
 
-    > This makes forwarded members available in the importing module, but does
-    > not allow them to overwrite existing members with the same names and
-    > types.
+    > *All* members of `imported` are made available in `module`, whether
+    > they're forwarded or defined in the module itself. They override any
+    > existing definitions in the current module, just like they override any
+    > values in the import context.
 
 > When a stylesheet contains only `@import`s without any `@use`s, the `@import`s
 > are intended to work exactly as they did in previous Sass versions. Any
@@ -1520,10 +1692,17 @@ The `global-variable-exists()`, `function-exists()`, and `mixin-exists()`
 functions will all take an optional `$module` parameter. This parameter must be
 a string or `null`, and it must match the namespace of a `@use` rule in the
 current module. If it's not `null`, the function returns whether the module
-loaded by that rule has a member with the given name and type. If it's `null`,
-it looks for members defined so far in the current module or import context,
-members of any modules loaded by global `@use` rules, or global built-in
-definitions.
+loaded by that rule has a member with the given name and type.
+
+If the `$module` parameter is `null`, or when the `variable-exists()` function
+is called, these functions will look for members defined so far in the current
+module or import context, members of any modules loaded by global `@use` rules,
+or global built-in definitions. If multiple global `@use` rules define a member
+of the given name and type, these functions will throw an error.
+
+> We considered having the functions return `true` in the case of a conflicting
+> member, but eventually decided that such a case was likely unexpected and
+> throwing an error would help the user notice more quickly.
 
 ## Timeline
 
