@@ -1160,21 +1160,20 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
 
     * If `resolved` is not `null`:
 
-      * If `variable` has a `!default` flag and `resolved`'s value isn't `null`,
-        do nothing.
+      * If `declaration` has a `!default` flag and `resolved`'s value isn't
+        `null`, do nothing.
 
-      * Otherwise, if `resolved` is a variable in another module:
+      * Otherwise, let `value` be the result of evaluating `declaration`'s
+        value.
 
-        * Set `resolved`'s value to `variable`'s value.
+      * If `name` *doesn't* begin with `-` or `_`, add a variable with name
+        `name` and value `value` to `module`.
 
-      * Otherwise:
+        > This overrides the previous definition, if one exists.
 
-        * If `variable`'s name *doesn't* begin with `-` or `_`, add `variable`
-          to `module`.
+      * Add a variable with name `name` and value `value` to `import`.
 
-          > This overrides the previous definition, if one exists.
-
-        * Add `variable` to `import`.
+        > This also overrides the previous definition.
 
     > This makes it possible to write
     >
