@@ -46,3 +46,14 @@ A message from the host to the compiler is called *inbound*. A message from the
 compiler to the host is called *outbound*. Implementations must guarantee that
 they use a unique `id` for every request, although the same `id` may be used for
 an inbound request and an outbound request.
+
+All message-typed fields are documented as either "optional" or "mandatory". If
+a field is mandatory, the endpoint that sends that message must guarantee that
+it's set to a meaningful value, and the endpoint that receives it must reject
+the message if it's not set.
+
+Some scalar-typed fields may also be documented as "mandatory", which means that
+the endpoint that sends the message must guarantee that its value is meaningful.
+However, since the default value may be meaningful in some cases, the endpoint
+that receives the message is not required to reject it based on mandatory
+scalar-typed fields.
