@@ -42,6 +42,10 @@ This protocol defines three types of messages between endpoints:
 * *Events* may not be responded to and include no `id` field. All event message
   types end with `Event`.
 
+The protocol also defines some messages whose names don't end with `Request`,
+`Response`, or `Event`. These are used as structures shared between different
+message types, and must never be sent directly between the endpoints.
+
 A message from the host to the compiler is called *inbound*. A message from the
 compiler to the host is called *outbound*. Implementations must guarantee that
 they use a unique `id` for every request, although the same `id` may be used for

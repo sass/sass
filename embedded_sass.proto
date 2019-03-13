@@ -78,16 +78,45 @@ message CompileResponse {
   // The compilation's request id.
   int32 id = 1;
 
-  // The compiled CSS.
-  string css = 2;
+  // A message indicating that the Sass file was successfully compiled to CSS.
+  message CompileSuccess {
+    // The compiled CSS.
+    string css = 1;
 
-  // The JSON-encoded source map, or the empty string if
-  // `CompileRequest.source_map` was `false`.
-  //
-  // The compiler must not add a `"file"` key to this source map. It's the
-  // embedder's (or the embedder's user's) responsibility to determine how the
-  // generated CSS can be reached from the source map.
-  string source_map = 3;
+    // The JSON-encoded source map, or the empty string if
+    // `CompileRequest.source_map` was `false`.
+    //
+    // The compiler must not add a `"file"` key to this source map. It's the
+    // embedder's (or the embedder's user's) responsibility to determine how the
+    // generated CSS can be reached from the source map.
+    string source_map = 2;
+  }
+
+  // A message indicating that the Sass file could not be successfully compiled
+  // to CSS.
+  message CompileFailure {
+    // A message describing the reason for the failure.
+    string message = 1;
+
+    // The span associated with the failure. Optional.
+    SourceSpan span = 2;
+
+    // The stack trace associated with the failure.
+    //
+    // The empty string indicates that no stack trace is available. Otherwise,
+    // the format of this stack trace is not specified and is likely to be
+    // inconsistent between implementations.
+    string stack_trace = 3;
+  }
+
+  // The success or failure result of the compilation. Mandatory.
+  oneof result {
+    // The result of a successful compilation.
+    CompileSuccess success = 2;
+
+    // The result of a failed compilation.
+    CompileFailure failure = 3;
+  }
 }
 
 // An oubound event indicating that a message should be displayed to the user.
@@ -115,53 +144,6 @@ message LogEvent {
   // The text of the message.
   string message = 3;
 
-  // A chunk of a source file.
-  message SourceSpan {
-    // The text covered by the source span. Compilers must guarantee that this
-    // is the text between `start.offset` and `end.offset` in the source file
-    // referred to by `url`.
-    string text = 1;
-
-    // A single point in a source file.
-    message SourceLocation {
-      // The 0-based offset of this location within the source file. Mandatory.
-      uint32 offset = 1;
-
-      // The 0-based line number of this location within the source file.
-      // Mandatory.
-      uint32 line = 2;
-
-      // The 0-based column number of this location within its line. Mandatory.
-      uint32 column = 3;
-    }
-
-    // The location of the first character in this span. Mandatory.
-    SourceLocation start = 2;
-
-    // The location of the first character after this span. Optional.
-    //
-    // If this is omitted, it indicates that the span is empty and points
-    // immediately before [start]. In that case, [text] must be empty.
-    //
-    // This must not point to a location before `start`.
-    SourceLocation end = 3;
-
-    // The URL of the file to which this span refers.
-    //
-    // This may be empty, indicating that the span refers to a
-    // `CompileRequest.StringInput` file that doesn't specify a URL.
-    string url = 4;
-
-    // Additional source text surrounding this span.
-    //
-    // If this isn't empty, it must contain `text`. Furthermore, `text` must
-    // begin at column `start.column` of a line in `context`.
-    //
-    // This usually contains the full lines the span begins and ends on if the
-    // span itself doesn't cover the full lines.
-    string context = 5;
-  }
-
   // The span associated with this message. Optional.
   SourceSpan span = 4;
 
@@ -171,4 +153,51 @@ message LogEvent {
   // format of this stack trace is not specified and is likely to be
   // inconsistent between implementations.
   string stack_trace = 5;
+}
+
+// A chunk of a source file.
+message SourceSpan {
+  // The text covered by the source span. Compilers must guarantee that this is
+  // the text between `start.offset` and `end.offset` in the source file
+  // referred to by `url`.
+  string text = 1;
+
+  // A single point in a source file.
+  message SourceLocation {
+    // The 0-based offset of this location within the source file. Mandatory.
+    uint32 offset = 1;
+
+    // The 0-based line number of this location within the source file.
+    // Mandatory.
+    uint32 line = 2;
+
+    // The 0-based column number of this location within its line. Mandatory.
+    uint32 column = 3;
+  }
+
+  // The location of the first character in this span. Mandatory.
+  SourceLocation start = 2;
+
+  // The location of the first character after this span. Optional.
+  //
+  // If this is omitted, it indicates that the span is empty and points
+  // immediately before [start]. In that case, [text] must be empty.
+  //
+  // This must not point to a location before `start`.
+  SourceLocation end = 3;
+
+  // The URL of the file to which this span refers.
+  //
+  // This may be empty, indicating that the span refers to a
+  // `CompileRequest.StringInput` file that doesn't specify a URL.
+  string url = 4;
+
+  // Additional source text surrounding this span.
+  //
+  // If this isn't empty, it must contain `text`. Furthermore, `text` must begin
+  // at column `start.column` of a line in `context`.
+  //
+  // This usually contains the full lines the span begins and ends on if the
+  // span itself doesn't cover the full lines.
+  string context = 5;
 }
