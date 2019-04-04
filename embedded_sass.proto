@@ -4,155 +4,176 @@
 
 syntax = "proto3";
 
-// An inbound request that compiles an entrypoint to CSS.
-message CompileRequest {
-  // This compilation's request id. This is included in messages sent from the
-  // compiler to the host.
-  uint32 id = 1;
+// The wrapper type for all messages sent from the host to the compiler. This
+// provides a `oneof` that makes it possible to determine the type of each
+// inbound message.
+message InboundMessage {
+  // A request that compiles an entrypoint to CSS.
+  message CompileRequest {
+    // This compilation's request id. This is included in messages sent from the
+    // compiler to the host.
+    uint32 id = 1;
 
-  // Possible syntaxes for a Sass stylesheet.
-  enum Syntax {
-    // The CSS-superset `.scss` syntax.
-    SCSS = 0;
+    // Possible syntaxes for a Sass stylesheet.
+    enum Syntax {
+      // The CSS-superset `.scss` syntax.
+      SCSS = 0;
 
-    // The indented `.sass` syntax.
-    INDENTED = 1;
+      // The indented `.sass` syntax.
+      INDENTED = 1;
 
-    // Plain CSS syntax that doesn't support any special Sass features.
-    CSS = 2;
+      // Plain CSS syntax that doesn't support any special Sass features.
+      CSS = 2;
+    }
+
+    // An input stylesheet provided as plain text, rather than loaded from the
+    // filesystem.
+    message StringInput {
+      // The contents of the stylesheet.
+      string source = 1;
+
+      // The location from which `source` was lodaed. If this is empty, it
+      // indicates that the URL is unknown.
+      string url = 2;
+
+      // The syntax to use to parse `source`.
+      Syntax syntax = 3;
+    }
+
+    // The input stylesheet to parse. Mandatory.
+    oneof input {
+      // A stylesheet loaded from its contents.
+      StringInput string = 2;
+
+      // A stylesheet loaded from the given path on the filesystem.
+      string path = 3;
+    }
+
+    // Possible ways to format the CSS output. The compiler is not required to
+    // support all possible options; if the host requests an unsupported style,
+    // the compiler should choose the closest supported style.
+    enum OutputStyle {
+      // Each selector and declaration is written on its own line.
+      EXPANDED = 0;
+
+      // The entire stylesheet is written on a single line, with as few
+      // characters as possible.
+      COMPRESSED = 1;
+
+      // CSS rules and declarations are indented to match the nesting of the
+      // Sass source.
+      NESTED = 2;
+
+      // Each CSS rule is written on its own single line, along with all its
+      // declarations.
+      COMPACT = 3;
+    }
+
+    // How to format the CSS output.
+    OutputStyle style = 4;
+
+    // Whether to generate a source map. Note that this will *not* add a source
+    // map comment to the stylesheet; that's up to the host or its users.
+    bool source_map = 5;
   }
 
-  // An input stylesheet provided as plain text, rather than loaded from the
-  // filesystem.
-  message StringInput {
-    // The contents of the stylesheet.
-    string source = 1;
-
-    // The location from which `source` was lodaed. If this is empty, it
-    // indicates that the URL is unknown.
-    string url = 2;
-
-    // The syntax to use to parse `source`.
-    Syntax syntax = 3;
+  // The wrapped message. Mandatory.
+  oneof message {
+    CompileRequest compileRequest = 1;
   }
-
-  // The input stylesheet to parse. Mandatory.
-  oneof input {
-    // A stylesheet loaded from its contents.
-    StringInput string = 2;
-
-    // A stylesheet loaded from the given path on the filesystem.
-    string path = 3;
-  }
-
-  // Possible ways to format the CSS output. The compiler is not required to
-  // support all possible options; if the embedder requests an unsupported
-  // style, the compiler should choose the closest supported style.
-  enum OutputStyle {
-    // Each selector and declaration is written on its own line.
-    EXPANDED = 0;
-
-    // The entire stylesheet is written on a single line, with as few characters
-    // as possible.
-    COMPRESSED = 1;
-
-    // CSS rules and declarations are indented to match the nesting of the Sass
-    // source.
-    NESTED = 2;
-
-    // Each CSS rule is written on its own single line, along with all its
-    // declarations.
-    COMPACT = 3;
-  }
-
-  // How to format the CSS output.
-  OutputStyle style = 4;
-
-  // Whether to generate a source map. Note that this will *not* add a source
-  // map comment to the stylesheet; that's up to the embedder or its users.
-  bool source_map = 5;
 }
 
-// An outbound response that contains the result of a compilation.
-message CompileResponse {
-  // The compilation's request id.
-  int32 id = 1;
+// The wrapper type for all messages sent from the compiler to the host. This
+// provides a `oneof` that makes it possible to determine the type of each
+// outbound message.
+message OutboundMessage {
+  // A response that contains the result of a compilation.
+  message CompileResponse {
+    // The compilation's request id.
+    int32 id = 1;
 
-  // A message indicating that the Sass file was successfully compiled to CSS.
-  message CompileSuccess {
-    // The compiled CSS.
-    string css = 1;
+    // A message indicating that the Sass file was successfully compiled to CSS.
+    message CompileSuccess {
+      // The compiled CSS.
+      string css = 1;
 
-    // The JSON-encoded source map, or the empty string if
-    // `CompileRequest.source_map` was `false`.
-    //
-    // The compiler must not add a `"file"` key to this source map. It's the
-    // embedder's (or the embedder's user's) responsibility to determine how the
-    // generated CSS can be reached from the source map.
-    string source_map = 2;
+      // The JSON-encoded source map, or the empty string if
+      // `CompileRequest.source_map` was `false`.
+      //
+      // The compiler must not add a `"file"` key to this source map. It's the
+      // host's (or the host's user's) responsibility to determine how the
+      // generated CSS can be reached from the source map.
+      string source_map = 2;
+    }
+
+    // A message indicating that the Sass file could not be successfully
+    // compiled to CSS.
+    message CompileFailure {
+      // A message describing the reason for the failure.
+      string message = 1;
+
+      // The span associated with the failure. Optional.
+      SourceSpan span = 2;
+
+      // The stack trace associated with the failure.
+      //
+      // The empty string indicates that no stack trace is available. Otherwise,
+      // the format of this stack trace is not specified and is likely to be
+      // inconsistent between implementations.
+      string stack_trace = 3;
+    }
+
+    // The success or failure result of the compilation. Mandatory.
+    oneof result {
+      // The result of a successful compilation.
+      CompileSuccess success = 2;
+
+      // The result of a failed compilation.
+      CompileFailure failure = 3;
+    }
   }
 
-  // A message indicating that the Sass file could not be successfully compiled
-  // to CSS.
-  message CompileFailure {
-    // A message describing the reason for the failure.
-    string message = 1;
+  // An event indicating that a message should be displayed to the user.
+  message LogEvent {
+    // The request id for the compilation that triggered the message.
+    uint32 compilation_id = 1;
 
-    // The span associated with the failure. Optional.
-    SourceSpan span = 2;
+    // The type of message.
+    enum Type {
+      // A warning for something other than a deprecated Sass feature. Often
+      // emitted due to a stylesheet using the `@warn` rule.
+      WARNING = 0;
 
-    // The stack trace associated with the failure.
+      // A warning indicating that the stylesheet is using a deprecated Sass
+      // feature. Compilers should not add text like "deprecation warning" to
+      // deprecation warnings; it's up to the host to determine how to signal
+      // that to the user.
+      DEPRECATION_WARNING = 1;
+
+      // A message generated by the user for their own debugging purposes.
+      DEBUG = 2;
+    }
+    Type type = 2;
+
+    // The text of the message.
+    string message = 3;
+
+    // The span associated with this message. Optional.
+    SourceSpan span = 4;
+
+    // The stack trace associated with this message.
     //
     // The empty string indicates that no stack trace is available. Otherwise,
     // the format of this stack trace is not specified and is likely to be
     // inconsistent between implementations.
-    string stack_trace = 3;
+    string stack_trace = 5;
   }
 
-  // The success or failure result of the compilation. Mandatory.
-  oneof result {
-    // The result of a successful compilation.
-    CompileSuccess success = 2;
-
-    // The result of a failed compilation.
-    CompileFailure failure = 3;
+  // The wrapped message. Mandatory.
+  oneof message {
+    CompileResponse compileResponse = 1;
+    LogEvent logEvent = 2;
   }
-}
-
-// An oubound event indicating that a message should be displayed to the user.
-message LogEvent {
-  // The request id for the compilation that triggered the message.
-  uint32 compilation_id = 1;
-
-  // The type of message.
-  enum Type {
-    // A warning for something other than a deprecated Sass feature. Often
-    // emitted due to a stylesheet using the `@warn` rule.
-    WARNING = 0;
-
-    // A warning indicating that the stylesheet is using a deprecated Sass
-    // feature. Compilers should not add text like "deprecation warning" to
-    // deprecation warnings; it's up to the embedder to determine how to signal
-    // that to the user.
-    DEPRECATION_WARNING = 1;
-
-    // A message generated by the user for their own debugging purposes.
-    DEBUG = 2;
-  }
-  Type type = 2;
-
-  // The text of the message.
-  string message = 3;
-
-  // The span associated with this message. Optional.
-  SourceSpan span = 4;
-
-  // The stack trace associated with this message.
-  //
-  // The empty string indicates that no stack trace is available. Otherwise, the
-  // format of this stack trace is not specified and is likely to be
-  // inconsistent between implementations.
-  string stack_trace = 5;
 }
 
 // A chunk of a source file.

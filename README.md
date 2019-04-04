@@ -32,7 +32,19 @@ its standard input and output streams.
 
 ### RPCs
 
-This protocol defines three types of messages between endpoints:
+All RPCs are wrapped in an outer message that indicates the RPC's type using [a
+oneof field][]. There are two wrapper messages:
+
+[a oneof field]: https://developers.google.com/protocol-buffers/docs/proto3#oneof
+
+* `InboundMessage` is sent from the host to the compiler.
+* `OutboundMessage` is sent from the compiler to the host.
+
+The host must only send `InboundMessage`s to the compiler, and the compiler must
+only send `OutboundMessage`s to the host.
+
+Each wrapper message contains exactly one RPC. This protocol defines three types
+of RPC:
 
 * *Requests* always include a `uint32 id` field so that the other endpoint can
   respond. All request message types end in `Request`.
@@ -44,12 +56,11 @@ This protocol defines three types of messages between endpoints:
 
 The protocol also defines some messages whose names don't end with `Request`,
 `Response`, or `Event`. These are used as structures shared between different
-message types, and must never be sent directly between the endpoints.
+RPCs.
 
-A message from the host to the compiler is called *inbound*. A message from the
-compiler to the host is called *outbound*. Implementations must guarantee that
-they use a unique `id` for every request, although the same `id` may be used for
-an inbound request and an outbound request.
+Implementations must guarantee that they use a unique `id` for every request,
+although the same `id` may be used for an inbound request and an outbound
+request.
 
 All message-typed fields are documented as either "optional" or "mandatory". If
 a field is mandatory, the endpoint that sends that message must guarantee that
