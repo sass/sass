@@ -87,9 +87,14 @@ The process for adding a new feature works as follows:
 
    Once these pull requests land, the feature moves to step 5.
 
-5. The feature is eventually implemented in LibSass. Once this happens, the
-   original issue can be closed, and the feature is considered fully
-   implemented.
+5. The feature is eventually implemented in LibSass. Once the feature lands in
+   [the LibSass repo][] it moves to step 6.
+
+   [the LibSass repo]: https://github.com/sass/libsass
+
+6. The LibSass devs mark the original issue for the feature as complete for
+   LibSass and close it out with a comment indicating which LibSass and Node
+   Sass releases will first support the feature.
 
 ## Proposal
 
@@ -273,6 +278,11 @@ The fast-track process works as follows:
    point, *and* after all three pull requests have been approved by reviewers,
    they should be landed simultaneously.
 
-3. The feature is eventually implemented in LibSass. Once this happens, the
-   original issue can be closed, and the feature is considered fully
-   implemented.
+3. The feature is eventually implemented in LibSass. Once the feature lands in
+   [the LibSass repo][] it moves to step 4.
+
+   [the LibSass repo]: https://github.com/sass/libsass
+
+4. The LibSass devs mark the original issue for the feature as complete for
+   LibSass and close it out with a comment indicating which LibSass and Node
+   Sass releases will first support the feature.
