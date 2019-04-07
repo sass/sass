@@ -43,7 +43,7 @@ oneof field][]. There are two wrapper messages:
 The host must only send `InboundMessage`s to the compiler, and the compiler must
 only send `OutboundMessage`s to the host.
 
-Each wrapper message contains exactly one RPC. This protocol defines three types
+Each wrapper message contains exactly one RPC. This protocol defines four types
 of RPC:
 
 * *Requests* always include a `uint32 id` field so that the other endpoint can
@@ -53,6 +53,8 @@ of RPC:
   with `Response`.
 * *Events* may not be responded to and include no `id` field. All event message
   types end with `Event`.
+* The `ProtocolError` message, which is sent when one endpoint detects that the
+  other is doing something invalid. See [Error Handling][#error-handling] below.
 
 The protocol also defines some messages whose names don't end with `Request`,
 `Response`, or `Event`. These are used as structures shared between different
@@ -72,3 +74,27 @@ the endpoint that sends the message must guarantee that its value is meaningful.
 However, since the default value may be meaningful in some cases, the endpoint
 that receives the message is not required to reject it based on mandatory
 scalar-typed fields.
+
+### Error Handling
+
+When one endpoint detects that the other is violating this protocol, it must
+send a `ProtocolError` message to the other endpoint. If the error was detected
+when processing a request, the `ProtocolError` must have its `id` field set to
+the request's id. Otherwise, the `id` field must be set to `-1`.
+
+A `ProtocolError` must be sent whenever any requirements set out by this
+protocol (including the documentation in `embedded_sass.proto`) are violated.
+This includes, but is not limited to:
+
+* Sending data that can't be parsed as an `InboundMessage` (for the compiler) or
+  an `OutboundMessage` (for the host).
+
+* Sending a request with an ID that's in use by another in-flight request.
+
+* Sending a response with an ID that doesn't correspond to an in-flight
+  request's ID.
+
+* Sending a message with a `null` value for a mandatory field.
+
+The `ProtocolError` message must *not* be used to report Sass errors or errors
+running custom functions or importers.

@@ -11,7 +11,7 @@ message InboundMessage {
   // A request that compiles an entrypoint to CSS.
   message CompileRequest {
     // This compilation's request id. This is included in messages sent from the
-    // compiler to the host.
+    // compiler to the host. Mandatory.
     uint32 id = 1;
 
     // Possible syntaxes for a Sass stylesheet.
@@ -32,7 +32,7 @@ message InboundMessage {
       // The contents of the stylesheet.
       string source = 1;
 
-      // The location from which `source` was lodaed. If this is empty, it
+      // The location from which `source` was loaded. If this is empty, it
       // indicates that the URL is unknown.
       string url = 2;
 
@@ -79,7 +79,8 @@ message InboundMessage {
 
   // The wrapped message. Mandatory.
   oneof message {
-    CompileRequest compileRequest = 1;
+    ProtocolError error = 1;
+    CompileRequest compileRequest = 2;
   }
 }
 
@@ -89,7 +90,7 @@ message InboundMessage {
 message OutboundMessage {
   // A response that contains the result of a compilation.
   message CompileResponse {
-    // The compilation's request id.
+    // The compilation's request id. Mandatory.
     int32 id = 1;
 
     // A message indicating that the Sass file was successfully compiled to CSS.
@@ -135,7 +136,7 @@ message OutboundMessage {
 
   // An event indicating that a message should be displayed to the user.
   message LogEvent {
-    // The request id for the compilation that triggered the message.
+    // The request id for the compilation that triggered the message. Mandatory.
     uint32 compilation_id = 1;
 
     // The type of message.
@@ -171,9 +172,36 @@ message OutboundMessage {
 
   // The wrapped message. Mandatory.
   oneof message {
-    CompileResponse compileResponse = 1;
-    LogEvent logEvent = 2;
+    ProtocolError error = 1;
+    CompileResponse compileResponse = 2;
+    LogEvent logEvent = 3;
   }
+}
+
+// An error reported when an endpoint violates the embedded Sass protocol.
+message ProtocolError {
+  // Potential types of errors.
+  enum ErrorType {
+    // A message was received that couldn't be decoded as an `InboundMessage`
+    // (for the compiler) or `OutboundMessage` (for the host).
+    PARSE = 0;
+
+    // A message was received that violated a documented restriction, such as
+    // not providing a mandatory field.
+    PARAMS = 1;
+
+    // Something unexpected went wrong within the endpoint.
+    INTERNAL = 2;
+  }
+  ErrorType type = 1;
+
+  // The ID of the request that had an error. This MUST be `-1` if the request
+  // ID couldn't be determined, or if the error is being reported for a response
+  // or an event.
+  int32 id = 2;
+
+  // A human-readable message providing more detail about the error.
+  string message = 3;
 }
 
 // A chunk of a source file.
