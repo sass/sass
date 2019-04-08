@@ -1,5 +1,10 @@
 ## Draft 5
 
+* Drop the `lighten()`, `darken()`, `saturate()`, `desaturate()`, `opacify()`,
+  and `transparentize()` functions from the `color` module. The use of these
+  functions is discouraged, and they're just shorthands for the `color.adjust()`
+  function so including them isn't necessary to allow migration.
+
 * Give files with the suffix `".css"` lower precedence than `".sass"` and
   `".scss"` files even in `@use`. This accommodates the use-case of `@use`ing a
   file that's also being compiled in-place to a CSS file.

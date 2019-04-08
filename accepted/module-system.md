@@ -1514,42 +1514,54 @@ The built-in functions will be organized as follows:
 | `saturation`             |           | sass:color    |   |                          |                    |               |
 | `lightness`              |           | sass:color    |   | `length`                 |                    | sass:list     |
 | `adjust-hue`             |           | sass:color    |   | `nth`                    |                    | sass:list     |
-| `lighten`                |           | sass:color    |   | `set-nth`                |                    | sass:list     |
-| `darken`                 |           | sass:color    |   | `join`                   |                    | sass:list     |
-| `saturate`               |           | sass:color    |   | `append`                 |                    | sass:list     |
-| `desaturate`             |           | sass:color    |   | `zip`                    |                    | sass:list     |
-| `grayscale`              |           | sass:color    |   | `index`                  |                    | sass:list     |
-| `complement`             |           | sass:color    |   | `list-separator`         | `separator`        | sass:list     |
-| `invert`                 |           | sass:color    |   |                          |                    |               |
-| `alpha`                  |           | sass:color    |   | `feature-exists`         |                    | sass:meta     |
-| `opacify`                |           | sass:color    |   | `variable-exists`        |                    | sass:meta     |
-| `transparentize`         |           | sass:color    |   | `global-variable-exists` |                    | sass:meta     |
-| `adjust-color`           | `adjust`  | sass:color    |   | `function-exists`        |                    | sass:meta     |
-| `scale-color`            | `scale`   | sass:color    |   | `mixin-exists`           |                    | sass:meta     |
-| `change-color`           | `change`  | sass:color    |   | `inspect`                |                    | sass:meta     |
-| `ie-hex-str`             |           | sass:color    |   | `get-function`           |                    | sass:meta     |
-|                          |           |               |   | `type-of`                |                    | sass:meta     |
-| `map-get`                | `get`     | sass:map      |   | `call`                   |                    | sass:meta     |
-| `map-merge`              | `merge`   | sass:map      |   | `content-exists`         |                    | sass:meta     |
-| `map-remove`             | `remove`  | sass:map      |   |                          | `module-variables` | sass:meta     |
-| `map-keys`               | `keys`    | sass:map      |   |                          | `module-functions` | sass:meta     |
-| `map-values`             | `values`  | sass:map      |   |                          |                    |               |
-| `map-has-key`            | `has-key` | sass:map      |   | `unquote`                |                    | sass:string   |
-| `keywords`               |           | sass:map      |   | `quote`                  |                    | sass:string   |
-|                          |           |               |   | `str-length`             | `length`           | sass:string   |
-| `selector-nest`          | `nest`    | sass:selector |   | `str-insert`             | `insert`           | sass:string   |
-| `selector-append`        | `append`  | sass:selector |   | `str-index`              | `index`            | sass:string   |
-| `selector-replace`       | `replace` | sass:selector |   | `str-slice`              | `slice`            | sass:string   |
-| `selector-unify`         | `unify`   | sass:selector |   | `to-upper-case`          |                    | sass:string   |
-| `is-superselector`       |           | sass:selector |   | `to-lower-case`          |                    | sass:string   |
-| `simple-selectors`       |           | sass:selector |   | `unique-id`              |                    | sass:string   |
-| `selector-parse`         | `parse`   | sass:selector |   |                          |                    |               |
+| `complement`             |           | sass:color    |   | `set-nth`                |                    | sass:list     |
+| `invert`                 |           | sass:color    |   | `join`                   |                    | sass:list     |
+| `alpha`                  |           | sass:color    |   | `append`                 |                    | sass:list     |
+| `adjust-color`           | `adjust`  | sass:color    |   | `zip`                    |                    | sass:list     |
+| `scale-color`            | `scale`   | sass:color    |   | `index`                  |                    | sass:list     |
+| `change-color`           | `change`  | sass:color    |   | `list-separator`         | `separator`        | sass:list     |
+| `ie-hex-str`             |           | sass:color    |   |                          |                    |               |
+|                          |           |               |   | `feature-exists`         |                    | sass:meta     |
+| `map-get`                | `get`     | sass:map      |   | `variable-exists`        |                    | sass:meta     |
+| `map-merge`              | `merge`   | sass:map      |   | `global-variable-exists` |                    | sass:meta     |
+| `map-remove`             | `remove`  | sass:map      |   | `function-exists`        |                    | sass:meta     |
+| `map-keys`               | `keys`    | sass:map      |   | `mixin-exists`           |                    | sass:meta     |
+| `map-values`             | `values`  | sass:map      |   | `inspect`                |                    | sass:meta     |
+| `map-has-key`            | `has-key` | sass:map      |   | `get-function`           |                    | sass:meta     |
+| `keywords`               |           | sass:map      |   | `type-of`                |                    | sass:meta     |
+|                          |           |               |   | `call`                   |                    | sass:meta     |
+| `unquote`                |           | sass:string   |   | `content-exists`         |                    | sass:meta     |
+| `quote`                  |           | sass:string   |   |                          | `module-variables` | sass:meta     |
+| `str-length`             | `length`  | sass:string   |   |                          | `module-functions` | sass:meta     |
+| `str-insert`             | `insert`  | sass:string   |   |                          |                    |               |
+| `str-index`              | `index`   | sass:string   |   | `selector-nest`          | `nest`             | sass:selector |
+| `str-slice`              | `slice`   | sass:string   |   | `selector-append`        | `append`           | sass:selector |
+| `to-upper-case`          |           | sass:string   |   | `selector-replace`       | `replace`          | sass:selector |
+| `to-lower-case`          |           | sass:string   |   | `selector-unify`         | `unify`            | sass:selector |
+| `unique-id`              |           | sass:string   |   | `is-superselector`       |                    | sass:selector |
+|                          |           |               |   | `simple-selectors`       |                    | sass:selector |
+|                          |           |               |   | `selector-parse`         | `parse`            | sass:selector |
 
 In addition, one built-in mixin will be added:
 
 | Name       | Module    |
 | ---------- | --------- |
 | `load-css` | sass:meta |
+
+The existing built-in functions `lighten()`, `darken()`, `saturate()`,
+`desaturate()`, `opacify()`, `fade-in()`, `transparentize()`, and `fade-out()`
+will not be added to any module. Instead, functions with the same names will be
+added to the `sass:color` module that will always emit errors suggesting that
+the user use `color.adjust()` instead.
+
+> These functions are shorthands for `color.adjust()`. However, `color.adjust()`
+> generally produces less useful results than `color.scale()`, so having
+> shorthands for it tends to mislead users. The automated module migrator will
+> migrate uses of these functions to literal `color.adjust()` calls, and the
+> documentation will encourage users to use `color.scale()` instead.
+>
+> Once the module system is firmly in place, we may add new `color.lighten()`
+> *et al* functions that are shorthands for `color.scale()` instead.
 
 Built-in modules will contain only the functions described above. They won't
 contain any other [members](#member), CSS, or extensions. New members may be
