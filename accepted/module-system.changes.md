@@ -6,6 +6,8 @@
 
 * Add a `$module` parameter to `get-function()`.
 
+* Remove missing outdated entries from the table of contents.
+
 ## Draft 4.2
 
 * Add "static analysis" as a low-level goal.
