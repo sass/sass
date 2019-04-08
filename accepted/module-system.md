@@ -1677,11 +1677,13 @@ When this mixin is invoked:
 
 Several functions will get additional features in the new module-system world.
 
-The `global-variable-exists()`, `function-exists()`, and `mixin-exists()`
-functions will all take an optional `$module` parameter. This parameter must be
-a string or `null`, and it must match the namespace of a `@use` rule in the
-current module. If it's not `null`, the function returns whether the module
-loaded by that rule has a member with the given name and type.
+The `global-variable-exists()`, `function-exists()`, `mixin-exists()`, and
+`get-function()` functions will all take an optional `$module` parameter. This
+parameter must be a string or `null`, and it must match the namespace of a
+`@use` rule in the current module. If it's not `null`, the function returns
+whether the module loaded by that rule has a member with the given name and
+type, or in the case of `get-function()`, it returns the function with the given
+name from that module.
 
 If the `$module` parameter is `null`, or when the `variable-exists()` function
 is called, these functions will look for members defined so far in the current

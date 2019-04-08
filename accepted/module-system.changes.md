@@ -4,6 +4,8 @@
   `".scss"` files even in `@use`. This accommodates the use-case of `@use`ing a
   file that's also being compiled in-place to a CSS file.
 
+* Add a `$module` parameter to `get-function()`.
+
 ## Draft 4.2
 
 * Add "static analysis" as a low-level goal.
