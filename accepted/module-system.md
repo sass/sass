@@ -818,6 +818,8 @@ CSS for *all* modules transitively used or forwarded by `starting-module`.
       * Let `extended-selector` be the result of applying
         `new-extensions[foreign]` to `selector`.
 
+        [the first law of extend]: ../spec/at-rules/extend#specificity
+
         > `new-extensions[foreign]` is guaranteed to be populated at this point
         > because `extended` is traversed in reverse topological order, which
         > means that `foreign`'s own extensions will already have been resolved
@@ -828,7 +830,10 @@ CSS for *all* modules transitively used or forwarded by `starting-module`.
     * Set `new-selectors[rule]` to a selector that matches the union of all
       elements matched by selectors in `selector-lists`. This selector must obey
       [the specificity laws of extend][] relative to the selectors from which it
-      was generated.
+      was generated. For the purposes of the first law of extend, "the original
+      extendee" is considered only to refer to selectors that appear in
+      `domestic`'s CSS, *not* selectors that were added by other modules'
+      extensions.
 
       [the specificity laws of extend]: ../spec/at-rules/extend#specificity
 

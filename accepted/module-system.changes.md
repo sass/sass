@@ -11,6 +11,9 @@
 
 * Add a `$module` parameter to `get-function()`.
 
+* Clarify the behavior of the first law of extend when multiple modules extend
+  the same selector.
+
 * Remove missing outdated entries from the table of contents.
 
 ## Draft 4.2
