@@ -887,10 +887,10 @@ CSS for *all* modules transitively used or forwarded by `starting-module`.
 ### Resolving a `file:` URL
 
 This algorithm is intended to replace [the existing algorithm][] for resolving a
-`file:` URL to add support for `@import`-only files, and to give `.css` files
-the same precedence as `.sass` and `.scss` files for `@use`. This algorithm
-takes a URL, `url`, whose scheme must be `file` and returns either another URL
-that's guaranteed to point to a file on disk or null.
+`file:` URL to add support for `@import`-only files, and to allow imports that
+include a literal `.css` extension. This algorithm takes a URL, `url`, whose
+scheme must be `file` and returns either another URL that's guaranteed to point
+to a file on disk or null.
 
 [the existing algorithm]:  ../spec/at-rules/import.md#resolving-a-file-url
 
@@ -905,9 +905,10 @@ either another URL that's guaranteed to point to a file on disk or null.
       `prefix` the portion of `url` before `suffix`.
 
     * If the result of [resolving `prefix` + `".import"` + `suffix` for
-      extensions][resolving for extensions] is not null, return it.
+      partials][resolving for partials] is not null, return it.
 
-  * Return the result of [resolving `url` for partials][resolving for partials].
+  * Otherwise, return the result of [resolving `url` for partials][resolving for
+    partials].
 
   > `@import`s whose URLs explicitly end in `.css` will have been treated as
   > plain CSS `@import`s before this algorithm even runs, so `url` will only end
@@ -929,31 +930,19 @@ either another URL that's guaranteed to point to a file on disk or null.
   * Otherwise, if the result of [resolving `url` + `".import.css"` for
     partials][resolving for partials] is not null, return it.
 
-* Let `sass` be the result of [resolving `url` + `".sass"` for
+* Otherwise, let `sass` be the result of [resolving `url` + `".sass"` for
   partials][resolving for partials].
 
 * Let `scss` be the result of [resolving `url` + `".scss"` for
   partials][resolving for partials].
 
-* Let `css` be the result of [resolving `url` + `".css"` for partials][resolving
-  for partials].
+* If neither `sass` nor `scss` are null, throw an error.
 
-* If this algorithm is being run for an `@import`:
+* Otherwise, if exactly one of `sass` and `scss` is null, return the other
+  one.
 
-  * If neither `sass` nor `scss` are null, throw an error.
-
-  * Otherwise, if exactly one of `sass` and `scss` is null, return the other
-    one.
-
-  * Otherwise, return `css`.
-
-* Otherwise:
-
-  * If all of `sass`, `scss`, and `css` are null, return null.
-
-  * If exactly one of `sass`, `scss`, and `css` is *not* null, return it.
-
-  * Otherwise, throw an error.
+* Otherwise, return the result of [resolving `url` + `".css"` for
+  partials][resolving for partials]. .
 
 [resolving for partials]: ../spec/at-rules/import.md#resolving-a-file-url-for-partials
 

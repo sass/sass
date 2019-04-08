@@ -1,3 +1,9 @@
+## Draft 5
+
+* Give files with the suffix `".css"` lower precedence than `".sass"` and
+  `".scss"` files even in `@use`. This accommodates the use-case of `@use`ing a
+  file that's also being compiled in-place to a CSS file.
+
 ## Draft 4.2
 
 * Add "static analysis" as a low-level goal.
