@@ -1442,16 +1442,22 @@ context](#import-context) `import`, and a mutable [module](#module) `module`.
 * If `file` is currently being executed, throw an error.
 
 * Let `imported` be the result of [executing](#executing-files) `file` with the
-  empty configuration and `import` as its import context, with the following
-  differences:
-
-  * If the `@import` rule is nested within at-rules and/or style rules, that
-    context is preserved when executing `file`.
-
-  * The generated CSS for style rules or at-rules in `file` is appended to the
-    `module`'s CSS.
+  empty configuration and `import` as its import context, except that if the
+  `@import` rule is nested within at-rules and/or style rules, that context is
+  preserved when executing `file`.
 
   > Note that this execution can mutate `import`.
+
+* Let `css` be the result of [resolving extensions](#resolving-extensions) for
+  `imported`, except that if the `@import` rule is nested within at-rules and/or
+  style rules, that context is added to CSS that comes from modules loaded by
+  `imported`.
+
+  > This creates an entirely separate CSS tree with an entirely separate
+  > `@extend` context than normal `@use`s of these modules. This means their CSS
+  > may be duplicated, and they may be extended differently.
+
+* Add `css` to `module`'s CSS.
 
 * Add `imported`'s [extensions](#extension) to `module`.
 

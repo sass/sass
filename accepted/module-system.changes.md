@@ -11,6 +11,8 @@
 
 * Add a `$module` parameter to `get-function()`.
 
+* Load CSS from modules used by imported files.
+
 * Clarify the behavior of the first law of extend when multiple modules extend
   the same selector.
 
