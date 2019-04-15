@@ -46,11 +46,11 @@ only send `OutboundMessage`s to the host.
 Each wrapper message contains exactly one RPC. This protocol defines four types
 of RPC:
 
-* *Requests* always include a `uint32 id` field so that the other endpoint can
-  respond. All request message types end in `Request`.
-* *Responses* include the same `uint32 id` field as their associated request.
-  All response message types begin with the corresponding request name and end
-  with `Response`.
+* *Requests* always include a mandatory `uint32 id` field so that the other
+  endpoint can respond. All request message types end in `Request`.
+* *Responses* include a mandatory `uint32 id` field whose value must be the same
+  as their associated request's `id`. All response message types begin with the
+  corresponding request name and end with `Response`.
 * *Events* may not be responded to and include no `id` field. All event message
   types end with `Event`.
 * The `ProtocolError` message, which is sent when one endpoint detects that the

@@ -14,18 +14,6 @@ message InboundMessage {
     // compiler to the host. Mandatory.
     uint32 id = 1;
 
-    // Possible syntaxes for a Sass stylesheet.
-    enum Syntax {
-      // The CSS-superset `.scss` syntax.
-      SCSS = 0;
-
-      // The indented `.sass` syntax.
-      INDENTED = 1;
-
-      // Plain CSS syntax that doesn't support any special Sass features.
-      CSS = 2;
-    }
-
     // An input stylesheet provided as plain text, rather than loaded from the
     // filesystem.
     message StringInput {
@@ -34,10 +22,15 @@ message InboundMessage {
 
       // The location from which `source` was loaded. If this is empty, it
       // indicates that the URL is unknown.
+      //
+      // This must be a URL recognized by `importer`, if it's passed.
       string url = 2;
 
       // The syntax to use to parse `source`.
       Syntax syntax = 3;
+
+      // The importer to use to resolve imports relative to `url`.
+      Importer importer = 4;
     }
 
     // The input stylesheet to parse. Mandatory.
@@ -69,18 +62,117 @@ message InboundMessage {
       COMPACT = 3;
     }
 
+    // A wrapper message that represents either a user-defined importer or a
+    // load path on disk. This must be a wrapper because `oneof` types can't be
+    // `repeated`.
+    message Importer {
+      // The possible types of importer. Mandatory.
+      oneof importer {
+        // A built-in importer that loads Sass files within the given directory
+        // on disk.
+        string path = 1;
+
+        // A unique ID for a user-defined importer. This ID will be included in
+        // outbound `CanonicalizeRequest` and `ImportRequest` messages to
+        // indicate which importer is being called. The host is responsible for
+        // generating this ID and ensuring that it's unique across all
+        // importers registered for this compilation.
+        uint32 importer_id = 2;
+      }
+    }
+
     // How to format the CSS output.
     OutputStyle style = 4;
 
     // Whether to generate a source map. Note that this will *not* add a source
     // map comment to the stylesheet; that's up to the host or its users.
     bool source_map = 5;
+
+    // Importers (including load paths on the filesystem) to use when resolving
+    // imports that can't be resolved relative to the file that containsit. Each
+    // importer is checked in order until one recognizes the imported URL.
+    repeated Importer importers = 6;
+  }
+
+  // A response indicating the result of canonicalizing an imported URL.
+  message CanonicalizeResponse {
+    uint32 id = 1;
+
+    // The result of canonicalization. Optional. If this is `null`, it indicates
+    // that the importer either did not recognize the URL, or could not find a
+    // stylesheet at the location it referred to.
+    oneof result {
+      // The successfully canonicalized URL. This must be an absolute URL,
+      // including scheme.
+      string url = 2;
+
+      // A path on disk to look for the file to load. The host must resolve
+      // partials, file extensions, and index files to determine whether a file
+      // actually exists and what its canonical URL is.
+      //
+      // This response exists as a shorthand for importers that just encode
+      // logic for finding files, so they don't have to re-implement all of
+      // Sass's resolution logic.
+      string file = 3;
+
+      // An error message explaining why canonicalization failed.
+      //
+      // This indicates that a stylesheet was found, but a canonical URL for it
+      // could not be determined. If no stylesheet was found, `result` should be
+      // `null` instead.
+      string error = 4;
+    }
+  }
+
+  // A response indicating the result of importing a canonical URL.
+  message ImportResponse {
+    uint32 id = 1;
+
+    // The stylesheet's contents were loaded successfully.
+    message ImportSuccess {
+      // The text of the stylesheet. Mandatory.
+      string contents = 1;
+
+      // The syntax of `contents`. Mandatory.
+      Syntax syntax = 2;
+
+      // An absolute, browser-accessible URL indicating the resolved location of
+      // the imported stylesheet. Optional.
+      //
+      // This should be a `file:` URL if one is available, but an `http:` URL is
+      // acceptable as well. If no URL is supplied, a `data:` URL is generated
+      // automatically from `contents`.
+      string sourceMapUrl = 3;
+    }
+
+    // The result of loading the URL. Mandatory.
+    oneof result {
+      // The contents of the loaded stylesheet.
+      ImportSuccess success = 2;
+
+      // An error message explaining why the URL could not be loaded.
+      string error = 3;
+    }
+  }
+
+  // Possible syntaxes for a Sass stylesheet.
+  enum Syntax {
+    // The CSS-superset `.scss` syntax.
+    SCSS = 0;
+
+    // The indented `.sass` syntax.
+    INDENTED = 1;
+
+    // Plain CSS syntax that doesn't support any special Sass features.
+    CSS = 2;
   }
 
   // The wrapped message. Mandatory.
   oneof message {
     ProtocolError error = 1;
     CompileRequest compileRequest = 2;
+    CanonicalizeResponse canonicalizeResponse = 3;
+    ImportResponse importResponse = 4;
   }
 }
 
@@ -170,11 +262,104 @@ message OutboundMessage {
     string stack_trace = 5;
   }
 
+  // A request for a custom importer to convert an imported URL to its canonical
+  // format.
+  //
+  // If the URL is not recognized by this importer, or if no stylesheet is found
+  // at that URL, `CanonicalizeResponse.result` must be `null`.
+  //
+  // Canonical URLs must be absolute, including a scheme. If the import is
+  // referring to a Sass file on disk, the importer is encouraged to respond
+  // with a `CanonicalizeResponse.result.file`, in which case the host will
+  // handle the logic of resolving partials, file extensions, and index files.
+  //
+  // If Sass has already loaded a stylesheet with the returned canonical URL, it
+  // re-uses the existing parse tree. This means that importers must ensure that
+  // the same canonical URL always refers to the same stylesheet, *even across
+  // different importers*.
+  //
+  // If this importer's URL format supports file extensions, it should
+  // canonicalize them the same way as the default filesystem importer:
+  //
+  // * The importer should look for stylesheets by adding the prefix `_` to the
+  //   URL's basename, and by adding the extensions `.sass` and `.scss` if the
+  //   URL doesn't already have one of those extensions. For example, if the URL
+  //   was `foo/bar/baz`, the importer would look for:
+  //
+  //   * `foo/bar/baz.sass`
+  //   * `foo/bar/baz.scss`
+  //   * `foo/bar/_baz.sass`
+  //   * `foo/bar/_baz.scss`
+  //
+  //   If the URL was foo/bar/baz.scss, the importer would just look for:
+  //
+  //   * `foo/bar/baz.scss`
+  //   * `foo/bar/_baz.scss`
+  //
+  //   If the importer finds a stylesheet at more than one of these URLs, it
+  //   should respond with a `CanonicalizeResponse.result.error` indicating that
+  //   the import is ambiguous. Note that if the extension is explicitly
+  //   specified, a stylesheet with another extension may exist without error.
+  //
+  // * If none of the possible paths is valid, the importer should perform the
+  //   same resolution on the URL followed by `/index`. In the example above, it
+  //   would look for:
+  //
+  //   * `foo/bar/baz/_index.sass`
+  //   * `foo/bar/baz/index.sass`
+  //   * `foo/bar/baz/_index.scss`
+  //   * `foo/bar/baz/index.scss`
+  //
+  //   As above, if the importer finds a stylesheet at more than one of these
+  //   URLs, it should respond with a `CanonicalizeResponse.result.error`
+  //   indicating that the import is ambiguous.
+  message CanonicalizeRequest {
+    uint32 id = 1;
+
+    // The request id for the compilation that triggered the message. Mandatory.
+    uint32 compilation_id = 2;
+
+    // The unique ID of the importer being invoked. This must match an importer
+    // ID passed to this compilation in `CompileRequest.importers` or
+    // `CompileRequest.input.string.importer`. Mandatory.
+    uint32 importer_id = 3;
+
+    // The URL of the import to be canonicalized. This may be either absolute or
+    // relative.
+    //
+    // When loading a URL, the host must first try resolving that URL relative
+    // to the canonical URL of the current file, and canonicalizing the result
+    // using the importer that loaded the current file. If this returns `null`,
+    // the host must then try canonicalizing the original URL with each importer
+    // in order until one returns something other than `null`. That is the
+    // result of the import.
+    string url = 4;
+  }
+
+  // A request for a custom importer to load the contents of a stylesheet.
+  message ImportRequest {
+    uint32 id =1;
+
+    // The request id for the compilation that triggered the message. Mandatory.
+    uint32 compilation_id = 2;
+
+    // The unique ID of the importer being invoked. This must match an importer
+    // ID passed to this compilation in `CompileRequest.importers` or
+    // `CompileRequest.input.string.importer`. Mandatory.
+    uint32 importer_id = 3;
+
+    // The canonical URL of the import. This is guaranteed to be a URL returned
+    // by a `CanonicalizeRequest` to this importer.
+    string url = 4;
+  }
+
   // The wrapped message. Mandatory.
   oneof message {
     ProtocolError error = 1;
     CompileResponse compileResponse = 2;
     LogEvent logEvent = 3;
+    CanonicalizeRequest canonicalizeRequest = 4;
+    ImportRequest importRequest = 5;
   }
 }
 
@@ -230,7 +415,7 @@ message SourceSpan {
   // The location of the first character after this span. Optional.
   //
   // If this is omitted, it indicates that the span is empty and points
-  // immediately before [start]. In that case, [text] must be empty.
+  // immediately before `start`. In that case, `text` must be empty.
   //
   // This must not point to a location before `start`.
   SourceLocation end = 3;
