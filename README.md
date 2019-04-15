@@ -30,6 +30,15 @@ carrying protocol buffers. However, it's expected that most hosts will invoke
 the compiler as a subprocess and communicate using binary protocol buffers over
 its standard input and output streams.
 
+For streams (like standard input and output) that don't have built-in message
+boundaries, every message must begin with a 4-byte (32-bit) unsigned
+[little-endian][] integer indicating the length in bytes of the remaining
+message. This matches the best practice described in [the protocol buffer
+documentation][].
+
+[little-endian]: https://en.wikipedia.org/wiki/Endianness#Little
+[the protocol buffer documentation]: https://developers.google.com/protocol-buffers/docs/techniques#streaming
+
 ### RPCs
 
 All RPCs are wrapped in an outer message that indicates the RPC's type using [a
