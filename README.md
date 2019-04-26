@@ -1,5 +1,15 @@
 ## The Embedded Sass Protocol
 
+* [Overview](#overview)
+* [RPCs](#rpcs)
+* [Error Handling](#error-handling)
+* [Host Language APIs](#host-language-apis)
+  * [Immutability](#immutability)
+  * [Indexing](#indexing)
+  * [Assertions](#assertions)
+  * [Strings](#strings)
+  * [Lists](#lists)
+
 This repository defines a bidirectional protocol for communicating between a
 Sass implementation and a host environment. It allows the host environment to
 invoke the Sass compiler on source files, and to define custom functions and
@@ -107,3 +117,61 @@ This includes, but is not limited to:
 
 The `ProtocolError` message must *not* be used to report Sass errors or errors
 running custom functions or importers.
+
+### Host Language API
+
+Although not strictly part of the protocol, the host language will presumably
+provide an API for reading and manipulating SassScript values so that custom
+functions can be written in the host language. In order to ensure that custom
+functions will behave consistently with built-in Sass functions, the host
+language should provide APIs that meet the following guidelines.
+
+The [Dart `Value` API][] is a good example of an object-oriented API that
+follows these guidelines.
+
+[Dart `Value` API]: https://pub.dartlang.org/documentation/sass/latest/sass/Value-class.html
+
+#### Immutability
+
+All SassScript values are immutable, and the API should preserve that fact. No
+API calls should be able to modify any SassScript values, including collections
+like lists and maps. Instead, API calls should be provided to return new values
+with adjusted contents or to copy values into mutable host-language objects.
+
+If API calls are provided that return a new versions of an object with adjusted
+contents, metadata for the returned object (such as the type of list separator
+or a number's units) should match that of the original object.
+
+#### Indexing
+
+SassScript values use index 1 to refer to the first element and -1 to refer to
+the final element. The index 0 is invalid. Furthermore, indexes in Sass strings
+refer to [Unicode code points][], not bytes or UTF-16 code units. The API should
+provide a means to convert between Sass's indexing scheme and the host
+language's indexing scheme, and should encourage authors to treat any indexes
+they're passed as Sass-style indexes rather than host-language-style indexes.
+
+[Unicode code points]: https://en.wikipedia.org/wiki/Code_point
+
+#### Assertions
+
+The API should provide an easy means to assert that values are the expected type
+and to produce a useful error if they aren't. They should *not* provide a means
+to assert that a value is a list, though, since all Sass values should be
+treated as lists (see below).
+
+#### Strings
+
+API users should be encouraged to return quoted strings unless there's a
+particular reason not to.
+
+#### Lists
+
+In Sass, every value counts as a list. Maps count as unbracketed comma-separated
+lists of two-element unbracketed space-separated key-value lists, and all other
+non-list values count as lists that contain that value. The API should make it
+easy to treat every value as a list, and should discourage treating values
+passed as `Value.List`s specially.
+
+API users should be encouraged to return unbracketed comma-separated lists
+unless there's a particular reason not to.

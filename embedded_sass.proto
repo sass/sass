@@ -92,6 +92,16 @@ message InboundMessage {
     // imports that can't be resolved relative to the file that containsit. Each
     // importer is checked in order until one recognizes the imported URL.
     repeated Importer importers = 6;
+
+    // Signatures for custom global functions whose behavior is defined by the
+    // host. These must be valid Sass function signatures that could appear in
+    // after `@function` in a Sass stylesheet, such as
+    // `mix($color1, $color2, $weight: 50%)`.
+    //
+    // Compilers must ensure that pure-Sass functions take precedence over
+    // custom global functions. They must also reject any custom function names
+    // that conflict with function names built into the Sass language.
+    repeated string global_functions = 7;
   }
 
   // A response indicating the result of canonicalizing an imported URL.
@@ -155,6 +165,20 @@ message InboundMessage {
     }
   }
 
+  // A response indicating the result of calling a custom Sass function.
+  message FunctionCallResponse {
+    uint32 id = 1;
+
+    // The result of calling the function. Mandatory.
+    oneof result {
+      // The return value of a successful function call.
+      Value success = 2;
+
+      // An error message explaining why the function call failed.
+      string error = 3;
+    }
+  }
+
   // Possible syntaxes for a Sass stylesheet.
   enum Syntax {
     // The CSS-superset `.scss` syntax.
@@ -173,6 +197,7 @@ message InboundMessage {
     CompileRequest compileRequest = 2;
     CanonicalizeResponse canonicalizeResponse = 3;
     ImportResponse importResponse = 4;
+    FunctionCallResponse functionCallResponse = 5;
   }
 }
 
@@ -353,6 +378,30 @@ message OutboundMessage {
     string url = 4;
   }
 
+  // A request to invoke a custom Sass function and return its result.
+  message FunctionCallRequest {
+    uint32 id = 1;
+
+    // The request id for the compilation that triggered the message. Mandatory.
+    uint32 compilation_id = 2;
+
+    // The name of the function to invoke. Mandatory.
+    //
+    // This must match the name of a function signature the embedder passed to
+    // the corresponding `CompileRequest.global_functions` call, including
+    // hyphens and underscores.
+    string name = 3;
+
+    // The arguments passed to the function, in the order they appear in the
+    // function signature passed to `CompileRequest.global_functions`. Mandatory.
+    //
+    // The compiler must ensure that a valid number of arguments are passed for
+    // the given signature, that default argument values are instantiated
+    // appropriately, and that variable argument lists (`$args...`) are passed
+    // as `Value.ArgumentList`s.
+    repeated Value value = 4;
+  }
+
   // The wrapped message. Mandatory.
   oneof message {
     ProtocolError error = 1;
@@ -360,6 +409,7 @@ message OutboundMessage {
     LogEvent logEvent = 3;
     CanonicalizeRequest canonicalizeRequest = 4;
     ImportRequest importRequest = 5;
+    FunctionCallRequest functionCallRequest = 6;
   }
 }
 
@@ -434,4 +484,24 @@ message SourceSpan {
   // This usually contains the full lines the span begins and ends on if the
   // span itself doesn't cover the full lines.
   string context = 5;
+}
+
+// A SassScript value, passed to and returned by functions.
+message Value {
+  // A SassScript string value.
+  message String {
+    // The contents of the string. Mandatory.
+    string text = 1;
+
+    // Whether the string is quoted or unquoted. Mandatory.
+    bool quoted = 2;
+  }
+
+  // The value itself. Mandatory.
+  //
+  // This is wrapped in a message type rather than used directly to reduce
+  // repetition, and because oneofs can't be repeated.
+  oneof value {
+    String string = 1;
+  }
 }
