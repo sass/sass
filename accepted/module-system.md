@@ -1,4 +1,4 @@
-# The Next-Generation Sass Module System: Draft 4.2
+# The Next-Generation Sass Module System: Draft 5
 
 *([Issues](https://github.com/sass/sass/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A%22%40use%22), [Changelog](module-system.changes.md))*
 
