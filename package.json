@@ -1,0 +1,24 @@
+{
+  "name": "sass-travis",
+  "version": "1.0.0",
+  "description": "",
+  "main": "link-check.js",
+  "dependencies": {
+    "glob": "^7.1.3",
+    "markdown-link-check": "^3.7.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "link-check": "node link-check.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TeresaPartidaS/sass.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TeresaPartidaS/sass/issues"
+  },
+  "homepage": "https://github.com/TeresaPartidaS/sass#readme"
+}
