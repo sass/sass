@@ -9,4 +9,4 @@ before-script:
   - npm install -g markdown-link-check
 
 script:
-  - node link-check.js
+  - node test/link-check.js
