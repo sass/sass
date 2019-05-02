@@ -10,6 +10,10 @@ operator.
 
 * [Background](#background)
 * [Summary](#summary)
+* [Alternatives Considered](#alternatives-considered)
+  * [Different Operator Syntax](#different-operator-syntax)
+  * [First-Class `calc()`](#first-class-calc)
+  * [`math()` Syntax](#math-syntax)
 * [Existing Behavior](#existing-behavior)
 * [Syntax](#syntax)
 * [Semantics](#semantics)
@@ -90,6 +94,63 @@ in a three-stage process:
 
 3. The third stage will just remove the `slash-list()` function. This is not a
    priority, and will be delayed until the next major version release.
+
+## Alternatives Considered
+
+> This section is non-normative.
+
+### Different Operator Syntax
+
+One other possible fix would be to change the syntax for division to another
+punctuation-based operator. We ended up deciding that anything we chose would be
+so different from every other programming language as to be unreadable for
+anyone unfamiliar with the language.
+
+In addition, the best candidate operator we found was `~`, as an ASCII character
+that wasn't already in use in CSS or Sass value syntax. But `~` is difficult to
+type on many non-English keyboard layouts, which makes it only marginally more
+efficient to write than a function call for many Sass users.
+
+### First-Class `calc()`
+
+We eventually want to add native Sass support for parsing `calc()` expressions,
+resolving them at compile-time if possible, and producing a new Sass value that
+can have arithmetic performed on it if necessary. This is known as [first-class
+`calc()`][], and it would mean that division could be written unambiguously
+using `/` in the context of a `calc()` expression. For example, `$width / 2`
+would be instead written `calc($width / 2)`.
+
+[first-class `calc()`]: https://github.com/sass/sass/issues/2186
+
+However, first-class `calc()` is likely to be a very complex feature to design
+and implement. Most of the resources available for large-scale language features
+are currently focused on [the new module system][], so it's likely that a full
+implementation of first-class `calc()` won't land until mid-to-late 2020. And
+the full implementation is a prerequisite for even *beginning* the deprecation
+cycle for `/`-as-division, which means we probably wouldn't fully support
+`/`-as-separator for another three to six months after that point. This is just
+too much time to wait on giving users a good solution for writing `/`-separated
+properties.
+
+### `math()` Syntax
+
+A possible middle ground between `calc()` and the current syntax would be using
+a special `math()` expression as a way of signaling a syntactic context where
+`/` is interpreted as division without needing to fully support all the edge
+cases of `calc()`. For example, `$width / 2` would be instead written
+`math($width / 2)`.
+
+Unfortunately, this is highly likely to confuse users. They may think that
+`math()` is necessary for all mathematical operations, when in fact it's only
+necessary for division, which would lead to confusing and unnecessary `math()`
+expressions popping up all over the place. They may also think it's a Sass
+library function or a plain CSS feature, neither of which is true, and look in
+the wrong place for documentation.
+
+Worse, once we *did* add support for first-class `calc()`, there would then be
+two different ways of wrapping mathematical expressions which had slightly but
+meaningfully different semantics. This is a recipe for making users feel
+confused and overwhelmed.
 
 ## Existing Behavior
 
