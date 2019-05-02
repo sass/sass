@@ -1,12 +1,10 @@
 language: node_js
 node_js:
-  - "8.15.1"
+  - stable
 
 install:
   - npm ci
 
-before-script:
-  - npm install -g markdown-link-check
-
 script:
   - node test/link-check.js
+  - node test/toc-check.js

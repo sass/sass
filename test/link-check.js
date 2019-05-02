@@ -1,37 +1,33 @@
-#!/usr/bin/env node
-
 'use strict';
 
-var markdownLinkCheck = require('markdown-link-check');
+var colors = require('colors/safe');
 var fs = require("fs");
 var glob = require("glob");
+var markdownLinkCheck = require('markdown-link-check');
 var path = require("path");
-var chalk = require("chalk");
 
 var files = glob.sync("**/*.md", {ignore: ["node_modules/**/*.md"]})
 
-var opts = JSON.parse(fs.readFileSync("test/.markdown-link-check.json"));
-
 files.forEach(function(file) {
   var markdown = fs.readFileSync(file).toString();
-  opts.baseUrl = path.basename(__dirname) + "/"
 
-  markdownLinkCheck(markdown, opts, function (err, results) {
+  markdownLinkCheck(markdown, {
+    baseUrl: path.basename(__dirname) + "/"
+  }, function(err, results) {
     if (err) {
-        console.error('Error', err);
-        return;
+      console.error('Error', err);
+      return;
     }
 
-    console.log(chalk.green("Reading: " + file));
+    console.log("Reading: " + file);
 
-    results.forEach(function (result) {
-      if(result.status === "dead") {
+    results.forEach(function(result) {
+      if (result.status === "dead") {
         if (result.statusCode == 500) {
-          console.log(chalk.yellow("Server error on target: " + result.link));
-        }
-        else {
-          process.exitCode = 1
-          console.log(chalk.red("Dead: " + result.link));
+          console.log(colors.yellow(`Server error on target: ${result.link}`));
+        } else {
+          process.exitCode = 1;
+          console.log(colors.red(`Dead: ${result.link}`));
         }
       }
     });

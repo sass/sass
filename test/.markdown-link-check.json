@@ -1,8 +1,0 @@
-{
-    "replacementPatterns": [
-      {
-        "pattern": "&quot;",
-        "replacement": ""
-      }
-    ]
-}
