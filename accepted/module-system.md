@@ -1,4 +1,4 @@
-# The Next-Generation Sass Module System: Draft 4.2
+# The Next-Generation Sass Module System: Draft 5
 
 *([Issues](https://github.com/sass/sass/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A%22%40use%22), [Changelog](module-system.changes.md))*
 
@@ -52,9 +52,7 @@ mind—these will be called out explicitly in non-normative block-quoted asides.
   * [Determining Namespaces](#determining-namespaces)
   * [Loading Modules](#loading-modules)
   * [Resolving Extensions](#resolving-extensions)
-  * [Updating Extensions](#updating-extensions)
   * [Resolving a `file:` URL](#resolving-a-file-url)
-  * [Resolving a `file:` URL for Extensions](#resolving-a-file-url-for-extensions)
 * [Semantics](#semantics)
   * [Compilation Process](#compilation-process)
   * [Executing Files](#executing-files)
@@ -820,6 +818,8 @@ CSS for *all* modules transitively used or forwarded by `starting-module`.
       * Let `extended-selector` be the result of applying
         `new-extensions[foreign]` to `selector`.
 
+        [the first law of extend]: ../spec/at-rules/extend#specificity
+
         > `new-extensions[foreign]` is guaranteed to be populated at this point
         > because `extended` is traversed in reverse topological order, which
         > means that `foreign`'s own extensions will already have been resolved
@@ -830,7 +830,10 @@ CSS for *all* modules transitively used or forwarded by `starting-module`.
     * Set `new-selectors[rule]` to a selector that matches the union of all
       elements matched by selectors in `selector-lists`. This selector must obey
       [the specificity laws of extend][] relative to the selectors from which it
-      was generated.
+      was generated. For the purposes of the first law of extend, "the original
+      extendee" is considered only to refer to selectors that appear in
+      `domestic`'s CSS, *not* selectors that were added by other modules'
+      extensions.
 
       [the specificity laws of extend]: ../spec/at-rules/extend#specificity
 
@@ -887,10 +890,10 @@ CSS for *all* modules transitively used or forwarded by `starting-module`.
 ### Resolving a `file:` URL
 
 This algorithm is intended to replace [the existing algorithm][] for resolving a
-`file:` URL to add support for `@import`-only files, and to give `.css` files
-the same precedence as `.sass` and `.scss` files for `@use`. This algorithm
-takes a URL, `url`, whose scheme must be `file` and returns either another URL
-that's guaranteed to point to a file on disk or null.
+`file:` URL to add support for `@import`-only files, and to allow imports that
+include a literal `.css` extension. This algorithm takes a URL, `url`, whose
+scheme must be `file` and returns either another URL that's guaranteed to point
+to a file on disk or null.
 
 [the existing algorithm]:  ../spec/at-rules/import.md#resolving-a-file-url
 
@@ -905,9 +908,10 @@ either another URL that's guaranteed to point to a file on disk or null.
       `prefix` the portion of `url` before `suffix`.
 
     * If the result of [resolving `prefix` + `".import"` + `suffix` for
-      extensions][resolving for extensions] is not null, return it.
+      partials][resolving for partials] is not null, return it.
 
-  * Return the result of [resolving `url` for partials][resolving for partials].
+  * Otherwise, return the result of [resolving `url` for partials][resolving for
+    partials].
 
   > `@import`s whose URLs explicitly end in `.css` will have been treated as
   > plain CSS `@import`s before this algorithm even runs, so `url` will only end
@@ -929,31 +933,19 @@ either another URL that's guaranteed to point to a file on disk or null.
   * Otherwise, if the result of [resolving `url` + `".import.css"` for
     partials][resolving for partials] is not null, return it.
 
-* Let `sass` be the result of [resolving `url` + `".sass"` for
+* Otherwise, let `sass` be the result of [resolving `url` + `".sass"` for
   partials][resolving for partials].
 
 * Let `scss` be the result of [resolving `url` + `".scss"` for
   partials][resolving for partials].
 
-* Let `css` be the result of [resolving `url` + `".css"` for partials][resolving
-  for partials].
+* If neither `sass` nor `scss` are null, throw an error.
 
-* If this algorithm is being run for an `@import`:
+* Otherwise, if exactly one of `sass` and `scss` is null, return the other
+  one.
 
-  * If neither `sass` nor `scss` are null, throw an error.
-
-  * Otherwise, if exactly one of `sass` and `scss` is null, return the other
-    one.
-
-  * Otherwise, return `css`.
-
-* Otherwise:
-
-  * If all of `sass`, `scss`, and `css` are null, return null.
-
-  * If exactly one of `sass`, `scss`, and `css` is *not* null, return it.
-
-  * Otherwise, throw an error.
+* Otherwise, return the result of [resolving `url` + `".css"` for
+  partials][resolving for partials]. .
 
 [resolving for partials]: ../spec/at-rules/import.md#resolving-a-file-url-for-partials
 
@@ -1450,16 +1442,22 @@ context](#import-context) `import`, and a mutable [module](#module) `module`.
 * If `file` is currently being executed, throw an error.
 
 * Let `imported` be the result of [executing](#executing-files) `file` with the
-  empty configuration and `import` as its import context, with the following
-  differences:
-
-  * If the `@import` rule is nested within at-rules and/or style rules, that
-    context is preserved when executing `file`.
-
-  * The generated CSS for style rules or at-rules in `file` is appended to the
-    `module`'s CSS.
+  empty configuration and `import` as its import context, except that if the
+  `@import` rule is nested within at-rules and/or style rules, that context is
+  preserved when executing `file`.
 
   > Note that this execution can mutate `import`.
+
+* Let `css` be the result of [resolving extensions](#resolving-extensions) for
+  `imported`, except that if the `@import` rule is nested within at-rules and/or
+  style rules, that context is added to CSS that comes from modules loaded by
+  `imported`.
+
+  > This creates an entirely separate CSS tree with an entirely separate
+  > `@extend` context than normal `@use`s of these modules. This means their CSS
+  > may be duplicated, and they may be extended differently.
+
+* Add `css` to `module`'s CSS.
 
 * Add `imported`'s [extensions](#extension) to `module`.
 
@@ -1527,42 +1525,54 @@ The built-in functions will be organized as follows:
 | `saturation`             |           | sass:color    |   |                          |                    |               |
 | `lightness`              |           | sass:color    |   | `length`                 |                    | sass:list     |
 | `adjust-hue`             |           | sass:color    |   | `nth`                    |                    | sass:list     |
-| `lighten`                |           | sass:color    |   | `set-nth`                |                    | sass:list     |
-| `darken`                 |           | sass:color    |   | `join`                   |                    | sass:list     |
-| `saturate`               |           | sass:color    |   | `append`                 |                    | sass:list     |
-| `desaturate`             |           | sass:color    |   | `zip`                    |                    | sass:list     |
-| `grayscale`              |           | sass:color    |   | `index`                  |                    | sass:list     |
-| `complement`             |           | sass:color    |   | `list-separator`         | `separator`        | sass:list     |
-| `invert`                 |           | sass:color    |   |                          |                    |               |
-| `alpha`                  |           | sass:color    |   | `feature-exists`         |                    | sass:meta     |
-| `opacify`                |           | sass:color    |   | `variable-exists`        |                    | sass:meta     |
-| `transparentize`         |           | sass:color    |   | `global-variable-exists` |                    | sass:meta     |
-| `adjust-color`           | `adjust`  | sass:color    |   | `function-exists`        |                    | sass:meta     |
-| `scale-color`            | `scale`   | sass:color    |   | `mixin-exists`           |                    | sass:meta     |
-| `change-color`           | `change`  | sass:color    |   | `inspect`                |                    | sass:meta     |
-| `ie-hex-str`             |           | sass:color    |   | `get-function`           |                    | sass:meta     |
-|                          |           |               |   | `type-of`                |                    | sass:meta     |
-| `map-get`                | `get`     | sass:map      |   | `call`                   |                    | sass:meta     |
-| `map-merge`              | `merge`   | sass:map      |   | `content-exists`         |                    | sass:meta     |
-| `map-remove`             | `remove`  | sass:map      |   |                          | `module-variables` | sass:meta     |
-| `map-keys`               | `keys`    | sass:map      |   |                          | `module-functions` | sass:meta     |
-| `map-values`             | `values`  | sass:map      |   |                          |                    |               |
-| `map-has-key`            | `has-key` | sass:map      |   | `unquote`                |                    | sass:string   |
-| `keywords`               |           | sass:map      |   | `quote`                  |                    | sass:string   |
-|                          |           |               |   | `str-length`             | `length`           | sass:string   |
-| `selector-nest`          | `nest`    | sass:selector |   | `str-insert`             | `insert`           | sass:string   |
-| `selector-append`        | `append`  | sass:selector |   | `str-index`              | `index`            | sass:string   |
-| `selector-replace`       | `replace` | sass:selector |   | `str-slice`              | `slice`            | sass:string   |
-| `selector-unify`         | `unify`   | sass:selector |   | `to-upper-case`          |                    | sass:string   |
-| `is-superselector`       |           | sass:selector |   | `to-lower-case`          |                    | sass:string   |
-| `simple-selectors`       |           | sass:selector |   | `unique-id`              |                    | sass:string   |
-| `selector-parse`         | `parse`   | sass:selector |   |                          |                    |               |
+| `complement`             |           | sass:color    |   | `set-nth`                |                    | sass:list     |
+| `invert`                 |           | sass:color    |   | `join`                   |                    | sass:list     |
+| `alpha`                  |           | sass:color    |   | `append`                 |                    | sass:list     |
+| `adjust-color`           | `adjust`  | sass:color    |   | `zip`                    |                    | sass:list     |
+| `scale-color`            | `scale`   | sass:color    |   | `index`                  |                    | sass:list     |
+| `change-color`           | `change`  | sass:color    |   | `list-separator`         | `separator`        | sass:list     |
+| `ie-hex-str`             |           | sass:color    |   |                          |                    |               |
+|                          |           |               |   | `feature-exists`         |                    | sass:meta     |
+| `map-get`                | `get`     | sass:map      |   | `variable-exists`        |                    | sass:meta     |
+| `map-merge`              | `merge`   | sass:map      |   | `global-variable-exists` |                    | sass:meta     |
+| `map-remove`             | `remove`  | sass:map      |   | `function-exists`        |                    | sass:meta     |
+| `map-keys`               | `keys`    | sass:map      |   | `mixin-exists`           |                    | sass:meta     |
+| `map-values`             | `values`  | sass:map      |   | `inspect`                |                    | sass:meta     |
+| `map-has-key`            | `has-key` | sass:map      |   | `get-function`           |                    | sass:meta     |
+| `keywords`               |           | sass:map      |   | `type-of`                |                    | sass:meta     |
+|                          |           |               |   | `call`                   |                    | sass:meta     |
+| `unquote`                |           | sass:string   |   | `content-exists`         |                    | sass:meta     |
+| `quote`                  |           | sass:string   |   |                          | `module-variables` | sass:meta     |
+| `str-length`             | `length`  | sass:string   |   |                          | `module-functions` | sass:meta     |
+| `str-insert`             | `insert`  | sass:string   |   |                          |                    |               |
+| `str-index`              | `index`   | sass:string   |   | `selector-nest`          | `nest`             | sass:selector |
+| `str-slice`              | `slice`   | sass:string   |   | `selector-append`        | `append`           | sass:selector |
+| `to-upper-case`          |           | sass:string   |   | `selector-replace`       | `replace`          | sass:selector |
+| `to-lower-case`          |           | sass:string   |   | `selector-unify`         | `unify`            | sass:selector |
+| `unique-id`              |           | sass:string   |   | `is-superselector`       |                    | sass:selector |
+|                          |           |               |   | `simple-selectors`       |                    | sass:selector |
+|                          |           |               |   | `selector-parse`         | `parse`            | sass:selector |
 
 In addition, one built-in mixin will be added:
 
 | Name       | Module    |
 | ---------- | --------- |
 | `load-css` | sass:meta |
+
+The existing built-in functions `lighten()`, `darken()`, `saturate()`,
+`desaturate()`, `opacify()`, `fade-in()`, `transparentize()`, and `fade-out()`
+will not be added to any module. Instead, functions with the same names will be
+added to the `sass:color` module that will always emit errors suggesting that
+the user use `color.adjust()` instead.
+
+> These functions are shorthands for `color.adjust()`. However, `color.adjust()`
+> generally produces less useful results than `color.scale()`, so having
+> shorthands for it tends to mislead users. The automated module migrator will
+> migrate uses of these functions to literal `color.adjust()` calls, and the
+> documentation will encourage users to use `color.scale()` instead.
+>
+> Once the module system is firmly in place, we may add new `color.lighten()`
+> *et al* functions that are shorthands for `color.scale()` instead.
 
 Built-in modules will contain only the functions described above. They won't
 contain any other [members](#member), CSS, or extensions. New members may be
@@ -1688,11 +1698,13 @@ When this mixin is invoked:
 
 Several functions will get additional features in the new module-system world.
 
-The `global-variable-exists()`, `function-exists()`, and `mixin-exists()`
-functions will all take an optional `$module` parameter. This parameter must be
-a string or `null`, and it must match the namespace of a `@use` rule in the
-current module. If it's not `null`, the function returns whether the module
-loaded by that rule has a member with the given name and type.
+The `global-variable-exists()`, `function-exists()`, `mixin-exists()`, and
+`get-function()` functions will all take an optional `$module` parameter. This
+parameter must be a string or `null`, and it must match the namespace of a
+`@use` rule in the current module. If it's not `null`, the function returns
+whether the module loaded by that rule has a member with the given name and
+type, or in the case of `get-function()`, it returns the function with the given
+name from that module.
 
 If the `$module` parameter is `null`, or when the `variable-exists()` function
 is called, these functions will look for members defined so far in the current
