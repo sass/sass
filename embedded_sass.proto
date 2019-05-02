@@ -497,11 +497,31 @@ message Value {
     bool quoted = 2;
   }
 
+  // A SassScript number value.
+  message Number {
+    // The number's numeric value. Mandatory.
+    double value = 1;
+
+    // The number's numerator units.
+    //
+    // The endpoint sending the number must ensure that no numerator units are
+    // [compatible][] with any denominator units. Such compatible units must be
+    // simplified away according to the multiplicative factor between them
+    // defined in the CSS Values and Units spec.
+    //
+    // [compatible]: https://www.w3.org/TR/css-values-4/#compat
+    repeated string numerators = 2;
+
+    // The number's denominator units.
+    repeated string denominators = 3;
+  }
+
   // The value itself. Mandatory.
   //
   // This is wrapped in a message type rather than used directly to reduce
   // repetition, and because oneofs can't be repeated.
   oneof value {
     String string = 1;
+    Number number = 2;
   }
 }

@@ -165,6 +165,23 @@ treated as lists (see below).
 API users should be encouraged to return quoted strings unless there's a
 particular reason not to.
 
+#### Numbers
+
+The API should provide additional assertions for numbers:
+
+* that the number doesn't have any units;
+* that the number's units are [compatible][] with given expected units;
+* that the number is an integer, which for the purposes of Sass numbers means
+  that its numeric value is within 1e-11 of an integer;
+* that the number is in a given range, where being within 1e-11 of the top or
+  bottom of that range is considered being equal to the top or bottom.
+
+[compatible]: https://www.w3.org/TR/css-values-4/#compat
+
+The API should also provide means of converting a number to the equivalent
+number with different-but-compatible units, and for returning it as the host
+language's integer type if it is an integer.
+
 #### Lists
 
 In Sass, every value counts as a list. Maps count as unbracketed comma-separated
