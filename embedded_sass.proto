@@ -516,6 +516,40 @@ message Value {
     repeated string denominators = 3;
   }
 
+  /// A SassScript color value, represented as red, green, and blue channels.
+  message RgbColor {
+    /// The color's red channel. Mandatory. May not be above 255.
+    uint32 red = 1;
+
+    /// The color's green channel. Mandatory. May not be above 255.
+    uint32 green = 2;
+
+    /// The color's blue channel. Mandatory. May not be above 255.
+    uint32 blue = 3;
+
+    /// The color's alpha channel. Manddatory. Must be between 0 and 1,
+    /// inclusive.
+    double alpha = 4;
+  }
+
+  /// A SassScript color value, represented as hue, saturation, and lightness channels.
+  message HslColor {
+    /// The color's hue. Mandatory.
+    double hue = 1;
+
+    /// The color's percent saturation. Mandatory. Must be between 0 and 100,
+    /// inclusive.
+    double saturation = 2;
+
+    /// The color's percent lightness. Mandatory. Must be between 0 and 100,
+    /// inclusive.
+    double lightness = 3;
+
+    /// The color's alpha channel. Manddatory. Must be between 0 and 1,
+    /// inclusive.
+    double alpha = 4;
+  }
+
   // The value itself. Mandatory.
   //
   // This is wrapped in a message type rather than used directly to reduce
@@ -523,5 +557,7 @@ message Value {
   oneof value {
     String string = 1;
     Number number = 2;
+    RgbColor rgb_color = 3;
+    HslColor hsl_color = 4;
   }
 }

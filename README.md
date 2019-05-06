@@ -182,6 +182,27 @@ The API should also provide means of converting a number to the equivalent
 number with different-but-compatible units, and for returning it as the host
 language's integer type if it is an integer.
 
+#### Colors
+
+The protocol includes two distinct color value types, `RgbColor` and `HslColor`.
+In Sass code and custom functions, colors may be represented or manipulated in
+either RGB or HSL form, so having multiple types allows whichever form is
+currently in use to be sent between endpoints without having to eagerly
+normalize it.
+
+However, users of the host language API should be able to transparently treat
+any color object as though it were either RGB or HSL form. The API should
+provide access to the red, green, and blue, hue, saturation, and lightness
+channels of *every* color object. It should use [this RGB-to-HSL algorithm][]
+and [this HSL-to-RGB algorithm][] to convert between representations as
+necessary.
+
+[this RGB-to-HSL algorithm]: https://en.wikipedia.org/wiki/HSL_and_HSV#RGB_to_HSL_and_HSV
+[this HSL-to-RGB algorithm]: https://www.w3.org/TR/css3-color/#hsl-color
+
+The API should also provide means of changing one or more channels of a color
+while leaving other channels as-is.
+
 #### Lists
 
 In Sass, every value counts as a list. Maps count as unbracketed comma-separated
