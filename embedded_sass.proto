@@ -516,38 +516,69 @@ message Value {
     repeated string denominators = 3;
   }
 
-  /// A SassScript color value, represented as red, green, and blue channels.
+  // A SassScript color value, represented as red, green, and blue channels.
   message RgbColor {
-    /// The color's red channel. Mandatory. May not be above 255.
+    // The color's red channel. Mandatory. May not be above 255.
     uint32 red = 1;
 
-    /// The color's green channel. Mandatory. May not be above 255.
+    // The color's green channel. Mandatory. May not be above 255.
     uint32 green = 2;
 
-    /// The color's blue channel. Mandatory. May not be above 255.
+    // The color's blue channel. Mandatory. May not be above 255.
     uint32 blue = 3;
 
-    /// The color's alpha channel. Manddatory. Must be between 0 and 1,
-    /// inclusive.
+    // The color's alpha channel. Manddatory. Must be between 0 and 1,
+    // inclusive.
     double alpha = 4;
   }
 
-  /// A SassScript color value, represented as hue, saturation, and lightness channels.
+  // A SassScript color value, represented as hue, saturation, and lightness channels.
   message HslColor {
-    /// The color's hue. Mandatory.
+    // The color's hue. Mandatory.
     double hue = 1;
 
-    /// The color's percent saturation. Mandatory. Must be between 0 and 100,
-    /// inclusive.
+    // The color's percent saturation. Mandatory. Must be between 0 and 100,
+    // inclusive.
     double saturation = 2;
 
-    /// The color's percent lightness. Mandatory. Must be between 0 and 100,
-    /// inclusive.
+    // The color's percent lightness. Mandatory. Must be between 0 and 100,
+    // inclusive.
     double lightness = 3;
 
-    /// The color's alpha channel. Manddatory. Must be between 0 and 1,
-    /// inclusive.
+    // The color's alpha channel. Manddatory. Must be between 0 and 1,
+    // inclusive.
     double alpha = 4;
+  }
+
+  // A SassScript list value.
+  message List {
+    // Different types of separators a list can have.
+    enum Separator {
+      // List elements are separated by a comma.
+      COMMA = 0;
+
+      // List elements are separated by whitespace.
+      SPACE = 1;
+
+      // List elements are separated by a forward slash.
+      SLASH = 2;
+
+      // The list's separator hasn't yet been determined.
+      //
+      // Singleton lists and empty lists don't have separators defiend. This
+      // means that list functions will prefer other lists' separators if
+      // possible.
+      UNDECIDED = 3;
+    }
+
+    // The type of separator for this list. Mandatory.
+    Separator separator = 1;
+
+    // Whether this list has square brackets. Mandatory.
+    bool has_brackets = 2;
+
+    // The elements of this list.
+    repeated Value contents = 3;
   }
 
   // The value itself. Mandatory.
@@ -559,5 +590,6 @@ message Value {
     Number number = 2;
     RgbColor rgb_color = 3;
     HslColor hsl_color = 4;
+    List list = 5;
   }
 }
