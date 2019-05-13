@@ -213,3 +213,18 @@ passed as `Value.List`s specially.
 
 API users should be encouraged to return unbracketed comma-separated lists
 unless there's a particular reason not to.
+
+#### Booleans
+
+The `True` and `False` messages are each singletons representing the Sass values
+`true` and `false`, respectively. In Sass, all values other than `false` and
+`null` can be used to represent truth, so the API should provide an easy way to
+tell if a value is "truthy" (one of those values) or "falsey" (`false` or
+`null`). It should encourage users to check this rather than directly testing
+for `true` or `false`.
+
+#### Null
+
+The `Null` message is a singleton representing the Sass `null` value. It should
+*not* be represented as the host language's native `null` value, so that it can
+expose Sass-specific APIs like the [assertions](#assertions) described above.

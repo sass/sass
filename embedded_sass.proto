@@ -581,6 +581,15 @@ message Value {
     repeated Value contents = 3;
   }
 
+  // A singleton type representing the Sass `true` value.
+  message True {}
+
+  // A singleton type representing the Sass `false` value.
+  message False {}
+
+  // A singleton type representing the Sass `null` value.
+  message Null {}
+
   // The value itself. Mandatory.
   //
   // This is wrapped in a message type rather than used directly to reduce
@@ -591,5 +600,8 @@ message Value {
     RgbColor rgb_color = 3;
     HslColor hsl_color = 4;
     List list = 5;
+    True trueValue = 6;
+    False falseValue = 7;
+    Null null = 8;
   }
 }
