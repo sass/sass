@@ -6,5 +6,4 @@ install:
   - npm ci
 
 script:
-  - node test/link-check.js
-  - node test/toc-check.js
+  - npm test

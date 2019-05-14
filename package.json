@@ -15,6 +15,8 @@
     "standard": "^12.0.1"
   },
   "scripts": {
-    "test": "standard && node my-tests.js"
+    "link-check": "node test/link-check.js",
+    "toc-check": "node test/toc-check.js",
+    "test": "standard && npm run toc-check && npm run link-check"
   }
 }
