@@ -165,6 +165,9 @@ treated as lists (see below).
 API users should be encouraged to return quoted strings unless there's a
 particular reason not to.
 
+Two strings are equal if they have the same text, regardless of whether either
+is quoted or not.
+
 #### Numbers
 
 The API should provide additional assertions for numbers:
@@ -181,6 +184,11 @@ The API should provide additional assertions for numbers:
 The API should also provide means of converting a number to the equivalent
 number with different-but-compatible units, and for returning it as the host
 language's integer type if it is an integer.
+
+Two numbers are equal if they have [compatible][] units, and if their numerical
+value (with normalized units) are within 1e-11 of one another. A hash code with
+the same equality semantics can be generated for a number `x` by rounding
+`x * 1e11` to the nearest integer and taking the hash code of the result.
 
 #### Colors
 
@@ -203,6 +211,9 @@ necessary.
 The API should also provide means of changing one or more channels of a color
 while leaving other channels as-is.
 
+Two colors are equal if their RGB forms have the same red, green, blue channels
+and alpha channels within 1e-11 of one another.
+
 #### Lists
 
 In Sass, every value counts as a list. Maps count as unbracketed comma-separated
@@ -214,6 +225,18 @@ passed as `Value.List`s specially.
 API users should be encouraged to return unbracketed comma-separated lists
 unless there's a particular reason not to.
 
+Two lists are equal if they have the same elements, separator, and if they're
+both bracketed or both unbracketed. An empty list is equal to an empty map.
+
+#### Maps
+
+Although maps are transferred as lists of pairs, they should be exposed to the
+host language as maps that can be indexed by key, using the notions of equality
+described for each type.
+
+Two maps are equal if they have equal keys that map to equal values, regardless
+of the order of the keys in the map. An empty map is equal to an empty list.
+
 #### Booleans
 
 The `True` and `False` messages are each singletons representing the Sass values
@@ -223,8 +246,12 @@ tell if a value is "truthy" (one of those values) or "falsey" (`false` or
 `null`). It should encourage users to check this rather than directly testing
 for `true` or `false`.
 
+Two booleans are equal if they're both `true` or both` false`.
+
 #### Null
 
 The `Null` message is a singleton representing the Sass `null` value. It should
 *not* be represented as the host language's native `null` value, so that it can
 expose Sass-specific APIs like the [assertions](#assertions) described above.
+
+`null` is only equal to `null`.

@@ -581,6 +581,22 @@ message Value {
     repeated Value contents = 3;
   }
 
+  // A SassScript map value.
+  message Map {
+    // A single key/value pair in the map.
+    message Entry {
+      // The key this entry is associated with. Mandatory.
+      Value key = 1;
+
+      // The value associated with this key. Mandatory.
+      Value value = 2;
+    }
+
+    // The entries in this map. The sending endpoint must guarantee that no two
+    // entries have the same key.
+    repeated Entry entries = 1;
+  }
+
   // A singleton type representing the Sass `true` value.
   message True {}
 
@@ -600,8 +616,9 @@ message Value {
     RgbColor rgb_color = 3;
     HslColor hsl_color = 4;
     List list = 5;
-    True trueValue = 6;
-    False falseValue = 7;
-    Null null = 8;
+    Map map = 6;
+    True trueValue = 7;
+    False falseValue = 8;
+    Null null = 9;
   }
 }
