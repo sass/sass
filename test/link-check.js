@@ -22,16 +22,13 @@ files.forEach(function (file) {
 
     console.log('Reading: ' + file)
 
-    var markdownToc = toc(markdown, {
-      filter: (string, _, __) => string.indexOf('Table of Contents') === -1
-    }).content
+    // Get a list of all headers so we can verify intra-document links.
+    var markdownToc = toc(markdown).content
 
     results.forEach(function (result) {
-      if (result.link.match(/^#/)) {
-        if (!markdownToc.includes(result.link)) {
-          result.status = 'dead'
-          result.statusCode = 0
-        }
+      if (result.link.match(/^#/) && !markdownToc.includes(result.link)) {
+        result.status = 'dead'
+        result.statusCode = 0
       }
 
       if (result.status === 'dead') {
