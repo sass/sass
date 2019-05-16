@@ -170,7 +170,7 @@ accepted.
   &#32;                  | Number
   </pre></x>
 
-  [Backus-Naur form]: https://en.wikipedia.org/wiki/Backus–Naur_form
+  [Backus-Naur form]: https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form
 
   Syntax definitions can also refer to productions from CSS specs. The proposal
   should link to the specs in question.

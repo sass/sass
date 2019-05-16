@@ -510,7 +510,7 @@ its execution. An *empty configuration* contains no entries.
 
 ### Module
 
-A *module* is a collection of [members](#members) and [extensions](#extensions),
+A *module* is a collection of [members](#member) and [extensions](#extension),
 as well as a [CSS tree](#css-tree) (although that tree may be empty).
 User-defined modules have an associated [source file](#source-file) as well.
 Each module may have only one member of a given type and name (for example, a
@@ -668,7 +668,7 @@ after the `'$'` in `Variable`, or between the `NamespacedIdentifier` and the
 > [reasonably confident][Tab comment] that the syntax will not conflict with
 > future CSS syntax additions.
 >
-> [Tab comment]: https://github.com/sass/proposal.module-system/issues/1#issuecomment-174755061
+> [Tab comment]: https://github.com/sass/sass/issues/2618#issuecomment-174755061
 
 ## Procedures
 
@@ -1024,7 +1024,7 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
 
 * Let `module` be an empty module with the same URL as `file`.
 
-* Let `uses` be an empty map from `@use` rules to [modules](#modules).
+* Let `uses` be an empty map from `@use` rules to [modules](#module).
 
 * When a `@use` rule `rule` is encountered:
 
@@ -1203,9 +1203,9 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
 
 * When a member use `member` is encountered:
 
-  * Let `scope` be the [scope](#scope) of the innermost block containing
-    `member` such that `scope` has a member of `member`'s name and type, or
-    `null` if no such scope exists.
+  * Let `scope` be the [scope][] of the innermost block containing `member` such
+    that `scope` has a member of `member`'s name and type, or `null` if no such
+    scope exists.
 
   * If `scope` is not `null`, return `scope`'s member of `member`'s name and
     type.

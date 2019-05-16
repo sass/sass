@@ -9,7 +9,7 @@ until the [module system][] was in place and support CSS imports only with
 compatibility with the existing LibSass implementation. See
 [Background](#background) for more details.
 
-[module system]: https://github.com/sass/language/blob/master/proposal/module-system.md
+[module system]: https://github.com/sass/sass/blob/master/accepted/module-system.md
 
 ## Table of Contents
 
