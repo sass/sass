@@ -5,7 +5,7 @@
 * [Definitions](#definitions)
   * [Special Number String](#special-number-string)
   * [Special Variable String](#special-variable-string)
-* [Procedures](#percent-converting-a-number)
+* [Procedures](#procedures)
   * [Percent-Converting a Number](#percent-converting-a-number)
 * [`rgb()` and `rgba()`](#rgb-and-rgba)
 * [`hsl()` and `hsla()`](#hsl-and-hsla)

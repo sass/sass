@@ -169,7 +169,7 @@ To evaluate an `@import` rule:
 
   * Evaluate `stylesheet` in the global scope.
 
-### Loading an import
+### Loading an Import
 
 This algorithm takes a string, `argument`, and returns a Sass stylesheet.
 

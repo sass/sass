@@ -18,7 +18,7 @@ operator.
 * [Syntax](#syntax)
 * [Semantics](#semantics)
   * [Slash-Separated Lists](#slash-separated-lists)
-  * [`divide()`/`math.div()` Function](#divide-math-div-function)
+  * [`divide()`/`math.div()` Function](#dividemathdiv-function)
   * [`slash-list()` Function](#slash-list-function)
   * [`rgb()` Function](#rgb-function)
   * [`hsl()` Function](#hsl-function)

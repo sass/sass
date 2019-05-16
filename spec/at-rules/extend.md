@@ -4,9 +4,13 @@ The `@extend` at-rule is probably the single most complicated feature in Sass.
 While its semantics are straightforward to describe, the implementation involves
 many interacting layers and a lot of intricate case analysis.
 
+## Table of Contents
+
 * [Definition](#definition)
   * [Limitations](#limitations)
   * [Specificity](#specificity)
+    * [The First Law](#the-first-law)
+    * [The Second Law](#the-second-law)
 
 ## Definition
 
