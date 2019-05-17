@@ -13,6 +13,8 @@ path](#loading-an-entrypoint-path), which defines how a Sass implementation
 should compile a file passed on the command line or through a programming
 language API.
 
+## Table of Contents
+
 * [Definitions](#definitions)
   * [Basename](#basename)
   * [Dirname](#dirname)
@@ -44,6 +46,8 @@ that represents the location from which it was loaded.
 The canonical URL for stylesheets are set by the algorithms for
 [loading an import](#loading-an-import) and
 [loading an entrypoint path](#loading-an-entrypoint-path).
+
+## Semantics
 
 ### Handling an Import Rule
 
@@ -81,7 +85,7 @@ To evaluate an `@import` rule:
 
   * Evaluate `stylesheet` in the global scope.
 
-### Loading an import
+### Loading an Import
 
 This algorithm takes a string, `argument`, and returns a Sass stylesheet.
 

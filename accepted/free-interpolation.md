@@ -8,6 +8,8 @@ that thought process.
 
 [#1774]: https://github.com/sass/sass/issues/1774
 
+## Table of Contents
+
 * [History](#history)
 * [Proposal](#proposal)
 * [Design decisions](#design-decisions)
