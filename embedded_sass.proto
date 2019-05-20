@@ -165,7 +165,29 @@ message InboundMessage {
     }
   }
 
-  // A response indicating the result of calling a custom Sass function.
+  // A request that the compiler invoke a first-class Sass function passed as a
+  // `Value.CompilerFunction`.
+  //
+  // If the function invocation fails, the compiler must throw an error and stop
+  // compilation. It must not return the error to the host.
+  message FunctionCallRequest {
+    uint32 id = 1;
+
+    // The ID of the function to invoke. This must match the ID of a
+    // `Value.CompilerFunction` that was passed from the compiler to the host
+    // during this compilation.
+    uint32 function_id = 2;
+
+    // The arguments to pass by position to the function.
+    repeated Value positional = 3;
+
+    // The arguments to pass by name to the function. Each name must include the
+    // prefix character `$`.
+    map<string, Value> named = 4;
+  }
+
+  // A response indicating the result of calling a custom Sass function defined
+  // in the host.
   message FunctionCallResponse {
     uint32 id = 1;
 
@@ -197,7 +219,8 @@ message InboundMessage {
     CompileRequest compileRequest = 2;
     CanonicalizeResponse canonicalizeResponse = 3;
     ImportResponse importResponse = 4;
-    FunctionCallResponse functionCallResponse = 5;
+    FunctionCallRequest functionCallRequest = 5;
+    FunctionCallResponse functionCallResponse = 6;
   }
 }
 
@@ -385,12 +408,21 @@ message OutboundMessage {
     // The request id for the compilation that triggered the message. Mandatory.
     uint32 compilation_id = 2;
 
-    // The name of the function to invoke. Mandatory.
-    //
-    // This must match the name of a function signature the embedder passed to
-    // the corresponding `CompileRequest.global_functions` call, including
-    // hyphens and underscores.
-    string name = 3;
+    // An identifier that indicates which function to invoke. Mandatory.
+    oneof identifier {
+      // The name of the function to invoke.
+      //
+      // This must match the name of a function signature the host passed to the
+      // corresponding `CompileRequest.global_functions` call, including hyphens
+      // and underscores.
+      string name = 3;
+
+      // The opaque ID of the function to invoke.
+      //
+      // This must match the ID of a `Value.HostFunction` that the host passed
+      // to the compiler.
+      uint32 function_id = 4;
+    }
 
     // The arguments passed to the function, in the order they appear in the
     // function signature passed to `CompileRequest.global_functions`. Mandatory.
@@ -399,7 +431,16 @@ message OutboundMessage {
     // the given signature, that default argument values are instantiated
     // appropriately, and that variable argument lists (`$args...`) are passed
     // as `Value.ArgumentList`s.
-    repeated Value value = 4;
+    repeated Value value = 5;
+  }
+
+  // A response indicating the result of calling a first-class Sass function
+  // defined in the compiler.
+  message FunctionCallResponse {
+    uint32 id = 1;
+
+    // The return value of a successful function call.
+    Value result = 2;
   }
 
   // The wrapped message. Mandatory.
@@ -410,6 +451,7 @@ message OutboundMessage {
     CanonicalizeRequest canonicalizeRequest = 4;
     ImportRequest importRequest = 5;
     FunctionCallRequest functionCallRequest = 6;
+    FunctionCallResponse functionCallResponse = 7;
   }
 }
 
@@ -606,6 +648,39 @@ message Value {
   // A singleton type representing the Sass `null` value.
   message Null {}
 
+  // A first-class function defined in the compiler. New `CompilerFunction`s may
+  // only be created by the compiler, but the host may pass `CompilerFunction`s
+  // back to the compiler as long as their IDs match IDs of functions received
+  // by the host during that same compilation.
+  message CompilerFunction {
+    // A unique ID for this function. This ID can be used in
+    // `InboundRequest.FunctionCallRequest` to invoke this function. The
+    // compiler is responsible for generating this ID and ensuring it's unique
+    // across all functions passed to the host for this compilation. Mandatory.
+    uint32 id = 1;
+  }
+
+  // An anonymous custom function defined in the host. New `HostFunction`s may
+  // only be created by the host, and `HostFunction`s may *never* be passed from
+  // the compiler to the host. The compiler must instead pass a
+  // `CompilerFunction` that wraps the `HostFunction`.
+  message HostFunction {
+    // A unique ID for this function. The compiler must pass this ID as
+    // `OutboundRequest.FunctionCallRequest.id` when invoking this function. The
+    // host is responsible for generating this ID and ensuring it's unique
+    // across all functions for *all* compilations. Mandatory.
+    uint32 id = 1;
+
+    // The signatures for this function. This must be a valid Sass function
+    // signature that could appear in after `@function` in a Sass stylesheet,
+    // such as `mix($color1, $color2, $weight: 50%)`. Mandatory.
+    //
+    // The compiler may not invoke the function by its name, since it's not
+    // guaranteed to be globally unique. However, it may use the name to
+    // generate the string representation of this function.
+    string signature = 2;
+  }
+
   // The value itself. Mandatory.
   //
   // This is wrapped in a message type rather than used directly to reduce
@@ -620,5 +695,7 @@ message Value {
     True trueValue = 7;
     False falseValue = 8;
     Null null = 9;
+    CompilerFunction compiler_function = 10;
+    HostFunction host_function = 11;
   }
 }

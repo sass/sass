@@ -9,6 +9,10 @@
   * [Assertions](#assertions)
   * [Strings](#strings)
   * [Lists](#lists)
+  * [Maps](#maps)
+  * [Booleans](#booleans)
+  * [Null](#null)
+  * [Functions](#functions)
 
 This repository defines a bidirectional protocol for communicating between a
 Sass implementation and a host environment. It allows the host environment to
@@ -255,3 +259,16 @@ The `Null` message is a singleton representing the Sass `null` value. It should
 expose Sass-specific APIs like the [assertions](#assertions) described above.
 
 `null` is only equal to `null`.
+
+#### Functions
+
+The protocol allows first-class functions defined in the compiler to be passed
+to the host (as `Value.CompilerFunction`s) and vice-versa (as
+`Value.HostFunctions)`, and allows each endpoint to invoke functions defined in
+the other. The host API should hide the distinction between the two function
+types as much as possible, but it may refuse to allow host-defined functions to
+be invoked on the host, since doing so correctly would require parsing those
+functions' signatures.
+
+Two first-class functions are equal if they have the same ID and they're either
+both `CompilerFunction`s or both `HostFunction`s.
