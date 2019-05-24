@@ -392,7 +392,7 @@ operation returns a [slash-free](#existing-behavior) number.
 ### Phase 2
 
 This phase will introduce breaking changes to the language. It implements both
-[the syntactic changes](#syntax] and [the semantic changes](#semantics) exactly
+[the syntactic changes](#syntax) and [the semantic changes](#semantics) exactly
 described above (so `divide()` will only accept numbers). In phase 2, the
 `slash-list()` function will emit a deprecation warning whenever it's called.
 
