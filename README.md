@@ -79,12 +79,10 @@ learn Sass!
 ## This Repository
 
 This repository isn't an implementation of Sass. Those live in
-[`sass/dart-sass`][], [`sass/libsass`][], and [`sass/ruby-sass`][]. Instead, it
-contains:
+[`sass/dart-sass`][] and [`sass/libsass`][]. Instead, it contains:
 
 [`sass/dart-sass`]: https://github.com/sass/dart-sass
 [`sass/libsass`]: https://github.com/sass/libsass
-[`sass/ruby-sass`]: https://github.com/sass/ruby-sass
 
 * [`spec/`][], which contains specifications for language features.
 * [`proposal/`][], which contains in-progress proposals for changes to the

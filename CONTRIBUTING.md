@@ -60,15 +60,12 @@ The process for adding a new feature works as follows:
    [Dart Sass]: https://github.com/sass/dart-sass
 
    The new specs should have an `options.yml` file that marks them as TODO for
-   LibSass, with a reference to its issue for the new feature, and marks them as
-   ignored for Ruby Sass. For example:
+   LibSass, with a reference to its issue for the new feature. For example:
    
    ```yaml
    ---
    :todo:
-   - libsass # sass/libsass#2701
-   :ignore_for:
-   - ruby-sass
+   - sass/libsass#2701
    ```
 
    Once the specs and the implementation are complete, they're sent as pull
@@ -254,14 +251,12 @@ The fast-track process works as follows:
    2. A pull request is sent to [sass-spec][] that adds or updates specs for the
       new feature. The new specs should have an `options.yml` file that marks
       them as TODO for LibSass, with a reference to its issue for the new
-      feature, and marks them as ignored for Ruby Sass. For example:
+      feature. For example:
       
       ```yaml
       ---
       :todo:
-      - libsass # sass/libsass#2701
-      :ignore_for:
-      - ruby-sass
+      - sass/libsass#2701
       ```
 
       This pull request message should include `[skip dart-sass]`. This will
