@@ -45,7 +45,7 @@ The process for adding a new feature works as follows:
    elapsed and the Sass team is satisfied that all feedback is addressed, the
    feature moves to step 4.
 
-   [versioning policy]: https://github.com/sass/language#versioning-policy
+   [versioning policy]: README.md#versioning-policy
 
 4. The proposal is marked as accepted and moved into [the `accepted/`
    directory][]. *This doesn't mean that the proposal is immutable*, but it does
@@ -55,7 +55,7 @@ The process for adding a new feature works as follows:
    alongside an implementation helps ensure that the specs are accurate and
    sensible, and that the implementation is correct.
    
-   [the `accepted/` directory]: https://github.com/sass/language/tree/master/accepted
+   [the `accepted/` directory]: accepted
    [specs]: https://github.com/sass/sass-spec
    [Dart Sass]: https://github.com/sass/dart-sass
 
@@ -125,7 +125,7 @@ accepted.
   See [Plain CSS `min()` and `max()`][min-max background] for a good example of
   a Background section.
 
-  [min-max background]: https://github.com/sass/language/blob/master/accepted/min-max.md#background
+  [min-max background]: https://github.com/sass/sass/blob/master/accepted/min-max.md#background
 
 * **Summary**
 
@@ -136,7 +136,7 @@ accepted.
   
   See [Escapes in Identifiers][] for a good example of a Summary section.
 
-  [Escapes in Identifiers]: https://github.com/sass/language/blob/master/accepted/identifier-escapes.md#summary
+  [Escapes in Identifiers]: accepted/identifier-escapes.md#summary
 
   * **Design Decisions**
   
@@ -147,7 +147,7 @@ accepted.
     See [Plain CSS `min()` and `max()`][min-max design] for a good example
     of a Design Decisions section.
     
-    [min-max design]: https://github.com/sass/language/blob/master/accepted/min-max.md#design-decisions
+    [min-max design]: accepted/min-max.md#design-decisions
 
 * **Syntax**
 
@@ -174,7 +174,7 @@ accepted.
 
   See [Range-Context Media Features][] for an good example of a Syntax section.
 
-  [Range-Context Media Features]: https://github.com/sass/language/blob/master/accepted/media-ranges.md
+  [Range-Context Media Features]: accepted/media-ranges.md
 
 * **Semantics**
 
@@ -185,7 +185,7 @@ accepted.
 
   See [CSS Imports][css-imports semantics] for a good example of a Semantics section.
 
-  [css-imports semantics]: https://github.com/sass/language/blob/master/accepted/css-imports.md#semantics
+  [css-imports semantics]: accepted/css-imports.md#semantics
 
 * **Deprecation Process**
 
