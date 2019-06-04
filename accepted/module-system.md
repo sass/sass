@@ -8,7 +8,7 @@ hosted on GitHub to encourage community collaboration and contributions. Any
 suggestions or issues can be brought up and discussed on [the issue
 tracker][issues].
 
-[issues]: https://github.com/sass/language/issues?q=is%3Aissue+is%3Aopen+label%3A%22proposal%3A+module+system%22
+[issues]: https://github.com/sass/sass/issues?q=is%3Aissue+is%3Aopen+label%3A%22proposal%3A+module+system%22
 
 Although this document describes some imperative processes when describing the
 semantics of the module system, these aren't meant to prescribe a specific

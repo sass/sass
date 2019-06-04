@@ -95,9 +95,7 @@
 ## Draft 3
 
 * Limit extensions to affecting only modules transitively used by the module in
-  which the `@extend` appears ([#6][]).
-
-  [#6]: https://github.com/sass/language/issues/6
+  which the `@extend` appears.
 
 * Replace module mixins with a built-in `load-css()` mixin that dynamically
   includes the CSS for a module with a given URL.
@@ -105,27 +103,15 @@
 * Add support for configuring modules using a new `with` clause.
 
 * Update the `module-variables()` and `module-functions()` functions to return
-  maps from names to values, rather than just lists of names ([#12][]).
-  
-  [#12]: https://github.com/sass/language/issues/12
+  maps from names to values, rather than just lists of names.
 
-* Remove the `module-mixins()` function until Sass supports first-class mixins
-  ([#12][]).
+* Remove the `module-mixins()` function until Sass supports first-class mixins.
 
-* Add support for `_file.import.scss` as a file that only `@import`s will see
-  ([#11][]).
+* Add support for `_file.import.scss` as a file that only `@import`s will see.
 
-  [#11]: https://github.com/sass/language/issues/11
+* Change the syntax for a `@use` rule without a namespace to `@use "..." as *`.
 
-* Change the syntax for a `@use` rule without a namespace to `@use "..." as *`
-  ([#10][]).
-
-  [#10]: https://github.com/sass/language/issues/10
-
-* Initialize modules' variables with the values as declared in those modules
-  ([#13][]).
-
-  [#13]: https://github.com/sass/language/issues/13
+* Initialize modules' variables with the values as declared in those modules.
 
 * Allow comments to be emitted before dependencies' CSS.
 
@@ -140,9 +126,7 @@
 
 * Forbid whitespace in various member-reference productions.
 
-* Explicitly indicate that extensions are dynamically scoped ([#7][]).
-
-  [#7]: https://github.com/sass/language/issues/7
+* Explicitly indicate that extensions are dynamically scoped.
 
 * Explicitly indicate which parts of a module are immutable.
 
