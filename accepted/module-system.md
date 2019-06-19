@@ -1469,21 +1469,14 @@ context](#import-context) `import`, and a mutable [module](#module) `module`.
 
 * Add `imported`'s [extensions](#extension) to `module`.
 
-* For each member `member` in `imported`:
+* Add each member in `imported` to `import` and `module`.
 
-  * If `member` doesn't have the same type and name as a member in `import`, add
-    it to `import`.
-
-    > Note that *all* members defined in `file` or in files it imports will
-    > already be in `import`. Only members brought in by `@forward` are added to
-    > `import` in this step.
-
-  * Add `member` to `module`.
-
-    > *All* members of `imported` are made available in `module`, whether
-    > they're forwarded or defined in the module itself. They override any
-    > existing definitions in the current module, just like they override any
-    > values in the import context.
+  > Members defined directly in `imported` will have already been added to
+  > `import` in the course of its execution. This only adds members that
+  > `imported` forwards.
+  >
+  > Members from `imported` override members of the same name and type that have
+  > already been added to `import` and `module`.
 
 > When a stylesheet contains only `@import`s without any `@use`s, the `@import`s
 > are intended to work exactly as they did in previous Sass versions. Any

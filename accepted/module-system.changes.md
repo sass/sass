@@ -4,6 +4,9 @@
   rather than after. This ensures that the clause with unbounded length comes
   last if both are present.
 
+* Imported forwarded members now take precedence over members that were defined
+  in the local file prior to the `@import`.
+
 * Describe how to resolve built-in global functions and mixins.
 
 ## Draft 5
