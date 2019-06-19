@@ -9,6 +9,9 @@
 
 * Modules can now extend CSS from modules they forward but do not use.
 
+* Add `extend()` to `sass:selector`. This is the same as the global
+  `selector-extend()` function.
+
 * Describe how to resolve built-in global functions and mixins.
 
 ## Draft 5

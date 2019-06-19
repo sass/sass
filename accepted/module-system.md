@@ -1556,6 +1556,7 @@ The built-in functions will be organized as follows:
 | `unique-id`              |           | sass:string   |   | `is-superselector`       |                    | sass:selector |
 |                          |           |               |   | `simple-selectors`       |                    | sass:selector |
 |                          |           |               |   | `selector-parse`         | `parse`            | sass:selector |
+|                          |           |               |   | `selector-extend`        | `extend`           | sass:selector |
 
 In addition, one built-in mixin will be added:
 
