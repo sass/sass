@@ -1730,6 +1730,9 @@ of the given name and type, these functions will throw an error.
 > member, but eventually decided that such a case was likely unexpected and
 > throwing an error would help the user notice more quickly.
 
+The `get-function()` function will throw an error if the `$module` parameter is
+non-`null` *and* the `$css` parameter is truthy.
+
 ## Timeline
 
 Our target dates for implementing and launching the module system are as
