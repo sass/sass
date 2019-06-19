@@ -9,6 +9,8 @@
 
 * Modules can now extend CSS from modules they forward but do not use.
 
+* Move `keywords()` from `sass:map` to `sass:meta`.
+
 * Add `extend()` to `sass:selector`. This is the same as the global
   `selector-extend()` function.
 

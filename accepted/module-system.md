@@ -1543,17 +1543,18 @@ The built-in functions will be organized as follows:
 | `map-keys`               | `keys`    | sass:map      |   | `mixin-exists`           |                    | sass:meta     |
 | `map-values`             | `values`  | sass:map      |   | `inspect`                |                    | sass:meta     |
 | `map-has-key`            | `has-key` | sass:map      |   | `get-function`           |                    | sass:meta     |
-| `keywords`               |           | sass:map      |   | `type-of`                |                    | sass:meta     |
-|                          |           |               |   | `call`                   |                    | sass:meta     |
-| `unquote`                |           | sass:string   |   | `content-exists`         |                    | sass:meta     |
-| `quote`                  |           | sass:string   |   |                          | `module-variables` | sass:meta     |
-| `str-length`             | `length`  | sass:string   |   |                          | `module-functions` | sass:meta     |
-| `str-insert`             | `insert`  | sass:string   |   |                          |                    |               |
-| `str-index`              | `index`   | sass:string   |   | `selector-nest`          | `nest`             | sass:selector |
-| `str-slice`              | `slice`   | sass:string   |   | `selector-append`        | `append`           | sass:selector |
-| `to-upper-case`          |           | sass:string   |   | `selector-replace`       | `replace`          | sass:selector |
-| `to-lower-case`          |           | sass:string   |   | `selector-unify`         | `unify`            | sass:selector |
-| `unique-id`              |           | sass:string   |   | `is-superselector`       |                    | sass:selector |
+|                          |           |               |   | `type-of`                |                    | sass:meta     |
+| `unquote`                |           | sass:string   |   | `call`                   |                    | sass:meta     |
+| `quote`                  |           | sass:string   |   | `content-exists`         |                    | sass:meta     |
+| `str-length`             | `length`  | sass:string   |   | `keywords`               |                    | sass:meta
+| `str-insert`             | `insert`  | sass:string   |   |                          | `module-variables` | sass:meta     |
+| `str-index`              | `index`   | sass:string   |   |                          | `module-functions` | sass:meta     |
+| `str-slice`              | `slice`   | sass:string   |   |                          |                    |               |
+| `to-upper-case`          |           | sass:string   |   | `selector-nest`          | `nest`             | sass:selector |
+| `to-lower-case`          |           | sass:string   |   | `selector-append`        | `append`           | sass:selector |
+| `unique-id`              |           | sass:string   |   | `selector-replace`       | `replace`          | sass:selector |
+|                          |           |               |   | `selector-unify`         | `unify`            | sass:selector |
+|                          |           |               |   | `is-superselector`       |                    | sass:selector |
 |                          |           |               |   | `simple-selectors`       |                    | sass:selector |
 |                          |           |               |   | `selector-parse`         | `parse`            | sass:selector |
 |                          |           |               |   | `selector-extend`        | `extend`           | sass:selector |
