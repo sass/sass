@@ -12,6 +12,9 @@
 * Add `extend()` to `sass:selector`. This is the same as the global
   `selector-extend()` function.
 
+* The `sass:color` functions `grayscale()`, `invert()`, `alpha()`, and
+  `opacity()` no longer allow non-color arguments.
+
 * Describe how to resolve built-in global functions and mixins.
 
 ## Draft 5

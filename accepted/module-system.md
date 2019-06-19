@@ -1579,6 +1579,14 @@ the user use `color.adjust()` instead.
 > Once the module system is firmly in place, we may add new `color.lighten()`
 > *et al* functions that are shorthands for `color.scale()` instead.
 
+The `grayscale()`, `invert()`, `alpha()`, and `opacity()` functions in
+`sass:color` will only accept color arguments, unlike their global counterparts.
+
+> These global functions need to accept non-color arguments for compatibility
+> with CSS functions of the same names. Since module namespacing eliminates the
+> ambiguity between built-in Sass functions and plain CSS functions, this
+> compatibility is no longer necessary.
+
 Built-in modules will contain only the functions described above. They won't
 contain any other [members](#member), CSS, or extensions. New members may be
 added in the future, but CSS will not be added to existing modules.
