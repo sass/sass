@@ -1,3 +1,9 @@
+## Draft 6
+
+* Require `ForwardRule`'s `AsClause` to come before `ShowClose` or `HideClause`,
+  rather than after. This ensures that the clause with unbounded length comes
+  last if both are present.
+
 ## Draft 5
 
 * Drop the `lighten()`, `darken()`, `saturate()`, `desaturate()`, `opacify()`,

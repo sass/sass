@@ -1,4 +1,4 @@
-# The Next-Generation Sass Module System: Draft 5
+# The Next-Generation Sass Module System: Draft 6
 
 *([Issues](https://github.com/sass/sass/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A%22%40use%22), [Changelog](module-system.changes.md))*
 
@@ -628,11 +628,11 @@ This proposal introduces an additional new at-rule, called `@forward`. The
 grammar for this rule is as follows:
 
 <x><pre>
-**ForwardRule** ::= '@forward' QuotedString (ShowClause | HideClause)? AsClause?
+**ForwardRule** ::= '@forward' QuotedString AsClause? (ShowClause | HideClause)?
+**AsClause**    ::= 'as' Identifier '*'
 **ShowClause**  ::= 'show' MemberName (',' MemberName)*
 **HideClause**  ::= 'hide' MemberName (',' MemberName)*
 **MemberName**  ::= '$'? Identifier
-**AsClause**    ::= 'as' Identifier '*'
 </pre></x>
 
 `@forward` rules must be at the top level of the document, and must come before
