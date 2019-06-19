@@ -1316,6 +1316,11 @@ type `type`, and an [import context](#import-context) `import`:
   * Let `use` be the `@use` rule in `uses` whose namespace is `namespace`. If
     there is no such rule, throw an error.
 
+    > Unlike other identifiers in Sass, module namespaces *do not* treat `-` and
+    > `_` as equivalent. This equivalence only exists for
+    > backwards-compatibility, and since modules are an entirely new construct
+    > it's not considered necessary.
+
   * If `use` hasn't been evaluated yet, throw an error.
 
   * Otherwise, let `module` be the module in `uses` associated with `use`.
