@@ -752,10 +752,10 @@ The module system also scopes the resolution of the `@extend` rule. This helps
 satisfy locality, making selector extension more predictable than its global
 behavior under `@import`.
 
-Extension is scoped to CSS in [modules](#module) *transitively used by* the
-module in which the `@extend` appears. This transitivity is necessary because
-CSS is not considered a [member](#member) of a module, and can't be controlled
-as explicitly as members can.
+Extension is scoped to CSS in [modules](#module) *transitively used or forwarded
+by* the module in which the `@extend` appears. This transitivity is necessary
+because CSS is not considered a [member](#member) of a module, and can't be
+controlled as explicitly as members can.
 
 > We considered having extension also affect modules that were *downstream* of
 > the `@extend`, on the theory that they had a similar semantic notion of the
@@ -801,11 +801,14 @@ CSS for *all* modules transitively used or forwarded by `starting-module`.
 
 * For each module `domestic` in `extended`, in reverse [topological][] order:
 
-  * Let `downstream` be the set of modules that use `domestic`, as well as the
-    set of modules that use a module that forwards `domestic`.
+  * Let `downstream` be the set of modules that use or forward `domestic`.
 
-    > This excludes modules that *only* forward `domestic` without using it as
-    > well. `@extend` only applies to used CSS, not forwarded CSS.
+    > We considered having extension *not* affect forwarded modules that weren't
+    > also used. This would have matched the visibility of module members, but
+    > it would also be the only place where `@forward` and `@use` behave
+    > differently with regards to CSS, which creates confusion and
+    > implementation complexity. There's also no clear use case for it, so we
+    > went with the simpler route of making forwarded CSS visible to `@extend`.
 
   * For each style rule `rule` in `domestic`'s CSS:
 

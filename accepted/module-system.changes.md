@@ -7,6 +7,8 @@
 * Imported forwarded members now take precedence over members that were defined
   in the local file prior to the `@import`.
 
+* Modules can now extend CSS from modules they forward but do not use.
+
 * Describe how to resolve built-in global functions and mixins.
 
 ## Draft 5
