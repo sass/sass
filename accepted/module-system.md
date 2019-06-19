@@ -1015,8 +1015,8 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
   * For every variable name `name` in `config`:
 
     * If neither `file` nor any source file for a module transitively forwarded
-      by `file` contains a variable declaration named `name` with a `!default`
-      flag at the root of the stylesheet, throw an error.
+      or imported by `file` contains a variable declaration named `name` with a
+      `!default` flag at the root of the stylesheet, throw an error.
 
       > Although forwarded modules are not fully loaded at this point, it's
       > still possible to statically determine where those modules are located
