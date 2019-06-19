@@ -9,6 +9,9 @@
 
 * Modules can now extend CSS from modules they forward but do not use.
 
+* Only allow variables defined at the top level of a stylesheet to be configured
+  with `@use ... with`.
+
 * Move `keywords()` from `sass:map` to `sass:meta`.
 
 * Add `extend()` to `sass:selector`. This is the same as the global
