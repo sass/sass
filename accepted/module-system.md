@@ -1355,6 +1355,13 @@ type `type`, and an [import context](#import-context) `import`:
 * Otherwise, if `member-uses` contains a single module, return the member of
   type `type` named `name` in that module.
 
+* Otherwise, if the implementation defines a global member `member` of type
+  `type` named `name`, return that member.
+
+  > This includes the global functions and mixins defined as part of the Sass
+  > spec, and may also include other members defined through the
+  > implementation's host language API.
+
 * Otherwise, return null.
 
 ### Forwarding Modules

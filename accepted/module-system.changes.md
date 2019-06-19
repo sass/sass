@@ -4,6 +4,8 @@
   rather than after. This ensures that the clause with unbounded length comes
   last if both are present.
 
+* Describe how to resolve built-in global functions and mixins.
+
 ## Draft 5
 
 * Drop the `lighten()`, `darken()`, `saturate()`, `desaturate()`, `opacify()`,
