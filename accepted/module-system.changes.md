@@ -1,3 +1,32 @@
+## Draft 6
+
+* Require `ForwardRule`'s `AsClause` to come before `ShowClose` or `HideClause`,
+  rather than after. This ensures that the clause with unbounded length comes
+  last if both are present.
+
+* Imported forwarded members now take precedence over members that were defined
+  in the local file prior to the `@import`.
+
+* Modules can now extend CSS from modules they forward but do not use.
+
+* Only allow variables defined at the top level of a stylesheet to be configured
+  with `@use ... with`.
+
+* Allow variables imported by a stylesheet to be configured with `@use ...
+  with`.
+
+* Move `keywords()` from `sass:map` to `sass:meta`.
+
+* Add `extend()` to `sass:selector`. This is the same as the global
+  `selector-extend()` function.
+
+* The `sass:color` functions `grayscale()`, `invert()`, `alpha()`, and
+  `opacity()` no longer allow non-color arguments.
+
+* Make `get-function()` throw an error if `$module` and `$css` are both passed.
+
+* Describe how to resolve built-in global functions and mixins.
+
 ## Draft 5
 
 * Drop the `lighten()`, `darken()`, `saturate()`, `desaturate()`, `opacify()`,

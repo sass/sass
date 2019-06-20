@@ -1,4 +1,4 @@
-# The Next-Generation Sass Module System: Draft 5
+# The Next-Generation Sass Module System: Draft 6
 
 *([Issues](https://github.com/sass/sass/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A%22%40use%22), [Changelog](module-system.changes.md))*
 
@@ -628,11 +628,11 @@ This proposal introduces an additional new at-rule, called `@forward`. The
 grammar for this rule is as follows:
 
 <x><pre>
-**ForwardRule** ::= '@forward' QuotedString (ShowClause | HideClause)? AsClause?
+**ForwardRule** ::= '@forward' QuotedString AsClause? (ShowClause | HideClause)?
+**AsClause**    ::= 'as' Identifier '*'
 **ShowClause**  ::= 'show' MemberName (',' MemberName)*
 **HideClause**  ::= 'hide' MemberName (',' MemberName)*
 **MemberName**  ::= '$'? Identifier
-**AsClause**    ::= 'as' Identifier '*'
 </pre></x>
 
 `@forward` rules must be at the top level of the document, and must come before
@@ -752,10 +752,10 @@ The module system also scopes the resolution of the `@extend` rule. This helps
 satisfy locality, making selector extension more predictable than its global
 behavior under `@import`.
 
-Extension is scoped to CSS in [modules](#module) *transitively used by* the
-module in which the `@extend` appears. This transitivity is necessary because
-CSS is not considered a [member](#member) of a module, and can't be controlled
-as explicitly as members can.
+Extension is scoped to CSS in [modules](#module) *transitively used or forwarded
+by* the module in which the `@extend` appears. This transitivity is necessary
+because CSS is not considered a [member](#member) of a module, and can't be
+controlled as explicitly as members can.
 
 > We considered having extension also affect modules that were *downstream* of
 > the `@extend`, on the theory that they had a similar semantic notion of the
@@ -801,11 +801,14 @@ CSS for *all* modules transitively used or forwarded by `starting-module`.
 
 * For each module `domestic` in `extended`, in reverse [topological][] order:
 
-  * Let `downstream` be the set of modules that use `domestic`, as well as the
-    set of modules that use a module that forwards `domestic`.
+  * Let `downstream` be the set of modules that use or forward `domestic`.
 
-    > This excludes modules that *only* forward `domestic` without using it as
-    > well. `@extend` only applies to used CSS, not forwarded CSS.
+    > We considered having extension *not* affect forwarded modules that weren't
+    > also used. This would have matched the visibility of module members, but
+    > it would also be the only place where `@forward` and `@use` behave
+    > differently with regards to CSS, which creates confusion and
+    > implementation complexity. There's also no clear use case for it, so we
+    > went with the simpler route of making forwarded CSS visible to `@extend`.
 
   * For each style rule `rule` in `domestic`'s CSS:
 
@@ -1012,8 +1015,8 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
   * For every variable name `name` in `config`:
 
     * If neither `file` nor any source file for a module transitively forwarded
-      by `file` contains a variable declaration named `name` with a `!default`
-      flag, throw an error.
+      or imported by `file` contains a variable declaration named `name` with a
+      `!default` flag at the root of the stylesheet, throw an error.
 
       > Although forwarded modules are not fully loaded at this point, it's
       > still possible to statically determine where those modules are located
@@ -1313,6 +1316,11 @@ type `type`, and an [import context](#import-context) `import`:
   * Let `use` be the `@use` rule in `uses` whose namespace is `namespace`. If
     there is no such rule, throw an error.
 
+    > Unlike other identifiers in Sass, module namespaces *do not* treat `-` and
+    > `_` as equivalent. This equivalence only exists for
+    > backwards-compatibility, and since modules are an entirely new construct
+    > it's not considered necessary.
+
   * If `use` hasn't been evaluated yet, throw an error.
 
   * Otherwise, let `module` be the module in `uses` associated with `use`.
@@ -1354,6 +1362,13 @@ type `type`, and an [import context](#import-context) `import`:
 
 * Otherwise, if `member-uses` contains a single module, return the member of
   type `type` named `name` in that module.
+
+* Otherwise, if the implementation defines a global member `member` of type
+  `type` named `name`, return that member.
+
+  > This includes the global functions and mixins defined as part of the Sass
+  > spec, and may also include other members defined through the
+  > implementation's host language API.
 
 * Otherwise, return null.
 
@@ -1462,21 +1477,14 @@ context](#import-context) `import`, and a mutable [module](#module) `module`.
 
 * Add `imported`'s [extensions](#extension) to `module`.
 
-* For each member `member` in `imported`:
+* Add each member in `imported` to `import` and `module`.
 
-  * If `member` doesn't have the same type and name as a member in `import`, add
-    it to `import`.
-
-    > Note that *all* members defined in `file` or in files it imports will
-    > already be in `import`. Only members brought in by `@forward` are added to
-    > `import` in this step.
-
-  * Add `member` to `module`.
-
-    > *All* members of `imported` are made available in `module`, whether
-    > they're forwarded or defined in the module itself. They override any
-    > existing definitions in the current module, just like they override any
-    > values in the import context.
+  > Members defined directly in `imported` will have already been added to
+  > `import` in the course of its execution. This only adds members that
+  > `imported` forwards.
+  >
+  > Members from `imported` override members of the same name and type that have
+  > already been added to `import` and `module`.
 
 > When a stylesheet contains only `@import`s without any `@use`s, the `@import`s
 > are intended to work exactly as they did in previous Sass versions. Any
@@ -1540,19 +1548,21 @@ The built-in functions will be organized as follows:
 | `map-keys`               | `keys`    | sass:map      |   | `mixin-exists`           |                    | sass:meta     |
 | `map-values`             | `values`  | sass:map      |   | `inspect`                |                    | sass:meta     |
 | `map-has-key`            | `has-key` | sass:map      |   | `get-function`           |                    | sass:meta     |
-| `keywords`               |           | sass:map      |   | `type-of`                |                    | sass:meta     |
-|                          |           |               |   | `call`                   |                    | sass:meta     |
-| `unquote`                |           | sass:string   |   | `content-exists`         |                    | sass:meta     |
-| `quote`                  |           | sass:string   |   |                          | `module-variables` | sass:meta     |
-| `str-length`             | `length`  | sass:string   |   |                          | `module-functions` | sass:meta     |
-| `str-insert`             | `insert`  | sass:string   |   |                          |                    |               |
-| `str-index`              | `index`   | sass:string   |   | `selector-nest`          | `nest`             | sass:selector |
-| `str-slice`              | `slice`   | sass:string   |   | `selector-append`        | `append`           | sass:selector |
-| `to-upper-case`          |           | sass:string   |   | `selector-replace`       | `replace`          | sass:selector |
-| `to-lower-case`          |           | sass:string   |   | `selector-unify`         | `unify`            | sass:selector |
-| `unique-id`              |           | sass:string   |   | `is-superselector`       |                    | sass:selector |
+|                          |           |               |   | `type-of`                |                    | sass:meta     |
+| `unquote`                |           | sass:string   |   | `call`                   |                    | sass:meta     |
+| `quote`                  |           | sass:string   |   | `content-exists`         |                    | sass:meta     |
+| `str-length`             | `length`  | sass:string   |   | `keywords`               |                    | sass:meta
+| `str-insert`             | `insert`  | sass:string   |   |                          | `module-variables` | sass:meta     |
+| `str-index`              | `index`   | sass:string   |   |                          | `module-functions` | sass:meta     |
+| `str-slice`              | `slice`   | sass:string   |   |                          |                    |               |
+| `to-upper-case`          |           | sass:string   |   | `selector-nest`          | `nest`             | sass:selector |
+| `to-lower-case`          |           | sass:string   |   | `selector-append`        | `append`           | sass:selector |
+| `unique-id`              |           | sass:string   |   | `selector-replace`       | `replace`          | sass:selector |
+|                          |           |               |   | `selector-unify`         | `unify`            | sass:selector |
+|                          |           |               |   | `is-superselector`       |                    | sass:selector |
 |                          |           |               |   | `simple-selectors`       |                    | sass:selector |
 |                          |           |               |   | `selector-parse`         | `parse`            | sass:selector |
+|                          |           |               |   | `selector-extend`        | `extend`           | sass:selector |
 
 In addition, one built-in mixin will be added:
 
@@ -1574,6 +1584,14 @@ the user use `color.adjust()` instead.
 >
 > Once the module system is firmly in place, we may add new `color.lighten()`
 > *et al* functions that are shorthands for `color.scale()` instead.
+
+The `grayscale()`, `invert()`, `alpha()`, and `opacity()` functions in
+`sass:color` will only accept color arguments, unlike their global counterparts.
+
+> These global functions need to accept non-color arguments for compatibility
+> with CSS functions of the same names. Since module namespacing eliminates the
+> ambiguity between built-in Sass functions and plain CSS functions, this
+> compatibility is no longer necessary.
 
 Built-in modules will contain only the functions described above. They won't
 contain any other [members](#member), CSS, or extensions. New members may be
@@ -1716,6 +1734,9 @@ of the given name and type, these functions will throw an error.
 > We considered having the functions return `true` in the case of a conflicting
 > member, but eventually decided that such a case was likely unexpected and
 > throwing an error would help the user notice more quickly.
+
+The `get-function()` function will throw an error if the `$module` parameter is
+non-`null` *and* the `$css` parameter is truthy.
 
 ## Timeline
 
