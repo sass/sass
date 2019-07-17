@@ -1,4 +1,4 @@
-# Prefixed Parent Selector: Draft 2
+# Prefixed Parent Selector: Draft 1
 
 [Issue](https://github.com/sass/sass/issues/1425)
 
