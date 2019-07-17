@@ -12,8 +12,8 @@ When transitioning from Less or Stylus, or just learning Sass, nesting and using
     .nested & {} // .nested .selector - as expected
     &.nested {}  // .selector.nested - as expected
     
-    .nested& // "&" may only used at the beginning of a compound selector. - not as expected. 
-             // expected: .nested.selector
+    .nested& {} // "&" may only used at the beginning of a compound selector. - not as expected. 
+                // expected: .nested.selector
 }
 ```
 
@@ -101,40 +101,21 @@ The `@at-root input#{&}` is so much more complicated than just `input.&`. It mig
 
 ## Summary
 
-Prefixed parent selectors will work as expected, solving the frustration of current, and new, users of Sass.
+Sass with prefixed parent selectors should work intuitively.
+Both people new and from other pre-processors expect this to work, and have to resort to searching
+and reading the docs for such a simple use case.
 
-@arkonan's [example](https://github.com/sass/sass/issues/1425#issuecomment-405921429) neatly summarises this: 
+Turning this:
 ```
-& selector { }  // works
-selector & { }  // works
-&selector { }   // works
-selector& { }   // doesn't work
+.selector {
+    .nested& {}
+}
 ```
+into `.nested.selector`, instead of `"&" may only used at the beginning of a compound selector.`
 
 
 
 ## Syntax
 
-
-expect
-```
-.title {
-  h1& {
-    font-weight: 600;
-  }
-}
-```
-
-to become
-
-```
-h1.title {
-  font-weight: 600;
-}
-```
-
-instead of this error
-
-```
-`"&" may only used at the beginning of a compound selector.` 
-```
+I have no idea what I'm doing. Help needed.
+PrefixedParentSelectorExpression ::= *'$'
