@@ -241,6 +241,8 @@ functions are available in a namespace based on the basename of the URL.
 
 .element {
   @include bootstrap.float-left;
+  border: 1px solid bootstrap.theme-color("dark");
+  margin-bottom: bootstrap.$spacer;
 }
 ```
 
@@ -648,9 +650,9 @@ mixins, this update affects only calls, not definitions. Variables, on the other
 hand, may use this syntax for either assignment or reference.
 
 <x><pre>
-**NamespacedIdentifier** ::= Identifier | Identifier '.' PublicIdentifier
 **PublicIdentifier**     ::= [\<ident-token>][] that doesn't begin with '-' or '_'
-**Variable**             ::= '$' NamespacedIdentifier
+**Variable**             ::= '$' Identifier | Identifier '.$' PublicIdentifier
+**NamespacedIdentifier** ::= Identifier | Identifier '.' PublicIdentifier
 **FunctionCall**         ::= NamespacedIdentifier ArgumentInvocation
 **Include**              ::= '@include' NamespacedIdentifier ArgumentInvocation?
 </pre></x>
@@ -658,8 +660,9 @@ hand, may use this syntax for either assignment or reference.
 [\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
 
 No whitespace is allowed before or after the `'.'` in `NamespacedIdentifier`,
-after the `'$'` in `Variable`, or between the `NamespacedIdentifier` and the
-`ArgumentInvocation` in `FunctionCall` or `Include`. 
+before or after the `'.$'` in `VariableIdentifier`, after the `$` in
+`VariableIdentifier`, or between the `NamespacedIdentifier` and the
+`ArgumentInvocation` in `FunctionCall` or `Include`.
 
 > The dot-separated syntax (`namespace.name`) was chosen in preference to a
 > hyphenated syntax (for example `namespace-name`) because it makes the

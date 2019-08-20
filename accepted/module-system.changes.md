@@ -1,5 +1,8 @@
 ## Draft 7
 
+* Change the syntax for namespaced variables from `$namespace.name` to
+  `namespace.$name`.
+
 * Make `module-variables()` and `module-functions()` normalize underscores to
   hyphens.
 
