@@ -264,8 +264,8 @@ The `slash-list()` function has the following signature:
 slash-list($elements...)
 ```
 
-It throws an error if zero arguments are passed. It returns an unbracketed
-slash-separated list containing the given elements.
+It throws an error if zero or one arguments are passed. It returns an
+unbracketed slash-separated list containing the given elements.
 
 ### `rgb()` Function
 
