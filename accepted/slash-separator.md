@@ -22,6 +22,7 @@ operator.
   * [`slash-list()` Function](#slash-list-function)
   * [`rgb()` Function](#rgb-function)
   * [`hsl()` Function](#hsl-function)
+  * [Selector Functions](#selector-functions)
 * [Deprecation Process](#deprecation-process)
   * [Phase 1](#phase-1)
   * [Phase 2](#phase-2)
@@ -347,6 +348,13 @@ overload to be the following:
     and return the result.
 
 * Otherwise, proceed with the existing definition of the function.
+
+### Selector Functions
+
+This proposal modifies [the "Parse a Selector From a SassScript Object"
+procedure][] to throw an error whenever it encounters a slash-separated list.
+
+[the "Parse a Selector From a SassScript Object" procedure]: ../spec/functions/selector.md#parse-a-selector-from-a-sassscript-object
 
 ## Deprecation Process
 
