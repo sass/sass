@@ -1,3 +1,8 @@
+## Draft 7
+
+* Make `module-variables()` and `module-functions()` normalize underscores to
+  hyphens.
+
 ## Draft 6
 
 * Require `ForwardRule`'s `AsClause` to come before `ShowClose` or `HideClause`,

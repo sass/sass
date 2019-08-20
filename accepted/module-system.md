@@ -1640,8 +1640,13 @@ the `sass:meta` module.
 
 The `module-variables()` function takes a `$module` parameter, which must be a
 string that matches the namespace of a `@use` rule in the current source file.
-It returns a map from variable names defined in the module loaded by that rule
-(as quoted strings, without `$`) to the current values of those variables.
+It returns a map from variable names (with all `_`s converted to `-`s) defined
+in the module loaded by that rule (as quoted strings, without `$`) to the
+current values of those variables.
+
+> Variable names are normalized to use hyphens so that callers can safely work
+> with underscore-separated libraries using this function the same as they can
+> when referring to variables directly.
 
 Note that (like the existing `*-defined()` functions), this function's behavior
 depends on the lexical context in which it's invoked.
@@ -1650,9 +1655,13 @@ depends on the lexical context in which it's invoked.
 
 The `module-functions()` function takes a `$module` parameter, which must be a
 string that matches the namespace of a `@use` rule in the current source file.
-It returns a map from function names defined in the module loaded by that rule
-(as quoted strings) to function values that can be used to invoke those
-functions.
+It returns a map from function names (with all `_`s converted to `-`s) defined
+in the module loaded by that rule (as quoted strings) to function values that
+can be used to invoke those functions.
+
+> Function names are normalized to use hyphens so that callers can safely work
+> with underscore-separated libraries using this function the same as they can
+> when calling functions directly.
 
 Note that (like the existing `*-defined()` functions), this function's behavior
 depends on the lexical context in which it's invoked.
