@@ -241,6 +241,8 @@ functions are available in a namespace based on the basename of the URL.
 
 .element {
   @include bootstrap.float-left;
+  border: 1px solid bootstrap.theme-color("dark");
+  margin-bottom: bootstrap.$spacer;
 }
 ```
 
@@ -648,9 +650,9 @@ mixins, this update affects only calls, not definitions. Variables, on the other
 hand, may use this syntax for either assignment or reference.
 
 <x><pre>
-**NamespacedIdentifier** ::= Identifier | Identifier '.' PublicIdentifier
 **PublicIdentifier**     ::= [\<ident-token>][] that doesn't begin with '-' or '_'
-**Variable**             ::= '$' NamespacedIdentifier
+**Variable**             ::= '$' Identifier | Identifier '.$' PublicIdentifier
+**NamespacedIdentifier** ::= Identifier | Identifier '.' PublicIdentifier
 **FunctionCall**         ::= NamespacedIdentifier ArgumentInvocation
 **Include**              ::= '@include' NamespacedIdentifier ArgumentInvocation?
 </pre></x>
@@ -658,8 +660,9 @@ hand, may use this syntax for either assignment or reference.
 [\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
 
 No whitespace is allowed before or after the `'.'` in `NamespacedIdentifier`,
-after the `'$'` in `Variable`, or between the `NamespacedIdentifier` and the
-`ArgumentInvocation` in `FunctionCall` or `Include`. 
+before or after the `'.$'` in `VariableIdentifier`, after the `$` in
+`VariableIdentifier`, or between the `NamespacedIdentifier` and the
+`ArgumentInvocation` in `FunctionCall` or `Include`.
 
 > The dot-separated syntax (`namespace.name`) was chosen in preference to a
 > hyphenated syntax (for example `namespace-name`) because it makes the
@@ -1640,8 +1643,13 @@ the `sass:meta` module.
 
 The `module-variables()` function takes a `$module` parameter, which must be a
 string that matches the namespace of a `@use` rule in the current source file.
-It returns a map from variable names defined in the module loaded by that rule
-(as quoted strings, without `$`) to the current values of those variables.
+It returns a map from variable names (with all `_`s converted to `-`s) defined
+in the module loaded by that rule (as quoted strings, without `$`) to the
+current values of those variables.
+
+> Variable names are normalized to use hyphens so that callers can safely work
+> with underscore-separated libraries using this function the same as they can
+> when referring to variables directly.
 
 Note that (like the existing `*-defined()` functions), this function's behavior
 depends on the lexical context in which it's invoked.
@@ -1650,9 +1658,13 @@ depends on the lexical context in which it's invoked.
 
 The `module-functions()` function takes a `$module` parameter, which must be a
 string that matches the namespace of a `@use` rule in the current source file.
-It returns a map from function names defined in the module loaded by that rule
-(as quoted strings) to function values that can be used to invoke those
-functions.
+It returns a map from function names (with all `_`s converted to `-`s) defined
+in the module loaded by that rule (as quoted strings) to function values that
+can be used to invoke those functions.
+
+> Function names are normalized to use hyphens so that callers can safely work
+> with underscore-separated libraries using this function the same as they can
+> when calling functions directly.
 
 Note that (like the existing `*-defined()` functions), this function's behavior
 depends on the lexical context in which it's invoked.
@@ -1743,33 +1755,35 @@ non-`null` *and* the `$css` parameter is truthy.
 Our target dates for implementing and launching the module system are as
 follows:
 
-* 1 March 2019: Support for `@use` without configuration or core libraries
+* **1 March 2019**: Support for `@use` without configuration or core libraries
   landed in a Dart Sass branch, with specs in a sass-spec branch.
 
-* 1 June 2019: Support for the same landed in a LibSass branch.
+* **1 August 2019**: Full support for this spec landed in a Dart Sass branch, with
+  specs in a sass-spec branch.
 
-* 1 August 2019: Full support for this spec landed in a Dart Sass branch, with
-  specs in a sass-spec branch. Alpha release for Dart Sass module system
-  support.
+* **1 September 2019**: Alpha release for Dart Sass module system support.
 
-* 1 October 2019: Full support for this spec landed in LibSass. Stable release
-  of both Dart Sass and LibSass module system support.
+* **1 October 2019**: Stable release of Dart Sass module system support.
 
-The exact dates are very tentative, and depend on available resources and the
-practical difficulty of implementing the proposal. We feel strongly that the
-ecosystem would benefit from a simultaneous launch of the module system in both
-Dart Sass and LibSass, concurrently with a tool that can automatically migrate
-stylesheets from `@import` to `@use`.
+Although it would be desirable to have both Dart Sass and LibSass launch support
+for the module system simultaneously, this hasn't proven to be logistically
+feasible. As of August 2019, LibSass has not yet begun implementing the module
+system, and there are no concrete plans for it to do so.
 
-One year after both implementations have launched stable support for the full
-module system proposal (tentatively 1 October 2020), we will deprecate `@import`
-as well as all global core library function calls that could be made through
-modules.
+The Sass team wants to allow for a large amount of time when `@use` and
+`@import` can coexist, to help the ecosystem smoothly migrate to the new system.
+However, doing away with `@import` entirely is the ultimate goal for simplicity,
+performance, and CSS compatibility. As such, we plan to gradually turn down
+support for `@import` on the following timeline:
 
-We want there to be a large amount of time when `@use` and `@import` can
-coexist, to help people migrate. However, doing away with `@import` entirely is
-the ultimate goal for simplicity, performance, and CSS compatibility. As such,
-one year after `@import` is deprecated (tentatively 1 October 2021), we plan to
-drop support for `@import` entirely. This will involve a major version release
-for all implementations. This means that there will be at least two full years
-when `@import` and `@use` are both usable at once.
+* One year after both implementations launch support for the module system *or*
+  two years after Dart Sass launches support for the module system, whichever
+  comes sooner (**1 October 2021** at latest): Deprecate `@import` as well as global
+  core library function calls that could be made through modules.
+
+* One year after this deprecation goes into effect (**1 October 2022** at
+  latest): Drop support for `@import` and most global functions entirely. This
+  will involve a major version release for all implementations.
+
+This means that there will be at least two full years when `@import` and `@use`
+are both usable at once, and likely closer to three years in practice.

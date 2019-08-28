@@ -1,3 +1,13 @@
+## Draft 7
+
+* Change the syntax for namespaced variables from `$namespace.name` to
+  `namespace.$name`.
+
+* Make `module-variables()` and `module-functions()` normalize underscores to
+  hyphens.
+
+* Update the release timeline.
+
 ## Draft 6
 
 * Require `ForwardRule`'s `AsClause` to come before `ShowClose` or `HideClause`,
