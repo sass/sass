@@ -12,7 +12,7 @@
     "markdown-toc": "^1.2.0"
   },
   "devDependencies": {
-    "standard": "^12.0.1"
+    "standard": "^14.0.0"
   },
   "scripts": {
     "link-check": "node test/link-check.js",
