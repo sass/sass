@@ -1536,31 +1536,31 @@ The built-in functions will be organized as follows:
 | `hue`                    |           | sass:color    |   | `comparable`             | `compatible`       | sass:math     |
 | `saturation`             |           | sass:color    |   |                          |                    |               |
 | `lightness`              |           | sass:color    |   | `length`                 |                    | sass:list     |
-| `adjust-hue`             |           | sass:color    |   | `nth`                    |                    | sass:list     |
-| `complement`             |           | sass:color    |   | `set-nth`                |                    | sass:list     |
-| `invert`                 |           | sass:color    |   | `join`                   |                    | sass:list     |
-| `alpha`                  |           | sass:color    |   | `append`                 |                    | sass:list     |
-| `adjust-color`           | `adjust`  | sass:color    |   | `zip`                    |                    | sass:list     |
-| `scale-color`            | `scale`   | sass:color    |   | `index`                  |                    | sass:list     |
-| `change-color`           | `change`  | sass:color    |   | `list-separator`         | `separator`        | sass:list     |
-| `ie-hex-str`             |           | sass:color    |   |                          |                    |               |
-|                          |           |               |   | `feature-exists`         |                    | sass:meta     |
-| `map-get`                | `get`     | sass:map      |   | `variable-exists`        |                    | sass:meta     |
-| `map-merge`              | `merge`   | sass:map      |   | `global-variable-exists` |                    | sass:meta     |
-| `map-remove`             | `remove`  | sass:map      |   | `function-exists`        |                    | sass:meta     |
-| `map-keys`               | `keys`    | sass:map      |   | `mixin-exists`           |                    | sass:meta     |
-| `map-values`             | `values`  | sass:map      |   | `inspect`                |                    | sass:meta     |
-| `map-has-key`            | `has-key` | sass:map      |   | `get-function`           |                    | sass:meta     |
-|                          |           |               |   | `type-of`                |                    | sass:meta     |
-| `unquote`                |           | sass:string   |   | `call`                   |                    | sass:meta     |
-| `quote`                  |           | sass:string   |   | `content-exists`         |                    | sass:meta     |
-| `str-length`             | `length`  | sass:string   |   | `keywords`               |                    | sass:meta
-| `str-insert`             | `insert`  | sass:string   |   |                          | `module-variables` | sass:meta     |
-| `str-index`              | `index`   | sass:string   |   |                          | `module-functions` | sass:meta     |
-| `str-slice`              | `slice`   | sass:string   |   |                          |                    |               |
-| `to-upper-case`          |           | sass:string   |   | `selector-nest`          | `nest`             | sass:selector |
-| `to-lower-case`          |           | sass:string   |   | `selector-append`        | `append`           | sass:selector |
-| `unique-id`              |           | sass:string   |   | `selector-replace`       | `replace`          | sass:selector |
+| `complement`             |           | sass:color    |   | `nth`                    |                    | sass:list     |
+| `invert`                 |           | sass:color    |   | `set-nth`                |                    | sass:list     |
+| `alpha`                  |           | sass:color    |   | `join`                   |                    | sass:list     |
+| `adjust-color`           | `adjust`  | sass:color    |   | `append`                 |                    | sass:list     |
+| `scale-color`            | `scale`   | sass:color    |   | `zip`                    |                    | sass:list     |
+| `change-color`           | `change`  | sass:color    |   | `index`                  |                    | sass:list     |
+| `ie-hex-str`             |           | sass:color    |   | `list-separator`         | `separator`        | sass:list     |
+|                          |           |               |   |                          |                    |               |
+| `map-get`                | `get`     | sass:map      |   | `feature-exists`         |                    | sass:meta     |
+| `map-merge`              | `merge`   | sass:map      |   | `variable-exists`        |                    | sass:meta     |
+| `map-remove`             | `remove`  | sass:map      |   | `global-variable-exists` |                    | sass:meta     |
+| `map-keys`               | `keys`    | sass:map      |   | `function-exists`        |                    | sass:meta     |
+| `map-values`             | `values`  | sass:map      |   | `mixin-exists`           |                    | sass:meta     |
+| `map-has-key`            | `has-key` | sass:map      |   | `inspect`                |                    | sass:meta     |
+|                          |           |               |   | `get-function`           |                    | sass:meta     |
+| `unquote`                |           | sass:string   |   | `type-of`                |                    | sass:meta     |
+| `quote`                  |           | sass:string   |   | `call`                   |                    | sass:meta     |
+| `str-length`             | `length`  | sass:string   |   | `content-exists`         |                    | sass:meta     |
+| `str-insert`             | `insert`  | sass:string   |   | `keywords`               |                    | sass:meta
+| `str-index`              | `index`   | sass:string   |   |                          | `module-variables` | sass:meta     |
+| `str-slice`              | `slice`   | sass:string   |   |                          | `module-functions` | sass:meta     |
+| `to-upper-case`          |           | sass:string   |   |                          |                    |               |
+| `to-lower-case`          |           | sass:string   |   | `selector-nest`          | `nest`             | sass:selector |
+| `unique-id`              |           | sass:string   |   | `selector-append`        | `append`           | sass:selector |
+|                          |           |               |   | `selector-replace`       | `replace`          | sass:selector |
 |                          |           |               |   | `selector-unify`         | `unify`            | sass:selector |
 |                          |           |               |   | `is-superselector`       |                    | sass:selector |
 |                          |           |               |   | `simple-selectors`       |                    | sass:selector |
@@ -1573,11 +1573,11 @@ In addition, one built-in mixin will be added:
 | ---------- | --------- |
 | `load-css` | sass:meta |
 
-The existing built-in functions `lighten()`, `darken()`, `saturate()`,
-`desaturate()`, `opacify()`, `fade-in()`, `transparentize()`, and `fade-out()`
-will not be added to any module. Instead, functions with the same names will be
-added to the `sass:color` module that will always emit errors suggesting that
-the user use `color.adjust()` instead.
+The existing built-in functions `adjust-hue()`, `lighten()`, `darken()`,
+`saturate()`, `desaturate()`, `opacify()`, `fade-in()`, `transparentize()`, and
+`fade-out()` will not be added to any module. Instead, functions with the same
+names will be added to the `sass:color` module that will always emit errors
+suggesting that the user use `color.adjust()` instead.
 
 > These functions are shorthands for `color.adjust()`. However, `color.adjust()`
 > generally produces less useful results than `color.scale()`, so having

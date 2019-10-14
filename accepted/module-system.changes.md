@@ -1,3 +1,8 @@
+## Draft 8
+
+* Remove `adjust-hue()` from the `sass:color` module. `color.adjust($hue: ...)`
+  should be used instead.
+
 ## Draft 7
 
 * Change the syntax for namespaced variables from `$namespace.name` to
