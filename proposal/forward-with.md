@@ -61,8 +61,10 @@ $saturation: 50% !default;
 // entrypoint.scss
 @use "middleware" with (
   $hue: 120 // override both the origin & middleware !default values
-  // middleware.$saturation will be 70%
 );
+
+// middleware.$hue == 120
+// middleware.$saturation == 70%
 ```
 
 Keyword arguments in the configuration must reference variable names as
