@@ -1,15 +1,13 @@
-# Reconfigurable Modules via "@forward ... with": Draft 1
+# Reconfigurable Modules: Draft 1
 
 *([Issues](https://github.com/sass/sass/issues/2744))*
 
 ## Table of Contents
 
-- [Reconfigurable Modules via "@forward ... with": Draft 1](#reconfigurable-modules-via-%22forward--with%22-draft-1)
-  - [Table of Contents](#table-of-contents)
-  - [Background](#background)
-  - [Summary](#summary)
-  - [Syntax](#syntax)
-  - [Semantics](#semantics)
+- [Background](#background)
+- [Summary](#summary)
+- [Syntax](#syntax)
+- [Semantics](#semantics)
 
 ## Background
 
@@ -51,13 +49,17 @@ origin variables, and variables configured with a `!default` flag will remain co
 // _origin.scss
 $hue: 0 !default;
 $saturation: 50% !default;
+```
 
+```scss
 // _middleware.scss
 @forward "origin" with (
   $hue: 330 !default, // Can be overridden by importing users.
   $saturation: 70% // Cannot be overridden by importing users.
 );
+```
 
+```scss
 // entrypoint.scss
 @use "middleware" with (
   $hue: 120 // override both the origin & middleware !default values
@@ -74,13 +76,17 @@ defined in the forwarded module, regardless of any concurent `as` clause:
 // _origin.scss
 $hue: 0 !default;
 $color-hex: #ccc !default;
+```
 
+```scss
 // _middleware.scss
 @forward "origin" as color-* with (
   $hue: 330, // the color-* prefix is not referenced in configuration
   $color-hex: #966
 );
+```
 
+```scss
 // entrypoint.scss
 @use "middleware" as m;
 // m.$color-hue == 330
@@ -93,7 +99,9 @@ forwarding module acts as an entrypoint:
 ```scss
 // _origin.scss
 $hue: 0 !default;
+```
 
+```scss
 // entrypoint.scss
 @forward "origin" with (
   $hue: 330 !default
@@ -105,51 +113,8 @@ $hue: 0 !default;
 Multiple configurations can be chained in a single cascading "thread" that
 contains zero or more `@forward` rules, and zero or one terminal `@use` rule.
 Variables remain open to configuration in the chain as long as every mention
-includes the `!default` flag:
-
-```scss
-// _origin.scss
-$hue: 0 !default;
-
-// _middle1.scss
-@forward "origin" with (
-  $hue: 330 !default
-);
-
-// _middle2.scss
-@forward "middle1" with (
-  $hue: 120 !default
-);
-
-// entrypoint.scss
-@use "middle2" with (
-  $hue: 30
-);
-
-// middle2.$hue == 30
-```
-
-Multiple threads configuring a single module will cause an error, no matter
-what combinations of `@forward` and `@use` are involved:
-
-```scss
-// _origin.scss
-$hue: 0 !default;
-
-// _middle1.scss
-@forward "origin" with (
-  $hue: 330 !default
-);
-
-// _middle2.scss
-@use "origin" with (
-  $hue: 120
-);
-
-// entrypoint.scss
-@forward "middle1";
-@use "middle2"; // ERROR
-```
+includes the `!default` flag. Multiple threads configuring a single module will
+cause an error, even if they originate in the same file.
 
 ## Syntax
 
@@ -157,10 +122,6 @@ The new `WithClause` extends `@forward` to the follow grammar:
 
 <x><pre>
 **ForwardRule**     ::= '@forward' QuotedString AsClause? (ShowClause | HideClause)?  WithClause?
-**AsClause**        ::= 'as' Identifier '*'
-**ShowClause**      ::= 'show' MemberName (',' MemberName)*
-**HideClause**      ::= 'hide' MemberName (',' MemberName)*
-**MemberName**      ::= '$'? Identifier
 **WithClause**      ::= 'with' '('
 &#32;                     KeywordArgument (',' KeywordArgument)\* ','?
 &#32;                   ')'
@@ -168,3 +129,34 @@ The new `WithClause` extends `@forward` to the follow grammar:
 </pre></x>
 
 ## Semantics
+
+The `@forward ... with` semantics builds on the existing proposal for
+[Forwarding Modules][]. This proposal inserts some additional detail to the
+final step of the process:
+
+[Forwarding Modules]: ../accepted/module-system.md#forwarding-modules
+
+> Previously: "Otherwise, add `member` to `module` with the name `name`."
+
+* Otherwise, if `rule` has a `withClause` `with`:
+
+ * If `file` contains an `@use` rule with the same target URL and another
+   `withClause`, throw an error.
+
+   > A module can only be configured from a single thread of `@forward`'s
+   > ending in an optional `@use`. Parallel configurations are not allowed,
+   > even if they come from the same source `file`.
+
+ * If `with` includes a `KeywordArgument` `agument` with the name `name`
+   (including `$`):
+
+   * If `member` does not have a `!default` flag, throw an error.
+
+     > We can only configure membes that are maked as default.
+
+   * Otherwise, let `value` be the value of `agument`, including the
+     `!default` flag if present.
+
+   * Add `member` to `module` with the name `name` and value `value`.
+
+* Otherwise, add `member` to `module` with the name `name`.
