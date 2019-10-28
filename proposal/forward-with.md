@@ -131,32 +131,44 @@ The new `WithClause` extends `@forward` to the follow grammar:
 ## Semantics
 
 The `@forward ... with` semantics builds on the existing proposal for
-[Forwarding Modules][]. This proposal inserts some additional detail to the
-final step of the process:
+[Executing Files][], and should be understood as modifying and expanding upon
+the existing execution process rather than being a comprehensive replacement.
 
-[Forwarding Modules]: ../accepted/module-system.md#forwarding-modules
+[Executing Files]: ../accepted/module-system.md#executing-files
 
-> Previously: "Otherwise, add `member` to `module` with the name `name`."
+Given a source file `file`, a configuration `config`, and an import context
+`import`:
 
-* Otherwise, if `rule` has a `withClause` `with`:
+* When a `@forward` rule `rule` is encountered:
 
- * If `file` contains an `@use` rule with the same target URL and another
-   `withClause`, throw an error.
+  * For each variable `variable` in `config`:
 
-   > A module can only be configured from a single thread of `@forward`'s
-   > ending in an optional `@use`. Parallel configurations are not allowed,
-   > even if they come from the same source `file`.
+    * Let `rule-config` be an empty configuration.
 
- * If `with` includes a `KeywordArgument` `agument` with the name `name`
-   (including `$`):
+    * If `rule` has an `AsClause` with identifier `prefix`:
 
-   * If `member` does not have a `!default` flag, throw an error.
+      * If `variable`'s name begins with `prefix`, let `name` be the portion of
+        `variable`'s name after `prefix`.
 
-     > We can only configure membes that are maked as default.
+    * Otherwise, let `name` be `variable`'s name.
 
-   * Otherwise, let `value` be the value of `agument`, including the
-     `!default` flag if present.
+    * Add a variable to `rule-config` with the name `name` and with the
+      same value as `variable`.
 
-   * Add `member` to `module` with the name `name` and value `value`.
+  * Otherwise, let `rule-config` be `config`.
 
-* Otherwise, add `member` to `module` with the name `name`.
+  * If `rule` has a `WithClause`:
+
+    * For each `KeywordArgument` `argument` in this clause:
+
+      * Let `value` be the result of evaluating `argument`'s expression.
+
+      * If a variable exists in `rule-config` with the same name as `argument`'s
+        identifier:
+
+        * If `argument` does has a `!default` flag, do nothing.
+
+        * Otherwise, throw an error.
+
+      * Otherwise, add a variable to `rule-config` with the same name as
+        `argument`'s identifier, and with `value` as its value.
