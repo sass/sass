@@ -133,6 +133,7 @@ The new `WithClause` extends `@forward` to the follow grammar:
 The `@forward ... with` semantics builds on the existing proposal for
 [Executing Files][], and should be understood as modifying and expanding upon
 the existing execution process rather than being a comprehensive replacement.
+The `AsClause` logic remains unchanged, but is included here for context.
 
 [Executing Files]: ../accepted/module-system.md#executing-files
 
@@ -141,34 +142,35 @@ Given a source file `file`, a configuration `config`, and an import context
 
 * When a `@forward` rule `rule` is encountered:
 
-  * For each variable `variable` in `config`:
+  * If `rule` has an `AsClause` with identifier `prefix`:
 
     * Let `rule-config` be an empty configuration.
 
-    * If `rule` has an `AsClause` with identifier `prefix`:
+    * For each variable `variable` in `config`:
 
-      * If `variable`'s name begins with `prefix`, let `name` be the portion of
-        `variable`'s name after `prefix`.
+      * If `variable`'s name begins with `prefix`:
 
-    * Otherwise, let `name` be `variable`'s name.
+        * Let `suffix` be the portion of `variable`'s name after `prefix`.
 
-    * Add a variable to `rule-config` with the name `name` and with the
-      same value as `variable`.
+        * Add a variable to `rule-config` with the name `suffix` and with the
+          same value as `variable`.
 
   * Otherwise, let `rule-config` be `config`.
 
   * If `rule` has a `WithClause`:
 
-    * For each `KeywordArgument` `argument` in this clause:
-
-      * Let `value` be the result of evaluating `argument`'s expression.
+    * For each `ForwardWithArgument` `argument` in this clause:
 
       * If a variable exists in `rule-config` with the same name as `argument`'s
         identifier:
 
-        * If `argument` does has a `!default` flag, do nothing.
+        * If `argument` has a `!default` flag, do nothing.
 
         * Otherwise, throw an error.
 
-      * Otherwise, add a variable to `rule-config` with the same name as
-        `argument`'s identifier, and with `value` as its value.
+      * Otherwise:
+
+        * Let `value` be the result of evaluating `argument`'s expression.
+
+        * Add a variable to `rule-config` with the same name as `argument`'s
+          identifier, and with `value` as its value.
