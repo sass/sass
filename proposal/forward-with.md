@@ -125,7 +125,7 @@ The new `WithClause` extends `@forward` to the follow grammar:
 **WithClause**      ::= 'with' '('
 &#32;                     KeywordArgument (',' KeywordArgument)\* ','?
 &#32;                   ')'
-**KeywordArgument** ::= '$' Identifier ':' Expression ('!default')
+**ForwardWithArgument** ::= '$' Identifier ':' Expression '!default'?
 </pre></x>
 
 ## Semantics
