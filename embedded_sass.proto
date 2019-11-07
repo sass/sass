@@ -324,7 +324,9 @@ message OutboundMessage {
   // If Sass has already loaded a stylesheet with the returned canonical URL, it
   // re-uses the existing parse tree. This means that importers must ensure that
   // the same canonical URL always refers to the same stylesheet, *even across
-  // different importers*.
+  // different importers*. Importers must also ensure that any canonicalized
+  // URLs they return can be passed back to `CanonicalizeRequest` and will be
+  // returned unchanged.
   //
   // If this importer's URL format supports file extensions, it should
   // canonicalize them the same way as the default filesystem importer:
