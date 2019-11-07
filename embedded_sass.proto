@@ -433,7 +433,7 @@ message OutboundMessage {
     // the given signature, that default argument values are instantiated
     // appropriately, and that variable argument lists (`$args...`) are passed
     // as `Value.ArgumentList`s.
-    repeated Value value = 5;
+    repeated Value arguments = 5;
   }
 
   // A response indicating the result of calling a first-class Sass function
@@ -694,9 +694,9 @@ message Value {
     HslColor hsl_color = 4;
     List list = 5;
     Map map = 6;
-    True trueValue = 7;
-    False falseValue = 8;
-    Null null = 9;
+    True true_value = 7;
+    False false_value = 8;
+    Null null_value = 9;
     CompilerFunction compiler_function = 10;
     HostFunction host_function = 11;
   }
