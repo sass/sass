@@ -569,7 +569,7 @@ message Value {
     // The color's blue channel. Mandatory. May not be above 255.
     uint32 blue = 3;
 
-    // The color's alpha channel. Manddatory. Must be between 0 and 1,
+    // The color's alpha channel. Mandatory. Must be between 0 and 1,
     // inclusive.
     double alpha = 4;
   }
@@ -587,7 +587,7 @@ message Value {
     // inclusive.
     double lightness = 3;
 
-    // The color's alpha channel. Manddatory. Must be between 0 and 1,
+    // The color's alpha channel. Mandatory. Must be between 0 and 1,
     // inclusive.
     double alpha = 4;
   }
