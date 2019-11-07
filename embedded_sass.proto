@@ -641,14 +641,17 @@ message Value {
     repeated Entry entries = 1;
   }
 
-  // A singleton type representing the Sass `true` value.
-  message True {}
+  // Singleton SassScript values that have no internal state.
+  enum Singleton {
+    // The SassScript boolean true value.
+    TRUE = 0;
 
-  // A singleton type representing the Sass `false` value.
-  message False {}
+    // The SassScript boolean false value.
+    FALSE = 1;
 
-  // A singleton type representing the Sass `null` value.
-  message Null {}
+    // The SassScript null value.
+    NULL = 2;
+  }
 
   // A first-class function defined in the compiler. New `CompilerFunction`s may
   // only be created by the compiler, but the host may pass `CompilerFunction`s
@@ -694,10 +697,8 @@ message Value {
     HslColor hsl_color = 4;
     List list = 5;
     Map map = 6;
-    True true_value = 7;
-    False false_value = 8;
-    Null null_value = 9;
-    CompilerFunction compiler_function = 10;
-    HostFunction host_function = 11;
+    Singleton singleton = 7;
+    CompilerFunction compiler_function = 8;
+    HostFunction host_function = 9;
   }
 }
