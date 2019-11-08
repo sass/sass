@@ -122,7 +122,34 @@ within the [module system spec][] to read as follows:
       or imported by `file` contains a variable declaration named `name` with a
       `!default` flag at the root of the stylesheet, throw an error.
 
+This proposal also modifies the fifth bullet to read as follows:
+
+* When a `@forward` rule `rule` is encountered:
+
+  * If `rule` has an `AsClause` with identifier `prefix`:
+
+    * Let `rule-config` be an empty configuration. **`rule-config` is implicit
+      if `config` is implicit and explicit otherwise.**
+
+    * For each variable `variable` in `config`:
+
+      * If `variable`'s name begins with `prefix`:
+
+        * Let `suffix` be the portion of `variable`'s name after `prefix`.
+
+        * Add a variable to `rule-config` with the name `suffix` and with the
+          same value as `variable`.
+
+  * Otherwise, let `rule-config` be `config`.
+
+  * Let `forwarded` be the result of [loading][] the module with `rule`'s URL
+    and `rule-config`.
+
+  * [Forward `forwarded`][] with `file` through `module`.
+
 [Executing Files]: ../accepted/module-system.md#executing-files
+[loading]: ../accepted/module-system.md#executing-files
+[Forward `forwarded`]: ../accepted/module-system.md#forwarding-modules
 
 ### Importing Files
 
@@ -134,8 +161,12 @@ and a mutable [module][] `module`.
 
 * If `file` is currently being executed, throw an error.
 
-* **Let `config` be an implicit configuration containing every variable
-  defined in `import`.**
+* **Let `config` be an implicit configuration containing every variable defined
+  in `import`.**
+
+  > If `file` does not contain any `@forward` rules, `config` will never be
+  > used, so implementations may wish to skip this step and use the empty
+  > configuration instead in that case for performance reasons.
 
 * Let `imported` be the result of [executing][] `file` with ~~the empty
   configuration~~ **`config` as its configuration** and `import` as
@@ -158,4 +189,4 @@ and a mutable [module][] `module`.
 [module]: ../accepted/module-system.md#module
 [executing]: ../accepted/module-system.md#executing-files
 [resolving extensions]: ../accepted/module-system.md#resolving-extensions
-[extension]: ../accepted/module-system.md#extension
+[extensions]: ../accepted/module-system.md#extension
