@@ -116,13 +116,17 @@ message InboundMessage {
       // including scheme.
       string url = 2;
 
-      // A path on disk to look for the file to load. The host must resolve
+      // A path on disk to look for the file to load. The compiler must resolve
       // partials, file extensions, and index files to determine whether a file
       // actually exists and what its canonical URL is.
       //
       // This response exists as a shorthand for importers that just encode
       // logic for finding files, so they don't have to re-implement all of
       // Sass's resolution logic.
+      //
+      // If an importer returns this reponse, it must accept also
+      // canonicalization requests for `file:` URLs. The responses to these
+      // requests may return those URLs as-is using the `url` response.
       string file = 3;
 
       // An error message explaining why canonicalization failed.
@@ -152,6 +156,8 @@ message InboundMessage {
       // This should be a `file:` URL if one is available, but an `http:` URL is
       // acceptable as well. If no URL is supplied, a `data:` URL is generated
       // automatically from `contents`.
+      //
+      // If this is provided, it must be an absolute URL, including scheme.
       string sourceMapUrl = 3;
     }
 
@@ -388,7 +394,7 @@ message OutboundMessage {
 
   // A request for a custom importer to load the contents of a stylesheet.
   message ImportRequest {
-    uint32 id =1;
+    uint32 id = 1;
 
     // The request id for the compilation that triggered the message. Mandatory.
     uint32 compilation_id = 2;

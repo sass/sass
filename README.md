@@ -103,7 +103,8 @@ scalar-typed fields.
 When one endpoint detects that the other is violating this protocol, it must
 send a `ProtocolError` message to the other endpoint. If the error was detected
 when processing a request, the `ProtocolError` must have its `id` field set to
-the request's id. Otherwise, the `id` field must be set to `-1`.
+the request's id. Otherwise, even if the error was detected while processing a
+response with an id, the `id` field must be set to `-1`.
 
 A `ProtocolError` must be sent whenever any requirements set out by this
 protocol (including the documentation in `embedded_sass.proto`) are violated.
@@ -116,6 +117,9 @@ This includes, but is not limited to:
 
 * Sending a response with an ID that doesn't correspond to an in-flight
   request's ID.
+
+* Sending a response with an ID that corresponds to the ID of an in-flight
+  request ID of the incorrect type.
 
 * Sending a message with a `null` value for a mandatory field.
 
