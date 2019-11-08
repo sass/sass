@@ -324,7 +324,9 @@ message OutboundMessage {
   // If Sass has already loaded a stylesheet with the returned canonical URL, it
   // re-uses the existing parse tree. This means that importers must ensure that
   // the same canonical URL always refers to the same stylesheet, *even across
-  // different importers*.
+  // different importers*. Importers must also ensure that any canonicalized
+  // URLs they return can be passed back to `CanonicalizeRequest` and will be
+  // returned unchanged.
   //
   // If this importer's URL format supports file extensions, it should
   // canonicalize them the same way as the default filesystem importer:
@@ -431,7 +433,7 @@ message OutboundMessage {
     // the given signature, that default argument values are instantiated
     // appropriately, and that variable argument lists (`$args...`) are passed
     // as `Value.ArgumentList`s.
-    repeated Value value = 5;
+    repeated Value arguments = 5;
   }
 
   // A response indicating the result of calling a first-class Sass function
@@ -569,7 +571,7 @@ message Value {
     // The color's blue channel. Mandatory. May not be above 255.
     uint32 blue = 3;
 
-    // The color's alpha channel. Manddatory. Must be between 0 and 1,
+    // The color's alpha channel. Mandatory. Must be between 0 and 1,
     // inclusive.
     double alpha = 4;
   }
@@ -587,7 +589,7 @@ message Value {
     // inclusive.
     double lightness = 3;
 
-    // The color's alpha channel. Manddatory. Must be between 0 and 1,
+    // The color's alpha channel. Mandatory. Must be between 0 and 1,
     // inclusive.
     double alpha = 4;
   }
@@ -639,14 +641,17 @@ message Value {
     repeated Entry entries = 1;
   }
 
-  // A singleton type representing the Sass `true` value.
-  message True {}
+  // Singleton SassScript values that have no internal state.
+  enum Singleton {
+    // The SassScript boolean true value.
+    TRUE = 0;
 
-  // A singleton type representing the Sass `false` value.
-  message False {}
+    // The SassScript boolean false value.
+    FALSE = 1;
 
-  // A singleton type representing the Sass `null` value.
-  message Null {}
+    // The SassScript null value.
+    NULL = 2;
+  }
 
   // A first-class function defined in the compiler. New `CompilerFunction`s may
   // only be created by the compiler, but the host may pass `CompilerFunction`s
@@ -692,10 +697,8 @@ message Value {
     HslColor hsl_color = 4;
     List list = 5;
     Map map = 6;
-    True trueValue = 7;
-    False falseValue = 8;
-    Null null = 9;
-    CompilerFunction compiler_function = 10;
-    HostFunction host_function = 11;
+    Singleton singleton = 7;
+    CompilerFunction compiler_function = 8;
+    HostFunction host_function = 9;
   }
 }

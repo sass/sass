@@ -77,7 +77,7 @@ of RPC:
 * *Events* may not be responded to and include no `id` field. All event message
   types end with `Event`.
 * The `ProtocolError` message, which is sent when one endpoint detects that the
-  other is doing something invalid. See [Error Handling][#error-handling] below.
+  other is doing something invalid. See [Error Handling](#error-handling) below.
 
 The protocol also defines some messages whose names don't end with `Request`,
 `Response`, or `Event`. These are used as structures shared between different
