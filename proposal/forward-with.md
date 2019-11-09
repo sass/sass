@@ -141,7 +141,7 @@ Given a source file `file`, a configuration `config`, and an import context
 
 * Let `module` be an empty module with the same URL as `file`.
 
-* Let `uses` be an empty map from `@use` rules to [modules](#module).
+* Let `uses` be an empty map from `@use` rules to [modules][].
 
 * When a `@use` rule `rule` is encountered:
 
@@ -214,5 +214,6 @@ Given a source file `file`, a configuration `config`, and an import context
 
 > From this point on, the logic remains unchanged.
 
+[modules]: ../accepted/module-system.md#module
 [loading]: ../accepted/module-system.md#loading-modules
 [forwarding]: ../accepted/module-system.md#forwarding-modules
