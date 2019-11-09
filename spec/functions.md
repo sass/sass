@@ -1,14 +1,16 @@
-# Color Functions
+# Functions
 
 ## Table of Contents
 
 * [Definitions](#definitions)
   * [Special Number String](#special-number-string)
   * [Special Variable String](#special-variable-string)
-* [Procedures](#procedures)
-  * [Percent-Converting a Number](#percent-converting-a-number)
-* [`rgb()` and `rgba()`](#rgb-and-rgba)
-* [`hsl()` and `hsla()`](#hsl-and-hsla)
+* [Syntax](#syntax)
+* [Semantics](#semantics)
+* [Global Functions](#global-functions)
+  * [`rgb()` and `rgba()`](#rgb-and-rgba)
+  * [`hsl()` and `hsla()`](#hsl-and-hsla)
+  * [`if()`](#if)
 
 ## Definitions
 
@@ -33,21 +35,64 @@ A *special variable string* is [special number string][] that begins with
 > Unlike other special number strings, variables can expand into multiple
 > arguments to a single function.
 
-## Procedures
+## Syntax
 
-### Percent-Converting a Number 
+<x><pre>
+**FunctionCall** ::= [NamespacedIdentifier][] ArgumentInvocation
+</pre></x>
 
-This algorithm takes a SassScript number `number` and a number `max`. It returns
-a number between 0 and `max`.
+[NamespacedIdentifier]: modules.md#syntax
 
-* If `number` has units other than `%`, throw an error.
+No whitespace is allowed between the `NamespacedIdentifier` and the
+`ArgumentInvocation` in `FunctionCall`.
 
-* If `number` has the unit `%`, set `number` to `number * max / 100`, without
-  units.
+## Semantics
 
-* Return `number`, clamped between 0 and `max`.
+To evaluate a `FunctionCall` `call`:
 
-## `rgb()` and `rgba()`
+* Let `name` be `call`'s `NamespacedIdentifier`.
+
+* Let `function` be the result of [resolving a function][] named `name`.
+
+  [resolving a function]: ../modules.md#resolving-a-member
+
+* If `function` is null and `name` is not a plain `Identifier`, throw an error.
+
+* If `function` is null, set it to the [global function](#global-functions)
+  named `name`.
+
+* If `function` is still null:
+
+  * Let `list` be the result of evaluating `call`'s `ArgumentInvocation`.
+
+  * If `list` has keywords, throw an error.
+
+  * Return an unquoted string representing a CSS function call with name `name`
+    and arguments `list`.
+
+* Execute `call`'s `ArgumentInvocation` with `function`'s `ArgumentDeclaration`
+  in `function`'s scope.
+
+* Execute each statement in `function` until a `ReturnRule` `return` that's
+  lexically contained in `function`'s `Statements` is encountered. If no such
+  statement is encountered, throw an error.
+
+* Evaluate `return`'s `Expression` and return the result.
+
+## Global Functions
+
+> While most built-in Sass functions are defined in [built-in modules][], a few
+> are globally available with no `@use` necessary. These are mostly functions
+> that expand upon the behavior of plain CSS functions.
+>
+> [built-in modules]: modules.md#built-in-modules
+>
+> In addition, many functions that *are* defined in built-in modules have global
+> aliases for backwards-compatibility with stylesheets written before `@use` was
+> introduced. These global aliases should be avoided by stylesheet authors if
+> possible.
+
+### `rgb()` and `rgba()`
 
 The `rgba()` function is identical to `rgb()`, except that if it would return a
 plain CSS function named `"rgb"` that function is named `"rgba"` instead.
@@ -66,7 +111,7 @@ plain CSS function named `"rgb"` that function is named `"rgba"` instead.
   * Let `red`, `green`, and `blue` be the result of [percent-converting][]
     `$red`, `$green`, and `$blue`, respectively, with a `max` of 255.
 
-    [percent-converting]: #percent-converting-a-number
+    [percent-converting]: built_in_modules/color.md#percent-converting-a-number
 
   * Let `alpha` be the result of percent-converting `$alpha` with a `max` of 1.
 
@@ -141,7 +186,7 @@ plain CSS function named `"rgb"` that function is named `"rgba"` instead.
   * Call `rgb()` with `red`, `green`, `blue`, and `alpha` (if it's defined) as
     arguments and return the result.
 
-## `hsl()` and `hsla()`
+### `hsl()` and `hsla()`
 
 The `hsla()` function is identical to `hsl()`, except that if it would return a
 plain CSS function named `"hsl"` that function is named `"hsla"` instead.
@@ -237,3 +282,9 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
 
   * Call `hsl()` with `hue`, `saturation`, `lightness`, and `alpha` (if it's
     defined) as arguments and return the result.
+
+### `if()`
+
+```
+if($condition, $if-true, $if-false)
+```

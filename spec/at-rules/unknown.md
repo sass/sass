@@ -14,9 +14,9 @@ structures it allows. It uses the following grammar:
 No whitespace is allowed after `@`. As with all statements, an `UnknownAtRule`
 without a block must be separated from other statements with a semicolon.
 
-When an at-rule is evaluated, its name is evaluated to produce an unquoted
-string which is used as the name of the generated at-rule. Then that generated
-name is checked to see if it's an at-rule that has special runtime handling.
+When an at-rule is executed, its name is evaluated to produce an unquoted string
+which is used as the name of the generated at-rule. Then that generated name is
+checked to see if it's an at-rule that has special runtime handling.
 
 > Note that only `@keyframes` has special runtime handling that's triggered
 > here. Other CSS at-rules that Sass handles specially, like `@media` or
