@@ -133,12 +133,44 @@ The new `WithClause` extends `@forward` to the follow grammar:
 The `@forward ... with` semantics builds on the existing proposal for
 [Executing Files][], and should be understood as modifying and expanding upon
 the existing execution process rather than being a comprehensive replacement.
-The `AsClause` logic remains unchanged, but is included here for context.
 
 [Executing Files]: ../accepted/module-system.md#executing-files
 
 Given a source file `file`, a configuration `config`, and an import context
 `import`:
+
+* Let `module` be an empty module with the same URL as `file`.
+
+* Let `uses` be an empty map from `@use` rules to [modules](#module).
+
+* When a `@use` rule `rule` is encountered:
+
+  * If `rule` has a namespace that's the same as another `@use` rule's namespace
+    in `file`, throw an error.
+
+  * Let `rule-config` be the empty configuration.
+
+  * If `rule` has a `WithClause`:
+
+    * Let `target` be the module at `rule`'s URL.
+
+    * For each `KeywordArgument` `argument` in this clause:
+
+      * If `target`'s public API does not include a variable with `argument`'s
+        name and a `!default` flag, throw an error.
+
+        > We now check for configuration errors inside each individual
+        > `withClause`, rather than waiting until the target module is execurted.
+
+      * Let `value` be the result of evaluating `argument`'s expression.
+
+      * Add a variable to `rule-config` with the same name as `argument`'s
+        identifier and with `value` as its value.
+
+  * Let `module` be the result of [loading][] the module with `rule`'s URL
+    and `rule-config`.
+
+  * Associate `rule` with `module` in `uses`.
 
 * When a `@forward` rule `rule` is encountered:
 
@@ -159,14 +191,15 @@ Given a source file `file`, a configuration `config`, and an import context
 
   * If `rule` has a `WithClause`:
 
+    * Let `target` be the module at `rule`'s URL.
+
     * For each `ForwardWithArgument` `argument` in this clause:
 
+      * If `target`'s public API does not include a variable with the same name
+        as `argument`'s identifier, and a `!default` flag, throw an error.
+
       * If a variable exists in `rule-config` with the same name as `argument`'s
-        identifier:
-
-        * If `argument` has a `!default` flag, do nothing.
-
-        * Otherwise, throw an error.
+        identifier, do nothing.
 
       * Otherwise:
 
@@ -174,3 +207,13 @@ Given a source file `file`, a configuration `config`, and an import context
 
         * Add a variable to `rule-config` with the same name as `argument`'s
           identifier, and with `value` as its value.
+
+  * Let `forwarded` be the result of [loading][] the module with `rule`'s URL
+    and `rule-config`.
+
+  * [Forward `forwarded`][forwarding] with `file` through `module`.
+
+> From this point on, the logic remains unchanged.
+
+[loading]: ../accepted/module-system.md#loading-modules
+[forwarding]: ../accepted/module-system.md#forwarding-modules
