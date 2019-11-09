@@ -152,15 +152,15 @@ Given a source file `file`, a configuration `config`, and an import context
 
   * If `rule` has a `WithClause`:
 
-    * Let `target` be the module at `rule`'s URL.
-
     * For each `KeywordArgument` `argument` in this clause:
 
-      * If `target`'s public API does not include a variable with `argument`'s
-        name and a `!default` flag, throw an error.
+      * If the public API of the module at `rule`'s URL does not contain a
+        variable with the same name as `argument`'s identifier and a `!default`
+        flag, throw an error.
 
         > We now check for configuration errors inside each individual
-        > `withClause`, rather than waiting until the target module is execurted.
+        > `withClause`, rather than waiting for execution of the used or
+        > forwarded module. This simplifies thge logic of error-checking.
 
       * Let `value` be the result of evaluating `argument`'s expression.
 
@@ -191,12 +191,11 @@ Given a source file `file`, a configuration `config`, and an import context
 
   * If `rule` has a `WithClause`:
 
-    * Let `target` be the module at `rule`'s URL.
-
     * For each `ForwardWithArgument` `argument` in this clause:
 
-      * If `target`'s public API does not include a variable with the same name
-        as `argument`'s identifier, and a `!default` flag, throw an error.
+      * If the public API of the module at `rule`'s URL does not contain a
+        variable with the same name as `argument`'s identifier and a `!default`
+        flag, throw an error.
 
       * If a variable exists in `rule-config` with the same name as `argument`'s
         identifier, do nothing.
