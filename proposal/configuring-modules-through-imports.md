@@ -69,18 +69,51 @@ We considered a few alternatives in designing this proposal.
 
 One alternative did not involve any language changes at all, instead
 recommending that library authors add `@use` rules explicitly configuring their
-variables to their [import-only files][] when migrating. While this would work
-for simple libraries with a single entrypoint, libraries with multiple
-components that depend on common sublibraries but can be imported separately
-would often break, as this solution would attempt to configure some modules
-more than once.
+variables to their [import-only files][] when migrating. For example:
+
+```scss
+// app.scss
+$lib-color: blue;
+@import "library";
+
+// _library.scss
+$color: green !default;
+
+// _library.import.scss
+@use "sass:meta";
+@use "library" with (
+  $color: if(meta.variable-defined("lib-color"), $lib-color, null)
+);
+@forward "library" as lib-*;
+```
+
+While this would work for simple libraries with a single entrypoint, libraries
+with multiple components that depend on common sublibraries but can be imported
+separately would often break, as this solution would attempt to configure some
+modules more than once. The same would happen if you imported even a simple
+library more than once.
 
 An alternative to just ignoring subsequent implicit configurations would be to
 (a) filter them to include only variables that are actually configurable and
 (b) allow the subsequent configuration only if it exactly matched the previous
-one, but doing this matching could hurt performance.
+one, but doing this matching could hurt performance. This would also still cause
+issues if the same library is imported more than once.
+
+While the solution we settled on does not perfectly cover all use cases that
+worked before the library migrated to the module system, we think it strikes a
+good balance of supporting most existing use cases without hurting performance
+or making the language specification and implementation overly complicated.
+
+One potential use case that will still not work is if a downstream user of the
+library attempts to change its configuration between two imports of the same
+library, that change will be ignored. However, this is an edge case that is (a)
+probably not intended by the user, (b) relatively easy to fix by moving all
+declared configuration variables before all library imports, and (c) very
+difficult to support for a library using the module system without compromising
+the module system's [goals][].
 
 [import-only files]: ../accepted/module-system.md#import-compatibility
+[goals]: ../accepted/module-system.md#goals
 
 ## Definitions
 
@@ -148,7 +181,7 @@ This proposal also modifies the fifth bullet to read as follows:
   * [Forward `forwarded`][] with `file` through `module`.
 
 [Executing Files]: ../accepted/module-system.md#executing-files
-[loading]: ../accepted/module-system.md#executing-files
+[loading]: ../accepted/module-system.md#loading-modules
 [Forward `forwarded`]: ../accepted/module-system.md#forwarding-modules
 
 ### Importing Files
