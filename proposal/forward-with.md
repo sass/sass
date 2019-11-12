@@ -158,10 +158,6 @@ Given a source file `file`, a configuration `config`, and an import context
         variable with the same name as `argument`'s identifier and a `!default`
         flag, throw an error.
 
-        > We now check for configuration errors inside each individual
-        > `withClause`, rather than waiting for execution of the used or
-        > forwarded module. This simplifies thge logic of error-checking.
-
       * Let `value` be the result of evaluating `argument`'s expression.
 
       * Add a variable to `rule-config` with the same name as `argument`'s
