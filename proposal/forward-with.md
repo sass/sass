@@ -41,7 +41,8 @@ of the root module, without removing that option for end-users.
 Sass will add a `with` clause to `@forward`. The `@forward ... with` syntax is
 based on the `@use ... with` syntax, but allows the addition of `!default` flags
 similar to a [variable declaration][]. Unlike `@use ... with`, unconfigured
-origin variables, and variables configured with a `!default` flag will remain configurable by any file importing the combined module. For example:
+origin variables, and variables configured with a `!default` flag, will remain
+configurable by any file importing the combined module. For example:
 
 [variable declaration]: https://github.com/sass/sass/blob/master/spec/variables.md#syntax
 
