@@ -39,7 +39,7 @@ of the root module, without removing that option for end-users.
 > This section is non-normative.
 
 Sass will add a `with` clause to `@forward`. The `@forward ... with` syntax is
-similar to `@use ... with`, but also allows additional `!default` flags,
+based on the `@use ... with` syntax, but allows the addition of `!default` flags
 similar to a [variable declaration][]. Unlike `@use ... with`, unconfigured
 origin variables, and variables configured with a `!default` flag will remain configurable by any file importing the combined module. For example:
 
