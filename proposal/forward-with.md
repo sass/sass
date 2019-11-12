@@ -154,10 +154,6 @@ Given a source file `file`, a configuration `config`, and an import context
 
     * For each `KeywordArgument` `argument` in this clause:
 
-      * If the public API of the module at `rule`'s URL does not contain a
-        variable with the same name as `argument`'s identifier and a `!default`
-        flag, throw an error.
-
       * Let `value` be the result of evaluating `argument`'s expression.
 
       * Add a variable to `rule-config` with the same name as `argument`'s
@@ -165,6 +161,10 @@ Given a source file `file`, a configuration `config`, and an import context
 
   * Let `module` be the result of [loading][] the module with `rule`'s URL
     and `rule-config`.
+
+  * If `rule` has a `WithClause` that contains any variables that aren't part of
+    `module`'s public API or that weren't declared with a `!default` flag in
+    `module`, throw an error.
 
   * Associate `rule` with `module` in `uses`.
 
@@ -189,10 +189,6 @@ Given a source file `file`, a configuration `config`, and an import context
 
     * For each `ForwardWithArgument` `argument` in this clause:
 
-      * If the public API of the module at `rule`'s URL does not contain a
-        variable with the same name as `argument`'s identifier and a `!default`
-        flag, throw an error.
-
       * If a variable exists in `rule-config` with the same name as `argument`'s
         identifier, do nothing.
 
@@ -205,6 +201,10 @@ Given a source file `file`, a configuration `config`, and an import context
 
   * Let `forwarded` be the result of [loading][] the module with `rule`'s URL
     and `rule-config`.
+
+  * If `rule` has a `WithClause` that contains any variables that aren't part of
+    `forwarded`'s public API or that weren't declared with a `!default` flag in
+    `forwarded`, throw an error.
 
   * [Forward `forwarded`][forwarding] with `file` through `module`.
 
