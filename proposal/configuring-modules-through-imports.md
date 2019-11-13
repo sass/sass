@@ -30,7 +30,13 @@ the module system without breaking downstream users that haven't migrated yet,
 especially if the library removed a manual prefix from its members during
 migration, as it would usually preserve the original names for downstream users
 by creating an import-only file that forwards the regular stylesheet with a
-prefix.
+prefix. Because it is nearly impossible to migrate these cases incrementally,
+this violates the module system's [backwards compatibility goal][]. Libraries
+with prefixes and configuration variables are common, and without an incremental
+migration solution, these libraries may be slow to start using the module
+system, limiting its adoption by the ecosystem as a whole.
+
+[backwards compatibility goal]: ../accepted/module-system.md#low-level
 
 ## Summary
 
@@ -104,16 +110,16 @@ worked before the library migrated to the module system, we think it strikes a
 good balance of supporting most existing use cases without hurting performance
 or making the language specification and implementation overly complicated.
 
-One potential use case that will still not work is if a downstream user of the
-library attempts to change its configuration between two imports of the same
-library, that change will be ignored. However, this is an edge case that is (a)
-probably not intended by the user, (b) relatively easy to fix by moving all
-declared configuration variables before all library imports, and (c) very
-difficult to support for a library using the module system without compromising
-the module system's [goals][].
+For example, if a downstream user imports a library twice and changes its
+configuration between the two imports, the change will be ignored. However,
+this is an edge case that is (a) probably not intended by the user, (b)
+relatively easy to fix by moving all declared configuration variables before
+all library imports, and (c) very difficult to support for a library using the
+module system without compromising the module system's [import once goal][], as
+handling this case would require modules in the library to be executed twice.
 
 [import-only files]: ../accepted/module-system.md#import-compatibility
-[goals]: ../accepted/module-system.md#goals
+[import once goal]: ../accepted/module-system.md#low-level
 
 ## Definitions
 
