@@ -26,16 +26,19 @@ automatically, there's no way for a stylesheet using `@import` to configure
 members that are behind a `@forward` rule.
 
 This makes it difficult for libraries with configurable variables to migrate to
-the module system without breaking downstream users that haven't migrated yet,
-especially if the library removed a manual prefix from its members during
-migration, as it would usually preserve the original names for downstream users
-by creating an import-only file that forwards the regular stylesheet with a
-prefix. Because it is nearly impossible to migrate these cases incrementally,
-this violates the module system's [backwards compatibility goal][]. Libraries
-with prefixes and configuration variables are common, and without an incremental
+the module system without breaking downstream users that haven't migrated yet.
+This is especially true if the library removed a manual prefix from its members
+during migration. When the [migrator][] does this, it creates an import-only file
+that forwards the regular stylesheet with the prefix added back, but that
+`@forward` rule means configuration doesn't work.
+
+Because it is nearly impossible to migrate these cases incrementally, this
+violates the module system's [backwards compatibility goal][]. Libraries with
+prefixes and configuration variables are common, and without an incremental
 migration solution, these libraries may be slow to start using the module
 system, limiting its adoption by the ecosystem as a whole.
 
+[migrator]: https://sass-lang.com/documentation/cli/migrator#remove-prefix
 [backwards compatibility goal]: ../accepted/module-system.md#low-level
 
 ## Summary
