@@ -1480,7 +1480,10 @@ context](#import-context) `import`, and a mutable [module](#module) `module`.
 
 * Add `imported`'s [extensions](#extension) to `module`.
 
-* Add each member in `imported` to `import` and `module`.
+* If the `@import` rule is nested within at-rules and/or style rules, add each
+  member in `imported` to the local [scope][].
+
+* Otherwise, add each member in `imported` to `import` and `module`.
 
   > Members defined directly in `imported` will have already been added to
   > `import` in the course of its execution. This only adds members that
