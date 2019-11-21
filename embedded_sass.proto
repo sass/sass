@@ -171,27 +171,6 @@ message InboundMessage {
     }
   }
 
-  // A request that the compiler invoke a first-class Sass function passed as a
-  // `Value.CompilerFunction`.
-  //
-  // If the function invocation fails, the compiler must throw an error and stop
-  // compilation. It must not return the error to the host.
-  message FunctionCallRequest {
-    uint32 id = 1;
-
-    // The ID of the function to invoke. This must match the ID of a
-    // `Value.CompilerFunction` that was passed from the compiler to the host
-    // during this compilation.
-    uint32 function_id = 2;
-
-    // The arguments to pass by position to the function.
-    repeated Value positional = 3;
-
-    // The arguments to pass by name to the function. Each name must include the
-    // prefix character `$`.
-    map<string, Value> named = 4;
-  }
-
   // A response indicating the result of calling a custom Sass function defined
   // in the host.
   message FunctionCallResponse {
@@ -225,7 +204,6 @@ message InboundMessage {
     CompileRequest compileRequest = 2;
     CanonicalizeResponse canonicalizeResponse = 3;
     ImportResponse importResponse = 4;
-    FunctionCallRequest functionCallRequest = 5;
     FunctionCallResponse functionCallResponse = 6;
   }
 }
@@ -442,15 +420,6 @@ message OutboundMessage {
     repeated Value arguments = 5;
   }
 
-  // A response indicating the result of calling a first-class Sass function
-  // defined in the compiler.
-  message FunctionCallResponse {
-    uint32 id = 1;
-
-    // The return value of a successful function call.
-    Value result = 2;
-  }
-
   // The wrapped message. Mandatory.
   oneof message {
     ProtocolError error = 1;
@@ -459,7 +428,6 @@ message OutboundMessage {
     CanonicalizeRequest canonicalizeRequest = 4;
     ImportRequest importRequest = 5;
     FunctionCallRequest functionCallRequest = 6;
-    FunctionCallResponse functionCallResponse = 7;
   }
 }
 
