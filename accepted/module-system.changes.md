@@ -1,3 +1,7 @@
+## Draft 9
+
+* Don't add imported module members to the global scope for a nested import.
+
 ## Draft 8
 
 * Remove `adjust-hue()` from the `sass:color` module. `color.adjust($hue: ...)`
