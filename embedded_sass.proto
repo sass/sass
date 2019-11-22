@@ -123,10 +123,6 @@ message InboundMessage {
       // This response exists as a shorthand for importers that just encode
       // logic for finding files, so they don't have to re-implement all of
       // Sass's resolution logic.
-      //
-      // If an importer returns this reponse, it must accept also
-      // canonicalization requests for `file:` URLs. The responses to these
-      // requests may return those URLs as-is using the `url` response.
       string file = 3;
 
       // An error message explaining why canonicalization failed.
