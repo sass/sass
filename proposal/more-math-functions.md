@@ -6,8 +6,8 @@ This proposal adds the following members to the built-in `sass:math` module.
 
 ## Table of Contents
 * [Variables](#variables)
-  * [`$e`](#$e)
-  * [`$pi`](#$pi)
+  * [`$e`](#e)
+  * [`$pi`](#pi)
 * [Functions](#functions)
   * [`clamp()`](#clamp)
   * [`hypot()`](#hypot)
