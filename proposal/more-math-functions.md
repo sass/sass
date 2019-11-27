@@ -144,8 +144,8 @@ cos($number)
 * Throw an error if `$number` has units but is not an [angle][]. If `$number` is
   unitless, it is assumed to be in radians.
 * Return `NaN` if `$number == Infinity`.
-* Return the [cosine][] of `$number`, which is a unitless number between `-1`
-  and `1`, exclusive.
+* Return the [cosine][] of `$number`, which yields a unitless number between
+  `-1` and `1`, exclusive.
 
 [angle]: https://drafts.csswg.org/css-values-4/#angles
 [cosine]: https://en.wikipedia.org/wiki/Trigonometric_functions#Right-angled_triangle_definitions
@@ -160,8 +160,8 @@ sin($number)
   unitless, it is assumed to be in radians.
 * Return `NaN` if `$number == Infinity`.
 * Return `-0` if `$number == -0`.
-* Return the [sine][] of `$number`, which is a unitless number between `-1` and
-  `1`, exclusive.
+* Return the [sine][] of `$number`, which yields a unitless number between `-1`
+  and `1`, exclusive.
 
 [sine]: https://en.wikipedia.org/wiki/Trigonometric_functions#Right-angled_triangle_definitions
 
@@ -175,11 +175,11 @@ tan($number)
   unitless, it is assumed to be in radians.
 * Return `NaN` if `$number == Infinity`.
 * Return `-0` if `$number == -0`.
-* Return `Infinity` if `$number == 90 +/- (360 * n)`, where `n` is any
-  integer.
-* Return `-Infinity` if `$number == -90 +/- (360 * n)`, where `n` is any
-  integer.
-* Return the [tangent][] of `$number`, which is a unitless number between
+* Return `Infinity` if `$number` is equivalent to `90 +/- (360 * n) deg`, where
+  `n` is any integer.
+* Return `-Infinity` if `$number` is equivalent to `-90 +/- (360 * n) deg`,
+  where `n` is any integer.
+* Return the [tangent][] of `$number`, which yields a unitless number between
   `-Infinity` and `Infinity`.
 
 [tangent]: https://en.wikipedia.org/wiki/Trigonometric_functions#Right-angled_triangle_definitions
@@ -193,8 +193,8 @@ acos($number)
 * Throw an error if `$number` has units.
 * Return `NaN` if the `absolute value of $number > 1`.
 * Return `0` if `$number == 1`.
-* Return the [arccosine] of `$number`, in radians. It is between `0` and
-  `pi rad`, inclusive.
+* Return the [arccosine] of `$number`, which yields a value in radians between
+  `0` and `pi rad`, inclusive.
 
 [arccosine]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions#Basic_properties
 
@@ -207,8 +207,8 @@ asin($number)
 * Throw an error if `$number` has units.
 * Return `NaN` if `absolute value of $number > 1`.
 * Return `-0` if `$number == -0`.
-* Return the [arcsine] of `$number`, in rad. It is between `-0.5 * pi rad` and
-  `0.5 * pi rad`, inclusive.
+* Return the [arcsine] of `$number`, which yields a value in radians between
+  `-0.5 * pi rad` and `0.5 * pi rad`, inclusive.
 
 [arcsine]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions#Basic_properties
 
@@ -222,8 +222,8 @@ atan($number)
 * Return `-0` if `$number == -0`.
 * Return `-0.5 * pi rad` if `$number == -Infinity`.
 * Return `0.5 * pi rad` if `$number == Infinity`.
-* Return the [arctangent] of `$number`, in rad. It is between `-0.5 * pi rad`
-  and `0.5 * pi rad`, inclusive.
+* Return the [arctangent] of `$number`, which yields a value in radians between
+  `-0.5 * pi rad` and `0.5 * pi rad`, inclusive.
 
 [arctangent]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions#Basic_properties
 
