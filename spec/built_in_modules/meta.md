@@ -126,7 +126,7 @@ This function is also available as a global function named `global-variable-exis
   * Return whether [resolving a variable][] named `$name`, ignoring local
     scopes, returns null.
   
-    [resolving a function]: ../modules.md#resolving-a-member
+    [resolving a variable]: ../modules.md#resolving-a-member
 
 * Otherwise, if `$module` isn't a string, throw an error.
 

@@ -76,7 +76,7 @@ A *module* is a collection of various properties:
   > modules that only define variables, functions, and mixins without including
   > any plain CSS rules.
 
-* An list of references to other modules, known as the module's *dependencies*,
+* A list of references to other modules, known as the module's *dependencies*,
   in the same order as their [`@use` rules][] and/or [`@forward` rules][] appear
   in the module's source file. If a dependency is referred to from multiple
   rules, its order is determined by the first such rule.
@@ -112,10 +112,10 @@ and the edges are [`@use` rules][] and/or [`@forward` rules][]. We call this the
 
 The module graph is not allowed to contain cycles because they make it
 impossible to guarantee that all dependencies of a module are available before
-that module is loaded. Although the names and APIs of a module's members can be
-determined without [executing][] it, Sass allows code to be executed while
-loading a module, so those members may not behave correctly when invoked before
-the module is executed.
+that module is loaded. Although the names and APIs of a dependency's members can
+be determined without [executing][] it, Sass allows code to be executed during
+load, so those members may not behave correctly when invoked before the
+dependency is executed.
 
 [executing]: spec.md#executing-a-file
 
@@ -133,11 +133,11 @@ member of any given type and name. It's always mutable.
 
 ### Built-In Module
 
-A *built-in module* is a module defined by the Sass specification or by outside
-of the Sass compilation in some implementation-specific way. Modules defined by
-the Sass specification all have the scheme `sass:` and are all described in [the
-`built_in_modules` directory][]. Modules defined outside the Sass compilation
-may not use the scheme `sass:`.
+A *built-in module* is a module defined either by the Sass specification or by
+the host environment of the Sass compilation in some implementation-specific
+way. Modules defined by the Sass specification all have the scheme `sass:` and
+are all described in [the `built_in_modules` directory][]. Modules defined
+outside the Sass compilation may not use the scheme `sass:`.
 
 [the `built_in_modules` directory]: built_in_modules
 
@@ -213,7 +213,7 @@ This algorithm takes a string `argument` and [configuration](#configuration)
 This algorithm takes a string, `argument`, and returns either a [source file][]
 or null.
 
-* If the scheme of [the current source file][]'s canonical URL is `file`:
+* If the scheme of the [current source file][]'s canonical URL is `file`:
 
   [current source file]: spec.md#current-source-file
 
@@ -363,7 +363,7 @@ and returns a member of type `type` or null.
 
   [`Variable`]: variables.md#syntax
 
-  * Let `use` be the [`@use` rule][] in [the current source file][] whose
+  * Let `use` be the [`@use` rule][] in the [current source file][] whose
     namespace is `namespace`. If there isn't exactly one such rule, throw an
     error.
 
@@ -384,11 +384,16 @@ and returns a member of type `type` or null.
 * If `type` is not "variable" and the current source file contains a top-level
   definition of a member of type `type` named `name`:
 
-  > A top-level variable definition will set the module's variable value rather
-  > than defining a new variable local to this module.
+  > Local function and mixin definitions shadow those from global `@use` rules,
+  > so that an upstream package adding a member is less likely to break its
+  > downstream dependencies. We exclude variables from this because a top-level
+  > variable definition will set the module's variable value rather than
+  > defining a new variable local to this module.
 
-  * If [the current import context][] contains a member `member` of type `type`
+  * If the [current import context][] contains a member `member` of type `type`
     named `name`, return it.
+
+    [current import context]: spec.md#current-import-context
 
     > This includes member definitions within the current module.
 

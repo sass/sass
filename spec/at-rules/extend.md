@@ -116,7 +116,7 @@ To execute an `@extend` rule `rule`:
 
 ### Resolving a Module's Extensions
 
-This algorithm takes a [module][], `starting-module`, and returns a [CSS tree][]
+This algorithm takes a [module][] `starting-module` and returns a [CSS tree][]
 that includes CSS for *all* modules transitively used or forwarded by
 `starting-module`.
 

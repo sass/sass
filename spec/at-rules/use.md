@@ -105,7 +105,7 @@ This algorithm takes a `@use` rule `rule`, and returns either an identifier or
 To execute a `@use` rule `rule`:
 
 * If `rule` has a namespace that's the same as another `@use` rule's namespace
-  in [the current source file][current], throw an error.
+  in [the current source file][], throw an error.
 
   [the current source file]: ../spec.md#current-source-file
 

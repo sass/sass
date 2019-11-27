@@ -96,11 +96,13 @@ modifications. The following productions should produce errors:
   * `@error`
   * `@extend`
   * `@for`
+  * `@forward`
   * `@function`
   * `@if`
   * `@include`
   * `@mixin`
   * `@return`
+  * `@use`
   * `@warn`
   * `@while`
 

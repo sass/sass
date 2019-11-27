@@ -13,8 +13,8 @@ full spec as possible.
 
 This specification is incomplete, and is added to *lazily*. This means that
 portions of the spec are only written when they're necessary as background for
-new language proposals. The Sass team eventually hopes specify every part of the
-language this way.
+new language proposals. The Sass team eventually hopes to specify every part of
+the language this way.
 
 ## Table of Contents
 
@@ -61,8 +61,8 @@ invocation of [Executing a File](#executing-a-file).
 
 [module]: modules.md#module
 
-> Because a module is only made immutable when execution has finished, the
-> current module is always mutable.
+> Because a module is only made immutable (other than its variables) when
+> execution has finished, the current module is always mutable.
 
 ## Semantics
 
@@ -120,7 +120,7 @@ or "css"), and an optional URL `url`,
 
 * Let `css` be the result of [resolving `module`'s extensions][].
 
-  [resolving extensions]: at-rules/extend.md#resolving-a-modules-extensions
+  [resolving `module`'s extensions]: at-rules/extend.md#resolving-a-modules-extensions
 
 * Return the result of converting `css` to a CSS string.
 
