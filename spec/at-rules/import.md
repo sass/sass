@@ -30,25 +30,16 @@ To execute an `@import` rule `rule`:
     * Add an `@import` with the evaluated string, media query, and/or supports
       query to [the current module][]'s CSS AST.
 
-      [the current module]: ../spec.md#current-module
-
   * Otherwise, let `file` be the result of [loading the file][] with
     `argument`'s URL string. If this returns null, throw an error.
 
-    [loading the file]: ../modules.md#loading-a-source-file
-
   * If `file`'s canonical URL is the same as that of any other [current source
     file][], throw an error.
-
-    [current source file]: ../spec.md#current-source-file
 
   * Let `imported` be the result of [executing][] `file` with the empty
     configuration and the [current import context][], except that if
     `rule` is nested within at-rules and/or style rules, that context is
     preserved when executing `file`.
-
-    [executing]: ../spec.md#executing-a-file
-    [current import context]: ../spec.md#current-import-context
 
     > Note that this execution can mutate `import`.
 
@@ -60,13 +51,9 @@ To execute an `@import` rule `rule`:
     > `@extend` context than normal `@use`s of these modules. This means their
     > CSS may be duplicated, and they may be extended differently.
 
-    [resolving extensions]: extend.md#resolving-a-modules-extensions
-
   * Add `css` to the current module's CSS.
 
   * Add `imported`'s [extensions][] to the current module.
-
-    [extensions]: extend.md#extension
 
    * If the `@import` rule is nested within at-rules and/or style rules, add each
      member in `imported` to the local [scope][].
@@ -80,3 +67,12 @@ To execute an `@import` rule `rule`:
     >
     > Members from `imported` override members of the same name and type that
     > have already been added to `import` and `module`.
+
+  [the current module]: ../spec.md#current-module
+  [loading the file]: ../modules.md#loading-a-source-file
+  [current source file]: ../spec.md#current-source-file
+  [executing]: ../spec.md#executing-a-file
+  [current import context]: ../spec.md#current-import-context
+  [resolving `imported`'s extensions]: extend.md#resolving-a-modules-extensions
+  [extensions]: extend.md#extension
+  [scope]: ../variables.md#scope

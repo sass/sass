@@ -147,7 +147,7 @@ accepted.
     See [Plain CSS `min()` and `max()`][min-max design] for a good example
     of a Design Decisions section.
     
-    [min-max design]: accepted/min-max.md#design-decisions
+  [min-max design]: accepted/min-max.md#design-decisions
 
 * **Syntax**
 

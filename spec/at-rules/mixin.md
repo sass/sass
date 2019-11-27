@@ -34,19 +34,17 @@ To execute a `@mixin` rule `rule`:
   * If `name` *doesn't* begin with `-` or `_`, set [the current module][]'s
     mixin `name` to `rule`.
 
-    [the current module]: ../spec.md#current-module
-
     > This overrides the previous definition, if one exists.
 
   * Set [the current import context][]'s mixin `name` to `rule`.
-
-    [the current import context]: ../spec.md#current-import-context
 
     > This happens regardless of whether or not it begins with `-` or `_`.
 
 * Otherwise, set the innermost block's [scope][]'s mixin `name` to `value`.
 
   [scope]: ../variables.md#scope
+  [the current module]: ../spec.md#current-module
+  [the current import context]: ../spec.md#current-import-context
 
 ## `@include`
 

@@ -91,6 +91,7 @@ The `<mf-comparison>`, `<mf-lt>`, and `<mf-gt>` productions are defined in
 
 Plain CSS media queries are parsed using the following syntax:
 
+<!-- markdown-link-check-disable -->
 <x><pre>
 **CssMediaQueryList** ::= CssMediaQuery (',' CssMediaQuery)*
 **CssMediaQuery**     ::= CssMediaType
@@ -98,7 +99,7 @@ Plain CSS media queries are parsed using the following syntax:
 **CssMediaType**      ::= <ident-token> <ident-token>¹?
 **CssMediaFeature**   ::= '(' <declaration-value> ')'
 </pre></x>
-```
+<!-- markdown-link-check-enable -->
 
 1: This `Identifier` may not be the identifier `"and"`.
 

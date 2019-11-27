@@ -129,7 +129,7 @@ member of any given type and name. It's always mutable.
 > using `@import` rules, while also preventing global names from leaking into or
 > out of stylesheets loaded using [`@use` rules][] and/or [`@forward` rules][].
 
-[`@import rule]: at-rules/import.md
+[`@import` rule]: at-rules/import.md
 
 ### Built-In Module
 
@@ -229,8 +229,6 @@ or null.
   * Let `url` be the result of [parsing `argument` as a URL][] with `base` as
     the base URL.
 
-    [parsing `argument` as a URL]: https://url.spec.whatwg.org/#concept-url-parser
-
     If this returns a failure, throw that failure.
 
   * If `url`'s scheme is not `file`, return null.
@@ -256,13 +254,14 @@ or null.
       `.sass`.
     * The result of [parsing `text` as CSS][] if `resolved` ends in `.css`.
 
-    [parsing `text` as CSS]: syntax.md#parsing-text-as-css
-
     > The algorithm for [resolving a `file:` URL](#resolving-a-file-url)
     > guarantees that `resolved` will have one of these extensions.
 
   * Return a source file with `ast` as its abstract syntax tree and `resolved`
     as its canonical URL.
+
+  [parsing `argument` as a URL]: https://url.spec.whatwg.org/#concept-url-parser
+  [parsing `text` as CSS]: syntax.md#parsing-text-as-css
 
 * Return null.
 
@@ -354,9 +353,9 @@ and returns a member of type `type` or null.
     statement such that `scope` has a member of type `type` named `name`, or
     null if no such scope exists.
 
-    [scope]: variables.md#scope
-
   * If `scope` is not null, return `scope`'s value of type `type` named `name`.
+
+  [scope]: variables.md#scope
 
 * If `name` is a [`NamespacedIdentifier`](#syntax) of the form
   `namespace.raw-name` or a [`Variable`][] of the form `namespace.$raw-name`:
@@ -367,8 +366,6 @@ and returns a member of type `type` or null.
     namespace is `namespace`. If there isn't exactly one such rule, throw an
     error.
 
-    [`@use` rule]: at-rules/use.md
-
     > Unlike other identifiers in Sass, module namespaces *do not* treat `-` and
     > `_` as equivalent.
 
@@ -376,10 +373,11 @@ and returns a member of type `type` or null.
 
   * Otherwise, let `module` be [`use`'s module][].
 
-    [`use`'s module]: at-rules/use.md#a-use-rules-module
-
   * Return the member of `module` with type `type` and name `raw-name`. If there
     is no such member, throw an error.
+
+  [`@use` rule]: at-rules/use.md
+  [`use`'s module]: at-rules/use.md#a-use-rules-module
 
 * If `type` is not "variable" and the current source file contains a top-level
   definition of a member of type `type` named `name`:
@@ -393,8 +391,6 @@ and returns a member of type `type` or null.
   * If the [current import context][] contains a member `member` of type `type`
     named `name`, return it.
 
-    [current import context]: spec.md#current-import-context
-
     > This includes member definitions within the current module.
 
   * Otherwise, return null.
@@ -402,6 +398,8 @@ and returns a member of type `type` or null.
     > It's an error to refer to a local member before it's defined, even if a
     > member with the same name is defined in a loaded module. The referent to a
     > member is guaranteed not to change due to definitions later in the file.
+
+  [current import context]: spec.md#current-import-context
 
 * Let `modules` be the set of [modules of][] the global `@use` rules in the
   current source file which contain members of type `type` named `name`.

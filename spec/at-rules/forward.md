@@ -44,11 +44,7 @@ To execute a `@forward` rule `rule`:
 
   * Let `rule-config` be an empty [configuration][].
 
-    [configuration]: ../modules.md#configuration
-
   * For each variable `variable` in [the current configuration][]:
-
-    [the current configuration]: ../spec.md#current-configuration
 
     * If `variable`'s name begins with `prefix`:
 
@@ -56,6 +52,9 @@ To execute a `@forward` rule `rule`:
 
       * Add a variable to `rule-config` with the name `suffix` and with the
         same value as `variable`.
+
+  [configuration]: ../modules.md#configuration
+  [the current configuration]: ../spec.md#current-configuration
 
 * Otherwise, let `rule-config` be the current configuration.
 
@@ -74,8 +73,6 @@ To execute a `@forward` rule `rule`:
   * If there's a member defined at the top level of [the current source file][]
     named `name` with the same type as `member`, do nothing.
 
-    [the current source file]: ../spec.md#current-source-file
-
   * Otherwise, if `rule` has a `show` clause that doesn't include `name`
     (including `$` for variables), do nothing.
 
@@ -90,8 +87,6 @@ To execute a `@forward` rule `rule`:
 
   * Otherwise, add `member` to [the current module][] with the name `name`.
 
-    [the current module]: ../spec.md#current-module
-
     > It's possible for the same member to be added to a given module multiple
     > times if it's forwarded with different prefixes. All of these names refer
     > to the same logical member, so for example if a variable gets set that
@@ -99,3 +94,6 @@ To execute a `@forward` rule `rule`:
     >
     > It's also possible for a module's members to have multiple prefixes added,
     > if they're forwarded with prefixes multiple times.
+
+  [the current source file]: ../spec.md#current-source-file
+  [the current module]: ../spec.md#current-module

@@ -81,8 +81,6 @@ functions:
   * If `$channels` is a [special variable string][], return a plain CSS function
     string with the name `"rgb"` and the argument `$channels`.
 
-    [special variable string]: #special-variable-string
-
   * If `$channels` is not an unbracketed space-separated list, throw an error.
 
   * If `$channels` has more than three elements, throw an error.
@@ -119,6 +117,8 @@ functions:
   * Call `rgb()` with `red`, `green`, `blue`, and `alpha` (if it's defined) as
     arguments and return the result.
 
+  [special variable string]: #special-variable-string
+
 * ```
   rgb($red, $green, $blue, $alpha)
   ```
@@ -142,8 +142,6 @@ functions:
 
   * If `$channels` is a [special variable string][], return a plain CSS function
     string with the name `"hsl"` and the argument `$channels`.
-
-    [special variable string]: #special-variable-string
 
   * If `$channels` is not an unbracketed space-separated list, throw an error.
 

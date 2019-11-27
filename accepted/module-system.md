@@ -540,7 +540,7 @@ invoked before the module is executed.
 
 ### Source File
 
-A *source file* is a Sass abstract syntax tree along with its [canonical URL][].
+A *source file* is a Sass abstract syntax tree along with its canonical URL.
 Each canonical URL is associated with zero or one source files.
 
 A source file can be [executed](#executing-files) with a
@@ -823,8 +823,6 @@ CSS for *all* modules transitively used or forwarded by `starting-module`.
       * Let `extended-selector` be the result of applying
         `new-extensions[foreign]` to `selector`.
 
-        [the first law of extend]: ../spec/at-rules/extend#specificity
-
         > `new-extensions[foreign]` is guaranteed to be populated at this point
         > because `extended` is traversed in reverse topological order, which
         > means that `foreign`'s own extensions will already have been resolved
@@ -840,8 +838,6 @@ CSS for *all* modules transitively used or forwarded by `starting-module`.
       `domestic`'s CSS, *not* selectors that were added by other modules'
       extensions.
 
-      [the specificity laws of extend]: ../spec/at-rules/extend#specificity
-
       > Implementations are expected to trim redundant selectors from
       > `selector-lists` as much as possible. For the purposes of the first law
       > of extend, "the original extendee" is *only* the selectors in `rule`'s
@@ -856,6 +852,9 @@ CSS for *all* modules transitively used or forwarded by `starting-module`.
 
         * Add a copy of `extension` with its extender replaced by `complex` to
           `new-extensions[domestic]`.
+
+  [the first law of extend]: ../spec/at-rules/extend.md#specificity
+  [the specificity laws of extend]: ../spec/at-rules/extend.md#specificity
 
 * Let `css` be an empty CSS tree.
 
@@ -987,7 +986,7 @@ either another URL that's guaranteed to point to a file on disk or null.
 ### Compilation Process
 
 First, let's look at the large-scale process that occurs when compiling a Sass
-[entrypoint](#entrypoint) with the [canonical URL][] `url` to CSS.
+[entrypoint](#entrypoint) with the canonical URL `url` to CSS.
 
 * Let `module` be the result of [loading](#loading-modules) `url` with the empty
   configuration.
@@ -1098,18 +1097,18 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
   * Remove any [complex selectors][] containing a placeholder selector that
     begins with `-` or `_` from `css`.
     
-    [complex selectors]: https://drafts.csswg.org/selectors-4/#complex
-
   * Remove any style rules that now have no selector from `css`.
 
   * Append `css` to `module`'s CSS.
+
+  [complex selectors]: https://drafts.csswg.org/selectors-4/#complex
 
 * When a variable declaration `declaration` is encountered:
 
   > This algorithm is intended to replace [the existing algorithm][old
   > assigning-to-a-variable] for assigning to a variable.
-  >
-  > [old assigning-to-a-variable]: ../spec/variables.md#assigning-to-a-variable
+
+  [old assigning-to-a-variable]: ../spec/variables.md#executing-a-variable-declaration
 
   * Let `name` be `declaration`'s [`Variable`](#member-references)'s name.
 
@@ -1187,10 +1186,10 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
     variable named `name`, set the innermost block's scope's variable `name` to
     `value`.
 
-    [scope]: ../spec/variables.md#scope
-
   * Otherwise, let `scope` be the scope of the innermost block such that `scope`
     already has a variable named `name`. Set `scope`'s variable `name` to `value`.
+
+  [scope]: ../spec/variables.md#scope
 
 * When a top-level mixin or function declaration `declaration` is encountered:
 
@@ -1235,11 +1234,11 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
       > Setting all `!global` variables to `null` if they weren't otherwise set
       > guarantees [static analysis][] by ensuring that the set of variables a
       > module exposes doesn't depend on how it was executed.
-      >
-      > [variables spec]: ../spec/variables.md
-      > [static analysis]: #low-level
 
   * Return `module`. Its functions, mixins, and CSS are now immutable.
+
+  [variables spec]: ../spec/variables.md
+  [static analysis]: #low-level
 
 > Note that members that begin with `-` or `_` (which Sass considers equivalent)
 > are considered private. Private members are not added to the module's member
