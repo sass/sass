@@ -102,9 +102,9 @@ or "css"), and an optional URL `url`,
 
   * The result of [parsing `text` as CSS][] if `syntax` is "css".
 
-    [parsing `text` as CSS]: syntax.md#parsing-text-as-css
-
   * The result of parsing `text` as SCSS otherwise.
+
+  [parsing `text` as CSS]: syntax.md#parsing-text-as-css
 
 * If `url` is null, set it to a unique value.
 
@@ -159,7 +159,7 @@ This algorithm takes a [source file][] `file`, a [configuration][] `config`, an
     > Setting all `!global` variables to `null` if they weren't otherwise set
     > guarantees the stability of static analysis by ensuring that the set of
     > variables a module exposes doesn't depend on how it was executed.
-    >
-    > [variables spec]: variables.md
+
+  [variables spec]: variables.md
 
 * Return `module`. Its functions, mixins, and CSS are now immutable.

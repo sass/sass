@@ -65,7 +65,7 @@ Division will instead be written as a function, `divide()` (or `math.div()` in
 Sass-compatible division in `calc()` expressions; however, this is not going to
 be implemented immediately and is outside the scope of this proposal.
 
-[the new module system]: ../accepted/module-system.md
+[the new module system]: module-system.md
 
 This is a major breaking change to existing Sass semantics, so we'll roll it out
 in a three-stage process:
@@ -273,12 +273,12 @@ unbracketed slash-separated list containing the given elements.
 This proposal modifies [the existing behavior][old rgb] of the `rgb($channels)`
 overload to be the following:
 
-[old rgb]: ../accepted/color.md#rgb-and-rgba
+[old rgb]: ../spec/functions.md#rgb-and-rgba
 
 * If `$channels` is a [special variable string][], return a plain CSS function
   string with the name `"rgb"` and the argument `$channels`.
 
-  [special variable string]: ../spec/functions/color.md#special-variable-string
+  [special variable string]: ../spec/functions.md#special-variable-string
 
 * If `$channels` is an unbracketed slash-separated list:
 
@@ -317,7 +317,7 @@ overload to be the following:
 This proposal modifies [the existing behavior][old hsl] of the `hsl($channels)`
 overload to be the following:
 
-[old hsl]: ../accepted/color.md#hsl-and-hsla
+[old hsl]: ../spec/functions.md#hsl-and-hsla
 
 * If `$channels` is a [special variable string][], return a plain CSS function
   string with the name `"hsl"` and the argument `$channels`.
@@ -354,7 +354,7 @@ overload to be the following:
 This proposal modifies [the "Parse a Selector From a SassScript Object"
 procedure][] to throw an error whenever it encounters a slash-separated list.
 
-[the "Parse a Selector From a SassScript Object" procedure]: ../spec/functions/selector.md#parse-a-selector-from-a-sassscript-object
+[the "Parse a Selector From a SassScript Object" procedure]: ../spec/built_in_modules/selector.md#parse-a-selector-from-a-sassscript-object
 
 ## Deprecation Process
 

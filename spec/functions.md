@@ -8,6 +8,7 @@
 * [Syntax](#syntax)
 * [Semantics](#semantics)
 * [Global Functions](#global-functions)
+  * [`alpha()`](#alpha)
   * [`rgb()` and `rgba()`](#rgb-and-rgba)
   * [`hsl()` and `hsla()`](#hsl-and-hsla)
   * [`if()`](#if)
@@ -54,7 +55,7 @@ To evaluate a `FunctionCall` `call`:
 
 * Let `function` be the result of [resolving a function][] named `name`.
 
-  [resolving a function]: ../modules.md#resolving-a-member
+  [resolving a function]: modules.md#resolving-a-member
 
 * If `function` is null and `name` is not a plain `Identifier`, throw an error.
 
@@ -85,12 +86,42 @@ To evaluate a `FunctionCall` `call`:
 > are globally available with no `@use` necessary. These are mostly functions
 > that expand upon the behavior of plain CSS functions.
 >
-> [built-in modules]: modules.md#built-in-modules
+> [built-in modules]: modules.md#built-in-module
 >
 > In addition, many functions that *are* defined in built-in modules have global
 > aliases for backwards-compatibility with stylesheets written before `@use` was
 > introduced. These global aliases should be avoided by stylesheet authors if
 > possible.
+
+### `alpha()`
+
+* ```
+  alpha($color)
+  ```
+
+  * If `$color` is not a string, call the other overload and return its result.
+
+  * Return the alpha channel of `$color` as a unitless number.
+
+* ```
+  alpha($args...)
+  ```
+
+  > This overload exists to support Microsoft's proprietary [`alpha()`
+  > function][].
+
+  [`alpha()` function]: https://blogs.msdn.microsoft.com/ie/2010/08/17/ie9-opacity-and-alpha/
+
+  * If `$args` is empty, throw an error.
+
+  * If `$args` has any keyword arguments, throw an error.
+
+  * Unless all arguments of `$args` are unquoted strings that begin with a
+    sequence of ASCII letters, followed by one or more spaces, followed by `=`
+    throw an error.
+
+  * Return a plain CSS function string with the name `"alpha"` and the arguments
+    `$args`.
 
 ### `rgb()` and `rgba()`
 
@@ -111,11 +142,11 @@ plain CSS function named `"rgb"` that function is named `"rgba"` instead.
   * Let `red`, `green`, and `blue` be the result of [percent-converting][]
     `$red`, `$green`, and `$blue`, respectively, with a `max` of 255.
 
-    [percent-converting]: built_in_modules/color.md#percent-converting-a-number
-
   * Let `alpha` be the result of percent-converting `$alpha` with a `max` of 1.
 
   * Return a color with the given `red`, `green`, `blue`, and `alpha` channels.
+
+  [percent-converting]: built_in_modules/color.md#percent-converting-a-number
 
 * ```
   rgb($red, $green, $blue)
@@ -147,8 +178,6 @@ plain CSS function named `"rgb"` that function is named `"rgba"` instead.
   
   * If `$channels` is a [special variable string][], return a plain CSS function
     string with the name `"rgb"` and the argument `$channels`.
-
-    [special variable string]: #special-variable-string
 
   * If `$channels` is not an unbracketed space-separated list, throw an error.
 
@@ -186,6 +215,8 @@ plain CSS function named `"rgb"` that function is named `"rgba"` instead.
   * Call `rgb()` with `red`, `green`, `blue`, and `alpha` (if it's defined) as
     arguments and return the result.
 
+  [special variable string]: #special-variable-string
+
 ### `hsl()` and `hsla()`
 
 The `hsla()` function is identical to `hsl()`, except that if it would return a
@@ -210,11 +241,11 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
   * Let `red`, `green`, and `blue` be the result of converting `hue`,
     `saturation`, and `lightness` [to RGB][].
 
-    [to RGB]: https://www.w3.org/TR/css-color-4/#hsl-to-rgb
-
   * Let `alpha` be the result of percent-converting `$alpha` with a `max` of 1.
 
   * Return a color with the given `red`, `green`, `blue`, and `alpha` channels.
+
+  [to RGB]: https://www.w3.org/TR/css-color-4/#hsl-to-rgb
 
 * ```
   hsl($hue, $saturation, $lightness)
@@ -224,10 +255,10 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
     string with the name `"hsl"` and the arguments `$hue`, `$saturation`, and
     `$lightness`.
 
-    [special number strings]: #special-number-string
-
   * Otherwise, return the result of calling `hsl()` with `$hue`, `$saturation`,
     `$lightness`, and `1`.
+
+  [special number strings]: #special-number-string
 
 * ```
   hsl($hue, $saturation)
@@ -244,8 +275,6 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
 
   * If `$channels` is a [special variable string][], return a plain CSS function
     string with the name `"hsl"` and the argument `$channels`.
-
-    [special variable string]: #special-variable-string
 
   * If `$channels` is not an unbracketed space-separated list, throw an error.
 
@@ -282,6 +311,8 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
 
   * Call `hsl()` with `hue`, `saturation`, `lightness`, and `alpha` (if it's
     defined) as arguments and return the result.
+
+  [special variable string]: #special-variable-string
 
 ### `if()`
 

@@ -165,9 +165,9 @@ To evaluate an `@import` rule:
   * If an AST with the same [canonical URL][] as `stylesheet` is currently being
     evaluated, throw an error.
 
-    [canonical URL]: #canonical-url-of-a-stylesheet
-
   * Evaluate `stylesheet` in the global scope.
+
+  [canonical URL]: #canonical-url-of-a-stylesheet
 
 ### Loading an Import
 
@@ -185,8 +185,6 @@ This algorithm takes a string, `argument`, and returns a Sass stylesheet.
     the base URL.
 
     If this returns a failure, throw that failure.
-
-    [parsing `argument` as a URL]: https://url.spec.whatwg.org/#concept-url-parser
 
   * If `url`'s scheme is not `file`, return null.
 
@@ -216,6 +214,8 @@ This algorithm takes a string, `argument`, and returns a Sass stylesheet.
     > guarantees that `resolved` will have one of these extensions.
 
   * Return `ast` with the [canonical URL][] `resolved`.
+
+  [parsing `argument` as a URL]: https://url.spec.whatwg.org/#concept-url-parser
 
 * Return null.
 

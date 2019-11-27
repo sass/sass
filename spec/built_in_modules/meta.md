@@ -61,7 +61,7 @@ This function is also available as a global function named `function-exists()`.
 
   * Return whether [resolving a function][] named `$name` returns null.
   
-    [resolving a function]: ../modules.md#resolving-a-member
+  [resolving a function]: ../modules.md#resolving-a-member
 
 * Otherwise, if `$module` isn't a string, throw an error.
 
@@ -126,7 +126,7 @@ This function is also available as a global function named `global-variable-exis
   * Return whether [resolving a variable][] named `$name`, ignoring local
     scopes, returns null.
   
-    [resolving a variable]: ../modules.md#resolving-a-member
+  [resolving a variable]: ../modules.md#resolving-a-member
 
 * Otherwise, if `$module` isn't a string, throw an error.
 
@@ -167,7 +167,7 @@ This function is also available as a global function named `mixin-exists()`.
 
   * Return whether [resolving a mixin][] named `$name` returns null.
   
-    [resolving a mixin]: ../modules.md#resolving-a-member
+  [resolving a mixin]: ../modules.md#resolving-a-member
 
 * Otherwise, if `$module` isn't a string, throw an error.
 
@@ -254,9 +254,9 @@ load-css($url, $with: null)
 
   [loading]: ../modules.md#loading-a-module
 
-* Let `css` be the result of [resolving extensions][] for `module`.
+* Let `css` be the result of [resolving `module`'s extensions][].
 
-  [resolving extensions]: ../at-rules/extend.md#resolving-extensions
+  [resolving `module`'s extensions]: ../at-rules/extend.md#resolving-a-modules-extension
 
   > This means that, if a module loaded by `load-css()` shares some dependencies
   > with the entrypoint module, those dependencies' CSS will be included twice.

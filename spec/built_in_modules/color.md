@@ -84,7 +84,7 @@ This function is also available as a global function named `opacity()`.
 > [global functions]: ../functions.md#alpha
 
 * If `$color` is a number and this function is called as the global `opacity()`
-  function, return a plain CSS function string with the name `"alpha"` and the
+  function, return a plain CSS function string with the name `"opacity"` and the
   argument `$color`.
 
 * Otherwise, if `$color` is not a color, throw an error.

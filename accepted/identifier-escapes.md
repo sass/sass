@@ -114,14 +114,13 @@ This production has the same grammar as [`<ident-token>`][].
   * If the stream starts with `\`, [consume an escaped code point][] with the
     `start` flag set and append it to `string`.
 
-    [consume an escaped code point]: #consuming-an-escaped-code-point
-
   * Otherwise, if the stream starts with a [name-start code point][], consume it
     and append it to `string`.
 
-    [name-start code point]: https://drafts.csswg.org/css-syntax-3/#name-start-code-point
-
   * Otherwise, throw an error.
+
+  [consume an escaped code point]: #consuming-an-escaped-code-point
+  [name-start code point]: https://drafts.csswg.org/css-syntax-3/#name-start-code-point
 
 * [Consume a name](#consuming-a-name) and append it to `string`.
 

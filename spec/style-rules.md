@@ -28,7 +28,7 @@ To execute a style rule `rule`:
   * Otherwise, nest `selector` within the current style rule's selector using
     the [descendant combinator][] and set `selector` to the result.
 
-    [descendant combinator]: https://www.w3.org/TR/selectors-3/#descendant-combinators
+  [descendant combinator]: https://www.w3.org/TR/selectors-3/#descendant-combinators
 
 * Otherwise, if `selector` contains one or more parent selectors, throw an
   error.
@@ -45,4 +45,4 @@ To execute a style rule `rule`:
 * Unless `css`'s selector is now empty, append `css` to [the current module][]'s
   CSS.
 
-  [the current module]: ../spec.md#current-module
+  [the current module]: spec.md#current-module
