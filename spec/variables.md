@@ -53,10 +53,10 @@ To execute a `VariableDeclaration` `declaration`:
 * Otherwise, if `declaration` is outside of any block of statements, *or*
   `declaration` has a `!global` flag, *or* `name` is a `NamespacedVariable`:
 
-  * Let `resolved` be the result of [resolving a variable named `name`][] using
+  * Let `resolved` be the result of [resolving a variable][] named `name` using
     `file`, `uses`, and `import`.
 
-    [resolving a variable named `name`]: ../modules.md#resolving-a-member
+    [resolving a variable]: modules.md#resolving-a-member
 
   * If `declaration` has a `!default` flag, `resolved` isn't null, *and*
    `resolved`'s value isn't null, do nothing.
@@ -122,7 +122,5 @@ To evaluate a `Variable` `variable`:
 
 * Let `definition` be the result of [resolving a variable][] named `variable`.
   If this returns null, throw an error.
-
-  [resolving a variable]: ../modules.md#resolving-a-member
 
 * Return `definition`'s value.

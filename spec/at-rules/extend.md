@@ -108,7 +108,7 @@ To execute an `@extend` rule `rule`:
 
 * Add `extension` to [the current module][]'s extensions.
 
-  [the current module]: ../spec.md#the-current-module
+  [the current module]: ../spec.md#current-module
 
 > Note that this adds the extension to the module being evaluated, not the
 > module in which the `@extend` lexically appears. This means that `@extend`s

@@ -254,9 +254,9 @@ load-css($url, $with: null)
 
   [loading]: ../modules.md#loading-a-module
 
-* Let `css` be the result of [resolving extensions][] for `module`.
+* Let `css` be the result of [resolving `module`'s extensions][].
 
-  [resolving extensions]: ../at-rules/extend.md#resolving-extensions
+  [resolving `module`'s extensions]: ../at-rules/extend.md#resolving-a-modules-extension
 
   > This means that, if a module loaded by `load-css()` shares some dependencies
   > with the entrypoint module, those dependencies' CSS will be included twice.

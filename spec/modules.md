@@ -68,7 +68,7 @@ A *module* is a collection of various properties:
 
 * A set of [extensions][].
 
-  [extensions]: at-rules/extend.md#extensions
+  [extensions]: at-rules/extend.md#extension
 
 * A [CSS tree](#css-tree).
 

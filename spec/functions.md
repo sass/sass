@@ -8,6 +8,7 @@
 * [Syntax](#syntax)
 * [Semantics](#semantics)
 * [Global Functions](#global-functions)
+  * [`alpha()`](#alpha)
   * [`rgb()` and `rgba()`](#rgb-and-rgba)
   * [`hsl()` and `hsla()`](#hsl-and-hsla)
   * [`if()`](#if)
@@ -54,7 +55,7 @@ To evaluate a `FunctionCall` `call`:
 
 * Let `function` be the result of [resolving a function][] named `name`.
 
-  [resolving a function]: ../modules.md#resolving-a-member
+  [resolving a function]: modules.md#resolving-a-member
 
 * If `function` is null and `name` is not a plain `Identifier`, throw an error.
 
@@ -85,12 +86,42 @@ To evaluate a `FunctionCall` `call`:
 > are globally available with no `@use` necessary. These are mostly functions
 > that expand upon the behavior of plain CSS functions.
 >
-> [built-in modules]: modules.md#built-in-modules
+> [built-in modules]: modules.md#built-in-module
 >
 > In addition, many functions that *are* defined in built-in modules have global
 > aliases for backwards-compatibility with stylesheets written before `@use` was
 > introduced. These global aliases should be avoided by stylesheet authors if
 > possible.
+
+### `alpha()`
+
+* ```
+  alpha($color)
+  ```
+
+  * If `$color` is not a string, call the other overload and return its result.
+
+  * Return the alpha channel of `$color` as a unitless number.
+
+* ```
+  alpha($args...)
+  ```
+
+  > This overload exists to support Microsoft's proprietary [`alpha()`
+  > function][].
+  >
+  > [`alpha()` function]: https://blogs.msdn.microsoft.com/ie/2010/08/17/ie9-opacity-and-alpha/
+
+  * If `$args` is empty, throw an error.
+
+  * If `$args` has any keyword arguments, throw an error.
+
+  * Unless all arguments of `$args` are unquoted strings that begin with a
+    sequence of ASCII letters, followed by one or more spaces, followed by `=`
+    throw an error.
+
+  * Return a plain CSS function string with the name `"alpha"` and the arguments
+    `$args`.
 
 ### `rgb()` and `rgba()`
 

@@ -519,10 +519,8 @@ Each module may have only one member of a given type and name (for example, a
 module may not have two variables named `$name`).
 
 A given module can be produced by [executing](#executing-files) the [source
-file](#source-file) identified by the module's [canonical URL][] with a
+file](#source-file) identified by the module's canonical URL with a
 [configuration](#configuration).
-
-[canonical URL]: ../spec/at-rules/import.md#canonical-url-of-a-stylesheet
 
 ### Module Graph
 
@@ -725,7 +723,7 @@ and [configuration](#configuration) `config`:
 * Let `file` be the [source file](#source-file) result of [loading][loading an
   import] `url`.
 
-  [loading an import]: ../spec/at-rules/import.md#loading-an-import
+  [loading an import]: https://github.com/sass/sass/blob/2c08156248496c75678826420aafb09e2ace9041/spec/at-rules/import.md#loading-an-import
 
 * If `file` is null, throw an error.
 
@@ -902,7 +900,7 @@ include a literal `.css` extension. This algorithm takes a URL, `url`, whose
 scheme must be `file` and returns either another URL that's guaranteed to point
 to a file on disk or null.
 
-[the existing algorithm]:  ../spec/at-rules/import.md#resolving-a-file-url
+[the existing algorithm]: https://github.com/sass/sass/blob/2c08156248496c75678826420aafb09e2ace9041/spec/at-rules/import.md#resolving-a-file-url
 
 This algorithm takes a URL, `url`, whose scheme must be `file` and returns
 either another URL that's guaranteed to point to a file on disk or null.
@@ -954,7 +952,7 @@ either another URL that's guaranteed to point to a file on disk or null.
 * Otherwise, return the result of [resolving `url` + `".css"` for
   partials][resolving for partials]. .
 
-[resolving for partials]: ../spec/at-rules/import.md#resolving-a-file-url-for-partials
+[resolving for partials]: https://github.com/sass/sass/blob/2c08156248496c75678826420aafb09e2ace9041/spec/at-rules/import.md#resolving-a-file-url-for-partials
 
 > This allows a library to define two parallel entrypoints, one
 > (`_file.import.scss`) that's visible to `@import` and one (`_file.scss`)
