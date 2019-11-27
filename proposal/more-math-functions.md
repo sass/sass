@@ -207,8 +207,8 @@ asin($number)
 * Throw an error if `$number` has units.
 * Return `NaN` if `absolute value of $number > 1`.
 * Return `-0` if `$number == -0`.
-* Return the [arcsine] of `$number`, in rad. It is between `-pi/2 rad` and
-  `pi/2 rad`, inclusive.
+* Return the [arcsine] of `$number`, in rad. It is between `-0.5 * pi rad` and
+  `0.5 * pi rad`, inclusive.
 
 [arcsine]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions#Basic_properties
 
@@ -220,10 +220,10 @@ atan($number)
 
 * Throw an error if `$number` has units.
 * Return `-0` if `$number == -0`.
-* Return `-90` if `$number == -Infinity`.
-* Return `90` if `$number == Infinity`.
-* Return the [arctangent] of `$number`, in rad. It is between `-pi/2 rad` and
-  `pi/2 rad`, inclusive.
+* Return `-0.5 * pi rad` if `$number == -Infinity`.
+* Return `0.5 * pi rad` if `$number == Infinity`.
+* Return the [arctangent] of `$number`, in rad. It is between `-0.5 * pi rad`
+  and `0.5 * pi rad`, inclusive.
 
 [arctangent]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions#Basic_properties
 
