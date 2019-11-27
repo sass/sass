@@ -2,16 +2,27 @@
 
 ## Table of Contents
 
+* [Definitions](#definitions)
+  * [Source File](#source-file)
 * [Grammar](#grammar)
   * [`InterpolatedIdentifier`](#interpolatedidentifier)
   * [`Name`](#name)
   * [`MinMaxExpression`](#minmaxexpression)
 * [Procedures](#procedures)
+  * [Parsing Text as CSS](#parsing-text-as-css)
   * [Consuming an Identifier](#consuming-an-identifier)
   * [Consuming an Interpolated Identifier](#consuming-an-interpolated-identifier)
   * [Consuming a Name](#consuming-a-name)
   * [Consuming an Escaped Code Point](#consuming-an-escaped-code-point)
   * [Consuming `min()` or `max()`](#consuming-min-or-max)
+
+## Definitions
+
+### Source File
+
+A *source file* is a Sass abstract syntax tree along with an absolute URL, known
+as that file's *canonical URL*. A given canonical URL cannot be associated with
+more than one source file.
 
 ## Grammar
 
@@ -52,6 +63,124 @@ No whitespace is allowed between components of an `InterpolatedIdentifier`.
    case-insensitively.
 
 ## Procedures
+
+### Parsing Text as CSS
+
+This algorithm takes a string, `text`, and returns a Sass abstract syntax tree.
+
+> This algorithm is designed with two goals in mind:
+>
+> 1. CSS imported from Sass should be as compatible with standard CSS as
+>    possible. In some cases we err even more towards CSS compatibility than
+>    SCSS does, because the CSS being imported is likely not written by someone
+>    who knows to avoid things that Sass interprets specially (such as certain
+>    `@import` URLs).
+>
+> 2. We should provide clear and eager feedback to users who accidentally try to
+>    use Sass features in CSS imports. We don't allow these features, and we
+>    want users to know that through error messages rather than digging through
+>    generated CSS only to find that Sass features were passed through
+>    unmodified. This is a particular concern because LibSass has historically
+>    allowed the use of Sass features in CSS imports.
+
+The algorithm for parsing text as CSS works like parsing text as SCSS, with some
+modifications. The following productions should produce errors:
+
+* Any at-rules that are defined in Sass and not in plain CSS. At the time of
+  writing, this means:
+
+  * `@at-root`
+  * `@content`
+  * `@debug`
+  * `@each`
+  * `@error`
+  * `@extend`
+  * `@for`
+  * `@forward`
+  * `@function`
+  * `@if`
+  * `@include`
+  * `@mixin`
+  * `@return`
+  * `@use`
+  * `@warn`
+  * `@while`
+
+* An `@import` that contains interpolation in the `url()`, the media query, or
+  the supports query.
+
+* An `@import` that appears within a style rule or at-rule.
+
+* An `@import` with more than one argument.
+
+* A declaration followed by an open curly brace (that is, a nested declaration).
+
+* A style rule appearing within another style rule.
+
+* The parent selector `&`, either in a selector or a declaration value.
+
+* Placeholder selectors.
+
+* All built-in functions, *excluding* the following:
+
+  * `rgb()`
+  * `rgba()`
+  * `hsl()`
+  * `hsla()`
+  * `grayscale()`
+  * `invert()`
+  * `alpha()`
+  * `opacity()`
+
+  > Note that user-defined functions are *not* forbidden, whether they're
+  > defined using `@function` or through a host language API.
+
+* Any function called with keyword arguments or variable-length arguments.
+
+* Interpolation anywhere its contents would be evaluated. At the time of
+  writing, this means:
+
+  * At-rule values (including `@media` queries)
+  * Declaration names
+  * Declaration values
+  * Style rule selectors
+
+* All SassScript operations *except for*:
+
+  * `/`
+  * `not`
+  * `or`
+  * `and`
+
+  > Note that although unary `-` is forbidden, the `-` that appears at the
+  > beginning of a number literal is part of that literal and thus allowed.
+
+* Parentheses in declaration values that aren't part of a CSS production.
+
+* Map literals.
+
+* The empty list literal `(,)`.
+
+* Uses or declarations of Sass variables.
+
+* `//`-style ("silent") comments.
+
+In addition, some productions should be parsed differently than they would be in
+SCSS:
+
+* All functions that don't produce errors should be parsed as plain CSS
+  functions, regardless of whether a Sass function with that name is defined.
+
+* All `@import`s that don't produce errors should be parsed as static CSS
+  imports.
+
+* The tokens `not`, `or`, `and`, and `null` should be parsed as unquoted
+  strings.
+
+  > The `/` operation should be parsed as normal. Because variables,
+  > parentheses, functions that return numbers, and all other arithmetic
+  > expressions are disallowed, it will always compile to slash-separated values
+  > rather than performing division.
 
 ### Consuming an Identifier
 

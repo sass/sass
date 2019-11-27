@@ -2,34 +2,101 @@
 
 ## Table of Contents
 
+* [`@mixin`](#mixin)
+  * [Syntax](#syntax)
+  * [Semantics](#semantics)
 * [`@include`](#include)
+  * [Syntax](#syntax-1)
+  * [Semantics](#semantics-1)
 * [`@content`](#content)
+  * [Syntax](#syntax-2)
+  * [Semantics](#semantics-2)
+
+## `@mixin`
+
+### Syntax
+
+<x><pre>
+**MixinRule** ::= '@mixin' Identifier ArgumentDeclaration? '{' Statements '}'
+</pre></x>
+
+No whitespace is allowed between the `Identifier` and the `ArgumentDeclaration`
+in `MixinRule`.
+
+### Semantics
+
+To execute a `@mixin` rule `rule`:
+
+* Let `name` be the value of `rule`'s `Identifier`.
+
+* If `rule` is outside of any block of statements:
+
+  * If `name` *doesn't* begin with `-` or `_`, set [the current module][]'s
+    mixin `name` to `rule`.
+
+    [the current module]: ../spec.md#current-module
+
+    > This overrides the previous definition, if one exists.
+
+  * Set [the current import context][]'s mixin `name` to `rule`.
+
+    [the current import context]: ../spec.md#current-import-context
+
+    > This happens regardless of whether or not it begins with `-` or `_`.
+
+* Otherwise, set the innermost block's [scope][]'s mixin `name` to `value`.
+
+  [scope]: ../variables.md#scope
 
 ## `@include`
 
-The syntax for an `@include` rule is as follows:
+### Syntax
 
 <x><pre>
-**IncludeRule**      ::= '@include' [\<ident-token>][] ArgumentInvocation? ContentBlock?
+**IncludeRule**      ::= '@include' [NamespacedIdentifier][] ArgumentInvocation?
+                         ContentBlock?
 **ContentBlock**     ::= UsingDeclaration? '{' Statements '}'
 **UsingDeclaration** ::= 'using' ArgumentDeclaration
 </pre></x>
 
-[\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
+[NamespacedIdentifier]: ../modules.md#syntax
+
+No whitespace is allowed between the `NamespacedIdentifier` and the
+`ArgumentInvocation` in `IncludeRule`.
+
+### Semantics
+
+To execute an `@include` rule `rule`:
+
+* Let `name` be `rule`'s `NamespacedIdentifier`.
+
+* Let `mixin` be the result of [resolving a mixin][] named `name`. If this
+  returns null, throw an error.
+
+  [resolving a mixin]: ../modules.md#resolving-a-member
+
+* Execute `rule`'s `ArgumentInvocation` with `mixin`'s `ArgumentDeclaration` in
+  `mixin`'s scope.
+
+* Execute each statement in `mixin`.
 
 ## `@content`
 
 The `@content` rule runs a block of styles provided by the user who invoked the
-current mixin. Its syntax is as follows:
+current mixin.
+
+### Syntax
 
 <x><pre>
 **ContentRule** ::= '@content' ArgumentInvocation?
 </pre></x>
 
-As with all statement, a `ContentRule` must be separated from other statements
+As with all statements, a `ContentRule` must be separated from other statements
 with a semicolon.
 
-When evaluating a `@content` rule `content` within a mixin that's invoked with
+### Semantics
+
+To execute a `@content` rule `content` within a mixin that's invoked with
 an `@include` rule `include`:
 
 > `@content` rules are syntactically guaranteed to only appear in mixin bodies,
@@ -64,4 +131,4 @@ an `@include` rule `include`:
 
   * Set `variable` to `value` in `scope`.
 
-* Evaluate `include`'s `ContentBlock` statements in `scope`.
+* Execute `include`'s `ContentBlock` statements in `scope`.
