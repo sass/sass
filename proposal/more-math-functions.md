@@ -45,11 +45,11 @@ digits: `3.141592654`.
 clamp($min, $number, $max)
 ```
 
-* Throw an error if the units of `$min`, `$number`, and `$max` are not
-  [compatible][] with each other.
-* Return `$min` if `$min >= $max`
-* Return `$min` if `$number <= $min`.
-* Return `$max` if `$number >= $max`.
+* If the units of `$min`, `$number`, and `$max` are not [compatible][] with each
+  other, throw an error.
+* If `$min >= $max`, return `$min`.
+* If `$number <= $min`, return `$min`.
+* If `$number >= $max`, return `$max`.
 * Return `$number`.
 
 [compatible]: ../spec/built_in_modules/math.md#compatible
@@ -57,14 +57,15 @@ clamp($min, $number, $max)
 ### `hypot()`
 
 ```
-hypot($numbers...)
+hypot($arguments...)
 ```
 
-* Throw an error if any argument is not a [length][].
-* Return `Infinity` if any argument is `Infinity`.
-* Return the square root of the sum of the squares of each argument.
-
-[length]: https://drafts.csswg.org/css-values-4/#lengths
+* If all arguments are not compatible with each other, throw an error.
+* Let the unit of the return value be the same as that of the leftmost argument
+  that has a unit. If all arguments are unitless, let the return value be
+  unitless.
+  * If any argument is `Infinity`, return `Infinity`.
+  * Return the square root of the sum of the squares of each argument.
 
 ### Exponentiation
 
@@ -74,14 +75,14 @@ hypot($numbers...)
 log($number, $base: null)
 ```
 
-* Throw an error if `$number` has units or `$number < 0`.
-* If `$base == null`:
-  * Return `-Infinity` if `$number == 0`.
-  * Return `Infinity` if `$number == Infinity`.
-  * Return the [natural log][] of `$number`.
-* Otherwise:
-  * Throw an error if `$base < 0` or `$base == 0` or `$base == 1`.
-  * Return the natural log of `$number` divided by the natural log of `$base`.
+* If `$number` has units or `$number < 0`, throw an error.
+* If `$base` is null:
+  * If `$number == 0`, return `-Infinity` as a unitless number.
+  * If `$number == Infinity`, return `Infinity` as a unitless number.
+  * Return the [natural log][] of `$number`, as a unitless number.
+* Otherwise, if `$base < 0` or `$base == 0` or `$base == 1`, throw an error.
+* Otherwise, return the natural log of `$number` divided by the natural log of
+  `$base`, as a unitless number.
 
 [natural log]: https://en.wikipedia.org/wiki/Natural_logarithm
 
@@ -91,35 +92,38 @@ log($number, $base: null)
 pow($base, $exponent)
 ```
 
-* Throw an error if `$base` or `$exponent` has units.
+* If `$base` or `$exponent` has units, throw an error.
 
-* If `$exponent == 0`:
-  * Return `1`.
+* If `$exponent == 0`, return `1` as a unitless number.
 
 * Otherwise, if `$exponent == Infinity`:
-  * Return `NaN` if the `absolute value of $base == 1`.
-  * Return `Infinity` if the `absolute value of $base > 1` and `$exponent > 0`,
-    or if the `absolute value of $base < 1` and `$exponent < 0`.
-  * Return `0`.
+  * If `$base == 1` or `$base == -1`, return `NaN` as a unitless number.
+  * If `$base < -1` or `$base > 1` and if `$exponent > 0`, *or* if `$base > -1`
+    and `$base < 1` and `$exponent < 0`, return `Infinity` as a
+    unitless number.
+  * Return `0` as a unitless number.
 
 * Otherwise:
-  * Return `NaN` if `$base < 0` and `$exponent` is not an integer.
+  * If `$base < 0` and `$exponent` is not an integer, return `NaN` as a unitless
+    number.
 
-  * Return `Infinity` if `$base == 0` and `$exponent < 0`, or if
-    `$base == Infinity` and `$exponent > 0`.
+  * If `$base == 0` and `$exponent < 0`, or if `$base == Infinity` and
+    `$exponent > 0`, return `Infinity` as a unitless number.
+
   * If `$base == -0` and `$exponent < 0`, or if `$base == -Infinity` and
     `$exponent > 0`:
-    * Return `-Infinity` if `$exponent` is an odd integer.
-    * Return `Infinity`.
+    * If `$exponent` is an odd integer, return `-Infinity` as a unitless number.
+    * Return `Infinity` as a unitless number.
 
-  * Return `0` if `$base == 0` and `$exponent > 0`, or if `$base == Infinity`
-    and `$exponent < 0`.
+  * If `$base == 0` and `$exponent > 0`, or if `$base == Infinity` and
+    `$exponent < 0`, return `0` as a unitless number.
+
   * If `$base == -0` and `$exponent > 0`, or if `$base == -Infinity` and
     `$exponent < 0`:
-    * Return `-0` if `$exponent` is an odd integer.
-    * Return `0`.
+    * If `$exponent` is an odd integer, return `-0` as a unitless number.
+    * Return `0` as a unitless number.
 
-  * Return `$base` raised to the power of `$exponent`.
+  * Return `$base` raised to the power of `$exponent`, as a unitless number.
 
 #### `sqrt()`
 
@@ -127,11 +131,11 @@ pow($base, $exponent)
 sqrt($number)
 ```
 
-* Throw an error if `$number` has units.
-* Return `NaN` if `$number < 0`.
-* Return `-0` if `$number == -0`.
-* Return `Infinity` if `$number == Infinity`.
-* Return the square root of `$number`.
+* If `$number` has units, throw an error.
+* If `$number < 0`, return `NaN` as a unitless number.
+* If `$number == -0`, return `-0` as a unitless number.
+* If `$number == Infinity`, return `Infinity` as a unitless number.
+* Return the square root of `$number`, as a unitless number.
 
 ### Trigonometry
 
@@ -141,11 +145,10 @@ sqrt($number)
 cos($number)
 ```
 
-* Throw an error if `$number` has units but is not an [angle][]. If `$number` is
-  unitless, it is assumed to be in radians.
-* Return `NaN` if `$number == Infinity`.
-* Return the [cosine][] of `$number`, which yields a unitless number between
-  `-1` and `1`, exclusive.
+* If `$number` has units but is not an [angle][], throw an error.
+* If `$number` is unitless, treat it as though its unit were rad.
+* If `$number == Infinity`, return `NaN` as a unitless number.
+* Return the [cosine][] of `$number`, as a unitless number.
 
 [angle]: https://drafts.csswg.org/css-values-4/#angles
 [cosine]: https://en.wikipedia.org/wiki/Trigonometric_functions#Right-angled_triangle_definitions
@@ -156,12 +159,11 @@ cos($number)
 sin($number)
 ```
 
-* Throw an error if `$number` has units but is not an angle. If `$number` is
-  unitless, it is assumed to be in radians.
-* Return `NaN` if `$number == Infinity`.
-* Return `-0` if `$number == -0`.
-* Return the [sine][] of `$number`, which yields a unitless number between `-1`
-  and `1`, exclusive.
+* If `$number` has units but is not an angle, throw an error.
+* If `$number` is unitless, treat it as though its unit were rad.
+* If `$number == Infinity`, return `NaN` as a unitless number.
+* If `$number == -0`, return `-0` as a unitless number.
+* Return the [sine][] of `$number`, as a unitless number.
 
 [sine]: https://en.wikipedia.org/wiki/Trigonometric_functions#Right-angled_triangle_definitions
 
@@ -171,16 +173,15 @@ sin($number)
 tan($number)
 ```
 
-* Throw an error if `$number` has units but is not an angle. If `$number` is
-  unitless, it is assumed to be in radians.
-* Return `NaN` if `$number == Infinity`.
-* Return `-0` if `$number == -0`.
-* Return `Infinity` if `$number` is equivalent to `90 +/- (360 * n) deg`, where
-  `n` is any integer.
-* Return `-Infinity` if `$number` is equivalent to `-90 +/- (360 * n) deg`,
-  where `n` is any integer.
-* Return the [tangent][] of `$number`, which yields a unitless number between
-  `-Infinity` and `Infinity`.
+* If `$number` has units but is not an angle, throw an error.
+* If `$number` is unitless, treat it as though its unit were rad.
+* If `$number == Infinity`, return `NaN` as a unitless number.
+* If `$number == -0`, return `-0` as a unitless number.
+* If `$number` is equivalent to `90deg +/- 360deg * n`, where `n` is any
+  integer, return `Infinity` as a unitless number.
+* If `$number` is equivalent to `-90deg +/- 360deg * n`, where `n` is any
+  integer, return `-Infinity` as a unitless number.
+* Return the [tangent][] of `$number`, as a unitless number.
 
 [tangent]: https://en.wikipedia.org/wiki/Trigonometric_functions#Right-angled_triangle_definitions
 
@@ -190,11 +191,10 @@ tan($number)
 acos($number)
 ```
 
-* Throw an error if `$number` has units.
-* Return `NaN` if the `absolute value of $number > 1`.
-* Return `0` if `$number == 1`.
-* Return the [arccosine] of `$number`, which yields a value in radians between
-  `0` and `pi rad`, inclusive.
+* If `$number` has units, throw an error.
+* If `$number < -1` or `$number > 1`, return `NaN` as a number in rad.
+* If `$number == 1`, return `0rad`.
+* Return the [arccosine][] of `$number`, as a number in rad.
 
 [arccosine]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions#Basic_properties
 
@@ -204,11 +204,10 @@ acos($number)
 asin($number)
 ```
 
-* Throw an error if `$number` has units.
-* Return `NaN` if `absolute value of $number > 1`.
-* Return `-0` if `$number == -0`.
-* Return the [arcsine] of `$number`, which yields a value in radians between
-  `-0.5 * pi rad` and `0.5 * pi rad`, inclusive.
+* If `$number` has units, throw an error.
+* If `$number < -1` or `$number > 1`, return `NaN` as a number in rad.
+* If `$number == -0`, return `-0rad`.
+* Return the [arcsine][] of `$number`, as a number in rad.
 
 [arcsine]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions#Basic_properties
 
@@ -218,12 +217,11 @@ asin($number)
 atan($number)
 ```
 
-* Throw an error if `$number` has units.
-* Return `-0` if `$number == -0`.
-* Return `-0.5 * pi rad` if `$number == -Infinity`.
-* Return `0.5 * pi rad` if `$number == Infinity`.
-* Return the [arctangent] of `$number`, which yields a value in radians between
-  `-0.5 * pi rad` and `0.5 * pi rad`, inclusive.
+* If `$number` has units, throw an error.
+* If `$number == -0`, return `-0rad`.
+* If `$number == -Infinity`, return `-0.5rad * pi`.
+* If `$number == Infinity`, return `0.5rad * pi`.
+* Return the [arctangent][] of `$number`, as a number in rad.
 
 [arctangent]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions#Basic_properties
 
@@ -231,19 +229,18 @@ atan($number)
 
 > `atan2($y, $x)` is distinct from `atan($y / $x)` because it preserves the
 > quadrant of the point in question. For example, `atan2(1, -1)` corresponds to
-> the point `(-1, 1)` and returns `(0.75 * pi) rad`. In contrast, `atan(1 / -1)`
-> and `atan(-1 / 1)` resolve first to `atan(-1)`, so both return (`-0.25 * pi)
-> rad`.
+> the point `(-1, 1)` and returns `0.75rad * pi`. In contrast, `atan(1 / -1)`
+> and `atan(-1 / 1)` resolve first to `atan(-1)`, so both return
+> `-0.25rad * pi`.
 
 ```
 atan2($y, $x)
 ```
 
-* `$y` and `$x` must either have the same unit or be unitless. If not, throw an
-  error.
-* If the inputs match one of the following edge cases, return that value in
-  radians. Otherwise, return the [2-argument arctangent][] of `$y` and `$x`, in
-  radians.
+* If `$y` and `$x` are not compatible, throw an error.
+* If the inputs match one of the following edge cases, return the provided
+  number in rad. Otherwise, return the [2-argument arctangent][] of `$y` and
+  `$x`, as a number in rad.
 
 [2-argument arctangent]: https://en.wikipedia.org/wiki/Atan2
 
