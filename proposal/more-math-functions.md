@@ -61,11 +61,11 @@ hypot($arguments...)
 ```
 
 * If all arguments are not compatible with each other, throw an error.
-* Let the unit of the return value be the same as that of the leftmost argument
-  that has a unit. If all arguments are unitless, let the return value be
-  unitless.
-  * If any argument is `Infinity`, return `Infinity`.
-  * Return the square root of the sum of the squares of each argument.
+* If some arguments have units and some do not, throw an error.
+* If all arguments are unitless, the return value is unitless.
+* Otherwise, the return value takes the unit of the leftmost argument.
+* If any argument is `Infinity`, return `Infinity`.
+* Return the square root of the sum of the squares of each argument.
 
 ### Exponentiation
 
@@ -146,7 +146,7 @@ cos($number)
 ```
 
 * If `$number` has units but is not an [angle][], throw an error.
-* If `$number` is unitless, treat it as though its unit were rad.
+* If `$number` is unitless, treat it as though its unit were `rad`.
 * If `$number == Infinity`, return `NaN` as a unitless number.
 * Return the [cosine][] of `$number`, as a unitless number.
 
@@ -160,7 +160,7 @@ sin($number)
 ```
 
 * If `$number` has units but is not an angle, throw an error.
-* If `$number` is unitless, treat it as though its unit were rad.
+* If `$number` is unitless, treat it as though its unit were `rad`.
 * If `$number == Infinity`, return `NaN` as a unitless number.
 * If `$number == -0`, return `-0` as a unitless number.
 * Return the [sine][] of `$number`, as a unitless number.
@@ -174,7 +174,7 @@ tan($number)
 ```
 
 * If `$number` has units but is not an angle, throw an error.
-* If `$number` is unitless, treat it as though its unit were rad.
+* If `$number` is unitless, treat it as though its unit were `rad`.
 * If `$number == Infinity`, return `NaN` as a unitless number.
 * If `$number == -0`, return `-0` as a unitless number.
 * If `$number` is equivalent to `90deg +/- 360deg * n`, where `n` is any
@@ -192,9 +192,9 @@ acos($number)
 ```
 
 * If `$number` has units, throw an error.
-* If `$number < -1` or `$number > 1`, return `NaN` as a number in rad.
+* If `$number < -1` or `$number > 1`, return `NaN` as a number in `rad`.
 * If `$number == 1`, return `0rad`.
-* Return the [arccosine][] of `$number`, as a number in rad.
+* Return the [arccosine][] of `$number`, as a number in `rad`.
 
 [arccosine]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions#Basic_properties
 
@@ -205,9 +205,9 @@ asin($number)
 ```
 
 * If `$number` has units, throw an error.
-* If `$number < -1` or `$number > 1`, return `NaN` as a number in rad.
+* If `$number < -1` or `$number > 1`, return `NaN` as a number in `rad`.
 * If `$number == -0`, return `-0rad`.
-* Return the [arcsine][] of `$number`, as a number in rad.
+* Return the [arcsine][] of `$number`, as a number in `rad`.
 
 [arcsine]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions#Basic_properties
 
@@ -221,7 +221,7 @@ atan($number)
 * If `$number == -0`, return `-0rad`.
 * If `$number == -Infinity`, return `-0.5rad * pi`.
 * If `$number == Infinity`, return `0.5rad * pi`.
-* Return the [arctangent][] of `$number`, as a number in rad.
+* Return the [arctangent][] of `$number`, as a number in `rad`.
 
 [arctangent]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions#Basic_properties
 
@@ -239,8 +239,8 @@ atan2($y, $x)
 
 * If `$y` and `$x` are not compatible, throw an error.
 * If the inputs match one of the following edge cases, return the provided
-  number in rad. Otherwise, return the [2-argument arctangent][] of `$y` and
-  `$x`, as a number in rad.
+  number in `rad`. Otherwise, return the [2-argument arctangent][] of `$y` and
+  `$x`, as a number in `rad`.
 
 [2-argument arctangent]: https://en.wikipedia.org/wiki/Atan2
 
