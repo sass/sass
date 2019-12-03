@@ -1,6 +1,7 @@
-# Reconfigurable Modules: Draft 1
+# Reconfigurable Modules: Draft 1.1
 
-*([Issues](https://github.com/sass/sass/issues/2744))*
+*([Issues](https://github.com/sass/sass/issues/2744),
+[Changelog](forward-with.changes.md))*
 
 ## Table of Contents
 
@@ -190,15 +191,14 @@ Given a source file `file`, a configuration `config`, and an import context
 
     * For each `ForwardWithArgument` `argument` in this clause:
 
-      * If a variable exists in `rule-config` with the same name as `argument`'s
-        identifier, do nothing.
+      * If `argument` has a `!default` flag and a variable exists in
+        `rule-config` with the same name as `argument`'s identifier, do nothing.
 
-      * Otherwise:
+      * Otherwise, let `value` be the result of evaluating `argument`'s
+        expression.
 
-        * Let `value` be the result of evaluating `argument`'s expression.
-
-        * Add a variable to `rule-config` with the same name as `argument`'s
-          identifier, and with `value` as its value.
+      * Add a variable to `rule-config` with the same name as `argument`'s
+        identifier, and with `value` as its value.
 
   * Let `forwarded` be the result of [loading][] the module with `rule`'s URL
     and `rule-config`.
