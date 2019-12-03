@@ -1,10 +1,12 @@
-# More Math Functions: Draft 1
+# More Math Functions: Draft 1.1
 
 *[(Issue)](https://github.com/sass/sass/issues/851)*
 
 This proposal adds the following members to the built-in `sass:math` module.
 
 ## Table of Contents
+* [Background](#background)
+* [Summary](#summary)
 * [Variables](#variables)
   * [`$e`](#e)
   * [`$pi`](#pi)
@@ -24,6 +26,54 @@ This proposal adds the following members to the built-in `sass:math` module.
     * [`atan()`](#atan)
     * [`atan2()`](#atan2)
       * [Edge cases](#edge-cases)
+
+## Background
+
+> This section is non-normative.
+
+Sass recently implemented a module system with a new built-in `sass:math`
+module. The demand for built-in math functions can now be fulfilled safely by
+implementing them inside this module. None of these new functions will be made
+available on the global namespace.
+
+## Summary
+
+> This section is non-normative.
+
+This proposal defines Sassified versions of all the mathematical functions in
+the [CSS Values and Units 4 Draft][], as well as logarithms and the constants
+`e` and `pi`. Each function is basically equivalent to its mathematical form,
+with stricter unit handling. Proper unit handling prevents these functions from
+creating meaningless units. For instance, what is the unit of `(1px)`<sup><code>2</code></sup>? A `px`<sup><code>2</code></sup>?
+
+[CSS Values and Units 4 Draft]: https://drafts.csswg.org/css-values-4/#math
+
+To avoid issues like this, the exponential functions—`log()`, `pow()`, `sqrt()`—
+accept only a unitless number as input, and output a unitless number.
+
+The trig functions—`cos()`, `sin()`, `tan()`—accept a SassScript number with a
+unit, as long as that unit is an [angle][] type. If the input is a unitless
+number, it is treated as though it were in `rad`. These functions output a
+unitless number.
+
+[angle]: https://drafts.csswg.org/css-values-4/#angles
+
+The inverse trig functions—`acos()`, `asin()`, `atan()`—accept a unitless number
+and output a SassScript number in `rad`. `atan2()` is similar, but it accepts
+two unitless numbers.
+
+`clamp()` accepts three SassScript numbers with [compatible][] units: the
+minimum value, preferred value, and maximum value. This function "clamps" the
+preferred value in between the minimum and maximum values, while preserving
+their units appropriately. For example, `clamp(1in, 15cm, 12in)` outputs `15cm`,
+whereas `clamp(1in, 1cm, 12in)` outputs `1in`.
+
+[compatible]: ../spec/built_in_modules/math.md#compatible
+
+`hypot()` accepts `n` SassScript numbers with compatible units, and outputs the
+length of the `n`-dimensional vector that has components equal to each of the
+inputs. Since the inputs' units may all be different, the output takes the unit
+of the first input.
 
 ## Variables
 
@@ -45,14 +95,12 @@ digits: `3.141592654`.
 clamp($min, $number, $max)
 ```
 
-* If the units of `$min`, `$number`, and `$max` are not [compatible][] with each
+* If the units of `$min`, `$number`, and `$max` are not compatible with each
   other, throw an error.
 * If `$min >= $max`, return `$min`.
 * If `$number <= $min`, return `$min`.
 * If `$number >= $max`, return `$max`.
 * Return `$number`.
-
-[compatible]: ../spec/built_in_modules/math.md#compatible
 
 ### `hypot()`
 
@@ -145,12 +193,11 @@ sqrt($number)
 cos($number)
 ```
 
-* If `$number` has units but is not an [angle][], throw an error.
+* If `$number` has units but is not an angle, throw an error.
 * If `$number` is unitless, treat it as though its unit were `rad`.
 * If `$number == Infinity`, return `NaN` as a unitless number.
 * Return the [cosine][] of `$number`, as a unitless number.
 
-[angle]: https://drafts.csswg.org/css-values-4/#angles
 [cosine]: https://en.wikipedia.org/wiki/Trigonometric_functions#Right-angled_triangle_definitions
 
 #### `sin()`
