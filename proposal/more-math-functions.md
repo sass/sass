@@ -44,7 +44,8 @@ This proposal defines Sassified versions of all the mathematical functions in
 the [CSS Values and Units 4 Draft][], as well as logarithms and the constants
 `e` and `pi`. Each function is basically equivalent to its mathematical form,
 with stricter unit handling. Proper unit handling prevents these functions from
-creating meaningless units. For instance, what is the unit of `(1px)`<sup><code>2</code></sup>? A `px`<sup><code>2</code></sup>?
+creating meaningless units. For instance, consider `(1px)^(1/3)`—what does
+the unit `px^(1/3)` mean?
 
 [CSS Values and Units 4 Draft]: https://drafts.csswg.org/css-values-4/#math
 
