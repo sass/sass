@@ -7,6 +7,8 @@ This proposal adds the following members to the built-in `sass:math` module.
 ## Table of Contents
 * [Background](#background)
 * [Summary](#summary)
+* [Semantics](#semantics)
+  * [Built-in Module Variables](#built-in-module-variables)
 * [Variables](#variables)
   * [`$e`](#e)
   * [`$pi`](#pi)
@@ -75,6 +77,13 @@ whereas `clamp(1in, 1cm, 12in)` outputs `1in`.
 length of the `n`-dimensional vector that has components equal to each of the
 inputs. Since the inputs' units may all be different, the output takes the unit
 of the first input.
+
+## Semantics
+
+### Built-in Module Variables
+
+If a variable is provided by a built-in module, it is not modifiable. Any
+attempts to reassign such a variable results in failure.
 
 ## Variables
 

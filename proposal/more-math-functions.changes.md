@@ -1,6 +1,8 @@
 ## Draft 2
 
-* `$e` and `$pi` have 1 more digit of precision after the decimal.
+* Variables
+  * `$e` and `$pi` have 1 more digit of precision after the decimal.
+  * Variables from built-in modules cannot be modified.
 
 * `Infinity` and `-Infinity`:
   * If any argument to `hypot()` equals `-Infinity`, it returns `Infinity`.
