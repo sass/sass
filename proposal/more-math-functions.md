@@ -206,7 +206,8 @@ cos($number)
 
 * If `$number` has units but is not an angle, throw an error.
 * If `$number` is unitless, treat it as though its unit were `rad`.
-* If `$number == Infinity` or `$number == -Infinity`, return `NaN` as a unitless number.
+* If `$number == Infinity` or `$number == -Infinity`, return `NaN` as a unitless
+  number.
 * Return the [cosine][] of `$number`, as a unitless number.
 
 [cosine]: https://en.wikipedia.org/wiki/Trigonometric_functions#Right-angled_triangle_definitions
@@ -219,7 +220,8 @@ sin($number)
 
 * If `$number` has units but is not an angle, throw an error.
 * If `$number` is unitless, treat it as though its unit were `rad`.
-* If `$number == Infinity` or `$number == -Infinity`, return `NaN` as a unitless number.
+* If `$number == Infinity` or `$number == -Infinity`, return `NaN` as a unitless
+  number.
 * If `$number == -0`, return `-0` as a unitless number.
 * Return the [sine][] of `$number`, as a unitless number.
 
@@ -233,12 +235,9 @@ tan($number)
 
 * If `$number` has units but is not an angle, throw an error.
 * If `$number` is unitless, treat it as though its unit were `rad`.
-* If `$number == Infinity` or `$number == -Infinity`, return `NaN` as a unitless number.
+* If `$number == Infinity` or `$number == -Infinity`, return `NaN` as a unitless
+  number.
 * If `$number == -0`, return `-0` as a unitless number.
-* If `$number` has units `rad` and is equal to `0.5rad * pi +/- 2rad * pi * n`,
-  where `n` is any integer, return `16331239353195370` as a unitless number.
-* If `$number` has units `rad` and is equal to `-0.5rad * pi +/- 2rad * pi * n`,
-  where `n` is any integer, return `-16331239353195370` as a unitless number.
 * If `$number` is equivalent to `90deg +/- 360deg * n`, where `n` is any
   integer, return `Infinity` as a unitless number.
 * If `$number` is equivalent to `-90deg +/- 360deg * n`, where `n` is any

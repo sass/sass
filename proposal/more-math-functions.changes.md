@@ -15,9 +15,6 @@
   * `clamp()`'s arguments must all have compatible units, or all be unitless.
   * `log()` does not error unless the input has units, and instead delegates
     edge cases to division.
-  * `tan()` differentiates inputs in `rad` vs `deg`, since `90deg` cannot be
-    precisely expressed in `rad`. E.g. `tan(90deg)` outputs `Infinity` whereas
-    `tan(0.5rad * pi)` outputs `16331239353195370`.
 
 * Output units:
   * For `acos()`, `asin()`, and `atan()`, and `atan2()`, all of their outputs
