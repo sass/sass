@@ -62,7 +62,7 @@ unitless number.
 [angle]: https://drafts.csswg.org/css-values-4/#angles
 
 The inverse trig functions—`acos()`, `asin()`, `atan()`—accept a unitless number
-and output a SassScript number in `rad`. `atan2()` is similar, but it accepts
+and output a SassScript number in `deg`. `atan2()` is similar, but it accepts
 two unitless numbers.
 
 `clamp()` accepts three SassScript numbers with [compatible][] units: the
