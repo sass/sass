@@ -62,6 +62,13 @@ message InboundMessage {
       COMPACT = 3;
     }
 
+    // How to format the CSS output.
+    OutputStyle style = 4;
+
+    // Whether to generate a source map. Note that this will *not* add a source
+    // map comment to the stylesheet; that's up to the host or its users.
+    bool source_map = 5;
+
     // A wrapper message that represents either a user-defined importer or a
     // load path on disk. This must be a wrapper because `oneof` types can't be
     // `repeated`.
@@ -78,18 +85,22 @@ message InboundMessage {
         // generating this ID and ensuring that it's unique across all
         // importers registered for this compilation.
         uint32 importer_id = 2;
+
+        // A unique ID for a special kind of user-defined importer that tells
+        // the compiler where to look for files on the physical filesystem, but
+        // leaves the details of resolving partials and extensions and loading
+        // the file from disk up to the compiler itself.
+        //
+        // This ID will be included in outbound `FileImportRequest` messages to
+        // indicate which importer is being called. The host is responsible for
+        // generating this ID and ensuring that it's unique across all importers
+        // registered for this compilation.
+        uint32 file_importer_id = 3;
       }
     }
 
-    // How to format the CSS output.
-    OutputStyle style = 4;
-
-    // Whether to generate a source map. Note that this will *not* add a source
-    // map comment to the stylesheet; that's up to the host or its users.
-    bool source_map = 5;
-
     // Importers (including load paths on the filesystem) to use when resolving
-    // imports that can't be resolved relative to the file that containsit. Each
+    // imports that can't be resolved relative to the file that contains it. Each
     // importer is checked in order until one recognizes the imported URL.
     repeated Importer importers = 6;
 
@@ -116,21 +127,12 @@ message InboundMessage {
       // including scheme.
       string url = 2;
 
-      // A path on disk to look for the file to load. The compiler must resolve
-      // partials, file extensions, and index files to determine whether a file
-      // actually exists and what its canonical URL is.
-      //
-      // This response exists as a shorthand for importers that just encode
-      // logic for finding files, so they don't have to re-implement all of
-      // Sass's resolution logic.
-      string file = 3;
-
       // An error message explaining why canonicalization failed.
       //
       // This indicates that a stylesheet was found, but a canonical URL for it
       // could not be determined. If no stylesheet was found, `result` should be
       // `null` instead.
-      string error = 4;
+      string error = 3;
     }
   }
 
@@ -161,6 +163,32 @@ message InboundMessage {
     oneof result {
       // The contents of the loaded stylesheet.
       ImportSuccess success = 2;
+
+      // An error message explaining why the URL could not be loaded.
+      string error = 3;
+    }
+  }
+
+  // A response indicating the result of redirecting a URL to the filesystem.
+  message FileImportResponse {
+    uint32 id = 1;
+
+    // The result of loading the URL. Mandatory.
+    oneof result {
+      // The absolute `file:` URL to look for the file on the physical
+      // filesystem.
+      //
+      // The host must ensure that this URL follows the format for an absolute
+      // `file:` URL on the current operating system without a hostname, and the
+      // compiler must verify this to the best of its ability. See
+      // https://en.wikipedia.org/wiki/File_URI_scheme for details on the
+      // format.
+      //
+      // The compiler must handle turning this into a canonical URL by resolving
+      // it for partials, file extensions, and index files. The compiler must
+      // then loading the contents of the resulting canonical URL from the
+      // filesystem.
+      string file_url = 2;
 
       // An error message explaining why the URL could not be loaded.
       string error = 3;
@@ -200,6 +228,7 @@ message InboundMessage {
     CompileRequest compileRequest = 2;
     CanonicalizeResponse canonicalizeResponse = 3;
     ImportResponse importResponse = 4;
+    FileImportResponse fileImportResponse = 5;
     FunctionCallResponse functionCallResponse = 6;
   }
 }
@@ -373,9 +402,29 @@ message OutboundMessage {
     // The request id for the compilation that triggered the message. Mandatory.
     uint32 compilation_id = 2;
 
-    // The unique ID of the importer being invoked. This must match an importer
-    // ID passed to this compilation in `CompileRequest.importers` or
-    // `CompileRequest.input.string.importer`. Mandatory.
+    // The unique ID of the importer being invoked. This must match an
+    // `Importer.importer_id` passed to this compilation in
+    // `CompileRequest.importers` or `CompileRequest.input.string.importer`.
+    // Mandatory.
+    uint32 importer_id = 3;
+
+    // The canonical URL of the import. This is guaranteed to be a URL returned
+    // by a `CanonicalizeRequest` to this importer.
+    string url = 4;
+  }
+
+  // A request for a custom filesystem importer to load the contents of a
+  // stylesheet.
+  message FileImportRequest {
+    uint32 id = 1;
+
+    // The request id for the compilation that triggered the message. Mandatory.
+    uint32 compilation_id = 2;
+
+    // The unique ID of the importer being invoked. This must match an
+    // `Importer.file_importer_id` passed to this compilation in
+    // `CompileRequest.importers` or `CompileRequest.input.string.importer`.
+    // Mandatory.
     uint32 importer_id = 3;
 
     // The canonical URL of the import. This is guaranteed to be a URL returned
@@ -423,7 +472,8 @@ message OutboundMessage {
     LogEvent logEvent = 3;
     CanonicalizeRequest canonicalizeRequest = 4;
     ImportRequest importRequest = 5;
-    FunctionCallRequest functionCallRequest = 6;
+    FileImportRequest fileImportRequest = 6;
+    FunctionCallRequest functionCallRequest = 7;
   }
 }
 
