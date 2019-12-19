@@ -82,8 +82,57 @@ of the first input.
 
 ### Built-in Module Variables
 
-If a variable is provided by a built-in module, it is not modifiable. Any
-attempts to reassign such a variable results in failure.
+Variables defined in built-in modules are not modifiable. As such, this proposal
+modifies the semantics of [Executing a Variable Declaration][] within the
+[Variables spec][] to read as follows:
+
+[Executing a Variable Declaration]: ../spec/variables.md#executing-a-variable-declaration
+[Variables spec]: ../spec/variables.md
+
+To execute a `VariableDeclaration` `declaration`:
+
+* Let `value` be the result of evaluating `declaration`'s `Expression`.
+
+* Let `name` be `declaration`'s `Variable`.
+
+* **Let `resolved` be the result of [resolving a variable][] named `name`.**
+
+[resolving a variable]: ../spec/modules.md#resolving-a-member
+
+* If `name` is a `NamespacedVariable` and `declaration` has a `!global` flag,
+  throw an error.
+
+* **Otherwise, if `resolved` is a variable from a built-in module, throw an
+  error.**
+
+* Otherwise, if `declaration` is outside of any block of statements, *or*
+  `declaration` has a `!global` flag, *or* `name` is a `NamespacedVariable`:
+
+  * ~~Let `resolved` be the result of [resolving a variable][] named `name` using
+    `file`, `uses`, and `import`.~~
+
+  [...]
+
+* Otherwise, if `declaration` is within one or more blocks associated with
+  `@if`, `@each`, `@for`, and/or `@while` rules *and no other blocks*:
+
+  * ~~Let `resolved` be the result of [resolving a variable][] named `name`.~~
+
+  [...]
+
+* ~~Otherwise, if no block containing `declaration` has a [scope][] with a
+  variable named `name`, set the innermost block's scope's variable `name` to
+  `value`.~~
+
+[scope]: ../spec/variables.md#scope
+
+* **Otherwise, if `resolved` is null, get the innermost block containing
+  `declaration` and set its scope's variable `name` to `value`.**
+
+* ~~Otherwise, let `scope` be the scope of the innermost block such that `scope`
+  already has a variable named `name`.~~
+
+* **Otherwise, set `resolved`'s value to `value`.**
 
 ## Variables
 
