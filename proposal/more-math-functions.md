@@ -1,4 +1,4 @@
-# More Math Functions: Draft 1.1
+# More Math Functions: Draft 2
 
 *[(Issue)](https://github.com/sass/sass/issues/851)*
 
@@ -7,6 +7,8 @@ This proposal adds the following members to the built-in `sass:math` module.
 ## Table of Contents
 * [Background](#background)
 * [Summary](#summary)
+* [Semantics](#semantics)
+  * [Built-in Module Variables](#built-in-module-variables)
 * [Variables](#variables)
   * [`$e`](#e)
   * [`$pi`](#pi)
@@ -60,7 +62,7 @@ unitless number.
 [angle]: https://drafts.csswg.org/css-values-4/#angles
 
 The inverse trig functions—`acos()`, `asin()`, `atan()`—accept a unitless number
-and output a SassScript number in `rad`. `atan2()` is similar, but it accepts
+and output a SassScript number in `deg`. `atan2()` is similar, but it accepts
 two unitless numbers.
 
 `clamp()` accepts three SassScript numbers with [compatible][] units: the
@@ -76,17 +78,73 @@ length of the `n`-dimensional vector that has components equal to each of the
 inputs. Since the inputs' units may all be different, the output takes the unit
 of the first input.
 
+## Semantics
+
+### Built-in Module Variables
+
+Variables defined in built-in modules are not modifiable. As such, this proposal
+modifies the semantics of [Executing a Variable Declaration][] within the
+[Variables spec][] to read as follows:
+
+[Executing a Variable Declaration]: ../spec/variables.md#executing-a-variable-declaration
+[Variables spec]: ../spec/variables.md
+
+To execute a `VariableDeclaration` `declaration`:
+
+* Let `value` be the result of evaluating `declaration`'s `Expression`.
+
+* Let `name` be `declaration`'s `Variable`.
+
+* **Let `resolved` be the result of [resolving a variable][] named `name`.**
+
+[resolving a variable]: ../spec/modules.md#resolving-a-member
+
+* If `name` is a `NamespacedVariable` and `declaration` has a `!global` flag,
+  throw an error.
+
+* **Otherwise, if `resolved` is a variable from a built-in module, throw an
+  error.**
+
+* Otherwise, if `declaration` is outside of any block of statements, *or*
+  `declaration` has a `!global` flag, *or* `name` is a `NamespacedVariable`:
+
+  * ~~Let `resolved` be the result of [resolving a variable][] named `name` using
+    `file`, `uses`, and `import`.~~
+
+  (...)
+
+* Otherwise, if `declaration` is within one or more blocks associated with
+  `@if`, `@each`, `@for`, and/or `@while` rules *and no other blocks*:
+
+  * ~~Let `resolved` be the result of [resolving a variable][] named `name`.~~
+
+  (...)
+
+* ~~Otherwise, if no block containing `declaration` has a [scope][] with a
+  variable named `name`, set the innermost block's scope's variable `name` to
+  `value`.~~
+
+[scope]: ../spec/variables.md#scope
+
+* **Otherwise, if `resolved` is null, get the innermost block containing
+  `declaration` and set its scope's variable `name` to `value`.**
+
+* ~~Otherwise, let `scope` be the scope of the innermost block such that `scope`
+  already has a variable named `name`.~~
+
+* **Otherwise, set `resolved`'s value to `value`.**
+
 ## Variables
 
 ### `$e`
 
 Equal to the value of the mathematical constant `e` with a precision of 10
-digits: `2.718281828`.
+digits after the decimal point: `2.7182818285`.
 
 ### `$pi`
 
 Equal to the value of the mathematical constant `pi` with a precision of 10
-digits: `3.141592654`.
+digits after the decimal point: `3.1415926536`.
 
 ## Functions
 
@@ -98,6 +156,7 @@ clamp($min, $number, $max)
 
 * If the units of `$min`, `$number`, and `$max` are not compatible with each
   other, throw an error.
+* If some arguments have units and some do not, throw an error.
 * If `$min >= $max`, return `$min`.
 * If `$number <= $min`, return `$min`.
 * If `$number >= $max`, return `$max`.
@@ -113,7 +172,7 @@ hypot($arguments...)
 * If some arguments have units and some do not, throw an error.
 * If all arguments are unitless, the return value is unitless.
 * Otherwise, the return value takes the unit of the leftmost argument.
-* If any argument is `Infinity`, return `Infinity`.
+* If any argument equals `Infinity` or `-Infinity`, return `Infinity`.
 * Return the square root of the sum of the squares of each argument.
 
 ### Exponentiation
@@ -124,12 +183,12 @@ hypot($arguments...)
 log($number, $base: null)
 ```
 
-* If `$number` has units or `$number < 0`, throw an error.
+* If `$number` has units, throw an error.
 * If `$base` is null:
+  * If `$number < 0`, return `NaN` as a unitless number.
   * If `$number == 0`, return `-Infinity` as a unitless number.
   * If `$number == Infinity`, return `Infinity` as a unitless number.
   * Return the [natural log][] of `$number`, as a unitless number.
-* Otherwise, if `$base < 0` or `$base == 0` or `$base == 1`, throw an error.
 * Otherwise, return the natural log of `$number` divided by the natural log of
   `$base`, as a unitless number.
 
@@ -145,7 +204,7 @@ pow($base, $exponent)
 
 * If `$exponent == 0`, return `1` as a unitless number.
 
-* Otherwise, if `$exponent == Infinity`:
+* Otherwise, if `$exponent == Infinity` or `$exponent == -Infinity`:
   * If `$base == 1` or `$base == -1`, return `NaN` as a unitless number.
   * If `$base < -1` or `$base > 1` and if `$exponent > 0`, *or* if `$base > -1`
     and `$base < 1` and `$exponent < 0`, return `Infinity` as a
@@ -196,7 +255,8 @@ cos($number)
 
 * If `$number` has units but is not an angle, throw an error.
 * If `$number` is unitless, treat it as though its unit were `rad`.
-* If `$number == Infinity`, return `NaN` as a unitless number.
+* If `$number == Infinity` or `$number == -Infinity`, return `NaN` as a unitless
+  number.
 * Return the [cosine][] of `$number`, as a unitless number.
 
 [cosine]: https://en.wikipedia.org/wiki/Trigonometric_functions#Right-angled_triangle_definitions
@@ -209,7 +269,8 @@ sin($number)
 
 * If `$number` has units but is not an angle, throw an error.
 * If `$number` is unitless, treat it as though its unit were `rad`.
-* If `$number == Infinity`, return `NaN` as a unitless number.
+* If `$number == Infinity` or `$number == -Infinity`, return `NaN` as a unitless
+  number.
 * If `$number == -0`, return `-0` as a unitless number.
 * Return the [sine][] of `$number`, as a unitless number.
 
@@ -223,7 +284,8 @@ tan($number)
 
 * If `$number` has units but is not an angle, throw an error.
 * If `$number` is unitless, treat it as though its unit were `rad`.
-* If `$number == Infinity`, return `NaN` as a unitless number.
+* If `$number == Infinity` or `$number == -Infinity`, return `NaN` as a unitless
+  number.
 * If `$number == -0`, return `-0` as a unitless number.
 * If `$number` is equivalent to `90deg +/- 360deg * n`, where `n` is any
   integer, return `Infinity` as a unitless number.
@@ -240,9 +302,9 @@ acos($number)
 ```
 
 * If `$number` has units, throw an error.
-* If `$number < -1` or `$number > 1`, return `NaN` as a number in `rad`.
-* If `$number == 1`, return `0rad`.
-* Return the [arccosine][] of `$number`, as a number in `rad`.
+* If `$number < -1` or `$number > 1`, return `NaN` as a number in `deg`.
+* If `$number == 1`, return `0deg`.
+* Return the [arccosine][] of `$number`, as a number in `deg`.
 
 [arccosine]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions#Basic_properties
 
@@ -253,9 +315,9 @@ asin($number)
 ```
 
 * If `$number` has units, throw an error.
-* If `$number < -1` or `$number > 1`, return `NaN` as a number in `rad`.
-* If `$number == -0`, return `-0rad`.
-* Return the [arcsine][] of `$number`, as a number in `rad`.
+* If `$number < -1` or `$number > 1`, return `NaN` as a number in `deg`.
+* If `$number == -0`, return `-0deg`.
+* Return the [arcsine][] of `$number`, as a number in `deg`.
 
 [arcsine]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions#Basic_properties
 
@@ -266,10 +328,10 @@ atan($number)
 ```
 
 * If `$number` has units, throw an error.
-* If `$number == -0`, return `-0rad`.
-* If `$number == -Infinity`, return `-0.5rad * pi`.
-* If `$number == Infinity`, return `0.5rad * pi`.
-* Return the [arctangent][] of `$number`, as a number in `rad`.
+* If `$number == -0`, return `-0deg`.
+* If `$number == -Infinity`, return `-90deg`.
+* If `$number == Infinity`, return `90deg`.
+* Return the [arctangent][] of `$number`, as a number in `deg`.
 
 [arctangent]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions#Basic_properties
 
@@ -277,9 +339,8 @@ atan($number)
 
 > `atan2($y, $x)` is distinct from `atan($y / $x)` because it preserves the
 > quadrant of the point in question. For example, `atan2(1, -1)` corresponds to
-> the point `(-1, 1)` and returns `0.75rad * pi`. In contrast, `atan(1 / -1)`
-> and `atan(-1 / 1)` resolve first to `atan(-1)`, so both return
-> `-0.25rad * pi`.
+> the point `(-1, 1)` and returns `135deg`. In contrast, `atan(1 / -1)` and
+> `atan(-1 / 1)` resolve first to `atan(-1)`, so both return `-45deg`.
 
 ```
 atan2($y, $x)
@@ -287,8 +348,8 @@ atan2($y, $x)
 
 * If `$y` and `$x` are not compatible, throw an error.
 * If the inputs match one of the following edge cases, return the provided
-  number in `rad`. Otherwise, return the [2-argument arctangent][] of `$y` and
-  `$x`, as a number in `rad`.
+  number. Otherwise, return the [2-argument arctangent][] of `$y` and `$x`, as a
+  number in `deg`.
 
 [2-argument arctangent]: https://en.wikipedia.org/wiki/Atan2
 
@@ -314,57 +375,57 @@ atan2($y, $x)
     <tr>
       <th rowspan="6">Y</th>
       <th>−Infinity</th>
-      <td>-0.75 * pi</td>
-      <td>-0.5 * pi</td>
-      <td>-0.5 * pi</td>
-      <td>-0.5 * pi</td>
-      <td>-0.5 * pi</td>
-      <td>-0.25 * pi</td>
+      <td>-135deg</td>
+      <td>-90deg</td>
+      <td>-90deg</td>
+      <td>-90deg</td>
+      <td>-90deg</td>
+      <td>-45deg</td>
     </tr>
     <tr>
       <th>-finite</th>
-      <td>-pi</td>
+      <td>-180deg</td>
       <td></td>
-      <td>-0.5 * pi</td>
-      <td>-0.5 * pi</td>
+      <td>-90deg</td>
+      <td>-90deg</td>
       <td></td>
-      <td>-0</td>
+      <td>-0deg</td>
     </tr>
     <tr>
       <th>-0</th>
-      <td>-pi</td>
-      <td>-pi</td>
-      <td>-pi</td>
-      <td>-0</td>
-      <td>-0</td>
-      <td>-0</td>
+      <td>-180deg</td>
+      <td>-180deg</td>
+      <td>-180deg</td>
+      <td>-0deg</td>
+      <td>-0deg</td>
+      <td>-0deg</td>
     </tr>
     <tr>
       <th>0</th>
-      <td>pi</td>
-      <td>pi</td>
-      <td>pi</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
+      <td>180deg</td>
+      <td>180deg</td>
+      <td>180deg</td>
+      <td>0deg</td>
+      <td>0deg</td>
+      <td>0deg</td>
     </tr>
     <tr>
       <th>finite</th>
-      <td>pi</td>
+      <td>180deg</td>
       <td></td>
-      <td>0.5 * pi</td>
-      <td>0.5 * pi</td>
+      <td>90deg</td>
+      <td>90deg</td>
       <td></td>
-      <td>0</td>
+      <td>0deg</td>
     </tr>
     <tr>
       <th>Infinity</th>
-      <td>0.75 * pi</td>
-      <td>0.5 * pi</td>
-      <td>0.5 * pi</td>
-      <td>0.5 * pi</td>
-      <td>0.5 * pi</td>
-      <td>0.25 * pi</td>
+      <td>135deg</td>
+      <td>90deg</td>
+      <td>90deg</td>
+      <td>90deg</td>
+      <td>90deg</td>
+      <td>45deg</td>
     </tr>
   </tbody>
 </table>
