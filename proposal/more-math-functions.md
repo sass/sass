@@ -111,14 +111,14 @@ To execute a `VariableDeclaration` `declaration`:
   * ~~Let `resolved` be the result of [resolving a variable][] named `name` using
     `file`, `uses`, and `import`.~~
 
-  [...]
+  (...)
 
 * Otherwise, if `declaration` is within one or more blocks associated with
   `@if`, `@each`, `@for`, and/or `@while` rules *and no other blocks*:
 
   * ~~Let `resolved` be the result of [resolving a variable][] named `name`.~~
 
-  [...]
+  (...)
 
 * ~~Otherwise, if no block containing `declaration` has a [scope][] with a
   variable named `name`, set the innermost block's scope's variable `name` to
