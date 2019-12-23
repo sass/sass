@@ -268,8 +268,8 @@ expose Sass-specific APIs like the [assertions](#assertions) described above.
 
 The protocol allows first-class functions defined in the compiler to be passed
 to the host (as `Value.CompilerFunction`s) and vice-versa (as
-`Value.HostFunctions)`, and allows each endpoint to invoke functions defined in
-the other. The host API should hide the distinction between the two function
+`Value.HostFunctions)`. It allows the compiler to invoke functions defined in
+the host. The host API should hide the distinction between the two function
 types as much as possible, but it may refuse to allow host-defined functions to
 be invoked on the host, since doing so correctly would require parsing those
 functions' signatures.
