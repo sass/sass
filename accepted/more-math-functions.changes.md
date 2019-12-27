@@ -1,3 +1,7 @@
+## Draft 2.1
+
+* atan2()'s arguments must all have compatible units, or all be unitless.
+
 ## Draft 2
 
 * Variables
