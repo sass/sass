@@ -1,4 +1,4 @@
-# More Math Functions: Draft 3
+# More Math Functions: Draft 2.1
 
 *[(Issue)](https://github.com/sass/sass/issues/851)*
 
