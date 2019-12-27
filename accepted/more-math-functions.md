@@ -1,4 +1,4 @@
-# More Math Functions: Draft 2
+# More Math Functions: Draft 3
 
 *[(Issue)](https://github.com/sass/sass/issues/851)*
 
@@ -347,6 +347,7 @@ atan2($y, $x)
 ```
 
 * If `$y` and `$x` are not compatible, throw an error.
+* If `$y` has units and `$x` does not, or vice-versa, throw an error.
 * If the inputs match one of the following edge cases, return the provided
   number. Otherwise, return the [2-argument arctangent][] of `$y` and `$x`, as a
   number in `deg`.
