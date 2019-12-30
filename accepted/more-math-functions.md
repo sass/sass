@@ -1,4 +1,4 @@
-# More Math Functions: Draft 2.1
+# More Math Functions: Draft 2.2
 
 *[(Issue)](https://github.com/sass/sass/issues/851)*
 
@@ -165,15 +165,15 @@ clamp($min, $number, $max)
 ### `hypot()`
 
 ```
-hypot($arguments...)
+hypot($numbers...)
 ```
 
-* If all arguments are not compatible with each other, throw an error.
-* If some arguments have units and some do not, throw an error.
-* If all arguments are unitless, the return value is unitless.
-* Otherwise, the return value takes the unit of the leftmost argument.
-* If any argument equals `Infinity` or `-Infinity`, return `Infinity`.
-* Return the square root of the sum of the squares of each argument.
+* If all numbers are not compatible with each other, throw an error.
+* If some numbers have units and some do not, throw an error.
+* If all numbers are unitless, the return value is unitless.
+* Otherwise, the return value takes the unit of the leftmost number.
+* If any number equals `Infinity` or `-Infinity`, return `Infinity`.
+* Return the square root of the sum of the squares of each number.
 
 ### Exponentiation
 
