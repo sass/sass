@@ -1,3 +1,10 @@
+## Draft 2.2
+
+* For consistency, all functions that have cases for `-0` also have cases for
+  `0`. This includes `sqrt()`, `sin()`, `tan()`, `asin()`, and `atan()`.
+
+* `hypot()`'s arguments are named `$numbers` for consistency.
+
 ## Draft 2.1
 
 * atan2()'s arguments must all have compatible units, or all be unitless.

@@ -1,4 +1,4 @@
-# More Math Functions: Draft 2.1
+# More Math Functions: Draft 2.2
 
 *[(Issue)](https://github.com/sass/sass/issues/851)*
 
@@ -165,15 +165,15 @@ clamp($min, $number, $max)
 ### `hypot()`
 
 ```
-hypot($arguments...)
+hypot($numbers...)
 ```
 
-* If all arguments are not compatible with each other, throw an error.
-* If some arguments have units and some do not, throw an error.
-* If all arguments are unitless, the return value is unitless.
-* Otherwise, the return value takes the unit of the leftmost argument.
-* If any argument equals `Infinity` or `-Infinity`, return `Infinity`.
-* Return the square root of the sum of the squares of each argument.
+* If all numbers are not compatible with each other, throw an error.
+* If some numbers have units and some do not, throw an error.
+* If all numbers are unitless, the return value is unitless.
+* Otherwise, the return value takes the unit of the leftmost number.
+* If any number equals `Infinity` or `-Infinity`, return `Infinity`.
+* Return the square root of the sum of the squares of each number.
 
 ### Exponentiation
 
@@ -242,6 +242,7 @@ sqrt($number)
 * If `$number` has units, throw an error.
 * If `$number < 0`, return `NaN` as a unitless number.
 * If `$number == -0`, return `-0` as a unitless number.
+* If `$number == 0`, return `0` as a unitless number.
 * If `$number == Infinity`, return `Infinity` as a unitless number.
 * Return the square root of `$number`, as a unitless number.
 
@@ -272,6 +273,7 @@ sin($number)
 * If `$number == Infinity` or `$number == -Infinity`, return `NaN` as a unitless
   number.
 * If `$number == -0`, return `-0` as a unitless number.
+* If `$number == 0`, return `0` as a unitless number.
 * Return the [sine][] of `$number`, as a unitless number.
 
 [sine]: https://en.wikipedia.org/wiki/Trigonometric_functions#Right-angled_triangle_definitions
@@ -287,6 +289,7 @@ tan($number)
 * If `$number == Infinity` or `$number == -Infinity`, return `NaN` as a unitless
   number.
 * If `$number == -0`, return `-0` as a unitless number.
+* If `$number == 0`, return `0` as a unitless number.
 * If `$number` is equivalent to `90deg +/- 360deg * n`, where `n` is any
   integer, return `Infinity` as a unitless number.
 * If `$number` is equivalent to `-90deg +/- 360deg * n`, where `n` is any
@@ -317,6 +320,7 @@ asin($number)
 * If `$number` has units, throw an error.
 * If `$number < -1` or `$number > 1`, return `NaN` as a number in `deg`.
 * If `$number == -0`, return `-0deg`.
+* If `$number == 0`, return `0deg`.
 * Return the [arcsine][] of `$number`, as a number in `deg`.
 
 [arcsine]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions#Basic_properties
@@ -329,6 +333,7 @@ atan($number)
 
 * If `$number` has units, throw an error.
 * If `$number == -0`, return `-0deg`.
+* If `$number == 0`, return `0deg`.
 * If `$number == -Infinity`, return `-90deg`.
 * If `$number == Infinity`, return `90deg`.
 * Return the [arctangent][] of `$number`, as a number in `deg`.
