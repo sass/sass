@@ -36,7 +36,7 @@ have the implicit namespace `styles` rather than `_styles`.
 This modifies the existing algorithm for [Determining a `@use` Rule's
 Namespace][] to read as follows (new text in bold):
 
-[Determining a `@use` Rule's Namespace]: ../../spec/at-rules/use.md#determining-a-use-rules-namespace
+[Determining a `@use` Rule's Namespace]: ../spec/at-rules/use.md#determining-a-use-rules-namespace
 
 * If `rule` has an `'as'` clause `as`:
 
