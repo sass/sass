@@ -96,6 +96,9 @@ This algorithm takes a `@use` rule `rule`, and returns either an identifier or
 * Let `module-name` be the text before the first `.` in `path`, or the entire
   `path` if `path` doesn't contain `.`.
 
+* If `module-name` begins with `_`, remove the leading `_` and set `module-name`
+  to the result.
+
 * If `module-name` isn't a Sass identifier, throw an error.
 
 * Return `module-name`.
