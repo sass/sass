@@ -2,7 +2,7 @@
   "//": [
     "This is used to track dependencies for the Travis CI tests run on this ",
     "repository. For the official Sass npm package, see ",
-    "https://npmjs.org/package/sass."
+    "https://npmjs.org/package/sass"
   ],
   "dependencies": {
     "colors": "^1.3.3",
