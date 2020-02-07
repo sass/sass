@@ -82,8 +82,12 @@ To execute a `@forward` rule `rule`:
   * Otherwise, if `rule` has a `hide` clause that does include `name` (including
     `$` for variables), do nothing.
 
-  * Otherwise, if another `@forward` rule's module has a member named `name`
-    with the same type as `member`, throw an error.
+  * If another `@forward` rule's module has a member named `name` with the same
+    type as `member`:
+
+    * If the other member is [identical to][] `member`, do nothing.
+
+    * Otherwise, throw an error.
 
   * Otherwise, add `member` to [the current module][] with the name `name`.
 
@@ -96,4 +100,5 @@ To execute a `@forward` rule `rule`:
     > if they're forwarded with prefixes multiple times.
 
   [the current source file]: ../spec.md#current-source-file
+  [identical to]: ../modules.md#member
   [the current module]: ../spec.md#current-module

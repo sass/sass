@@ -30,6 +30,9 @@ implementation and is identified by a Sass identifier. This currently includes
 selectors). All members have definitions associated with them, whose specific
 structure depends on the type of the given member.
 
+Two members are considered identical if they have the same name, type, source
+location, and were defined in or forwarded from the same original module.
+
 > Each member type has its own namespace in Sass, so for example the mixin
 > `name` doesn't conflict with the function `name` or the variable `$name`. 
 
@@ -401,19 +404,20 @@ and returns a member of type `type` or null.
 
   [current import context]: spec.md#current-import-context
 
-* Let `modules` be the set of [modules of][] the global `@use` rules in the
-  current source file which contain members of type `type` named `name`.
+* Let `members` be the set of [unique][] members of type `type` named `name` in
+  [modules of][] the global `@use` rules.
 
+  [unique]: #member
   [modules of]: at-rules/use.md#a-use-rules-module
 
-* If the current import context contains a member `member` of type
-  `type` named `name`:
+* If the current import context contains a member `member` of type `type` named
+  `name`:
 
-  * If `modules` is not empty, throw an error.
+  * If `members` is not empty, throw an error.
 
   * Otherwise, return `member`.
 
-* Otherwise, if `modules` contains more than one module, throw an error.
+* Otherwise, if `members` contains more than one member, throw an error.
 
   > This ensures that, if a new version of a library produces a conflicting
   > name, it causes an immediate error.
