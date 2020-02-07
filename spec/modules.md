@@ -407,7 +407,7 @@ and returns a member of type `type` or null.
 * Let `members` be the set of [unique][] members of type `type` named `name` in
   [modules of][] the global `@use` rules.
 
-  [unique]: ../modules.md#member
+  [unique]: #member
   [modules of]: at-rules/use.md#a-use-rules-module
 
 * If the current import context contains a member `member` of type `type` named
