@@ -135,7 +135,7 @@ ambiguous with a declaration and thus with raw SassScript.
 **SupportsFunction**    ::= [InterpolatedIdentifier][]¹ '(' [InterpolatedAnyValue][] ')'
 </pre></x>
 
-[InterpolatedIdentifier]: ../syntax.md#interpolatedidentifier
+[InterpolatedIdentifier]: ../spec/syntax.md#interpolatedidentifier
 [InterpolatedAnyValue]: #interpolatedanyvalue
 
 1: This `InterpolatedIdentifier` may not be the identifier `"not"`. No
