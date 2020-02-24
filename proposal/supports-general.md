@@ -37,6 +37,14 @@ of March 2019) further adds a `selector()` function syntax (which is covered by
 [Level 4 Editor's Draft]: https://drafts.csswg.org/css-conditional-4/#at-supports-ext
 [supported by Firefox]: https://caniuse.com/#search=supports%20selector
 
+Sass's current `@supports` rule syntax allows SassScript expressions in place of
+either the declaration name or value in `<supports-decl>`. This syntax doesn't
+need to be wrapped in interpolation, which means that many expressions that
+would be parsed in CSS as `<general-enclosed>` are currently parsed by Sass as
+`<supports-decl>`, and even more expressions need arbitrary look-ahead to
+determine whether they have a `:` that would distinguish them between
+`<supports-decl>` and `<general-enclosed>`.
+
 ## Summary
 
 > This section is non-normative.
@@ -72,7 +80,7 @@ conditions are added in practice.
 
 #### SassScript Injection
 
-There are a two possible ways to allow SassScript to be injected into the
+There are two possible ways to allow SassScript to be injected into the
 `<general-enclosed>` production. One is to support it only via interpolation,
 allowing the production to otherwise exactly match the CSS syntax; the other is
 to allow raw Sass-script values to be used within the parentheses.
@@ -128,29 +136,28 @@ ambiguous with a declaration and thus with raw SassScript.
 **SupportsCondition**   ::= 'not' SupportsInParens
 &#32;                     | SupportsInParens ('and' SupportsInParens)*
 &#32;                     | SupportsInParens ('or' SupportsInParens)*
-**SupportsInParens**    ::= '(' (SupportsCondition | SupportsDeclaration | SupportsAnything) ')
+**SupportsInParens**    ::= '(' (SupportsCondition | SupportsDeclaration | SupportsAnything) ')'
 &#32;                     | SupportsFunction
-**SupportsDeclaration** ::= Expression² ':' Expression
-**SupportsAnything**    ::= [InterpolatedIdentifier][]³ [InterpolatedAnyValue][]⁴
-**SupportsFunction**    ::= [InterpolatedIdentifier][]¹ '(' [InterpolatedAnyValue][] ')'
+**SupportsDeclaration** ::= Expression¹ ':' Expression
+**SupportsAnything**    ::= [InterpolatedIdentifier][]² [InterpolatedAnyValue][]³
+**SupportsFunction**    ::= [InterpolatedIdentifier][]⁴ '(' [InterpolatedAnyValue][] ')'
 </pre></x>
 
 [InterpolatedIdentifier]: ../spec/syntax.md#interpolatedidentifier
 [InterpolatedAnyValue]: #interpolatedanyvalue
 
-1: This `InterpolatedIdentifier` may not be the identifier `"not"`. No
+1: This `Expression` may not begin with the identifier `"not"` or the token
+`"("`.
+
+2: This `InterpolatedIdentifier` may not be the identifier `"not"`.
+
+3: This `InterpolatedAnyValue` may not contain a top-level `":"`.
+
+4: This `InterpolatedIdentifier` may not be the identifier `"not"`. No
 whitespace is allowed between it and the following `"("`.
 
-2: This `Expression` may not begin with the identifier `"not"` or the token
-`"("`, and it may not begin with an `InterpolatedIdentifier` unless that
-identifier is part of an
-
-3: This `InterpolatedIdentifier` may not be the identifier `"not"`.
-
-4: This `InterpolatedAnyValue` may not contain a top-level `":"`.
-
-That the identifiers `"not"`, `"and"`, and `"or"` are matched case-insensitively
-for the purposes of this production.
+The identifiers `"not"`, `"and"`, and `"or"` are matched case-insensitively for
+the purposes of this production.
 
 > Implementations must perform some amount of lookahead to disambiguate between
 > `SupportsDeclaration`, `SupportsAnything`, and `SupportsFunction`. When doing
