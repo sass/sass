@@ -11,6 +11,12 @@ with inspection and adjustment options for _whiteness_ and _blackness_.
 * [Summary](#summary)
   * [Design Decisions](#design-decisions)
 * [Semantics](#semantics)
+  * [`hwb()`](#hwb)
+  * [`whiteness()`](#whiteness)
+  * [`blackness()`](#blackness)
+  * [`adjust()`](#adjust)
+  * [`change()`](#change)
+  * [`scale()`](#scale)
 
 ## Background
 
