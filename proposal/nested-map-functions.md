@@ -9,26 +9,51 @@ setting, and getting items from nested maps.
 
 * [Background](#background)
 * [Summary](#summary)
-* [Syntax](#syntax)
+* [Functions](#functions)
   * [`get()`](#get)
   * [`has-key()`](#has-key)
   * [`set()`](#set)
   * [`merge()`](#merge)
+  * [`deep-merge()`](#deep-merge)
 
 ## Background
 
 > This section is non-normative.
 
-The current map inspection and manipulation functions don't provide any built-in
-support for managing nested maps. Projects often build thir own tooling, but
-the results are inconsistent, and often slow.
+Variables have always been a key feature of the Sass language. But these days,
+design systems and component libraries form the basis of most CSS projects --
+with well organized _design tokens_ as the foundation. While Individual token
+variables can be quite useful, the ability to group tokens into strucutred and
+meaningful relationships is essential for creating resilient systems.
+
+There are many ways to group tokens. The popular Style Dictionary recommends
+a deep nesting of _category_,  _type_, _item_, _sub-item_, and _state_. Other
+taxonomies also include concepts like _theme_, or even _operating system_. Most
+of the existing tools rely on YAML or JSON objects to achieve that nested
+structure, at the expense of other important information. YAML and JSON are not
+design languages, and do not understand fundamental CSS concepts like color or
+length.
+
+With Sass, we don't have to make that tradeoff. We already support nestable map
+structures, and the ability to interact with them programmatically -- adding or
+removing properties, accessing values, and looping over entire structures. But
+current built-in functions don't provide much support for managing nested maps.
+Projects often build thir own tooling.
+
+The results are inconsistent across projects, difficult to re-use, and often
+slow to compile. Implementing core support for nested maps could change all that.
 
 ## Summary
 
 > This section is non-normative.
 
-This proposal updates the `sass:map` module to better support inspection and
-manipulation of nested maps.
+This proposal updates existing map functions with better support for inspection
+and manipulation of nested maps, as well as adding new functions to the
+`sass:map` module. For existing legacy functions (`get()`, `has-key()`,
+`merge()`) the new behavior will be accessible through both the `sass:map`
+module, and global legacy names (`map-get()`, `map-has-key()`, `map-merge()`).
+New functions (`set()`, `deep-merge()`) will only be available inside the
+`sass:map` module.
 
 The `has-key()` and `get()` functions both accept multiple `$keys...`:
 
@@ -89,7 +114,51 @@ $nav: map.set($nav, 'color', 'hover', 'search', green);
 $nav: map.set($nav, 'color', 'hover', 'logo', orange);
 ```
 
-## Syntax
+And finally, a new `deep-merge()` function in the `sass:map` module allows
+merging two or more nested maps. This works much like the existing `merge()`
+function, but when both maps have a nested-map at the same key, those nested
+maps are also merged:
+
+```scss
+@use 'sass:map';
+
+$nav: (
+  'bg': 'gray',
+  'color': (
+    'hover': (
+      'search': yellow,
+      'home': red,
+      'filter': blue,
+    ),
+  ),
+);
+
+$update: (
+  'bg': white,
+  'color': (
+    'hover': (
+      'search': green,
+      'logo': orange,
+    )
+  )
+);
+
+$nav: map.deep-merge($nav, $update);
+
+// $nav: (
+//   'bg': white,
+//   'color': (
+//     'hover': (
+//       'search': green,
+//       'home': red,
+//       'filter': blue,
+//       'logo': orange,
+//     ),
+//   ),
+// );
+```
+
+## Functions
 
 ### `get()`
 
@@ -97,9 +166,13 @@ $nav: map.set($nav, 'color', 'hover', 'logo', orange);
 get($map, $keys...)
 ```
 
+* If `$map` is not a map, throw an error.
+
+* If `$keys` is empty, throw an error.
+
 * Let `key` be the first (or only) element in `$keys`
 
-* If `$map` does not have a key with the same name as `key`, throw an error.
+* If `$map` does not have a key equal to `key`, return `null`.
 
 * Let `value` be the value assigned to `key` in `$map`
 
@@ -116,6 +189,10 @@ get($map, $keys...)
 ```
 has-key($map, $keys...)
 ```
+
+* If `$map` is not a map, throw an error.
+
+* If `$keys` is empty, throw an error.
 
 * Let `key` be the first (or only) element in `$keys`
 
@@ -135,22 +212,22 @@ has-key($map, $keys...)
 ### `set()`
 
 ```
-set($map1, $keys..., $value)
+set($map, $args...)
 ```
 
-* If `$map1` is not a map, throw an error.
+* If `$map` is not a map, throw an error.
 
-* If fewer than three arguments are provided, throw an error.
+* Let `map` be an empty map.
 
-* Let `map` be an empty map .
+* Let `set-key` be the first item in arglist `$args`.
 
-* If there is more than one argument in arglist `$keys`:
+* Let `remaining` be a slice of all the other items in arglist `$args`.
 
-  * Let `set-key` be the first element in `$keys`.
+* If there are no items in `remaining`, throw an error.
 
-  * Let `keys` be a slice of all `$keys` elements except the first.
+* If there is more than one argument in `remaining`:
 
-  * If `$map1` has a key `current-key` with the same name as `set-key`:
+  * If `$map` has a key `current-key` that is equal to `set-key`:
 
     * Let `current` be the value of `current-key`.
 
@@ -159,46 +236,87 @@ set($map1, $keys..., $value)
     * Let `current` be an empty map.
 
   * Let `set-value` be the result of calling `set()` with `current` and expanded
-      `keys` as arguments.
+    `remaining` as arguments.
 
-    > This will error if `current` is not a map, but we stil have nested `keys`
+    > This will error if `current` is not a map, but we stil have `remaining`
 
 * Otherwise:
 
-  * Let `set-key` be the only element in `$keys`
+  * Let `set-value` be the only item in `remaining`
 
-  * Let `set-value` be the value of `$value`
-
-* Add a key with name `set-key` and value `set-value` to `map`
-
-* For each `key`, `value` pair in `$map1`
-
-  * If a key with name `key` already exists in `map`, do nothing.
-
-  * Otherwise, add a key to `map` with name `key` and value `value`.
-
-* Return the value `map`
+* Return a copy of `map` with `set-key` set to `set-value`, overriding an
+  existing value for `set-key` if one exists.
 
 ### `merge()`
 
+This proposal add a new overload to the existing `merge()` function:
+
 ```
-merge($map1, $keys..., $map2)
+merge($map1, $args...)
 ```
 
-* If only one argument is provided, throw an error.
+* If `$args` is empty, throw an error
 
-* If either the first (`$map1`) or last (`$map2`) argument is not a map, throw
-  an error.
+* Let `map2` be the last item in arglist `$args`
 
-* Let `map` be an empty map.
+* If either `$map1` or `map2` is not a map, throw an error.
 
-* For each `key`, `new` pair in `$map2`:
+* If arglist `$args` has more than one item:
 
-  * If `$map1` has a key with the same name as `key`
+  * Let `get-keys` be a slice of all except the last item in `args`.
 
-  * Let `keys` be the result of appending `key` to the argument list `$keys`.
+  * Let `sub` be the result of calling `get()` with `sub` and expanded `get-keys`
+    as arguments.
 
-  * Update `map` to be the result of calling `set()` with `map`,
-    expanded `keys`, and `value` as arguments.
+  * Let `sub-merged` be the result of calling `merge()` with `sub` and `map2`
+    as argumets.
 
-* Return the value of `map`
+  * Let `set-args` be the result of appending `sub-merged` to the list `keys`
+
+  * Return the result of calling `set()` with `$map1` and expanded `set-args`
+    as arguments.
+
+* Otherwise:
+
+  * Let `map` be a copy of `$map1`.
+
+  * For each `key`, `value` in `map2`:
+
+    * Replace `map` with the result of calling `set()` with `map`, `key`, and
+      `value` as arguments.
+
+  * Return `map`.
+
+### `deep-merge()`
+
+```
+deep-merge($maps...)
+```
+
+* If the length of `$maps` is less than two, throw an error.
+
+* If  any of the items in `$maps` are not maps, throw an error.
+
+* Let `merged` be an empty map.
+
+* For each `map` in `maps`:
+
+  * for each `key`, `value` in `map`:
+
+    * If `value` is a map:
+
+      * Let `current` be the result of calling `get()` with `merged` and `key` as
+        arguments.
+
+      * If `current` is a map:
+
+        * Let `deep` be the result of calling `deep-merge()` with `current` and
+          `value` as arguments.
+
+        * Replace `map` with the result of calling `set()` with `map`, `key`, and
+          `deep` as arguments.
+
+  * Replace `merged` with the result of calling `merge` with `merged` and `map`
+    as arguments.
+
+* Return `merged`.
