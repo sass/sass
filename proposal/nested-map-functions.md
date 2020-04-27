@@ -201,11 +201,13 @@ has-key($map, $keys...)
 
 * If there is more than one element in `$keys`:
 
-  * Let `map` be the value assigned to `key` in `$map`
+  * Let `value` be the value assigned to `key` in `$map`
+
+  * If `value` is not a map, return boolean `false`.
 
   * Let `keys` be all but the first element in `$keys`
 
-  * Call `has-key()` with `map` and expanded `keys` as arguments
+  * Call `has-key()` with `value` and expanded `keys` as arguments
 
 * Otherwise, return boolean `true`
 
@@ -273,8 +275,7 @@ merge($map1, $args...)
 
   * Let `set-args` be the result of appending `sub-merged` to the list `keys`
 
-  * Return the result of calling `set()` with `$map1` and expanded `set-args`
-    as arguments.
+  * Call `set()` with `$map1` and expanded `set-args` as arguments.
 
 * Otherwise:
 
