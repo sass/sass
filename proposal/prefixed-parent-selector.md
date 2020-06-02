@@ -155,3 +155,5 @@ To execute a style rule `rule`:
 
 * Unless `css`'s selector is now empty, append `css` to [the current module][]'s
   CSS.
+
+[the current module]: spec.md#current-module
