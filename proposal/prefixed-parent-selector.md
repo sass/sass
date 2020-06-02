@@ -1,4 +1,4 @@
-# Prefixed Parent Selector: Draft 1
+# Prefixed Parent Selector: Draft 2
 [Issue](https://github.com/sass/sass/issues/1425)
 
 ## Background
@@ -23,11 +23,9 @@ A specific use case for this selector is the following:
 .custom-effect {
   /* common styles */
 }
-
 a.custom-effect {
   /* styles for <a> element */
 }
-
 button.custom-effect {
   /* styles for <button> element */
 }
@@ -70,28 +68,90 @@ Another [example](https://github.com/sass/sass/issues/1425#issuecomment-21207790
 This allows for grouping the parent styling based on the different base selectors, while keeping the styling nicely nested within the rest of the ruleset. It is an elegant solution which is not possible without using a combination of built-in sass functions.
 ([Current workaround](https://github.com/sass/sass/issues/1425#issuecomment-404462836))
 
-Note that this syntax is supported by Less and Stylus, and people have run into the lack of support for this syntax when trying to switch over to Sass.
-[Comment #1](https://github.com/sass/sass/issues/1425#issuecomment-55462526)
-[Comment #2](https://github.com/sass/sass/issues/1425#issuecomment-123913176)
-[Comment #3](https://github.com/sass/sass/issues/1425#issuecomment-123916395)
+Note that this syntax is supported by Less and Stylus, and people have run into the lack of support for this syntax when trying to switch over to Sass:
 
-There has been an attempt to create a proposal for it, but it fell short in addressing review comments and was closed soon after.
+* [Comment #1](https://github.com/sass/sass/issues/1425#issuecomment-55462526)
+* [Comment #2](https://github.com/sass/sass/issues/1425#issuecomment-123913176)
+* [Comment #3](https://github.com/sass/sass/issues/1425#issuecomment-123916395)
+
+There has been an attempt to create a proposal for it, but it fell short in addressing review comments and was closed soon after:
 [Previous Proposal](https://github.com/sass/sass/pull/2723)
+
+## Syntax
+(In terms of [Selectors Level 4 Grammar](https://www.w3.org/TR/selectors-4/#grammar))
+
+```
+SelectorList         ::= ComplexSelectorList#
+ComplexSelectorList  ::= ComplexSelector#
+CompoundSelectorList ::= CompoundSelector#
+SimpleSelectorList   ::= SimpleSelector#
+RelativeSelectorList ::= RelativeSelector#
+ComplexSelector      ::= CompoundSelector [ <combinator>? CompoundSelector ]*
+RelativeSelector     ::= <combinator>? ComplexSelector
+CompoundSelector     ::= ParentSelector? <compound-selector>
+                         | <compound-selector> ParentSelector
+                         | ParentSelector
+SimpleSelector       ::= ParentSelector? <simple-selector>
+                         | <simple-selector> ParentSelector
+                         | ParentSelector
+ParentSelector       ::= '&'
+```
+
+Note that it is not necessary to support the following syntax:
+```
+.custom-effect {
+  p&:focus {
+    // styles for <p> when focused
+  }
+}
+```
+
+Because the same effect can be achieved with one extra level of nesting:
+```
+.custom-effect {
+  p& {
+    &:focus {
+      // styles for <p> when focused
+    }
+  }
+}
+```
 
 ## Semantics
 
-The [Style Rules Semantics](https://github.com/sass/sass/blob/master/spec/style-rules.md#semantics) describes the parent selector behavior as follows:
+The following modifies the [Style Rules Semantics](https://github.com/sass/sass/blob/master/spec/style-rules.md#semantics):
 
-> If `selector` contains one or more parent selectors, replace them with the current style rule's selector and set `selector` to the result.
+To execute a style rule `rule`:
 
-###Proposal #1:
+* Let `selector` be the result of evaluating all interpolation in `rule`'s
+  selector and parsing the result as a selector list.
 
-The current [Style Rules Semantics](https://github.com/sass/sass/blob/master/spec/style-rules.md#semantics) allows parent selectors anywhere in a `selector` and does not explain why it currently errors for prefixed parent selectors. If the prefixed parent selector is supported, the semantics section for Style Rules would not need to be changed.
+* If there is a current style rule:
 
-###Proposal #2:
+  * If `selector` contains one or more `ParentSelector`:
 
-The [Style Rules Semantics](https://github.com/sass/sass/blob/master/spec/style-rules.md#semantics) can explicitly allow the syntax in its description of the parent selector behavior:
+      * If multiple `ParentSelector` appear in the a single `SimpleSelector` or `CompoundSelector`,
+        throw an error.
 
-> If the selector contains one or more parent selectors, replace them with the current style's rule selector and set selector to the result. The parent selector is allowed to be prefixed or suffixed onto an existing identifier, or appear by itself.
+      * Otherwise, replace each `ParentSelector` with the current style rule's
+        selector and set `selector` to the result.
 
-(Please provide feedback about which proposal is more suitable for this change.)
+  * Otherwise, nest `selector` within the current style rule's selector using
+	the [descendant combinator][] and set `selector` to the result.
+
+  [descendant combinator]: https://www.w3.org/TR/selectors-3/#descendant-combinators
+
+* Otherwise, if `selector` contains one or more `ParentSelector`, throw an
+  error.
+
+* Let `css` be a CSS style rule with selector `selector`.
+
+* Execute each child `child` of `rule`.
+
+* Remove any [complex selectors][] containing a placeholder selector that
+  begins with `-` or `_` from `css`'s selector.
+
+  [complex selectors]: https://drafts.csswg.org/selectors-4/#complex
+
+* Unless `css`'s selector is now empty, append `css` to [the current module][]'s
+  CSS.
