@@ -1,4 +1,4 @@
-# Prefixed Parent Selector: Draft 2
+# Prefixed Parent Selector: Draft 3
 [Issue](https://github.com/sass/sass/issues/1425)
 
 ## Background
@@ -77,44 +77,52 @@ Note that this syntax is supported by Less and Stylus, and people have run into 
 There has been an attempt to create a proposal for it, but it fell short in addressing review comments and was closed soon after:
 [Previous Proposal](https://github.com/sass/sass/pull/2723)
 
+## Summary
+
+The goal of this proposal is to add support for `foo&` with certain exceptions that are defined in the ‘syntax’ section. Allowing this placement of the parent selector will provide the ability to write the following syntax:
+```
+.foo {
+  div& {
+    ...
+  }
+  p& {
+    ...
+  }
+}
+
+// Instead of writing
+
+div.foo {
+ ...
+}
+
+p.foo {
+ ...
+}
+```
+
 ## Syntax
+
+Each compound selector may only contain one parent selector `&`.  The parent selector
+may appear by itself, after a `<type-selector>`, or on either side of any `<wq-name>`,
+`<subclass-selector>`, `<pseudo-element-selector>` or `<pseudo-class-selector>`.
+
 (In terms of [Selectors Level 4 Grammar](https://www.w3.org/TR/selectors-4/#grammar))
 
 ```
-SelectorList         ::= ComplexSelectorList#
-ComplexSelectorList  ::= ComplexSelector#
-CompoundSelectorList ::= CompoundSelector#
-SimpleSelectorList   ::= SimpleSelector#
-RelativeSelectorList ::= RelativeSelector#
-ComplexSelector      ::= CompoundSelector [ <combinator>? CompoundSelector ]*
-RelativeSelector     ::= <combinator>? ComplexSelector
-CompoundSelector     ::= ParentSelector? <compound-selector>
-                         | <compound-selector> ParentSelector
-                         | ParentSelector
-SimpleSelector       ::= ParentSelector? <simple-selector>
-                         | <simple-selector> ParentSelector
-                         | ParentSelector
-ParentSelector       ::= '&'
-```
-
-Note that it is not necessary to support the following syntax:
-```
-.custom-effect {
-  p&:focus {
-    // styles for <p> when focused
-  }
-}
-```
-
-Because the same effect can be achieved with one extra level of nesting:
-```
-.custom-effect {
-  p& {
-    &:focus {
-      // styles for <p> when focused
-    }
-  }
-}
+CompoundSelector            ::= [ ParentSelector
+                                | <type-selector>? <subclass-selector>* PseudoSelectors*
+                                | TypeSelectorWithParent <subclass-selector>* PseudoSelectors*
+                                | <type-selector>? SubclassSelectorsWithParent PseudoSelectors*
+                                | <type-selector>? <subclass-selector>*
+                                  PseudoSelectorsWithParent ]!
+TypeSelectorWithParent      ::= ParentSelector <wq-name> | <type-selector> ParentSelector
+SubclassSelectorsWithParent ::= ParentSelector <subclass-selector>+
+                              | <subclass-selector>+ ParentSelector <subclass-selector>*
+PseudoSelectorsWithParent   ::= ParentSelector PseudoSelectors+
+                              | PseudoSelectors+ ParentSelector PseudoSelectors*
+PseudoSelectors             ::= <pseudo-element-selector> <pseudo-class-selector>*
+ParentSelector              ::= '&'
 ```
 
 ## Semantics
@@ -128,20 +136,22 @@ To execute a style rule `rule`:
 
 * If there is a current style rule:
 
-  * If `selector` contains one or more `ParentSelector`:
+  * If `selector` one or more parent selectors, replace each parent selector with
+    the current style rule's selector:
 
-      * If multiple `ParentSelector` appear in the a single `SimpleSelector` or `CompoundSelector`,
-        throw an error.
+    * If the result of the replacement(s) is not a syntactically valid
+      [complex selector][], throw an error.
 
-      * Otherwise, replace each `ParentSelector` with the current style rule's
-        selector and set `selector` to the result.
+      [complex selector]: https://www.w3.org/TR/selectors-4/#typedef-complex-selector
+
+    * Otherwise set `selector` to the result of the replacement.
 
   * Otherwise, nest `selector` within the current style rule's selector using
 	the [descendant combinator][] and set `selector` to the result.
 
   [descendant combinator]: https://www.w3.org/TR/selectors-3/#descendant-combinators
 
-* Otherwise, if `selector` contains one or more `ParentSelector`, throw an
+* Otherwise, if `selector` contains one or more parent selectors, throw an
   error.
 
 * Let `css` be a CSS style rule with selector `selector`.
@@ -156,4 +166,4 @@ To execute a style rule `rule`:
 * Unless `css`'s selector is now empty, append `css` to [the current module][]'s
   CSS.
 
-[the current module]: spec.md#current-module
+  [the current module]: ../spec/spec.md#current-module
