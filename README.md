@@ -100,15 +100,20 @@ scalar-typed fields.
 
 ### Error Handling
 
-When one endpoint detects that the other is violating this protocol, it must
-send a `ProtocolError` message to the other endpoint. If the error was detected
-when processing a request, the `ProtocolError` must have its `id` field set to
-the request's id. Otherwise, even if the error was detected while processing a
+When the compiler detects that the host is violating this protocol, it must
+send a `ProtocolError` message to the host. If the error was detected when
+processing a request, the `ProtocolError` must have its `id` field set to the
+request's id. Otherwise, even if the error was detected while processing a
 response with an id, the `id` field must be set to `-1`.
 
-A `ProtocolError` must be sent whenever any requirements set out by this
-protocol (including the documentation in `embedded_sass.proto`) are violated.
-This includes, but is not limited to:
+When the host detects that the compiler is violating this protocol, it does not
+need to send a `ProtocolError` message to the compiler. Instead, it should
+expose an error to the host's consumers and close the connection with the
+compiler.
+
+An error occurs whenever any requirements set out by this protocol (including
+the documentation in `embedded_sass.proto`) are violated. This includes, but is
+not limited to:
 
 * Sending data that can't be parsed as an `InboundMessage` (for the compiler) or
   an `OutboundMessage` (for the host).
