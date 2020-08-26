@@ -224,7 +224,6 @@ message InboundMessage {
 
   // The wrapped message. Mandatory.
   oneof message {
-    ProtocolError error = 1;
     CompileRequest compileRequest = 2;
     CanonicalizeResponse canonicalizeResponse = 3;
     ImportResponse importResponse = 4;
