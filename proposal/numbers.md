@@ -70,7 +70,7 @@ Numbers with more than 10 decimal places are truncated to 10 places before compa
 
 The non-reflexive nature of number equality in Sass makes it difficult to
 use floating point numbers as keys inside maps. This property means
-that `hash(a)` does not necessarily equal `hash(a)`.
+that `hash(a)` doesn't necessarily equal `hash(b)` even if `a == b`.
 
 Despite this, it is desirable for users to be able to use numbers as map keys,
 and dropping support for numbers as map keys would break backwards compatibility.
