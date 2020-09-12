@@ -9,11 +9,13 @@ This proposal formally defines all numbers in Sass to be double-precision or 64-
 - [Floating Point Numbers: Draft 1.0](#floating-point-numbers-draft-10)
   - [Table of Contents](#table-of-contents)
   - [Background](#background)
-  - [Division by Zero](#division-by-zero)
-  - [Equality](#equality)
-  - [Ordering](#ordering)
-  - [Hashing](#hashing)
-  - [Formatting](#formatting)
+  - [Summary]()
+  - [Semantics](#semantics)
+    - [Division by Zero](#division-by-zero)
+    - [Equality](#equality)
+    - [Ordering](#ordering)
+    - [Hashing](#hashing)
+    - [Formatting](#formatting)
 
 ## Background
 
@@ -29,7 +31,16 @@ and [crashes](https://github.com/sass/dart-sass/issues/1059) for `dart-sass`.
 
 This document serves to unify these edge cases and resolve existing issues within implementations.
 
-## Division by Zero
+## Semantics
+
+This proposal formally defines all numbers in Sass to be double-precision or 64-bit floating point numbers.
+
+More specifically, numbers are represented as [IEEE 754-2008 "binary64" floating point numbers](https://web.archive.org/web/20190820164556/http://www.dsc.ufcg.edu.br/~cnum/modulos/Modulo2/IEEE754_2008.pdf).
+
+The semantics enumerated here serve to more succintly describe their behavior and
+to highlight Sass-specific behavior.
+
+### Division by Zero
 
 Any positive number divided by zero will return `Infinity`
 
@@ -37,7 +48,7 @@ Zero divided by zero will return `NaN`
 
 Any negative number divided by zero will return `-Infinity`
 
-## Equality
+### Equality
 
 Numbers in Sass are symmetrically and transitively equal. That is,
 if `a == b`, then `b == a` and if `a == b` and `b == c`, then `a == c`.
@@ -48,14 +59,14 @@ Numbers in Sass are *not* necessarily reflexively equal. `NaN == NaN`,
 In the case that two numbers use more than 10 decimal places of precision,
 both numbers are truncated to 10 decimal places and compared.
 
-## Ordering
+### Ordering
 
 Numbers in Sass do not have total ordering. Any comparison to `NaN` will return false.
 Otherwise, ordering follows what would be expected when comparing two numbers.
 
 Numbers with more than 10 decimal places are truncated to 10 places before comparison.
 
-## Hashing
+### Hashing
 
 The non-reflexive nature of number equality in Sass makes it difficult to
 use floating point numbers as keys inside maps. This property means
@@ -68,7 +79,7 @@ In order to support numbers as map keys, a Sass implementation must
  - deny `NaN`, `Infinity`, and `-Infinity` as keys
  - truncate all numbers to 10 decimal places before insertion
 
-## Formatting
+### Formatting
 
 In order to emit a number:
  - Round the number to 10 decimal places
