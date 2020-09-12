@@ -75,9 +75,9 @@ that `hash(a)` doesn't necessarily equal `hash(b)` even if `a == b`.
 Despite this, it is desirable for users to be able to use numbers as map keys,
 and dropping support for numbers as map keys would break backwards compatibility.
 
-In order to support numbers as map keys, a Sass implementation must
- - deny `NaN`, `Infinity`, and `-Infinity` as keys
- - truncate all numbers to 10 decimal places before insertion
+In order to support numbers as map keys, a Sass implementation must raise an error when
+trying to construct a map with, insert into (`map-insert`), retrieve (`map-get`) or remove (`map-remove`)
+from a map any of `NaN`, `Infinity`, or `-Infinity`.
 
 ### Formatting
 
