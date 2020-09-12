@@ -45,15 +45,15 @@ if `a == b`, then `b == a` and if `a == b` and `b == c`, then `a == c`.
 Numbers in Sass are *not* necessarily reflexively equal. `NaN == NaN`,
 `Infinity == Infinity`, and `-Infinity == -Infinity` will always be false.
 
-In the case that two real numbers use more than 10 decimal places of precision,
+In the case that two numbers use more than 10 decimal places of precision,
 both numbers are truncated to 10 decimal places and compared.
 
 ## Ordering
 
 Numbers in Sass do not have total ordering. Any comparison to `NaN` will return false.
-Otherwise, ordering follows what would be expected when comparing two real numbers.
+Otherwise, ordering follows what would be expected when comparing two numbers.
 
-Real numbers with more than 10 decimal places are truncated to 10 places before comparison.
+Numbers with more than 10 decimal places are truncated to 10 places before comparison.
 
 ## Hashing
 
@@ -70,7 +70,7 @@ In order to support numbers as map keys, a Sass implementation must
 
 ## Formatting
 
-In order to emit a real number:
+In order to emit a number:
  - Round the number to 10 decimal places
  - Remove trailing zeros
  - If the number is negative and non-zero, emit a negative sign, `-`
