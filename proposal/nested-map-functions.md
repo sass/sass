@@ -3,7 +3,7 @@
 *[(Issue)](https://github.com/sass/sass/issues/1739)*
 
 This proposal updates the built-in `sass:map` module to better support merging,
-setting, and getting items from nested maps.
+setting, and getting elements from nested maps.
 
 ## Table of Contents
 
@@ -15,6 +15,7 @@ setting, and getting items from nested maps.
   * [`set()`](#set)
   * [`merge()`](#merge)
   * [`deep-merge()`](#deep-merge)
+  * [`deep-remove()`](#deep-remove)
 
 ## Background
 
@@ -162,94 +163,133 @@ $nav: map.deep-merge($nav, $update);
 
 ### `get()`
 
+This proposal add a new overload to the existing `get()` function with lower
+priority than the existing signature.
+
+> This means that the new overload is only called if the existing signature
+> doesn't match.
+
 ```
 get($map, $keys...)
 ```
+
+> Intuitively, `get($map, $key1, $key2, $key3)` is equivalent to
+> `get(get(get($map, $key1), $key2), $key3)` with the exception that if any
+> intermediate value isn't a map or doesn't have the given key the whole
+> function returns `null` rather than throwing an error.
 
 * If `$map` is not a map, throw an error.
 
 * If `$keys` is empty, throw an error.
 
-* Let `key` be the first (or only) element in `$keys`
+* Let `child` be `$map`.
 
-* If `$map` does not have a key equal to `key`, return `null`.
+* For each element `key` in `$keys`:
 
-* Let `value` be the value assigned to `key` in `$map`
+  * If `child` is not a map, return `null`.
 
-* If there is more than one element in `$keys`:
+  * If `child` contains a key that's `==` to `key`, set `child` to the value
+    associated with that key. Otherwise, return `null`.
 
-  * Let `keys` be all elements in `$keys` after the first element
-
-  * Call `get()` with `value` and expanded `keys` as arguments
-
-* Otherwise, return `value`
+* Return `child`.
 
 ### `has-key()`
+
+This proposal add a new overload to the existing `has-key()` function with lower
+priority than the existing signature.
+
+> This means that the new overload is only called if the existing signature
+> doesn't match.
 
 ```
 has-key($map, $keys...)
 ```
 
+> Intuitively, `has-key($map, $key1, $key2, $key3)` is equivalent to
+> `has-key(has-key(has-key($map, $key1), $key2), $key3)` with the exception that
+> if any intermediate value isn't a map or doesn't have the given key the whole
+> function returns `false` rather than throwing an error.
+
 * If `$map` is not a map, throw an error.
 
 * If `$keys` is empty, throw an error.
 
-* Let `key` be the first (or only) element in `$keys`
+* Let `child` be `$map`.
 
-* If `$map` does not have a key with the same name as `key`, return boolean
-  `false`.
+* For each element `key` in `$keys`:
 
-* If there is more than one element in `$keys`:
+  * If `child` is not a map, return `false`.
 
-  * Let `value` be the value assigned to `key` in `$map`
+  * If `child` contains a key that's `==` to `key`, set `child` to the value
+    associated with that key. Otherwise, return `false`.
 
-  * If `value` is not a map, return boolean `false`.
-
-  * Let `keys` be all but the first element in `$keys`
-
-  * Call `has-key()` with `value` and expanded `keys` as arguments
-
-* Otherwise, return boolean `true`
+* Return `true`.
 
 ### `set()`
 
-```
-set($map, $args...)
-```
+> Note: For consistency with other functions whose multi-key overloads were
+> added after their single-key versions, `set()` is defined to have a separate
+> single-key overload and multi-key overload.
 
-* If `$map` is not a map, throw an error.
+* ```
+  set($map, $key, $value)
+  ```
 
-* Let `map` be an empty map.
+  > Intuitively, `set($map, $key, $value)` is equivalent to `merge($map, ($key: $value))`.
 
-* Let `set-key` be the first item in arglist `$args`.
+  * If `$map` is not a map, throw an error.
 
-* Let `remaining` be a slice of all the other items in arglist `$args`.
+  * Let `map` be a copy of `$map`.
 
-* If there are no items in `remaining`, throw an error.
+  * If `map` has a key that's `==` to `$key`, remove it and its associated value.
 
-* If there is more than one argument in `remaining`:
+  * Associate `$key` with `$value` in `map`.
 
-  * If `$map` has a key `current-key` that is equal to `set-key`:
+  * Return `map`.
 
-    * Let `current` be the value of `current-key`.
+* ```
+  set($map, $args...)
+  ```
+
+  > Intuitively, `set($map, $key1, $key2, $key3)` is equivalent to
+  > `set(set(set($map, $key1), $key2), $key3)` with the exception that if any
+  > intermediate value isn't set or isn't a map it's replaced with a map.
+
+  * If `$map` is not a map, throw an error.
+
+  * If `$args` has fewer than three elements, throw an error.
+
+  * Let `map` be a copy of `$map`.
+
+  * Let `key` be the first element of `$args`.
+
+  * Let `remaining` be the slice of all elements in `$args` except the first.
+
+  * If `map` has a key that's `==` to `key`:
+
+    * Remove that key and its associated value from `map`.
+
+    * Let `child` be the value that was associated with that key if that value
+      is a map, or an empty map otherwise.
 
   * Otherwise:
 
-    * Let `current` be an empty map.
+    * Let `child` be an empty map.
 
-  * Let `set-value` be the result of calling `set()` with `current` and expanded
-    `remaining` as arguments.
+  * Let `new-child` be the result of calling `set()` with `child` as the first
+    argument and the elements of `remaining` as the remaining arguments.
 
-    > This will error if `current` is not a map, but we stil have `remaining`
+  * Associate `key` with `new-child` in `map`.
 
-* Otherwise:
-
-  * Let `set-value` be the only item in `remaining`
-
-* Return a copy of `map` with `set-key` set to `set-value`, overriding an
-  existing value for `set-key` if one exists.
+  * Return `map`.
 
 ### `merge()`
+
+This proposal add a new overload to the existing `merge()` function with lower
+priority than the existing signature.
+
+> This means that the new overload is only called if the existing signature
+> doesn't match.
 
 This proposal add a new overload to the existing `merge()` function:
 
@@ -257,67 +297,95 @@ This proposal add a new overload to the existing `merge()` function:
 merge($map1, $args...)
 ```
 
-* If `$args` is empty, throw an error
+> Intuitively, `map.merge($map1, $keys..., $map2)` is equivalent to
+> `map.set($map1, $keys..., map.merge(map.get($map1, $keys...), $map2)`.
 
-* Let `map2` be the last item in arglist `$args`
+* If `$args` is empty, return `$map1`.
+
+* Let `map2` be the last element of `$args`.
 
 * If either `$map1` or `map2` is not a map, throw an error.
 
-* If arglist `$args` has more than one item:
+* Let `keys` be a slice of all elements in `$args` except the last.
 
-  * Let `get-keys` be a slice of all except the last item in `args`.
+* Let `sub` be the result of calling `get()` with `$map1` as the first
+  argument and the contents of `keys` as the remaining arguments.
 
-  * Let `sub` be the result of calling `get()` with `sub` and expanded `get-keys`
-    as arguments.
+* If `sub` is a map:
 
-  * Let `sub-merged` be the result of calling `merge()` with `sub` and `map2`
-    as argumets.
-
-  * Let `set-args` be the result of appending `sub-merged` to the list `keys`
-
-  * Call `set()` with `$map1` and expanded `set-args` as arguments.
+  * Let `sub-merged` be the result of calling `merge()` with `sub` and `map2` as
+    arguments.
 
 * Otherwise:
 
-  * Let `map` be a copy of `$map1`.
+  * Let `sub-merged` be `map2`.
 
-  * For each `key`, `value` in `map2`:
-
-    * Replace `map` with the result of calling `set()` with `map`, `key`, and
-      `value` as arguments.
-
-  * Return `map`.
+* Return the result of calling `set()` with `$map1` as the first argument,
+  followed by the contents of `keys` as separate arguments, followed by `sub`.
 
 ### `deep-merge()`
 
 ```
-deep-merge($maps...)
+deep-merge($map1, $map2, $maps...)
 ```
 
-* If the length of `$maps` is less than two, throw an error.
+* Let `maps` be a list containing `$map1`, `$map2`, and the elements of `$maps`.
 
-* If  any of the items in `$maps` are not maps, throw an error.
+* If any elements in `maps` are not maps, throw an error.
 
 * Let `merged` be an empty map.
 
 * For each `map` in `maps`:
 
-  * for each `key`, `value` in `map`:
+  * For each `new-key`/`new-value` pair in `map`:
 
-    * If `value` is a map:
+    * If `merged` has a key `old-key` that's `==` to `new-key`:
 
-      * Let `current` be the result of calling `get()` with `merged` and `key` as
-        arguments.
+      * Let `old-value` be the value associated with `old-key` in `merged`.
 
-      * If `current` is a map:
+      * Remove `old-key`/`old-value` from `merged`.
 
-        * Let `deep` be the result of calling `deep-merge()` with `current` and
-          `value` as arguments.
+      * If both `old-value` and `new-value` are maps, set `new-value` to the
+        result of calling `deep-merge()` with `old-value` and `new-value`.
 
-        * Replace `map` with the result of calling `set()` with `map`, `key`, and
-          `deep` as arguments.
-
-  * Replace `merged` with the result of calling `merge` with `merged` and `map`
-    as arguments.
+    * Associate `new-key` with `new-value` in `merged`.
 
 * Return `merged`.
+
+### `deep-remove()`
+
+```
+deep-remove($map, $keys...)
+```
+
+> Note: This is explicitly *not* an override of `remove()`, because `remove()`
+> already accepts a variable number of arguments as a way of removing multiple
+> keys from the same map. This proposal adds a new function rather than adjust
+> the existing behavior to avoid backwards-compatibility pain.
+
+> Intuitively, `map.deep-remove($map, $keys..., $last-key)` is equivalent to
+> `map.set($map, $keys..., map.remove(map.get($map, $keys...), $last-key)`.
+
+* If `$map` isn't a map, throw an error.
+
+* If `$keys` has fewer than two elements, throw an error.
+
+* Let `last-key` be the last element of `$keys`.
+
+* Let `keys` be a slice of all elements in `$keys` except the last.
+
+* Let `sub` be the result of calling `get()` with `$map1` as the first
+  argument and the contents of `keys` as the remaining arguments.
+
+* If `sub` is a map with a key `old-key` that's `==` to `last-key`:
+
+  * Set `sub` to a copy of itself.
+
+  * Remove `old-key` and its associated value from `sub`.
+
+  * Return the result of calling `set()` with `$map1` as the first argument,
+    followed by the contents of `keys` as separate arguments, followed by `sub`.
+
+* Otherwise:
+
+  * Return `$map`.
