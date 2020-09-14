@@ -24,22 +24,24 @@ setting, and getting elements from nested maps.
 Variables have always been a key feature of the Sass language. But these days,
 design systems and component libraries form the basis of most CSS projects --
 with well organized _design tokens_ as the foundation. While Individual token
-variables can be quite useful, the ability to group tokens into strucutred and
+variables can be quite useful, the ability to group tokens into structured and
 meaningful relationships is essential for creating resilient systems.
 
-There are many ways to group tokens. The popular Style Dictionary recommends
-a deep nesting of _category_,  _type_, _item_, _sub-item_, and _state_. Other
+There are many ways to group tokens. The popular [Style Dictionary] recommends a
+deep nesting of _category_, _type_, _item_, _sub-item_, and _state_. Other
 taxonomies also include concepts like _theme_, or even _operating system_. Most
 of the existing tools rely on YAML or JSON objects to achieve that nested
 structure, at the expense of other important information. YAML and JSON are not
 design languages, and do not understand fundamental CSS concepts like color or
 length.
 
+[Style Dictionary]: https://amzn.github.io/style-dictionary
+
 With Sass, we don't have to make that tradeoff. We already support nestable map
 structures, and the ability to interact with them programmatically -- adding or
 removing properties, accessing values, and looping over entire structures. But
 current built-in functions don't provide much support for managing nested maps.
-Projects often build thir own tooling.
+Projects often build their own tooling.
 
 The results are inconsistent across projects, difficult to re-use, and often
 slow to compile. Implementing core support for nested maps could change all that.
@@ -161,16 +163,17 @@ $nav: map.deep-merge($nav, $update);
 
 ## Functions
 
+All new and modified functions are part of the `sass:map` built-in module.
+
 ### `get()`
 
-This proposal add a new overload to the existing `get()` function with lower
-priority than the existing signature.
+This proposal updates the signature and behavior of the existing `get()`
+function.
 
-> This means that the new overload is only called if the existing signature
-> doesn't match.
+> This also affects the global `map-get()` function.
 
 ```
-get($map, $keys...)
+get($map, $key, $keys...)
 ```
 
 > Intuitively, `get($map, $key1, $key2, $key3)` is equivalent to
@@ -180,11 +183,11 @@ get($map, $keys...)
 
 * If `$map` is not a map, throw an error.
 
-* If `$keys` is empty, throw an error.
-
 * Let `child` be `$map`.
 
-* For each element `key` in `$keys`:
+* Let `keys` be a list containing `$key` followed by the elements of `$keys`.
+
+* For each element `key` in `keys`:
 
   * If `child` is not a map, return `null`.
 
@@ -195,28 +198,27 @@ get($map, $keys...)
 
 ### `has-key()`
 
-This proposal add a new overload to the existing `has-key()` function with lower
-priority than the existing signature.
+This proposal updates the signature and behavior of the existing `get()`
+function.
 
-> This means that the new overload is only called if the existing signature
-> doesn't match.
+> This also affects the global `map-has-key()` function.
 
 ```
-has-key($map, $keys...)
+has-key($map, $key, $keys...)
 ```
 
 > Intuitively, `has-key($map, $key1, $key2, $key3)` is equivalent to
-> `has-key(has-key(has-key($map, $key1), $key2), $key3)` with the exception that
-> if any intermediate value isn't a map or doesn't have the given key the whole
+> `has-key(get(get($map, $key1), $key2), $key3)` with the exception that if any
+> intermediate value isn't a map or doesn't have the given key the whole
 > function returns `false` rather than throwing an error.
 
 * If `$map` is not a map, throw an error.
 
-* If `$keys` is empty, throw an error.
-
 * Let `child` be `$map`.
 
-* For each element `key` in `$keys`:
+* Let `keys` be a list containing `$key` followed by the elements of `$keys`.
+
+* For each element `key` in `keys`:
 
   * If `child` is not a map, return `false`.
 
@@ -251,8 +253,8 @@ has-key($map, $keys...)
   set($map, $args...)
   ```
 
-  > Intuitively, `set($map, $key1, $key2, $key3)` is equivalent to
-  > `set(set(set($map, $key1), $key2), $key3)` with the exception that if any
+  > Intuitively, `set($map, $key1, $key2, $value)` is equivalent to `set($map,
+  > $key1, set(get($map, $key1), $key2, $value))` with the exception that if any
   > intermediate value isn't set or isn't a map it's replaced with a map.
 
   * If `$map` is not a map, throw an error.
@@ -285,20 +287,20 @@ has-key($map, $keys...)
 
 ### `merge()`
 
-This proposal add a new overload to the existing `merge()` function with lower
+This proposal adds a new overload to the existing `merge()` function with lower
 priority than the existing signature.
 
 > This means that the new overload is only called if the existing signature
 > doesn't match.
 
-This proposal add a new overload to the existing `merge()` function:
+This proposal adds a new overload to the existing `merge()` function:
 
 ```
 merge($map1, $args...)
 ```
 
 > Intuitively, `map.merge($map1, $keys..., $map2)` is equivalent to
-> `map.set($map1, $keys..., map.merge(map.get($map1, $keys...), $map2)`.
+> `map.set($map1, $keys..., map.merge(map.get($map1, $keys...), $map2))`.
 
 * If `$args` is empty, return `$map1`.
 
