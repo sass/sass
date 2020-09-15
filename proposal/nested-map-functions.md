@@ -328,29 +328,25 @@ merge($map1, $args...)
 ### `deep-merge()`
 
 ```
-deep-merge($map1, $map2, $maps...)
+deep-merge($map1, $map2)
 ```
 
-* Let `maps` be a list containing `$map1`, `$map2`, and the elements of `$maps`.
+* If `$map1` and `$map2` are not maps, throw an error.
 
-* If any elements in `maps` are not maps, throw an error.
+* Let `merged` be a copy of `$map1`.
 
-* Let `merged` be an empty map.
+* For each `new-key`/`new-value` pair in `$map2`:
 
-* For each `map` in `maps`:
+  * If `merged` has a key `old-key` that's `==` to `new-key`:
 
-  * For each `new-key`/`new-value` pair in `map`:
+    * Let `old-value` be the value associated with `old-key` in `merged`.
 
-    * If `merged` has a key `old-key` that's `==` to `new-key`:
+    * Remove `old-key`/`old-value` from `merged`.
 
-      * Let `old-value` be the value associated with `old-key` in `merged`.
+    * If both `old-value` and `new-value` are maps, set `new-value` to the
+      result of calling `deep-merge()` with `old-value` and `new-value`.
 
-      * Remove `old-key`/`old-value` from `merged`.
-
-      * If both `old-value` and `new-value` are maps, set `new-value` to the
-        result of calling `deep-merge()` with `old-value` and `new-value`.
-
-    * Associate `new-key` with `new-value` in `merged`.
+  * Associate `new-key` with `new-value` in `merged`.
 
 * Return `merged`.
 
