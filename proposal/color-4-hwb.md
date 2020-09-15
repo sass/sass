@@ -22,7 +22,7 @@ with inspection and adjustment options for _whiteness_ and _blackness_.
 
 > This section is non-normative.
 
-The [CSS Color Module level 4][color-4], provides several new CSS formats for
+The [CSS Color Module level 4][color-4] provides several new CSS formats for
 describing color, but `hwb()` stands out as part of the same `sRGB` color
 system that Sass already uses internally.
 
@@ -32,7 +32,7 @@ system that Sass already uses internally.
 
 > This section is non-normative.
 
-This proposal defines  aSassified versions of the `hwb()` color function
+This proposal defines a Sassified version of the `hwb()` color function
 added to [CSS Color Level 4][color-4] – along with relevant inspection and
 adjustment options. This function will only be available inside the `sass:color`
 module to avoid conflicts with the CSS syntax, and will be converted to more
