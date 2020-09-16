@@ -10,6 +10,7 @@ _[(Issue)](https://github.com/sass/sass/issues/2535)_
   - [CLI](#cli)
     - [Possible Values](#possible-values)
   - [Edge cases](#edge-cases)
+- [Breaking Changes](#breaking-changes)
 
 ## Background
 
@@ -32,8 +33,8 @@ Callback syntax:
 ```TypeScript
 let sassOptions = {
   // Rewrite url references
-  rewriteUrl: (url: string, filepath: string, done: (newUrl: string) => void) => {
-    done(`data:${base64(url)}`);
+  rewriteUrl: (url: string, filepath: string, done: (error: Error, newUrl: string) => void) => {
+    done(null, `data:${base64(url)}`);
   }
 }
 ```
@@ -41,10 +42,15 @@ let sassOptions = {
 Promise syntax:
 
 ```TypeScript
+let entryFilePath = '/index.scss';
 let sassOptions = {
   // Rewrite url references
   rewriteUrl: async (url: string, filepath: string) => {
-    done(`data:${base64(url)}`);
+    if (url[0] === '.') {
+      return path.relative(entryFilePath, path.join(filepath, url));
+    } else {
+      return url;
+    }
   }
 }
 ```
@@ -79,4 +85,8 @@ url("./folder/#{$some-var}");
 
 #### Unknown sass filepath
 
-In case the sass compiler does not have a filepath for the originating sass file it is impossible to remap this url reference to the proper location on the server or inline this. In this case we should leave the url as is without trying to remap it in any way. 
+In case the sass compiler does not have a filepath for the originating sass file it is impossible to remap this url reference to the proper location on the server or inline this. In this case we should leave the url as is without trying to remap it in any way.
+
+## Breaking Changes
+
+This will not directly introduce any breaking changes as this new feature will be opt-in. However tools like Parcel and WebPack will probably want to use this and in turn cause users that relied on the non existing relative url rewriting to end up with a broken codebase. However this can be worked around by these tools by falling back to resolving relative to the Sass entry point if the file does not exist, however this might be dangerous behavior and should log a warning.
