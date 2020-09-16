@@ -26,15 +26,19 @@ This is accomplished by adding a callback function to the JavaScript API options
 
 ### JavaScript API
 
-At the core of remapping the url imports is the JavaScript API which allows users to return a new url reference based on the sass file location and url reference. This function can return either a promise or utilise the provided callback function. In case an error gets returned or thrown the sass compilation should fail and return this error, this will likely only happen for files that do not exist.
+At the core of remapping the url imports is the JavaScript API which allows users to return a new url reference based on the sass file location and url reference.
+
+This function can return either a promise or utilise the provided callback function. In case an error gets returned or thrown the sass compilation should fail and return this error, this will likely only happen for files that do not exist.
+
+When a filepath of the originating sass file is unknown, it should also still call this callback but use null as the filepath, this way absolute paths and special url references can still be resolved.
 
 Callback syntax:
 
 ```TypeScript
 let sassOptions = {
   // Rewrite url references
-  rewriteUrl: (url: string, filepath: string, done: (error: Error, newUrl: string) => void) => {
-    done(null, `data:${base64(url)}`);
+  rewriteUrl: (url: string, filepath: string | null, done: (error: Error, newUrl: string) => void) => {
+    done(null, filepath ? `data:${base64(fs.readFileSync(path.join(path.basename(filepath), url)))}` : url);
   }
 }
 ```
@@ -45,9 +49,9 @@ Promise syntax:
 let entryFilePath = '/index.scss';
 let sassOptions = {
   // Rewrite url references
-  rewriteUrl: async (url: string, filepath: string) => {
-    if (url[0] === '.') {
-      return path.relative(entryFilePath, path.join(filepath, url));
+  rewriteUrl: async (url: string, filepath: string | null) => {
+    if (filepath && url[0] === '.') {
+      return path.relative(entryFilePath, path.join(path.join(path.basename(filepath), url));
     } else {
       return url;
     }
