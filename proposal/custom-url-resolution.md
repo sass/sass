@@ -17,8 +17,6 @@ _[(Issue)](https://github.com/sass/sass/issues/2535)_
 
 Many css features require the use of a `url()` import to reference resources from outside the sass files, however these files also need to exist on the eventual output directory and server. To ensure the references are valid the sass API should allow for the user to provide a way to remap and/or inline these resources.
 
-This will require a function in the JavaScript API as well as a cli option with some presets.
-
 ## Summary
 
 This proposal defines a standardized way to remap the url imports to the final location on the server or inline reference as well as providing some defaults for url imports remapping in the CLI.
@@ -78,3 +76,7 @@ url("#{$asset-path}/image.png");
 ```Sass
 url("./folder/#{$some-var}");
 ```
+
+#### Unknown sass filepath
+
+In case the sass compiler does not have a filepath for the originating sass file it is impossible to remap this url reference to the proper location on the server or inline this. In this case we should leave the url as is without trying to remap it in any way. 
