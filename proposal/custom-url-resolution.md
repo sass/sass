@@ -31,7 +31,7 @@ At the core of remapping the url imports is the JavaScript API which allows user
 
 This function can return either a promise or utilise the provided callback function. In case an error gets returned or thrown the sass compilation should fail and return this error, this will likely only happen for files that do not exist.
 
-When a filepath of the originating sass file is unknown, it should also still call this callback but use null as the filepath, this way absolute paths and special url references can still be resolved.
+When a filepath of the originating sass file is unknown, it should also still call this callback but use null as the filepath, this way all url resolution is ensured, the end user can decide whether to handle this or not.
 
 Callback syntax:
 
@@ -64,13 +64,15 @@ let sassOptions = {
 
 In the CLI some defaults can be provided, these can be configured using the `--rewrite-url` flag.
 
+This should require the sass filepath to be known to work, in case this is not defined it should throw an error.
+
 #### Possible Values
 
 These are the possible values for the CLI flag:
 
 - `off`: Does not do any rewriting (default value)
 - `local`: Rewrites all relative url imports to be relative to the main file, rewriting all url imports from sass files that are in a different folder than the main file.
-- `inline`: Inlines url imports using Base64 in a `data:...` url
+- `inline`: Inlines relative url imports using Base64 in a `data:...` url.
 
 ### Edge cases
 
@@ -87,12 +89,6 @@ url("#{$asset-path}/image.png");
 ```Scss
 url("./folder/#{$some-var}");
 ```
-
-#### Unknown sass filepath
-
-In case the sass compiler does not have a filepath for the originating sass file it is impossible to remap this url reference to the proper location on the server or inline this automatically using the CLI.
-
-In this case we should leave the url as is when using a predefined CLI option but still call the `rewriteUrl` callback of the JavaScript API as this might still be able to remap the url.
 
 ## Syntax
 
