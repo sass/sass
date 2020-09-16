@@ -26,7 +26,7 @@ This is accomplished by adding a callback function to the JavaScript API options
 
 ### JavaScript API
 
-At the core of remapping the url imports is the JavaScript API which allows users to return a new url reference based on the sass file location and url reference. This function can return either a promise or utilise the provided callback function.
+At the core of remapping the url imports is the JavaScript API which allows users to return a new url reference based on the sass file location and url reference. This function can return either a promise or utilise the provided callback function. In case an error gets returned or thrown the sass compilation should fail and return this error, this will likely only happen for files that do not exist.
 
 Callback syntax:
 
