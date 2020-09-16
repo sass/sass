@@ -308,6 +308,8 @@ merge($map1, $args...)
 
 * If either `$map1` or `map2` is not a map, throw an error.
 
+* If `$args` has fewer than two elements, throw an error.
+
 * Let `keys` be a slice of all elements in `$args` except the last.
 
 * Let `sub` be the result of calling `get()` with `$map1` as the first
@@ -323,7 +325,8 @@ merge($map1, $args...)
   * Let `sub-merged` be `map2`.
 
 * Return the result of calling `set()` with `$map1` as the first argument,
-  followed by the contents of `keys` as separate arguments, followed by `sub`.
+  followed by the contents of `keys` as separate arguments, followed by
+  `sub-merged`.
 
 ### `deep-merge()`
 
