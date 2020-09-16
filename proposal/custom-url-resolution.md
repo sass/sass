@@ -38,7 +38,7 @@ Callback syntax:
 ```TypeScript
 let sassOptions = {
   // Rewrite url references
-  rewriteUrl: (url: string, filepath: string | null, done: (error: Error, newUrl: string) => void) => {
+  rewriteUrl: (url: string, filepath: string | null, done: (error: Error, newUrl: string) => void): void => {
     done(null, filepath ? `data:${base64(fs.readFileSync(path.join(path.basename(filepath), url)))}` : url);
   }
 }
@@ -50,7 +50,7 @@ Promise syntax:
 let entryFilePath = '/index.scss';
 let sassOptions = {
   // Rewrite url references
-  rewriteUrl: async (url: string, filepath: string | null) => {
+  rewriteUrl: async (url: string, filepath: string | null): Promise<string> => {
     if (filepath && url[0] === '.') {
       return path.relative(entryFilePath, path.join(path.join(path.basename(filepath), url)));
     } else {
