@@ -52,7 +52,7 @@ let sassOptions = {
   // Rewrite url references
   rewriteUrl: async (url: string, filepath: string | null) => {
     if (filepath && url[0] === '.') {
-      return path.relative(entryFilePath, path.join(path.join(path.basename(filepath), url));
+      return path.relative(entryFilePath, path.join(path.join(path.basename(filepath), url)));
     } else {
       return url;
     }
