@@ -7,8 +7,6 @@ _[(Issue)](https://github.com/sass/sass/issues/2535)_
 - [Background](#background)
 - [Summary](#summary)
   - [JavaScript API](#javaScript-api)
-  - [CLI](#cli)
-    - [Possible Values](#possible-values)
   - [Edge cases](#edge-cases)
 - [Syntax](#syntax)
 - [Deprecation Process](#deprecation-process)
@@ -23,9 +21,9 @@ Many css features require the use of a url import to reference resources from ou
 
 > This section is non-normative.
 
-This proposal defines a standardized way to remap the url imports to the final location on the server or inline reference as well as providing some defaults for url imports remapping in the CLI.
+This proposal defines a standardized way to remap the url imports to the final location on the server or inline reference.
 
-This is accomplished by adding a callback function to the JavaScript API options as well as a cli option.
+This is accomplished by adding a callback function to the JavaScript API options that allows rewriting of the url references.
 
 ### JavaScript API
 
@@ -33,7 +31,7 @@ At the core of remapping the url imports is the JavaScript API which allows user
 
 This function can return either a promise or utilise the provided callback function. In case an error gets returned or thrown the sass compilation should fail and return this error, this will likely only happen for files that do not exist.
 
-When a filepath of the originating sass file is unknown, it should also still call this callback but use null as the filepath, this way all url resolution is ensured, the end user can decide whether to handle this or not.
+When a filepath of the originating sass file is unknown, it should still call this callback but use null as the filepath, this way all url resolution is ensured and the end user can decide whether to handle this or not.
 
 Callback syntax:
 
@@ -61,20 +59,6 @@ let sassOptions = {
   }
 }
 ```
-
-### CLI
-
-In the CLI some defaults can be provided, these can be configured using the `--rewrite-url` flag.
-
-This should require the sass filepath to be known to work, in case this is not defined it should throw an error.
-
-#### Possible Values
-
-These are the possible values for the CLI flag:
-
-- `off`: Does not do any rewriting (default value)
-- `local`: Rewrites all relative url imports to be relative to the main file, rewriting all url imports from sass files that are in a different folder than the main file.
-- `inline`: Inlines relative url imports using Base64 in a `data:...` url.
 
 ### Edge cases
 
