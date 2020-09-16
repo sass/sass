@@ -132,7 +132,7 @@ All new functions are part of the `sass:color` built-in module.
   
   * Return a color with the given `red`, `green`, `blue`, and `alpha` channels.
 
-  [percent-converting]: built_in_modules/color.md#percent-converting-a-number
+  [percent-converting]: ../spec/built_in_modules/color.md#percent-converting-a-number
   [to RGB]: https://www.w3.org/TR/css-color-4/#hwb-to-rgb
 
 
@@ -270,8 +270,6 @@ This function's new definition is as follows:
   * Return the result of calling [`hsl()`][] with `hue`, `saturation`,
     `lightness`, and `alpha`.
 
-    [`hsl()`]: ../spec/functions.md#hsl-and-hsla
-
 * Otherwise, if either `$hue`, `$whiteness`, or `$blackness` aren't null:
 
   * If either `$whiteness` or `$blackness` aren't either null or numbers with
@@ -293,6 +291,8 @@ This function's new definition is as follows:
 
 * Otherwise, return a color with the same red, green, and blue channels as
   `$color` and `alpha` as its alpha channel.
+
+[`hsl()`]: ../spec/functions.md#hsl-and-hsla
 
 ### `change()`
 
