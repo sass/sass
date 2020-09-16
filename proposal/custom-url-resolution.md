@@ -1,4 +1,4 @@
-# Custom `url(...)` resolution: Draft 1
+# Custom url resolution: Draft 1
 
 _[(Issue)](https://github.com/sass/sass/issues/2535)_
 
@@ -10,13 +10,14 @@ _[(Issue)](https://github.com/sass/sass/issues/2535)_
   - [CLI](#cli)
     - [Possible Values](#possible-values)
   - [Edge cases](#edge-cases)
+- [Syntax](#syntax)
 - [Breaking Changes](#breaking-changes)
 
 ## Background
 
 > This section is non-normative.
 
-Many css features require the use of a `url()` import to reference resources from outside the sass files, however these files also need to exist on the eventual output directory and server. To ensure the references are valid the sass API should allow for the user to provide a way to remap and/or inline these resources.
+Many css features require the use of a url import to reference resources from outside the sass files, however these files also need to exist on the eventual output directory and server. To ensure the references are valid the sass API should allow for the user to provide a way to remap and/or inline these resources.
 
 ## Summary
 
@@ -89,7 +90,13 @@ url("./folder/#{$some-var}");
 
 #### Unknown sass filepath
 
-In case the sass compiler does not have a filepath for the originating sass file it is impossible to remap this url reference to the proper location on the server or inline this. In this case we should leave the url as is without trying to remap it in any way.
+In case the sass compiler does not have a filepath for the originating sass file it is impossible to remap this url reference to the proper location on the server or inline this automatically using the CLI.
+
+In this case we should leave the url as is when using a predefined CLI option but still call the `rewriteUrl` callback of the JavaScript API as this might still be able to remap the url.
+
+## Syntax
+
+This proposal applies to the `url(...)` function, both with and without the quotation marks. This ensures this applies to the entire css specification for `url(...)`.
 
 ## Breaking Changes
 
