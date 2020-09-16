@@ -69,11 +69,11 @@ Variables can be used in a url reference, in this case it should get remapped ba
 
 Examples:
 
-```Sass
+```Scss
 url("#{$asset-path}/image.png");
 ```
 
-```Sass
+```Scss
 url("./folder/#{$some-var}");
 ```
 
