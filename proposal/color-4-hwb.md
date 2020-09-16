@@ -10,7 +10,10 @@ with inspection and adjustment options for _whiteness_ and _blackness_.
 * [Background](#background)
 * [Summary](#summary)
   * [Design Decisions](#design-decisions)
-* [Semantics](#semantics)
+  * [Future Designs](#future-designs)
+* [Procedures](#procedures)
+  * [Scaling a Number](#scaling-a-number)
+* [Functions](#functions)
   * [`hwb()`](#hwb)
   * [`whiteness()`](#whiteness)
   * [`blackness()`](#blackness)
@@ -39,9 +42,9 @@ module to avoid conflicts with the CSS syntax, and will be converted to more
 common color-name, hex, or `rgba()` syntax for output -- following the same
 logic as our current color functions.
 
-- New `color.hwb()` describes colors in the sRGB colorspace using `$hue` (defined
-  identically to the `hsl()` "hue" value), along with `$whiteness`, `$blackness`,
-  and optional `$alpha` transparency.
+- New `color.hwb()` function describes colors in the sRGB colorspace using
+  `$hue` (defined identically to the `hsl()` "hue" value), along with
+  `$whiteness`, `$blackness`, and optional `$alpha` transparency.
 - New `color.whiteness()` and `color.blackness()` functions return the respective
   values of `w` or `b` for a given color.
 - Existing `color.adjust()`, `color.scale()`, and `color.change()` functions will
@@ -50,28 +53,48 @@ logic as our current color functions.
 
 ### Design Decisions
 
-For backwards-compatibility reasons, both `rgb/a()` and `hsl/a()` are processed
-as Sass function in the global namespace, and output is converted to the format
-with best browser-support. The primary purpose of Sass color-function support
-is our ability to provide those conversions, but the module syntax now allows
-us to namespace new formats, so authors can opt-into the feature. With that
-in mind:
+Both `rgb/a()` and `hsl/a()` are available in the global namespace because both
+of these formats are part of a stable CSS spec, and we want to make any standard
+CSS representation of a color parse as a Sass color. However, although `hwb()`
+is defined in Color Level 4, it's not yet implemented by any browser. Sass
+policy is to avoid supporting any new CSS syntax until it's shipped in a real
+browser, so `hwb()` **will not** be available in the global namespace initially.
+Instead, it will appear in the `sass:color` namespace which is guaranteed to be
+forwards-compatible with future CSS changes.
 
-- The new functions **will not** be available on the global namespace.
-- The new functions **will not** accept *special number string* or
-  *special variable string* values that can only be resolved in CSS.
+Because the `color.hwb()` function isn't currently intended to directly
+implement CSS's native `hwb()` function, it **will not** accept *special number
+string* or *special variable string* values that can only be resolved in CSS.
+However, for consistency with Sass's `rgb()` and `hsl()` functions it will
+support both space-delimited and comma-delimited arguments.
 
-Unknown CSS functions are already passed through implicitly. As browser support
-grows for the native-CSS functions, authors will be able to migrate on their own
-schedule – or use both Sass & CSS functions together to progressively enhance
-their designs.
+### Future Designs
 
-Since all `color.hwb()` output will be processed for rgb output, there is no
-need to support shortcuts like `hwb($color, $alpha)`. However, it is reasonable
-to support both the space-delimited CSS syntax, as well as the comma-delimited
-Sass named-argument syntax.
+It's likely that as CSS Color Level 4 matures, `hwb()` will be stabilized and
+supported in browsers in one form or another. At this point, Sass will likely
+add support for a global `hwb()` function that's compatible with its CSS usage,
+including supporting special number and variable strings. The details of this
+are left to a future proposal.
 
-## Semantics
+## Procedures
+
+### Scaling a Number 
+
+This algorithm takes a number `number`, a value `factor`, and a number `max`.
+It's written "scale `<number>` by `<factor>` with a `max` of `<max>`". It
+returns a number with a value between 0 and `max` and the same units as
+`number`.
+
+* If `factor` isn't a number with unit `%` between `-100%` and `100%`
+  (inclusive), throw an error.
+
+* If `factor > 0%`, return `number + (max - number) * factor / 100%`.
+
+* Otherwise, return `number + number * factor / 100%`.
+
+## Functions
+
+All new functions are part of the `sass:color` built-in module.
 
 ### `hwb()`
 
@@ -82,21 +105,36 @@ Sass named-argument syntax.
   * If any of `$hue`, `$whiteness`, `$blackness`, or `$alpha` aren't numbers,
     throw an error.
 
-  * If either of `$whiteness` or `$blackness` is not a percentage between 0% and
-    100%, throw an error.
+  * If `$hue` has any units other than `deg`, throw an error.
 
-  * Let `hue` be `($hue % 360) / 6`.
+  * If either of `$whiteness` or `$blackness` don't have unit `%` or aren't
+    between `0%` and `100%` (inclusive), throw an error.
 
-  * Let `whiteness` and `$blackness` be the respective values of `$whiteness`
-    and `$blackness`
+  * Let `hue` be `($hue % 360) / 60` without units.
 
-  * If the sum of `whiteness` and `blackness` is greater than 100%, normalize
-    both to maintain the same relative ratio, adding up to 100% combined.
+  * Let `whiteness` be `$whiteness / 100%`.
+
+  * Let `$blackness` be `$blackness / 100%`.
+
+  * If `whiteness + blackness > 1`:
+
+    * Set `whiteness` to `whiteness / (whiteness + blackness)`.
+
+    * Set `blackness` to `blackness / (whiteness + blackness)`.
 
   * Let `red`, `green`, and `blue` be the result of converting `hue`,
-    `whiteness`, and `blackness` [to RGB][].
+    `saturation`, and `lightness` [to RGB][].
 
+  * Set `red`, `green`, and `blue` to their existing values multiplied by 255
+    and rounded to the nearest integers.
+
+  * Let `alpha` be the result of [percent-converting][] `$alpha` with a `max` of 1.
+  
+  * Return a color with the given `red`, `green`, `blue`, and `alpha` channels.
+
+  [percent-converting]: built_in_modules/color.md#percent-converting-a-number
   [to RGB]: https://www.w3.org/TR/css-color-4/#hwb-to-rgb
+
 
 * ```
   hwb($channels)
@@ -128,7 +166,20 @@ whiteness($color)
 ```
 
 * If `$color` is not a color, throw an error.
-* Return the `hwb()` whiteness value of `$color`.
+
+* Return a number with unit `%` between `0%` and `100%` (inclusive) such that:
+
+  * `hwb(hue($color), whiteness($color), blackness($color))` returns a color with
+    the same red, green, and blue channels as `$color`.
+
+  * `whiteness($color) + blackness($color) <= 100%`.
+
+  > The specific number returned here is left purposefully open-ended to allow
+  > implementations to pursue different strategies for representing color
+  > values. For example, one implementation may eagerly convert all colors to
+  > RGB channels and convert back when `whiteness()` or `blackness()` is called,
+  > where another may keep around their original HWB values and return those
+  > as-is.
 
 ### `blackness()`
 
@@ -137,7 +188,20 @@ blackness($color)
 ```
 
 * If `$color` is not a color, throw an error.
-* Return the `hwb()` blackness value of `$color`.
+
+* Return a number with unit `%` between `0%` and `100%` (inclusive) such that:
+
+  * `hwb(hue($color), whiteness($color), blackness($color))` returns a color with
+    the same red, green, and blue channels as `$color`.
+
+  * `whiteness($color) + blackness($color) <= 100%`.
+
+  > The specific number returned here is left purposefully open-ended to allow
+  > implementations to pursue different strategies for representing color
+  > values. For example, one implementation may eagerly convert all colors to
+  > RGB channels and convert back when `whiteness()` or `blackness()` is called,
+  > where another may keep around their original HWB values and return those
+  > as-is.
 
 ### `adjust()`
 
@@ -152,6 +216,84 @@ adjust($color,
   $alpha: null)
 ```
 
+This function's new definition is as follows:
+
+* If `$color` isn't a color, throw an error.
+
+* Let `alpha` be `$color`'s alpha channel.
+
+* If `$alpha` isn't null:
+
+  * If `$alpha` isn't a number between -1 and 1 (inclusive), throw an error.
+
+  * Set `alpha` to `alpha + $alpha` clamped between 0 and 255.
+
+* If `$hue` isn't a number or null, throw an error.
+
+* If any of `$red`, `$green`, or `$blue` aren't null:
+
+  * If any of `$hue`, `$saturation`, `$lightness`, `$whiteness`, or `$blackness`
+    aren't null, throw an error.
+
+  * If any of `$red`, `$green`, or `$blue` aren't either null or numbers between
+    -255 and 255 (inclusive), throw an error.
+
+  * Let `red`, `green`, and `blue` be `$color`'s red, green, and blue channels.
+
+  * If `$red` isn't null, set `red` to `red + $red` clamped between 0 and 255.
+
+  * If `$green` isn't null, set `green` to `green + $green` clamped between 0 and 255.
+
+  * If `$blue` isn't null, set `blue` to `blue + $blue` clamped between 0 and 255.
+
+  * Return a color with `red`, `green`, `blue`, and `alpha` as the red, green,
+    blue, and alpha channels, respectively.
+
+* Otherwise, if either `$saturation` or `$lightness` aren't null:
+
+  * If either `$whiteness` or `$blackness` aren't null, throw an error.
+
+  * If either `$saturation` or `$lightness` aren't either null or numbers
+    between -100 and 100 (inclusive), throw an error.
+
+  * Let `hue`, `saturation`, and `lightness` be the result of calling
+    `hue($color)`, `saturation($color)`, and `lightness($color)` respectively.
+  
+  * If `$hue` isn't null, set `hue` to `hue + $hue`.
+
+  * If `$saturation` isn't null, set `saturation` to `saturation + $saturation`
+    clamped between 0 and 100.
+
+  * If `$lightness` isn't null, set `lightness` to `lightness + $lightness`
+    clamped between 0 and 100.
+
+  * Return the result of calling [`hsl()`][] with `hue`, `saturation`,
+    `lightness`, and `alpha`.
+
+    [`hsl()`]: ../spec/functions.md#hsl-and-hsla
+
+* Otherwise, if either `$hue`, `$whiteness`, or `$blackness` aren't null:
+
+  * If either `$whiteness` or `$blackness` aren't either null or numbers with
+    unit `%` between `-100%` and `100%` (inclusive), throw an error.
+
+  * Let `hue`, `whiteness`, and `blackness` be the result of calling
+    `hue($color)`, `whiteness($color)`, and `blackness($color)` respectively.
+  
+  * If `$hue` isn't null, set `hue` to `hue + $hue`.
+
+  * If `$whiteness` isn't null, set `whiteness` to `whiteness + $whiteness`
+    clamped between `0%` and `100%`.
+
+  * If `$blackness` isn't null, set `blackness` to `blackness + $blackness`
+    clamped between `0%` and `100%`.
+
+  * Return the result of calling `hwb()` with `hue`, `whiteness`, `blackness`,
+    and `alpha`.
+
+* Otherwise, return a color with the same red, green, and blue channels as
+  `$color` and `alpha` as its alpha channel.
+
 ### `change()`
 
 This proposal adds new `$whiteness` and `$blackness` parameters to the `change()`
@@ -165,6 +307,77 @@ change($color,
   $alpha: null)
 ```
 
+This function's new definition is as follows:
+
+* If `$color` isn't a color, throw an error.
+
+* If `$alpha` isn't either null or a number between 0 and 1 (inclusive), throw
+  an error.
+
+* Let `alpha` be `$color`'s alpha channel if `$alpha` is null or `$alpha`
+  without units otherwise.
+
+* If `$hue` isn't a number or null, throw an error.
+
+* If any of `$red`, `$green`, or `$blue` aren't null:
+
+  * If any of `$hue`, `$saturation`, `$lightness`, `$whiteness`, or `$blackness`
+    aren't null, throw an error.
+
+  * If any of `$red`, `$green`, or `$blue` aren't either null or numbers
+    between 0 and 255 (inclusive), throw an error.
+
+  * Let `red` be `$color`'s red channel if `$red` is null or `$red` without
+    units otherwise.
+
+  * Let `green` be `$color`'s green channel if `$green` is null or `$green`
+    without units otherwise.
+  
+  * Let `blue` be `$color`'s blue channel if `$blue` is null or `$blue` without
+    units otherwise.
+
+  * Return a color with `red`, `green`, `blue`, and `alpha` as the red, green,
+    blue, and alpha channels, respectively.
+
+* Otherwise, if either `$saturation` or `$lightness` aren't null:
+
+  * If either `$whiteness` or `$blackness` aren't null, throw an error.
+
+  * If either `$saturation` or `$lightness` aren't either null or numbers
+    between 0 and 100 (inclusive), throw an error.
+
+  * Let `hue` be the result of calling `hue($color)` if `$hue` is null, or
+    `$hue` otherwise.
+
+  * Let `saturation` be the result of calling `saturation($color)` if
+    `$saturation` is null, or `$saturation` otherwise.
+
+  * Let `lightness` be the result of calling `lightness($color)` if
+    `$lightness` is null, or `$lightness` otherwise.
+
+  * Return the result of calling [`hsl()`][] with `hue`, `saturation`,
+    `lightness`, and `alpha`.
+
+* Otherwise, if either `$hue`, `$whiteness`, or `$blackness` aren't null:
+
+  * If either `$saturation` or `$lightness` aren't either null or numbers with
+    unit `%` between `0%` and `100%` (inclusive), throw an error.
+
+  * Let `hue` be the result of calling `hue($color)` if `$hue` is null, or
+    `$hue` otherwise.
+
+  * Let `whiteness` be the result of calling `whiteness($color)` if `$whiteness`
+    is null, or `$whiteness` otherwise.
+
+  * Let `blackness` be the result of calling `blackness($color)` if `$blackness`
+    is null, or `$blackness` otherwise.
+
+  * Return the result of calling `hwb()` with `hue`, `whiteness`, `blackness`,
+    and `alpha`.
+
+* Otherwise, return a color with the same red, green, and blue channels as
+  `$color` and `alpha` as its alpha channel.
+
 ### `scale()`
 
 This proposal adds new `$whiteness` and `$blackness` parameters to the `scale()`
@@ -177,3 +390,66 @@ scale($color,
   $whiteness: null, $blackness: null,
   $alpha: null)
 ```
+
+This function's new definition is as follows:
+
+* If `$color` isn't a color, throw an error.
+
+* Let `alpha` be `$color`'s alpha channel.
+
+* If `$alpha` isn't null, set `alpha` to the result of [scaling][] `alpha` by
+  `$alpha` with `max` 1.
+  
+  [scaling]: #scaling-a-number
+
+* If any of `$red`, `$green`, or `$blue` aren't null:
+
+  * If any of `$saturation`, `$lightness`, `$whiteness`, or `$blackness` aren't
+    null, throw an error.
+
+  * Let `red`, `green`, and `blue` be `$color`'s red, green, and blue channels.
+
+  * If `$red` isn't null, set `red` to the result of [scaling][] `red` by `$red`
+    with `max` 255.
+
+  * If `$green` isn't null, set `green` to the result of [scaling][] `green` by
+    `$green` with `max` 255.
+
+  * If `$blue` isn't null, set `blue` to the result of [scaling][] `blue` by `$blue`
+    with `max` 255.
+
+  * Return a color with `red`, `green`, `blue`, and `alpha` as the red, green,
+    blue, and alpha channels, respectively.
+
+* Otherwise, if either `$saturation` or `$lightness` aren't null:
+
+  * If either `$whiteness` or `$blackness` aren't null, throw an error.
+
+  * Let `hue`, `saturation`, and `lightness` be the result of calling
+    `hue($color)`, `saturation($color)`, and `lightness($color)` respectively.
+
+  * If `$saturation` isn't null, set `saturation` to the result of [scaling][]
+    `saturation` by `$saturation` with `max` `100%`.
+
+  * If `$lightness` isn't null, set `lightness` to the result of [scaling][]
+    `lightness` by `$lightness` with `max` `100%`.
+
+  * Return the result of calling [`hsl()`][] with `hue`, `saturation`,
+    `lightness`, and `alpha`.
+
+* Otherwise, if either `$hue`, `$whiteness`, or `$blackness` aren't null:
+
+  * Let `hue`, `whiteness`, and `blackness` be the result of calling
+    `hue($color)`, `whiteness($color)`, and `blackness($color)` respectively.
+
+  * If `$whiteness` isn't null, set `whiteness` to the result of [scaling][]
+    `whiteness` by `$whiteness` with `max` `100%`.
+
+  * If `$blackness` isn't null, set `blackness` to the result of [scaling][]
+    `blackness` by `$blackness` with `max` `100%`.
+
+  * Return the result of calling `hwb()` with `hue`, `whiteness`, `blackness`,
+    and `alpha`.
+
+* Otherwise, return a color with the same red, green, and blue channels as
+  `$color` and `alpha` as its alpha channel.
