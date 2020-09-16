@@ -11,7 +11,7 @@ _[(Issue)](https://github.com/sass/sass/issues/2535)_
     - [Possible Values](#possible-values)
   - [Edge cases](#edge-cases)
 - [Syntax](#syntax)
-- [Breaking Changes](#breaking-changes)
+- [Deprecation Process](#deprecation-process)
 
 ## Background
 
@@ -20,6 +20,8 @@ _[(Issue)](https://github.com/sass/sass/issues/2535)_
 Many css features require the use of a url import to reference resources from outside the sass files, however these files also need to exist on the eventual output directory and server. To ensure the references are valid the sass API should allow for the user to provide a way to remap and/or inline these resources.
 
 ## Summary
+
+> This section is non-normative.
 
 This proposal defines a standardized way to remap the url imports to the final location on the server or inline reference as well as providing some defaults for url imports remapping in the CLI.
 
@@ -94,6 +96,8 @@ url("./folder/#{$some-var}");
 
 This proposal applies to the `url(...)` function, both with and without the quotation marks. This ensures this applies to the entire css specification for `url(...)`.
 
-## Breaking Changes
+This proposal does not introduce any new Syntax.
+
+## Deprecation Process
 
 This will not directly introduce any breaking changes as this new feature will be opt-in. However tools like Parcel and WebPack will probably want to use this and in turn cause users that relied on the non existing relative url rewriting to end up with a broken codebase. However this can be worked around by these tools by falling back to resolving relative to the Sass entry point if the file does not exist, however this might be dangerous behavior and should log a warning.
