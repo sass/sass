@@ -85,6 +85,8 @@ It's written "scale `<number>` by `<factor>` with a `max` of `<max>`". It
 returns a number with a value between 0 and `max` and the same units as
 `number`.
 
+> Note: in practice, this is only ever called with `number <= max`.
+
 * If `factor` isn't a number with unit `%` between `-100%` and `100%`
   (inclusive), throw an error.
 
