@@ -356,7 +356,7 @@ deep-merge($map1, $map2)
 ### `deep-remove()`
 
 ```
-deep-remove($map, $keys...)
+deep-remove($map, $key, $keys...)
 ```
 
 > Note: This is explicitly *not* an override of `remove()`, because `remove()`
@@ -369,24 +369,30 @@ deep-remove($map, $keys...)
 
 * If `$map` isn't a map, throw an error.
 
-* If `$keys` has fewer than two elements, throw an error.
+* If `$keys` has no elements:
 
-* Let `last-key` be the last element of `$keys`.
-
-* Let `keys` be a slice of all elements in `$keys` except the last.
-
-* Let `sub` be the result of calling `get()` with `$map1` as the first
-  argument and the contents of `keys` as the remaining arguments.
-
-* If `sub` is a map with a key `old-key` that's `==` to `last-key`:
-
-  * Set `sub` to a copy of itself.
-
-  * Remove `old-key` and its associated value from `sub`.
-
-  * Return the result of calling `set()` with `$map1` as the first argument,
-    followed by the contents of `keys` as separate arguments, followed by `sub`.
+  * Return the result of calling `map.remove($map, $key)`.
 
 * Otherwise:
 
-  * Return `$map`.
+  * Let `last-key` be the last element of `$keys`.
+
+  * Let `other-keys` be a list containing `$key` followed by all elements in
+    `$keys` except the last.
+
+  * Let `sub` be the result of calling `get()` with `$map` as the first
+    argument and the contents of `other-keys` as the remaining arguments.
+
+  * If `sub` is a map with a key `old-key` that's `==` to `last-key`:
+
+    * Set `sub` to a copy of itself.
+
+    * Remove `old-key` and its associated value from `sub`.
+
+    * Return the result of calling `set()` with `$map` as the first argument,
+      followed by the contents of `other-keys` as separate arguments, followed
+      by `sub`.
+
+  * Otherwise:
+
+    * Return `$map`.
