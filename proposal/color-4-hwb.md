@@ -116,7 +116,7 @@ All new functions are part of the `sass:color` built-in module.
 
   * Let `whiteness` be `$whiteness / 100%`.
 
-  * Let `$blackness` be `$blackness / 100%`.
+  * Let `blackness` be `$blackness / 100%`.
 
   * If `whiteness + blackness > 1`:
 
@@ -125,7 +125,7 @@ All new functions are part of the `sass:color` built-in module.
     * Set `blackness` to `blackness / (whiteness + blackness)`.
 
   * Let `red`, `green`, and `blue` be the result of converting `hue`,
-    `saturation`, and `lightness` [to RGB][].
+    `whiteness`, and `blackness` [to RGB][].
 
   * Set `red`, `green`, and `blue` to their existing values multiplied by 255
     and rounded to the nearest integers.
@@ -228,7 +228,7 @@ This function's new definition is as follows:
 
   * If `$alpha` isn't a number between -1 and 1 (inclusive), throw an error.
 
-  * Set `alpha` to `alpha + $alpha` clamped between 0 and 255.
+  * Set `alpha` to `alpha + $alpha` clamped between 0 and 1.
 
 * If `$hue` isn't a number or null, throw an error.
 
@@ -362,7 +362,7 @@ This function's new definition is as follows:
 
 * Otherwise, if either `$hue`, `$whiteness`, or `$blackness` aren't null:
 
-  * If either `$saturation` or `$lightness` aren't either null or numbers with
+  * If either `$whiteness` or `$blackness` aren't either null or numbers with
     unit `%` between `0%` and `100%` (inclusive), throw an error.
 
   * Let `hue` be the result of calling `hue($color)` if `$hue` is null, or
