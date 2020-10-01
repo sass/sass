@@ -12,6 +12,8 @@ $primary-color: #333;
 body {
   font: 100% $font-stack;
   color: $primary-color;
+  margin:0px;
+  padding: 0px;
 }
 
 @mixin border-radius($radius) {
