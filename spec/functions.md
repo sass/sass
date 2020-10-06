@@ -233,7 +233,7 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
   * If any of `$hue`, `$saturation`, `$lightness`, or `$alpha` aren't numbers,
     throw an error.
 
-  * Let `hue` be `($hue % 360) / 6`.
+  * Let `hue` be `($hue % 360) / 60` without units.
 
   * Let `saturation` and `lightness` be the result of clamping `$saturation` and
     `$lightness`, respectively, between 0 and 100 and dividing by 100.
@@ -241,7 +241,10 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
   * Let `red`, `green`, and `blue` be the result of converting `hue`,
     `saturation`, and `lightness` [to RGB][].
 
-  * Let `alpha` be the result of percent-converting `$alpha` with a `max` of 1.
+  * Set `red`, `green`, and `blue` to their existing values multiplied by 255
+    and rounded to the nearest integers.
+
+  * Let `alpha` be the result of [percent-converting][] `$alpha` with a `max` of 1.
 
   * Return a color with the given `red`, `green`, `blue`, and `alpha` channels.
 
