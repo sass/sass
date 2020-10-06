@@ -1,6 +1,6 @@
 # HWB Color Functions: Draft 1
 
-*([Issue](https://github.com/sass/sass/issues/2831))*
+*([Issue](https://github.com/sass/sass/issues/2834))*
 
 This proposal adds a new `hwb()` color format to the `sass:color` module, along
 with inspection and adjustment options for _whiteness_ and _blackness_.
