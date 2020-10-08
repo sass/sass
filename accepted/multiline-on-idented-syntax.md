@@ -34,6 +34,8 @@ Enabling multiline when using idented syntax would allow declaration similar to 
 
 This proposal provides a way to enable multiline declarations without affecting any backwards compatibility.
 
+Also worth to note that this is a very long awaited feature, issue has been opened since 2011.
+
 ## Summary
 
 > This section is non-normative.
