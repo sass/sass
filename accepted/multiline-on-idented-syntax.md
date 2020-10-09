@@ -40,67 +40,39 @@ Also worth to note that this is a very long awaited feature, issue has been open
 
 > This section is non-normative.
 
-Sass will allow multiline declaration by using backslash "\" to wrap long lines, 
-treating it as single line, 
-so should only be used where single line is used now, example:
+When using indented syntax Sass will allow multiline declaration according to parsing context, 
+efectively treating multiline input as single line when applicable, example:
 
 ```sass
 /* Mixins */
-@mixin col($cols, $mleft: 0, $mright: 0, $include-margin: false, $border: 0, \
-           $pleft: 0, $pright: 0, $include-padding: true, $extra: 0, $clear: false, \
+@mixin col($cols, $mleft: 0, $mright: 0, $include-margin: false, $border: 0,
+           $pleft: 0, $pright: 0, $include-padding: true, $extra: 0, $clear: false,
            $lead: true, $container: false)
     width: $cols
     color: red
     display: block
 ```
+Would be interpreted as:
 
 ```sass
-/* Font faces */
-@font-face
-    font-family: 'SPEdessa'
-    src: url('fonts/spedessa-webfont.eot')
-    src: url('fonts/spedessa-webfont.eot?#iefix') format('embedded-opentype'), \
-        url('fonts/spedessa-webfont.woff') format('woff'), \
-        url('fonts/spedessa-webfont.ttf') format('truetype')
-    font-weight: normal
-    font-style: normal
+@mixin col($cols, $mleft: 0, $mright: 0, $include-margin: false, $border: 0, $pleft: 0, $pright: 0, $include-padding: true, $extra: 0, $clear: false, $lead: true, $container: false)
 ```
-
-```sass
-/* List */
-$list:  (1,  "value"), \
-    (5,  "value"), \
-    (23, "value"), \
-    (85, "value"), \
-    (32, "value"), \
-    (11, "value"), \
-    (35, "value"), \
-    (89, "value")
-```
-
-```sass
-/* Maps */
-$susy: ( columns: 12, \
-  gutters: 1/3, \
-  gutter-position: after, \
-  math: fluid, \
-  output: float, \
-  flow: ltr, \
-  global-box-sizing: border-box )
-```
-
 
 ## Syntax
 
-Backslash most be followed by newline, otherwise will throw an error,
-backslash will be ignored as well as spaces after,
-making the input similar to being writen in a single line.
+When using idented syntax long declarations can be splitted into multiple lines, 
+newline is allowed after opening parenthesis, 
+opening square bracket, 
+or after a comma, 
+in this context newline will be interpreted as non-significant and the next line appened to current line effectively treating input as if it was writen as single line.
+
+Whitespaces are allowed in between the cited characters and the newline, whitespaces after the newline will be interpreted as non-significant as well.
 
 Input:
 
 <x><pre>
-@mixin col($cols, $mleft: 0, $mright: 0, $include-margin: false, $border: 0, \
-           $pleft: 0, $pright: 0, $include-padding: true, $extra: 0, $clear: false, \
+@mixin col($cols, $mleft: 0, $mright: 0, $include-margin: false, $border: 0,
+           $pleft: 0, $pright: 0, $include-padding: true, $extra: 0, $clear: false,
            $lead: true, $container: false)
 </pre></x>
 
