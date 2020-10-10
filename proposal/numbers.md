@@ -56,8 +56,27 @@ if `a == b`, then `b == a` and if `a == b` and `b == c`, then `a == c`.
 Numbers in Sass are *not* necessarily reflexively equal. `NaN == NaN`,
 `Infinity == Infinity`, and `-Infinity == -Infinity` will always be false.
 
-In the case that two numbers use more than 10 decimal places of precision,
-both numbers are truncated to 10 decimal places and compared.
+In the case that two numbers differ only in their 11th or later digits after
+the decimal point, both numbers are truncated to 10 decimal places and compared.
+
+For example,
+
+```
+These two numbers differ *before* the 10th decimal place, so they should be considered
+unequal
+1.0000000010 == 1.0000000020
+  ---------^      ---------^
+
+These two numbers differ *at* the 10th decimal place, so they should be considered
+unequal
+1.0000000001 == 1.0000000002
+  ---------^      ---------^
+
+These two numbers differ only *beyond* the 10th decimal place, so they should be considered
+equal
+1.00000000001 == 1.00000000002
+  ---------^       ---------^
+```
 
 ### Ordering
 
