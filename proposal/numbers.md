@@ -57,7 +57,7 @@ Numbers in Sass are *not* necessarily reflexively equal. `NaN == NaN`,
 `Infinity == Infinity`, and `-Infinity == -Infinity` will always be false.
 
 In the case that two numbers differ only in their 11th or later digits after
-the decimal point, both numbers are truncated to 10 decimal places and compared.
+the decimal point, both numbers are rounded to 10 decimal places and compared.
 
 For example,
 
@@ -83,7 +83,7 @@ equal
 Numbers in Sass do not have total ordering. Any comparison to `NaN` will return false.
 Otherwise, ordering follows what would be expected when comparing two numbers.
 
-Numbers with more than 10 decimal places are truncated to 10 places before comparison.
+Numbers with more than 10 decimal places are rounded to 10 places before comparison.
 
 ### Hashing
 
