@@ -45,7 +45,7 @@ your operating system [from GitHub][] and [adding it to your `PATH`][PATH].
 That's all—there are no external dependencies and nothing else you need to
 install.
 
-[from GitHub]: https://github.com/sass/dart-sass/releases/tag/1.1.1
+[from GitHub]: https://github.com/sass/dart-sass/releases
 [PATH]: https://katiek2.github.io/path-doc/
 
 If you use Node.js, you can also install Sass using [npm][] by running
