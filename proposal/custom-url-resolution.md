@@ -53,15 +53,18 @@ This callback has two parameters, `error` and `url`:
 - The `url` parameter can be `null` or a `string`, this should be the new url as it can be found in the browser.
 
 ```TypeScript
-let sassOptions = {
-  // Rewrite url references
-  rewriteUrl: async (importerResult: { file?: string, content?: Blob }, done: (error: Error | null, url: string | null) => void): void => {
-    if (file && !content) {
-      content = await fs.readFile(file);
-    }
-
-    done(null, content ? `data:${base64(content)))}` : null);
+// Rewrite url plugin/function
+const rewriteUrlPlugin = async (importerResult: { file?: string, content?: Blob }, done: (error: Error | null, url: string | null) => void): void => {
+  if (file && !content) {
+    content = await fs.readFile(file);
   }
+
+  done(null, content ? `data:${base64(content)))}` : null);
+}
+
+let sassOptions = {
+  // An array of all rewrite url plugins
+  rewriteUrl: [rewriteUrlPlugin]
 }
 ```
 
