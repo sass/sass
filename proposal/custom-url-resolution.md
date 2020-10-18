@@ -45,12 +45,14 @@ The first parameter this rewriteUrl function gets passed in is the importerResul
 - The `file` field is the location on disk of the given url resource, this can be used to create relative mappings or to simply read the file.
 - The `content` field is a `Blob` which contains the content of the url resource, in this case the url rewriter should not try to read the file manually and use this instead as this is what the importer returned.
 
-This function should call the second parameter, the `done` callback, whenever it is finished rewriting the url.
+This function can be used both asynchronously and synchronously, in case of it being asynchronous it should call the done callback, otherwise it should directly return the url synchronously (which is a string or null).
 
-This callback has two parameters, `error` and `url`:
+The done callback has two parameters, `error` and `url`:
 
 - The `error` parameter can be `null` or an `Error` object, this is used when an error occurred when trying to rewrite the url.
 - The `url` parameter can be `null` or a `string`, this should be the new url as it can be found in the browser.
+
+Asynchronous example:
 
 ```TypeScript
 // Rewrite url plugin/function
@@ -63,8 +65,26 @@ const rewriteUrlPlugin = async (importerResult: { file?: string, content?: Blob 
 }
 
 let sassOptions = {
-  // An array of all rewrite url plugins
+  // This can be an array or a single function
+  // depending on whether it's a pipeline of rewrite plugins or just a single plugin
   rewriteUrl: [rewriteUrlPlugin]
+}
+```
+
+Synchronous example:
+
+```TypeScript
+let rootFile = '/example/test.scss';
+
+let sassOptions = {
+  // Could also be an array as shown in the async example
+  rewriteUrl: (importerResult: { file?: string, content?: Blob }): string | null => {
+    if (!importerResult.file) {
+      return null;
+    }
+
+    return path.relative(rootFile, file);
+  }
 }
 ```
 
