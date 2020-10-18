@@ -83,7 +83,7 @@ let sassOptions = {
       return null;
     }
 
-    return path.relative(rootFile, file);
+    return path.relative(path.dirname(rootFile), file);
   }
 }
 ```
