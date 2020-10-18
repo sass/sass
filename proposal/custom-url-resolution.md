@@ -6,6 +6,7 @@ _[(Issue)](https://github.com/sass/sass/issues/2535)_
 
 - [Background](#background)
 - [Summary](#summary)
+  - [Steps](#steps)
   - [JavaScript API](#javaScript-api)
   - [Edge cases](#edge-cases)
 - [Syntax](#syntax)
@@ -15,7 +16,7 @@ _[(Issue)](https://github.com/sass/sass/issues/2535)_
 
 > This section is non-normative.
 
-Many css features require the use of a url import to reference resources from outside the sass files, however these files also need to exist on the eventual output directory and server. To ensure the references are valid the sass API should allow for the user to provide a way to remap and/or inline these resources.
+Many css features require the use of a url import to reference resources from outside the sass files, however these files also need to exist on the eventual output directory and server. To ensure the references are valid, the sass API should allow for the user to provide a way to remap and/or inline these resources.
 
 ## Summary
 
@@ -23,39 +24,43 @@ Many css features require the use of a url import to reference resources from ou
 
 This proposal defines a standardized way to remap the url imports to the final location on the server or inline reference.
 
-This is accomplished by adding a callback function to the JavaScript API options that allows rewriting of the url references.
+This is accomplished by running url references through the importer plugin(s) and url rewriting plugin(s) if any url rewriting plugin has been defined.
+
+### Steps
+
+The steps of a url reference import:
+
+- Url reference gets extracted from the Sass file (For more information see [Syntax](#syntax))
+- This reference gets remapped to the actual location on the filesystem by the importer plugin(s)
+- The resolved reference gets passed into the rewrite url plugin pipeline which returns the output url of this resource.
+
+If a certain resource cannot be remapped the url rewrite plugin will return `null`, if all rewrite plugins return `null` it should fallback to the original value of the url reference.
 
 ### JavaScript API
 
-At the core of remapping the url imports is the JavaScript API which allows users to return a new url reference based on the sass file location and url reference.
+At the core of remapping the url imports is the JavaScript API which allows users to return a new url reference based on the filepath or content.
 
-This function can return either a promise or utilise the provided callback function. In case an error gets returned or thrown the sass compilation should fail and return this error, this will likely only happen for files that do not exist.
+The first parameter this rewriteUrl function gets passed in is the importerResult, which is an object containing an optional `file` and `content` field.
 
-When a filepath of the originating sass file is unknown, it should still call this callback but use null as the filepath, this way all url resolution is ensured and the end user can decide whether to handle this or not.
+- The `file` field is the location on disk of the given url resource, this can be used to create relative mappings or to simply read the file.
+- The `content` field is a `Blob` which contains the content of the url resource, in this case the url rewriter should not try to read the file manually and use this instead as this is what the importer returned.
 
-Callback syntax:
+This function should call the second parameter, the `done` callback, whenever it is finished rewriting the url.
+
+This callback has two parameters, `error` and `url`:
+
+- The `error` parameter can be `null` or an `Error` object, this is used when an error occurred when trying to rewrite the url.
+- The `url` parameter can be `null` or a `string`, this should be the new url as it can be found in the browser.
 
 ```TypeScript
 let sassOptions = {
   // Rewrite url references
-  rewriteUrl: (url: string, filepath: string | null, done: (error: Error, newUrl: string) => void): void => {
-    done(null, filepath ? `data:${base64(fs.readFileSync(path.join(path.basename(filepath), url)))}` : url);
-  }
-}
-```
-
-Promise syntax:
-
-```TypeScript
-let entryFilePath = '/index.scss';
-let sassOptions = {
-  // Rewrite url references
-  rewriteUrl: async (url: string, filepath: string | null): Promise<string> => {
-    if (filepath && url[0] === '.') {
-      return path.relative(entryFilePath, path.join(path.join(path.basename(filepath), url)));
-    } else {
-      return url;
+  rewriteUrl: async (importerResult: { file?: string, content?: Blob }, done: (error: Error | null, url: string | null) => void): void => {
+    if (file && !content) {
+      content = await fs.readFile(file);
     }
+
+    done(null, content ? `data:${base64(content)))}` : null);
   }
 }
 ```
@@ -84,4 +89,6 @@ This proposal does not introduce any new Syntax.
 
 ## Deprecation Process
 
-This will not directly introduce any breaking changes as this new feature will be opt-in. However tools like Parcel and WebPack will probably want to use this and in turn cause users that relied on the non existing relative url rewriting to end up with a broken codebase. However this can be worked around by these tools by falling back to resolving relative to the Sass entry point if the file does not exist, however this might be dangerous behavior and should log a warning.
+This will not directly introduce any breaking changes as this new feature will be opt-in.
+
+However tools like Parcel and WebPack will probably want to use this and in turn cause a breaking change as users are currently relying on the broken url logic of sass. However I strongly believe the impact of this will be very minor as in case a file does not exist the urlRewrite plugin can choose to just ignore this url reference.
