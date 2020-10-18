@@ -94,4 +94,4 @@ This proposal does not introduce any new Syntax.
 
 This will not directly introduce any breaking changes as this new feature will be opt-in.
 
-However tools like Parcel and WebPack will probably want to use this and in turn cause a breaking change as users are currently relying on the broken url logic of sass. However I strongly believe the impact of this will be very minor as in case a file does not exist the urlRewrite plugin can choose to just ignore this url reference.
+However tools like Parcel and WebPack will probably want to use this and in turn cause a breaking change as users are currently relying on the broken url logic of sass. However I strongly believe the impact of this will be very minor as in case a file does not exist the urlRewrite plugin can choose to ignore this url reference.
