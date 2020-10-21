@@ -8,89 +8,85 @@ _[(Issue)](https://github.com/sass/sass/issues/2535)_
 - [Summary](#summary)
   - [Steps](#steps)
   - [JavaScript API](#javaScript-api)
-  - [Edge cases](#edge-cases)
-- [Syntax](#syntax)
+- [Semantics](#semantics)
+  - [Using Variables](#using-variables)
 - [Deprecation Process](#deprecation-process)
 
 ## Background
 
 > This section is non-normative.
 
-Many css features require the use of a url import to reference resources from outside the sass files, however these files also need to exist on the eventual output directory and server. To ensure the references are valid, the sass API should allow for the user to provide a way to remap and/or inline these resources.
+Many css features require the use of a url reference to reference resources from outside the sass files, however these files also need to exist on the eventual output directory and server. To ensure the references are valid, the sass API should allow for the user to provide a way to remap and/or inline these resources.
 
 ## Summary
 
 > This section is non-normative.
 
-This proposal defines a standardized way to remap the url imports to the final location on the server or inline reference.
+This proposal defines a standardized way to remap the url references to the final location on the server or inline reference.
 
-This is accomplished by running url references through the importer plugin(s) and url rewriting plugin(s) if any url rewriting plugin has been defined.
+This is accomplished by running url references through the url rewriting plugin if a url rewriting plugin has been defined.
 
 ### Steps
 
 The steps of a url reference import:
 
-- Url reference gets extracted from the Sass file (For more information see [Syntax](#syntax))
-- This reference gets remapped to the actual location on the filesystem by the importer plugin(s)
-- The resolved reference gets passed into the rewrite url plugin pipeline which returns the output url of this resource.
-
-If a certain resource cannot be remapped the url rewrite plugin will return `null`, if all rewrite plugins return `null` it should fallback to the original value of the url reference.
+- Url reference gets extracted from the Sass file (For more information see [Semantics](#semantics))
+- These reference gets passed into the rewrite url plugin which returns the output url of this resource.
 
 ### JavaScript API
 
-At the core of remapping the url imports is the JavaScript API which allows users to return a new url reference based on the filepath or content.
+At the core of remapping the url references is the JavaScript API which allows users to return a new url reference, based on filepath and original url reference.
 
-The first parameter this rewriteUrl function gets passed in is the importerResult, which is an object containing an optional `file` and `content` field.
+The first parameter of the urlRewrite function is an object with the following values:
 
-- The `file` field is the location on disk of the given url resource, this can be used to create relative mappings or to simply read the file.
-- The `content` field is a `Blob` which contains the content of the url resource, in this case the url rewriter should not try to read the file manually and use this instead as this is what the importer returned.
+- `file`: The file path of the sass file that references the url.
+- `entry`: The entry file path that has been used to call the sass compiler.
+- `url`: The original url reference, for example with `url(file://../assets/test.png)` it would return be `file://../assets/test.png`.
 
-This function can be used both asynchronously and synchronously, in case of it being asynchronous it should call the done callback, otherwise it should directly return the url synchronously (which is a string or null).
+The second parameter of the urlRewrite function is an optional done callback that is used when performing asynchronous operations.
 
-The done callback has two parameters, `error` and `url`:
+This callback function takes in two parameters:
 
-- The `error` parameter can be `null` or an `Error` object, this is used when an error occurred when trying to rewrite the url.
-- The `url` parameter can be `null` or a `string`, this should be the new url as it can be found in the browser.
+- `error`: This can be null or an Error object, `null` means there is no error.
+- `url`: This is the `string` that gets used to replace the url reference.
 
 Asynchronous example:
 
 ```TypeScript
-// Rewrite url plugin/function
-const rewriteUrlPlugin = async (importerResult: { file?: string, content?: Blob }, done: (error: Error | null, url: string | null) => void): void => {
-  if (file && !content) {
-    content = await fs.readFile(file);
-  }
-
-  done(null, content ? `data:${base64(content)))}` : null);
-}
-
 let sassOptions = {
-  // This can be an array or a single function
-  // depending on whether it's a pipeline of rewrite plugins or just a single plugin
-  rewriteUrl: [rewriteUrlPlugin]
+  // Rewrite urls asynchronously
+  rewriteUrl: async (importerResult: { file: string, entry: string, url: string }, done: (error: Error | null, url: string | null) => void): void => {
+    if (file && !content) {
+      content = await fs.readFile(path.join(path.dirname(file), url));
+    }
+
+    done(null, content ? `data:${base64(content)))}` : url);
+  }
 }
 ```
 
 Synchronous example:
 
 ```TypeScript
-let rootFile = '/example/test.scss';
-
 let sassOptions = {
-  // Could also be an array as shown in the async example
-  rewriteUrl: (importerResult: { file?: string, content?: Blob }): string | null => {
+  // Rewrite urls synchronously
+  rewriteUrl: (importerResult: { file: string, entry: string, url: string }): string | null => {
     if (!importerResult.file) {
-      return null;
+      return url;
     }
 
-    return path.relative(path.dirname(rootFile), file);
+    return path.relative(path.dirname(entry), path.join(path.dirname(file), url));
   }
 }
 ```
 
-### Edge cases
+## Semantics
 
-#### Variables in the url reference
+This proposal defines an overload for `url()`, to allow users to rewrite url references to how it will be accessible on the browser.
+
+It applies to both with and without quotation marks: `url("$url")` and `url($url)`.
+
+### Using Variables
 
 Variables can be used in a url reference, in this case it should get remapped based on the value that gets created after the variables have been applied to ensure we are able to remap the url as expected.
 
@@ -103,12 +99,6 @@ url("#{$asset-path}/image.png");
 ```Scss
 url("./folder/#{$some-var}");
 ```
-
-## Syntax
-
-This proposal applies to the `url(...)` function, both with and without the quotation marks. This ensures this applies to the entire css specification for `url(...)`.
-
-This proposal does not introduce any new Syntax.
 
 ## Deprecation Process
 
