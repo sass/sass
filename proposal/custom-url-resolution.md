@@ -7,7 +7,7 @@ _[(Issue)](https://github.com/sass/sass/issues/2535)_
 - [Background](#background)
 - [Summary](#summary)
   - [Steps](#steps)
-  - [JavaScript API](#javaScript-api)
+  - [JavaScript API](#javascript-api)
 - [Semantics](#semantics)
   - [Using Variables](#using-variables)
 - [Deprecation Process](#deprecation-process)
