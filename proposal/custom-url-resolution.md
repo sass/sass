@@ -28,10 +28,11 @@ This is accomplished by running url references through the url rewriting plugin 
 
 ### Steps
 
-The steps of a url reference import:
+The steps of rewriting a url reference:
 
-- Url reference gets extracted from the Sass file (For more information see [Semantics](#semantics))
+- Url reference gets extracted from the sass file (For more information see [Semantics](#semantics))
 - These reference gets passed into the rewrite url plugin which returns the output url of this resource.
+- This returned value gets used to replace the original url reference.
 
 ### JavaScript API
 
