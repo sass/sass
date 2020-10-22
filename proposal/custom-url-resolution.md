@@ -10,7 +10,6 @@ _[(Issue)](https://github.com/sass/sass/issues/2535)_
   - [JavaScript API](#javascript-api)
 - [Semantics](#semantics)
   - [Using Variables](#using-variables)
-- [Deprecation Process](#deprecation-process)
 
 ## Background
 
@@ -36,12 +35,12 @@ The steps of rewriting a url reference:
 
 ### JavaScript API
 
-At the core of remapping the url references is the JavaScript API which allows users to return a new url reference, based on filepath and original url reference.
+At the core of remapping the url references is the JavaScript API which allows users to return a new url reference, based on the canonical url of the sass file and original url reference.
 
 The first parameter of the urlRewrite function is an object with the following values:
 
-- `file`: The file path of the sass file that references the url.
-- `entry`: The entry file path that has been used to call the sass compiler.
+- `file`: The canonical url of the sass file that references the url.
+- `entry`: The canonical url of the entry sass file that has been used to call the sass compiler.
 - `url`: The original url reference, for example with `url(file://../assets/test.png)` it would return be `file://../assets/test.png`.
 
 The second parameter of the urlRewrite function is an optional done callback that is used when performing asynchronous operations.
@@ -100,9 +99,3 @@ url("#{$asset-path}/image.png");
 ```Scss
 url("./folder/#{$some-var}");
 ```
-
-## Deprecation Process
-
-This will not directly introduce any breaking changes as this new feature will be opt-in.
-
-However tools like Parcel and WebPack will probably want to use this and in turn cause a breaking change as users are currently relying on the broken url logic of sass. However I strongly believe the impact of this will be very minor as in case a file does not exist the urlRewrite plugin can choose to ignore this url reference.
