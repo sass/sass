@@ -420,7 +420,7 @@ This function is also available as a global function named `hue()`.
 
   * Return a color with the given `red`, `green`, `blue`, and `alpha` channels.
 
-  [percent-converting]: ../spec/built_in_modules/color.md#percent-converting-a-number
+  [percent-converting]: #percent-converting-a-number
   [to RGB]: https://www.w3.org/TR/css-color-4/#hwb-to-rgb
 
 
