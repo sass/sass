@@ -137,7 +137,7 @@ ambiguous with a declaration and thus with raw SassScript.
 &#32;                     | SupportsInParens ('and' SupportsInParens)*
 &#32;                     | SupportsInParens ('or' SupportsInParens)*
 **SupportsInParens**    ::= '(' (SupportsCondition | SupportsDeclaration | SupportsAnything) ')'
-&#32;                     | SupportsFunction
+&#32;                     | SupportsFunction | Interpolation
 **SupportsDeclaration** ::= Expression¹ ':' Expression
 **SupportsAnything**    ::= [InterpolatedIdentifier][]² [InterpolatedAnyValue][]³?
 **SupportsFunction**    ::= [InterpolatedIdentifier][]⁴ '(' [InterpolatedAnyValue][]? ')'
