@@ -1,3 +1,9 @@
+## Draft 2.1
+
+* Forbid `"and"` or `"or"` tokens at the beginning of `InterpolatedAnyValue` in
+  `SupportsAnything`. This makes more explicit the fact that the
+  `SupportsCondition` parsing takes precedence.
+
 ## Draft 2
 
 * Mark the `InterpolatedAnyValue` productions as optional. According to Tab
