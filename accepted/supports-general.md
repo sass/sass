@@ -1,4 +1,4 @@
-# `@supports` `<general-enclosed>`: Draft 2.0
+# `@supports` `<general-enclosed>`: Draft 2.1
 
 *([Issue](https://github.com/sass/sass/issues/2780), [Changelog](supports-general.changes.md))*
 
@@ -151,7 +151,8 @@ ambiguous with a declaration and thus with raw SassScript.
 
 2: This `InterpolatedIdentifier` may not be the identifier `"not"`.
 
-3: This `InterpolatedAnyValue` may not contain a top-level `":"`.
+3: This `InterpolatedAnyValue` may not contain a top-level `":"`, and it may not
+begin with the identifier tokens `"and"` or `"or"`.
 
 4: This `InterpolatedIdentifier` may not be the identifier `"not"`. No
 whitespace is allowed between it and the following `"("`.
