@@ -1,6 +1,6 @@
-# `@supports` `<general-enclosed>`: Draft 1.0
+# `@supports` `<general-enclosed>`: Draft 2.0
 
-*([Issue](https://github.com/sass/sass/issues/2780))*
+*([Issue](https://github.com/sass/sass/issues/2780), [Changelog](supports-general.changes.md))*
 
 This proposal defines how Sass parses supports queries that use the
 [`<general-enclosed>`][] production.
@@ -137,10 +137,10 @@ ambiguous with a declaration and thus with raw SassScript.
 &#32;                     | SupportsInParens ('and' SupportsInParens)*
 &#32;                     | SupportsInParens ('or' SupportsInParens)*
 **SupportsInParens**    ::= '(' (SupportsCondition | SupportsDeclaration | SupportsAnything) ')'
-&#32;                     | SupportsFunction
+&#32;                     | SupportsFunction | Interpolation
 **SupportsDeclaration** ::= Expression¹ ':' Expression
-**SupportsAnything**    ::= [InterpolatedIdentifier][]² [InterpolatedAnyValue][]³
-**SupportsFunction**    ::= [InterpolatedIdentifier][]⁴ '(' [InterpolatedAnyValue][] ')'
+**SupportsAnything**    ::= [InterpolatedIdentifier][]² [InterpolatedAnyValue][]³?
+**SupportsFunction**    ::= [InterpolatedIdentifier][]⁴ '(' [InterpolatedAnyValue][]? ')'
 </pre></x>
 
 [InterpolatedIdentifier]: ../spec/syntax.md#interpolatedidentifier
