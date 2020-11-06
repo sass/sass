@@ -7,6 +7,7 @@
 * [Grammar](#grammar)
   * [`InterpolatedIdentifier`](#interpolatedidentifier)
   * [`Name`](#name)
+  * [`SpecialFunctionExpression`](#specialfunctionexpression)
   * [`MinMaxExpression`](#minmaxexpression)
 * [Procedures](#procedures)
   * [Parsing Text as CSS](#parsing-text-as-css)
@@ -14,6 +15,7 @@
   * [Consuming an Interpolated Identifier](#consuming-an-interpolated-identifier)
   * [Consuming a Name](#consuming-a-name)
   * [Consuming an Escaped Code Point](#consuming-an-escaped-code-point)
+  * [Consuming a special function](#consuming-a-special-function)
   * [Consuming `min()` or `max()`](#consuming-min-or-max)
 
 ## Definitions
@@ -40,11 +42,28 @@ No whitespace is allowed between components of an `InterpolatedIdentifier`.
 ### `Name`
 
 <x><pre>
-**Name** ::= ([name code point][] | [escape][])+
+**Name** ::= ([identifier code point][] | [escape][])+
 </pre></x>
 
-[name-start code point]: https://drafts.csswg.org/css-syntax-3/#name-start-code-point
+[identifier code point]: https://drafts.csswg.org/css-syntax-3/#identifier-code-point
 [escape]: https://drafts.csswg.org/css-syntax-3/#escape-diagram
+
+### `SpecialFunctionExpression`
+
+> These functions are "special" in the sense that their arguments don't use the
+> normal CSS expression-level syntax, and so have to be parsed more broadly than
+> a normal SassScript expression.
+
+<x><pre>
+**SpecialFunctionExpression** ::= SpecialFunctionName InterpolatedDeclarationValue ')'
+**SpecialFunctionName**¹      ::= VendorPrefix? ('calc(' | 'element(' | 'expression(')
+**VendorPrefix**¹             ::= '-' ([identifier-start code point] | [digit]) '-'
+</pre></x>
+
+[digit]: https://drafts.csswg.org/css-syntax-3/#digit
+
+1: Both `SpecialFunctionName` and `VendorPrefix` are matched case-insensitively,
+   and neither may contain whitespace.
 
 ### `MinMaxExpression`
 
@@ -204,13 +223,13 @@ This production has the same grammar as [`<ident-token>`][].
   * If the stream starts with `\`, [consume an escaped code point][] with the
     `start` flag set and append it to `string`.
 
-  * Otherwise, if the stream starts with a [name-start code point][], consume it
-    and append it to `string`.
+  * Otherwise, if the stream starts with an [identifier-start code point][],
+    consume it and append it to `string`.
 
   * Otherwise, throw an error.
 
   [consume an escaped code point]: #consuming-an-escaped-code-point
-  [name-start code point]: https://drafts.csswg.org/css-syntax-3/#name-start-code-point
+  [identifier-start code point]: https://drafts.csswg.org/css-syntax-3/#identifier-start-code-point
 
 * [Consume a name](#consuming-a-name) and append it to `string`.
 
@@ -236,9 +255,7 @@ sequence of strings and/or expressions. It follows the grammar for an
 * Otherwise, [consume an identifier](#consuming-an-identifier) and add its string
   to `components`.
 
-* While the input starts with `#{`, a [name code point][], or `\`:
-
-  [name code point]: https://drafts.csswg.org/css-syntax-3/#name-code-point
+* While the input starts with `#{`, a [identifier code point][], or `\`:
 
   * If the input starts with `#{`, consume an interpolation and add
     its expression to `components`.
@@ -254,15 +271,15 @@ This algorithm consumes input from a stream of [code points][] and returns a
 string. The grammar for this production is:
 
 <x><pre>
-**Name** ::= ([name code point][] | [escape][])+
+**Name** ::= ([identifier code point][] | [escape][])+
 </pre></x>
 
 * Let `string` be an empty string.
 
-* While the input starts with a [name code point][] or `\`:
+* While the input starts with a [identifier code point][] or `\`:
 
-  * If the input starts with a [name code point][], consume it and append it to
-    `string`.
+  * If the input starts with a [identifier code point][], consume it and append
+    it to `string`.
 
   * Otherwise, [consume an escaped code point][] and append it to `string`.
 
@@ -286,17 +303,16 @@ This production has the same grammar as [`escape`][escape] in CSS Syntax Level 3
 
 * Let `character` be the string containing only `codepoint`.
 
-* If `codepoint` is a [name-start code point][], return `character`.
+* If `codepoint` is a [identifier-start code point][], return `character`.
 
-* Otherwise, if `codepoint` is a [name code point][] and the `start` flag is
-  not set, return `character`.
+* Otherwise, if `codepoint` is an [identifier code point][] and the `start` flag
+  is not set, return `character`.
 
 * Otherwise, if `codepoint` is a [non-printable code point][], U+0009 CHARACTER
   TABULATION, U+000A LINE FEED, U+000D CARRIAGE RETURN, or U+000C FORM FEED;
   *or* if `codepoint` is a [digit][] and the `start` flag is set:
 
   [non-printable code point]: https://drafts.csswg.org/css-syntax-3/#non-printable-code-point
-  [digit]: https://drafts.csswg.org/css-syntax-3/#digit
 
   * Let `code` be the lowercase hexadecimal representation of `codepoint`,
     with no leading `0`s.
@@ -309,6 +325,19 @@ This production has the same grammar as [`escape`][escape] in CSS Syntax Level 3
   > it.
 
 * Otherwise, return `"\"` + `character`.
+
+### Consuming a special function
+
+This algorithm consumes input from a stream of [code points] and returns a
+SassScript expression.
+
+* Let `expression` be the result of consuming a [`SpecialFunctionExpression`].
+
+  [`SpecialFunctionExpression`]: #specialfunctionexpression
+
+* Return an unquoted interpolated string expression that would be identical to
+  the source text according to CSS semantics for all possible interpolated
+  strings.
 
 ### Consuming `min()` or `max()`
 
