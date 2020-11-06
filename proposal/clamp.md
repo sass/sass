@@ -40,7 +40,7 @@ two 👍s on the issue in the issue tracker.
 
 This proposal makes `clamp()` essentially a synonym of `calc()`, so that its
 contents are parsed in the same liberal manner with interpolation as the only
-valid Sass use of Sass within them.
+valid use of Sass within them.
 
 ### Design Decisions
 
@@ -84,8 +84,6 @@ proposal intentionally avoids that approach for several reasons:
 string].
 
 [special number string]: ../spec/functions.md#special-number-string
-
-### Procedures
 
 ## Syntax
 
