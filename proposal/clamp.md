@@ -54,7 +54,7 @@ avoid needing to do so if at all possible.
 
 It's worth noting that there is prior art for this disambiguation. When adding
 support for [plain-CSS `min()` and `max()`] functions, we decided to
-disambiguate the pain CSS versions from the Sass-syntax versions by first
+disambiguate the plain CSS versions from the Sass-syntax versions by first
 parsing as the former and falling back to the latter if that parse failed. This
 proposal intentionally avoids that approach for several reasons:
 
