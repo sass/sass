@@ -7,6 +7,7 @@
 * [Grammar](#grammar)
   * [`InterpolatedIdentifier`](#interpolatedidentifier)
   * [`Name`](#name)
+  * [`SpecialFunctionExpression`](#specialfunctionexpression)
   * [`MinMaxExpression`](#minmaxexpression)
 * [Procedures](#procedures)
   * [Parsing Text as CSS](#parsing-text-as-css)
@@ -14,6 +15,7 @@
   * [Consuming an Interpolated Identifier](#consuming-an-interpolated-identifier)
   * [Consuming a Name](#consuming-a-name)
   * [Consuming an Escaped Code Point](#consuming-an-escaped-code-point)
+  * [Consuming a special function](#consuming-a-special-function)
   * [Consuming `min()` or `max()`](#consuming-min-or-max)
 
 ## Definitions
@@ -45,6 +47,23 @@ No whitespace is allowed between components of an `InterpolatedIdentifier`.
 
 [identifier code point]: https://drafts.csswg.org/css-syntax-3/#identifier-code-point
 [escape]: https://drafts.csswg.org/css-syntax-3/#escape-diagram
+
+### `SpecialFunctionExpression`
+
+> These functions are "special" in the sense that their arguments don't use the
+> normal CSS expression-level syntax, and so have to be parsed more broadly than
+> a normal SassScript expression.
+
+<x><pre>
+**SpecialFunctionExpression** ::= SpecialFunctionName InterpolatedDeclarationValue ')'
+**SpecialFunctionName**¹      ::= VendorPrefix? ('calc(' | 'element(' | 'expression(')
+**VendorPrefix**¹             ::= '-' ([identifier-start code point] | [digit]) '-'
+</pre></x>
+
+[digit]: https://drafts.csswg.org/css-syntax-3/#digit
+
+1: Both `SpecialFunctionName` and `VendorPrefix` are matched case-insensitively,
+   and neither may contain whitespace.
 
 ### `MinMaxExpression`
 
@@ -294,7 +313,6 @@ This production has the same grammar as [`escape`][escape] in CSS Syntax Level 3
   *or* if `codepoint` is a [digit][] and the `start` flag is set:
 
   [non-printable code point]: https://drafts.csswg.org/css-syntax-3/#non-printable-code-point
-  [digit]: https://drafts.csswg.org/css-syntax-3/#digit
 
   * Let `code` be the lowercase hexadecimal representation of `codepoint`,
     with no leading `0`s.
@@ -307,6 +325,19 @@ This production has the same grammar as [`escape`][escape] in CSS Syntax Level 3
   > it.
 
 * Otherwise, return `"\"` + `character`.
+
+### Consuming a special function
+
+This algorithm consumes input from a stream of [code points] and returns a
+SassScript expression.
+
+* Let `expression` be the result of consuming a [`SpecialFunctionExpression`].
+
+  [`SpecialFunctionExpression`]: #specialfunctionexpression
+
+* Return an unquoted interpolated string expression that would be identical to
+  the source text according to CSS semantics for all possible interpolated
+  strings.
 
 ### Consuming `min()` or `max()`
 
