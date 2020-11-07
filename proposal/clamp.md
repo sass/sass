@@ -10,7 +10,7 @@ support akin to `min()`, `max()`, and `calc()`.
 * [Background](#background)
 * [Summary](#summary)
   * [Design Decisions](#design-decisions)
-* [Definitions](#semantics)
+* [Definitions](#definitions)
   * [Special Number String](#special-number-string)
 * [Syntax](#syntax)
   * [`SpecialFunctionName`](#specialfunctionname)
