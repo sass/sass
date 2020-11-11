@@ -38,7 +38,7 @@ The process for adding a new feature works as follows:
    feedback received.
 
    [@SassCSS]: https://twitter.com/SassCSS
-   
+
    As the proposal is updated based on feedback, its draft number should be
    increased according to the [versioning policy][] and changes should be logged
    in a changelog file named `<proposal>.changes.md`. Once enough time has
@@ -54,14 +54,14 @@ The process for adding a new feature works as follows:
    in [Dart Sass][] (since it's the reference implementation). Writing the specs
    alongside an implementation helps ensure that the specs are accurate and
    sensible, and that the implementation is correct.
-   
+
    [the `accepted/` directory]: accepted
    [specs]: https://github.com/sass/sass-spec
    [Dart Sass]: https://github.com/sass/dart-sass
 
    The new specs should have an `options.yml` file that marks them as TODO for
    LibSass, with a reference to its issue for the new feature. For example:
-   
+
    ```yaml
    ---
    :todo:
@@ -71,7 +71,7 @@ The process for adding a new feature works as follows:
    Once the specs and the implementation are complete, they're sent as pull
    requests to [sass-spec][] and [Dart Sass][], respectively. They need to have
    special lines in their pull request messages in order to build properly:
-   
+
    [sass-spec]: https://github.com/sass/sass-spec
 
    * The sass-spec pull request message should include `[skip dart-sass]`. This
@@ -83,15 +83,6 @@ The process for adding a new feature works as follows:
      against the specs in that pull request and so test your new feature.
 
    Once these pull requests land, the feature moves to step 5.
-
-5. The feature is eventually implemented in LibSass. Once the feature lands in
-   [the LibSass repo][] it moves to step 6.
-
-   [the LibSass repo]: https://github.com/sass/libsass
-
-6. The LibSass devs mark the original issue for the feature as complete for
-   LibSass and close it out with a comment indicating which LibSass and Node
-   Sass releases will first support the feature.
 
 ## Proposal
 
@@ -133,20 +124,20 @@ accepted.
   behavior being proposed. It doesn't need to be fully explicit about every
   corner of the feature, it just needs to give users an idea of how it works and
   what use-cases it addresses. Code examples are encouraged.
-  
+
   See [Escapes in Identifiers][] for a good example of a Summary section.
 
   [Escapes in Identifiers]: accepted/identifier-escapes.md#summary
 
   * **Design Decisions**
-  
+
     This sub-section goes into detail about decisions that were made during the
     design of the feature. It should describe alternatives that were considered,
     and explain why the final decision was made the way it was.
 
     See [Plain CSS `min()` and `max()`][min-max design] for a good example
     of a Design Decisions section.
-    
+
   [min-max design]: accepted/min-max.md#design-decisions
 
 * **Syntax**
@@ -252,7 +243,7 @@ The fast-track process works as follows:
       new feature. The new specs should have an `options.yml` file that marks
       them as TODO for LibSass, with a reference to its issue for the new
       feature. For example:
-      
+
       ```yaml
       ---
       :todo:
@@ -272,12 +263,3 @@ The fast-track process works as follows:
    ensure any interested parties have a chance to comment on them. After that
    point, *and* after all three pull requests have been approved by reviewers,
    they should be landed simultaneously.
-
-3. The feature is eventually implemented in LibSass. Once the feature lands in
-   [the LibSass repo][] it moves to step 4.
-
-   [the LibSass repo]: https://github.com/sass/libsass
-
-4. The LibSass devs mark the original issue for the feature as complete for
-   LibSass and close it out with a comment indicating which LibSass and Node
-   Sass releases will first support the feature.
