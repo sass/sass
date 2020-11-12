@@ -6,9 +6,9 @@ _[(Issue)](https://github.com/sass/sass/issues/2535)_
 
 - [Background](#background)
 - [Summary](#summary)
+- [Semantics](#semantics)
   - [Steps](#steps)
   - [JavaScript API](#javascript-api)
-- [Semantics](#semantics)
   - [Using Variables](#using-variables)
 
 ## Background
@@ -25,12 +25,18 @@ This proposal defines a standardized way to remap the url references to the fina
 
 This is accomplished by running url references through the url rewriting plugin if a url rewriting plugin has been defined.
 
+## Semantics
+
+This proposal defines new behavior for `url()`, to allow users to rewrite url references to how it will be accessible on the browser.
+
+It applies to both with and without quotation marks: `url("$url")` and `url($url)`.
+
 ### Steps
 
 The steps of rewriting a url reference:
 
 - Url reference gets extracted from the sass file (For more information see [Semantics](#semantics))
-- These reference gets passed into the rewrite url plugin which returns the output url of this resource.
+- The url reference gets passed into the rewrite url plugin which returns the final output url of this resource.
 - This returned value gets used to replace the original url reference.
 
 ### JavaScript API
@@ -80,12 +86,6 @@ let sassOptions = {
   }
 }
 ```
-
-## Semantics
-
-This proposal defines new behavior for `url()`, to allow users to rewrite url references to how it will be accessible on the browser.
-
-It applies to both with and without quotation marks: `url("$url")` and `url($url)`.
 
 ### Using Variables
 
