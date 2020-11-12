@@ -83,7 +83,7 @@ let sassOptions = {
 
 ## Semantics
 
-This proposal defines an overload for `url()`, to allow users to rewrite url references to how it will be accessible on the browser.
+This proposal defines new behavior for `url()`, to allow users to rewrite url references to how it will be accessible on the browser.
 
 It applies to both with and without quotation marks: `url("$url")` and `url($url)`.
 
