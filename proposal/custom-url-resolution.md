@@ -115,9 +115,9 @@ let sassOptions = {
 
 ### Using Variables
 
-Variables can be used in a url reference, in this case it should get remapped based on the value that gets created after the variables have been applied to ensure we are able to remap the url as expected.
+Variables can be used in a url reference, in this case it should get remapped based on the value that gets created after the variables have been applied to ensure we are able to remap the entire url correctly.
 
-Examples:
+Examples with variables:
 
 ```Scss
 url("#{$asset-path}/image.png");
