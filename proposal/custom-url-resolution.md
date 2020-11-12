@@ -40,8 +40,7 @@ At the core of remapping the url references is the JavaScript API which allows u
 The first parameter of the urlRewrite function is an object with the following values:
 
 - `file`: The canonical url of the sass file that references the url.
-- `entry`: The canonical url of the entry sass file that has been used to call the sass compiler.
-- `url`: The original url reference, for example with `url(file://../assets/test.png)` it would return be `file://../assets/test.png`.
+- `url`: The url reference, for example with `url(file://../assets/test.png)` it would be `file://../assets/test.png`.
 
 The second parameter of the urlRewrite function is an optional done callback that is used when performing asynchronous operations.
 
@@ -55,8 +54,8 @@ Asynchronous example:
 ```TypeScript
 let sassOptions = {
   // Rewrite urls asynchronously
-  rewriteUrl: async (importerResult: { file: string, entry: string, url: string }, done: (error: Error | null, url: string | null) => void): void => {
-    if (file && !content) {
+  rewriteUrl: async (urlReference: { file: string, url: string }, done: (error: Error | null, url: string | null) => void): void => {
+    if (urlReference.file) {
       content = await fs.readFile(path.join(path.dirname(file), url));
     }
 
@@ -68,14 +67,16 @@ let sassOptions = {
 Synchronous example:
 
 ```TypeScript
+const outDir = '/';
+
 let sassOptions = {
   // Rewrite urls synchronously
-  rewriteUrl: (importerResult: { file: string, entry: string, url: string }): string | null => {
-    if (!importerResult.file) {
+  rewriteUrl: (urlReference: { file: string, url: string }): string | null => {
+    if (!urlReference.file) {
       return url;
     }
 
-    return path.relative(path.dirname(entry), path.join(path.dirname(file), url));
+    return path.relative(path.dirname(outDir), path.join(path.dirname(file), url));
   }
 }
 ```
