@@ -63,7 +63,7 @@ have a conversion factor.
 
 * If `number` has no units:
 
-  * If this procedure allow unitless, return `number` with unit `unit`.
+  * If this procedure allows unitless, return `number` with unit `unit`.
 
   * Otherwise, throw an error.
 
