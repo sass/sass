@@ -249,6 +249,7 @@ or `$lightness` parameters to `hsl()`, `hsla()`, `color.adjust()`, or
 warning.
 
 [`hsla()`]: ../spec/functions.md#hsl-and-hsla
+[`color.change()`]: ../spec/built_in_modules/color.md#change
 
 > Unitless hues should not cause deprecation warnings, but unitless saturations
 > and lightnesses should.
@@ -275,6 +276,8 @@ Phase 2 implements a subset of the function changes described
 * As in phase 1, if either the `$saturation` or `$lightness` parameters to
   `hsl()`, `hsla()`, `color.adjust()`, or `color.change()` are passed a number
   without the unit `%`, emit a deprecation warning.
+
+[convert]: ../spec/types/number.md#converting-a-number-to-a-unit
 
 ### Phase 3
 
