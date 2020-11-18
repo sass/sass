@@ -13,9 +13,9 @@ This proposal adds support for units other than `deg` to HSL and HWB functions.
     * [Global Saturation and Lightness Functions](#global-saturation-and-lightness-functions)
 * [Functions](#functions)
   * [`hsl()` and `hsla()`](#hsl-and-hsla)
-  * [`color.hwb()`](#color-hwb)
+  * [`color.hwb()`](#colorhwb)
   * [`adjust-hue()`](#adjust-hue)
-  * [`color.adjust()`](#color-adjust)
+  * [`color.adjust()`](#coloradjust)
 * [Deprecation Process](#deprecation-process)
   * [Phase 1](#phase-1)
   * [Phase 2](#phase-2)
@@ -131,7 +131,7 @@ with
 
 Because `hsla()` is identical to `hsl()`, it's updated identically.
 
-### `color.hwb()` {#color-hwb}
+### `color.hwb()`
 
 In the four-argument overload of [`color.hwb()`], replace
 
@@ -175,7 +175,7 @@ adjust-hue($color, $degrees)
 [`color.saturation($color)`]: ../spec/built_in_modules/color.md#saturation
 [`color.lightness($color)`]: ../spec/built_in_modules/color.md#lightness
 
-### `color.adjust()` {#color-adjust}
+### `color.adjust()`
 
 In the definition of [`color.adjust()`], after
 
@@ -261,7 +261,7 @@ warning.
 Phase 2 implements a subset of the function changes described
 [above](#functions). In particular:
 
-* The `color.hwb()` function is updated [as described above](#color-hwb).
+* The `color.hwb()` function is updated [as described above](#colorhwb).
 
 * If the `$hue` parameter to [`hsl()`], [`hsla()`], `adjust-hue()`,
   [`color.adjust()`], or [`color.change()`] is passed a number with unit `rad`,
