@@ -7,7 +7,7 @@ _[(Issue)](https://github.com/sass/sass/issues/2535)_
 - [Background](#background)
 - [Summary](#summary)
   - [Example](#example)
-- [Semantics](#semantics)
+- [Syntax](#syntax)
   - [Steps](#steps)
   - [JavaScript API](#javascript-api)
   - [Using Variables](#using-variables)
@@ -34,23 +34,21 @@ Input:
 
 ```scss
 .upload-icon {
-  background-url: url(../icons/upload-icon.svg);
+  background-url: sass-url('../icons/upload-icon.svg');
 }
 ```
 
 Output:
 
-```scss
+```css
 .upload-icon {
-  background-url: url(data:image/svg+xml;base64,Jggg==);
+  background-url: url('data:image/svg+xml;base64,Jggg==');
 }
 ```
 
-## Semantics
+## Syntax
 
-This proposal defines new behavior for `url()`, to allow users to rewrite url references to how it will be accessible on the browser.
-
-It applies to both with and without quotation marks: `url("$url")` and `url($url)`.
+This proposal introduces logic for a new function: `sass-url("...")`, this function allow users to define a url that gets rewritten based on the config to ensure it can be loaded correctly from the browser.
 
 ### Steps
 
@@ -60,7 +58,7 @@ Whenever a url reference is encountered in a sass file the following steps shoul
 - From the url function we extract the parameter value
 - Rewrite the parameter value if it contains any variables ([see using variables](#using-variables))
 - Pass the parameter value to the url rewrite plugin along with the canonical url of the current sass file
-- This plugin than returns a string, if it returns anything else or nothing throw an error ([see JavaScript API](#javascript-api))
+- This plugin than returns a string or calls the done callback with a string value, if it returns anything else or nothing it should throw an error ([see JavaScript API](#javascript-api))
 - The new url value that we received from the url rewrite plugin than gets used to replace the original url value
 
 _Note: if there is no urlRewrite plugin/function none of these steps should be executed._
@@ -72,7 +70,7 @@ At the core of remapping the url references is the JavaScript API which allows u
 The first parameter of the urlRewrite function is an object with the following values:
 
 - `file`: The canonical url of the sass file that references the url.
-- `url`: The url reference, for example with `url(file://../assets/test.png)` it would be `file://../assets/test.png`.
+- `url`: The url reference, for example with `sass-url(file://../assets/test.png)` it would be `file://../assets/test.png`.
 
 The second parameter of the urlRewrite function is an optional done callback that is used when performing asynchronous operations.
 
@@ -120,9 +118,9 @@ Variables can be used in a url reference, in this case it should get remapped ba
 Examples with variables:
 
 ```Scss
-url("#{$asset-path}/image.png");
+sass-url("#{$asset-path}/image.png");
 ```
 
 ```Scss
-url("./folder/#{$some-var}");
+sass-url("./folder/#{$some-var}");
 ```
