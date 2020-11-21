@@ -20,15 +20,15 @@ _[(Issue)](https://github.com/sass/sass/issues/2535)_
 
 > This section is non-normative.
 
-Many css features require the use of a url reference to reference resources from outside the sass files, however these files also need to exist on the eventual output directory and server. To ensure the references are valid, the sass API should allow for the user to provide a way to remap and/or inline these resources.
+Many css features require the use of a sass-url reference to reference resources from outside the sass files, however these files also need to exist on the eventual output directory and server. To ensure the references are valid, the sass API should allow for the user to provide a way to remap and/or inline these resources.
 
 ## Summary
 
 > This section is non-normative.
 
-This proposal defines a standardized way to remap the url references to the final location on the server or inline reference.
+This proposal defines a standardized way to remap the sass-url references to the final location on the server or inline reference.
 
-This is accomplished by running url references through the url rewriting plugin if a url rewriting plugin has been defined.
+This is accomplished by running sass-url references through the url rewriting plugin if a url rewriting plugin has been defined.
 
 ### Example
 
@@ -56,9 +56,9 @@ This proposal introduces logic for a new function: `sass-url("...")`, this funct
 
 ### Steps
 
-Whenever a url reference is encountered in a sass file the following steps should be executed:
+Whenever a sass-url reference is encountered in a sass file the following steps should be executed:
 
-- A url reference is encountered in the sass file
+- A sass-url reference is encountered in the sass file
 - From the url function we extract the parameter value
 - Rewrite the parameter value if it contains any variables ([see using variables](#using-variables))
 - Pass the parameter value to the url rewrite plugin along with the canonical url of the current sass file
@@ -69,19 +69,19 @@ _Note: if there is no urlRewrite plugin/function none of these steps should be e
 
 ### JavaScript API
 
-At the core of remapping the url references is the JavaScript API which allows users to return a new url reference, based on the canonical url of the sass file and original url reference.
+At the core of remapping the sass-url references is the JavaScript API which allows users to return a new sass-url reference, based on the canonical url of the sass file and original sass-url reference.
 
 The first parameter of the urlRewrite function is an object with the following values:
 
 - `file`: The canonical url of the sass file that references the url.
-- `url`: The url reference, for example with `sass-url(file://../assets/test.png)` it would be `file://../assets/test.png`.
+- `url`: The sass-url reference, for example with `sass-url(file://../assets/test.png)` it would be `file://../assets/test.png`.
 
 The second parameter of the urlRewrite function is an optional done callback that is used when performing asynchronous operations.
 
 This callback function takes in two parameters:
 
 - `error`: This can be null or an Error object, `null` means there is no error.
-- `url`: This is the `string` that gets used to replace the url reference. This cannot be null or anything else, otherwise sass will throw an error.
+- `url`: This is the `string` that gets used to replace the sass-url reference. This cannot be null or anything else, otherwise sass will throw an error.
 
 Asynchronous example:
 
@@ -131,7 +131,7 @@ In case you don't want `sass-url()` calls to do any rewriting you can pass `none
 
 #### inline preset
 
-The inline preset is the default and most fool-proof solution to rewriting url references, this preset reads the referenced asset behind the url and inlines it using a base64 data url.
+The inline preset is the default and most fool-proof solution to rewriting sass-url references, this preset reads the referenced asset behind the url and inlines it using a base64 data url.
 
 The inline preset also adds the file path of each inlined asset to the `stats.includedFiles` list that gets returned when running `sass.render`
 
@@ -145,7 +145,7 @@ The relative preset also adds the file path of each referenced asset to the `sta
 
 ### Using Variables
 
-Variables can be used in a url reference, in this case it should get remapped based on the value that gets created after the variables have been applied to ensure we are able to remap the entire url correctly.
+Variables can be used in a sass-url reference, in this case it should get remapped based on the value that gets created after the variables have been applied to ensure we are able to remap the entire url correctly.
 
 Examples with variables:
 
