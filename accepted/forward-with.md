@@ -5,10 +5,10 @@
 
 ## Table of Contents
 
-- [Background](#background)
-- [Summary](#summary)
-- [Syntax](#syntax)
-- [Semantics](#semantics)
+* [Background](#background)
+* [Summary](#summary)
+* [Syntax](#syntax)
+* [Semantics](#semantics)
 
 ## Background
 

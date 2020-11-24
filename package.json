@@ -4,6 +4,9 @@
     "repository. For the official Sass npm package, see ",
     "https://npmjs.org/package/sass"
   ],
+  "engines": {
+    "node": ">=1.14.0 <2.0.0"
+  },
   "dependencies": {
     "colors": "^1.3.3",
     "diff": "^4.0.1",
@@ -12,11 +15,11 @@
     "markdown-toc": "^1.2.0"
   },
   "devDependencies": {
-    "standard": "^14.0.0"
+    "standard": "^14.3.4"
   },
   "scripts": {
-    "link-check": "node test/link-check.js",
-    "toc-check": "node test/toc-check.js",
+    "link-check": "node test/link-check.mjs",
+    "toc-check": "node test/toc-check.mjs",
     "test": "standard && npm run toc-check && npm run link-check"
   }
 }
