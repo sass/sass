@@ -9,7 +9,7 @@ export const files = glob.sync('**/*.md', {
 // Returns the index of the first `*` in `markdown`'s table of contents, or
 // `null` if `markdown` doesn't include a table of contents.
 function findStartIndex (markdown) {
-  var match = markdown.match(/Table of Contents\n*\*/)
+  var match = markdown.match(/\n## Table of Contents\n/)
   if (match == null) return null
   return match.index + match[0].length - 1
 }
