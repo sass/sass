@@ -10,10 +10,6 @@ _[(Issue)](https://github.com/sass/sass/issues/2535)_
 - [Function](#function)
   - [Steps](#steps)
   - [JavaScript API](#javascript-api)
-  - [Url Rewrite Presets](#url-rewrite-presets)
-    - [none preset](#none-preset)
-    - [inline preset](#inline-preset)
-    - [relative preset](#relative-preset)
   - [Using Variables](#using-variables)
 
 ## Background
@@ -114,34 +110,6 @@ let sassOptions = {
   }
 }
 ```
-
-### Url Rewrite Presets
-
-Besides writing custom plugins, there are also presets to choose from: `none`, `inline` and `relative`. The default value is `inline`.
-
-On the cli this can be configured using the flag `--url-rewrite-preset`, example: `--url-rewrite-preset=inline`
-
-In the JavaScript configuration the flag is `urlRewritePreset`, example: `{ urlRewritePreset: "none" }`
-
-_Note: If both a preset and custom plugin are configured, the custom plugin will be used._
-
-#### none preset
-
-In case you don't want `sass-url()` calls to do any rewriting you can pass `none`, this will transform all `sass-url` calls into `url` calls that contains the same parameter as provided to the `sass-url` function.
-
-#### inline preset
-
-The inline preset is the default and most fool-proof solution to rewriting sass-url references, this preset reads the referenced asset behind the url and inlines it using a base64 data url.
-
-The inline preset also adds the file path of each inlined asset to the `stats.includedFiles` list that gets returned when running `sass.render`
-
-#### relative preset
-
-The relative preset is the most complex preset and has additional configuration options.
-
-TODO: Actually finish this part... Not sure yet how this should work, cli and JS api will probably be slightly different?
-
-The relative preset also adds the file path of each referenced asset to the `stats.includedFiles` list that gets returned when running `sass.render`
 
 ### Using Variables
 
