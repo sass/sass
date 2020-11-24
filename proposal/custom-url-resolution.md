@@ -7,7 +7,7 @@ _[(Issue)](https://github.com/sass/sass/issues/2535)_
 - [Background](#background)
 - [Summary](#summary)
   - [Example](#example)
-- [Syntax](#syntax)
+- [Function](#function)
   - [Steps](#steps)
   - [JavaScript API](#javascript-api)
   - [Url Rewrite Presets](#url-rewrite-presets)
@@ -50,7 +50,7 @@ Output:
 }
 ```
 
-## Syntax
+## Function
 
 This proposal introduces logic for a new function: `sass-url("...")`, this function allow users to define a url that gets rewritten based on the config to ensure it can be loaded correctly from the browser.
 
