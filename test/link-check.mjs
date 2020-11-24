@@ -1,12 +1,10 @@
-'use strict'
-
-var colors = require('colors/safe')
-var fs = require('fs')
-var glob = require('glob')
-var toc = require('markdown-toc')
-var urlModule = require('url')
-var markdownLinkCheck = require('markdown-link-check')
-var path = require('path')
+import colors from 'colors/safe.js'
+import * as fs from 'fs'
+import glob from 'glob'
+import toc from 'markdown-toc'
+import * as urlModule from 'url'
+import markdownLinkCheck from 'markdown-link-check'
+import * as path from 'path'
 
 var files = glob.sync('**/*.md', { ignore: ['node_modules/**/*.md'] })
 
@@ -26,8 +24,9 @@ function getToc (file) {
 files.forEach(function (file) {
   var markdown = fs.readFileSync(file).toString()
 
+  var dirname = path.dirname(urlModule.fileURLToPath(import.meta.url))
   markdownLinkCheck(markdown, {
-    baseUrl: path.basename(__dirname) + '/'
+    baseUrl: path.basename(dirname) + '/'
   }, function (err, results) {
     if (err) {
       console.error('Error', err)

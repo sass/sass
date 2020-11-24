@@ -1,17 +1,15 @@
-'use strict'
-
-var colors = require('colors/safe')
-var diff = require('diff')
-var fs = require('fs')
-var glob = require('glob')
-var toc = require('markdown-toc')
+import colors from 'colors/safe.js'
+import diff from 'diff'
+import * as fs from 'fs'
+import glob from 'glob'
+import toc from 'markdown-toc'
 
 var files = glob.sync('**/*.md', {
   ignore: ['node_modules/**/*.md', '**/*.changes.md']
 })
 
 // Returns the index of the first `*` in `markdown`'s table of contents, or
-// `null` if.`markdown` doesn't include a table of contents.
+// `null` if `markdown` doesn't include a table of contents.
 function findStartIndex (markdown) {
   var match = markdown.match(/Table of Contents\n*\*/)
   if (match == null) return null
