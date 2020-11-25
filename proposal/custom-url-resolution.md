@@ -158,7 +158,7 @@ const options = {
 
 The url rewrites go through the following steps:
 
-- Preset takes in the canonical url of the sass file and sass-url reference value and join these urls to get the location of the actual asset that should get inlined. In Node.JS this would equal to `path.join(file, url)`.
+- Preset takes in the canonical url of the sass file and sass-url reference value and join these urls to get the location of the actual asset that should get inlined. In Node.JS this would equal to `path.join(path.dirname(file), url)`.
 - With the location of the asset we have to ensure it exists and than read the file. If the file does not exist it should throw an error, as specified in the [JavaScript API](#javascript-api).
 - To create a data url we need to detect the media type of the asset, this can be done based on the extension and/or actual content of the file.
 - Once we have the file's content and the media type we can continue to create a data url from it, to do this we create a string that starts with `data:` followed by the media type, followed by the base64 encoded value of the asset content. Resulting in: `data:${mediaType};base64,${base64(assetContent)}`
@@ -170,11 +170,12 @@ Example:
 function inlinePreset() {
   return async (urlReference: { file: string, url: string }, done: (error: Error | null, url: string | null) => void): void => {
     try {
-      let assetLocation = path.join(file, url);
+      let inputDir = path.dirname(file);
+      let assetLocation = path.join(inputDir, url);
       let assetContent = await fs.readFile(assetLocation);
       let mediaType = getMimeTypeFromExtension(path.extname(assetLocation));
 
-      return `data:${mediaType};base64,${base64(assetContent)}`;
+      done(null, `data:${mediaType};base64,${base64(assetContent)}`);
     } catch(err) {
       done(err, null);
     }
@@ -213,4 +214,34 @@ const options = {
 
 #### Relative Preset Implementation
 
-TODO: Write
+The relative url rewrite preset goes through the following steps:
+
+- Preset takes in the canonical url of the sass file and sass-url reference value and join these urls to get the location of the actual asset that should get inlined. In Node.JS this would equal to `path.join(path.dirname(file), url)`.
+- With the location of the asset we have to ensure it exists, if it does not exist we need to throw an error.
+- We pass the location of the asset to the `relative path creator` callback that gets passed into this preset.
+- The returned relative url from the callback gets validated, if invalid we should throw an error.
+- The validated url gets returned.
+
+Example:
+
+```JS
+function relativePreset(relativePathCreator: (fullPath: string) => string) {
+  return async (urlReference: { file: string, url: string }, done: (error: Error | null, url: string | null) => void): void => {
+    try {
+      let inputDir = path.dirname(file);
+      let assetLocation = path.join(inputDir, url);
+      let exists = await fs.exists(assetLocation);
+      if (!exists) {
+        throw new Error('File does not exist');
+      }
+
+      // formatUrl should ensure it's a valid url
+      done(null, formatUrl(relativePathCreator(assetLocation)));
+    } catch(err) {
+      done(err, null);
+    }
+  }
+}
+
+sass.url.relative = relativePreset;
+```
