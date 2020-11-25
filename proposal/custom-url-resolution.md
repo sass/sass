@@ -219,8 +219,8 @@ The relative url rewrite preset goes through the following steps:
 - Preset takes in the canonical url of the sass file and sass-url reference value and join these urls to get the location of the actual asset that should get inlined. In Node.JS this would equal to `path.join(path.dirname(file), url)`.
 - With the location of the asset we have to ensure it exists, if it does not exist we need to throw an error.
 - We pass the location of the asset to the `relative path creator` callback that gets passed into this preset.
-- The returned relative url from the callback gets validated, if invalid we should throw an error.
-- The validated url gets returned.
+- The returned relative url from the callback gets validated and normalized, normalization should replace any backslashes with forward slashes, take out duplicate slashes and url encode special characters. If the url appears to be invalid, it should throw an error.
+- The validated url gets passed to sass core, using a callback or return as stated in the [JavaScript API](#javascript-api).
 
 Example:
 
