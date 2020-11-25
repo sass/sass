@@ -11,6 +11,8 @@ _[(Issue)](https://github.com/sass/sass/issues/2535)_
   - [Steps](#steps)
   - [JavaScript API](#javascript-api)
   - [Using Variables](#using-variables)
+- [Presets](#presets)
+  - [The inline Preset](#the-inline-preset)
 
 ## Background
 
@@ -124,3 +126,43 @@ sass-url("#{$asset-path}/image.png");
 ```Scss
 sass-url("./folder/#{$some-var}");
 ```
+
+## Presets
+
+Besides having a way to allow any sass-url rewriting logic, this specification also defines 2 presets that handle common url rewriting logic: `inline` and `relative`.
+
+### The inline Preset
+
+The `inline` rewrite preset is the most fool-proof method, it inlines all references assets into the output css file using data urls.
+
+This preset should be exposed in `sass.url.inline`.
+
+The url rewrites go through the following steps:
+
+- Preset takes in the canonical url of the sass file and sass-url reference value and join these urls to get the location of the actual asset that should get inlined. In Node.JS this would equal to `path.join(file, url)`.
+- With the location of the asset we have to ensure it exists and than read the file. If the file does not exist it should throw an error, as specified in the [JavaScript API](#javascript-api).
+- To create a data url we need to detect the media type of the asset, this can be done based on the extension and/or actual content of the file.
+- Once we have the file's content and the media type we can continue to create a data url from it, to do this we create a string that starts with `data:` followed by the media type, followed by the base64 encoded value of the asset content. Resulting in: `data:${mediaType};base64,${base64(assetContent)}`
+- After all this we add the asset location to the `stats.includedFiles` list that will get returned at the end of the sass processing and return the data url.
+
+Example:
+
+```JS
+function inlinePreset() {
+  return async (urlReference: { file: string, url: string }, done: (error: Error | null, url: string | null) => void): void => {
+    try {
+      let assetLocation = path.join(file, url);
+      let assetContent = await fs.readFile(assetLocation);
+      let mediaType = getMimeTypeFromExtension(path.extname(assetLocation));
+
+      return `data:${mediaType};base64,${base64(assetContent)}`;
+    } catch(err) {
+      done(err, null);
+    }
+  }
+}
+
+sass.url.inline = inlinePreset;
+```
+
+### The relative Preset
