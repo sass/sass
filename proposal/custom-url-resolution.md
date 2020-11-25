@@ -13,6 +13,11 @@ _[(Issue)](https://github.com/sass/sass/issues/2535)_
   - [Using Variables](#using-variables)
 - [Presets](#presets)
   - [The inline Preset](#the-inline-preset)
+    - [Inline Preset Usage](#inline-preset-usage)
+    - [Inline Preset Implementation](#inline-preset-implementation)
+  - [The relative Preset](#the-relative-preset)
+    - [Relative Preset Usage](#relative-preset-usage)
+    - [Relative Preset Implementation](#relative-preset-implementation)
 
 ## Background
 
@@ -137,6 +142,20 @@ The `inline` rewrite preset is the most fool-proof method, it inlines all refere
 
 This preset should be exposed in `sass.url.inline`.
 
+#### Inline Preset Usage
+
+To use this preset you can pass an instance of this preset in the urlRewrite option.
+
+```JS
+import * as sass from 'sass';
+
+const options = {
+  rewriteUrl: sass.url.inline()
+}
+```
+
+#### Inline Preset Implementation
+
 The url rewrites go through the following steps:
 
 - Preset takes in the canonical url of the sass file and sass-url reference value and join these urls to get the location of the actual asset that should get inlined. In Node.JS this would equal to `path.join(file, url)`.
@@ -166,3 +185,32 @@ sass.url.inline = inlinePreset;
 ```
 
 ### The relative Preset
+
+The `relative` rewrite preset rewrites sass-url references in such a way that the output css file contains relative references to these assets. This has the benefit of sending smaller css files but also is less prone to errors and might result in a longer loading time due to a lot of http requests.
+
+This preset should be exposed in `sass.url.relative`.
+
+#### Relative Preset Usage
+
+To use this preset you can pass an instance of this preset in the urlRewrite option.
+
+This preset takes in one argument that should return the
+
+```JS
+import * as path from 'path';
+import * as sass from 'sass';
+
+const outputDir = path.join(__dirname, 'output');
+
+const relativePathCreator = (fullUrl) => {
+  return path.relative(outputDir, fullUrl);
+}
+
+const options = {
+  rewriteUrl: sass.url.relative(relativePathCreator)
+}
+```
+
+#### Relative Preset Implementation
+
+TODO: Write
