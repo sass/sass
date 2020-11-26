@@ -68,7 +68,7 @@ Whenever a sass-url reference is encountered in a sass file the following steps 
 - This plugin than returns a string or calls the done callback with a string value, if it returns anything else or nothing it should throw an error ([see JavaScript API](#javascript-api))
 - The new url value that we received from the url rewrite plugin than gets used to replace the original url value
 
-_Note: if there is no urlRewrite plugin/function none of these steps should be executed._
+_Note: if there is no urlRewrite plugin/function, none of these steps should be executed._
 
 ### JavaScript API
 
@@ -76,7 +76,7 @@ At the core of remapping the sass-url references is the JavaScript API which all
 
 The first parameter of the urlRewrite function is an object with the following values:
 
-- `file`: The canonical url of the sass file that references the url.
+- `file`: The canonical url of the sass file that references sass-url.
 - `url`: The sass-url reference, for example with `sass-url(file://../assets/test.png)` it would be `file://../assets/test.png`.
 
 The second parameter of the urlRewrite function is an optional done callback that is used when performing asynchronous operations.
@@ -113,7 +113,7 @@ let sassOptions = {
       return url;
     }
 
-    return path.relative(path.dirname(outDir), path.join(path.dirname(file), url));
+    return path.relative(outDir, path.join(path.dirname(file), url));
   }
 }
 ```
@@ -195,7 +195,7 @@ This preset should be exposed in `sass.url.relative`.
 
 To use this preset you can pass an instance of this preset in the urlRewrite option.
 
-This preset takes in one argument that should return the
+This preset takes in one argument that should return the relative url based on the full filepath.
 
 ```JS
 import * as path from 'path';
@@ -220,7 +220,7 @@ The relative url rewrite preset goes through the following steps:
 - With the location of the asset we have to ensure it exists, if it does not exist we need to throw an error.
 - We pass the location of the asset to the `relative path creator` callback that gets passed into this preset.
 - The returned relative url from the callback gets validated and normalized, normalization should replace any backslashes with forward slashes, take out duplicate slashes and url encode special characters. If the url appears to be invalid, it should throw an error.
-- The validated url gets passed to sass core, using a callback or return as stated in the [JavaScript API](#javascript-api).
+- The validated url gets passed to sass core, using a callback or return as stated in the [JavaScript API](#javascript-api) and the file should get added to `stats.includedFiles`.
 
 Example:
 
