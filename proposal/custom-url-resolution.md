@@ -35,7 +35,7 @@ This is accomplished by running sass-url references through the url rewriting pl
 
 ### Example
 
-This example demonstrates the possibility of rewriting urls to inline assets using base64 and data URIs.
+This example demonstrates the possibility of rewriting urls to inline assets using data URIs.
 
 Input:
 
