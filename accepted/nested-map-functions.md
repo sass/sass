@@ -1,4 +1,4 @@
-# Nested Map Functions: Draft 1.0
+# Nested Map Functions: Draft 1.2
 
 *[(Issue)](https://github.com/sass/sass/issues/1739)*
 
@@ -352,6 +352,9 @@ deep-merge($map1, $map2)
   * Associate `new-key` with `new-value` in `merged`.
 
 * Return `merged`.
+
+The order of modified elements in `merged` is not guaranteed, but should be
+consistent within a given implementation.
 
 ### `deep-remove()`
 
