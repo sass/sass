@@ -8,6 +8,7 @@
 * [Syntax](#syntax)
 * [Semantics](#semantics)
 * [Global Functions](#global-functions)
+  * [`adjust-hue()`](#adjust-hue)
   * [`alpha()`](#alpha)
   * [`rgb()` and `rgba()`](#rgb-and-rgba)
   * [`hsl()` and `hsla()`](#hsl-and-hsla)
@@ -92,6 +93,27 @@ To evaluate a `FunctionCall` `call`:
 > aliases for backwards-compatibility with stylesheets written before `@use` was
 > introduced. These global aliases should be avoided by stylesheet authors if
 > possible.
+
+### `adjust-hue()`
+
+```
+adjust-hue($color, $degrees)
+```
+
+* If `$color` isn't a color or `$degrees` isn't a number, throw an error.
+
+* Let `degrees` be the result of [converting] `$degrees` to `deg` allowing
+  unitless.
+
+* Let `saturation` and `lightness` be the result of calling
+  [`color.saturation($color)`] and [`color.lightness($color)`], respectively.
+
+* Return the result of calling [`hsl()`] with `degree`, `saturation`,
+  `lightness`, and `$color`'s alpha channel.
+
+[`hsl()`]: #hsl-and-hsla
+[`color.saturation($color)`]: built_in_modules/color.md#saturation
+[`color.lightness($color)`]: built_in_modules/color.md#lightness
 
 ### `alpha()`
 
@@ -233,11 +255,15 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
   * If any of `$hue`, `$saturation`, `$lightness`, or `$alpha` aren't numbers,
     throw an error.
 
-  * Let `hue` be `($hue % 360) / 60` without units.
+  * Let `hue` be the result of [converting] `$hue` to `deg` allowing unitless.
+
+  * Set `hue` to `(hue % 360deg) / 60deg`.
+
+  * If `$saturation` and `$lightness` don't have unit `%`, throw an error.
 
   * Let `saturation` and `lightness` be the result of clamping `$saturation` and
-    `$lightness`, respectively, between 0 and 100 and dividing by 100.
-  
+    `$lightness`, respectively, between `0%` and `100%` and dividing by `100%`.
+
   * Let `red`, `green`, and `blue` be the result of converting `hue`,
     `saturation`, and `lightness` [to RGB][].
 
@@ -248,6 +274,7 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
 
   * Return a color with the given `red`, `green`, `blue`, and `alpha` channels.
 
+  [converting]: types/number.md#converting-a-number-to-a-unit
   [to RGB]: https://www.w3.org/TR/css-color-4/#hsl-to-rgb
 
 * ```

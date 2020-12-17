@@ -92,6 +92,13 @@ This function is also available as a global function named `adjust-color()`.
 
 * If `$hue` isn't a number or null, throw an error.
 
+* If `$hue` is a number and it has units that aren't [compatible] with `deg`,
+  throw an error.
+
+  > Unitless numbers are allowed.
+
+  [compatible]: ../types/number.md#compatible-units
+
 * If any of `$red`, `$green`, or `$blue` aren't null:
 
   * If any of `$hue`, `$saturation`, `$lightness`, `$whiteness`, or `$blackness`
@@ -115,8 +122,8 @@ This function is also available as a global function named `adjust-color()`.
 
   * If either `$whiteness` or `$blackness` aren't null, throw an error.
 
-  * If either `$saturation` or `$lightness` aren't either null or numbers
-    between -100 and 100 (inclusive), throw an error.
+  * If either `$saturation` or `$lightness` aren't either null or numbers with
+    unit `%` between -100% and 100% (inclusive), throw an error.
 
   * Let `hue`, `saturation`, and `lightness` be the result of calling
     `hue($color)`, `saturation($color)`, and `lightness($color)` respectively.
@@ -124,10 +131,10 @@ This function is also available as a global function named `adjust-color()`.
   * If `$hue` isn't null, set `hue` to `hue + $hue`.
 
   * If `$saturation` isn't null, set `saturation` to `saturation + $saturation`
-    clamped between 0 and 100.
+    clamped between 0% and 100%.
 
   * If `$lightness` isn't null, set `lightness` to `lightness + $lightness`
-    clamped between 0 and 100.
+    clamped between 0% and 100%.
 
   * Return the result of calling [`hsl()`][] with `hue`, `saturation`,
     `lightness`, and `alpha`.
@@ -393,12 +400,12 @@ This function is also available as a global function named `hue()`.
   * If any of `$hue`, `$whiteness`, `$blackness`, or `$alpha` aren't numbers,
     throw an error.
 
-  * If `$hue` has any units other than `deg`, throw an error.
+  * Let `hue` be the result of [converting] `$hue` to `deg` allowing unitless.
+
+  * Set `hue` to `(hue % 360deg) / 60deg`.
 
   * If either of `$whiteness` or `$blackness` don't have unit `%` or aren't
     between `0%` and `100%` (inclusive), throw an error.
-
-  * Let `hue` be `($hue % 360) / 60` without units.
 
   * Let `whiteness` be `$whiteness / 100%`.
 
@@ -420,6 +427,7 @@ This function is also available as a global function named `hue()`.
 
   * Return a color with the given `red`, `green`, `blue`, and `alpha` channels.
 
+  [converting]: ../types/number.md#converting-a-number-to-a-unit
   [percent-converting]: #percent-converting-a-number
   [to RGB]: https://www.w3.org/TR/css-color-4/#hwb-to-rgb
 
