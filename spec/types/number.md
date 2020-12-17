@@ -47,8 +47,8 @@ The following conversion factors are defined:
 
 ### Compatible Units
 
-Two units are said to be "compatible" if their [conversion factors] have the
-same unit.
+Two units are said to be "compatible" if they are identical or if their
+[conversion factors] have the same unit.
 
 [conversion factors]: #conversion-factors
 
@@ -66,6 +66,8 @@ have a conversion factor.
   * If this procedure allows unitless, return `number` with unit `unit`.
 
   * Otherwise, throw an error.
+
+* If `number`'s unit is `unit`, return `number` as-is.
 
 * Let `number-factor` be `number`'s unit's conversion factor. If `number`
   doesn't have a unit or that unit doesn't have a conversion factor, throw an
