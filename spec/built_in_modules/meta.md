@@ -13,13 +13,13 @@ This built-in module is available from the URL `sass:meta`.
   * [`global-variable-exists()`](#global-variable-exists)
   * [`inspect()`](#inspect)
   * [`keywords()`](#keywords)
-  * [`mixin-exists()`](#mixin-exists)
   * [`module-functions()`](#module-functions)
   * [`module-variables()`](#module-variables)
   * [`type-of()`](#type-of)
   * [`variable-exists()`](#variable-exists)
 * [Mixins](#mixins)
   * [`load-css()`](#load-css)
+  * [`mixin-exists()`](#mixin-exists)
 
 ## Functions
 
@@ -153,29 +153,6 @@ keywords($args)
 
 This function is also available as a global function named `keywords()`.
 
-### `mixin-exists()`
-
-```
-mixin-exists($name, $module: null)
-```
-
-This function is also available as a global function named `mixin-exists()`.
-
-* If `$name` is not a string, throw an error.
-
-* If `$module` is null:
-
-  * Return whether [resolving a mixin][] named `$name` returns null.
-  
-  [resolving a mixin]: ../modules.md#resolving-a-member
-
-* Otherwise, if `$module` isn't a string, throw an error.
-
-* Otherwise, let `use` be the `@use` rule in [the current source file][] whose
-  namespace is equal to `$module`. If no such rule exists, throw an error.
-
-* Return whether [`use`'s module][] contains a mixin named `$name`.
-
 ### `module-functions()`
 
 ```
@@ -262,3 +239,26 @@ load-css($url, $with: null)
   > with the entrypoint module, those dependencies' CSS will be included twice.
 
 * Treat `css` as though it were the contents of the mixin.
+
+### `mixin-exists()`
+
+```
+mixin-exists($name, $module: null)
+```
+
+This function is also available as a global function named `mixin-exists()`.
+
+* If `$name` is not a string, throw an error.
+
+* If `$module` is null:
+
+  * Return whether [resolving a mixin][] named `$name` returns null.
+  
+  [resolving a mixin]: ../modules.md#resolving-a-member
+
+* Otherwise, if `$module` isn't a string, throw an error.
+
+* Otherwise, let `use` be the `@use` rule in [the current source file][] whose
+  namespace is equal to `$module`. If no such rule exists, throw an error.
+
+* Return whether [`use`'s module][] contains a mixin named `$name`.
