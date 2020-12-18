@@ -34,6 +34,12 @@ To execute a `@function` rule `rule`:
   [the current module]: ../spec.md#current-module
   [the current import context]: ../spec.md#current-import-context
 
+* If `name` is `calc`, `element`, `expression`, `url`, `and`, `or`, or `not`, or
+  if `name` has a [vendor prefix] and the unprefixed identifier is one of those
+  strings, throw an error.
+
+  [vendor prefix]: ../syntax.md#vendor-prefix
+
 * Otherwise, set the innermost block's [scope][]'s function `name` to `value`.
 
   [scope]: ../variables.md#scope
