@@ -29,11 +29,11 @@ more than one source file.
 
 ### Vendor Prefix
 
-Some identifiers have with a *vendor prefix*, which is an initial substring
-beginning with U+002D HYPHEN-MINUS code point followed by one or more non-U+002D
-code points followed by another U+002D. An identifier only has a vendor prefix
-if the final U+002D is followed by additional text. This additional text is
-referred to as the *unprefixed identifier*.
+Some identifiers have a *vendor prefix*, which is an initial substring beginning
+with U+002D HYPHEN-MINUS code point followed by one or more non-U+002D code
+points followed by another U+002D. An identifier only has a vendor prefix if the
+final U+002D is followed by additional text. This additional text is referred to
+as the *unprefixed identifier*.
 
 ## Grammar
 
