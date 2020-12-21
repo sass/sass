@@ -66,6 +66,7 @@ No whitespace is allowed between components of an `InterpolatedIdentifier`.
 <x><pre>
 **SpecialFunctionExpression** ::= SpecialFunctionName InterpolatedDeclarationValue ')'
 **SpecialFunctionName**¹      ::= VendorPrefix? ('calc(' | 'element(' | 'expression(')
+&#32;                           | 'clamp('
 **VendorPrefix**¹             ::= '-' ([identifier-start code point] | [digit]) '-'
 </pre></x>
 
@@ -79,15 +80,16 @@ No whitespace is allowed between components of an `InterpolatedIdentifier`.
 <x><pre>
 **MinMaxExpression** ::= CssMinMax | FunctionExpression
 **CssMinMax**        ::= ('min(' | 'max(')¹ CalcValue (',' CalcValue)* ')'
-**CalcValue**        ::= CalcValue (('+' | '-' | '*' | '/') CalcValue)+
-&#32;                  | '(' CalcValue ')'
-&#32;                  | ('calc(' | 'env(' | 'var(')¹ InterpolatedDeclarationValue ')'
-&#32;                  | CssMinMax
-&#32;                  | Interpolation
-&#32;                  | Number
+**CalcValue**         ::= CalcValue (('+' | '-' | '*' | '/') CalcValue)+
+&#32;                   | '(' CalcValue ')'
+&#32;                   | CalcFunctionName InterpolatedDeclarationValue ')'
+&#32;                   | CssMinMax
+&#32;                   | Interpolation
+&#32;                   | Number
+**CalcFunctionName**¹ ::= 'calc(' | 'env(' | 'var(' | 'clamp('
 </pre></x>
 
-1: The strings `min(`, `max(`, `calc(`, `env(`, and `var(` are matched
+1: The strings `min(`, `max(`, `calc(`, `env(`, `var(`, and `clamp(` are matched
    case-insensitively.
 
 ## Procedures
