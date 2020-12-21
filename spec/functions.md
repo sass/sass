@@ -19,8 +19,8 @@
 
 A *special number string* is an unquoted string that CSS will recognize as a
 function that may return a number. For the purposes of Sass, this is any
-unquoted string that begins with `calc(`, `var(`, `env(`, `min(`, or `max(`.
-This matching is case-insensitive.
+unquoted string that begins with `calc(`, `var(`, `env(`, `clamp(`, `min(`, or
+`max(`. This matching is case-insensitive.
 
 > Sass functions that shadow CSS functions must work with any invocation that
 > CSS allows, which includes allowing special number strings anywhere a number
