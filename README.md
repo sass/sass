@@ -45,13 +45,18 @@ the compiler as a subprocess and communicate using binary protocol buffers over
 its standard input and output streams.
 
 For streams (like standard input and output) that don't have built-in message
-boundaries, every message must begin with a 4-byte (32-bit) unsigned
-[little-endian][] integer indicating the length in bytes of the remaining
-message. This matches the best practice described in [the protocol buffer
-documentation][].
+boundaries, every message must begin with an unsigned [varint] indicating the
+length in bytes of the remaining message. This matches the best practice
+described in [the protocol buffer documentation][]. Because JavaScript can't
+easily represent integers larger than 2^53 - 1, messages may be no more than
+2^53 - 1 bytes long. Because it's so unlikely that this will come up in
+practice, implementations are not required to verify it.
 
-[little-endian]: https://en.wikipedia.org/wiki/Endianness#Little
+[varint]: https://developers.google.com/protocol-buffers/docs/encoding#varints
 [the protocol buffer documentation]: https://developers.google.com/protocol-buffers/docs/techniques#streaming
+
+> Note that a number of protocol buffer libraries have built-in utilities for
+> reading and writing varint-delimited streams.
 
 ### RPCs
 
