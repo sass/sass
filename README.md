@@ -1,4 +1,4 @@
-## The Embedded Sass Protocol
+## The Embedded Sass Protocol (pending 1.0.0-beta.6)
 
 * [Overview](#overview)
 * [RPCs](#rpcs)
@@ -13,6 +13,7 @@
   * [Booleans](#booleans)
   * [Null](#null)
   * [Functions](#functions)
+* [Versioning](#versioning)
 
 This repository defines a bidirectional protocol for communicating between a
 Sass implementation and a host environment. It allows the host environment to
@@ -286,3 +287,24 @@ functions' signatures.
 
 Two first-class functions are equal if they have the same ID and they're either
 both `CompilerFunction`s or both `HostFunction`s.
+
+### Versioning
+
+This protocol is versioned according to [semver 2.0.0]. Compatibility is
+considered from the perspective of the host. For example, if a new
+`InboundMessage` type is added, that's considered a "backwards compatible"
+change because older hosts can simply opt not to use it, even though from the
+perspective of the compiler a new message type would be a breaking change.
+
+Hosts are generally expected to be responsible for installing appropriate
+compiler versions as part of their installation process, which should limit the
+potential for incompatible versions between the two. For this reason, version
+numbers are intended to be primarily an advisory for humans as to the degree of
+change over time.
+
+In some cases, the version number will be marked as "pending". This indicates
+that the next version of the protocol is still under active development, and may
+be waiting for additional pull requests before it's finalized. Hosts and
+compilers should never cut releases that target pending protocol versions.
+
+[semver 2.0.0]: https://semver.org/spec/v2.0.0.html

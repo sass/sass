@@ -10,6 +10,16 @@ package sass.embedded_protocol;
 // provides a `oneof` that makes it possible to determine the type of each
 // inbound message.
 message InboundMessage {
+  // A request for information about the version of the embedded compiler. The
+  // host can use this to provide diagnostic information to the user, to check
+  // which features the compiler supports, or to ensure that it's compatible
+  // with the same protocol version the compiler supports.
+  message VersionRequest {
+    // This message's contents are intentionally empty. It just acts as a signal
+    // to the compiler to send a VersionResponse. More fields may be added in
+    // the future.
+  }
+
   // A request that compiles an entrypoint to CSS.
   message CompileRequest {
     // This compilation's request id. This is included in messages sent from the
@@ -231,6 +241,7 @@ message InboundMessage {
     ImportResponse importResponse = 4;
     FileImportResponse fileImportResponse = 5;
     FunctionCallResponse functionCallResponse = 6;
+    VersionRequest versionRequest = 7;
   }
 }
 
@@ -238,6 +249,24 @@ message InboundMessage {
 // provides a `oneof` that makes it possible to determine the type of each
 // outbound message.
 message OutboundMessage {
+  // A response that contains the version of the embedded compiler.
+  message VersionResponse {
+    // The version of the embedded protocol, in semver format.
+    string protocol_version = 1;
+
+    // The version of the embedded compiler package. This has no guaranteed
+    // format, although compilers are encouraged to use semver.
+    string compiler_version = 2;
+
+    // The version of the Sass implementation that the embedded compiler wraps.
+    // This has no guaranteed format, although Sass implementations are
+    // encouraged to use semver.
+    string implementation_version = 3;
+
+    // The name of the Sass implementation that the embedded compiler wraps.
+    string implementation_name = 4;
+  }
+
   // A response that contains the result of a compilation.
   message CompileResponse {
     // The compilation's request id. Mandatory.
@@ -475,6 +504,7 @@ message OutboundMessage {
     ImportRequest importRequest = 5;
     FileImportRequest fileImportRequest = 6;
     FunctionCallRequest functionCallRequest = 7;
+    VersionResponse versionResponse = 8;
   }
 }
 
