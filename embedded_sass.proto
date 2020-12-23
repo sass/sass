@@ -416,12 +416,12 @@ message OutboundMessage {
     // The URL of the import to be canonicalized. This may be either absolute or
     // relative.
     //
-    // When loading a URL, the host must first try resolving that URL relative
-    // to the canonical URL of the current file, and canonicalizing the result
-    // using the importer that loaded the current file. If this returns `null`,
-    // the host must then try canonicalizing the original URL with each importer
-    // in order until one returns something other than `null`. That is the
-    // result of the import.
+    // When loading a URL, the compiler must first try resolving that URL
+    // relative to the canonical URL of the current file, and canonicalizing the
+    // result using the importer that loaded the current file. If this returns
+    // `null`, the compiler must then try canonicalizing the original URL with
+    // each importer in order until one returns something other than `null`.
+    // That is the result of the import.
     string url = 4;
   }
 
