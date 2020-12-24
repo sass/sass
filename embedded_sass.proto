@@ -457,8 +457,7 @@ message OutboundMessage {
     // Mandatory.
     uint32 importer_id = 3;
 
-    // The canonical URL of the import. This is guaranteed to be a URL returned
-    // by a `CanonicalizeRequest` to this importer.
+    // The (non-canonicalized) URL of the import.
     string url = 4;
   }
 
