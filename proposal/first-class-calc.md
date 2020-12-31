@@ -259,7 +259,7 @@ case-insensitively.
 This proposal replaces the reference to `CalcValue` in the definition of
 [`CssMinMax`] with `CalcArgument`.
 
-[`CssMinMax`]: ../spec/syntax.md#MinMaxExpression
+[`CssMinMax`]: ../spec/syntax.md#minmaxexpression
 
 > Note that this increases the number of cases where a `MinMaxExpression` will
 > be parsed as a `CssMinMax` rather than a `FunctionExpression` (for example,
@@ -344,13 +344,12 @@ This algorithm takes a calc `calc` and returns a number or a calc.
 
 * If `calc`'s name is `min`, `max`, or `clamp` and `arguments` are all numbers
   whose units are mutually [compatible], return the result of calling
-  [`math.min()`], [`math.max()`], or [`math.clamp()`] (respectively) with those
+  [`math.min()`], [`math.max()`], or `math.clamp()` (respectively) with those
   arguments.
 
   [compatible]: ../spec/types/number.md#compatible-units
   [`math.min()`]: ../spec/built_in_modules/math.md#min
   [`math.max()`]: ../spec/built_in_modules/math.md#max
-  [`math.clamp()`]: ../spec/built_in_modules/math.md#clamp
 
 * Otherwise, return a calc with the same name as `calc` and `arguments` as its
   arguments.
