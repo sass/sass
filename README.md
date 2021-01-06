@@ -1,4 +1,4 @@
-## The Embedded Sass Protocol (1.0.0-beta.6)
+## The Embedded Sass Protocol (1.0.0-beta.7)
 
 * [Overview](#overview)
 * [RPCs](#rpcs)
@@ -91,7 +91,8 @@ RPCs.
 
 Implementations must guarantee that they use a unique `id` for every request,
 although the same `id` may be used for an inbound request and an outbound
-request.
+request. They may not use the id `4294967295` (the maximum number representable
+by a `uint32`) because it's reserved for [error handling](#error-handling).
 
 All message-typed fields are documented as either "optional" or "mandatory". If
 a field is mandatory, the endpoint that sends that message must guarantee that
@@ -106,11 +107,12 @@ scalar-typed fields.
 
 ### Error Handling
 
-When the compiler detects that the host is violating this protocol, it must
-send a `ProtocolError` message to the host. If the error was detected when
-processing a request, the `ProtocolError` must have its `id` field set to the
-request's id. Otherwise, even if the error was detected while processing a
-response with an id, the `id` field must be set to `-1`.
+When the compiler detects that the host is violating this protocol, it must send
+a `ProtocolError` message to the host. If the error was detected when processing
+a request, the `ProtocolError` must have its `id` field set to the request's id.
+Otherwise, even if the error was detected while processing a response with an
+id, the `id` field must be set to `4294967295` (the maximum number representable
+by a `uint32`).
 
 When the host detects that the compiler is violating this protocol, it does not
 need to send a `ProtocolError` message to the compiler. Instead, it should

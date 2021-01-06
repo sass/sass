@@ -1,3 +1,8 @@
+## 1.0.0-beta.7
+
+* Use `4294967295` as the special ID for error messages that aren't caused by a
+  specific request, since `-1` isn't representable as a `uint32`.
+
 ## 1.0.0-beta.6
 
 * Changed `CompileResponse.id` and `ProtocolError.id` from `int32` to `uint32`
