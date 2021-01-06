@@ -161,7 +161,7 @@ reparsed after interpolation.
 
 Here are some alternatives we considered:
 
-1. Re-parsing a calc that contains interpolation once the interoplation has been
+1. Re-parsing a calc that contains interpolation once the interpolation has been
    resolved, and using the result as in the calc object rather than an unquoted
    string. For example, `calc(#{"1px + 2px"})` would return `3px` rather than
    `calc(1px + 2px)`. However, doing another parse at evaluation-time would add
@@ -252,7 +252,7 @@ case-insensitively.
 >
 > Note that the interpolation in the definition of `CalcValue` is only reachable
 > from a `CssMinMax` production, *not* from `CalcExpression`. This is
-> intentional, for backwards-compatibility with the existing `CssMinMax` syntax.x
+> intentional, for backwards-compatibility with the existing `CssMinMax` syntax.
 
 ### `CssMinMax`
 
@@ -327,6 +327,11 @@ To serialize a `CalcOperation`:
   with operator `"+"` or `"-"`, emit `"("` followed by `right` followed by
   `")"`. Otherwise, emit `right`.
 
+  > TODO: If one of the operands is a result of an interpolated expression, it
+  > may need parentheses. However, we *don't* want to add parentheses for
+  > unquoted strings from e.g. `var()` expressions. We need to find a way to
+  > distinguish the two.
+
 ## Procedures
 
 ### Simplifying a Calc
@@ -339,8 +344,8 @@ This algorithm takes a calc `calc` and returns a number or a calc.
 * Let `arguments` be the result of [simplifying](#simplifying-a-calcvalue) each
   of `calc`'s arguments.
 
-* If `calc`'s name is `"calc"`, `arguments` must contain a single argument. If
-  that argument is a number or calc, return it.
+* If `calc`'s name is `"calc"`, the syntax guarantees that `arguments` contain
+  only a single argument. If that argument is a number or calc, return it.
 
 * If `calc`'s name is `min`, `max`, or `clamp` and `arguments` are all numbers
   whose units are mutually [compatible], return the result of calling
