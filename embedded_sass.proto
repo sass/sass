@@ -270,7 +270,7 @@ message OutboundMessage {
   // A response that contains the result of a compilation.
   message CompileResponse {
     // The compilation's request id. Mandatory.
-    int32 id = 1;
+    uint32 id = 1;
 
     // A message indicating that the Sass file was successfully compiled to CSS.
     message CompileSuccess {
@@ -527,7 +527,7 @@ message ProtocolError {
   // The ID of the request that had an error. This MUST be `-1` if the request
   // ID couldn't be determined, or if the error is being reported for a response
   // or an event.
-  int32 id = 2;
+  uint32 id = 2;
 
   // A human-readable message providing more detail about the error.
   string message = 3;
