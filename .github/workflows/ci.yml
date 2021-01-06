@@ -1,8 +1,8 @@
 name: CI
 
 on:
-  push: {branches: [master]}
-  pull_request:
+  push: {branches: [master, 'feature.*']}
+  pull_request: {branches: ['**']}
 
 jobs:
   unit_tests:
