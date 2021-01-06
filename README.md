@@ -1,4 +1,4 @@
-## The Embedded Sass Protocol (pending 1.0.0-beta.6)
+## The Embedded Sass Protocol (1.0.0-beta.6)
 
 * [Overview](#overview)
 * [RPCs](#rpcs)
