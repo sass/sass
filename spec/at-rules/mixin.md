@@ -52,7 +52,7 @@ To execute a `@mixin` rule `rule`:
 
 <x><pre>
 **IncludeRule**      ::= '@include' [NamespacedIdentifier][] ArgumentInvocation?
-                         ContentBlock?
+&#32;                    ContentBlock?
 **ContentBlock**     ::= UsingDeclaration? '{' Statements '}'
 **UsingDeclaration** ::= 'using' ArgumentDeclaration
 </pre></x>

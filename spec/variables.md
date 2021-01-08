@@ -9,21 +9,22 @@
 * [Semantics](#semantics)
   * [Executing a Variable Declaration](#executing-a-variable-declaration)
   * [Evaluating a Variable](#evaluating-a-variable)
-  
+
 ## Syntax
 
 <x><pre>
-**Variable**            ::= '$' Identifier | NamespacedVariable
+**Variable**            ::= PlainVariable | NamespacedVariable
+**PlainVariable**       ::= '$' Identifier
 **NamespacedVariable**  ::= Identifier '.$' [PublicIdentifier][]
 **VariableDeclaration** ::= Variable ':' Expression ('!global' | '!default')*
 </pre></x>
 
 [PublicIdentifier]: modules.md#syntax
 
-No whitespace is allowed after the `$` or before or after the `.$` in
-`Variable`. Each of `!global` and `!default` is allowed at most once in
-`VariableDeclaration`. As with all statements, a `VariableDeclaration` must be
-separated from other statements with a semicolon.
+No whitespace is allowed after the `$` in `PlainVariable` or before or after
+the `.$` in `NamespacedVariable`. Each of `!global` and `!default` is allowed
+at most once in `VariableDeclaration`. As with all statements, a
+`VariableDeclaration` must be separated from other statements with a semicolon.
 
 ## Definitions
 
