@@ -26,6 +26,7 @@ files.forEach(function (file) {
 
   var dirname = path.dirname(urlModule.fileURLToPath(import.meta.url))
   markdownLinkCheck(markdown, {
+    retryOn429: true, // Retry if the github rate limit is reached
     baseUrl: path.basename(dirname) + '/'
   }, function (err, results) {
     if (err) {
