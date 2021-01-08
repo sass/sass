@@ -48,7 +48,7 @@ function calls and map literals) and square brackets.
 > according to the level 4 specification, since no browsers support it yet. See
 > [sass/sass#2538][] for details.
 
-[sass/sass#2538]: https://GitHub.com/sass/sass/issues/2538
+[sass/sass#2538]: https://github.com/sass/sass/issues/2538
 
 ### CSS
 

@@ -45,7 +45,7 @@ similar to a [variable declaration][]. Unlike `@use ... with`, unconfigured
 origin variables, and variables configured with a `!default` flag, will remain
 configurable by any file importing the combined module. For example:
 
-[variable declaration]: https://github.com/sass/sass/blob/master/spec/variables.md#syntax
+[variable declaration]: ../spec/variables.md#syntax
 
 ```scss
 // _origin.scss
