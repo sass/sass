@@ -86,7 +86,7 @@ For example:
 * However, `calc(1px + 10%)` will return the calc `calc(1px + 10%)`.
 
 * If `$length` is `calc(1px + 10%)`, `calc(1px + $length)` will return
-  `calc(2px + $length)`.
+  `calc(2px + 10%)`.
 
 * Sass functions can be used directly in `calc()`, so `calc(1% +
   math.round(15.3px))` returns `calc(1% + 15px)`.
@@ -202,7 +202,7 @@ following:
 
 <x><pre>
 **SpecialFunctionName**¹      ::= VendorPrefix? ('element(' | 'expression(')
-&#32;                           | VendorPrefix `calc('
+&#32;                           | VendorPrefix 'calc('
 </pre></x>
 
 1: The string `calc(` is matched case-insensitively.
@@ -222,7 +222,7 @@ The grammar for this production is:
 **CalcArgument**²  ::= InterpolatedDeclarationValue | CalcSum
 **CalcSum**     ::= CalcProduct (('+' | '-')³ CalcProduct)?
 **CalcProduct** ::= CalcValue (('*' | '/') CalcValue)?
-**CalcValue**   ::= '(' CalcArgument ')
+**CalcValue**   ::= '(' CalcArgument ')'
 &#32;             | CalcExpression
 &#32;             | ClampExpression
 &#32;             | CssMinMax
