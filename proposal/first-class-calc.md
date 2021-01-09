@@ -7,7 +7,7 @@
 * [Background](#background)
 * [Summary](#summary)
   * [Design Decisions](#design-decisions)
-    * ["Contagious" Calcs](#contagious-calcs)
+    * ["Contagious" Calculations](#contagious-calculations)
     * [Interpolation in `calc()`](#interpolation-in-calc)
     * [Vendor Prefixed `calc()`](#vendor-prefixed-calc)
 * [Syntax](#syntax)
@@ -17,11 +17,11 @@
 * [Types](#types)
   * [Operations](#operations)
   * [Serialization](#serialization)
-    * [Calc](#calc)
-    * [`CalcOperation`](#calcoperation)
+    * [Calculation](#calculation)
+    * [`CalculationOperation`](#calculationoperation)
 * [Procedures](#procedures)
-  * [Simplifying a Calc](#simplifying-a-calc)
-  * [Simplifying a `CalcValue`](#simplifying-a-calcvalue)
+  * [Simplifying a Calculation](#simplifying-a-calculation)
+  * [Simplifying a `CalculationValue`](#simplifying-a-calculationvalue)
 * [Semantics](#semantics)
   * [`CalcExpression`](#calcexpression-1)
   * [`ClampExpression`](#clampexpression)
@@ -63,17 +63,17 @@ resolved at compile-time.
 
 This proposal changes `calc()` (and other supported mathematical functions) from
 being parsed as unquoted strings to being parsed in-depth, and sometimes
-(although not always) producing a new data type known as a "calc". This data
-type represents mathematical expressions that can't be resolved at compile-time,
-such as `calc(10% + 5px)`, and allows those expressions to be combined
-gracefully within further mathematical functions.
+(although not always) producing a new data type known as a "calculation". This
+data type represents mathematical expressions that can't be resolved at
+compile-time, such as `calc(10% + 5px)`, and allows those expressions to be
+combined gracefully within further mathematical functions.
 
 To be more specific: a `calc()` expression will be parsed according to the [CSS
 syntax], with additional support for Sass variables, functions, and (for
 backwards compatibility) interpolation. Sass will perform as much math as is
 possible at compile-time, and if the result is a single number it will return
-that number. Otherwise, it will return a calc that represents the (simplified)
-expression that can be resolved in the browser.
+that number. Otherwise, it will return a calculation that represents the
+(simplified) expression that can be resolved in the browser.
 
 [CSS syntax]: https://drafts.csswg.org/css-values-3/#calc-syntax
 
@@ -91,31 +91,33 @@ For example:
 * Sass functions can be used directly in `calc()`, so `calc(1% +
   math.round(15.3px))` returns `calc(1% + 15px)`.
 
-Note that calcs cannot generally be used in place of numbers. For example,
-`1px + calc(1px + 10%)` will produce an error, as will `math.round(calc(1px +
-10%))`.
+Note that calculations cannot generally be used in place of numbers. For
+example, `1px + calc(1px + 10%)` will produce an error, as will
+`math.round(calc(1px + 10%))`.
 
 For backwards compatibility, `calc()` expressions that contain interpolation
 will continue to be parsed using the old highly-permissive syntax, although this
 behavior will eventually be deprecated and removed. These expressions will still
-return calc values, but they'll never be simplified or resolve to plain numbers.
+return calculation values, but they'll never be simplified or resolve to plain
+numbers.
 
 ### Design Decisions
 
-#### "Contagious" Calcs
+#### "Contagious" Calculations
 
-In this proposal, calc objects throw errors if they're used with normal
+In this proposal, calculation objects throw errors if they're used with normal
 SassScript level math operations (`+`, `-`, `*`, `/`, and `%`). Another option
-would have been to make calcs "contagious", so that performing these operations
-with at least one calc operand would produce another calc as a result. For
-example, instead of throwing an error `1px + calc(100px + 10%)` would produce
-`calc(101px + 10%)` (or possibly just `calc(1 + 100px + 10%)`).
+would have been to make calculations "contagious", so that performing these
+operations with at least one calculation operand would produce another
+calculation as a result. For example, instead of throwing an error `1px +
+calc(100px + 10%)` would produce `calc(101px + 10%)` (or possibly just `calc(1 +
+100px + 10%)`).
 
-We chose not to do this because calcs aren't *always* interchangeable with plain
-numbers, so making them contagious in this way could lead to situations where a
-calc entered a set of functions that only expected numbers and ended up
-producing an error far away in space or time from the actual source of the
-issue. For example:
+We chose not to do this because calculations aren't *always* interchangeable
+with plain numbers, so making them contagious in this way could lead to
+situations where a calculation entered a set of functions that only expected
+numbers and ended up producing an error far away in space or time from the
+actual source of the issue. For example:
 
 * Miriam publishes a Sass library with a function, `frobnicate()`, which does a
   bunch of arithmetic on its argument and returns a result.
@@ -124,50 +126,51 @@ issue. For example:
   it and ships to production.
 
 * Miriam updates the implementation of `frobnicate()` to call `math.log()`,
-  which does not support calcs. She doesn't realize this is a breaking change,
-  since she was only ever expecting numbers to be passed.
+  which does not support calculations. She doesn't realize this is a breaking
+  change, since she was only ever expecting numbers to be passed.
 
 * Jina updates to the newest version of Miriam's library and is unexpectedly
   broken.
 
 To avoid this issue, we've made it so that the only operations that support
-calcs are those within `calc()` expressions. This follows Sass's broad principle
-of "don't design for users using upstream stylesheets in ways they weren't
-intended to be used".
+calculations are those within `calc()` expressions. This follows Sass's broad
+principle of "don't design for users using upstream stylesheets in ways they
+weren't intended to be used".
 
-Going back to the example above, if Miriam *did* want to support calcs, she
-could simply wrap `calc()` around any mathematical expressions she writes. This
-will still return plain numbers when given compatible numbers as inputs, but it
-will also make it clear that `calc()`s are supported and that Miriam expects to
-support them on into the future.
+Going back to the example above, if Miriam *did* want to support calculations,
+she could simply wrap `calc()` around any mathematical expressions she writes.
+This will still return plain numbers when given compatible numbers as inputs,
+but it will also make it clear that `calc()`s are supported and that Miriam
+expects to support them on into the future.
 
 #### Interpolation in `calc()`
 
 Historically, interpolation has been the only means of injecting SassScript
 values into `calc()` expressions, so for backwards compatibility, we must
 continue to support it to some degree. Exactly to what degree and how it
-integrates with first-class calc is a question with multiple possible answers,
-though.
+integrates with first-class calculation is a question with multiple possible
+answers, though.
 
 The answer we settled on was to handle interpolation in a similar way to how we
 handled backwards-compatibility with Sass's [`min()` and `max()` functions]: by
 parsing `calc()` expressions using the old logic if they contain any
 interpolation and continuing to treat those values as opaque strings, and only
-using the new parsing logic for calcs that contain no interpolation. This is
-maximally backwards-compatible and it doesn't require interpolated calcs to be
-reparsed after interpolation.
+using the new parsing logic for calculations that contain no interpolation. This
+is maximally backwards-compatible and it doesn't require interpolated
+calculations to be reparsed after interpolation.
 
 [`min()` and `max()` functions]: ../accepted/min-max.md
 
 Here are some alternatives we considered:
 
-1. Re-parsing a calc that contains interpolation once the interpolation has been
-   resolved, and using the result as in the calc object rather than an unquoted
-   string. For example, `calc(#{"1px + 2px"})` would return `3px` rather than
-   `calc(1px + 2px)`. However, doing another parse at evaluation-time would add
-   substantial complexity and some amount of runtime overhead. The
-   return-on-investment would also be inherently limited, since we're planning
-   on gradually transitioning users away from interpolation in `calc()` anyway.
+1. Re-parsing a calculation that contains interpolation once the interpolation
+   has been resolved, and using the result as in the calculation object rather
+   than an unquoted string. For example, `calc(#{"1px + 2px"})` would return
+   `3px` rather than `calc(1px + 2px)`. However, doing another parse at
+   evaluation-time would add substantial complexity and some amount of runtime
+   overhead. The return-on-investment would also be inherently limited, since
+   we're planning on gradually transitioning users away from interpolation in
+   `calc()` anyway.
 
 2. Treating interpolation as a `CalcValue` that participates in the normal
    parsing flow of a `CalcArgument`. This is a simpler and more efficient method
@@ -185,11 +188,11 @@ with arbitrary vendor prefixes as well. However, time has passed, those browser
 versions have essentially no usage any more, and we don't anticipate anyone is
 looking to write new stylesheets that target them.
 
-As such, this proposal only adds first-class calc support for the `calc()`
-function without any prefixes. For backwards-compatibility, vendor-prefixed
-`calc()` expressions will continue to be parsed as opaque special functions the
-way they always have, but they will not be interoperable with any of the new
-calc features this proposal adds.
+As such, this proposal only adds first-class calculation support for the
+`calc()` function without any prefixes. For backwards-compatibility,
+vendor-prefixed `calc()` expressions will continue to be parsed as opaque
+special functions the way they always have, but they will not be interoperable
+with any of the new calculation features this proposal adds.
 
 ## Syntax
 
@@ -270,62 +273,64 @@ This proposal replaces the reference to `CalcValue` in the definition of
 
 ## Types
 
-This proposal introduces a new value type known as a "calc", with the following
-structure:
+This proposal introduces a new value type known as a "calculation", with the
+following structure:
 
 ```ts
-interface Calc {
+interface Calculation {
   name: string;
-  arguments: CalcValue[];
+  arguments: CalculationValue[];
 }
 
-type CalcValue =
+type CalculationValue =
   | Number
   | UnquotedString
-  | CalcOperation
-  | Calc;
+  | CalculationOperation
+  | Calculation;
 
-interface CalcOperation {
+interface CalculationOperation {
   operator: '+' | '-' | '*' | '/';
-  left: CalcValue;
-  right: CalcValue;
+  left: CalculationValue;
+  right: CalculationValue;
 }
 ```
 
-Unless otherwise specified, when this specification creates a calc, its name is
-"calc".
+Unless otherwise specified, when this specification creates a calculation, its
+name is "calc".
 
 ### Operations
 
-A calc follows the default behavior of all SassScript operations, except that it
-throws an error if used as an operand of a unary or binary `+` or `-` operation.
+A calculation follows the default behavior of all SassScript operations, except
+that it throws an error if used as an operand of a unary or binary `+` or `-`
+operation.
 
-> This helps ensure that if a user expects a number and receives a calc instead,
-> it will throw an error quickly rather than propagating as an unquoted string.
+> This helps ensure that if a user expects a number and receives a calculation
+> instead, it will throw an error quickly rather than propagating as an unquoted
+> string.
 
 ### Serialization
 
-#### Calc
+#### Calculation
 
-To serialize a calc, emit its name followed by "(", then each of its arguments
+To serialize a calculation, emit its name followed by "(", then each of its arguments
 separated by ",", then ")".
 
-#### `CalcOperation`
+#### `CalculationOperation`
 
-To serialize a `CalcOperation`:
+To serialize a `CalculationOperation`:
 
 * Let `left` and `right` be the result of serializing the left and right values,
   respectively.
 
-* If the operator is `"*"` or `"/"` and the left value is a `CalcOperation` with
-  operator `"+"` or `"-"`, emit `"("` followed by `left` followed by `")"`.
-  Otherwise, emit `left`.
+* If the operator is `"*"` or `"/"` and the left value is a
+  `CalculationOperation` with operator `"+"` or `"-"`, emit `"("` followed by
+  `left` followed by `")"`. Otherwise, emit `left`.
 
 * Emit `" "`, then the operator, then `" "`.
 
-* If the operator is `"*"` or `"/"` and the right value is a `CalcOperation`
-  with operator `"+"` or `"-"`, emit `"("` followed by `right` followed by
-  `")"`. Otherwise, emit `right`.
+* If the operator is `"*"` or `"/"` and the right value is a
+  `CalculationOperation` with operator `"+"` or `"-"`, emit `"("` followed by
+  `right` followed by `")"`. Otherwise, emit `right`.
 
   > TODO: If one of the operands is a result of an interpolated expression, it
   > may need parentheses. However, we *don't* want to add parentheses for
@@ -334,18 +339,19 @@ To serialize a `CalcOperation`:
 
 ## Procedures
 
-### Simplifying a Calc
+### Simplifying a Calculation
 
-This algorithm takes a calc `calc` and returns a number or a calc.
+This algorithm takes a calculation `calc` and returns a number or a calculation.
 
 > This algorithm is intended to return a value that's CSS-semantically identical
 > to the input.
 
-* Let `arguments` be the result of [simplifying](#simplifying-a-calcvalue) each
+* Let `arguments` be the result of [simplifying](#simplifying-a-calculationvalue) each
   of `calc`'s arguments.
 
 * If `calc`'s name is `"calc"`, the syntax guarantees that `arguments` contain
-  only a single argument. If that argument is a number or calc, return it.
+  only a single argument. If that argument is a number or calculation, return
+  it.
 
 * If `calc`'s name is `min`, `max`, or `clamp` and `arguments` are all numbers
   whose units are mutually [compatible], return the result of calling
@@ -356,24 +362,25 @@ This algorithm takes a calc `calc` and returns a number or a calc.
   [`math.min()`]: ../spec/built_in_modules/math.md#min
   [`math.max()`]: ../spec/built_in_modules/math.md#max
 
-* Otherwise, return a calc with the same name as `calc` and `arguments` as its
-  arguments.
+* Otherwise, return a calculation with the same name as `calc` and `arguments`
+  as its arguments.
 
-### Simplifying a `CalcValue`
+### Simplifying a `CalculationValue`
 
-This algorithm takes a `CalcValue` `value` and returns a `CalcValue`.
+This algorithm takes a `CalculationValue` `value` and returns a
+`CalculationValue`.
 
 > This algorithm is intended to return a value that's CSS-semantically identical
 > to the input.
 
 * If `value` is a number or unquoted string, return it as-is.
 
-* If `value` is a calc:
+* If `value` is a calculation:
 
     * Let `result` be the result of [simplifying] `value`.
 
-    * If `result` is a calc whose name is `"calc"`, return `result`'s single
-      argument.
+    * If `result` is a calculation whose name is `"calc"`, return `result`'s
+      single argument.
 
       > TODO: If `result` was created via interpolation, it may not be
       > syntactically sound to just strip the `calc()`. For example, `calc(-1 *
@@ -382,10 +389,10 @@ This algorithm takes a `CalcValue` `value` and returns a `CalcValue`.
 
     * Otherwise, return `result`.
 
-  [simplifying]: #simplifying-a-calc
+  [simplifying]: #simplifying-a-calculation
 
-* Otherwise, `value` must be a `CalcOperation`. Let `left` and `right` be the
-  result of simplifying `value.left` and `value.right`, respectively.
+* Otherwise, `value` must be a `CalculationOperation`. Let `left` and `right` be
+  the result of simplifying `value.left` and `value.right`, respectively.
 
 * If `value.operator` is `"+"` or `"-"`:
 
@@ -399,8 +406,8 @@ This algorithm takes a `CalcValue` `value` and returns a `CalcValue`.
 
     > TODO: Should we try to simplify `calc(1px + 1% + 1px)`?
 
-  * Otherwise, return a `CalcOperation` with `value.operator`, `left`, and
-    `right`.
+  * Otherwise, return a `CalculationOperation` with `value.operator`, `left`,
+    and `right`.
 
 * If `value.operator` is `"*"` or `"/"`:
 
@@ -410,8 +417,8 @@ This algorithm takes a `CalcValue` `value` and returns a `CalcValue`.
     > TODO: Should we try to simplify `calc(2 * var(--foo) * 2)`? What about
     > `calc(-1 * (var(--foo) + 1px)`?
 
-  * Otherwise, return a `CalcOperation` with `value.operator`, `left`, and
-    `right`.
+  * Otherwise, return a `CalculationOperation` with `value.operator`, `left`,
+    and `right`.
 
 ## Semantics
 
@@ -419,8 +426,8 @@ This algorithm takes a `CalcValue` `value` and returns a `CalcValue`.
 
 To evaluate a `CalcExpression`:
 
-* Let `calc` be a calc whose name is `"calc"` and whose only argument is the
-  result of [evaluating the expression's `CalcArgument`](#calcargument).
+* Let `calc` be a calculation whose name is `"calc"` and whose only argument is
+  the result of [evaluating the expression's `CalcArgument`](#calcargument).
 
 * Return the result of [simplifying] `calc`.
 
@@ -428,7 +435,7 @@ To evaluate a `CalcExpression`:
 
 To evaluate a `ClampExpression`:
 
-* Let `clamp` be a calc whose name is `"clamp"` and whose arguments are the
+* Let `clamp` be a calculation whose name is `"clamp"` and whose arguments are the
   results of [evaluating the expression's `CalcArgument`s](#calcargument).
 
 * Return the result of [simplifying] `clamp`.
@@ -437,7 +444,7 @@ To evaluate a `ClampExpression`:
 
 To evaluate a `CssMinMax`:
 
-* Let `calc` be a calc whose name is `"min"` or `"max"` according to the
+* Let `calc` be a calculation whose name is `"min"` or `"max"` according to the
   `CssMinMax`'s first token, and whose arguments are the results of [evaluating
   the expression's `CalcArgument`s](#calcargument).
 
@@ -445,7 +452,7 @@ To evaluate a `CssMinMax`:
 
 ### `CalcArgument`
 
-To evaluate a `CalcArgument` production `argument` into a `CalcValue` object:
+To evaluate a `CalcArgument` production `argument` into a `CalculationValue` object:
 
 * If `argument` is an `InterpolatedDeclarationValue`, evaluate it and return the
   resulting unquoted string.
@@ -455,7 +462,7 @@ To evaluate a `CalcArgument` production `argument` into a `CalcValue` object:
 
 ### `CalcSum`
 
-To evaluate a `CalcSum` production `sum` into a `CalcValue` object:
+To evaluate a `CalcSum` production `sum` into a `CalculationValue` object:
 
 * Left `left` be the result of evaluating the first `CalcProduct`.
 
@@ -469,7 +476,8 @@ To evaluate a `CalcSum` production `sum` into a `CalcValue` object:
 
 ### `CalcProduct`
 
-To evaluate a `CalcProduct` production `product` into a `CalcValue` object:
+To evaluate a `CalcProduct` production `product` into a `CalculationValue`
+object:
 
 * Left `left` be the result of evaluating the first `CalcValue`.
 
@@ -484,7 +492,7 @@ To evaluate a `CalcProduct` production `product` into a `CalcValue` object:
 
 ### `CalcValue`
 
-To evaluate a `CalcValue` production `value` into a `CalcValue` object:
+To evaluate a `CalcValue` production `value` into a `CalculationValue` object:
 
 * If `value` is a `CalcArgument`, `CssMinMax`, or `Number`, return the result of
   evaluating it.
@@ -505,7 +513,7 @@ Add the following clause to the [`meta.type-of()`] function and the top-level
 
 [`meta.type-of()`]: ../spec/built_in_modules/meta.md#type-of
 
-* If `$value` is a calc, return `"calc"`.
+* If `$value` is a calculation, return `"calc"`.
 
 ### `meta.calc-name()`
 
@@ -515,7 +523,7 @@ This is a new function in the `sass:meta` module.
 meta.calc-name($calc)
 ```
 
-* If `$calc` is not a calc, throw an error.
+* If `$calc` is not a calculation, throw an error.
 
 * Return `$calc`'s name as a quoted string.
 
@@ -527,7 +535,7 @@ This is a new function in the `sass:meta` module.
 meta.calc-args($calc)
 ```
 
-* If `$calc` is not a calc, throw an error.
+* If `$calc` is not a calculation, throw an error.
 
 * Let `args` be an empty list.
 
