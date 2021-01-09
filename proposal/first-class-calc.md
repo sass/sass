@@ -164,20 +164,24 @@ calculations to be reparsed after interpolation.
 Here are some alternatives we considered:
 
 1. Re-parsing a calculation that contains interpolation once the interpolation
-   has been resolved, and using the result as in the calculation object rather
-   than an unquoted string. For example, `calc(#{"1px + 2px"})` would return
-   `3px` rather than `calc(1px + 2px)`. However, doing another parse at
+   has been resolved, and using the result as a calculation object rather than
+   an unquoted string. For example, `calc(#{"1px + 2px"})` would return `3px`
+   rather than `calc(1px + 2px)`. However, doing another parse at
    evaluation-time would add substantial complexity and some amount of runtime
    overhead. The return-on-investment would also be inherently limited, since
    we're planning on gradually transitioning users away from interpolation in
    `calc()` anyway.
 
-2. Treating interpolation as a `CalcValue` that participates in the normal
-   parsing flow of a `CalcArgument`. This is a simpler and more efficient method
-   since it doesn't require parser lookahead, and it supports common cases like
-   `calc(#{$var} + 10%)` well. However, it doesn't support cases like `calc(1px
-   #{$op} 10%)` which are currently supported. This backwards-incompatibility is
-   likely to cause real user pain for a feature as widely-used as `calc()`.
+2. Treating interpolation another type of [`CalcValue`] that participates in the
+   normal parsing flow of a [`CalcArgument`]. This is a simpler and more
+   efficient method since it doesn't require parser lookahead, and it supports
+   common cases like `calc(#{$var} + 10%)` well. However, it doesn't support
+   cases like `calc(1px #{$op} 10%)` which are currently supported. This
+   backwards-incompatibility is likely to cause real user pain for a feature as
+   widely-used as `calc()`.
+
+   [`CalcValue`]: #calcexpression
+   [`CalcArgument`]: #calcexpression
 
 #### Vendor Prefixed `calc()`
 
@@ -223,8 +227,8 @@ The grammar for this production is:
 **CalcExpression** ::= `calc(`¹ CalcArgument ')'
 **ClampExpression** ::= `clamp(`¹ CalcArgument ',' CalcArgument ',' CalcArgument ')'
 **CalcArgument**²  ::= InterpolatedDeclarationValue | CalcSum
-**CalcSum**     ::= CalcProduct (('+' | '-')³ CalcProduct)?
-**CalcProduct** ::= CalcValue (('*' | '/') CalcValue)?
+**CalcSum**     ::= CalcProduct (('+' | '-')³ CalcProduct)*
+**CalcProduct** ::= CalcValue (('*' | '/') CalcValue)*
 **CalcValue**   ::= '(' CalcArgument ')'
 &#32;             | CalcExpression
 &#32;             | ClampExpression
