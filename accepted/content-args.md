@@ -70,7 +70,7 @@ decided that it was both semantically ambiguous and confusing because the
 [module system proposal][] uses to declare an argument *invocation* rather than
 an argument *declaration*.
 
-[module system proposal]: https://github.com/sass/sass/blob/master/accepted/module-system.md
+[module system proposal]: module-system.md
 
 ## Syntax
 
