@@ -38,6 +38,10 @@ To execute a `@for` rule `rule`:
   
 * If `from` and `to` aren't numbers, throw an error.
 
+* Let `to` be the result of [converting] `to` to `from`'s unit allowing unitless.
+
+  [converting]: ../types/number.md#converting-a-number-to-a-unit
+
 * If `from` and `to` aren't integers, throw an error.
 
 * If `from` is greater than `to`, set `direction` to `-1`. Otherwise, set
@@ -53,6 +57,8 @@ To execute a `@for` rule `rule`:
 
   * Add a variable with `rule`'s `VariableName` as its name and `i` as its value
     to `scope`.
+
+    > Note that this variable will have the same unit that `from`.
   
   * Execute the `ForBlock`'s statements in `scope`.
   
