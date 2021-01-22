@@ -659,7 +659,7 @@ message Value {
 
       // The list's separator hasn't yet been determined.
       //
-      // Singleton lists and empty lists don't have separators defiend. This
+      // Singleton lists and empty lists don't have separators defined. This
       // means that list functions will prefer other lists' separators if
       // possible.
       UNDECIDED = 3;
