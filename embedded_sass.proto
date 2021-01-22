@@ -524,9 +524,9 @@ message ProtocolError {
   }
   ErrorType type = 1;
 
-  // The ID of the request that had an error. This MUST be `-1` if the request
-  // ID couldn't be determined, or if the error is being reported for a response
-  // or an event.
+  // The ID of the request that had an error. This MUST be `4294967295` if the
+  // request ID couldn't be determined, or if the error is being reported for a
+  // response or an event.
   uint32 id = 2;
 
   // A human-readable message providing more detail about the error.
