@@ -64,14 +64,6 @@ message InboundMessage {
       // The entire stylesheet is written on a single line, with as few
       // characters as possible.
       COMPRESSED = 1;
-
-      // CSS rules and declarations are indented to match the nesting of the
-      // Sass source.
-      NESTED = 2;
-
-      // Each CSS rule is written on its own single line, along with all its
-      // declarations.
-      COMPACT = 3;
     }
 
     // How to format the CSS output.
