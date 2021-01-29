@@ -117,6 +117,13 @@ message InboundMessage {
     // custom global functions. They must also reject any custom function names
     // that conflict with function names built into the Sass language.
     repeated string global_functions = 7;
+
+    // Whether to use terminal colors in the formatted message of errors and
+    // logs.
+    bool alert_color = 8;
+
+    // Whether to encode the formatted message of errors and logs in ASCII.
+    bool alert_ascii = 9;
   }
 
   // A response indicating the result of canonicalizing an imported URL.
@@ -293,6 +300,11 @@ message OutboundMessage {
       // the format of this stack trace is not specified and is likely to be
       // inconsistent between implementations.
       string stack_trace = 3;
+
+      // A formatted, human-readable string that contains the message, span
+      // (if available), and trace (if available). The format of this string is
+      // not specified and is likely to be inconsistent between implementations.
+      string formatted = 4;
     }
 
     // The success or failure result of the compilation. Mandatory.
@@ -339,6 +351,11 @@ message OutboundMessage {
     // the format of this stack trace is not specified and is likely to be
     // inconsistent between implementations.
     string stack_trace = 5;
+
+    // A formatted, human-readable string that contains the message, span (if
+    // available), and trace (if available). The format of this string is not
+    // specified and is likely to be inconsistent between implementations.
+    string formatted = 6;
   }
 
   // A request for a custom importer to convert an imported URL to its canonical
