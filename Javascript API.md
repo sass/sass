@@ -339,13 +339,13 @@ You can only create a singleton instance of SassType.Null. This is done with `sa
 
 <!-- Types -->
 [SassType]: <#Sass-Types>
-[SassType.Null]: <#SassType.Null>
-[SassType.String]: <#SassType.String>
-[SassType.Number]: <#SassType.Number>
-[SassType.RgbColor]: <#SassType.RgbColor>
-[SassType.HslColor]: <#SassType.HslColor>
-[SassType.List]: <#SassType.List>
-[SassType.Map]: <#SassType.Map>
+[SassType.Null]: <#SassTypeNull>
+[SassType.String]: <#SassTypeString>
+[SassType.Number]: <#SassTypeNumber>
+[SassType.RgbColor]: <#SassTypeRgbColor>
+[SassType.HslColor]: <#SassTypeHslColor>
+[SassType.List]: <#SassTypeList>
+[SassType.Map]: <#SassTypeMap>
 
 <!-- External Links -->
 [Fibers]: https://www.npmjs.com/package/fibers
