@@ -10,6 +10,7 @@
   * [`Name`](#name)
   * [`SpecialFunctionExpression`](#specialfunctionexpression)
   * [`MinMaxExpression`](#minmaxexpression)
+  * [`SelectorPseudo`](#selector-pseudo)
 * [Procedures](#procedures)
   * [Parsing Text as CSS](#parsing-text-as-css)
   * [Consuming an Identifier](#consuming-an-identifier)
@@ -91,6 +92,38 @@ No whitespace is allowed between components of an `InterpolatedIdentifier`.
 
 1: The strings `min(`, `max(`, `calc(`, `env(`, `var(`, and `clamp(` are matched
    case-insensitively.
+
+### `PseudoSelector`
+
+<x><pre>
+**PseudoSelector** ::= NormalPseudoSelector
+&#32;                | SelectorPseudo
+&#32;                | NthSelectorPseudo
+**NormalPseudoSelector** ::= ':' ':'? VendorPrefix? Identifier
+&#32;                        ('(' [\<declaration-value>] ')')?
+**SelectorPseudo** ::= SelectorPseudoName '(' Selector ')'
+**NthSelectorPseudo** ::= NthSelectorPseudoName '(' [\<an+b>] 'of'¹ Selector ')'
+**SelectorPseudoName** ::= ':' ('not' | 'matches' | 'any' | 'current' | 'has' | 'host' | 'host-context')
+&#32;                    | '::slotted'
+**NthSelectorPseudoName** ::= ':' ('nth-child' | 'nth-last-child')
+</pre></x>
+
+[\<declaration-value>]: https://www.w3.org/TR/css-syntax-3/#typedef-declaration-value
+[\<an+b>]: https://www.w3.org/TR/css-syntax-3/#the-anb-type
+
+1: The string `of` is matched case-insensitively. In addition, it must be parsed
+   as an identifier.
+
+   > In other words, it must have whitespace separating it from other
+   > identifiers, so `:nth-child(2nof a)` and `:nth-child(2n ofa)` are both
+   > invalid. However, `:nth-child(2of.foo)` is valid.
+
+If a `PseudoSelector` begins with`SelectorPseudoName` or `NthSelectorPseudoName`
+followed by a parenthesis, it must be parsed as a `SelectorPseudo` or an
+`NthSelectorPseudo` respectively, not as a `NormalPseudoSelector`.
+
+No whitespace is allowed anywhere in a `PseudoSelector` except within
+parentheses.
 
 ## Procedures
 

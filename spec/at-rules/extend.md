@@ -72,10 +72,16 @@ It's only defined within the scope of a single application of a given extension.
 ### The `extend()` Function
 
 As a shorthand, we use the function notation `extend(extendee, target,
-extender)` to refer to the result of extending `extendee` with `extender
-{@extend target}` (much like the Sass function `selector-extend()`). We further
-use `extend(extendee, extension)` as a shorthand for `extend(extendee,
-extension.target, extension.extender)`.
+extender)` to refer to [extending] `extendee` with `target` and `extender` (much
+like the Sass function `selector-extend()`). We further define the following
+shorthands:
+
+[extending]: #extending-a-selector
+
+* `extend(extendee, extension)` for `extend(extendee, extension.target,
+  extension.extender)`.
+* `extend(extendee, extensions)` for iteratively running `extendee =
+  extend(extendee, extension)` for each `extension` in `extensions`.
 
 ## Semantics
 
@@ -98,13 +104,13 @@ To execute an `@extend` rule `rule`:
 
   [current style rule]: ../style-rules.md#current-style-rule
 
-* Let `selector` be the result of evaluating all interpolation in `rule`'s
+* Let `target` be the result of evaluating all interpolation in `rule`'s
   selector and parsing the result as a list of simple selectors.
 
-* If `selector` contains any parent selectors, throw an error.
+* If `target` contains any parent selectors, throw an error.
 
 * Let `extension` be an [extension](#extension) whose extender is the current
-  style rule's selector and whose target is `selector`.
+  style rule's selector and whose target is `target`.
 
 * Add `extension` to [the current module][]'s extensions.
 
@@ -145,8 +151,7 @@ that includes CSS for *all* modules transitively used or forwarded by
 
   * For each style rule `rule` in `domestic`'s CSS:
 
-    * Let `selector` be the result of applying `domestic`'s extensions to
-      `rule`'s selector.
+    * Let `selector` be `extend(rule's selector, domestic's extensions)`.
 
     * Let `selector-lists` be an empty set of selector lists.
 
@@ -215,6 +220,118 @@ that includes CSS for *all* modules transitively used or forwarded by
       `new-selectors`.
 
 * Return `css`.
+
+### Extending a Selector
+
+This algorithm takes a selector list `extendee`, a simple selector `target`, and
+a selector list `extender` and returns a selector list.
+
+> Intuitively, this returns the result of executing:
+>
+> ```scss
+> extender {@extend target}
+> extendee {/* ... */}
+> ```
+
+* Let `results` be an empty selector list.
+
+* For each complex selector `complex` in `extendee`:
+
+  * Let `options` be an empty complex selector.
+
+  * For each compound selector `compound` or combinator in `complex`:
+
+    * If it's a combinator, add it to each selector in `complex-options`.
+
+    * Let `new-complex-options` be an empty list.
+
+    * For each simple selector `simple` in `compound`:
+    
+      * Let `new-list` be the result of
+        [extending](#extending-a-simple-selector) `simple` with `target` and
+        `extender`.
+
+      * Append an `:is()` selector with argument `new-list` to `options`.
+
+        > An `:is()` selector is used here to concisely demonstrate which
+        > selectors should be matched by the selector ultimately returned by
+        > this algorithm. The algorithm itself should *not* generate an `:is()`
+        > selector unless one appears in the input stylesheet.
+
+  * Let `result` be a selector list that matches the same elements as `options`,
+    subject to the [limitations] and [specificity] laws.
+
+    > TODO: Specify the details of this procedure.
+
+  * Add all complex selectors in `result` to `results`.
+
+* Return `results`.
+
+[limitations]: #limitations
+[specificity]: #specificity
+
+### Extending a Simple Selector
+
+This algorithm takes a simple selector `extendee`, a simple selector `target`,
+and a selector list `extender` and returns a selector list.
+
+* If `extendee` matches exactly the same set of elements as `target`, return a
+  copy of `extender` with `extendee` added.
+
+* Otherwise, if `extendee` is a pseudo selector that has its own selector `arg`:
+
+  * Let `extended-arg` be `extend(arg, target, extender)`.
+
+  * If `extendee`'s [unprefixed] name is `not`:
+  
+    * If `arg` has no complex selectors with more than one compound selector,
+      remove all complex selectors with more than one compound selector from
+      `extended-arg`.
+
+      > Older browsers only support compound selectors in `:not()`. This step
+      > ensures that we don't break any `:not()`s that already work on those
+      > browsers.
+
+    * If any complex selectors in `extended-arg` contain only a single compound
+      selector which in turn contains a single pseudo selector with a selector
+      argument, remove them from `extended-arg`. If any of the removed selectors
+      were `:matches()`, add their selector arguments to `extended-arg`.
+
+      > For example, `:not(:matches(a, b))` becomes `:not(a, b)`.
+
+    * If `extended-arg` is empty, return `extendee`.
+
+    * Otherwise, if `arg` contains more than one complex selector, return a
+      `:not()` selector with `extended-arg` as its arguments.
+
+    * Otherwise, let `result` be an empty compound selector.
+
+    * For each complex selector in `extended-arg`, add a `:not()` selector to
+      `result` with that complex selector as its argument.
+
+      > For example, `:not(a, b)` becomes `:not(a):not(b)`. This supports older
+      > browsers that don't allow multiple arguments in `:not()`.
+
+    * Return `result`.
+
+  * Otherwise, if `extendee`'s [unprefixed] name is `matches`, `any`, `current`,
+    `nth-child`, or `nth-last-child`:
+
+    * For each complex selectors in `extended-arg` that contain only a single
+      compound selector which in turn contains a single pseudo selector `pseudo`
+      with a selector argument:
+
+      * Remove `pseudo` from `extended-arg`.
+
+      * If `pseudo` has the same name and (if applicable) `<an+b>` as
+        `extendee`, add its selector argument to `extended-arg`.
+
+  * Return a copy of `extendee` with its selector argument set to
+    `extended-arg`.
+
+* Otherwise, return `extendee` as-is.
+
+[unprefixed]: ../syntax.md#vendor-prefix
 
 ### Limitations
 
