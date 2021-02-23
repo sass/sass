@@ -10,7 +10,7 @@
   * [`Name`](#name)
   * [`SpecialFunctionExpression`](#specialfunctionexpression)
   * [`MinMaxExpression`](#minmaxexpression)
-  * [`SelectorPseudo`](#selector-pseudo)
+  * [`PseudoSelector`](#pseudoselector)
 * [Procedures](#procedures)
   * [Parsing Text as CSS](#parsing-text-as-css)
   * [Consuming an Identifier](#consuming-an-identifier)

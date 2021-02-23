@@ -15,6 +15,8 @@ many interacting layers and a lot of intricate case analysis.
 * [Semantics](#semantics)
   * [Executing an `@extend` Rule](#executing-an-extend-rule)
   * [Resolving a Module's Extensions](#resolving-a-modules-extensions)
+  * [Extending a Selector](#extending-a-selector)
+  * [Extending a Simple Selector](#extending-a-simple-selector)
   * [Limitations](#limitations)
   * [Specificity](#specificity)
     * [The First Law](#the-first-law)
