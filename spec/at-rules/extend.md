@@ -241,9 +241,7 @@ a selector list `extender` and returns a selector list.
 
   * For each compound selector `compound` or combinator in `complex`:
 
-    * If it's a combinator, add it to each selector in `complex-options`.
-
-    * Let `new-complex-options` be an empty list.
+    * If it's a combinator, add it to each selector in `options`.
 
     * For each simple selector `simple` in `compound`:
     
@@ -253,6 +251,11 @@ a selector list `extender` and returns a selector list.
 
       * Append an `:is()` selector with argument `new-list` to `options`.
 
+        > For example, in `extend(.a .b, .b, .x .y)`, `options` would end up
+        > being `:is(.a) :is(.b, .x .y)` or equivalently `.a :is(.b, .x .y)`.
+        > This would then expand to `.a .b, .x .a .y, .a .x .y` in the next
+        > step.
+        >
         > An `:is()` selector is used here to concisely demonstrate which
         > selectors should be matched by the selector ultimately returned by
         > this algorithm. The algorithm itself should *not* generate an `:is()`
