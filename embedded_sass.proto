@@ -717,10 +717,9 @@ message Value {
   // back to the compiler as long as their IDs match IDs of functions received
   // by the host during that same compilation.
   message CompilerFunction {
-    // A unique ID for this function. This ID can be used in
-    // `InboundRequest.FunctionCallRequest` to invoke this function. The
-    // compiler is responsible for generating this ID and ensuring it's unique
-    // across all functions passed to the host for this compilation. Mandatory.
+    // A unique ID for this function. The compiler is responsible for generating
+    // this ID and ensuring it's unique across all functions passed to the host
+    // for this compilation. Mandatory.
     uint32 id = 1;
   }
 
