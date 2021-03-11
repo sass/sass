@@ -1,8 +1,10 @@
 # Javascript API
 
-## Functions
+Below is a full description of the Javascript API for SASS
 
-### render
+# Functions
+
+## render
 An asyncronous function that requires a set of options to render a sass string or path to a sass file. The result of which is returned as an argument in a callback function
 
 > :warning: [renderSync][renderSync] is more than twice as fast due to async overheads. This can be reduced by using the [`fibers`][Fibers] package
@@ -13,7 +15,7 @@ An asyncronous function that requires a set of options to render a sass string o
 | options | [RenderOptions][RenderOptions] | An object containing all the options for handling the file |
 | callback | callback: ([SassException][SassException], [Result][Result]) | A callback containing the result of the compilation process or any errors |
 
-### renderSync
+## renderSync
 A syncronous function that requires a set of options to render a sass string or path to a sass file. The result of which is returned as a result object.  
 **Throws:** [SassException][SassException] on error
 
@@ -27,9 +29,9 @@ A syncronous function that requires a set of options to render a sass string or 
 | --- | --- |
 | [Result][Result]  | An object containing the result of the compilation process |
 
-## Classes
+# Classes
 
-### RenderOptions
+## RenderOptions
 A set of options that must be passed into the [render][render] or [renderSync][renderSync] functions
 
 > :warning: either `file` or `data` is required, excluding both will result in an error. If both are included, `file` takes precedence over `data`
@@ -57,7 +59,7 @@ A set of options that must be passed into the [render][render] or [renderSync][r
 | sourceMapRoot? | string | undefined | The `sourceRoot` to be emitted in the source map data |
 | logger? | [Logger][Logger] | undefined | Contains callbacks for handling any `@warn` or `@debug` messages |
 
-### Importer
+## Importer
 A function, or set of functions, that's called when sass encounters an `@import` statement. The function must either `return` (for syncronous code) or call `done` (for asyncronous code) with an object containing either a `file` or `contents` property. 
 
 > :warning:  
@@ -72,7 +74,7 @@ A function, or set of functions, that's called when sass encounters an `@import`
 | prev | string | The previously resolved path |
 | done | callback | A callback function to invoke on async completion |
 
-### Custom Object
+## Custom Object
 The `functions` property in [RenderOptions][RenderOptions] uses a custom object containing a set of functions, each with a named key. When the `key` is found the accosiated function will be called.
 
 >:warning: The function may take zero or more arguments and must return a value either synchronously (`return ...;`) or asynchronously (`done();`)
@@ -101,7 +103,7 @@ functions: {
 | key | string | The key that may be found in the file being processed |
 | function | function(...args [SassType][SassType][]) | The function to be called when the key is found |
 
-### Logger
+## Logger
 The logger object has 2 properties: `warn` and `debug`. These functions will be called whenever a `@warn` or `@debug` line is met.
 
 <!-- > :information_source: The javascript sass bundle is shipped with a `StdLogger` class. This class will output both `@warn` and `@debug` messages to the `stderr` console. -->
@@ -112,7 +114,7 @@ The logger object has 2 properties: `warn` and `debug`. These functions will be 
 | warn  | [LogData][LogData] | An output function called to handle any `@warn` messages in the file/data |
 | debug? | [LogData][LogData] | An output function called to handle any `@debug` messages in the file/data |
 
-### LogData
+## LogData
 The related log data that is passed into any `warn` or `debug` method calls of the [Logger][Logger]
 
 **Properties**
@@ -121,7 +123,7 @@ The related log data that is passed into any `warn` or `debug` method calls of t
 | message  | string | The message **as-is** in the file/data |
 | source | [SourceSpan][SourceSpan] | A set of information related to the location of the error |
 
-### SourceSpan
+## SourceSpan
 A set of information related to a `@warn` or `@debug` output. This data is included in `source` in the warn and debug methods of [Logger][Logger]
 
 **Properties**
@@ -133,7 +135,7 @@ A set of information related to a `@warn` or `@debug` output. This data is inclu
 | url | string | The url of the file that rasing the warn/debug message |
 | context | string | The text from `start` to `end`. However, unlike `text`, it includes the full lines |
 
-### SourceLocation
+## SourceLocation
 The location of the associated `start` or `end` location of the [SourceSpan][SourceSpan]
 
 **Properties**
@@ -143,7 +145,7 @@ The location of the associated `start` or `end` location of the [SourceSpan][Sou
 | line | number | The 0-based line of the file where the issue was raised |
 | column | number | The 0-based column of the file where the issue was raised |
 
-### SassException
+## SassException
 An error thrown by an unexpected event/code block within the processing file/data.
 
 **Properties**
@@ -156,19 +158,19 @@ An error thrown by an unexpected event/code block within the processing file/dat
 | column | number | The 0-based column of the file/data being processed |
 | file | string | A path to the file that caused the error to be thrown |
 
-## Sass Types
+# Sass Types
 >:warning: All these sass types refer to the [RenderOptions][RenderOptions] `function` callback. The type can be an argument of the callback or returned by the callback (apart from null which is never an argument)
 >
 >e.g. `"Example $info": function(info: SassType.String){ /*use info*/ return SassType.Null.NULL; }`
 
-### SassType.Null
+## SassType.Null
 >:information_source: This will never be provided as an argument to a callback. It should only ever be returned by your callback function (synchronously or asynchronously).
 
 **An instance**
 
 You can only create a singleton instance of SassType.Null. This is done with `sassType.Null.NULL`
 
-### SassType.Boolean
+## SassType.Boolean
 
 **An instance**
 | Property | Type(s) | Description |
@@ -178,7 +180,7 @@ You can only create a singleton instance of SassType.Null. This is done with `sa
 **Other instances - Singletons**
 You can also create singleton instances of the boolean type with either `sassType.Boolean.TRUE` or `sassType.Boolean.FALSE` which are true and false values respectively
 
-### SassType.String
+## SassType.String
 
 **An instance**
 | Property | Type(s) | Description |
@@ -197,7 +199,7 @@ You can also create singleton instances of the boolean type with either `sassTyp
 | getValue  | - | Gets the value of the string |
 | setValue | string | Sets the value of the string |
 
-### SassType.Number
+## SassType.Number
 
 **An instance**
 | Property | Type(s) | Description |
@@ -220,7 +222,7 @@ You can also create singleton instances of the boolean type with either `sassTyp
 | getUnit  | - | Gets the value of the unit |
 | setUnit | string | Sets the value of the unit |
 
-### SassType.RgbColor
+## SassType.RgbColor
 
 **An instance** (this has two options, see next instance below)
 | Property | Type(s) | Description |
@@ -247,7 +249,7 @@ You can also create singleton instances of the boolean type with either `sassTyp
 | getA  | *returns: number* | Gets the value of the alpha channel (0.# - 1) |
 | setA | number | Sets the value of the alpha channel (0.# - 1) |
 
-### SassType.HslColor
+## SassType.HslColor
 
 **An instance**
 | Property | Type(s) | Description |
@@ -269,7 +271,7 @@ You can also create singleton instances of the boolean type with either `sassTyp
 | getA  | *returns: number* | Gets the value of the alpha channel (0.# - 1) |
 | setA | number | Sets the value of the alpha channel (0.# - 1) |
 
-### SassType.List
+## SassType.List
 
 A `List` of a `SassType`
 
@@ -290,7 +292,7 @@ A `List` of a `SassType`
 | setSeparator | `"comma"` ***OR*** `"slash"` ***OR*** `"space"` | Sets the list separator |
 | getLength  | *returns: number* | Gets the length of the list |
 
-### SassType.Map
+## SassType.Map
 
 Similar to `List`, however it stores pairs of `SassType`'s (a `key`, `value` list, if you will)
 
@@ -310,21 +312,6 @@ Similar to `List`, however it stores pairs of `SassType`'s (a `key`, `value` lis
 | setKey | (number, `SassType`) | Sets the `SassType` key at the specified index |
 | getLength  | *returns: number* | Gets the length of the list |
 
-
-<!--
-
-  // Singleton SassScript values that have no internal state.
-  enum Singleton {
-    // The SassScript boolean true value.
-    TRUE = 0;
-
-    // The SassScript boolean false value.
-    FALSE = 1;
-
-    // The SassScript null value.
-    NULL = 2;
-  }
--->
 
 <!-- Functions -->
 [render]: <#render>
