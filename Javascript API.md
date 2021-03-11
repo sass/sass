@@ -3,7 +3,7 @@
 ## Functions
 
 ### render
-An asyncronous function that requires a set of options to render a sass file or path to be returned into a callback function
+An asyncronous function that requires a set of options to render a sass string or path to a sass file. The result of which is returned as an argument in a callback function
 
 > :warning: [renderSync][renderSync] is more than twice as fast due to async overheads. This can be reduced by using the [`fibers`][Fibers] package
 
@@ -14,7 +14,7 @@ An asyncronous function that requires a set of options to render a sass file or 
 | callback | callback: ([SassException][SassException], [Result][Result]) | A callback containing the result of the compilation process or any errors |
 
 ### renderSync
-A syncronous function that requires a set of options to render a sass file or path to return a result object.  
+A syncronous function that requires a set of options to render a sass string or path to a sass file. The result of which is returned as a result object.  
 **Throws:** [SassException][SassException] on error
 
 **Arguments**
@@ -104,7 +104,7 @@ functions: {
 ### Logger
 The logger object has 2 properties: `warn` and `debug`. These functions will be called whenever a `@warn` or `@debug` line is met.
 
-> :information_source: The javascript sass bundle is shipped with a `StdLogger` class. This class will output both `@warn` and `@debug` messages to the `stderr` console.
+<!-- > :information_source: The javascript sass bundle is shipped with a `StdLogger` class. This class will output both `@warn` and `@debug` messages to the `stderr` console. -->
 
 **Methods**
 | Property | Argument(s) | Description |
@@ -167,6 +167,16 @@ An error thrown by an unexpected event/code block within the processing file/dat
 **An instance**
 
 You can only create a singleton instance of SassType.Null. This is done with `sassType.Null.NULL`
+
+### SassType.Boolean
+
+**An instance**
+| Property | Type(s) | Description |
+| --- | --- | --- |
+| value | boolean | The boolean value of the type |
+
+**Other instances - Singletons**
+You can also create singleton instances of the boolean type with either `sassType.Boolean.TRUE` or `sassType.Boolean.FALSE` which are true and false values respectively
 
 ### SassType.String
 
@@ -259,55 +269,49 @@ You can only create a singleton instance of SassType.Null. This is done with `sa
 | getA  | *returns: number* | Gets the value of the alpha channel (0.# - 1) |
 | setA | number | Sets the value of the alpha channel (0.# - 1) |
 
+### SassType.List
+
+A `List` of a `SassType`
+
+>:information_source: Indexes are 0 based, this means that 0 is the first item, not 1 (which would be the second item)
+
+**An instance**
+| Property | Type(s) | Description |
+| --- | --- | --- |
+| length | number | The length of the list |
+| separator | `"comma"` ***OR*** `"slash"` ***OR*** `"space"`  | The type of charactor that will separate the list |
+
+**Methods**
+| Property | Argument(s) | Description |
+| --- | --- | --- |
+| getValue  | number *returns: `SassType`* | Gets the value at the specified index if found, else `undefined` |
+| setValue | (number, `SassType`) | Sets the `SassType` at the specified index |
+| getSeparator  | *returns: `"comma"` **OR** `"slash"` **OR** `"space"`* | Gets the list separator |
+| setSeparator | `"comma"` ***OR*** `"slash"` ***OR*** `"space"` | Sets the list separator |
+| getLength  | *returns: number* | Gets the length of the list |
+
+### SassType.Map
+
+Similar to `List`, however it stores pairs of `SassType`'s (a `key`, `value` list, if you will)
+
+>:information_source: Indexes are 0 based, this means that 0 is the first item, not 1 (which would be the second item)
+
+**An instance**
+| Property | Type(s) | Description |
+| --- | --- | --- |
+| length | number | The length of the Map |
+
+**Methods**
+| Property | Argument(s) | Description |
+| --- | --- | --- |
+| getValue  | number *returns: `SassType`* | Gets the value at the specified index if found, else `undefined` |
+| setValue | (number, `SassType`) | Sets the `SassType` value at the specified index |
+| getKey  | number *returns: `SassType`* | Gets the key at the specified index if found, else `undefined` |
+| setKey | (number, `SassType`) | Sets the `SassType` key at the specified index |
+| getLength  | *returns: number* | Gets the length of the list |
+
 
 <!--
-
-  // A SassScript list value.
-  message List {
-    // Different types of separators a list can have.
-    enum Separator {
-      // List elements are separated by a comma.
-      COMMA = 0;
-
-      // List elements are separated by whitespace.
-      SPACE = 1;
-
-      // List elements are separated by a forward slash.
-      SLASH = 2;
-
-      // The list's separator hasn't yet been determined.
-      //
-      // Singleton lists and empty lists don't have separators defiend. This
-      // means that list functions will prefer other lists' separators if
-      // possible.
-      UNDECIDED = 3;
-    }
-
-    // The type of separator for this list. Mandatory.
-    Separator separator = 1;
-
-    // Whether this list has square brackets. Mandatory.
-    bool has_brackets = 2;
-
-    // The elements of this list.
-    repeated Value contents = 3;
-  }
-
-  // A SassScript map value.
-  message Map {
-    // A single key/value pair in the map.
-    message Entry {
-      // The key this entry is associated with. Mandatory.
-      Value key = 1;
-
-      // The value associated with this key. Mandatory.
-      Value value = 2;
-    }
-
-    // The entries in this map. The sending endpoint must guarantee that no two
-    // entries have the same key.
-    repeated Entry entries = 1;
-  }
 
   // Singleton SassScript values that have no internal state.
   enum Singleton {
@@ -340,6 +344,7 @@ You can only create a singleton instance of SassType.Null. This is done with `sa
 <!-- Types -->
 [SassType]: <#Sass-Types>
 [SassType.Null]: <#SassTypeNull>
+[SassType.Boolean]: <#SassTypeBoolean>
 [SassType.String]: <#SassTypeString>
 [SassType.Number]: <#SassTypeNumber>
 [SassType.RgbColor]: <#SassTypeRgbColor>
