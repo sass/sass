@@ -306,7 +306,7 @@ either another URL that's guaranteed to point to a file on disk or null.
   * Otherwise, if the result of [resolving `url` + `".import.css"` for
     partials][resolving for partials] is not null, return it.
 
-* Otherwise, let `sass` be the result of [resolving `url` + `".sass"` for
+* Let `sass` be the result of [resolving `url` + `".sass"` for
   partials][resolving for partials].
 
 * Let `scss` be the result of [resolving `url` + `".scss"` for
