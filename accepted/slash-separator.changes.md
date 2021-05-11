@@ -1,3 +1,8 @@
+## Draft 3
+
+* Make a potentially slash-separated number slash-free when passing it as an
+  argument to a built-in function or mixin.
+
 ## Draft 2
 
 * Since the new module system has already launched, replace the top-level

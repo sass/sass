@@ -1,4 +1,4 @@
-# Forward Slash as a Separator: Draft 2
+# Forward Slash as a Separator: Draft 3
 
 *([Issue](https://github.com/sass/sass/issues/2565), [Changelog](slash-separator.changes.md))*
 
@@ -23,6 +23,7 @@ operator.
   * [`rgb()` Function](#rgb-function)
   * [`hsl()` Function](#hsl-function)
   * [Selector Functions](#selector-functions)
+  * [Slash-Free Numbers](#slash-free-numbers)
 * [Deprecation Process](#deprecation-process)
   * [Phase 1](#phase-1)
   * [Phase 2](#phase-2)
@@ -179,6 +180,8 @@ A potentially slash-separated number is converted to a slash-free number when:
   > list that's in parentheses, it's *not* converted to a slash-free number.
 
 * It is stored in a Sass variable.
+
+* It is passed into a user-defined function or mixin.
 
 * It is returned by a function.
 
@@ -355,6 +358,30 @@ This proposal modifies [the "Parse a Selector From a SassScript Object"
 procedure][] to throw an error whenever it encounters a slash-separated list.
 
 [the "Parse a Selector From a SassScript Object" procedure]: ../spec/built_in_modules/selector.md#parse-a-selector-from-a-sassscript-object
+
+### Slash-Free Numbers
+
+This proposal adds one additional scenario in which [potentially slash-separated
+numbers] are converted into [slash-free numbers]:
+
+[potentially slash-separated numbers]: #existing-behavior
+[slash-free numbers]: #existing-behavior
+
+* When a number is passed to a built-in function or mixin.
+
+> This change makes built-in functions/mixins consistent with user-defined ones,
+> which *do* make their arguments slash-free. It also combines with [Phase
+> 1](#phase-1) of the deprecation process to ensure that all uses of
+> `/`-as-division will produce warnings.
+>
+> This could potentially be a breaking change. While most functions that could
+> take potentially slash-separated numbers will either ignore the
+> slash-separation or return the number and cause it to become slash-free that
+> way, it's possible for a user to pass it to a function that puts it in a data
+> structure, as in `list.join(1/2, ())` which returns a single-element list
+> containing a potentially slash-separated number. However, this breakage is
+> considered exceedingly unlikely and it's easy to work around using
+> `list.slash()` so we aren't considering it a blocker.
 
 ## Deprecation Process
 
