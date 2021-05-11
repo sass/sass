@@ -465,17 +465,17 @@ This phase will introduce a final breaking change, removing the now-unnecessary
 
 ## Timeline
 
-* Dart Sass will begin implementing support for phase 1 immediately upon
-  acceptance of this proposal. It will be released as soon as implementation is
-  complete and [the Sass migrator][] has launched (to ensure users have a way of
-  automatically migrating their stylesheets).
+* Phase 1 was originally scheduled to be implemented by Dart Sass as soon as the
+  proposal was accepted. However, it was delayed considerably in the hope that
+  it would also be implemented by LibSass. Since [LibSass is now deprecated],
+  we plan to release Phase 1 in Q2 2021.
 
-  [the Sass migrator]: https://github.com/sass/migrator
+  [LibSass is now deprecated]: https://sass-lang.com/blog/libsass-is-deprecated
 
-* Phase 2 will be released in Dart Sass 2.0.0, which will be released at minimum
-  three months after the release of [the new module system][]. We want to delay
-  this release so that there's a substantial amount of time for the module
-  system to exist in versions that don't have breaking changes.
+* Phase 2 will be released in Dart Sass 2.0.0. There's no solid release date for
+  this yet, and it may or may not be concurrent with the removal of support for
+  `@import` depending on how quickly the module system is adopted and how urgent
+  the need for a syntactic slash separator becomes.
 
 * Phase 3 will be released in Dart Sass 3.0.0, whenever that ends up happening.
   Removing `list.slash()` is not considered a priority, so this will wait until
