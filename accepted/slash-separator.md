@@ -1,4 +1,4 @@
-# Forward Slash as a Separator: Draft 2
+# Forward Slash as a Separator: Draft 3
 
 *([Issue](https://github.com/sass/sass/issues/2565), [Changelog](slash-separator.changes.md))*
 
@@ -23,6 +23,7 @@ operator.
   * [`rgb()` Function](#rgb-function)
   * [`hsl()` Function](#hsl-function)
   * [Selector Functions](#selector-functions)
+  * [Slash-Free Numbers](#slash-free-numbers)
 * [Deprecation Process](#deprecation-process)
   * [Phase 1](#phase-1)
   * [Phase 2](#phase-2)
@@ -179,6 +180,8 @@ A potentially slash-separated number is converted to a slash-free number when:
   > list that's in parentheses, it's *not* converted to a slash-free number.
 
 * It is stored in a Sass variable.
+
+* It is passed into a user-defined function or mixin.
 
 * It is returned by a function.
 
@@ -356,6 +359,30 @@ procedure][] to throw an error whenever it encounters a slash-separated list.
 
 [the "Parse a Selector From a SassScript Object" procedure]: ../spec/built_in_modules/selector.md#parse-a-selector-from-a-sassscript-object
 
+### Slash-Free Numbers
+
+This proposal adds one additional scenario in which [potentially slash-separated
+numbers] are converted into [slash-free numbers]:
+
+[potentially slash-separated numbers]: #existing-behavior
+[slash-free numbers]: #existing-behavior
+
+* When a number is passed to a built-in function or mixin.
+
+> This change makes built-in functions/mixins consistent with user-defined ones,
+> which *do* make their arguments slash-free. It also combines with [Phase
+> 1](#phase-1) of the deprecation process to ensure that all uses of
+> `/`-as-division will produce warnings.
+>
+> This could potentially be a breaking change. While most functions that could
+> take potentially slash-separated numbers will either ignore the
+> slash-separation or return the number and cause it to become slash-free that
+> way, it's possible for a user to pass it to a function that puts it in a data
+> structure, as in `list.join(1/2, ())` which returns a single-element list
+> containing a potentially slash-separated number. However, this breakage is
+> considered exceedingly unlikely and it's easy to work around using
+> `list.slash()` so we aren't considering it a blocker.
+
 ## Deprecation Process
 
 The deprecation process will be divided into three phases:
@@ -438,17 +465,17 @@ This phase will introduce a final breaking change, removing the now-unnecessary
 
 ## Timeline
 
-* Dart Sass will begin implementing support for phase 1 immediately upon
-  acceptance of this proposal. It will be released as soon as implementation is
-  complete and [the Sass migrator][] has launched (to ensure users have a way of
-  automatically migrating their stylesheets).
+* Phase 1 was originally scheduled to be implemented by Dart Sass as soon as the
+  proposal was accepted. However, it was delayed considerably in the hope that
+  it would also be implemented by LibSass. Since [LibSass is now deprecated],
+  we plan to release Phase 1 in Q2 2021.
 
-  [the Sass migrator]: https://github.com/sass/migrator
+  [LibSass is now deprecated]: https://sass-lang.com/blog/libsass-is-deprecated
 
-* Phase 2 will be released in Dart Sass 2.0.0, which will be released at minimum
-  three months after the release of [the new module system][]. We want to delay
-  this release so that there's a substantial amount of time for the module
-  system to exist in versions that don't have breaking changes.
+* Phase 2 will be released in Dart Sass 2.0.0. There's no solid release date for
+  this yet, and it may or may not be concurrent with the removal of support for
+  `@import` depending on how quickly the module system is adopted and how urgent
+  the need for a syntactic slash separator becomes.
 
 * Phase 3 will be released in Dart Sass 3.0.0, whenever that ends up happening.
   Removing `list.slash()` is not considered a priority, so this will wait until
