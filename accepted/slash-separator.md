@@ -357,7 +357,7 @@ overload to be the following:
 This proposal modifies [the "Parse a Selector From a SassScript Object"
 procedure][] to throw an error whenever it encounters a slash-separated list.
 
-[the "Parse a Selector From a SassScript Object" procedure]: ../spec/built_in_modules/selector.md#parse-a-selector-from-a-sassscript-object
+[the "Parse a Selector From a SassScript Object" procedure]: ../spec/built-in-modules/selector.md#parse-a-selector-from-a-sassscript-object
 
 ### Slash-Free Numbers
 

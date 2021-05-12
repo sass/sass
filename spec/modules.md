@@ -139,10 +139,10 @@ member of any given type and name. It's always mutable.
 A *built-in module* is a module defined either by the Sass specification or by
 the host environment of the Sass compilation in some implementation-specific
 way. Modules defined by the Sass specification all have the scheme `sass:` and
-are all described in [the `built_in_modules` directory][]. Modules defined
+are all described in [the `built-in-modules` directory][]. Modules defined
 outside the Sass compilation may not use the scheme `sass:`.
 
-[the `built_in_modules` directory]: built_in_modules
+[the `built-in-modules` directory]: built-in-modules
 
 Built-in modules may contain mixins, variables, or functions, but they may never
 contain CSS or extensions.
