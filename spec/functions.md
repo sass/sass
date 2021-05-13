@@ -112,8 +112,8 @@ adjust-hue($color, $degrees)
   `lightness`, and `$color`'s alpha channel.
 
 [`hsl()`]: #hsl-and-hsla
-[`color.saturation($color)`]: built_in_modules/color.md#saturation
-[`color.lightness($color)`]: built_in_modules/color.md#lightness
+[`color.saturation($color)`]: built-in-modules/color.md#saturation
+[`color.lightness($color)`]: built-in-modules/color.md#lightness
 
 ### `alpha()`
 
@@ -168,7 +168,7 @@ plain CSS function named `"rgb"` that function is named `"rgba"` instead.
 
   * Return a color with the given `red`, `green`, `blue`, and `alpha` channels.
 
-  [percent-converting]: built_in_modules/color.md#percent-converting-a-number
+  [percent-converting]: built-in-modules/color.md#percent-converting-a-number
 
 * ```
   rgb($red, $green, $blue)

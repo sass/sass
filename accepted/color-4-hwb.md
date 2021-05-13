@@ -134,7 +134,7 @@ All new functions are part of the `sass:color` built-in module.
   
   * Return a color with the given `red`, `green`, `blue`, and `alpha` channels.
 
-  [percent-converting]: ../spec/built_in_modules/color.md#percent-converting-a-number
+  [percent-converting]: ../spec/built-in-modules/color.md#percent-converting-a-number
   [to RGB]: https://www.w3.org/TR/css-color-4/#hwb-to-rgb
 
 

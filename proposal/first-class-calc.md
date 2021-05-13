@@ -363,8 +363,8 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
   arguments.
 
   [compatible]: ../spec/types/number.md#compatible-units
-  [`math.min()`]: ../spec/built_in_modules/math.md#min
-  [`math.max()`]: ../spec/built_in_modules/math.md#max
+  [`math.min()`]: ../spec/built-in-modules/math.md#min
+  [`math.max()`]: ../spec/built-in-modules/math.md#max
 
 * Otherwise, return a calculation with the same name as `calc` and `arguments`
   as its arguments.
@@ -515,7 +515,7 @@ To evaluate a `CalcValue` production `value` into a `CalculationValue` object:
 Add the following clause to the [`meta.type-of()`] function and the top-level
 `type-of()` function:
 
-[`meta.type-of()`]: ../spec/built_in_modules/meta.md#type-of
+[`meta.type-of()`]: ../spec/built-in-modules/meta.md#type-of
 
 * If `$value` is a calculation, return `"calc"`.
 

@@ -71,7 +71,7 @@ preferred value in between the minimum and maximum values, while preserving
 their units appropriately. For example, `clamp(1in, 15cm, 12in)` outputs `15cm`,
 whereas `clamp(1in, 1cm, 12in)` outputs `1in`.
 
-[compatible]: ../spec/built_in_modules/math.md#compatible
+[compatible]: ../spec/built-in-modules/math.md#compatible
 
 `hypot()` accepts `n` SassScript numbers with compatible units, and outputs the
 length of the `n`-dimensional vector that has components equal to each of the
