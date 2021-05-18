@@ -1,3 +1,8 @@
+## 1.0.0-beta.9
+
+* Added `CanonicalizeRequest.fromImport` and `FileImportRequest.fromImport`
+  fields to allow importers to correctly handle import-only files.
+
 ## 1.0.0-beta.8
 
 * Added fields to support requesting and sending formatted errors and logs.

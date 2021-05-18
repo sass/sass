@@ -432,6 +432,16 @@ message OutboundMessage {
     // each importer in order until one returns something other than `null`.
     // That is the result of the import.
     string url = 4;
+
+    /// Whether this request comes from an `@import` rule.
+    ///
+    /// When evaluating `@import` rules, URLs should canonicalize to an
+    /// [import-only file] if one exists for the URL being canonicalized.
+    /// Otherwise, canonicalization should be identical for `@import` and `@use`
+    /// rules.
+    ///
+    /// [import-only file]: https://sass-lang.com/documentation/at-rules/import#import-only-files
+    bool fromImport = 5;
   }
 
   // A request for a custom importer to load the contents of a stylesheet.
@@ -468,6 +478,16 @@ message OutboundMessage {
 
     // The (non-canonicalized) URL of the import.
     string url = 4;
+
+    /// Whether this request comes from an `@import` rule.
+    ///
+    /// When evaluating `@import` rules, filesystem importers should load an
+    /// [import-only file] if one exists for the URL being canonicalized.
+    /// Otherwise, canonicalization should be identical for `@import` and `@use`
+    /// rules.
+    ///
+    /// [import-only file]: https://sass-lang.com/documentation/at-rules/import#import-only-files
+    bool fromImport = 5;
   }
 
   // A request to invoke a custom Sass function and return its result.
