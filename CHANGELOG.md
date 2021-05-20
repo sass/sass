@@ -1,3 +1,7 @@
+## 1.0.0-beta.10
+
+* Add `VersionRequest.id` and `VersionResponse.id`.
+
 ## 1.0.0-beta.9
 
 * Added `CanonicalizeRequest.fromImport` and `FileImportRequest.fromImport`

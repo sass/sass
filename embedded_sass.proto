@@ -15,6 +15,9 @@ message InboundMessage {
   // which features the compiler supports, or to ensure that it's compatible
   // with the same protocol version the compiler supports.
   message VersionRequest {
+    // This version request's id. Mandatory.
+    uint32 id = 1;
+
     // This message's contents are intentionally empty. It just acts as a signal
     // to the compiler to send a VersionResponse. More fields may be added in
     // the future.
@@ -250,6 +253,9 @@ message InboundMessage {
 message OutboundMessage {
   // A response that contains the version of the embedded compiler.
   message VersionResponse {
+    // This version request's id. Mandatory.
+    uint32 id = 5;
+
     // The version of the embedded protocol, in semver format.
     string protocol_version = 1;
 
