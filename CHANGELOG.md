@@ -1,3 +1,12 @@
+## 1.0.0-dev
+
+* **Breaking change:** We now follow the [protocol buffer style guide]. This means:
+  * Field names are now all underscore-separated rather than lower camel case.
+  * Enums are now at the top-level with prefixes rather than surrounded in
+    enclosing messages.
+
+[protocol buffer style guide]: https://developers.google.com/protocol-buffers/docs/style
+
 ## 1.0.0-beta.10
 
 * Add `VersionRequest.id` and `VersionResponse.id`.
