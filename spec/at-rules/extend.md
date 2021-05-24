@@ -300,9 +300,10 @@ and a selector list `extender` and returns a selector list.
     * If any complex selectors in `extended-arg` contain only a single compound
       selector which in turn contains a single pseudo selector with a selector
       argument, remove them from `extended-arg`. If any of the removed selectors
-      were `:matches()`, add their selector arguments to `extended-arg`.
+      were pseudo-selectors named `is` or `matches`, add their selector
+      arguments to `extended-arg`.
 
-      > For example, `:not(:matches(a, b))` becomes `:not(a, b)`.
+      > For example, `:not(:is(a, b))` becomes `:not(a, b)`.
 
     * If `extended-arg` is empty, return `extendee`.
 
@@ -319,8 +320,8 @@ and a selector list `extender` and returns a selector list.
 
     * Return `result`.
 
-  * Otherwise, if `extendee`'s [unprefixed] name is `matches`, `any`, `current`,
-    `nth-child`, or `nth-last-child`:
+  * Otherwise, if `extendee`'s [unprefixed] name is `is`, `matches`, `any`,
+    `current`, `nth-child`, or `nth-last-child`:
 
     * For each complex selectors in `extended-arg` that contain only a single
       compound selector which in turn contains a single pseudo selector `pseudo`
