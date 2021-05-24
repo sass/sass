@@ -1,6 +1,6 @@
-# Forward Slash as a Separator: Draft 1
+# Forward Slash as a Separator: Draft 3
 
-*([Issue](https://github.com/sass/sass/issues/2565))*
+*([Issue](https://github.com/sass/sass/issues/2565), [Changelog](slash-separator.changes.md))*
 
 This proposal modifies the `/` character to be used exclusively as a separator,
 and lays out a process for deprecating its existing usage as a division
@@ -18,11 +18,12 @@ operator.
 * [Syntax](#syntax)
 * [Semantics](#semantics)
   * [Slash-Separated Lists](#slash-separated-lists)
-  * [`divide()`/`math.div()` Function](#dividemathdiv-function)
-  * [`slash-list()` Function](#slash-list-function)
+  * [`math.div()` Function](#mathdiv-function)
+  * [`list.slash()` Function](#listslash-function)
   * [`rgb()` Function](#rgb-function)
   * [`hsl()` Function](#hsl-function)
   * [Selector Functions](#selector-functions)
+  * [Slash-Free Numbers](#slash-free-numbers)
 * [Deprecation Process](#deprecation-process)
   * [Phase 1](#phase-1)
   * [Phase 2](#phase-2)
@@ -60,10 +61,10 @@ string (as it currently does when at least one operand isn't a number), it will
 create a slash-separated list. As such, lists will now have three possible
 separators: space, comma, and slash.
 
-Division will instead be written as a function, `divide()` (or `math.div()` in
-[the new module system][]). Eventually, it will also be possible to write
-Sass-compatible division in `calc()` expressions; however, this is not going to
-be implemented immediately and is outside the scope of this proposal.
+Division will instead be written as a function, `math.div()`. Eventually, it
+will also be possible to write Sass-compatible division in `calc()` expressions;
+however, this is not going to be implemented immediately and is outside the
+scope of this proposal.
 
 [the new module system]: module-system.md
 
@@ -72,7 +73,7 @@ in a three-stage process:
 
 1. The first stage won't introduce any breaking changes. It will:
 
-   * Add a `divide()` function which will work exactly like the `/` operator
+   * Add a `math.div()` function which will work exactly like the `/` operator
      does today, except that it will produce deprecation warnings for any
      non-number arguments.
 
@@ -80,7 +81,7 @@ in a three-stage process:
      syntax for creating them. That will come later, since it would otherwise be
      a breaking change.
 
-   * Add a `slash-list()` function that will create slash-separated lists.
+   * Add a `list.slash()` function that will create slash-separated lists.
 
    * Produce deprecation warnings for all `/` operations that are interpreted as
      division.
@@ -89,11 +90,11 @@ in a three-stage process:
 
    * Make `/` exclusively a list separator.
 
-   * Make `divide()` throw errors for non-number arguments.
+   * Make `math.div()` throw errors for non-number arguments.
 
-   * Deprecate the `slash-list()` function, since it will now be redundant.
+   * Deprecate the `list.slash()` function, since it will now be redundant.
 
-3. The third stage will just remove the `slash-list()` function. This is not a
+3. The third stage will just remove the `list.slash()` function. This is not a
    priority, and will be delayed until the next major version release.
 
 ## Alternatives Considered
@@ -180,6 +181,8 @@ A potentially slash-separated number is converted to a slash-free number when:
 
 * It is stored in a Sass variable.
 
+* It is passed into a user-defined function or mixin.
+
 * It is returned by a function.
 
 > Any expressions that normally produce a new number (such as other mathematical
@@ -240,29 +243,29 @@ list object whose contents are the values of its constituent
 
 A new list separator, known as "slash", will be added. The string `"slash"` may
 be passed to the `$separator` argument of `append()` and `join()`, and may be
-returned by `list-separator()`. When converted to CSS, slash-separated lists
+returned by `list.separator()`. When converted to CSS, slash-separated lists
 must have exactly one `/` between each adjacent pair of elements.
 
 > Although CSS doesn't currently make use of this syntax, there's nothing
 > stopping a list from being both bracketed and slash-separated.
 
-### `divide()`/`math.div()` Function
+### `math.div()` Function
 
-The `divide()` function has the following signature:
+The `div()` function in the `sass:math` module has the following signature:
 
 ```
-divide($number1, $number2)
+math.div($number1, $number2)
 ```
 
 It throws an error if either argument is not a number. If both are numbers, it
 returns the same result that the `/` operator did prior to this proposal.
 
-### `slash-list()` Function
+### `list.slash()` Function
 
-The `slash-list()` function has the following signature:
+The `slash()` function in the `sass:list` module has the following signature:
 
 ```
-slash-list($elements...)
+list.slash($elements...)
 ```
 
 It throws an error if zero or one arguments are passed. It returns an
@@ -354,7 +357,31 @@ overload to be the following:
 This proposal modifies [the "Parse a Selector From a SassScript Object"
 procedure][] to throw an error whenever it encounters a slash-separated list.
 
-[the "Parse a Selector From a SassScript Object" procedure]: ../spec/built_in_modules/selector.md#parse-a-selector-from-a-sassscript-object
+[the "Parse a Selector From a SassScript Object" procedure]: ../spec/built-in-modules/selector.md#parse-a-selector-from-a-sassscript-object
+
+### Slash-Free Numbers
+
+This proposal adds one additional scenario in which [potentially slash-separated
+numbers] are converted into [slash-free numbers]:
+
+[potentially slash-separated numbers]: #existing-behavior
+[slash-free numbers]: #existing-behavior
+
+* When a number is passed to a built-in function or mixin.
+
+> This change makes built-in functions/mixins consistent with user-defined ones,
+> which *do* make their arguments slash-free. It also combines with [Phase
+> 1](#phase-1) of the deprecation process to ensure that all uses of
+> `/`-as-division will produce warnings.
+>
+> This could potentially be a breaking change. While most functions that could
+> take potentially slash-separated numbers will either ignore the
+> slash-separation or return the number and cause it to become slash-free that
+> way, it's possible for a user to pass it to a function that puts it in a data
+> structure, as in `list.join(1/2, ())` which returns a single-element list
+> containing a potentially slash-separated number. However, this breakage is
+> considered exceedingly unlikely and it's easy to work around using
+> `list.slash()` so we aren't considering it a blocker.
 
 ## Deprecation Process
 
@@ -368,15 +395,15 @@ removed and give them alternatives to migrate to that will continue to work when
 `/`'s behavior is changed.
 
 Phase 1 implements none of [the syntactic changes](#syntax) described above. It
-implements all [the semantics](#semantics), with the exception that `divide()`
+implements all [the semantics](#semantics), with the exception that `math.div()`
 allows non-number arguments. If either argument is not a number, it emits a
 deprecation warning.
 
-> If either argument is not a number, `divide()` still returns the same result
+> If either argument is not a number, `math.div()` still returns the same result
 > as the `/` operator, which in that case will be concatenating the two
 > arguments into an unquoted string separated by `/`. This behavior is supported
 > for the time being to make it easier to automatically migrate users to
-> `divide()` without causing runtime errors.
+> `math.div()` without causing runtime errors.
 
 While phase 1 will continue to support `/` as a division operator, the use of
 the operator in this way will produce a deprecation warning. Specifically, a
@@ -388,8 +415,11 @@ operation returns a [slash-free](#existing-behavior) number.
 > so:
 >
 > ```scss
-> $ratio: divide(12rem, 1px);
-> $row: slash-list(span 3, 6);
+> @use 'sass:list;
+> @use 'sass:math';
+>
+> $ratio: math.div(12rem, 1px);
+> $row: list.slash(span 3, 6);
 >
 > .grid .item1 {
 >   // It's always safe to use `/` as a separator directly in a CSS property.
@@ -401,8 +431,8 @@ operation returns a [slash-free](#existing-behavior) number.
 
 This phase will introduce breaking changes to the language. It implements both
 [the syntactic changes](#syntax) and [the semantic changes](#semantics) exactly
-described above (so `divide()` will only accept numbers). In phase 2, the
-`slash-list()` function will emit a deprecation warning whenever it's called.
+described above (so `math.div()` will only accept numbers). In phase 2, the
+`list.slash()` function will emit a deprecation warning whenever it's called.
 
 > It's recommended that implementations increment their major version numbers
 > with the release of phase 2, in accordance with [semantic versioning][].
@@ -413,7 +443,9 @@ described above (so `divide()` will only accept numbers). In phase 2, the
 > lists like so:
 >
 > ```scss
-> $ratio: divide(12rem, 1px);
+> @use 'sass:math';
+>
+> $ratio: math.div(12rem, 1px);
 >
 > // As of phase 2, `/` is always parsed as a slash-separated list.
 > $row: span 3 / 6;
@@ -426,25 +458,25 @@ described above (so `divide()` will only accept numbers). In phase 2, the
 ### Phase 3
 
 This phase will introduce a final breaking change, removing the now-unnecessary
-`slash-list()` function.
+`list.slash()` function.
 
 > It's recommended that implementations increment their major version numbers
 > again with the release of phase 3.
 
 ## Timeline
 
-* Dart Sass will begin implementing support for phase 1 immediately upon
-  acceptance of this proposal. It will be released as soon as implementation is
-  complete and [the Sass migrator][] has launched (to ensure users have a way of
-  automatically migrating their stylesheets).
+* Phase 1 was originally scheduled to be implemented by Dart Sass as soon as the
+  proposal was accepted. However, it was delayed considerably in the hope that
+  it would also be implemented by LibSass. Since [LibSass is now deprecated],
+  we plan to release Phase 1 in Q2 2021.
 
-  [the Sass migrator]: https://github.com/sass/migrator
+  [LibSass is now deprecated]: https://sass-lang.com/blog/libsass-is-deprecated
 
-* Phase 2 will be released in Dart Sass 2.0.0, which will be released at minimum
-  three months after the release of [the new module system][]. We want to delay
-  this release so that there's a substantial amount of time for the module
-  system to exist in versions that don't have breaking changes.
+* Phase 2 will be released in Dart Sass 2.0.0. There's no solid release date for
+  this yet, and it may or may not be concurrent with the removal of support for
+  `@import` depending on how quickly the module system is adopted and how urgent
+  the need for a syntactic slash separator becomes.
 
 * Phase 3 will be released in Dart Sass 3.0.0, whenever that ends up happening.
-  Removing `slash-list()` is not considered a priority, so this will wait until
+  Removing `list.slash()` is not considered a priority, so this will wait until
   we have additional, more-compelling breaking changes we want to release.

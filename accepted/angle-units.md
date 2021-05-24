@@ -135,7 +135,7 @@ Because `hsla()` is identical to `hsl()`, it's updated identically.
 
 In the four-argument overload of [`color.hwb()`], replace
 
-[`color.hwb()`]: ../spec/built_in_modules/color.md#hwb
+[`color.hwb()`]: ../spec/built-in-modules/color.md#hwb
 
 * If `$hue` has any units other than `deg`, throw an error.
 
@@ -172,14 +172,14 @@ adjust-hue($color, $degrees)
 * Return the result of calling [`hsl()`] with `degree`, `saturation`,
   `lightness`, and `$color`'s alpha channel.
   
-[`color.saturation($color)`]: ../spec/built_in_modules/color.md#saturation
-[`color.lightness($color)`]: ../spec/built_in_modules/color.md#lightness
+[`color.saturation($color)`]: ../spec/built-in-modules/color.md#saturation
+[`color.lightness($color)`]: ../spec/built-in-modules/color.md#lightness
 
 ### `color.adjust()`
 
 In the definition of [`color.adjust()`], after
 
-[`color.adjust()`]: ../spec/built_in_modules/color.md#adjust
+[`color.adjust()`]: ../spec/built-in-modules/color.md#adjust
 
 * If `$hue` isn't a number or null, throw an error.
 
@@ -249,7 +249,7 @@ or `$lightness` parameters to `hsl()`, `hsla()`, `color.adjust()`, or
 warning.
 
 [`hsla()`]: ../spec/functions.md#hsl-and-hsla
-[`color.change()`]: ../spec/built_in_modules/color.md#change
+[`color.change()`]: ../spec/built-in-modules/color.md#change
 
 > Unitless hues should not cause deprecation warnings, but unitless saturations
 > and lightnesses should.
