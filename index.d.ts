@@ -24,13 +24,13 @@ export interface LogData {
 export interface Logger {
     /**
      * A function that is called each time `@warn` is encountered
-     * @param data All data relative to the `@warn` message
+     * @param data All data relative to the `@warn` line
      */
     warn?(data: LogData): void;
 
     /**
      * A function that is called each time `@debug` is encountered
-     * @param data All data relative to the `@debug` message
+     * @param data All data relative to the `@debug` line
      */
     debug?(data: LogData): void;
 }
