@@ -1,85 +1,229 @@
 // TypeScript Version: 4.2
 
-export type ImporterReturnType =
-  | {file: string}
-  | {contents: string}
-  | Error
-  | null;
-
-export type Importer = (
-  url: string,
-  prev: string,
-  done: (data: ImporterReturnType) => void
-) => ImporterReturnType | void;
-
-export interface LogData {
-  /**
-   * The message as-is in the file/data
-   */
-  message: string;
-
+/**
+ * An extra set of properties passed to the Logger.debug method
+ */
+interface DebugData {
   /**
    * A set of information related to the location of the error
    */
   source: SourceSpan;
-
-  /**
-   * Is it a deprecation message
-   */
-  deprecation: boolean;
 }
 
-export interface Logger {
+/**
+ * Required options when compiling a SASS file to CSS data
+ */
+interface FileOptions extends SharedOptions {
   /**
-   * A function that is called each time `@warn` is encountered
-   * @param data All data relative to the `@warn` line
+   * The path of the SASS file to compile
    */
-  warn?(data: LogData): void;
-
-  /**
-   * A function that is called each time `@debug` is encountered
-   * @param data All data relative to the `@debug` line
-   */
-  debug?(data: LogData): void;
+  file: string;
 }
 
-export interface Options {
+/**
+ * An importer function to customsise how imports are handled
+ */
+type Importer = (
   /**
-   * Path to a file to compile.
+   * The import path as-is in the file. The path is not resolved.
+   */
+  url: string,
+
+  /**
+   * The previously resolved path
+   */
+  prev: string
+) => { file: string } | { contents: string };
+
+/**
+ * An asyncronous importer function to customsise how imports are handled
+ */
+type ImporterAsync = (
+  /**
+   * The import path as-is in the file. The path is not resolved.
+   */
+  url: string,
+
+  /**
+   * The previously resolved path
+   */
+  prev: string,
+
+  /**
+   * The callback to use once the custom handling has completed
+   */
+  done: (data: { file: string } | { contents: string }) => void
+) => void;
+
+/**
+ * A set of custom functions to handle any warnings or debug messages
+ */
+interface Logger {
+  /**
+   * A function that is called for each warning - including `@warn` statements
+   * @param data All data relative to the warning messagae
+   *
+   * @default undefined
+   */
+  warn?(message: string, data: WarnData): void;
+
+  /**
+   * A function that is called each time a `@debug` statement is encountered
+   * @param data All data relative to the `@debug` statement
+   *
+   * @default undefined
+   */
+  debug?(message: string, data: DebugData): void;
+}
+
+/**
+ * A set of options to pass to the `render()` call
+ */
+interface Options extends SharedOptions {
+  /**
+   * The fibers package to help improve the compilation time
+   *
+   * @default null
+   */
+  fibers?: unknown;
+}
+
+/**
+ * The result of the SASS compilation
+ */
+interface Result {
+  /**
+   * The compiled CSS.
+   *
+   * Write this to a file, or serve it out as needed.
+   */
+  css: Buffer;
+
+  /**
+   * The source map.
+   *
+   * Write this to a file, or serve it out as needed.
+   *
+   * @default null
+   */
+  map?: Buffer;
+
+  /**
+   * The statistics of the compilation process
+   */
+  stats: {
+    /**
+     * The path to the scss file, or `data` if the source was not a file.
+     */
+    entry: string;
+
+    /**
+     * `Date.now()` before the compilation.
+     */
+    start: number;
+
+    /**
+     * `Date.now()` after the compilation.
+     */
+    end: number;
+
+    /**
+     * `end - start`
+     */
+    duration: number;
+
+    /**
+     * Absolute paths to all related files in no particular order.
+     */
+    includedFiles: string[];
+  };
+}
+
+/**
+ * Convert SASS to CSS asyncronously
+ * @param options A set of options for the SASS compiler
+ * @param callback The callback to handle the output of the call
+ */
+export function render(
+  options: RenderSyncOptions,
+  callback: (exception: SassException, result: Result) => void
+): void;
+
+/**
+ * Options that are passed to render().
+ */
+export type RenderOptions = (FileOptions | StringOptions) & Options;
+
+/**
+ * Convert SASS to CSS
+ * @param options A set of options for the SASS compiler
+ *
+ * @throws {SassException}
+ */
+export function renderSync(options: RenderSyncOptions): Result;
+
+/**
+ * Options that are passed to renderSync().
+ */
+export type RenderSyncOptions = (FileOptions | StringOptions) & SharedOptions;
+
+/**
+ * Required options when compiling a SASS string to CSS data
+ */
+interface StringOptions extends SharedOptions {
+  /**
+   * A string to pass to compile.
+   *
+   * It is recommended that you use `includePaths` in conjunction with this so that sass can find files when using the `@import` directive.
+   */
+  data: string;
+
+  /**
+   * The path of the SASS file to compile
    *
    * @default null
    */
   file?: string;
+}
 
-  /**
-   * A string to pass to compile.
-   *
-   * It is recommended that you use `includePaths` in conjunction with this so that sass can find files when using the @import directive.
-   *
-   * @default null
-   */
-  data?: string;
+/**
+ * A set of custom functions that are called whenever it's `key` is found during compilation
+ */
+interface SassFunction {
+  [key: string]: (...args: types.SassType[]) => types.SassType;
+}
 
+/**
+ * A set of custom asyncronous functions that are called whenever it's `key` is found during compilation
+ */
+interface SassFunctionAsync {
+  [key: string]: <T extends types.SassType[]>(
+    ...args: [...T, (type: types.SassType) => void]
+  ) => void;
+}
+
+/**
+ * Required options when compiling SASS to CSS data
+ */
+interface SharedOptions {
   /**
-   * Handles when the @import directive is encountered.
+   * Handles when the `@import` directive is encountered.
    *
    * A custom importer allows extension of the sass engine in both a synchronous and asynchronous manner.
    *
    * @default undefined
    */
-  importer?: Importer | Importer[];
+  importer?: Importer | Importer[] | ImporterAsync | ImporterAsync[];
 
   /**
    * Holds a collection of custom functions that may be invoked by the sass files being compiled.
    *
    * @default undefined
    */
-  functions?: {
-    [key: string]: (...args: types.SassType[]) => types.SassType | void;
-  };
+  functions?: SassFunction | SassFunctionAsync;
 
   /**
-   * An array of paths that should be looked in to attempt to resolve your @import declarations.
+   * An array of paths that should be looked in to attempt to resolve your `@import` declarations.
    * When using `data`, it is recommended that you use this.
    *
    * @default []
@@ -98,7 +242,7 @@ export interface Options {
    *
    * @default 'space'
    */
-  indentType?: 'space' | 'tab';
+  indentType?: "space" | "tab";
 
   /**
    * Used to determine the number of spaces or tabs to be used for indentation.
@@ -112,7 +256,7 @@ export interface Options {
    *
    * @default 'lf'
    */
-  linefeed?: 'cr' | 'crlf' | 'lf' | 'lfcr';
+  linefeed?: "cr" | "crlf" | "lf" | "lfcr";
 
   /**
    * Disable the inclusion of source map information in the output file.
@@ -134,7 +278,7 @@ export interface Options {
    *
    * @default 'expanded'
    */
-  outputStyle?: 'compressed' | 'expanded';
+  outputStyle?: "compressed" | "expanded";
 
   /**
    * Enables the outputting of a source map.
@@ -172,7 +316,10 @@ export interface Options {
   logger?: Logger;
 }
 
-export interface SassException extends Error {
+/**
+ * Error details of the SASS compilation failure
+ */
+interface SassException extends Error {
   /**
    * The error message.
    */
@@ -184,7 +331,7 @@ export interface SassException extends Error {
   formatted: string;
 
   /**
-   * The line number of error.
+   * The line number of the error.
    */
   line: number;
 
@@ -201,12 +348,15 @@ export interface SassException extends Error {
   /**
    * The filename of error.
    *
-   * In case file option was not set (in favour of `data`), this will reflect the value `stdin`.
+   * In case `file` option was not set (in favour of `data`), this will reflect the value `stdin`.
    */
   file: string;
 }
 
-export interface SourceLocation {
+/**
+ * Location data for a specific location in a file
+ */
+interface SourceLocation {
   /**
    * The 0-indexed offset of the location
    */
@@ -223,9 +373,13 @@ export interface SourceLocation {
   column: number;
 }
 
-export interface SourceSpan {
+/**
+ * Location information for a warning
+ */
+interface SourceSpan {
   /**
    * The text between `start` and `end` locations.
+   *
    * This is from the exact line and column
    */
   text: string;
@@ -246,67 +400,33 @@ export interface SourceSpan {
   url: string;
 
   /**
-   * The text from `start` to `end`. However, unlike `text`, it outputs each full line
+   * The text from `start` to `end`.
+   *
+   * However, unlike `text`, it outputs each line in full
    */
   context: string;
 }
 
-export interface Result {
-  /**
-   * The compiled CSS.
-   *
-   * Write this to a file, or serve it out as needed.
-   */
-  css: Buffer;
-
-  /**
-   * The source map.
-   */
-  map?: Buffer;
-  stats: {
-    /**
-     * The path to the scss file, or `data` if the source was not a file.
-     */
-    entry: string;
-
-    /**
-     * `Date.now()` before the compilation.
-     */
-    start: number;
-
-    /**
-     * `Date.now()` after the compilation.
-     */
-    end: number;
-
-    /**
-     * `end - start`
-     */
-    duration: number;
-
-    /**
-     * Absolute paths to all related files in no particular order.
-     */
-    includedFiles: string[];
-  };
-}
-
-export function render(
-  options: Options,
-  callback: (exception: SassException, result: Result) => void
-): void;
-export function renderSync(options: Options): Result;
-
+/**
+ * A set of SASS types that are passed to the `function` option
+ */
 export namespace types {
+  /**
+   * Root abstraction of a SassType, this can be of any type (Null, Number, String, etc.)
+   */
   abstract class SassType {}
 
-  interface Null extends SassType {
-    NULL: Null;
+  /**
+   * A null
+   */
+  export class Null extends SassType {
+    static NULL: Null;
   }
 
-  const Null: Null;
-
-  class Number implements SassType {
+  /**
+   * A number
+   */
+  export class Number implements SassType {
     constructor(value: number, unit?: string);
     getValue(): number;
     setValue(value: number): void;
@@ -314,20 +434,29 @@ export namespace types {
     setUnit(unit: string): void;
   }
 
-  class String implements SassType {
+  /**
+   * A string
+   */
+  export class String implements SassType {
     constructor(value: string);
     getValue(): string;
     setValue(value: string): void;
   }
 
-  class Boolean<T extends boolean = boolean> implements SassType {
+  /**
+   * A boolean
+   */
+  export class Boolean<T extends boolean = boolean> implements SassType {
     constructor(value: T);
     getValue(): T;
     static readonly TRUE: Boolean<true>;
     static readonly FALSE: Boolean<false>;
   }
 
-  class HslColor implements SassType {
+  /**
+   * A colour with Hue, Saturation & Lightness values
+   */
+  export class HslColor implements SassType {
     constructor(h: number, s: number, l: number, a?: number);
     getH(): number;
     setH(value: number): void;
@@ -339,7 +468,10 @@ export namespace types {
     setA(value: number): void;
   }
 
-  class RgbColor implements SassType {
+  /**
+   * A colour with Red, Green & Blue values
+   */
+  export class RgbColor implements SassType {
     constructor(r: number, g: number, b: number, a?: number);
     getR(): number;
     setR(value: number): void;
@@ -351,7 +483,10 @@ export namespace types {
     setA(value: number): void;
   }
 
-  class List<T extends SassType = SassType> implements SassType {
+  /**
+   * A List of data
+   */
+  export class List<T extends SassType = SassType> implements SassType {
     constructor(length: number, commaSeparator?: boolean);
     getValue(index: number): T | undefined;
     setValue(index: number, value: T): void;
@@ -360,7 +495,10 @@ export namespace types {
     getLength(): number;
   }
 
-  class Map<K extends SassType = SassType, V extends SassType = SassType>
+  /**
+   * A map of key-value data
+   */
+  export class Map<K extends SassType = SassType, V extends SassType = SassType>
     implements SassType
   {
     constructor(length: number);
@@ -370,4 +508,24 @@ export namespace types {
     setKey(index: number, key: K): void;
     getLength(): number;
   }
+}
+
+/**
+ * An extra set of properties passed to the Logger.warn method
+ */
+interface WarnData {
+  /**
+   * A set of information related to the location of the error
+   */
+  source?: SourceSpan;
+
+  /**
+   * Is it a deprecation message
+   */
+  deprecation: boolean;
+
+  /**
+   * The stack trace of the warning
+   */
+  stack?: string;
 }
