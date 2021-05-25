@@ -1,0 +1,10 @@
+{
+  "extends": "./node_modules/gts/tsconfig-google.json",
+  "compilerOptions": {"rootDir": "."},
+  "include": [
+    "index.d.ts",
+    "spec/**/*.ts",
+    "proposal/**/*.ts",
+    "accepted/**/*.ts"
+  ]
+}
