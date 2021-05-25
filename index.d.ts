@@ -52,7 +52,7 @@ type ImporterAsync = (
   /**
    * The callback to use once the custom handling has completed
    */
-  done: (data: { file: string } | { contents: string }) => void
+  done: (data: { file: string } | { contents: string } | Error) => void
 ) => void;
 
 /**
@@ -81,11 +81,48 @@ interface Logger {
  */
 interface Options extends SharedOptions {
   /**
+   * Handles when the `@import` directive is encountered.
+   *
+   * A custom importer allows extension of the sass engine in both a synchronous and asynchronous manner.
+   *
+   * @default undefined
+   */
+  importer?: Importer | Importer[];
+
+  /**
+   * Holds a collection of custom functions that may be invoked by the sass files being compiled.
+   *
+   * @default undefined
+   */
+  functions?: SassFunction;
+}
+
+/**
+ * A set of options to pass to the `render()` call
+ */
+interface OptionsAsync extends SharedOptions {
+  /**
    * The fibers package to help improve the compilation time
    *
    * @default null
    */
   fibers?: unknown;
+
+  /**
+   * Handles when the `@import` directive is encountered.
+   *
+   * A custom importer allows extension of the sass engine in both a synchronous and asynchronous manner.
+   *
+   * @default undefined
+   */
+  importer?: ImporterAsync | ImporterAsync[];
+
+  /**
+   * Holds a collection of custom functions that may be invoked by the sass files being compiled.
+   *
+   * @default undefined
+   */
+  functions?: SassFunctionAsync;
 }
 
 /**
@@ -145,14 +182,14 @@ interface Result {
  * @param callback The callback to handle the output of the call
  */
 export function render(
-  options: RenderSyncOptions,
+  options: RenderOptionsAsync,
   callback: (exception: SassException, result: Result) => void
 ): void;
 
 /**
  * Options that are passed to render().
  */
-export type RenderOptions = (FileOptions | StringOptions) & Options;
+export type RenderOptionsAsync = (FileOptions | StringOptions) & OptionsAsync;
 
 /**
  * Convert SASS to CSS
@@ -160,12 +197,12 @@ export type RenderOptions = (FileOptions | StringOptions) & Options;
  *
  * @throws {SassException}
  */
-export function renderSync(options: RenderSyncOptions): Result;
+export function renderSync(options: RenderOptions): Result;
 
 /**
  * Options that are passed to renderSync().
  */
-export type RenderSyncOptions = (FileOptions | StringOptions) & SharedOptions;
+export type RenderOptions = (FileOptions | StringOptions) & Options;
 
 /**
  * Required options when compiling a SASS string to CSS data
@@ -206,22 +243,6 @@ interface SassFunctionAsync {
  * Required options when compiling SASS to CSS data
  */
 interface SharedOptions {
-  /**
-   * Handles when the `@import` directive is encountered.
-   *
-   * A custom importer allows extension of the sass engine in both a synchronous and asynchronous manner.
-   *
-   * @default undefined
-   */
-  importer?: Importer | Importer[] | ImporterAsync | ImporterAsync[];
-
-  /**
-   * Holds a collection of custom functions that may be invoked by the sass files being compiled.
-   *
-   * @default undefined
-   */
-  functions?: SassFunction | SassFunctionAsync;
-
   /**
    * An array of paths that should be looked in to attempt to resolve your `@import` declarations.
    * When using `data`, it is recommended that you use this.
