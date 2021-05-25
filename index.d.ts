@@ -516,6 +516,8 @@ export namespace types {
 interface WarnData {
   /**
    * A set of information related to the location of the error
+   *
+   * @default undefined
    */
   source?: SourceSpan;
 
