@@ -33,7 +33,7 @@ type Importer = (
    * The previously resolved path
    */
   prev: string
-) => { file: string } | { contents: string };
+) => {file: string} | {contents: string};
 
 /**
  * An asyncronous importer function to customsise how imports are handled
@@ -52,7 +52,7 @@ type ImporterAsync = (
   /**
    * The callback to use once the custom handling has completed
    */
-  done: (data: { file: string } | { contents: string } | Error) => void
+  done: (data: {file: string} | {contents: string} | Error) => void
 ) => void;
 
 /**
@@ -263,7 +263,7 @@ interface SharedOptions {
    *
    * @default 'space'
    */
-  indentType?: "space" | "tab";
+  indentType?: 'space' | 'tab';
 
   /**
    * Used to determine the number of spaces or tabs to be used for indentation.
@@ -277,7 +277,7 @@ interface SharedOptions {
    *
    * @default 'lf'
    */
-  linefeed?: "cr" | "crlf" | "lf" | "lfcr";
+  linefeed?: 'cr' | 'crlf' | 'lf' | 'lfcr';
 
   /**
    * Disable the inclusion of source map information in the output file.
@@ -299,7 +299,7 @@ interface SharedOptions {
    *
    * @default 'expanded'
    */
-  outputStyle?: "compressed" | "expanded";
+  outputStyle?: 'compressed' | 'expanded';
 
   /**
    * Enables the outputting of a source map.
