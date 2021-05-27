@@ -28,16 +28,6 @@
  */
 
 /**
- * An extra set of properties passed to the Logger.debug method
- */
-interface DebugData {
-  /**
-   * A set of information related to the location of the error
-   */
-  source: SourceSpan;
-}
-
-/**
  * Required options when compiling a SASS file to CSS data
  */
 interface FileOptions extends SharedOptions {
@@ -165,27 +155,6 @@ type ImporterAsync = (
    */
   done: (data: {file: string} | {contents: string} | Error) => void
 ) => void;
-
-/**
- * A set of custom functions to handle any warnings or debug messages
- */
-interface Logger {
-  /**
-   * A function that is called for each warning - including `@warn` statements
-   * @param data All data relative to the warning messagae
-   *
-   * @default undefined
-   */
-  warn?(message: string, data: WarnData): void;
-
-  /**
-   * A function that is called each time a `@debug` statement is encountered
-   * @param data All data relative to the `@debug` statement
-   *
-   * @default undefined
-   */
-  debug?(message: string, data: DebugData): void;
-}
 
 /**
  * A set of options to pass to the `render()` call
@@ -443,13 +412,6 @@ interface SharedOptions {
    * @default undefined
    */
   sourceMapRoot?: string;
-
-  /**
-   * Callbacks for handling any `@warn` or `@debug` messages
-   *
-   * @default undefined
-   */
-  logger?: Logger;
 }
 
 /**
@@ -487,60 +449,6 @@ interface SassException extends Error {
    * In case `file` option was not set (in favour of `data`), this will reflect the value `stdin`.
    */
   file: string;
-}
-
-/**
- * Location data for a specific location in a file
- */
-interface SourceLocation {
-  /**
-   * The 0-indexed offset of the location
-   */
-  offset: number;
-
-  /**
-   * The line number of the location
-   */
-  line: number;
-
-  /**
-   * The 0-indexed column of the location
-   */
-  column: number;
-}
-
-/**
- * Location information for a warning
- */
-interface SourceSpan {
-  /**
-   * The text between `start` and `end` locations.
-   *
-   * This is from the exact line and column
-   */
-  text: string;
-
-  /**
-   * The start location of the `@warn` or `@debug` message
-   */
-  start: SourceLocation;
-
-  /**
-   * The end location of the `@warn` or `@debug` message
-   */
-  end: SourceLocation;
-
-  /**
-   * The location of the file with the message
-   */
-  url: string;
-
-  /**
-   * The text from `start` to `end`.
-   *
-   * However, unlike `text`, it outputs each line in full
-   */
-  context: string;
 }
 
 /**
@@ -644,26 +552,4 @@ export namespace types {
     setKey(index: number, key: K): void;
     getLength(): number;
   }
-}
-
-/**
- * An extra set of properties passed to the Logger.warn method
- */
-interface WarnData {
-  /**
-   * A set of information related to the location of the error
-   *
-   * @default undefined
-   */
-  source?: SourceSpan;
-
-  /**
-   * Is it a deprecation message
-   */
-  deprecation: boolean;
-
-  /**
-   * The stack trace of the warning
-   */
-  stack?: string;
 }
