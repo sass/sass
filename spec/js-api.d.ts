@@ -1,4 +1,31 @@
-// TypeScript Version: 4.2
+/**
+ * # JavaScript API
+ *
+ * Sass implementations that are available for use via JavaScript must expose
+ * the following JavaScript API. As with the rest of this specification, they
+ * must not add custom extensions that aren't shared across all implementations.
+ *
+ * > Having a shared, consistent API makes it easy for users to move between
+ * > Sass implementations with minimal disruption, and for build system plugins
+ * > to seamlessly work with multiple implementations.
+ *
+ * The JS API is specified as a TypeScript type declaration. Implementations
+ * must adhere to this declaration and to the behavioral specifications written
+ * in JSDoc comments on the declarations. Implementations may throw errors when
+ * user code passes in values that don't adhere to the type declaration, but
+ * they may also handle these values in undefined ways in accordance with the
+ * common JavaScript pattern of avoiding explicit type checks. This must not be
+ * used as a way of adding custom extensions that aren't shared across all
+ * implementations.
+ *
+ * As with other sections of this specification, the specification of the JS API
+ * is incomplete, and is added to *lazily*. This means that portions of the
+ * spec—particularly the documentation comments that serve as a behavioral
+ * specification—are only written when they're necessary as background for new
+ * API proposals.
+ *
+ * ## API
+ */
 
 /**
  * An extra set of properties passed to the Logger.debug method
@@ -21,9 +48,91 @@ interface FileOptions extends SharedOptions {
 }
 
 /**
+ * The shared interface for the `this` keyword for custom importers and custom
+ * functions. The implementation must invoke importers and custom functions with
+ * an appropriate `this`.
+ */
+interface PluginThis {
+  options: {
+    /** The `file` option passed to the `render()` or `renderSync()` call. */
+    file?: string;
+
+    /** The `data` option passed to the `render()` or `renderSync()` call. */
+    data?: string;
+
+    /**
+     * A string that contains the current working directory followed by strings
+     * passed in the `includePaths` option, separated by `";"` on Windows and
+     * `":"` elsewhere.
+     */
+    includePaths: string;
+
+    precision: 10;
+
+    /**
+     * An integer. The specific semantics of this are left up to the
+     * implementation. (The reference implementation always returns 1.)
+     */
+    style: number;
+
+    /**
+     * The number 1 if the `indentType` option was `tab`. The number 0
+     * otherwise.
+     */
+    indentType: 1 | 0;
+
+    /**
+     * An integer indicating the number of spaces or tabs emitted by the
+     * compiler for each level of indentation.
+     */
+    indentWidth: number;
+
+    /**
+     * The `linefeed` option passed to the `render()` or `renderSync()`, or
+     * `'lf'` if no value was passed.
+     */
+    linefeed: 'cr' | 'crlf' | 'lf' | 'lfcr';
+
+    result: {
+      stats: {
+        /**
+         * The number of milliseconds since the Unix epoch (1 January 1970
+         * 00:00:00 UT) at the point at which the user called `render()` or
+         * `renderSync()`.
+         */
+        start: number;
+
+        /**
+         * The `file` option passed to the `render()` call, or the string
+         * `"data"` if no file was passed.
+         */
+        entry: string;
+      };
+    };
+  };
+}
+
+/**
+ * The interface for the `this` keyword for custom importers. The implementation
+ * must invoke importers with an appropriate `this`.
+ */
+interface ImporterThis extends PluginThis {
+  /**
+   * `true` if this importer invocation was caused by an `@import` statement and
+   * `false` otherwise.
+   *
+   * > This allows importers to look for `.import.scss` stylesheets if and only
+   * > if an `@import` is being resolved.
+   */
+  fromImport: boolean;
+}
+
+/**
  * An importer function to customsise how imports are handled
  */
 type Importer = (
+  this: ImporterThis,
+
   /**
    * The import path as-is in the file. The path is not resolved.
    */
@@ -39,6 +148,8 @@ type Importer = (
  * An asyncronous importer function to customsise how imports are handled
  */
 type ImporterAsync = (
+  this: ImporterThis,
+
   /**
    * The import path as-is in the file. The path is not resolved.
    */
@@ -227,7 +338,10 @@ interface StringOptions extends SharedOptions {
  * A set of custom functions that are called whenever it's `key` is found during compilation
  */
 interface SassFunction {
-  [key: string]: (...args: types.SassType[]) => types.SassType;
+  [key: string]: (
+    this: PluginThis,
+    ...args: types.SassType[]
+  ) => types.SassType;
 }
 
 /**
@@ -235,6 +349,7 @@ interface SassFunction {
  */
 interface SassFunctionAsync {
   [key: string]: <T extends types.SassType[]>(
+    this: PluginThis,
     ...args: [...T, (type: types.SassType) => void]
   ) => void;
 }
