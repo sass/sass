@@ -1,4 +1,5 @@
 {
+  "name": "sass",
   "//": [
     "This is used to track dependencies for the Travis CI tests run on this ",
     "repository. For the official Sass npm package, see ",
