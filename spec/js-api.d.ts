@@ -27,9 +27,44 @@
  * ## API
  */
 
-interface FileOptions extends SharedOptions {
+/** ### Options */
+
+interface FileOptions {
   file: string;
 }
+
+interface DataOptions {
+  data: string;
+  file?: string;
+}
+
+type SharedOptions = {
+  includePaths?: string[];
+  indentedSyntax?: boolean;
+  indentType?: 'space' | 'tab';
+  indentWidth?: number;
+  linefeed?: 'cr' | 'crlf' | 'lf' | 'lfcr';
+  omitSourceMapUrl?: boolean;
+  outFile?: string;
+  outputStyle?: 'compressed' | 'expanded' | 'nested' | 'compact';
+  sourceMap?: boolean | string;
+  sourceMapContents?: boolean;
+  sourceMapEmbed?: boolean;
+  sourceMapRoot?: string;
+} & (FileOptions | DataOptions);
+
+export interface Options extends SharedOptions {
+  importer?: Importer | Importer[];
+  functions?: {[key: string]: CustomFunction};
+}
+
+export interface AsyncOptions extends SharedOptions {
+  fibers?: unknown;
+  importer?: AsyncImporter | AsyncImporter[];
+  functions?: {[key: string]: AsyncCustomFunction};
+}
+
+/** #### Shared Plugin Infrastructure */
 
 /**
  * The shared interface for the `this` keyword for custom importers and custom
@@ -96,6 +131,8 @@ interface PluginThis {
   };
 }
 
+/** #### Importer Plugins */
+
 /**
  * The interface for the `this` keyword for custom importers. The implementation
  * must invoke importers with an appropriate `this`.
@@ -111,104 +148,45 @@ interface ImporterThis extends PluginThis {
   fromImport: boolean;
 }
 
-type Importer = (
+export type Importer = (
   this: ImporterThis,
   url: string,
   prev: string
 ) => {file: string} | {contents: string};
 
-type ImporterAsync = (
-  this: ImporterThis,
-  url: string,
-  prev: string,
-  done: (data: {file: string} | {contents: string} | Error) => void
-) => void;
+export type AsyncImporter =
+  | Importer
+  | ((
+      this: ImporterThis,
+      url: string,
+      prev: string,
+      done: (data: {file: string} | {contents: string} | Error) => void
+    ) => void);
 
-interface Options extends SharedOptions {
-  importer?: Importer | Importer[];
-  functions?: SassFunction;
-}
+/** #### Function Plugins */
 
-interface OptionsAsync extends SharedOptions {
-  fibers?: unknown;
-  importer?: ImporterAsync | ImporterAsync[];
-  functions?: SassFunctionAsync;
-}
+export type CustomFunction = (this: PluginThis, ...args: Value[]) => Value;
 
-interface Result {
-  css: Buffer;
-  map?: Buffer;
-  stats: {
-    entry: string;
-    start: number;
-    end: number;
-    duration: number;
-    includedFiles: string[];
-  };
-}
+export type AsyncCustomFunction =
+  | CustomFunction
+  | ((this: PluginThis, ...args: [...Value, (type: Value) => void]) => void);
 
-export function render(
-  options: RenderOptionsAsync,
-  callback: (exception: SassException, result: Result) => void
-): void;
-
-export type RenderOptionsAsync = (FileOptions | StringOptions) & OptionsAsync;
-
-export function renderSync(options: RenderOptions): Result;
-
-export type RenderOptions = (FileOptions | StringOptions) & Options;
-
-interface StringOptions extends SharedOptions {
-  data: string;
-  file?: string;
-}
-
-interface SassFunction {
-  [key: string]: (
-    this: PluginThis,
-    ...args: types.SassType[]
-  ) => types.SassType;
-}
-
-interface SassFunctionAsync {
-  [key: string]: <T extends types.SassType[]>(
-    this: PluginThis,
-    ...args: [...T, (type: types.SassType) => void]
-  ) => void;
-}
-
-interface SharedOptions {
-  includePaths?: string[];
-  indentedSyntax?: boolean;
-  indentType?: 'space' | 'tab';
-  indentWidth?: number;
-  linefeed?: 'cr' | 'crlf' | 'lf' | 'lfcr';
-  omitSourceMapUrl?: boolean;
-  outFile?: string;
-  outputStyle?: 'compressed' | 'expanded';
-  sourceMap?: boolean | string;
-  sourceMapContents?: boolean;
-  sourceMapEmbed?: boolean;
-  sourceMapRoot?: string;
-}
-
-interface SassException extends Error {
-  message: string;
-  formatted: string;
-  line: number;
-  column: number;
-  status: number;
-  file: string;
-}
+export type Value =
+  | Null
+  | Number
+  | String
+  | Boolean
+  | HslColor
+  | RgbColor
+  | List
+  | Map;
 
 export namespace types {
-  abstract class SassType {}
-
-  export class Null extends SassType {
+  export class Null {
     static NULL: Null;
   }
 
-  export class Number implements SassType {
+  export class Number {
     constructor(value: number, unit?: string);
     getValue(): number;
     setValue(value: number): void;
@@ -216,20 +194,20 @@ export namespace types {
     setUnit(unit: string): void;
   }
 
-  export class String implements SassType {
+  export class String {
     constructor(value: string);
     getValue(): string;
     setValue(value: string): void;
   }
 
-  export class Boolean<T extends boolean = boolean> implements SassType {
+  export class Boolean<T extends boolean = boolean> {
     constructor(value: T);
     getValue(): T;
     static readonly TRUE: Boolean<true>;
     static readonly FALSE: Boolean<false>;
   }
 
-  export class HslColor implements SassType {
+  export class HslColor {
     constructor(h: number, s: number, l: number, a?: number);
     getH(): number;
     setH(value: number): void;
@@ -241,7 +219,7 @@ export namespace types {
     setA(value: number): void;
   }
 
-  export class RgbColor implements SassType {
+  export class RgbColor {
     constructor(r: number, g: number, b: number, a?: number);
     getR(): number;
     setR(value: number): void;
@@ -253,23 +231,53 @@ export namespace types {
     setA(value: number): void;
   }
 
-  export class List<T extends SassType = SassType> implements SassType {
+  export class List {
     constructor(length: number, commaSeparator?: boolean);
-    getValue(index: number): T | undefined;
-    setValue(index: number, value: T): void;
+    getValue(index: number): Value | undefined;
+    setValue(index: number, value: Value): void;
     getSeparator(): boolean;
     setSeparator(isComma: boolean): void;
     getLength(): number;
   }
 
-  export class Map<K extends SassType = SassType, V extends SassType = SassType>
-    implements SassType
-  {
+  export class Map {
     constructor(length: number);
-    getValue(index: number): V;
-    setValue(index: number, value: V): void;
-    getKey(index: number): K;
-    setKey(index: number, key: K): void;
+    getValue(index: number): Value;
+    setValue(index: number, value: Value): void;
+    getKey(index: number): Value;
+    setKey(index: number, key: Value): void;
     getLength(): number;
   }
+}
+
+/** ### Render */
+
+export interface Result {
+  css: Buffer;
+  map?: Buffer;
+  stats: {
+    entry: string;
+    start: number;
+    end: number;
+    duration: number;
+    includedFiles: string[];
+  };
+}
+
+export function renderSync(options: Options): Result;
+
+export function render(
+  options: AsyncOptions,
+  callback: (exception: SassException, result: Result) => void
+): void;
+
+/** ### Exceptions */
+
+export interface SassException extends Error {
+  message: string;
+  formatted: string;
+  line: number;
+  column: number;
+  status: number;
+  file: string;
 }
