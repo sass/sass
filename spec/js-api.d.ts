@@ -29,16 +29,7 @@
 
 /** ### Options */
 
-interface FileOptions {
-  file: string;
-}
-
-interface DataOptions {
-  data: string;
-  file?: string;
-}
-
-type SharedOptions = {
+export type Options<sync = 'sync' | 'async'> = {
   includePaths?: string[];
   indentedSyntax?: boolean;
   indentType?: 'space' | 'tab';
@@ -51,18 +42,17 @@ type SharedOptions = {
   sourceMapContents?: boolean;
   sourceMapEmbed?: boolean;
   sourceMapRoot?: string;
-} & (FileOptions | DataOptions);
-
-export interface Options extends SharedOptions {
-  importer?: Importer | Importer[];
-  functions?: {[key: string]: CustomFunction};
-}
-
-export interface AsyncOptions extends SharedOptions {
-  fibers?: unknown;
-  importer?: AsyncImporter | AsyncImporter[];
-  functions?: {[key: string]: AsyncCustomFunction};
-}
+  importer?: Importer<sync> | Importer<sync>[];
+  functions?: {[key: string]: CustomFunction<sync>};
+} & (
+  | {
+      file: string;
+    }
+  | {
+      data: string;
+      file?: string;
+    }
+);
 
 /** #### Shared Plugin Infrastructure */
 
@@ -148,28 +138,35 @@ interface ImporterThis extends PluginThis {
   fromImport: boolean;
 }
 
-export type Importer = (
+type _SyncImporter = (
   this: ImporterThis,
   url: string,
   prev: string
 ) => {file: string} | {contents: string};
 
-export type AsyncImporter =
-  | Importer
-  | ((
-      this: ImporterThis,
-      url: string,
-      prev: string,
-      done: (data: {file: string} | {contents: string} | Error) => void
-    ) => void);
+type _AsyncImporter = (
+  this: ImporterThis,
+  url: string,
+  prev: string,
+  done: (data: {file: string} | {contents: string} | Error) => void
+) => void;
+
+export type Importer<sync = 'sync' | 'async'> =
+  | _SyncImporter
+  | (sync extends 'async' ? _AsyncImporter : never);
 
 /** #### Function Plugins */
 
-export type CustomFunction = (this: PluginThis, ...args: Value[]) => Value;
+type _SyncFunction = (this: PluginThis, ...args: Value[]) => Value;
 
-export type AsyncCustomFunction =
-  | CustomFunction
-  | ((this: PluginThis, ...args: [...Value, (type: Value) => void]) => void);
+type _AsyncFunction = (
+  this: PluginThis,
+  ...args: [...Value, (type: Value) => void]
+) => void;
+
+export type CustomFunction<sync = 'sync' | 'async'> =
+  | _SyncFunction
+  | (sync extends 'async' ? _AsyncFunction : never);
 
 export type Value =
   | Null
@@ -264,10 +261,10 @@ export interface Result {
   };
 }
 
-export function renderSync(options: Options): Result;
+export function renderSync(options: Options<'sync'>): Result;
 
 export function render(
-  options: AsyncOptions,
+  options: Options<'async'>,
   callback: (exception: SassException, result: Result) => void
 ): void;
 
