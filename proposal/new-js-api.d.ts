@@ -2,114 +2,73 @@
  * # New JavaScript API
  */
 
-import {RawSourceMap} from 'source-map';  // https://github.com/mozilla/source-map
+// TODO(awjin): Add this as a dev-dependency.
+import {RawSourceMap} from 'source-map-js';  // https://www.npmjs.com/package/source-map-js
 
-export function compile(path: string, options?: CompileOptions): CompileResult;
+export type Syntax = 'scss' | 'sass' | 'css';
+
+export type OutputStyle = 'expanded' | 'compressed';
+
+type Execution = 'sync' | 'async';
+
+interface Options<executionType extends Execution> {
+  // TODO(awjin): functions?: Callable<executionType>[];
+  // TODO(awjin): importers?: Importer<executionType>[];
+  loadPaths?: string[];
+  sourceMap?: boolean;
+  // TODO(awjin): logger?: Logger;
+  style?: OutputStyle;
+  charset?: boolean;
+  color?: boolean;
+  quietDeps?: boolean;
+  verbose?: boolean;
+}
+
+export interface CompileResult {
+  css: string;
+  includedUrls: Set<string>;
+  sourceMap?: RawSourceMap;
+}
+
+export interface SassException extends Error {
+  /** Contains the error message and the Sass span (if available). */
+  message: string;
+
+  /** Contains the Sass and JS stack traces (if available). */
+  stack?: string;
+
+  /**
+   * Prints a usefully formatted error. Includes the error message, the Sass
+   * span (if available) and the Sass and JS stack traces (if available).
+   */
+  toString(): string;
+}
+
+type StringOptions<executionType extends Execution> = Options<executionType> & {
+  syntax?: Syntax;
+} & (
+    | {
+        url?: string;
+      }
+    | {
+        url: string;
+        // TODO(awjin): importer: Importer<executionType>;
+      }
+  );
+
+export function compile(path: string, options?: Options<'sync'>): CompileResult;
 
 export function compileAsync(
   path: string,
-  options?: CompileAsyncOptions
+  options?: Options<'async'>
 ): Promise<CompileResult>;
 
 export function compileString(
   source: string,
-  options?: CompileStringOptions
+  options?: StringOptions<'sync'>
 ): CompileResult;
 
 export function compileStringAsync(
   source: string,
-  options?: CompileStringAsyncOptions
+  options?: StringOptions<'async'>
 ): Promise<CompileResult>;
-
-export interface CompileResult {
-  css: string;
-  sourceMap?: RawSourceMap;
-  includedUrls?: string[];
-}
-
-export type CompileOptions = SharedOptions & Plugins;
-
-export type CompileAsyncOptions = SharedOptions & AsyncPlugins;
-
-export type CompileStringOptions = (StringOptions | StringWithImporterOptions) &
-  Plugins;
-
-export type CompileStringAsyncOptions = (
-  | StringOptions
-  | StringWithAsyncImporterOptions
-) &
-  AsyncPlugins;
-
-interface SharedOptions {
-  style?: OutputStyle;
-  // loadPaths?: string[];
-  logger?: Logger;
-  color?: boolean;
-  quietDeps?: boolean;
-  verbose?: boolean;
-  charset?: boolean;
-  sourceMap?: boolean;
-  includedUrls?: boolean;
-}
-
-interface Plugins {
-  // TODO(awjin): functions: Callable[];
-  // TODO(awjin): importers: Importer[];
-}
-
-interface AsyncPlugins {
-  // TODO(awjin): functions: Array<AsyncCallable | Callable>;
-  // TODO(awjin): importers: Array<AsyncImporter | Importer>;
-}
-
-type StringOptions = SharedOptions & {
-  syntax?: Syntax;
-};
-
-type StringWithImporterOptions = StringOptions & {
-  // TODO(awjin): importer: Importer;
-  url: string;
-};
-
-type StringWithAsyncImporterOptions = StringOptions & {
-  // TODO(awjin): importer: AsyncImporter | Importer;
-  url: string;
-};
-
-export enum OutputStyle {
-  EXPANDED = 0,
-  COMPRESSED = 1,
-  NESTED = 2,
-  COMPACT = 3,
-}
-
-export enum Syntax {
-  SCSS = 0,
-  SASS = 1,
-  CSS = 2,
-}
-
-export interface Logger {
-  debug: (message: string, span: SourceSpan) => void;
-
-  warn: (
-    message: string,
-    span?: SourceSpan,
-    trace?: string,
-    deprecation?: boolean
-  ) => void;
-}
-
-export interface SourceSpan {
-  text: string;
-  start: SourceLocation;
-  end?: SourceLocation;
-  url?: string;
-  context?: string;
-}
-
-export interface SourceLocation {
-  offset: number;
-  line: number;
-  column: number;
-}
