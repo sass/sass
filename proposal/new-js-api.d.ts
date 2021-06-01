@@ -3,7 +3,7 @@
  */
 
 // TODO(awjin): Add this as a dev-dependency.
-import {RawSourceMap} from 'source-map-js';  // https://www.npmjs.com/package/source-map-js
+import {RawSourceMap} from 'source-map-js'; // https://www.npmjs.com/package/source-map-js
 
 export type Syntax = 'scss' | 'sass' | 'css';
 
@@ -24,6 +24,18 @@ interface Options<executionType extends Execution> {
   verbose?: boolean;
 }
 
+type StringOptions<executionType extends Execution> = Options<executionType> & {
+  syntax?: Syntax;
+} & (
+    | {
+        url?: string;
+      }
+    | {
+        url: string;
+        // TODO(awjin): importer: Importer<executionType>;
+      }
+  );
+
 export interface CompileResult {
   css: string;
   includedUrls: Set<string>;
@@ -43,18 +55,6 @@ export interface SassException extends Error {
    */
   toString(): string;
 }
-
-type StringOptions<executionType extends Execution> = Options<executionType> & {
-  syntax?: Syntax;
-} & (
-    | {
-        url?: string;
-      }
-    | {
-        url: string;
-        // TODO(awjin): importer: Importer<executionType>;
-      }
-  );
 
 export function compile(path: string, options?: Options<'sync'>): CompileResult;
 
