@@ -25,7 +25,7 @@
  * API proposals.
  */
 
- /** ## API */
+/** ## API */
 
 /** ### Options */
 
