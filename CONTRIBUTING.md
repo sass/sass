@@ -1,3 +1,5 @@
+# Contributing
+
 When we add a new feature to Sass, we want to make sure the feature is
 well-designed, clearly specified, feasible to implement, and that it meets the
 use-cases it's designed for. Although most features should follow the [full
@@ -5,6 +7,13 @@ process][], very small features can follow the [fast-track process][] instead.
 
 [full process]: #process
 [fast-track process]: #fast-track
+
+## Table of Contents
+
+* [Process](#process)
+* [Proposal](#proposal)
+  * [JavaScript API Proposals](#javascript-api-proposals)
+* [Fast Track](#fast-track)
 
 ## Process
 
@@ -192,6 +201,41 @@ accepted.
   Process section.
 
   [css-imports deprecation]: https://github.com/sass/dart-sass#compatibility-policy
+
+### JavaScript API Proposals
+
+Sass's shared JavaScript API is specified as TypeScript type declarations rather
+than as prose written in Markdown files, so the structure for those proposals is
+somewhat different. The entire proposal should be written as a `.d.ts` file,
+with the introduction, Background, and Summary sections in a top-level JSDoc
+comment (`/** ... */`). Rather than Syntax and Semantics sections, it should
+define the new behavior as TypeScript declarations under an "API" heading, using
+[declaration merging] when possible and prose otherwise to describe the changes
+to the existing API. If a Deprecation Process section is necessary, it should be
+written in another JSDoc comment after the API.
+
+[declaration merging]: https://www.typescriptlang.org/docs/handbook/declaration-merging.html
+
+The new API should have its own JSDoc comments which formally describe the
+behavior of the compiler. These should be written *as a specification*, rather
+than *as documentation*—that is, they should explicitly specify the behavior of
+the implementation in enough detail to ensure that multiple implementations will
+not produce different user-visible behavior.
+
+While a `.d.ts` file is recommended for any substantial API-centric proposals
+for its static analyzability and formatability, it's not *required*. It's
+sometimes better to just include the TypeScript as a code snippet in a Markdown
+document. For example, this may be better for:
+
+* Small changes (although these should use the [fast track] process if
+  possible).
+
+* Changes that are difficult to express using [declaration merging], such as
+  removing a parameter from a function.
+
+* Changes that don't affect the type structure of the API, only its behavior.
+
+[fast track]: #fast-track
 
 ## Fast Track
 
