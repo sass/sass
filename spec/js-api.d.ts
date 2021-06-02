@@ -23,9 +23,9 @@
  * spec—particularly the documentation comments that serve as a behavioral
  * specification—are only written when they're necessary as background for new
  * API proposals.
- *
- * ## API
  */
+
+ /** ## API */
 
 /** ### Options */
 
