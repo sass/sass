@@ -2,37 +2,34 @@
  * # New JavaScript API
  */
 
-// TODO(awjin): Add this as a dev-dependency.
 import {RawSourceMap} from 'source-map-js'; // https://www.npmjs.com/package/source-map-js
 
 export type Syntax = 'scss' | 'sass' | 'css';
 
 export type OutputStyle = 'expanded' | 'compressed';
 
-type Execution = 'sync' | 'async';
-
-interface Options<executionType extends Execution> {
-  // TODO(awjin): functions?: Callable<executionType>[];
-  // TODO(awjin): importers?: Importer<executionType>[];
+interface Options<sync extends 'sync' | 'async'> {
+  alertAscii?: boolean;
+  alertColor?: boolean;
+  // TODO(awjin): functions?: Callable<sync>[];
+  // TODO(awjin): importers?: Importer<sync>[];
   loadPaths?: string[];
-  sourceMap?: boolean;
   // TODO(awjin): logger?: Logger;
-  style?: OutputStyle;
-  charset?: boolean;
-  color?: boolean;
   quietDeps?: boolean;
+  sourceMap?: boolean;
+  style?: OutputStyle;
   verbose?: boolean;
 }
 
-type StringOptions<executionType extends Execution> = Options<executionType> & {
+type StringOptions<sync extends 'sync' | 'async'> = Options<sync> & {
   syntax?: Syntax;
 } & (
     | {
         url?: string;
       }
     | {
+        // TODO(awjin): importer: Importer<sync>;
         url: string;
-        // TODO(awjin): importer: Importer<executionType>;
       }
   );
 
@@ -43,16 +40,17 @@ export interface CompileResult {
 }
 
 export interface SassException extends Error {
-  /** Contains the error message and the Sass span (if available). */
+  // TODO(awjin): Mark this as `override` once TS 4.3 is released.
   message: string;
 
-  /** Contains the Sass and JS stack traces (if available). */
+  sassMessage: string;
+
+  sassStack?: string;
+
+  // TODO(awjin): Mark this as `override` once TS 4.3 is released.
   stack?: string;
 
-  /**
-   * Prints a usefully formatted error. Includes the error message, the Sass
-   * span (if available) and the Sass and JS stack traces (if available).
-   */
+  // TODO(awjin): Mark this as `override` once TS 4.3 is released.
   toString(): string;
 }
 
