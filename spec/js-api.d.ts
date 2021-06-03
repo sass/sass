@@ -161,7 +161,7 @@ type _SyncFunction = (this: PluginThis, ...args: Value[]) => Value;
 
 type _AsyncFunction = (
   this: PluginThis,
-  ...args: [...Value, (type: Value) => void]
+  ...args: [...Value[], (type: Value) => void]
 ) => void;
 
 export type CustomFunction<sync = 'sync' | 'async'> =
@@ -169,14 +169,14 @@ export type CustomFunction<sync = 'sync' | 'async'> =
   | (sync extends 'async' ? _AsyncFunction : never);
 
 export type Value =
-  | Null
-  | Number
-  | String
-  | Boolean
-  | HslColor
-  | RgbColor
-  | List
-  | Map;
+  | types.Null
+  | types.Number
+  | types.String
+  | types.Boolean
+  | types.HslColor
+  | types.RgbColor
+  | types.List
+  | types.Map;
 
 export namespace types {
   export class Null {
