@@ -17,7 +17,7 @@
  * own messaging infrastructure. An IDE that's driving Sass through the JS API
  * might want to highlight warnings in the file the user is editing. If Sass is
  * ever run in the browser, the web page might want to surface warnings as
- * components on the page. As such, there's need for an API to provide API users
+ * components on the page. As such, there's need for an API to provide users
  * with programmatic access to these messages.
  *
  * ## Summary
@@ -103,7 +103,7 @@ export interface Logger {
    *   * Invoke `warn` with a string describing the warning and `options`.
    *
    * If this field is defined, the compiler must not surface warnings in any way
-   * other than inokving `warn`.
+   * other than inkoving `warn`.
    */
   warn?(
     message: string,
@@ -125,7 +125,7 @@ export interface Logger {
    *   covering the `@debug` rule and its expression.
    *
    * If this field is defined, the compiler must not surface debug messages in
-   * any way other than inokving `debug`.
+   * any way other than invoking `debug`.
    */
   debug?(message: string, options: {span: SourceSpan}): void;
 }
@@ -168,14 +168,15 @@ export interface SourceSpan {
   /**
    * Additional source text surrounding this span.
    *
-   * If this isn't empty, it must contain `text`. Furthermore, `text` must begin
-   * at column `start.column` of a line in `context`.
+   * The compiler may choose to omit this. If it's not `undefined`, it must
+   * contain `text`. Furthermore, `text` must begin at column `start.column` of
+   * a line in `context`.
    *
    * > This usually contains the full lines the span begins and ends on if the
    * > span itself doesn't cover the full lines, but the specific scope is up to
    * > the compiler.
    */
-  context: string;
+  context?: string;
 }
 
 /**
