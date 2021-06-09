@@ -25,6 +25,6 @@
     "link-check": "node test/link-check.mjs",
     "toc-check": "node test/toc-check.mjs",
     "fix": "gts fix && standard --fix",
-    "test": "gts lint && standard && npm run toc-check && npm run link-check"
+    "test": "gts lint && standard && tsc --noEmit && npm run toc-check && npm run link-check"
   }
 }

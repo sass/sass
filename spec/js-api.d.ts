@@ -29,7 +29,14 @@
 
 /** ### Options */
 
-export type Options<sync = 'sync' | 'async'> = {
+/**
+ * All the options for a Sass compilation except those that specify the specific
+ * input format.
+ *
+ * This is only exported so that it can be modified by proposals for new
+ * features. It should not be referred to by user code.
+ */
+export interface _Options<sync = 'sync' | 'async'> {
   includePaths?: string[];
   indentedSyntax?: boolean;
   indentType?: 'space' | 'tab';
@@ -44,15 +51,18 @@ export type Options<sync = 'sync' | 'async'> = {
   sourceMapRoot?: string;
   importer?: Importer<sync> | Importer<sync>[];
   functions?: {[key: string]: CustomFunction<sync>};
-} & (
-  | {
-      file: string;
-    }
-  | {
-      data: string;
-      file?: string;
-    }
-);
+}
+
+export type Options<sync = 'sync' | 'async'> = _Options<sync> &
+  (
+    | {
+        file: string;
+      }
+    | {
+        data: string;
+        file?: string;
+      }
+  );
 
 /** #### Shared Plugin Infrastructure */
 
@@ -161,7 +171,7 @@ type _SyncFunction = (this: PluginThis, ...args: Value[]) => Value;
 
 type _AsyncFunction = (
   this: PluginThis,
-  ...args: [...Value, (type: Value) => void]
+  ...args: [...Value[], (type: Value) => void]
 ) => void;
 
 export type CustomFunction<sync = 'sync' | 'async'> =
@@ -169,14 +179,14 @@ export type CustomFunction<sync = 'sync' | 'async'> =
   | (sync extends 'async' ? _AsyncFunction : never);
 
 export type Value =
-  | Null
-  | Number
-  | String
-  | Boolean
-  | HslColor
-  | RgbColor
-  | List
-  | Map;
+  | types.Null
+  | types.Number
+  | types.String
+  | types.Boolean
+  | types.HslColor
+  | types.RgbColor
+  | types.List
+  | types.Map;
 
 export namespace types {
   export class Null {
