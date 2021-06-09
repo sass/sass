@@ -18,8 +18,8 @@
 **NamespacedVariable**  ::= [\<ident-token>][] '.$' [PublicIdentifier][]
 **VariableDeclaration** ::= Variable ':' Expression ('!global' | '!default')*
 </pre></x>
-[\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
 
+[\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
 [PublicIdentifier]: modules.md#syntax
 
 No whitespace is allowed after the `$` in `PlainVariable` or before or after
