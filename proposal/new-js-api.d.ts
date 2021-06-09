@@ -2,36 +2,74 @@
  * # New JavaScript API: Draft 1
  *
  * *([Issue](https://github.com/sass/sass/issues/3056))*
+ *
+ * ## Background
+ *
+ * > This section is non-normative.
+ *
+ * Sass's [current JS API] grew organically from the Sass community's need to
+ * interact deeply and programmatically with Sass compilations. Since it mostly
+ * served as a wrapper around [LibSass], its quirks make it difficult for both
+ * the reference and new implementations to support it.
+ *
+ * [current JS API]: https://github.com/sass/node-sass
+ * [LibSass]: https://github.com/sass/libsass
+ *
+ * LibSass was deprecated recently, and the upcoming [Embedded Host] needs to
+ * implement a JS API. Rather than retrofit the old API, it makes sense to
+ * design a strict, well-specified new API that can be shared by the Embedded
+ * Host, the reference implementation, and any future Sass implementations.
+ *
+ * [Embedded Host]: https://github.com/sass/embedded-host-node
+ *
+ * A new API optimized for consistency and reusability makes it easier for users
+ * to move between Sass implementations with minimal breakages to their code. It
+ * makes Sass a more robust infrastructure for build systems. It allows us to
+ * support the Sass community as it continues to mature into best practices and
+ * larger problem spaces.
+ *
+ * ## Summary
+ *
+ * > This section is non-normative.
+ *
+ * This proposal specifies synchronous and asynchronous functions for compiling
+ * Sass input by path or by string. It also specifies all of the options for
+ * configuring Sass compilations.
+ *
+ * This proposal is strongly influenced by the [reference implementation's API],
+ * which is carefully designed, considered, and maintained by the core Sass
+ * team, as well as the [Embedded Protocol], which was designed for reusability
+ * across multiple compiler implementations.
+ *
+ * [reference implementation's API]: https://pub.dev/documentation/sass/latest/sass/sass-library.html
+ * [Embedded Protocol]: https://github.com/sass/embedded-protocol
  */
 
 /** ## API */
 
+import {URL} from 'url';
 import {RawSourceMap} from 'source-map-js'; // https://www.npmjs.com/package/source-map-js
 
 /** The types of input syntax that the compiler can parse. */
-export type Syntax = 'scss' | 'sass' | 'css';
+type Syntax = 'scss' | 'sass' | 'css';
 
 /**
  * The ways in which the compiler can format the emitted CSS.
  *
  * > The specifics of each format can vary from implementation to
- * > implementation.
+ * > implementation. If an implementation wants to add a new OutputStyle, they
+ * > should expand this type.
  */
-export type OutputStyle = 'expanded' | 'compressed';
+type OutputStyle = 'expanded' | 'compressed';
 
 /**
  * All of the options for a Sass compilation that are shared by compiling from a
  * path and by compiling from a string.
- *
- * These options take a conditional type `sync` that describes the compilation's
- * expected execution. E.g. for a synchronous compilation, the compiler should
- * require the options to be synchronous, with appropriately synchronous
- * members.
  */
 interface Options<sync extends 'sync' | 'async'> {
   /**
    * If true, the compiler must use only ASCII characters in the formatted
-   * message of errors and logs that aren't handled by a `logger` callback.
+   * message of errors and logs that aren't handled by a `logger`.
    *
    * @default false
    */
@@ -39,7 +77,7 @@ interface Options<sync extends 'sync' | 'async'> {
 
   /**
    * If true, the compiler may use terminal colors in the formatted message of
-   * errors and logs that aren't handled by a `logger` callback.
+   * errors and logs that aren't handled by a `logger`.
    *
    * > The specific format can vary from implementation to implementation.
    * > Compilers are not obligated to use terminal colors if they are irrelevant
@@ -53,30 +91,22 @@ interface Options<sync extends 'sync' | 'async'> {
 
   // TODO(awjin): importers?: Importer<sync>[];
 
-  /**
-   * Paths for the compiler to use to resolve imports.
-   *
-   * This is equivalent to appending filesystem importers to `importers`.
-   */
+  /** If set, the compiler must use these paths to resolve imports. */
   loadPaths?: string[];
 
   // TODO(awjin): logger?: Logger;
 
   /**
-   * If true, the compiler must not print deprecation warnings that come from
-   * dependencies.
-   *
-   * A dependency is defined as any file that is not part of the main package.
-   * This includes those loaded through `loadPaths` and may include those loaded
-   * by custom `importers`.
+   * If true, the compiler must not print deprecation warnings for stylesheets
+   * that are transitively loaded through an import path.
    *
    * @default false
    */
   quietDeps?: boolean;
 
   /**
-   * If true, the compiler must emit a sourceMap of type `RawSourceMap` along
-   * with the compiled CSS.
+   * If true, the compiler must set the sourceMap field of the `CompileResult`
+   * to a sourceMap object.
    *
    * @default false
    */
@@ -85,15 +115,20 @@ interface Options<sync extends 'sync' | 'async'> {
   /**
    * If present, the compiler must format the emitted CSS in this style.
    *
-   * @default 'expanded'
+   * Implementations may support any amount of options, provided that:
+   * - They support the 'expanded' option.
+   * - They produce CSS that is semantically equivalent regardless of style.
+   * - They throw an error if they receive a value for this option that they
+   *   do not support.
    */
   style?: OutputStyle;
 
   /**
-   * If present, the compiler must print all warnings without truncation.
+   * If `true`, the compiler must print every single deprecation warning it
+   * encounters.
    *
-   * The reference implementation has a default cutoff of 5 prints per type of
-   * warning.
+   * If `false`, the compiler may choose not to print repeated deprecation
+   * warnings.
    *
    * @default false
    */
@@ -103,67 +138,39 @@ interface Options<sync extends 'sync' | 'async'> {
 /** Additional options specific to compiling from a string. */
 type StringOptions<sync extends 'sync' | 'async'> = Options<sync> & {
   /**
-   * The syntax that the compiler should use to parse the string.
+   * The compiler must parse `source` using this syntax.
    *
    * @default 'scss'
    */
   syntax?: Syntax;
 } & (
     | {
-        /**
-         * The location from which the string was loaded. If passed, the
-         * compiler must resolve imports relative to `url`.
-         */
-        url?: string;
+        /** The compiler must treat this as the canonical URL of `source`. */
+        url?: URL;
       }
     | {
         // TODO(awjin): importer: Importer<sync>;
-        url: string;
+        url: URL;
       }
   );
 
-/**
- * The object returned by a Sass compilation.
- */
-export interface CompileResult {
-  /** The compiled css. */
-  css: string;
-
+/** The error thrown by the compiler when a Sass compilation fails. */
+export interface Exception extends Error {
   /**
-   * All URLs included in the compilation.
+   * The compiler supplies this error message to the JS runtime. This should
+   * contain the description of the Sass exception as well as the Sass span and
+   * stack (if available).
    *
-   * If the compilation source was a string:
-   * * If the root `url` was specified, `url` is included in the set.
-   * * Otherwise, the source is excluded.
-   */
-  includedUrls: Set<string>;
-
-  /**
-   * A sourceMap that describes how sections in the Sass input correspond to
-   * sections in the resulting CSS.
-   *
-   * See: https://www.npmjs.com/package/source-map-js
-   */
-  sourceMap?: RawSourceMap;
-}
-
-/**
- * The error thrown by the compiler when a Sass compilation fails.
- */
-export interface SassException extends Error {
-  /**
-   * The error message provided to the JS runtime by the compiler. This should
-   * contain the top-level description of the Sass exception as well as the Sass
-   * span and stack (if available).
+   * This message must be passed directly to the super constructor.
    *
    * > The format can vary from implementation to implementation.
    */
-  message: string; // TODO(awjin): Mark this as `override` once TS 4.3 is released.
+  message: string;
 
   /**
-   * The top-level description of the Sass exception.
+   * The Sass error message, excluding the span and stack.
    *
-   * Does not contain the Sass span or stack.
+   * > The format can vary from implementation to implementation.
    */
   sassMessage: string;
 
@@ -175,18 +182,42 @@ export interface SassException extends Error {
   sassStack?: string;
 
   /**
-   * A nicely formatted string that contains useful information about the error.
+   * Provides a formatted string with useful information about the error.
    *
    * > This likely includes the Sass error message, span, and stack. The format
    * > can vary from implementation to implementation.
+   *
+   * TODO(awjin): Mark this as `override` once TS 4.3 is released.
    */
-  toString(): string; // TODO(awjin): Mark this as `override` once TS 4.3 is released.
+  toString(): string;
+}
+
+/** The object returned by the compiler when a Sass compilation succeeds. */
+export interface CompileResult {
+  css: string;
+  includedUrls: URL[];
+  sourceMap?: RawSourceMap;
 }
 
 /**
- * Compiles the Sass file at `path`.
+ * [Compiles](../spec/spec.md#compiling-a-path) the Sass file at `path`.
  *
- * Throws a SassException if the compilation fails.
+ * The compilation must respect the configuration specified by the `options`
+ * object.
+ *
+ * If the compilation succeeds, the compiler returns a `CompileResult` object
+ * composed as follows:
+ * - `CompileResult.css` is set to the emitted CSS.
+ * - `CompileResult.includedFiles` is set to a list of unique URLs included in
+ *   the compilation. The order of URLs is not guaranteed.
+ * - If `options.sourceMap` is `true`, `CompileResult.sourceMap` is set to a
+ *   sourceMap object describing how sections of the Sass input correspond to
+ *   sections of the CSS output.
+ *
+ *   > The structure of the sourceMap can vary from implementation to
+ *   > implementation.
+ *
+ * If the compilation fails, the compiler throws an `Exception`.
  */
 export function compile(path: string, options?: Options<'sync'>): CompileResult;
 
@@ -202,9 +233,26 @@ export function compileAsync(
 ): Promise<CompileResult>;
 
 /**
- * Compiles the Sass `source`.
+ * [Compiles](../spec/spec.md#compiling-a-string) the Sass `source`.
  *
- * Throws a SassException if the compilation fails.
+ * The compilation must respect the configuration specified by the `options`
+ * object.
+ *
+ * If the compilation succeeds, the compiler returns a `CompileResult` object
+ * composed as follows:
+ * - `CompileResult.css` is set to the emitted CSS.
+ * - `CompileResult.includedFiles` is set to a list of unique URLs included in
+ *   the compilation. The order of URLs is not guaranteed.
+ *   - If `options.url` is set, the url is included in the list.
+ *   - Otherwise, `source` is excluded.
+ * - If `options.sourceMap` is `true`, `CompileResult.sourceMap` is set to a
+ *   sourceMap object describing how sections of the Sass input correspond to
+ *   sections of the CSS output.
+ *
+ *   > The structure of the sourceMap can vary from implementation to
+ *   > implementation.
+ *
+ * If the compilation fails, the compiler throws an `Exception`.
  */
 export function compileString(
   source: string,
