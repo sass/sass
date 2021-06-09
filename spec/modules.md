@@ -163,7 +163,7 @@ modules:
 
 <x><pre>
 **PublicIdentifier**     ::= [\<ident-token>][] that doesn't begin with '-' or '_'
-**NamespacedIdentifier** ::= Identifier | Identifier '.' PublicIdentifier
+**NamespacedIdentifier** ::= [\<ident-token>][] | [\<ident-token>][] '.' PublicIdentifier
 </pre></x>
 
 [\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram

@@ -17,11 +17,13 @@ The grammar for the `@forward` rule is as follows:
 
 <x><pre>
 **ForwardRule** ::= '@forward' QuotedString AsClause? (ShowClause | HideClause)?
-**AsClause**    ::= 'as' Identifier '*'
+**AsClause**    ::= 'as' [\<ident-token>][] '*'
 **ShowClause**  ::= 'show' MemberName (',' MemberName)*
 **HideClause**  ::= 'hide' MemberName (',' MemberName)*
-**MemberName**  ::= '$'? Identifier
+**MemberName**  ::= '$'? [\<ident-token>][]
 </pre></x>
+
+[\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
 
 `@forward` rules must be at the top level of the document, and must come before
 any rules other than `@charset` or `@use`. The `QuotedString`'s contents, known

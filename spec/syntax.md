@@ -99,7 +99,7 @@ No whitespace is allowed between components of an `InterpolatedIdentifier`.
 **PseudoSelector** ::= NormalPseudoSelector
 &#32;                | SelectorPseudo
 &#32;                | NthSelectorPseudo
-**NormalPseudoSelector** ::= ':' ':'? VendorPrefix? Identifier
+**NormalPseudoSelector** ::= ':' ':'? VendorPrefix? [\<ident-token>][]
 &#32;                        ('(' [\<declaration-value>] ')')?
 **SelectorPseudo** ::= SelectorPseudoName '(' Selector ')'
 **NthSelectorPseudo** ::= NthSelectorPseudoName '(' [\<an+b>] 'of'¹ Selector ')'
@@ -110,6 +110,7 @@ No whitespace is allowed between components of an `InterpolatedIdentifier`.
 
 [\<declaration-value>]: https://www.w3.org/TR/css-syntax-3/#typedef-declaration-value
 [\<an+b>]: https://www.w3.org/TR/css-syntax-3/#the-anb-type
+[\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
 
 1: The string `of` is matched case-insensitively. In addition, it must be parsed
    as an identifier.

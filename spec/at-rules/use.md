@@ -29,12 +29,14 @@ The grammar for the `@use` rule is as follows:
 
 <x><pre>
 **UseRule**         ::= '@use' QuotedString AsClause? WithClause?
-**AsClause**        ::= 'as' ('\*' | Identifier)
+**AsClause**        ::= 'as' ('\*' | [\<ident-token>][])
 **WithClause**      ::= 'with' '('
 &#32;                     KeywordArgument (',' KeywordArgument)\* ','?
 &#32;                   ')'
-**KeywordArgument** ::= '$' Identifier ':' Expression
+**KeywordArgument** ::= '$' [\<ident-token>][] ':' Expression
 </pre></x>
+
+[\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
 
 `@use` rules must be at the top level of the document, and must come before any
 rules other than `@charset` or `@forward`. The `QuotedString`'s contents, known

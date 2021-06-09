@@ -14,10 +14,11 @@
 
 <x><pre>
 **Variable**            ::= PlainVariable | NamespacedVariable
-**PlainVariable**       ::= '$' Identifier
-**NamespacedVariable**  ::= Identifier '.$' [PublicIdentifier][]
+**PlainVariable**       ::= '$' [\<ident-token>][]
+**NamespacedVariable**  ::= [\<ident-token>][] '.$' [PublicIdentifier][]
 **VariableDeclaration** ::= Variable ':' Expression ('!global' | '!default')*
 </pre></x>
+[\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
 
 [PublicIdentifier]: modules.md#syntax
 
