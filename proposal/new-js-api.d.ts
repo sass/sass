@@ -204,8 +204,8 @@ export interface CompileResult {
  * Compiles the Sass file at `path`.
  *
  * To perform the compilation, the compiler executes the [compiling a path]
- * procedure on `path`. The compiler must respect the configuration specified by
- * the `options` object.
+ * procedure on `path`, with `options.loadPaths` as the import paths. The
+ * compiler must respect the configuration specified by the `options` object.
  *
  * [compiling a path]: ../spec/spec.md#compiling-a-path
  *
@@ -247,6 +247,7 @@ export function compileAsync(
  *
  * To perform the compilation, the compiler executes the [compiling a string]
  * procedure as follows:
+ * - Use `options.loadPaths` as the import paths.
  * - Use `options.source` as `string`.
  * - Use `options.syntax` as `syntax`.
  *   - If `options.syntax` == 'sass', use 'indented'.
@@ -268,7 +269,7 @@ export function compileAsync(
  *   source files [loaded] during the compilation. The order of URLs is not
  *   guaranteed.
  *   - If `options.url` is set, include it in the list.
- *   - Otherwise, do not include `source`.
+ *   - Otherwise, do not include a URL for `source`.
  *
  *   [loaded]: ../spec/modules.md#loading-a-source-file
  *
