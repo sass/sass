@@ -13,7 +13,8 @@
     "diff": "^4.0.1",
     "glob": "^7.1.3",
     "markdown-link-check": "git+https://sassbot@github.com/nex3/markdown-link-check.git#check-references",
-    "markdown-toc": "^1.2.0"
+    "markdown-toc": "^1.2.0",
+    "source-map-js": "^0.6.2"
   },
   "devDependencies": {
     "@types/node": "^14.11.2",
