@@ -32,10 +32,6 @@
  *
  * > This section is non-normative.
  *
- * This proposal specifies synchronous and asynchronous functions for compiling
- * Sass input by path or by string. It also specifies all of the options for
- * configuring Sass compilations.
- *
  * This proposal is strongly influenced by the [reference implementation's API],
  * which is carefully designed, considered, and maintained by the core Sass
  * team, as well as the [Embedded Protocol], which was designed for reusability
@@ -43,6 +39,13 @@
  *
  * [reference implementation's API]: https://pub.dev/documentation/sass/latest/sass/sass-library.html
  * [Embedded Protocol]: https://github.com/sass/embedded-protocol
+ *
+ * This proposal specifies synchronous and asynchronous functions for compiling
+ * Sass input by path or by string. It also specifies all of the options for
+ * configuring Sass compilations.
+ *
+ * This proposal does not include designs for importers or custom functions.
+ * These are planned and will land before the new API is released.
  */
 
 /** ## API */
@@ -186,10 +189,8 @@ export interface Exception extends Error {
    *
    * > This likely includes the Sass error message, span, and stack. The format
    * > can vary from implementation to implementation.
-   *
-   * TODO(awjin): Mark this as `override` once TS 4.3 is released.
    */
-  toString(): string;
+  toString(): string; // TODO(awjin): Mark this as `override` once TS 4.3 is released.
 }
 
 /** The object returned by the compiler when a Sass compilation succeeds. */
@@ -200,32 +201,41 @@ export interface CompileResult {
 }
 
 /**
- * [Compiles](../spec/spec.md#compiling-a-path) the Sass file at `path`.
+ * Compiles the Sass file at `path`.
  *
- * The compilation must respect the configuration specified by the `options`
- * object.
+ * To perform the compilation, the compiler executes the [compiling a path]
+ * procedure on `path`. The compiler must respect the configuration specified by
+ * the `options` object.
  *
- * If the compilation succeeds, the compiler returns a `CompileResult` object
- * composed as follows:
- * - `CompileResult.css` is set to the emitted CSS.
- * - `CompileResult.includedFiles` is set to a list of unique URLs included in
- *   the compilation. The order of URLs is not guaranteed.
- * - If `options.sourceMap` is `true`, `CompileResult.sourceMap` is set to a
+ * [compiling a path]: ../spec/spec.md#compiling-a-path
+ *
+ * If the compilation succeeds, the compiler must return a `CompileResult`
+ * object composed as follows:
+ *
+ * - Let `css` be the CSS emitted by the Sass compilation. Set
+ *   `CompileResult.css` to `css`.
+ *
+ * - Set `CompileResult.includedFiles` to a list of unique canonical URLs of
+ *   source files [loaded] during the compilation. The order of URLs is not
+ *   guaranteed.
+ *
+ *   [loaded]: ../spec/modules.md#loading-a-source-file
+ *
+ * - If `options.sourceMap` is `true`, set `CompileResult.sourceMap` to a
  *   sourceMap object describing how sections of the Sass input correspond to
  *   sections of the CSS output.
  *
  *   > The structure of the sourceMap can vary from implementation to
  *   > implementation.
  *
- * If the compilation fails, the compiler throws an `Exception`.
+ * If the compilation fails, the compiler must throw an `Exception`.
  */
 export function compile(path: string, options?: Options<'sync'>): CompileResult;
 
 /**
  * Like `compile`, but runs asynchronously.
  *
- * Running asynchronously allows passing `AsyncCallable`s and `AsyncImporter`s
- * to the compiler rather than their synchronous counterparts.
+ * The compiler must support asynchronous plugins when running in this mode.
  */
 export function compileAsync(
   path: string,
@@ -233,26 +243,43 @@ export function compileAsync(
 ): Promise<CompileResult>;
 
 /**
- * [Compiles](../spec/spec.md#compiling-a-string) the Sass `source`.
+ * Compiles the Sass `source`.
  *
- * The compilation must respect the configuration specified by the `options`
+ * To perform the compilation, the compiler executes the [compiling a string]
+ * procedure as follows:
+ * - Use `options.source` as `string`.
+ * - Use `options.syntax` as `syntax`.
+ *   - If `options.syntax` == 'sass', use 'indented'.
+ *   - If `options.syntax` is not set, use 'scss'.
+ * - If `options.url` is set, use it as `url`.
+ *
+ * [compiling a string]: ../spec/spec.md#compiling-a-string
+ *
+ * The compiler must respect the configuration specified by the `options`
  * object.
  *
- * If the compilation succeeds, the compiler returns a `CompileResult` object
- * composed as follows:
- * - `CompileResult.css` is set to the emitted CSS.
- * - `CompileResult.includedFiles` is set to a list of unique URLs included in
- *   the compilation. The order of URLs is not guaranteed.
- *   - If `options.url` is set, the url is included in the list.
- *   - Otherwise, `source` is excluded.
- * - If `options.sourceMap` is `true`, `CompileResult.sourceMap` is set to a
+ * If the compilation succeeds, the compiler must return a `CompileResult`
+ * object composed as follows:
+ *
+ * - Let `css` be the CSS emitted by the Sass compilation. Set
+ *   `CompileResult.css` to `css`.
+ *
+ * - Set `CompileResult.includedFiles` to a list of unique canonical URLs of
+ *   source files [loaded] during the compilation. The order of URLs is not
+ *   guaranteed.
+ *   - If `options.url` is set, include it in the list.
+ *   - Otherwise, do not include `source`.
+ *
+ *   [loaded]: ../spec/modules.md#loading-a-source-file
+ *
+ * - If `options.sourceMap` is `true`, set `CompileResult.sourceMap` to a
  *   sourceMap object describing how sections of the Sass input correspond to
  *   sections of the CSS output.
  *
  *   > The structure of the sourceMap can vary from implementation to
  *   > implementation.
  *
- * If the compilation fails, the compiler throws an `Exception`.
+ * If the compilation fails, the compiler must throw an `Exception`.
  */
 export function compileString(
   source: string,
@@ -262,8 +289,7 @@ export function compileString(
 /**
  * Like `compileString`, but runs asynchronously.
  *
- * Running asynchronously allows passing `AsyncCallable`s and `AsyncImporter`s
- * to the compiler rather than their synchronous counterparts.
+ * The compiler must support asynchronous plugins when running in this mode.
  */
 export function compileStringAsync(
   source: string,
