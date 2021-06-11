@@ -51,6 +51,25 @@ export interface _Options<sync = 'sync' | 'async'> {
   sourceMapRoot?: string;
   importer?: Importer<sync> | Importer<sync>[];
   functions?: {[key: string]: CustomFunction<sync>};
+
+  /**
+   * If true, the compiler must not print deprecation warnings for stylesheets
+   * that are transitively loaded through an import path or importer.
+   *
+   * @default false
+   */
+  quietDeps?: boolean;
+
+  /**
+   * If `true`, the compiler must print every single deprecation warning it
+   * encounters.
+   *
+   * If `false`, the compiler may choose not to print repeated deprecation
+   * warnings.
+   *
+   * @default false
+   */
+  verbose?: boolean;
 }
 
 export type Options<sync = 'sync' | 'async'> = _Options<sync> &
