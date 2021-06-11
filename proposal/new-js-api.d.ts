@@ -1,5 +1,5 @@
 /**
- * # New JavaScript API: Draft 1.1
+ * # New JavaScript API: Draft 2
  *
  * *([Issue](https://github.com/sass/sass/issues/3056))*
  *
