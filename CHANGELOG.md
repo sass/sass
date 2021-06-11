@@ -8,6 +8,9 @@
 * Add `CompileRequest.quiet_deps` and `CompileRequest.verbose` flags to control
   how the compiler emits compilation warnings.
 
+* Fix the documentation of `CanonicalizeRequest` to avoid referring to the
+  outmoded `CanonicalizeResponse.result.file` field.
+
 [protocol buffer style guide]: https://developers.google.com/protocol-buffers/docs/style
 
 ## 1.0.0-beta.10

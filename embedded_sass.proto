@@ -339,12 +339,14 @@ message OutboundMessage {
   // format.
   //
   // If the URL is not recognized by this importer, or if no stylesheet is found
-  // at that URL, `CanonicalizeResponse.result` must be `null`.
+  // at that URL, `CanonicalizeResponse.result` must be `null`. Otherwise, the
+  // importer must return an absolute URL, including a scheme.
   //
-  // Canonical URLs must be absolute, including a scheme. If the import is
-  // referring to a Sass file on disk, the importer is encouraged to respond
-  // with a `CanonicalizeResponse.result.file`, in which case the host will
-  // handle the logic of resolving partials, file extensions, and index files.
+  // > The host's documentation should encourage the use of file importers (via
+  // > `CompileRequest.Importer.file_importer_id`, `FileImportRequest`, and
+  // > `FileImportResponse`) for any importers that simply refer to files on
+  // > disk. This will allow Sass to handle the logic of resolving partials,
+  // > file extensions, and index files.
   //
   // If Sass has already loaded a stylesheet with the returned canonical URL, it
   // re-uses the existing parse tree. This means that importers must ensure that
