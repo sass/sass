@@ -1,5 +1,5 @@
 /**
- * # New JavaScript API: Draft 1
+ * # New JavaScript API: Draft 2
  *
  * *([Issue](https://github.com/sass/sass/issues/3056))*
  *
@@ -196,7 +196,7 @@ export interface Exception extends Error {
 /** The object returned by the compiler when a Sass compilation succeeds. */
 export interface CompileResult {
   css: string;
-  includedUrls: URL[];
+  loadedUrls: URL[];
   sourceMap?: RawSourceMap;
 }
 
@@ -215,7 +215,7 @@ export interface CompileResult {
  * - Let `css` be the CSS emitted by the Sass compilation. Set
  *   `CompileResult.css` to `css`.
  *
- * - Set `CompileResult.includedFiles` to a list of unique canonical URLs of
+ * - Set `CompileResult.loadedUrls` to a list of unique canonical URLs of
  *   source files [loaded] during the compilation. The order of URLs is not
  *   guaranteed.
  *
@@ -265,7 +265,7 @@ export function compileAsync(
  * - Let `css` be the CSS emitted by the Sass compilation. Set
  *   `CompileResult.css` to `css`.
  *
- * - Set `CompileResult.includedFiles` to a list of unique canonical URLs of
+ * - Set `CompileResult.loadedUrls` to a list of unique canonical URLs of
  *   source files [loaded] during the compilation. The order of URLs is not
  *   guaranteed.
  *   - If `options.url` is set, include it in the list.
