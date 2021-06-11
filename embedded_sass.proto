@@ -38,7 +38,7 @@ message InboundMessage {
       // The location from which `source` was loaded. If this is empty, it
       // indicates that the URL is unknown.
       //
-      // This must be a URL recognized by `importer`, if it's passed.
+      // This must be a canonical URL recognized by `importer`, if it's passed.
       string url = 2;
 
       // The syntax to use to parse `source`.
@@ -275,6 +275,14 @@ message OutboundMessage {
       // host's (or the host's user's) responsibility to determine how the
       // generated CSS can be reached from the source map.
       string source_map = 2;
+
+      // The canonical URLs of all source files loaded during the compilation.
+      //
+      // The compiler must ensure that each canonical URL appears only once in
+      // this list. This must include the entrypoint file's URL if either
+      // `CompileRequest.input.path` or `CompileRequest.StringInput.url` was
+      // passed.
+      repeated string loaded_urls = 3;
     }
 
     // A message indicating that the Sass file could not be successfully
