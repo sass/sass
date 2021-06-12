@@ -292,11 +292,21 @@ both `CompilerFunction`s or both `HostFunction`s.
 
 ### Versioning
 
-This protocol is versioned according to [semver 2.0.0]. Compatibility is
-considered from the perspective of the host. For example, if a new
-`InboundMessage` type is added, that's considered a "backwards compatible"
-change because older hosts can simply opt not to use it, even though from the
-perspective of the compiler a new message type would be a breaking change.
+This protocol is versioned according to [semver 2.0.0]. The current version is
+indicated by the `VERSION` file at the root of the repository. If this file has
+a `-dev` prerelease string, that indicates that the currently checked in version
+is in development, is not considered a release version, and must not be used by
+released versions of compilers or hosts. All release versions will also have
+GitHub tags for their version numbers.
+
+A "breaking change" is defined as per [the protocol buffer rules for updating a
+message type]. Compatibility is considered from the perspective of the host. For
+example, if a new `InboundMessage` type is added, that's considered a "backwards
+compatible" change because older hosts can simply opt not to use it, even though
+from the perspective of the compiler a new message type would be a breaking
+change.
+
+[the protocol buffer rules for updating a message type]: https://developers.google.com/protocol-buffers/docs/proto#updating
 
 Hosts are generally expected to be responsible for installing appropriate
 compiler versions as part of their installation process, which should limit the
