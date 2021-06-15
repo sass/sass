@@ -44,6 +44,176 @@ export abstract class Value {
   toString(): string;
 }
 
+/** The JS API representation of a Sass color. */
+export class SassColor extends Value {
+  /**
+   * Creates an RGB color:
+   *
+   * - If `red` is not between `0` and `255` inclusive, throw an `Exception`.
+   * - If `green` is not between `0` and `255` inclusive, throw an `Exception`.
+   * - If `blue` is not between `0` and `255` inclusive, throw an `Exception`.
+   * - If `alpha` is not between `0` and `1` inclusive, throw an `Exception`.
+   * - Let `color` be a new `SassColor`:
+   *   - Set `color`'s `red` channel to `red`.
+   *   - Set `color`'s `green` channel to `green`.
+   *   - Set `color`'s `blue` channel to `blue`.
+   *   - If `alpha` was passed, set `color`'s `alpha` channel to `alpha`.
+   *   - Otherwise, set `color`'s `alpha` channel to 1.
+   * - Return `color`.
+   */
+  static rgb(
+    red: number,
+    green: number,
+    blue: number,
+    alpha?: number
+  ): SassColor;
+
+  /**
+   * Creates an HSL color:
+   *
+   * - If `saturation` is not between `0` and `100` inclusive, throw an
+   *   `Exception`.
+   * - If `lightness` is not between `0` and `100` inclusive, throw an
+   *   `Exception`.
+   * - If `alpha` is not between `0` and `1` inclusive, throw an `Exception`.
+   * - Let `color` be a new `SassColor`:
+   *   - Set `color`'s `hue` to `hue % 360`.
+   *   - Set `color`'s `saturation` to `saturation`.
+   *   - Set `color`'s `lightness` to `lightness`.
+   *   - If `alpha` was passed, set `color`'s `alpha` channel to `alpha`.
+   *   - Otherwise, set `color`'s `alpha` channel to 1.
+   * - Return `color`.
+   */
+  static hsl(
+    hue: number,
+    saturation: number,
+    lightness: number,
+    alpha?: number
+  ): SassColor;
+
+  /**
+   * Creates an HWB color:
+   *
+   * - If `whiteness` is not between `0` and `100` inclusive, throw an
+   *   `Exception`.
+   * - If `blackness` is not between `0` and `100` inclusive, throw an
+   *   `Exception`.
+   * - If `alpha` is not between `0` and `1` inclusive, throw an `Exception`.
+   * - Let `color` be a new `SassColor`.
+   *   - Set `color`'s `hue` to `hue % 360`.
+   *   - Set `color`'s `whiteness` to `whiteness`.
+   *   - Set `color`'s `blackness` to `blackness`.
+   *   - If `alpha` was passed, set `color`'s `alpha` channel to `alpha`.
+   *   - Otherwise, set `color`'s `alpha` channel to 1.
+   * - Return `color`.
+   */
+  static hwb(
+    hue: number,
+    whiteness: number,
+    blackness: number,
+    alpha?: number
+  ): SassColor;
+
+  /** This color's red channel. */
+  get red(): number;
+
+  /** This color's green channel. */
+  get green(): number;
+
+  /** This color's blue channel. */
+  get blue(): number;
+
+  /** This color's hue. */
+  get hue(): number;
+
+  /** This color's saturation. */
+  get saturation(): number;
+
+  /** This color's lightness. */
+  get lightness(): number;
+
+  /** This color's whiteness. */
+  get whiteness(): number;
+
+  /** This color's blackness. */
+  get blackness(): number;
+
+  /** This color's alpha channel. */
+  get alpha(): number;
+
+  /**
+   * Returns a new copy of this color with one or more changes made to the RGB
+   * channels:
+   *
+   * - Let `oldColor` be this color.
+   * - If `red` was passed, let `newRed = red`.
+   * - Otherwise, let `newRed = oldColor.red`.
+   * - If `green` was passed, let `newGreen = green`.
+   * - Otherwise, let `newGreen = oldColor.green`.
+   * - If `blue` was passed, let `newBlue = blue`.
+   * - Otherwise, let `newBlue = oldColor.blue`.
+   * - If `alpha` was passed, let `newAlpha = alpha`.
+   * - Otherwise, let `newAlpha = oldColor.alpha`.
+   * - Return the result of
+   *   `SassColor.rgb(newRed, newGreen, newBlue, newAlpha)`.
+   */
+  changeRgb(options: {
+    red?: number;
+    green?: number;
+    blue?: number;
+    alpha?: number;
+  }): SassColor;
+
+  /**
+   * Returns a new copy of this color with one or more changes made to the HSL
+   * values:
+   *
+   * - Let `oldColor` be this color.
+   * - If `hue` was passed, let `newHue = hue`.
+   * - Otherwise, let `newHue = oldColor.hue`.
+   * - If `saturation` was passed, let `newSaturation = saturation`.
+   * - Otherwise, let `newSaturation = oldColor.saturation`.
+   * - If `lightness` was passed, let `newLightness = lightness`.
+   * - Otherwise, let `newLightness = oldColor.lightness`.
+   * - If `alpha` was passed, let `newAlpha = alpha`.
+   * - Otherwise, let `newAlpha = oldColor.alpha`.
+   * - Return the result of
+   *   `SassColor.hsl(newHue, newSaturation, newLightness, newAlpha)`.
+   */
+  changeHsl(options: {
+    hue?: number;
+    saturation?: number;
+    lightness?: number;
+    alpha?: number;
+  }): SassColor;
+
+  /**
+   * Returns a new copy of this color with one or more changes made to the HWB
+   * values:
+   *
+   * - Let `oldColor` be this color.
+   * - If `hue` was passed, let `newHue = hue`.
+   * - Otherwise, let `newHue = oldColor.hue`.
+   * - If `whiteness` was passed, let `newWhiteness = whiteness`.
+   * - Otherwise, let `newWhiteness = oldColor.whiteness`.
+   * - If `blackness` was passed, let `newBlackness = blackness`.
+   * - Otherwise, let `newBlackness = oldColor.blackness`.
+   * - If `alpha` was passed, let `newAlpha = alpha`.
+   * - Otherwise, let `newAlpha = oldColor.alpha`.
+   * - Return the result of
+   *   `SassColor.hwb(newHue, newWhiteness, newBlackness, newAlpha)`.
+   */
+  changeHwb(options: {
+    hue?: number;
+    whiteness?: number;
+    blackness?: number;
+    alpha?: number;
+  }): SassColor;
+
+  /** Returns a new copy of this color with the alpha channel set to `alpha`. */
+  changeAlpha(alpha: number): SassColor;
+}
+
 /** The JS API representation of a Sass string. */
 export class SassString extends Value {
   /**
