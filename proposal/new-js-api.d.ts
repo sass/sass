@@ -146,16 +146,10 @@ type StringOptions<sync extends 'sync' | 'async'> = Options<sync> & {
    * @default 'scss'
    */
   syntax?: Syntax;
-} & (
-    | {
-        /** The compiler must treat this as the canonical URL of `source`. */
-        url?: URL;
-      }
-    | {
-        // TODO(awjin): importer: Importer<sync>;
-        url: URL;
-      }
-  );
+
+  /** The compiler must treat this as the canonical URL of `source`. */
+  url?: URL;
+};
 
 /** The error thrown by the compiler when a Sass compilation fails. */
 export interface Exception extends Error {

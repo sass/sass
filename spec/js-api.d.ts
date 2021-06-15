@@ -13,10 +13,10 @@
  * must adhere to this declaration and to the behavioral specifications written
  * in JSDoc comments on the declarations. Implementations may throw errors when
  * user code passes in values that don't adhere to the type declaration, but
- * they may also handle these values in undefined ways in accordance with the
- * common JavaScript pattern of avoiding explicit type checks. This must not be
- * used as a way of adding custom extensions that aren't shared across all
- * implementations.
+ * unless otherwise indicated they may also handle these values in undefined
+ * ways in accordance with the common JavaScript pattern of avoiding explicit
+ * type checks. This must not be used as a way of adding custom extensions that
+ * aren't shared across all implementations.
  *
  * As with other sections of this specification, the specification of the JS API
  * is incomplete, and is added to *lazily*. This means that portions of the
