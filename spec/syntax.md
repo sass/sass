@@ -12,6 +12,7 @@
   * [`MinMaxExpression`](#minmaxexpression)
   * [`PseudoSelector`](#pseudoselector)
 * [Procedures](#procedures)
+  * [Parsing Text](#parsing-text)
   * [Parsing Text as CSS](#parsing-text-as-css)
   * [Consuming an Identifier](#consuming-an-identifier)
   * [Consuming an Interpolated Identifier](#consuming-an-interpolated-identifier)

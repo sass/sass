@@ -95,7 +95,6 @@ a string.
   `url`, `importer`, `importers`, and `load-paths`.
 
 [importers]: modules.md#importer
-[filesystem importer]: modules.md#filesystem-importer
 
 ### Compiling a String
 
@@ -120,8 +119,7 @@ It runs as follows:
 
   * Let `base` be the absolute `file:` URL that refers to `path`.
 
-  * Add a [filesystem importer](#filesystem-importer) with base `base` to the
-    global importer list.
+  * Add a [filesystem importer] with base `base` to the global importer list.
 
 * Let `ast` be the result of [parsing] `text` as `syntax`.
 
@@ -150,8 +148,9 @@ It runs as follows:
 
 * Return the result of converting `css` to a CSS string.
 
+[filesystem importer]: modules.md#filesystem-importer
 [parsing]: syntax.md#parsing-text
-[global importer list]: #global-importer-list
+[global importer list]: modules.md#global-importer-list
 
 ### Executing a File
 

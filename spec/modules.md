@@ -10,6 +10,9 @@
   * [Module Graph](#module-graph)
   * [Import Context](#import-context)
   * [Built-In Module](#built-in-module)
+  * [Importer](#importer)
+  * [Filesystem Importer](#filesystem-importer)
+  * [Global Importer List](#global-importer-list)
   * [Basename](#basename)
   * [Dirname](#dirname)
 * [Syntax](#syntax)
@@ -17,6 +20,7 @@
   * [Loading a Module](#loading-a-module)
   * [Loading a Source File](#loading-a-source-file)
   * [Resolving a `file:` URL](#resolving-a-file-url)
+  * [Resolving a `file:` URL for Extensions](#resolving-a-file-url-for-extensions)
   * [Resolving a `file:` URL for Partials](#resolving-a-file-url-for-partials)
   * [Resolving a Member](#resolving-a-member)
 
@@ -182,21 +186,14 @@ A *filesystem importer* is an [importer](#importer) with an associated absolute
 `file:` URL named `base`. When a filesystem importer is invoked with a string
 named `string`:
 
-* Let `url` be the result of [parsing `string` as a URL] with `base` as the base
-  URL. If this returns a failure, throw that failure.
+* Let `url` be the result of [parsing `string` as a URL][parsing a URL] with
+  `base` as the base URL. If this returns a failure, throw that failure.
 
 * If `url`'s scheme is not `file`, return null.
 
 * Let `resolved` be the result of [resolving `url`](#resolving-a-file-url).
 
-* If `resolved` is null:
-
-  * Let `index` be [`dirname(url)`](#dirname) + `"index/"` +
-    [`basename(url)`](#basename).
-
-  * Set `resolved` to the result of [resolving `index`](#resolving-a-file-url).
-
-* If `resolved` is still null, return null.
+* If `resolved` is null, return null.
 
 * Let `text` be the contents of the file at `resolved`.
 
@@ -210,7 +207,7 @@ named `string`:
 
 * Return `text`, `syntax`, and `resolved`.
 
-[parsing `string` as a URL]: https://url.spec.whatwg.org/#concept-url-parser
+[parsing a URL]: https://url.spec.whatwg.org/#concept-url-parser
 
 ### Global Importer List
 
@@ -288,8 +285,8 @@ null.
 
 * If `argument` is a relative URL:
 
-  * Let `resolved` be the result of [parsing `argument` as a URL] with the
-    [current source file]'s canonical URL as the base URL.
+  * Let `resolved` be the result of [parsing `argument` as a URL][parsing a URL]
+    with the [current source file]'s canonical URL as the base URL.
 
   * Let `result` be the result of passing `resolved` to the current source
     file's [importer](#importer).
@@ -315,9 +312,28 @@ null.
 
 * Return null.
 
-[parsing `text`]: syntax.md#parsing-text
+[current source file]: spec.md#current-source-file
+[parsing]: syntax.md#parsing-text
 
 ### Resolving a `file:` URL
+
+This algorithm takes a URL, `url`, whose scheme must be `file` and returns
+either another URL that's guaranteed to point to a file on disk or null.
+
+* Let `resolved` be the result of [resolving `url` for extensions][resolving for
+  extensions].
+
+* If `resolved` is not null, return it. Otherwise:
+
+* Let `index` be [`dirname(url)`](#dirname) + `"index/"` +
+  [`basename(url)`](#basename).
+
+* Return the result of [resolving `index` for extensions][resolving for
+  extensions].
+
+[resolving for extensions]: #resolving-a-file-url-for-extensions
+
+### Resolving a `file:` URL for Extensions
 
 This algorithm takes a URL, `url`, whose scheme must be `file` and returns
 either another URL that's guaranteed to point to a file on disk or null.
