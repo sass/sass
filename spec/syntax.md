@@ -24,9 +24,11 @@
 
 ### Source File
 
-A *source file* is a Sass abstract syntax tree along with an absolute URL, known
-as that file's *canonical URL*. A given canonical URL cannot be associated with
-more than one source file.
+A *source file* is a Sass abstract syntax tree along; an absolute URL, known as
+that file's *canonical URL*; and an [importer]. A given canonical URL cannot be
+associated with more than one source file.
+
+[importer]: modules.md#importer
 
 ### Vendor Prefix
 
@@ -127,6 +129,19 @@ No whitespace is allowed anywhere in a `PseudoSelector` except within
 parentheses.
 
 ## Procedures
+
+### Parsing Text
+
+This algorithm takes a string `text` and a syntax `syntax` ("indented", "scss",
+or "sass"), and returns a Sass abstract syntax tree.
+
+* If `syntax` is "indented", return the result of parsing `text` as the indented
+  syntax.
+
+* If `syntax` is "css", return the result of [parsing `text` as
+  CSS](#parsing-text-as-css).
+
+* If `syntax` is "scss", return the result of parsing `text` as SCSS.
 
 ### Parsing Text as CSS
 

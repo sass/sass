@@ -71,7 +71,9 @@ invocation of [Executing a File](#executing-a-file).
 > This an entrypoint to the specification; it's up to each implementation how it
 > exposes this to the user.
 
-This algorithm takes a local filesystem path `path` and returns a string.
+This algorithm takes a local filesystem path `path`, an optional list of
+[importers] `importers`, and an optional list of paths `load-paths`. It returns
+a string.
 
 * Let `text` be the result of decoding the binary contents of the file at
   `path`.
@@ -84,35 +86,59 @@ This algorithm takes a local filesystem path `path` and returns a string.
 
 * Let `url` be the absolute `file:` URL corresponding to `path`.
 
-* Return the result of [compiling](#compiling-a-string) `text` with `syntax` and
-  `url`.
+* Let `importer` be a [filesystem importer] with an arbitrary `base`.
+
+  > This importer will only ever be passed absolute URLs, so its base won't
+  > matter.
+
+* Return the result of [compiling](#compiling-a-string) `text` with `syntax`,
+  `url`, `importer`, `importers`, and `load-paths`.
+
+[importers]: modules.md#importer
+[filesystem importer]: modules.md#filesystem-importer
 
 ### Compiling a String
 
 > This an entrypoint to the specification; it's up to each implementation how it
 > exposes this to the user.
 
-This algorithm takes a string `string`, a syntax `syntax` ("indented", "scss",
-or "css"), and an optional URL `url`,
+This algorithm takes:
+* a string `string`,
+* a syntax `syntax` ("indented", "scss", or "css"),
+* an optional URL `url`,
+* an optional [importer] `importer`,
+* an optional list of importers `importers`,
+* and an optional list of paths `load-paths`.
 
-* Let `ast` be:
+[importer]: modules.md#importer
 
-  * The result of parsing `text` as the indented syntax if `syntax` is
-    "indented".
+It runs as follows:
 
-  * The result of [parsing `text` as CSS][] if `syntax` is "css".
+* Set the [global importer list] to `importers`.
 
-  * The result of parsing `text` as SCSS otherwise.
+* For each `path` in `load-paths`:
 
-  [parsing `text` as CSS]: syntax.md#parsing-text-as-css
+  * Let `base` be the absolute `file:` URL that refers to `path`.
 
-* If `url` is null, set it to a unique value.
+  * Add a [filesystem importer](#filesystem-importer) with base `base` to the
+    global importer list.
 
-  > This ensures that all source files have a valid URL. When displaying this
-  > value, implementations should help users understand the source of the string
-  > if possible.
+* Let `ast` be the result of [parsing] `text` as `syntax`.
 
-* Let `file` be the [source file][] with `ast` and canonical URL `url`.
+* If `url` is null:
+
+  * If `importer` is not null, throw an error.
+
+  * Set `url` to a unique value.
+
+    > This ensures that all source files have a valid URL. When displaying this
+    > value, implementations should help users understand the source of the string
+    > if possible.
+
+* If `importer` is null, set it to a function that always returns null.
+
+* Let `file` be the [source file][] with `ast`, canonical URL `url`, and
+  importer `importer`.
 
   [source file]: syntax.md#source-file
 
@@ -123,6 +149,9 @@ or "css"), and an optional URL `url`,
   [resolving `module`'s extensions]: at-rules/extend.md#resolving-a-modules-extensions
 
 * Return the result of converting `css` to a CSS string.
+
+[parsing]: syntax.md#parsing-text
+[global importer list]: #global-importer-list
 
 ### Executing a File
 
