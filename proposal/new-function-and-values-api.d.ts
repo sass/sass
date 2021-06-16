@@ -217,57 +217,64 @@ export class SassColor extends Value {
 /** The JS API representation of a Sass string. */
 export class SassString extends Value {
   /**
-   * Creates a string with the given `text`:
+   * > This virtual property exists only to make the spec more concise and
+   * > precise.
    *
-   * - If `options.quotes == true`, set this string's `text` to the semantic
-   *   content of `text`, resolving any escape sequences to their Unicode
-   *   values.
-   * - Otherwise, set this string's `text` to the literal content of `text`,
-   *   preserving the escape sequences as backslashes.
-   * - Set this string's `sassLength` to the number of Unicode code points
-   *   contained in `text`.
+   * An object that behaves like a Sass string instance.
    *
-   *   > Sass internally represents strings as sequences of Unicode
-   *   > [code point]s, whereas JS represents them as UTF-16 [code unit]s.
-   *   > Implementations must convert strings to Unicode code points before
-   *   > setting `text`.
-   *
-   *   [code point]: https://unicode.org/glossary/#code_point
-   *   [code unit]: https://unicode.org/glossary/#code_unit
+   * internalString: Value;
+   */
+
+  /**
+   * - If `options.quotes === true`, set `internalString`'s contents to `text`.
+   * - Otherwise, let `escapedText` be `text` with all of its escape sequences
+   *   preserved as literal backslashes. Set `internalString`'s contents to
+   *   `escapedText`.
    */
   constructor(
     text: string,
     options: {
-      /** @default false */
+      /** @default true */
       quotes: boolean;
     }
   );
 
-  /** The contents of the string. */
+  /** The contents of `internalString`. */
   get text(): string;
 
-  /** Whether the string has quotes. */
+  /** Whether `internalString` has quotes. */
   get hasQuotes(): boolean;
 
-  /** The number of Unicode code points in the string. */
+  /** The number of Unicode code points in `text`. */
   get sassLength(): number;
 
   /**
    * Converts the Sass index `sassIndex` to a JS index into `text`:
    *
-   * - If `sassIndex` isn't an integer, throw an `Exception`.
-   * - If `sassIndex == 0`, throw an `Exception`.
-   * - If the absolute value of `sassIndex` is greater than `sassLength`, throw
+   * - If `sassIndex` is not a Sass number, throw an exception.
+   *
+   * - Let `value` be the value of `sassIndex`. Let `index` be the result of
+   *   `fuzzyAsInt(value)`. If `index` is null, throw an `Exception`.
+   *
+   * - If `index === 0`, throw an `Exception`.
+   *
+   * - If the absolute value of `index` is greater than `sassLength`, throw
    *   an `Exception`.
-   * - Sass indices start counting at 1, and may be negative in order to index
-   *   from the end of the string. Let `normalizedIndex` be equivalent to a Sass
-   *   index, except it starts counting at 0 and does not support negative
-   *   values.
-   *   - If `sassIndex > 0`, set `normalizedIndex = sassIndex - 1`.
-   *   - Otherwise, if `sassIndex < 0`, set `normalizedIndex = sassLength + sassIndex`.
-   * - Sass indices count Unicode code points, whereas JS indices count UTF-16
-   *   code units. Let `jsIndex` be a JS index. Set `jsIndex` to the first code
+   *
+   * > Sass indices start counting at 1, and may be negative in order to index
+   * > from the end of the string.
+   *
+   * - If `index > 0`, let `normalizedIndex = index - 1`.
+   * - Otherwise, if `index < 0`, let `normalizedIndex = sassLength + index`.
+   *
+   * > Sass indices count Unicode [code point]s, whereas JS indices count UTF-16
+   * > [code units].
+   * > [code point]: https://unicode.org/glossary/#code_point
+   * > [code unit]: https://unicode.org/glossary/#code_unit
+   *
+   * - Let `jsIndex` be a JS index. Set `jsIndex` to the first code
    *   unit of the Unicode code point that `normalizedIndex` points to.
+   *
    * - Return `jsIndex`.
    */
   sassIndexToStringIndex(sassIndex: Value): number;
