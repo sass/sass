@@ -1,5 +1,5 @@
 /**
- * # New JavaScript API: Draft 2
+ * # New JavaScript API: Draft 2.1
  *
  * *([Issue](https://github.com/sass/sass/issues/3056))*
  *
@@ -204,8 +204,8 @@ export interface CompileResult {
  * Compiles the Sass file at `path`.
  *
  * To perform the compilation, the compiler executes the [compiling a path]
- * procedure on `path`, with `options.loadPaths` as the import paths. The
- * compiler must respect the configuration specified by the `options` object.
+ * procedure on `path`, with `options.loadPaths` as `load-paths`. The compiler
+ * must respect the configuration specified by the `options` object.
  *
  * [compiling a path]: ../spec/spec.md#compiling-a-path
  *
@@ -247,7 +247,7 @@ export function compileAsync(
  *
  * To perform the compilation, the compiler executes the [compiling a string]
  * procedure as follows:
- * - Use `options.loadPaths` as the import paths.
+ * - Use `options.loadPaths` as `load-paths`.
  * - Use `options.source` as `string`.
  * - Use `options.syntax` as `syntax`.
  *   - If `options.syntax` == 'sass', use 'indented'.

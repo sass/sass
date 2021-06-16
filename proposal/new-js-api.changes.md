@@ -1,3 +1,7 @@
+## Draft 2.1
+
+* Minor adjustments to link up with updates in the main spec.
+
 ## Draft 2
 
 * Rename `CompileResult.includedUrls` to `CompileResult.loadedUrls`. This is
