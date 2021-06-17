@@ -10,8 +10,8 @@
  * > This section is non-normative.
  *
  * Sass's current JavaScript API was inherited from Node Sass, which developed
- * it over time in an _ad hoc_ manner. The importer API in particular has a
- * number of notable issues:
+ * over time in an _ad hoc_ manner. The importer API in particular has a number
+ * of notable issues:
  *
  * - It doesn't respect URL semantics. In particular, it doesn't provide any
  *   guarantee that `@import "./bar"` within a stylesheet with URL `foo` means
@@ -62,7 +62,7 @@
  * has exactly one canonical URL that in turn refers to exactly one stylesheet.
  * The canonical URL must be absolute, including a scheme, but the specific
  * structure is up to the importer. In most cases, the stylesheet in question
- * will exist on disk and the importer will just return a `file://` URL for it.
+ * will exist on disk and the importer will just return a `file:` URL for it.
  *
  * The `canonicalize()` method takes a URL string that may be either relative or
  * absolute. If the importer recognizes that URL, it returns a corresponding
@@ -74,6 +74,10 @@
  * the absolute `file:` URL of the physical file on disk. If it's generated
  * in-memory, the importer should choose a custom URL scheme to guarantee that
  * its canonical URLs don't conflict with any other importer's.
+ *
+ * For example, if you're loading Sass files from a database, you might use the
+ * scheme `db:`. The canonical URL for a stylesheet associated with key `styles`
+ * in the database might be `db:styles`.
  *
  * Having a canonical URL for each stylesheet allows Sass to ensure that the
  * same stylesheet isn't loaded multiple times in the new module system.
@@ -131,31 +135,31 @@ type StringOptions<sync extends 'sync' | 'async'> = Options<sync> & {
  *
  * [importer]: ../spec/modules.md#importer
  *
- * * Let `fromImport` be `true` if the importer is being run for an `@import`
+ * - Let `fromImport` be `true` if the importer is being run for an `@import`
  *   and `false` otherwise.
  *
- * * Let `url` be the result of calling `findFileUrl` with `url` and
+ * - Let `url` be the result of calling `findFileUrl` with `url` and
  *   `fromImport`.
  *
- * * If `url` is null, return null.
+ * - If `url` is null, return null.
  *
- * * If `url`'s scheme is not `file`, throw an error.
+ * - If `url`'s scheme is not `file`, throw an error.
  *
- * * Let `resolved` be the result of [resolving `url`].
+ * - Let `resolved` be the result of [resolving `url`].
  *
- * * If `resolved` is null, return null.
+ * - If `resolved` is null, return null.
  *
- * * Let `text` be the contents of the file at `resolved`.
+ * - Let `text` be the contents of the file at `resolved`.
  *
- * * Let `syntax` be:
- *   * "scss" if `url` ends in `.scss`.
- *   * "indented" if `url` ends in `.sass`.
- *   * "css" if `url` ends in `.css`.
+ * - Let `syntax` be:
+ *   - "scss" if `url` ends in `.scss`.
+ *   - "indented" if `url` ends in `.sass`.
+ *   - "css" if `url` ends in `.css`.
  *
  *   > The algorithm for resolving a `file:` URL guarantees that `url` will have
  *   > one of these extensions.
  *
- * * Return `text`, `syntax`, and `resolved`.
+ * - Return `text`, `syntax`, and `resolved`.
  *
  * [resolving `url`]: ../spec/modules.md#resolving-a-file-url
  */
@@ -169,7 +173,7 @@ interface SyncFileImporter {
 }
 
 /**
- * This interface represents an [importer]. It has the same beavior as
+ * This interface represents an [importer]. It has the same behavior as
  * `SyncFileImporter`, except that if `findFileUrl` returns a `Promise` it waits
  * for it to complete and uses its value as the return value. If a `Promise`
  * emits an error, it rethrows that error.
@@ -184,7 +188,16 @@ interface AsyncFileImporter {
 }
 
 export interface FileImporterResult {
-  /** The partially-resolved `file:` URL of a file on disk. */
+  /**
+   * The partially-resolved `file:` URL of a file on disk.
+   *
+   * > Because this is [resolved] after being returned, it doesn't need to be a
+   * > full canonical URL. Users' `FileImporter`s may simply append the relative
+   * > URL to a path and let the compiler resolve extensions, partials, and
+   * > index files.
+   *
+   * [resolved]: ../spec/modules.md#resolving-a-file-url
+   */
   url: URL;
 
   /**
@@ -203,29 +216,25 @@ export interface FileImporterResult {
  *
  * [importer]: ../spec/modules.md#importer
  *
- * * Let `fromImport` be `true` if the importer is being run for an `@import`
+ * - Let `fromImport` be `true` if the importer is being run for an `@import`
  *   and `false` otherwise.
  *
- * * Let `url` be the result of calling `canonicalize` with `url` and
+ * - Let `url` be the result of calling `canonicalize` with `url` and
  *   `fromImport`.
  *
- * * If `url` is null, return null.
+ * - If `url` is null, return null.
  *
- * * Let `result` be the result of calling `load` with `url`.
+ * - Let `result` be the result of calling `load` with `url`.
  *
- * * If `result` is null, return null.
+ * - If `result` is null, return null.
  *
- * * If `result.syntax` is `"scss"`, `"css"`:
+ * - Let `syntax` be `result.syntax`.
  *
- *   * Let `syntax` be `result.syntax`.
+ * - Throw an error if `syntax` is not "scss", "indented", or "css".
  *
- * * Otherwise, if `result.syntax` is `"sass"`:
+ * - Otherwise, throw an error.
  *
- *   * Let `syntax` be "indented".
- *
- * * Otherwise, throw an error.
- *
- * * Return `result.css`, `syntax`, and `url`.
+ * - Return `result.css`, `syntax`, and `url`.
  *
  * [resolving `url`]: ../spec/modules.md#resolving-a-file-url
  */
@@ -236,7 +245,7 @@ interface SyncImporter {
 }
 
 /**
- * This interface represents an [importer]. It has the same beavior as
+ * This interface represents an [importer]. It has the same behavior as
  * `SyncImporter`, except that if `canonicalize` or `load` return a `Promise` it
  * waits for it to complete and uses its value as the return value. If a
  * `Promise` emits an error, it rethrows that error.

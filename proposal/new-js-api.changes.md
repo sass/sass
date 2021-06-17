@@ -1,3 +1,7 @@
+## Draft 3
+
+* Use `"indented"` instead of `"sass"` to refer to the indented syntax.
+
 ## Draft 2.1
 
 * Minor adjustments to link up with updates in the main spec.
