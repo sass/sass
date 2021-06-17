@@ -93,6 +93,12 @@ The process for adding a new feature works as follows:
 
    Once these pull requests land, the feature moves to step 5.
 
+5. The contents of the proposal are integrated into the `spec/` directory, and
+   become part of the official language spec. This step happens after the
+   initial implementation because the first implementation often reveals
+   shortcomings in the proposal itself, and it's much simpler to make fixes to
+   only one place.
+
 ## Proposal
 
 A good feature proposal should make it possible for an average Sass user to
