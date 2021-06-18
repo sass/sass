@@ -25,9 +25,9 @@
 
 ### Source File
 
-A *source file* is a Sass abstract syntax tree along with; an absolute URL, known as
-that file's *canonical URL*; and an [importer]. A given canonical URL cannot be
-associated with more than one source file.
+A *source file* is a Sass abstract syntax tree along with an absolute URL, known
+as that file's *canonical URL*; and an [importer]. A given canonical URL cannot
+be associated with more than one source file.
 
 [importer]: modules.md#importer
 

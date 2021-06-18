@@ -1,5 +1,5 @@
 /**
- * # New JavaScript API: Draft 2.1
+ * # New JavaScript API: Draft 3
  *
  * *([Issue](https://github.com/sass/sass/issues/3056))*
  *
@@ -54,7 +54,7 @@ import {URL} from 'url';
 import {RawSourceMap} from 'source-map-js'; // https://www.npmjs.com/package/source-map-js
 
 /** The types of input syntax that the compiler can parse. */
-type Syntax = 'scss' | 'sass' | 'css';
+type Syntax = 'scss' | 'indented' | 'css';
 
 /**
  * The ways in which the compiler can format the emitted CSS.
@@ -146,16 +146,10 @@ type StringOptions<sync extends 'sync' | 'async'> = Options<sync> & {
    * @default 'scss'
    */
   syntax?: Syntax;
-} & (
-    | {
-        /** The compiler must treat this as the canonical URL of `source`. */
-        url?: URL;
-      }
-    | {
-        // TODO(awjin): importer: Importer<sync>;
-        url: URL;
-      }
-  );
+
+  /** The compiler must treat this as the canonical URL of `source`. */
+  url?: URL;
+};
 
 /** The error thrown by the compiler when a Sass compilation fails. */
 export interface Exception extends Error {
@@ -249,9 +243,7 @@ export function compileAsync(
  * procedure as follows:
  * - Use `options.loadPaths` as `load-paths`.
  * - Use `options.source` as `string`.
- * - Use `options.syntax` as `syntax`.
- *   - If `options.syntax` == 'sass', use 'indented'.
- *   - If `options.syntax` is not set, use 'scss'.
+ * - Use `options.syntax` as `syntax`, or "scss" if `options.syntax` is not set.
  * - If `options.url` is set, use it as `url`.
  *
  * [compiling a string]: ../spec/spec.md#compiling-a-string
