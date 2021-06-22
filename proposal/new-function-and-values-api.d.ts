@@ -14,6 +14,20 @@
 
 /** ## API */
 
+export class ListSeparator {
+  static get comma(): ListSeparator;
+
+  static get slash(): ListSeparator;
+
+  static get space(): ListSeparator;
+
+  static get undecided(): ListSeparator;
+
+  get separator(): string;
+
+  toString(): string;
+}
+
 /**
  * The JS API representation of a Sass value.
  *
