@@ -325,8 +325,7 @@ either another URL that's guaranteed to point to a file on disk or null.
 
 * If `resolved` is not null, return it. Otherwise:
 
-* Let `index` be [`dirname(url)`](#dirname) + `"index/"` +
-  [`basename(url)`](#basename).
+* Let `index` be `url` + `"/index"`
 
 * Return the result of [resolving `index` for extensions][resolving for
   extensions].
