@@ -266,6 +266,168 @@ export class SassColor extends Value {
 }
 
 /**
+ * The JS API representation of a Sass number.
+ *
+ * `internal` refers to a Sass number.
+ */
+export class SassNumber extends Value {
+  /**
+   * Creates a Sass number:
+   *
+   * - Set `internal` to a Sass number with value equal to `value` and with
+   *   unit equal to `unit` (if passed).
+   *
+   * - Return this number.
+   */
+  constructor(value: number, unit?: string);
+
+  /**
+   * Creates a Sass number:
+   *
+   * - Let `simplifiedNumeratorUnits` and `simplifiedDenominatorUnits` be
+   *   empty lists.
+   *
+   * - If either `options.numeratorUnits` or `options.denominatorUnits` were not
+   *   passed, let them be empty lists.
+   *
+   * - Set {`simplifiedNumeratorUnits`, `simplifiedDenominatorUnits`} to the
+   *   result of simplifying away all [compatible units] in
+   *   {`options.numeratorUnits`, `options.denominatorUnits`}, according to the
+   *   multiplicative factor.
+   *
+   *   [compatible units]: ../spec/types/number.md#compatible-units
+   *
+   * - Set `internal` to a Sass number with value equal to `value`, with
+   *   numeratorUnits equal to `simplifiedNumeratorUnits` (if non-empty), and
+   *   with denominatorUnits equal to `simplifiedDenominatorUnits`
+   *   (if non-empty).
+   *
+   * - Return this number.
+   */
+  static withUnits(
+    value: number,
+    options?: {
+      numeratorUnits?: string[];
+      denominatorUnits?: string[];
+    }
+  ): SassNumber;
+
+  /** `internal`'s value. */
+  get value(): number;
+
+  /** `internal`'s numerator units. */
+  get numeratorUnits(): string[];
+
+  /** `internal`'s denominator units. */
+  get denominatorUnits(): string[];
+
+  /** Whether `internal` has units. */
+  get hasUnits(): boolean;
+
+  /** Whether `internal`'s value `fuzzyEquals` an integer. */
+  get isInt(): boolean;
+
+  /**
+   * - If `internal`'s value `fuzzyEquals` an integer, return that integer.
+   * - Otherwise, return null.
+   */
+  get asInt(): number | null;
+
+  /**
+   * - Throw an `Exception` if `internal` has units.
+   * - Otherwise, return this number.
+   */
+  assertNoUnits(): SassNumber;
+
+  /**
+   * - Throw an `Exception` unless `unit` is `internal`'s only unit, as a
+   *   numerator.
+   * - Otherwise, return this number.
+   */
+  assertUnit(unit: string): SassNumber;
+
+  /**
+   * - If `internal`'s value `fuzzyEquals` an integer, return that integer.
+   * - Otherwise, throw an `Exception`.
+   */
+  assertInt(): number;
+
+  /**
+   * - If `internal`'s value is `fuzzyGreaterThan` `min`, return it.
+   * - If `internal`'s value is `fuzzyLessThan` `max`, return it.
+   * - If `internal`'s value `fuzzyEquals` `min`, return `min`.
+   * - If `internal`'s value `fuzzyEquals` `max`, return `max`.
+   * - Otherwise, throw an `Exception`.
+   */
+  assertInRange(min: number, max: number): number;
+
+  /** Whether `unit` is `internal`'s only unit, as a numerator. */
+  hasUnit(unit: string): boolean;
+
+  /** Whether `internal`'s units are compatible with `unit`. */
+  compatibleWithUnit(unit: string): boolean;
+
+  /**
+   * Creates a new copy of this number with its units converted to those
+   * represented by `newNumerators` and `newDenominators`:
+   *
+   * - If this number is unitless, return the result of
+   *   ```
+   *   withUnits(value, {
+   *     numeratorUnits: newNumeratorUnits,
+   *     denominatorUnits: newDenominatorUnits,
+   *   });
+   *   ```.
+   *
+   * - Set {`simplifiedNewNumeratorUnits`, `simplifiedNewDenominatorUnits`} to
+   *   the result of simplifying away all compatible units in
+   *   {`newNumeratorUnits`, `newDenominatorUnits`}.
+   *
+   * - Let `numeratorComponents` be a list of Sass numbers. For each `unit` in
+   *   numeratorUnits, add to the list `withUnits(1, {numeratorUnits: unit})`.
+   * - Let `denominatorComponents` be a list of Sass numbers. For each `unit` in
+   *   denominatorUnits, add to the list `withUnits(1, {denominatorUnits: unit})`.
+   *
+   * - Let `convertedNumerators` be a list of Sass numbers. For each `number` in
+   *   `numeratorComponents`, find the compatible unit `newUnit` in
+   *   `simplifiedNewNumerators`. Add the result of [converting] `number` to
+   *   `newUnit` to `convertedNumerators`.
+   * - Let `convertedDenominators` be a list of Sass numbers. For each
+   *   `number` in `denominatorComponents`, find the compatible unit
+   *   `newUnit` in `simplifiedNewDenominators`. Add the result of [converting]
+   *   `number` to `newUnit` to `convertedDenominators`.
+   * - Each number in `numeratorComponents` must have been converted to exactly
+   *   one unit in `simplifiedNewNumerators`, and each number in
+   *   `denominatorComponents` must have been converted to exactly one unit in
+   *   `simplifiedNewDenominators`. Otherwise, throw an Exception.
+   *
+   *   [converting]: ../spec/types/number.md#converting-a-number-to-a-unit
+   *
+   * - Let `newValue` be the result of multiplying `value` with all the values
+   *   of the numbers in `convertedNumerators` and the inverse of all the values
+   *   of the numbers in `convertedDenominators`.
+   *
+   * - Return the result of
+   *   ```
+   *   withUnits(newValue, {
+   *     numeratorUnits: newNumeratorUnits,
+   *     denominatorUnits: newDenominatorUnits,
+   *   });
+   *   ```.
+   */
+  coerce(newNumerators: string[], newDenominators: string[]): SassNumber;
+
+  // TODO(awjin)
+  coerceToMatch(other: SassNumber): SassNumber;
+
+  // TODO(awjin)
+  coerceValue(newNumerators: string[], newDenominators: string[]): number;
+
+  // TODO(awjin)
+  coerceValueToMatch(other: SassNumber): number;
+}
+
+/**
  * The JS API representation of a Sass string.
  *
  * `internal` refers to a Sass string.
