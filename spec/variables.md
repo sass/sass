@@ -49,14 +49,18 @@ To execute a `VariableDeclaration` `declaration`:
 
 * Let `name` be `declaration`'s `Variable`.
 
+* Let `resolved` be the result of [resolving a variable][] named `name`.
+
+  [resolving a variable]: ../spec/modules.md#resolving-a-member
+
 * If `name` is a `NamespacedVariable` and `declaration` has a `!global` flag,
   throw an error.
 
+* Otherwise, if `resolved` is a variable from a built-in module, throw an
+  error.
+
 * Otherwise, if `declaration` is outside of any block of statements, *or*
   `declaration` has a `!global` flag, *or* `name` is a `NamespacedVariable`:
-
-  * Let `resolved` be the result of [resolving a variable][] named `name` using
-    `file`, `uses`, and `import`.
 
   * If `declaration` has a `!default` flag, `resolved` isn't null, *and*
    `resolved`'s value isn't null, do nothing.
@@ -84,12 +88,8 @@ To execute a `VariableDeclaration` `declaration`:
 
       > This also overrides the previous definition.
 
-  [resolving a variable]: modules.md#resolving-a-member
-
 * Otherwise, if `declaration` is within one or more blocks associated with
   `@if`, `@each`, `@for`, and/or `@while` rules *and no other blocks*:
-
-  * Let `resolved` be the result of [resolving a variable][] named `name`.
 
   * If `resolved` is not null:
 
@@ -107,14 +107,10 @@ To execute a `VariableDeclaration` `declaration`:
 
       > This also overrides the previous definition.
 
-* Otherwise, if no block containing `declaration` has a [scope](#scope) with a
-  variable named `name`, set the innermost block's scope's variable `name` to
-  `value`.
+* Otherwise, if `resolved` is null, get the innermost block containing
+  `declaration` and set its scope's variable `name` to `value`.
 
-* Otherwise, let `scope` be the scope of the innermost block such that `scope`
-  already has a variable named `name`.
-
-* Set `scope`'s variable `name` to `value`.
+* Otherwise, set `resolved`'s value to `value`.
 
 ### Evaluating a Variable
 
