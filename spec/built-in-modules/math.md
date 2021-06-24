@@ -145,9 +145,10 @@ hypot($numbers...)
 
 ### Exponential Functions
 
-Exponential operations on numbers with units would create meaningless units
-(e.g. `(1px)^(1/3)` has a unit of `px^(1/3)`). To prevent this, the exponential
-functions accept only a unitless number as input, and return a unitless number.
+> Exponential operations on numbers with units would create meaningless units
+> (e.g. `(1px)^(1/3)` has a unit of `px^(1/3)`). To prevent this, the
+> exponential functions accept only a unitless number as input, and return a
+> unitless number.
 
 #### `log()`
 
@@ -220,13 +221,14 @@ sqrt($number)
 
 ### Trigonometric Functions
 
-The trigonometric functions accept a number with a unit, as long as that unit is
-an [angle] type, and output a unitless number. If the input is unitless, it must
-be treated as though it were in `rad`.
-
-[angle]: https://drafts.csswg.org/css-values-4/#angles
-
-The inverse trig functions accept unitless numbers and output a number in `deg`.
+> The trigonometric functions accept a number with a unit, as long as that unit
+> is an [angle] type, and output a unitless number. If the input is unitless, it
+> must be treated as though it were in `rad`.
+>
+> The inverse trig functions accept unitless numbers and output a number in
+> `deg`.
+>
+> [angle]: https://drafts.csswg.org/css-values-4/#angles
 
 #### `acos()`
 
