@@ -12,21 +12,9 @@
  * > This section is non-normative.
  */
 
+import {Map} from 'immutable';
+
 /** ## API */
-
-export class ListSeparator {
-  static get comma(): ListSeparator;
-
-  static get slash(): ListSeparator;
-
-  static get space(): ListSeparator;
-
-  static get undecided(): ListSeparator;
-
-  get separator(): string;
-
-  toString(): string;
-}
 
 /**
  * The JS API representation of a Sass value.
@@ -36,31 +24,68 @@ export class ListSeparator {
  * > Sass value it is representing.
  */
 export abstract class Value {
+  /**
+   * Returns `internal` as a list.
+   *
+   * > Sass internally represents all values as lists. Maps are unbracketed,
+   * > comma-separated lists of unbracketed, space-separated, two-element,
+   * > key-value lists. All other values are single-element lists that contain
+   * > that value.
+   */
   get asList(): Value[];
 
+  /** Whether `internal` as a list has brackets. */
   get hasBrackets(): boolean;
 
   get isTruthy(): boolean;
 
   get realNull(): Value | null;
 
+  /** The seperator for `internal` as a list. */
   get separator(): ListSeparator;
 
-  sassIndexToListIndex(sassIndex: Value, name?: string): number;
+  /**
+   * Converts the Sass index `sassIndex` to a JS index into the list returned
+   * by `asList`:
+   *
+   * - If `sassIndex` is not a unitless Sass number, throw an error.
+   *
+   * - Let `value` be the value of `sassIndex`. Let `index` be the result of
+   *   `fuzzyAsInt(value)`. If `index` is null, throw an error.
+   *
+   * - If `index === 0`, or the absolute value of `index` is greater than
+   *   `sassLength`, throw an error.
+   *
+   * - If `index > 0`, return `index - 1`.
+   * - Otherwise, if `index < 0`, return `sassLength + index`.
+   *
+   *   > Sass indices start counting at 1, and may be negative in order to index
+   *   > from the end of the list.
+   */
+  sassIndexToListIndex(sassIndex: Value): number;
 
-  assertBoolean(name?: string): SassBoolean;
+  assertBoolean(): SassBoolean;
 
-  assertColor(name?: string): SassColor;
+  assertColor(): SassColor;
 
-  assertFunction(name?: string): SassFunction;
+  assertFunction(): SassFunction;
 
-  assertMap(name?: string): SassMap;
+  assertMap(): SassMap;
 
+  /**
+   * Returns `this` as a `SassMap`.
+   *
+   * - If `internal` is a Sass map, return `this` as a `SassMap`.
+   *
+   *   > Empty Sass lists count as empty Sass maps.
+   *
+   * - Otherwise, return null.
+   */
   tryMap(): SassMap | null;
 
-  assertNumber(name?: string): SassNumber;
+  assertNumber(): SassNumber;
 
-  assertString(name?: string): SassString;
+  assertString(): SassString;
 
   toString(): string;
 }
@@ -316,6 +341,99 @@ export class SassColor extends Value {
 }
 
 /**
+ * The JS API representation of a Sass list separator.
+ */
+export class ListSeparator {
+  /** The ListSeparator that has the "," `separator`. */
+  static get comma(): ListSeparator;
+
+  /** The ListSeparator that has the "/" `separator`. */
+  static get slash(): ListSeparator;
+
+  /** The ListSeparator that has the " " `separator`. */
+  static get space(): ListSeparator;
+
+  /**
+   * The undecided ListSeparator (which has a `null` `separator`).
+   *
+   * > Empty and single-element lists have undecided separators.
+   */
+  static get undecided(): ListSeparator;
+
+  /** The separator character. */
+  get separator(): string | null;
+}
+
+/**
+ * The JS API representation of a Sass list.
+ *
+ * `internal` refers to a Sass list.
+ */
+export class SassList extends Value {
+  /** `internal`'s list seperator. */
+  get separator(): ListSeparator;
+
+  /**
+   * Creates a Sass list:
+   *
+   * - Set `internal` to a Sass list with contents set to `contents`, separator
+   *   set to `options.separator` (if passed), and brackets set to
+   *   `options.brackets` (if passed).
+   * - Return `this`.
+   */
+  constructor(
+    contents: Value[],
+    options?: {
+      /** @default ListSeparator.comma */
+      separator?: ListSeparator;
+      /** @default false */
+      brackets?: boolean;
+    }
+  );
+
+  /**
+   * Creates an empty Sass list:
+   *
+   * - Set `internal` to an empty Sass list with separator set to
+   *   `options.separator` (if passed) and brackets set to `options.brackets`
+   *   (if passed).
+   * - Return `this`.
+   */
+  static empty(options?: {
+    /** @default ListSeparator.undecided */
+    separator?: ListSeparator;
+    /** @default false */
+    brackets?: boolean;
+  }): SassList;
+}
+
+/**
+ * The JS API representation of a Sass map.
+ *
+ * `internal` refers to a Sass map.
+ */
+export class SassMap extends Value {
+  /** `internal`'s contents */
+  get contents(): boolean;
+
+  /**
+   * Creates a Sass map:
+   *
+   * - Set `internal` to a Sass map with contents set to `contents`.
+   * - Return `this`.
+   */
+  constructor(contents: Map<Value, Value>);
+
+  /**
+   * Creates an empty Sass map:
+   *
+   * - Set `internal` to an empty Sass map.
+   * - Return `this`.
+   */
+  static empty(): SassList;
+}
+
+/**
  * The JS API representation of a Sass number.
  *
  * `internal` refers to a Sass number.
@@ -324,7 +442,7 @@ export class SassNumber extends Value {
   /**
    * Creates a Sass number:
    *
-   * - Set `internal` to a Sass number with value equal to `value` and a single
+   * - Set `internal` to a Sass number with value set to `value` and a single
    *   numerator unit equal to `unit` (if passed).
    *
    * - Return `this`.
@@ -334,7 +452,7 @@ export class SassNumber extends Value {
   /**
    * Creates a Sass number:
    *
-   * - Set `internal` to a Sass number with value equal to `value`, numerator
+   * - Set `internal` to a Sass number with value set to `value`, numerator
    *   units set to `options.numeratorUnits` (if passed), and denominator units
    *   set to `options.denominatorUnits` (if passed).
    *
@@ -523,17 +641,29 @@ export class SassString extends Value {
   /**
    * Creates a Sass string:
    *
-   * - Set `internal` to a Sass string with the same contents as `text` and
-   *   quoted value equal to `options.quotes`.
+   * - Set `internal` to a Sass string with contents set to `text` and quoted
+   *   value set to `options.quotes` (if passed).
    * - Return `this`.
    */
   constructor(
     text: string,
-    options: {
+    options?: {
       /** @default true */
       quotes: boolean;
     }
   );
+
+  /**
+   * Creates an empty Sass string:
+   *
+   * - Set `internal` to an empty Sass string with quoted value set to
+   *   `options.quotes` (if passed).
+   * - Return `this`.
+   */
+  static empty(options?: {
+    /** @default true */
+    quotes: boolean;
+  }): SassString;
 
   /** The contents of `internal` serialized as UTF-16 code units. */
   get text(): string;
@@ -547,29 +677,16 @@ export class SassString extends Value {
   /**
    * Converts the Sass index `sassIndex` to a JS index into `text`:
    *
-   * - If `sassIndex` is not a unitless Sass number, throw an error.
+   * - Let `normalizedIndex` be the result of calling
+   *   sassIndexToListIndex(sassIndex).
    *
-   * - Let `value` be the value of `sassIndex`. Let `index` be the result of
-   *   `fuzzyAsInt(value)`. If `index` is null, throw an error.
-   *
-   * - If `index === 0`, throw an error.
-   *
-   * - If the absolute value of `index` is greater than `sassLength`, throw
-   *   an error.
-   *
-   *   > Sass indices start counting at 1, and may be negative in order to index
-   *   > from the end of the string.
-   *
-   * - If `index > 0`, let `normalizedIndex = index - 1`.
-   * - Otherwise, if `index < 0`, let `normalizedIndex = sassLength + index`.
+   * - Let `jsIndex` be a JS index. Set `jsIndex` to the first code
+   *   unit of the Unicode code point that `normalizedIndex` points to.
    *
    *   > Sass indices count Unicode [code point]s, whereas JS indices count
    *   > UTF-16 [code units].
    *   > [code point]: https://unicode.org/glossary/#code_point
    *   > [code unit]: https://unicode.org/glossary/#code_unit
-   *
-   * - Let `jsIndex` be a JS index. Set `jsIndex` to the first code
-   *   unit of the Unicode code point that `normalizedIndex` points to.
    *
    * - Return `jsIndex`.
    */
