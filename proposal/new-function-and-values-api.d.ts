@@ -95,7 +95,7 @@ export class SassColor extends Value {
    *
    *   [`rgb()`]: ../spec/functions.md#rgb-and-rgba
    *
-   * - Return this color.
+   * - Return `this`.
    */
   static rgb(
     red: number,
@@ -125,7 +125,7 @@ export class SassColor extends Value {
    *
    *   [`hsl()`]: ../spec/functions.md#hsl-and-hsla
    *
-   * - Return this color.
+   * - Return `this`.
    */
   static hsl(
     hue: number,
@@ -155,7 +155,7 @@ export class SassColor extends Value {
    *
    *   [`hwb()`]: ../spec/color.md#hwb
    *
-   * - Return this color.
+   * - Return `this`.
    */
   static hwb(
     hue: number,
@@ -164,38 +164,74 @@ export class SassColor extends Value {
     alpha?: number
   ): SassColor;
 
-  /** `internal`'s red channel. */
+  /**
+   * Returns the result of calling [`red(internal)`][red].
+   *
+   * [red]: ../spec/built-in-modules/color.md#red
+   */
   get red(): number;
 
-  /** `internal`'s green channel. */
+  /**
+   * Returns the result of calling [`green(internal)`][green].
+   *
+   * [green]: ../spec/built-in-modules/color.md#green
+   */
   get green(): number;
 
-  /** `internal`'s blue channel. */
+  /**
+   * Returns the result of calling [`blue(internal)`][blue].
+   *
+   * [blue]: ../spec/built-in-modules/color.md#blue
+   */
   get blue(): number;
 
-  /** `internal`'s hue. */
+  /**
+   * Returns the result of calling [`hue(internal)`][hue].
+   *
+   * [hue]: ../spec/built-in-modules/color.md#hue
+   */
   get hue(): number;
 
-  /** `internal`'s saturation. */
+  /**
+   * Returns the result of calling [`saturation(internal)`][saturation].
+   *
+   * [saturation]: ../spec/built-in-modules/color.md#saturation
+   */
   get saturation(): number;
 
-  /** `internal`'s lightness. */
+  /**
+   * Returns the result of calling [`lightness(internal)`][lightness].
+   *
+   * [lightness]: ../spec/built-in-modules/color.md#lightness
+   */
   get lightness(): number;
 
-  /** `internal`'s whiteness. */
+  /**
+   * Returns the result of calling [`whiteness(internal)`][whiteness].
+   *
+   * [whiteness]: ../spec/built-in-modules/color.md#whiteness
+   */
   get whiteness(): number;
 
-  /** `internal`'s blackness. */
+  /**
+   * Returns the result of calling [`blackness(internal)`][blackness].
+   *
+   * [blackness]: ../spec/built-in-modules/color.md#blackness
+   */
   get blackness(): number;
 
-  /** `internal`'s alpha channel. */
+  /**
+   * Returns the result of calling [`alpha(internal)`][alpha].
+   *
+   * [alpha]: ../spec/built-in-modules/color.md#alpha
+   */
   get alpha(): number;
 
   /**
-   * Returns a new copy of this color with one or more changes made to the RGB
+   * Returns a new copy of `this` with one or more changes made to the RGB
    * channels:
    *
-   * - Let `oldColor` be this color.
+   * - Let `oldColor` be `this`.
    *
    * - If `red` was passed, let `newRed = red`.
    * - Otherwise, let `newRed = oldColor.red`.
@@ -220,10 +256,10 @@ export class SassColor extends Value {
   }): SassColor;
 
   /**
-   * Returns a new copy of this color with one or more changes made to the HSL
+   * Returns a new copy of `this` with one or more changes made to the HSL
    * values:
    *
-   * - Let `oldColor` be this color.
+   * - Let `oldColor` be `this`.
    *
    * - If `hue` was passed, let `newHue = hue`.
    * - Otherwise, let `newHue = oldColor.hue`.
@@ -248,10 +284,10 @@ export class SassColor extends Value {
   }): SassColor;
 
   /**
-   * Returns a new copy of this color with one or more changes made to the HWB
+   * Returns a new copy of `this` with one or more changes made to the HWB
    * values:
    *
-   * - Let `oldColor` be this color.
+   * - Let `oldColor` be `this`.
    *
    * - If `hue` was passed, let `newHue = hue`.
    * - Otherwise, let `newHue = oldColor.hue`.
@@ -275,7 +311,7 @@ export class SassColor extends Value {
     alpha?: number;
   }): SassColor;
 
-  /** Returns a new copy of this color with the alpha channel set to `alpha`. */
+  /** Returns a new copy of `this` with the alpha channel set to `alpha`. */
   changeAlpha(alpha: number): SassColor;
 }
 
@@ -288,35 +324,23 @@ export class SassNumber extends Value {
   /**
    * Creates a Sass number:
    *
-   * - Set `internal` to a Sass number with value equal to `value` and with
-   *   unit equal to `unit` (if passed).
+   * - Set `internal` to a Sass number with value equal to `value` and a single
+   *   numerator unit equal to `unit` (if passed).
    *
-   * - Return this number.
+   * - Return `this`.
    */
   constructor(value: number, unit?: string);
 
   /**
    * Creates a Sass number:
    *
-   * - Let `simplifiedNumeratorUnits` and `simplifiedDenominatorUnits` be
-   *   empty lists.
+   * - Set `internal` to a Sass number with value equal to `value`, numerator
+   *   units set to `options.numeratorUnits` (if passed), and denominator units
+   *   set to `options.denominatorUnits` (if passed).
    *
-   * - If either `options.numeratorUnits` or `options.denominatorUnits` were not
-   *   passed, let them be empty lists.
+   * - Set `internal` to the result of `simplify`ing `internal`.
    *
-   * - Set {`simplifiedNumeratorUnits`, `simplifiedDenominatorUnits`} to the
-   *   result of simplifying away all [compatible units] in
-   *   {`options.numeratorUnits`, `options.denominatorUnits`}, according to the
-   *   multiplicative factor.
-   *
-   *   [compatible units]: ../spec/types/number.md#compatible-units
-   *
-   * - Set `internal` to a Sass number with value equal to `value`, with
-   *   numeratorUnits equal to `simplifiedNumeratorUnits` (if non-empty), and
-   *   with denominatorUnits equal to `simplifiedDenominatorUnits`
-   *   (if non-empty).
-   *
-   * - Return this number.
+   * - Return `this`.
    */
   static withUnits(
     value: number,
@@ -329,116 +353,165 @@ export class SassNumber extends Value {
   /** `internal`'s value. */
   get value(): number;
 
+  /** Whether `internal`'s value `fuzzyEquals` an integer. */
+  get isInt(): boolean;
+
+  /**
+   * Returns `internal`'s value as an integer:
+   *
+   * - If `internal`'s value `fuzzyEquals` an integer, return that integer.
+   * - Otherwise, return null.
+   */
+  get asInt(): number | null;
+
   /** `internal`'s numerator units. */
   get numeratorUnits(): string[];
 
   /** `internal`'s denominator units. */
   get denominatorUnits(): string[];
 
-  /** Whether `internal` has units. */
+  /** Whether `internal` has numerator or denominator units. */
   get hasUnits(): boolean;
 
-  /** Whether `internal`'s value `fuzzyEquals` an integer. */
-  get isInt(): boolean;
-
   /**
+   * Asserts that `internal`'s value is an integer:
+   *
    * - If `internal`'s value `fuzzyEquals` an integer, return that integer.
-   * - Otherwise, return null.
-   */
-  get asInt(): number | null;
-
-  /**
-   * - Throw an `Exception` if `internal` has units.
-   * - Otherwise, return this number.
-   */
-  assertNoUnits(): SassNumber;
-
-  /**
-   * - Throw an `Exception` unless `unit` is `internal`'s only unit, as a
-   *   numerator.
-   * - Otherwise, return this number.
-   */
-  assertUnit(unit: string): SassNumber;
-
-  /**
-   * - If `internal`'s value `fuzzyEquals` an integer, return that integer.
-   * - Otherwise, throw an `Exception`.
+   * - Otherwise, throw an error.
    */
   assertInt(): number;
 
   /**
-   * - If `internal`'s value is `fuzzyGreaterThan` `min`, return it.
-   * - If `internal`'s value is `fuzzyLessThan` `max`, return it.
-   * - If `internal`'s value `fuzzyEquals` `min`, return `min`.
-   * - If `internal`'s value `fuzzyEquals` `max`, return `max`.
-   * - Otherwise, throw an `Exception`.
+   * Asserts that `internal`'s value is within the specified range:
+   *
+   * - If `internal`'s value is `fuzzyGreaterThan` `min` and `fuzzyLessThan`
+   *   `max`, return it.
+   * - Otherwise, if `internal`'s value `fuzzyEquals` `min`, return `min`.
+   * - Otherwise, if `internal`'s value `fuzzyEquals` `max`, return `max`.
+   * - Otherwise, throw an error.
    */
   assertInRange(min: number, max: number): number;
 
-  /** Whether `unit` is `internal`'s only unit, as a numerator. */
+  /**
+   * Asserts that `internal` is unitless:
+   *
+   * - If `internal` has any numerator or denominator units, throw an error.
+   * - Otherwise, return `this`.
+   */
+  assertNoUnits(): SassNumber;
+
+  /**
+   * Asserts the type of `internal`'s unit:
+   *
+   * - If `internal` has any denominator units, or if `unit` is not `internal`'s
+   *   only numerator unit, throw an error.
+   * - Otherwise, return `this`.
+   */
+  assertUnit(unit: string): SassNumber;
+
+  /**
+   * Whether `internal` has the specified unit:
+   *
+   * - If `internal` has any denominator units, return false.
+   * - Otherwise, return whether `unit` is `internal`'s only numerator unit.
+   * */
   hasUnit(unit: string): boolean;
 
-  /** Whether `internal`'s units are compatible with `unit`. */
+  /**
+   * Whether `internal`'s numerator and denominator units are all `compatible`
+   * with `unit`.
+   *
+   * [`compatible`]: ../spec/types/number.md#compatible-units
+   */
   compatibleWithUnit(unit: string): boolean;
 
   /**
-   * Creates a new copy of this number with its units converted to those
-   * represented by `newNumerators` and `newDenominators`:
+   * Creates a new copy of `this` with its units converted to those represented
+   * by `newNumerators` and `newDenominators`:
    *
-   * - If this number is unitless, return the result of
+   * - Let `converter` be the result of
    *   ```
-   *   withUnits(value, {
-   *     numeratorUnits: newNumeratorUnits,
-   *     denominatorUnits: newDenominatorUnits,
+   *   withUnits(0, {
+   *     numeratorUnits: newNumerators,
+   *     denominatorUnits: newDenominators,
    *   });
-   *   ```.
-   *
-   * - Set {`simplifiedNewNumeratorUnits`, `simplifiedNewDenominatorUnits`} to
-   *   the result of simplifying away all compatible units in
-   *   {`newNumeratorUnits`, `newDenominatorUnits`}.
-   *
-   * - Let `numeratorComponents` be a list of Sass numbers. For each `unit` in
-   *   numeratorUnits, add to the list `withUnits(1, {numeratorUnits: unit})`.
-   * - Let `denominatorComponents` be a list of Sass numbers. For each `unit` in
-   *   denominatorUnits, add to the list `withUnits(1, {denominatorUnits: unit})`.
-   *
-   * - Let `convertedNumerators` be a list of Sass numbers. For each `number` in
-   *   `numeratorComponents`, find the compatible unit `newUnit` in
-   *   `simplifiedNewNumerators`. Add the result of [converting] `number` to
-   *   `newUnit` to `convertedNumerators`.
-   * - Let `convertedDenominators` be a list of Sass numbers. For each
-   *   `number` in `denominatorComponents`, find the compatible unit
-   *   `newUnit` in `simplifiedNewDenominators`. Add the result of [converting]
-   *   `number` to `newUnit` to `convertedDenominators`.
-   * - Each number in `numeratorComponents` must have been converted to exactly
-   *   one unit in `simplifiedNewNumerators`, and each number in
-   *   `denominatorComponents` must have been converted to exactly one unit in
-   *   `simplifiedNewDenominators`. Otherwise, throw an Exception.
-   *
-   *   [converting]: ../spec/types/number.md#converting-a-number-to-a-unit
-   *
-   * - Let `newValue` be the result of multiplying `value` with all the values
-   *   of the numbers in `convertedNumerators` and the inverse of all the values
-   *   of the numbers in `convertedDenominators`.
-   *
-   * - Return the result of
    *   ```
-   *   withUnits(newValue, {
-   *     numeratorUnits: newNumeratorUnits,
-   *     denominatorUnits: newDenominatorUnits,
-   *   });
-   *   ```.
+   * - If `converter` is not [`compatible`] with `internal`, throw an error.
+   * - Set `converter` to the result of `simplify`ing `converter`.
+   * - Return a new `SassNumber` with `internal` set to the result of
+   *   `converter + internal`.
    */
   coerce(newNumerators: string[], newDenominators: string[]): SassNumber;
 
-  // TODO(awjin)
+  /**
+   * Creates a new copy of `this` with its units converted to the units of
+   * `other`:
+   *
+   * - Let `newNumerators` be the numerator units of `other`.
+   * - Let `newDenominators` be the denominator units of `other`.
+   * - Return the result of `coerce(newNumerators, newDenominators)`.
+   */
   coerceToMatch(other: SassNumber): SassNumber;
 
-  // TODO(awjin)
+  /**
+   * Returns the value of `internal`, converted to the units represented by
+   * `newNumerators` and `newDenominators`:
+   *
+   * - Let `converted` be the result of
+   *   `coerce(newNumerators, newDenominators)`.
+   * - Return `converted.value`.
+   */
   coerceValue(newNumerators: string[], newDenominators: string[]): number;
 
-  // TODO(awjin)
+  /**
+   * Returns the value of `internal`, converted to the units of `other`.
+   *
+   * - Let `newNumerators` be the numerator units of `other`.
+   * - Let `newDenominators` be the denominator units of `other`.
+   * - Return the result of `coerceValue(newNumerators, newDenominators)`.
+   */
   coerceValueToMatch(other: SassNumber): number;
+
+  /**
+   * Creates a new copy of `this` with its units converted to those represented
+   * by `newNumerators` and `newDenominators`:
+   *
+   * - If `hasUnits` is true, but `newNumerators` and `newDenominators` are both
+   *   empty, throw an error.
+   * - If `hasUnits` is false, but `newNumerators` and `newDenominators` are not
+   *   both empty, throw an error.
+   * - Return the result of `coerce(newNumerators, newDenominators)`.
+   */
+  convert(newNumerators: string[], newDenominators: string[]): SassNumber;
+
+  /**
+   * Creates a new copy of `this` with its units converted to the units of
+   * `other`:
+   *
+   * - Let `newNumerators` be the numerator units of `other`.
+   * - Let `newDenominators` be the denominator units of `other`.
+   * - Return the result of `convert(newNumerators, newDenominators)`.
+   */
+  convertToMatch(other: SassNumber): SassNumber;
+
+  /**
+   * Returns the value of `internal`, converted to the units represented by
+   * `newNumerators` and `newDenominators`:
+   *
+   * - Let `converted` be the result of
+   *   `convert(newNumerators, newDenominators)`.
+   * - Return `converted.value`.
+   */
+  convertValue(newNumerators: string[], newDenominators: string[]): number;
+
+  /**
+   * Returns the value of `internal`, converted to the units of `other`.
+   *
+   * - Let `newNumerators` be the numerator units of `other`.
+   * - Let `newDenominators` be the denominator units of `other`.
+   * - Return the result of `convertValue(newNumerators, newDenominators)`.
+   */
+  convertValueToMatch(other: SassNumber): number;
 }
 
 /**
@@ -452,8 +525,7 @@ export class SassString extends Value {
    *
    * - Set `internal` to a Sass string with the same contents as `text` and
    *   quoted value equal to `options.quotes`.
-   *
-   * - Return this string.
+   * - Return `this`.
    */
   constructor(
     text: string,
@@ -475,15 +547,15 @@ export class SassString extends Value {
   /**
    * Converts the Sass index `sassIndex` to a JS index into `text`:
    *
-   * - If `sassIndex` is not a unitless Sass number, throw an exception.
+   * - If `sassIndex` is not a unitless Sass number, throw an error.
    *
    * - Let `value` be the value of `sassIndex`. Let `index` be the result of
-   *   `fuzzyAsInt(value)`. If `index` is null, throw an `Exception`.
+   *   `fuzzyAsInt(value)`. If `index` is null, throw an error.
    *
-   * - If `index === 0`, throw an `Exception`.
+   * - If `index === 0`, throw an error.
    *
    * - If the absolute value of `index` is greater than `sassLength`, throw
-   *   an `Exception`.
+   *   an error.
    *
    *   > Sass indices start counting at 1, and may be negative in order to index
    *   > from the end of the string.
