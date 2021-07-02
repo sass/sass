@@ -26,6 +26,7 @@ import {OrderedMap} from 'immutable';
 export abstract class Value {
   /**
    * Returns `this` as an array:
+   *
    * - If `internal` is a Sass list, return an array of its contents.
    * - If `internal` is a Sass map, return an array of its keys and values as
    *   two-element `SassLists`.
@@ -41,19 +42,21 @@ export abstract class Value {
   get realNull(): Value | null;
 
   /**
-   * Returns `internal.separator` if `internal` is a Sass list, and `null`
-   * otherwise.
+   * Returns `internal`'s list separator:
+   *
+   * - If `internal` is a Sass list, return its separator.
+   * - Otherwise, return `null`.
    */
   get separator(): ListSeparator;
 
   /**
-   * Converts the Sass index `sassIndex` to a JS index into the list returned
+   * Converts the Sass index `sassIndex` to a JS index into the array returned
    * by `asList`:
    *
    * - If `sassIndex` is not a unitless Sass number, throw an error.
    *
    * - Let `value` be the value of `sassIndex`. Let `index` be the result of
-   *   `fuzzyAsInt(value)`. If `index` is null, throw an error.
+   *   `fuzzyAsInt(value)`. If `index === null`, throw an error.
    *
    * - If `index === 0`, or the absolute value of `index` is greater than
    *   `asList.length`, throw an error.
@@ -82,9 +85,11 @@ export abstract class Value {
    *   - Add each key and value from `internal`'s contents to `result`, in
    *     order.
    *   - Return `result`.
+   *
    * - Otherwise, if `internal` is an empty Sass list, return an empty
    *   `OrderedMap`.
-   * - Otherwise, return null.
+   *
+   * - Otherwise, return `null`.
    */
   asMap(): OrderedMap<Value, Value> | null;
 
@@ -105,7 +110,7 @@ export abstract class Value {
 /**
  * The JS API representation of a Sass color.
  *
- * `internal` refers to a Sass number.
+ * `internal` refers to a Sass color.
  */
 export class SassColor extends Value {
   /**
@@ -125,10 +130,10 @@ export class SassColor extends Value {
    *
    * - Set `internal` to the result of running [`rgb()`] with the following
    *   inputs:
-   *   - $red set to `sassRed`
-   *   - $green set to `sassGreen`
-   *   - $blue set to `sassBlue`
-   *   - If `alpha` was passed, $alpha set to `sassAlpha`
+   *   - `$red` set to `sassRed`
+   *   - `$green` set to `sassGreen`
+   *   - `$blue` set to `sassBlue`
+   *   - If `alpha` was passed, `$alpha` set to `sassAlpha`
    *
    *   [`rgb()`]: ../spec/functions.md#rgb-and-rgba
    *
@@ -155,10 +160,10 @@ export class SassColor extends Value {
    *
    * - Set `internal` to the result of running [`hsl()`] with the following
    *   inputs:
-   *   - $hue set to `sassHue`
-   *   - $saturation set to `sassSaturation`
-   *   - $lightness set to `sassLightness`
-   *   - If `alpha` was passed, $alpha set to `sassAlpha`
+   *   - `$hue` set to `sassHue`
+   *   - `$saturation` set to `sassSaturation`
+   *   - `$lightness` set to `sassLightness`
+   *   - If `alpha` was passed, `$alpha` set to `sassAlpha`
    *
    *   [`hsl()`]: ../spec/functions.md#hsl-and-hsla
    *
@@ -185,10 +190,10 @@ export class SassColor extends Value {
    *
    * - Set `internal` to the result of running [`hwb()`] with the following
    *   inputs:
-   *   - $hue set to `sassHue`
-   *   - $whiteness set to `sassWhiteness`
-   *   - $blackness set to `sassBlackness`
-   *   - If `alpha` was passed, $alpha set to `sassAlpha`
+   *   - `$hue` set to `sassHue`
+   *   - `$whiteness` set to `sassWhiteness`
+   *   - `$blackness` set to `sassBlackness`
+   *   - If `alpha` was passed, `$alpha` set to `sassAlpha`
    *
    *   [`hwb()`]: ../spec/color.md#hwb
    *
@@ -211,42 +216,42 @@ export class SassColor extends Value {
   get blue(): number;
 
   /**
-   * Returns the value of the result of running [`hue(internal)`][hue].
+   * Returns the value of the result of [`hue(internal)`][hue].
    *
    * [hue]: ../spec/built-in-modules/color.md#hue
    */
   get hue(): number;
 
   /**
-   * Returns the value of the result of running [`saturation(internal)`][saturation].
+   * Returns the value of the result of [`saturation(internal)`][saturation].
    *
    * [saturation]: ../spec/built-in-modules/color.md#saturation
    */
   get saturation(): number;
 
   /**
-   * Returns the value of the result of running [`lightness(internal)`][lightness].
+   * Returns the value of the result of [`lightness(internal)`][lightness].
    *
    * [lightness]: ../spec/built-in-modules/color.md#lightness
    */
   get lightness(): number;
 
   /**
-   * Returns the value of the result of running [`whiteness(internal)`][whiteness].
+   * Returns the value of the result of [`whiteness(internal)`][whiteness].
    *
    * [whiteness]: ../spec/built-in-modules/color.md#whiteness
    */
   get whiteness(): number;
 
   /**
-   * Returns the value of the result of running [`blackness(internal)`][blackness].
+   * Returns the value of the result of [`blackness(internal)`][blackness].
    *
    * [blackness]: ../spec/built-in-modules/color.md#blackness
    */
   get blackness(): number;
 
   /**
-   * Returns the value of the result of running [`alpha(internal)`][alpha].
+   * Returns the value of the result of [`alpha(internal)`][alpha].
    *
    * [alpha]: ../spec/built-in-modules/color.md#alpha
    */
@@ -336,7 +341,10 @@ export class SassColor extends Value {
     alpha?: number;
   }): SassColor;
 
-  /** Returns a new copy of `this` with the alpha channel set to `alpha`. */
+  /**
+   * Returns a new copy of `this` with `internal`'s alpha channel set to
+   * `alpha`.
+   */
   changeAlpha(alpha: number): SassColor;
 }
 
@@ -353,9 +361,6 @@ export class SassColor extends Value {
  * `internal` refers to a Sass list.
  */
 export class SassList extends Value {
-  /** `internal`'s list seperator. */
-  get separator(): ListSeparator;
-
   /**
    * Creates a Sass list:
    *
@@ -386,6 +391,9 @@ export class SassList extends Value {
     /** @default false */
     brackets?: boolean;
   }): SassList;
+
+  /** `internal`'s list separator. */
+  get separator(): ListSeparator;
 }
 
 /**
@@ -394,9 +402,6 @@ export class SassList extends Value {
  * `internal` refers to a Sass map.
  */
 export class SassMap extends Value {
-  /** `internal`'s contents */
-  get contents(): boolean;
-
   /**
    * Creates a Sass map:
    *
@@ -412,6 +417,16 @@ export class SassMap extends Value {
    * - Return `this`.
    */
   static empty(): SassMap;
+
+  /**
+   * Returns a map containing `internal`'s contents:
+   *
+   * - Let `result` be an empty `OrderedMap`.
+   * - Add each key and value from `internal`'s contents to `result`, in
+   *   order.
+   * - Return `result`.
+   */
+  get contents(): OrderedMap<Value, Value>;
 }
 
 /**
@@ -425,7 +440,6 @@ export class SassNumber extends Value {
    *
    * - Set `internal` to a Sass number with value set to `value` and a single
    *   numerator unit equal to `unit` (if passed).
-   *
    * - Return `this`.
    */
   constructor(value: number, unit?: string);
@@ -436,9 +450,7 @@ export class SassNumber extends Value {
    * - Set `internal` to a Sass number with value set to `value`, numerator
    *   units set to `options.numeratorUnits` (if passed), and denominator units
    *   set to `options.denominatorUnits` (if passed).
-   *
    * - Set `internal` to the result of `simplify`ing `internal`.
-   *
    * - Return `this`.
    */
   static withUnits(
@@ -459,7 +471,7 @@ export class SassNumber extends Value {
    * Returns `internal`'s value as an integer:
    *
    * - If `internal`'s value `fuzzyEquals` an integer, return that integer.
-   * - Otherwise, return null.
+   * - Otherwise, return `null`.
    */
   get asInt(): number | null;
 
@@ -541,8 +553,8 @@ export class SassNumber extends Value {
    *
    * - Set `converter` to the result of `simplify`ing `converter`.
    *
-   * - Return a new `SassNumber` with `internal` set to the result of
-   *   `converter + internal`.
+   * - Return a new `SassNumber` with `internal` set to the result of the
+   *   SassScript expression `converter + internal`.
    */
   convert(newNumerators: string[], newDenominators: string[]): SassNumber;
 
@@ -560,8 +572,7 @@ export class SassNumber extends Value {
    * Returns the value of `internal`, converted to the units represented by
    * `newNumerators` and `newDenominators`:
    *
-   * - Let `converted` be the result of `convert(newNumerators, newDenominators)`.
-   * - Return `converted.value`.
+   * - Return the value of the result of `convert(newNumerators, newDenominators)`.
    */
   convertValue(newNumerators: string[], newDenominators: string[]): number;
 
@@ -611,8 +622,7 @@ export class SassNumber extends Value {
    * Returns the value of `internal`, converted to the units represented by
    * `newNumerators` and `newDenominators`:
    *
-   * - Let `converted` be the result of `coerce(newNumerators, newDenominators)`.
-   * - Return `converted.value`.
+   * - Return the value of the result of `coerce(newNumerators, newDenominators)`.
    */
   coerceValue(newNumerators: string[], newDenominators: string[]): number;
 
@@ -674,7 +684,7 @@ export class SassString extends Value {
    * - If `sassIndex` is not a unitless Sass number, throw an error.
    *
    * - Let `value` be the value of `sassIndex`. Let `index` be the result of
-   *   `fuzzyAsInt(value)`. If `index` is null, throw an error.
+   *   `fuzzyAsInt(value)`. If `index === null`, throw an error.
    *
    * - If `index === 0`, or the absolute value of `index` is greater than
    *   the length of `sassLength`, throw an error.
@@ -687,6 +697,7 @@ export class SassString extends Value {
    *
    *   > Sass indices count Unicode [code point]s, whereas JS indices count
    *   > UTF-16 [code units].
+   *   >
    *   > [code point]: https://unicode.org/glossary/#code_point
    *   > [code unit]: https://unicode.org/glossary/#code_unit
    *
