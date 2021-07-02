@@ -12,7 +12,7 @@
  * > This section is non-normative.
  */
 
-import {Map} from 'immutable';
+import {OrderedMap} from 'immutable';
 
 /** ## API */
 
@@ -20,28 +20,30 @@ import {Map} from 'immutable';
  * The JS API representation of a Sass value.
  *
  * > To make the spec terser and easier to author, each subclass that extends
- * > Value has a virtual, private property named `internal` that refers to the
- * > Sass value it is representing.
+ * > `Value` has a virtual, private property named `internal` that refers to the
+ * > Sass value it represents.
  */
 export abstract class Value {
   /**
-   * Returns `internal` as a list.
-   *
-   * > Sass internally represents all values as lists. Maps are unbracketed,
-   * > comma-separated lists of unbracketed, space-separated, two-element,
-   * > key-value lists. All other values are single-element lists that contain
-   * > that value.
+   * Returns `this` as an array:
+   * - If `internal` is a Sass list, return an array of its contents.
+   * - If `internal` is a Sass map, return an array of its keys and values as
+   *   two-element `SassLists`.
+   * - Otherwise, return an array containing `this`.
    */
   get asList(): Value[];
 
-  /** Whether `internal` as a list has brackets. */
+  /** Whether `internal` is a bracketed Sass list. */
   get hasBrackets(): boolean;
 
   get isTruthy(): boolean;
 
   get realNull(): Value | null;
 
-  /** The seperator for `internal` as a list. */
+  /**
+   * Returns `internal.separator` if `internal` is a Sass list, and `null`
+   * otherwise.
+   */
   get separator(): ListSeparator;
 
   /**
@@ -54,10 +56,10 @@ export abstract class Value {
    *   `fuzzyAsInt(value)`. If `index` is null, throw an error.
    *
    * - If `index === 0`, or the absolute value of `index` is greater than
-   *   `sassLength`, throw an error.
+   *   `asList.length`, throw an error.
    *
    * - If `index > 0`, return `index - 1`.
-   * - Otherwise, if `index < 0`, return `sassLength + index`.
+   * - Otherwise, if `index < 0`, return `asList.length + index`.
    *
    *   > Sass indices start counting at 1, and may be negative in order to index
    *   > from the end of the list.
@@ -75,19 +77,29 @@ export abstract class Value {
   /**
    * Returns `this` as a `SassMap`.
    *
-   * - If `internal` is a Sass map, return `this` as a `SassMap`.
-   *
-   *   > Empty Sass lists count as empty Sass maps.
-   *
+   * - If `internal` is a Sass map:
+   *   - Let `result` be an empty `OrderedMap`.
+   *   - Add each key and value from `internal`'s contents to `result`, in
+   *     order.
+   *   - Return `result`.
+   * - Otherwise, if `internal` is an empty Sass list, return an empty
+   *   `OrderedMap`.
    * - Otherwise, return null.
    */
-  tryMap(): SassMap | null;
+  asMap(): OrderedMap<Value, Value> | null;
 
   assertNumber(): SassNumber;
 
   assertString(): SassString;
 
-  toString(): string;
+  /** Whether `this == other` in SassScript. */
+  equals(other: Value): boolean;
+
+  /**
+   * Must be the same for `Value`s that are equal to each other according to the
+   * `==` SassScript operator.
+   */
+  hashCode(): number;
 }
 
 /**
@@ -189,64 +201,52 @@ export class SassColor extends Value {
     alpha?: number
   ): SassColor;
 
-  /**
-   * Returns the result of calling [`red(internal)`][red].
-   *
-   * [red]: ../spec/built-in-modules/color.md#red
-   */
+  /** `internal`'s red channel. */
   get red(): number;
 
-  /**
-   * Returns the result of calling [`green(internal)`][green].
-   *
-   * [green]: ../spec/built-in-modules/color.md#green
-   */
+  /** `internal`'s green channel. */
   get green(): number;
 
-  /**
-   * Returns the result of calling [`blue(internal)`][blue].
-   *
-   * [blue]: ../spec/built-in-modules/color.md#blue
-   */
+  /** `internal`'s blue channel. */
   get blue(): number;
 
   /**
-   * Returns the result of calling [`hue(internal)`][hue].
+   * Returns the value of the result of running [`hue(internal)`][hue].
    *
    * [hue]: ../spec/built-in-modules/color.md#hue
    */
   get hue(): number;
 
   /**
-   * Returns the result of calling [`saturation(internal)`][saturation].
+   * Returns the value of the result of running [`saturation(internal)`][saturation].
    *
    * [saturation]: ../spec/built-in-modules/color.md#saturation
    */
   get saturation(): number;
 
   /**
-   * Returns the result of calling [`lightness(internal)`][lightness].
+   * Returns the value of the result of running [`lightness(internal)`][lightness].
    *
    * [lightness]: ../spec/built-in-modules/color.md#lightness
    */
   get lightness(): number;
 
   /**
-   * Returns the result of calling [`whiteness(internal)`][whiteness].
+   * Returns the value of the result of running [`whiteness(internal)`][whiteness].
    *
    * [whiteness]: ../spec/built-in-modules/color.md#whiteness
    */
   get whiteness(): number;
 
   /**
-   * Returns the result of calling [`blackness(internal)`][blackness].
+   * Returns the value of the result of running [`blackness(internal)`][blackness].
    *
    * [blackness]: ../spec/built-in-modules/color.md#blackness
    */
   get blackness(): number;
 
   /**
-   * Returns the result of calling [`alpha(internal)`][alpha].
+   * Returns the value of the result of running [`alpha(internal)`][alpha].
    *
    * [alpha]: ../spec/built-in-modules/color.md#alpha
    */
@@ -342,27 +342,10 @@ export class SassColor extends Value {
 
 /**
  * The JS API representation of a Sass list separator.
+ *
+ * > `null` represents the undecided separator type.
  */
-export class ListSeparator {
-  /** The ListSeparator that has the "," `separator`. */
-  static get comma(): ListSeparator;
-
-  /** The ListSeparator that has the "/" `separator`. */
-  static get slash(): ListSeparator;
-
-  /** The ListSeparator that has the " " `separator`. */
-  static get space(): ListSeparator;
-
-  /**
-   * The undecided ListSeparator (which has a `null` `separator`).
-   *
-   * > Empty and single-element lists have undecided separators.
-   */
-  static get undecided(): ListSeparator;
-
-  /** The separator character. */
-  get separator(): string | null;
-}
+ export type ListSeparator = ',' | '/' | ' ' | null;
 
 /**
  * The JS API representation of a Sass list.
@@ -377,8 +360,7 @@ export class SassList extends Value {
    * Creates a Sass list:
    *
    * - Set `internal` to a Sass list with contents set to `contents`, separator
-   *   set to `options.separator` (if passed), and brackets set to
-   *   `options.brackets` (if passed).
+   *   set to `options.separator`, and brackets set to `options.brackets`.
    * - Return `this`.
    */
   constructor(
@@ -395,8 +377,7 @@ export class SassList extends Value {
    * Creates an empty Sass list:
    *
    * - Set `internal` to an empty Sass list with separator set to
-   *   `options.separator` (if passed) and brackets set to `options.brackets`
-   *   (if passed).
+   *   `options.separator` and brackets set to `options.brackets`.
    * - Return `this`.
    */
   static empty(options?: {
@@ -422,7 +403,7 @@ export class SassMap extends Value {
    * - Set `internal` to a Sass map with contents set to `contents`.
    * - Return `this`.
    */
-  constructor(contents: Map<Value, Value>);
+  constructor(contents: OrderedMap<Value, Value>);
 
   /**
    * Creates an empty Sass map:
@@ -430,7 +411,7 @@ export class SassMap extends Value {
    * - Set `internal` to an empty Sass map.
    * - Return `this`.
    */
-  static empty(): SassList;
+  static empty(): SassMap;
 }
 
 /**
@@ -536,10 +517,10 @@ export class SassNumber extends Value {
   hasUnit(unit: string): boolean;
 
   /**
-   * Whether `internal`'s numerator and denominator units are all `compatible`
+   * Whether `internal`'s numerator and denominator units are all [compatible]
    * with `unit`.
    *
-   * [`compatible`]: ../spec/types/number.md#compatible-units
+   * [compatible]: ../spec/types/number.md#compatible-units
    */
   compatibleWithUnit(unit: string): boolean;
 
@@ -548,57 +529,20 @@ export class SassNumber extends Value {
    * by `newNumerators` and `newDenominators`:
    *
    * - Let `converter` be the result of
+   *
    *   ```
    *   withUnits(0, {
    *     numeratorUnits: newNumerators,
    *     denominatorUnits: newDenominators,
    *   });
    *   ```
-   * - If `converter` is not [`compatible`] with `internal`, throw an error.
+   *
+   * - If `converter` is not [compatible] with `internal`, throw an error.
+   *
    * - Set `converter` to the result of `simplify`ing `converter`.
+   *
    * - Return a new `SassNumber` with `internal` set to the result of
    *   `converter + internal`.
-   */
-  coerce(newNumerators: string[], newDenominators: string[]): SassNumber;
-
-  /**
-   * Creates a new copy of `this` with its units converted to the units of
-   * `other`:
-   *
-   * - Let `newNumerators` be the numerator units of `other`.
-   * - Let `newDenominators` be the denominator units of `other`.
-   * - Return the result of `coerce(newNumerators, newDenominators)`.
-   */
-  coerceToMatch(other: SassNumber): SassNumber;
-
-  /**
-   * Returns the value of `internal`, converted to the units represented by
-   * `newNumerators` and `newDenominators`:
-   *
-   * - Let `converted` be the result of
-   *   `coerce(newNumerators, newDenominators)`.
-   * - Return `converted.value`.
-   */
-  coerceValue(newNumerators: string[], newDenominators: string[]): number;
-
-  /**
-   * Returns the value of `internal`, converted to the units of `other`.
-   *
-   * - Let `newNumerators` be the numerator units of `other`.
-   * - Let `newDenominators` be the denominator units of `other`.
-   * - Return the result of `coerceValue(newNumerators, newDenominators)`.
-   */
-  coerceValueToMatch(other: SassNumber): number;
-
-  /**
-   * Creates a new copy of `this` with its units converted to those represented
-   * by `newNumerators` and `newDenominators`:
-   *
-   * - If `hasUnits` is true, but `newNumerators` and `newDenominators` are both
-   *   empty, throw an error.
-   * - If `hasUnits` is false, but `newNumerators` and `newDenominators` are not
-   *   both empty, throw an error.
-   * - Return the result of `coerce(newNumerators, newDenominators)`.
    */
   convert(newNumerators: string[], newDenominators: string[]): SassNumber;
 
@@ -616,8 +560,7 @@ export class SassNumber extends Value {
    * Returns the value of `internal`, converted to the units represented by
    * `newNumerators` and `newDenominators`:
    *
-   * - Let `converted` be the result of
-   *   `convert(newNumerators, newDenominators)`.
+   * - Let `converted` be the result of `convert(newNumerators, newDenominators)`.
    * - Return `converted.value`.
    */
   convertValue(newNumerators: string[], newDenominators: string[]): number;
@@ -630,6 +573,57 @@ export class SassNumber extends Value {
    * - Return the result of `convertValue(newNumerators, newDenominators)`.
    */
   convertValueToMatch(other: SassNumber): number;
+
+  /**
+   * Creates a new copy of `this` with its units converted to those represented
+   * by `newNumerators` and `newDenominators`:
+   *
+   * - Support converting to/from unitless:
+   *
+   *   - If `internal` is unitless:
+   *
+   *     - If `newNumerators` and `newDenominators` are both empty, return
+   *       `this`.
+   *
+   *     - Otherwise, for the duration of this procedure, let `internal` behave
+   *       as if its numerator units were equal to `newNumerators` and its
+   *       denominator units were equal to `newDenominators`.
+   *
+   *   - Otherwise, if `newNumerators` and `newDenominators` are both empty, set
+   *     `newNumerators` to `internal`'s numerator units and `newDenominators`
+   *     to `internal`'s denominator units.
+   *
+   * - Return the result of `convert(newNumerators, newDenominators)`.
+   */
+  coerce(newNumerators: string[], newDenominators: string[]): SassNumber;
+
+  /**
+   * Creates a new copy of `this` with its units converted to the units of
+   * `other`:
+   *
+   * - Let `newNumerators` be the numerator units of `other`.
+   * - Let `newDenominators` be the denominator units of `other`.
+   * - Return the result of `coerce(newNumerators, newDenominators)`.
+   */
+  coerceToMatch(other: SassNumber): SassNumber;
+
+  /**
+   * Returns the value of `internal`, converted to the units represented by
+   * `newNumerators` and `newDenominators`:
+   *
+   * - Let `converted` be the result of `coerce(newNumerators, newDenominators)`.
+   * - Return `converted.value`.
+   */
+  coerceValue(newNumerators: string[], newDenominators: string[]): number;
+
+  /**
+   * Returns the value of `internal`, converted to the units of `other`.
+   *
+   * - Let `newNumerators` be the numerator units of `other`.
+   * - Let `newDenominators` be the denominator units of `other`.
+   * - Return the result of `coerceValue(newNumerators, newDenominators)`.
+   */
+  coerceValueToMatch(other: SassNumber): number;
 }
 
 /**
@@ -642,7 +636,7 @@ export class SassString extends Value {
    * Creates a Sass string:
    *
    * - Set `internal` to a Sass string with contents set to `text` and quoted
-   *   value set to `options.quotes` (if passed).
+   *   value set to `options.quotes`.
    * - Return `this`.
    */
   constructor(
@@ -657,7 +651,7 @@ export class SassString extends Value {
    * Creates an empty Sass string:
    *
    * - Set `internal` to an empty Sass string with quoted value set to
-   *   `options.quotes` (if passed).
+   *   `options.quotes`.
    * - Return `this`.
    */
   static empty(options?: {
@@ -677,8 +671,16 @@ export class SassString extends Value {
   /**
    * Converts the Sass index `sassIndex` to a JS index into `text`:
    *
-   * - Let `normalizedIndex` be the result of calling
-   *   sassIndexToListIndex(sassIndex).
+   * - If `sassIndex` is not a unitless Sass number, throw an error.
+   *
+   * - Let `value` be the value of `sassIndex`. Let `index` be the result of
+   *   `fuzzyAsInt(value)`. If `index` is null, throw an error.
+   *
+   * - If `index === 0`, or the absolute value of `index` is greater than
+   *   the length of `sassLength`, throw an error.
+   *
+   * - If `index > 0`, let `normalizedIndex = index - 1`.
+   * - Otherwise, if `index < 0`, let `normalizedIndex = sassLength + index`.
    *
    * - Let `jsIndex` be a JS index. Set `jsIndex` to the first code
    *   unit of the Unicode code point that `normalizedIndex` points to.
