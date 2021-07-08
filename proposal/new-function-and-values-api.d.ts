@@ -37,9 +37,11 @@ export abstract class Value {
   /** Whether `internal` is a bracketed Sass list. */
   get hasBrackets(): boolean;
 
+  /** Whether this value counts as true. */
   get isTruthy(): boolean;
 
-  get realNull(): Value | null;
+  /** Whether `internal` is Sass null. */
+  get isNull(): boolean;
 
   /**
    * Returns `internal`'s list separator:
@@ -69,12 +71,30 @@ export abstract class Value {
    */
   sassIndexToListIndex(sassIndex: Value): number;
 
+  /**
+   * Asserts that this is a `SassBoolean`.
+   *
+   * - If `internal` is a Sass boolean, return `this`.
+   * - Otherwise, throw an error.
+   */
   assertBoolean(): SassBoolean;
 
+  /**
+   * Asserts that this is a `SassColor`.
+   *
+   * - If `internal` is a Sass color, return `this`.
+   * - Otherwise, throw an error.
+   */
   assertColor(): SassColor;
 
   assertFunction(): SassFunction;
 
+  /**
+   * Asserts that this is a `SassMap`.
+   *
+   * - If `internal` is a Sass map, return `this`.
+   * - Otherwise, throw an error.
+   */
   assertMap(): SassMap;
 
   /**
@@ -93,8 +113,20 @@ export abstract class Value {
    */
   asMap(): OrderedMap<Value, Value> | null;
 
+  /**
+   * Asserts that this is a `SassNumber`.
+   *
+   * - If `internal` is a Sass number, return `this`.
+   * - Otherwise, throw an error.
+   */
   assertNumber(): SassNumber;
 
+  /**
+   * Asserts that this is a `SassString`.
+   *
+   * - If `internal` is a Sass string, return `this`.
+   * - Otherwise, throw an error.
+   */
   assertString(): SassString;
 
   /** Whether `this == other` in SassScript. */
@@ -105,6 +137,20 @@ export abstract class Value {
    * `==` SassScript operator.
    */
   hashCode(): number;
+}
+
+/** The JS API representation of the SassScript null singleton. */
+export const sassNull: Value;
+
+/** The JS API representation of the SassScript true singleton. */
+export const sassTrue: SassBoolean;
+
+/** The JS API representation of the SassScript false singleton. */
+export const sassFalse: SassBoolean;
+
+/** The JS API representation of a Sass boolean. */
+export interface SassBoolean extends Value {
+  get value(): boolean;
 }
 
 /**
@@ -353,7 +399,7 @@ export class SassColor extends Value {
  *
  * > `null` represents the undecided separator type.
  */
- export type ListSeparator = ',' | '/' | ' ' | null;
+export type ListSeparator = ',' | '/' | ' ' | null;
 
 /**
  * The JS API representation of a Sass list.
