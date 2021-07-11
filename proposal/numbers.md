@@ -56,8 +56,7 @@ if `a == b`, then `b == a` and if `a == b` and `b == c`, then `a == c`.
 Numbers in Sass are *not* necessarily reflexively equal. `NaN == NaN`,
 `Infinity == Infinity`, and `-Infinity == -Infinity` will always be false.
 
-In the case that two numbers differ only in their 11th or later digits after
-the decimal point, both numbers are rounded to 10 decimal places and compared.
+Two numbers are considered equal if they do no differ when rounded to 10 decimal places.
 
 > For example,
 > 
