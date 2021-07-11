@@ -23,7 +23,7 @@ Numbers in Sass today are ill-defined. Between implementations there
 is very little agreement around edge cases, and there are few spec tests
 exercising these cases.
 
-The behavior of `dart-sass` and `libsass`, the two officially "blessed" implementations
+The behavior of `dart-sass` and `libsass`, the two major implementations
 at the time of writing, differ greatly with regard to numeric equality, rounding, and overflows.
 
 Additionally, this lack of definition has caused both [regressions](https://github.com/sass/dart-sass/issues/807)
@@ -104,31 +104,27 @@ In order to emit a number:
  - Round the number to 10 decimal places
  - Remove trailing zeros
  - If the number is negative and non-zero, emit a negative sign, `-`
- - If in compressed mode:
-   - If the whole number is zero, do nothing
-   - Otherwise, emit the whole number
- - Otherwise, if in expanded mode:
-   - Emit the whole number
+ - Emit the whole number
  - If the decimal portion is non-zero, emit the decimal portion
 
 `NaN`, `Infinity`, and `-Infinity` are emitted as written.
 
-| As written in Sass | As emitted in expanded mode | As emitted in compressed mode |
-| ------------------ | --------------------------- | ----------------------------- |
-| 0                  | 0                           | 0                             |
-| 0.0                | 0                           | 0                             |
-| -0                 | 0                           | 0                             |
-| -0.0               | 0                           | 0                             |
-| 1                  | 1                           | 1                             |
-| 1.0                | 1                           | 1                             |
-| -1                 | -1                          | -1                            |
-| -1.0               | -1                          | -1                            |
-| 0.1                | 0.1                         | .1                            |
-| -0.1               | -0.1                        | -.1                           |
-| .1                 | 0.1                         | .1                            |
-| -.1                | -0.1                        | -.1                           |
-| 1.1                | 1.1                         | 1.1                           |
-| -1.1               | -1.1                        | -1.1                          |
-| NaN                | NaN                         | NaN                           |
-| Infinity           | Infinity                    | Infinity                      |
-| -Infinity          | -Infinity                   | -Infinity                     |
+| As written in Sass | As emitted in expanded mode |
+| ------------------ | --------------------------- |
+| 0                  | 0                           |
+| 0.0                | 0                           |
+| -0                 | 0                           |
+| -0.0               | 0                           |
+| 1                  | 1                           |
+| 1.0                | 1                           |
+| -1                 | -1                          |
+| -1.0               | -1                          |
+| 0.1                | 0.1                         |
+| -0.1               | -0.1                        |
+| .1                 | 0.1                         |
+| -.1                | -0.1                        |
+| 1.1                | 1.1                         |
+| -1.1               | -1.1                        |
+| NaN                | NaN                         |
+| Infinity           | Infinity                    |
+| -Infinity          | -Infinity                   |
