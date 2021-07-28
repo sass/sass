@@ -29,7 +29,7 @@ export abstract class Value {
    *
    * - If `internal` is a Sass list, return an array of its contents.
    * - If `internal` is a Sass map, return an array of its keys and values as
-   *   two-element `SassLists`.
+   *   two-element `SassList`s.
    * - Otherwise, return an array containing `this`.
    */
   get asList(): Value[];
@@ -37,11 +37,11 @@ export abstract class Value {
   /** Whether `internal` is a bracketed Sass list. */
   get hasBrackets(): boolean;
 
-  /** Whether this value counts as true. */
+  /** Whether `this` is truthy. */
   get isTruthy(): boolean;
 
-  /** Whether `internal` is Sass null. */
-  get isNull(): boolean;
+  /** Returns JS null if `internal` is Sass null. Otherwise, returns `this`. */
+  get realNull(): null | Value;
 
   /**
    * Returns `internal`'s list separator:
@@ -72,7 +72,7 @@ export abstract class Value {
   sassIndexToListIndex(sassIndex: Value): number;
 
   /**
-   * Asserts that this is a `SassBoolean`.
+   * Asserts that `this` is a `SassBoolean`.
    *
    * - If `internal` is a Sass boolean, return `this`.
    * - Otherwise, throw an error.
@@ -80,17 +80,23 @@ export abstract class Value {
   assertBoolean(): SassBoolean;
 
   /**
-   * Asserts that this is a `SassColor`.
+   * Asserts that `this` is a `SassColor`.
    *
    * - If `internal` is a Sass color, return `this`.
    * - Otherwise, throw an error.
    */
   assertColor(): SassColor;
 
+  /**
+   * Asserts that `this` is a `SassFunction`.
+   *
+   * - If `internal` is a Sass function, return `this`.
+   * - Otherwise, throw an error.
+   */
   assertFunction(): SassFunction;
 
   /**
-   * Asserts that this is a `SassMap`.
+   * Asserts that `this` is a `SassMap`.
    *
    * - If `internal` is a Sass map, return `this`.
    * - Otherwise, throw an error.
@@ -114,7 +120,7 @@ export abstract class Value {
   asMap(): OrderedMap<Value, Value> | null;
 
   /**
-   * Asserts that this is a `SassNumber`.
+   * Asserts that `this` is a `SassNumber`.
    *
    * - If `internal` is a Sass number, return `this`.
    * - Otherwise, throw an error.
@@ -122,7 +128,7 @@ export abstract class Value {
   assertNumber(): SassNumber;
 
   /**
-   * Asserts that this is a `SassString`.
+   * Asserts that `this` is a `SassString`.
    *
    * - If `internal` is a Sass string, return `this`.
    * - Otherwise, throw an error.
@@ -136,7 +142,7 @@ export abstract class Value {
    * Must be the same for `Value`s that are equal to each other according to the
    * `==` SassScript operator.
    */
-  hashCode(): number;
+  hashCode(): string;
 }
 
 /** The JS API representation of the SassScript null singleton. */
@@ -395,6 +401,36 @@ export class SassColor extends Value {
 }
 
 /**
+ * The JS API representation of a Sass function.
+ *
+ * `internal` refers to a Sass function.
+ */
+export class SassFunction extends Value {
+  /**
+   * Creates a Sass function:
+   *
+   * - Set `internal` to a Sass function with signature set to `signature` that,
+   *   upon execution, runs `callback`.
+   * - Return `this`.
+   */
+  constructor(
+    /**
+     * Must be a valid Sass function signature that could appear after the
+     * `@function` directive in a Sass stylesheet, such as
+     * `mix($color1, $color2, $weight: 50%)`.
+     */
+    signature: string,
+    callback: (args: Value[] | ArgumentList) => Value | Promise<Value>
+  );
+
+  /** `internal`'s signature. */
+  get signature(): string;
+
+  /** The callback that runs when `internal` is executed. */
+  get callback(): (args: Value[] | ArgumentList) => Value | Promise<Value>;
+}
+
+/**
  * The JS API representation of a Sass list separator.
  *
  * > `null` represents the undecided separator type.
@@ -417,7 +453,7 @@ export class SassList extends Value {
   constructor(
     contents: Value[],
     options?: {
-      /** @default ListSeparator.comma */
+      /** @default ',' */
       separator?: ListSeparator;
       /** @default false */
       brackets?: boolean;
@@ -432,7 +468,7 @@ export class SassList extends Value {
    * - Return `this`.
    */
   static empty(options?: {
-    /** @default ListSeparator.undecided */
+    /** @default null */
     separator?: ListSeparator;
     /** @default false */
     brackets?: boolean;
@@ -440,6 +476,27 @@ export class SassList extends Value {
 
   /** `internal`'s list separator. */
   get separator(): ListSeparator;
+}
+
+/**
+ * The JS API representation of a Sass argument list.
+ *
+ * `internal` refers to a Sass argument list.
+ */
+export class ArgumentList extends SassList {
+  /**
+   * Creates a Sass argument list:
+   *
+   * - Set `internal` to a Sass argument list with contents set to `contents`,
+   *   keywords set to `keywords`, and list separator set to `separator`.
+   * - Return `this`.
+   */
+  constructor(
+    contents: Value[],
+    keywords: Record<string, Value>,
+    /** @default ',' */
+    separator?: ListSeparator
+  );
 }
 
 /**
@@ -468,8 +525,7 @@ export class SassMap extends Value {
    * Returns a map containing `internal`'s contents:
    *
    * - Let `result` be an empty `OrderedMap`.
-   * - Add each key and value from `internal`'s contents to `result`, in
-   *   order.
+   * - Add each key and value from `internal`'s contents to `result`, in order.
    * - Return `result`.
    */
   get contents(): OrderedMap<Value, Value>;
