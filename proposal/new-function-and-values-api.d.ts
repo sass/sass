@@ -7,17 +7,76 @@
  *
  * > This section is non-normative.
  *
- * ## Summary
+ * Sass's current JavaScript API was inherited from Node Sass, which developed
+ * over time in an _ad hoc_ manner. The functions API in particular has a number
+ * of notable issues:
  *
- * > This section is non-normative.
+ * - Values are mutable. This goes against the grain of how Sass values work,
+ *   and makes it difficult to implement the API efficiently in Dart Sass.
+ *
+ * - It's hard to verify argument types with assertions.
+ *
+ * - It's hard to follow Sass's conventions for dealing with objects, such as:
+ *
+ *   - Treating `false` and `null` as falsey and everything else as truthy.
+ *   - Treating all values as lists, and treating maps as lists of pairs.
+ *   - Treating empty lists and empty maps as the same value.
+ *   - Using 1-based indexes for lists and strings, and negative indexes to
+ *     count from the back.
+ *   - Indexing the Unicode codepoints of strings rather than UTF-16 code units.
+ *   - There's no representation of first-class function values.
+ *
+ * - There's no representation of an argument list value that may contain
+ *   keyword arguments.
+ *
+ * - Maps are represented as a list of pairs, without any way of accessing a
+ *   value using its key other than iterating through the entire list.
+ *
+ * - Numbers represent their units as a single string in an undocumented format,
+ *   making it very difficult to work with them if they have more than just a
+ *   single numerator unit.
+ *
+ * - The `this` context includes a bunch of undocumented information without a
+ *   clear use-case.
+ *
+ * This proposal for a new Function and Values API solves these problems. It is
+ * heavily based on Dart Sass's [Dart `Value` API].
+ *
+ * [Dart `Value` API]: https://pub.dev/documentation/sass/latest/sass/Value-class.html
  */
+
+/** API */
 
 import {OrderedMap} from 'immutable';
 
-/** ## API */
+import './new-js-api';
+
+type CustomFunctionCallback = (args: Value[]) => Value;
+
+/**
+ * This definition updates the one in the [New JavaScript API proposal].
+ *
+ * [New JavaScript API proposal]: ./new-js-api.d.ts
+ */
+declare module './new-js-api' {
+  interface Options<sync extends 'sync' | 'async'> {
+    /**
+     * When the compiler encounters a function with a signature that does not
+     * match that of a built-in function, but matches a key in this map, it must
+     * call the associated `CustomFunctionCallback`.
+     */
+    functions?: Record<string, CustomFunctionCallback>;
+  }
+}
 
 /**
  * The JS API representation of a Sass value.
+ *
+ * Sass values are immutable. Therefore, all subclasses of Value must have an
+ * API that obeys immutability. Their APIs must not expose ways to modify
+ * Sass values, including lists and maps. An API call that returns a new copy
+ * of a Sass value must ensure that the copy preserves the metadata of the
+ * original value (e.g. units).
  *
  * > To make the spec terser and easier to author, each subclass that extends
  * > `Value` has a virtual, private property named `internal` that refers to the
@@ -410,7 +469,7 @@ export class SassFunction extends Value {
    * Creates a Sass function:
    *
    * - Set `internal` to a Sass function with signature set to `signature` that,
-   *   upon execution, runs `callback`.
+   *   upon execution, runs `callback` and returns the result.
    * - Return `this`.
    */
   constructor(
@@ -420,14 +479,11 @@ export class SassFunction extends Value {
      * `mix($color1, $color2, $weight: 50%)`.
      */
     signature: string,
-    callback: (args: Value[] | ArgumentList) => Value | Promise<Value>
+    callback: CustomFunctionCallback
   );
 
   /** `internal`'s signature. */
   get signature(): string;
-
-  /** The callback that runs when `internal` is executed. */
-  get callback(): (args: Value[] | ArgumentList) => Value | Promise<Value>;
 }
 
 /**
@@ -497,6 +553,9 @@ export class ArgumentList extends SassList {
     /** @default ',' */
     separator?: ListSeparator
   );
+
+  /** `internal`'s keywords. */
+  get keywords(): Record<string, Value>;
 }
 
 /**
