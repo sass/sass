@@ -16,33 +16,87 @@
  *
  * - It's hard to verify argument types with assertions.
  *
- * - It's hard to follow Sass's conventions for dealing with objects, such as:
- *
+ * - It's hard to follow Sass's conventions for dealing with values, such as:
  *   - Treating `false` and `null` as falsey and everything else as truthy.
  *   - Treating all values as lists, and treating maps as lists of pairs.
  *   - Treating empty lists and empty maps as the same value.
  *   - Using 1-based indexes for lists and strings, and negative indexes to
  *     count from the back.
  *   - Indexing the Unicode codepoints of strings rather than UTF-16 code units.
- *   - There's no representation of first-class function values.
  *
- * - There's no representation of an argument list value that may contain
- *   keyword arguments.
- *
- * - Maps are represented as a list of pairs, without any way of accessing a
- *   value using its key other than iterating through the entire list.
- *
- * - Numbers represent their units as a single string in an undocumented format,
- *   making it very difficult to work with them if they have more than just a
- *   single numerator unit.
+ * - Sass values are not represented properly:
+ *   - First-class function values do not exist.
+ *   - Argument list values may contain keyword arguments that do not exist.
+ *   - Maps are represented as a list of pairs, without any way of accessing a
+ *     value using its key other than iterating through the entire list.
+ *   - Numbers represent their units as a single string in an undocumented
+ *     format, making it very difficult to work with them if they have more than
+ *     just a single numerator unit.
  *
  * - The `this` context includes a bunch of undocumented information without a
  *   clear use-case.
  *
- * This proposal for a new Function and Values API solves these problems. It is
- * heavily based on Dart Sass's [Dart `Value` API].
+ * ## Summary
+ *
+ * This proposal solves the problems with the old API. It is heavily based on
+ * Dart Sass's [Dart `Value` API].
  *
  * [Dart `Value` API]: https://pub.dev/documentation/sass/latest/sass/Value-class.html
+ *
+ * ### Proper JS representation of Sass values
+ *
+ * The new API exposes the following values:
+ * - Singletons:
+ *   - `SassNull`
+ *   - `SassTrue`
+ *   - `SassFalse`
+ * - Types:
+ *   - `SassBoolean`
+ * - Classes:
+ *   - `SassColor`
+ *   - `SassFunction`
+ *   - `SassList`
+ *   - `ArgumentList`
+ *   - `SassMap`
+ *   - `SassNumber`
+ *   - `SassString`
+ *
+ * These values all inherit from the `Value` abstract class, which provides a
+ * suite of `assert*()` functions to facilitate type checking.
+ *
+ * These values are tightly translated from Sass values to idiomatic JS. For
+ * example:
+ * - Since a Sass map allows objects as keys and preserves insert order,
+ *   `SassMap` represents its contents as a `Map`.
+ * - To facilitate unit conversion, `SassNumber` tracks its numerator and
+ *   denominator units as string arrays, and exposes unit conversion methods.
+ * - `SassColor` properly represents `rgb`, `hwb`, and `hsl` formats.
+ *
+ * ### Proper handling of Sass conventions
+ *
+ * Values properly encode the meaningful differences between Sass and JS
+ * conventions. For example:
+ * - All values...
+ *   - expose an `isTruthy()` method
+ *   - expose an `equals()` method that follows the behavior of the SassScript
+ *     `==` operator
+ *   - can be handled as lists, including maps
+ *   - support 1-based indexes and negative indexes to count from the back.
+ * - Information about list delimiters and brackets are exposed.
+ * - Strings index the Unicode codepoints of strings rather than UTF-16 code
+ *   units.
+ *
+ * ### No special handling of `this`
+ *
+ * The `this` context is left untouched. It does not get bound or modified. This
+ * avoids hidden, unexpected behavior.
+ *
+ * ### Immutability
+ *
+ * Values only expose their data only through getters. Any getters that return a
+ * collection (e.g. `SassMap.contents`) must ensure the collection is internally
+ * backed by an immutable representation, such that mutations to the returned
+ * collection do not mutate the value itself.
  */
 
 /** API */
