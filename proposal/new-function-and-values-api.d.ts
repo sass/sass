@@ -101,8 +101,6 @@
 
 /** API */
 
-import {OrderedMap} from 'immutable';
-
 import './new-js-api';
 
 type CustomFunctionCallback<sync extends 'sync' | 'async'> = sync extends 'sync'
@@ -148,7 +146,7 @@ export abstract class Value {
    *
    * - If `internal` is a Sass list, return an array of its contents.
    * - If `internal` is a Sass map, return an array of its keys and values as
-   *   two-element `SassList`s.
+   *   two-element `SassList`s, preserving insertion order.
    * - Otherwise, return an array containing `this`.
    */
   get asList(): Value[];
@@ -223,20 +221,13 @@ export abstract class Value {
   assertMap(): SassMap;
 
   /**
-   * Returns `this` as a `SassMap`.
+   * Returns `this` as a map, with insertion order preserved.
    *
-   * - If `internal` is a Sass map:
-   *   - Let `result` be an empty `OrderedMap`.
-   *   - Add each key and value from `internal`'s contents to `result`, in
-   *     order.
-   *   - Return `result`.
-   *
-   * - Otherwise, if `internal` is an empty Sass list, return an empty
-   *   `OrderedMap`.
-   *
+   * - If `internal` is a Sass map, return its contents as a `Map`.
+   * - Otherwise, if `internal` is an empty Sass list, return an empty `Map`.
    * - Otherwise, return `null`.
    */
-  asMap(): OrderedMap<Value, Value> | null;
+  asMap(): Map<Value, Value> | null;
 
   /**
    * Asserts that `this` is a `SassNumber`.
@@ -627,10 +618,11 @@ export class SassMap extends Value {
   /**
    * Creates a Sass map:
    *
-   * - Set `internal` to a Sass map with contents set to `contents`.
+   * - Set `internal` to a Sass map with contents set to `contents`, preserving
+   *   insertion order.
    * - Return `this`.
    */
-  constructor(contents: OrderedMap<Value, Value>);
+  constructor(contents: Map<Value, Value>);
 
   /**
    * Creates an empty Sass map:
@@ -640,14 +632,8 @@ export class SassMap extends Value {
    */
   static empty(): SassMap;
 
-  /**
-   * Returns a map containing `internal`'s contents:
-   *
-   * - Let `result` be an empty `OrderedMap`.
-   * - Add each key and value from `internal`'s contents to `result`, in order.
-   * - Return `result`.
-   */
-  get contents(): OrderedMap<Value, Value>;
+  /** `internal`'s contents. */
+  get contents(): Map<Value, Value>;
 }
 
 /**
