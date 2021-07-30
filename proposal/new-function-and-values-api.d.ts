@@ -105,7 +105,9 @@ import {OrderedMap} from 'immutable';
 
 import './new-js-api';
 
-type CustomFunctionCallback = (args: Value[]) => Value;
+type CustomFunctionCallback<sync extends 'sync' | 'async'> = sync extends 'sync'
+  ? (args: Value[]) => Value
+  : (args: Value[]) => Value | Promise<Value>;
 
 /**
  * This definition updates the one in the [New JavaScript API proposal].
@@ -115,11 +117,15 @@ type CustomFunctionCallback = (args: Value[]) => Value;
 declare module './new-js-api' {
   interface Options<sync extends 'sync' | 'async'> {
     /**
-     * When the compiler encounters a function with a signature that does not
-     * match that of a built-in function, but matches a key in this map, it must
-     * call the associated `CustomFunctionCallback`.
+     * When the compiler encounters a global function call with a signature that
+     * does not match that of a built-in function, but matches a key in this
+     * map, it must call the associated `CustomFunctionCallback` and return its
+     * result.
+     *
+     * The compiler must throw an error if the `CustomFunctionCallback` does not
+     * return a `Value`.
      */
-    functions?: Record<string, CustomFunctionCallback>;
+    functions?: Record<string, CustomFunctionCallback<sync>>;
   }
 }
 
@@ -533,7 +539,7 @@ export class SassFunction extends Value {
      * `mix($color1, $color2, $weight: 50%)`.
      */
     signature: string,
-    callback: CustomFunctionCallback
+    callback: CustomFunctionCallback<'sync'>
   );
 
   /** `internal`'s signature. */
