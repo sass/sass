@@ -22,7 +22,11 @@
  *   - Treating empty lists and empty maps as the same value.
  *   - Using 1-based indexes for lists and strings, and negative indexes to
  *     count from the back.
- *   - Indexing the Unicode codepoints of strings rather than UTF-16 code units.
+ *   - Indexing the Unicode [code point]s of strings rather than UTF-16
+ *     [code unit]s.
+ *
+ *     [code point]: https://unicode.org/glossary/#code_point
+ *     [code unit]: https://unicode.org/glossary/#code_unit
  *
  * - Sass values are not represented properly:
  *   - First-class function values do not exist.
@@ -67,7 +71,7 @@
  * These values are tightly translated from Sass values to idiomatic JS. For
  * example:
  * - Since a Sass map allows objects as keys and preserves insert order,
- *   `SassMap` represents its contents as a `Map`.
+ *   `SassMap` represents its contents as an `OrderedMap`.
  * - To facilitate unit conversion, `SassNumber` tracks its numerator and
  *   denominator units as string arrays, and exposes unit conversion methods.
  * - `SassColor` properly represents `rgb`, `hwb`, and `hsl` formats.
@@ -81,7 +85,7 @@
  *   - expose an `equals()` method that follows the behavior of the SassScript
  *     `==` operator
  *   - can be handled as lists, including maps
- *   - support 1-based indexes and negative indexes to count from the back.
+ *   - support 1-based indexes and negative indexes to count from the back
  * - Information about list delimiters and brackets are exposed.
  * - Strings index the Unicode codepoints of strings rather than UTF-16 code
  *   units.
@@ -93,15 +97,13 @@
  *
  * ### Immutability
  *
- * Values only expose their data only through getters. Any getters that return a
- * collection (e.g. `SassMap.contents`) must ensure the collection is internally
- * backed by an immutable representation, such that mutations to the returned
- * collection do not mutate the value itself.
+ * Values only expose their data through getters. All collections returned by
+ * getters are immutable (e.g. `SassMap.contents`).
  */
 
 /** API */
 
-import {OrderedMap} from 'immutable';
+import {List, OrderedMap} from 'immutable';
 
 import './new-js-api';
 
@@ -151,7 +153,7 @@ export abstract class Value {
    *   two-element `SassList`s.
    * - Otherwise, return an array containing `this`.
    */
-  get asList(): Value[];
+  get asList(): List<Value>;
 
   /** Whether `internal` is a bracketed Sass list. */
   get hasBrackets(): boolean;
@@ -567,7 +569,7 @@ export class SassList extends Value {
    * - Return `this`.
    */
   constructor(
-    contents: Value[],
+    contents: Value[] | List<Value>,
     options?: {
       /** @default ',' */
       separator?: ListSeparator;
@@ -608,14 +610,14 @@ export class ArgumentList extends SassList {
    * - Return `this`.
    */
   constructor(
-    contents: Value[],
-    keywords: Record<string, Value>,
+    contents: Value[] | List<Value>,
+    keywords: Record<string, Value> | OrderedMap<string, Value>,
     /** @default ',' */
     separator?: ListSeparator
   );
 
   /** `internal`'s keywords. */
-  get keywords(): Record<string, Value>;
+  get keywords(): OrderedMap<string, Value>;
 }
 
 /**
@@ -677,8 +679,8 @@ export class SassNumber extends Value {
   static withUnits(
     value: number,
     options?: {
-      numeratorUnits?: string[];
-      denominatorUnits?: string[];
+      numeratorUnits?: string[] | List<string>;
+      denominatorUnits?: string[] | List<string>;
     }
   ): SassNumber;
 
@@ -697,10 +699,10 @@ export class SassNumber extends Value {
   get asInt(): number | null;
 
   /** `internal`'s numerator units. */
-  get numeratorUnits(): string[];
+  get numeratorUnits(): List<string>;
 
   /** `internal`'s denominator units. */
-  get denominatorUnits(): string[];
+  get denominatorUnits(): List<string>;
 
   /** Whether `internal` has numerator or denominator units. */
   get hasUnits(): boolean;
@@ -777,7 +779,10 @@ export class SassNumber extends Value {
    * - Return a new `SassNumber` with `internal` set to the result of the
    *   SassScript expression `converter + internal`.
    */
-  convert(newNumerators: string[], newDenominators: string[]): SassNumber;
+  convert(
+    newNumerators: string[] | List<string>,
+    newDenominators: string[] | List<string>
+  ): SassNumber;
 
   /**
    * Creates a new copy of `this` with its units converted to the units of
@@ -795,7 +800,10 @@ export class SassNumber extends Value {
    *
    * - Return the value of the result of `convert(newNumerators, newDenominators)`.
    */
-  convertValue(newNumerators: string[], newDenominators: string[]): number;
+  convertValue(
+    newNumerators: string[] | List<string>,
+    newDenominators: string[] | List<string>
+  ): number;
 
   /**
    * Returns the value of `internal`, converted to the units of `other`.
@@ -827,7 +835,10 @@ export class SassNumber extends Value {
    *
    * - Return the result of `convert(newNumerators, newDenominators)`.
    */
-  coerce(newNumerators: string[], newDenominators: string[]): SassNumber;
+  coerce(
+    newNumerators: string[] | List<string>,
+    newDenominators: string[] | List<string>
+  ): SassNumber;
 
   /**
    * Creates a new copy of `this` with its units converted to the units of
@@ -845,7 +856,10 @@ export class SassNumber extends Value {
    *
    * - Return the value of the result of `coerce(newNumerators, newDenominators)`.
    */
-  coerceValue(newNumerators: string[], newDenominators: string[]): number;
+  coerceValue(
+    newNumerators: string[] | List<string>,
+    newDenominators: string[] | List<string>
+  ): number;
 
   /**
    * Returns the value of `internal`, converted to the units of `other`.
@@ -916,11 +930,8 @@ export class SassString extends Value {
    * - Let `jsIndex` be a JS index. Set `jsIndex` to the first code
    *   unit of the Unicode code point that `normalizedIndex` points to.
    *
-   *   > Sass indices count Unicode [code point]s, whereas JS indices count
-   *   > UTF-16 [code units].
-   *   >
-   *   > [code point]: https://unicode.org/glossary/#code_point
-   *   > [code unit]: https://unicode.org/glossary/#code_unit
+   *   > Sass indices count Unicode code points, whereas JS indices count
+   *   > UTF-16 code units.
    *
    * - Return `jsIndex`.
    */
