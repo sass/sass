@@ -51,9 +51,23 @@
 import {URL} from 'url';
 
 import '../spec/js-api';
+import './new-js-api';
 
 declare module '../spec/js-api' {
   interface _Options {
+    /**
+     * An object that provides callbacks for the compiler to use in lieu of its
+     * default messaging behavior.
+     *
+     * The compiler must treat an `undefined` logger identically to an object
+     * that doesn't have `warn` or `debug` fields.
+     */
+    logger?: Logger;
+  }
+}
+
+declare module '../new-js-api' {
+  interface Options<sync extends 'sync' | 'async'> {
     /**
      * An object that provides callbacks for the compiler to use in lieu of its
      * default messaging behavior.
