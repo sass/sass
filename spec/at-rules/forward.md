@@ -17,9 +17,9 @@ The grammar for the `@forward` rule is as follows:
 
 <x><pre>
 **ForwardRule** ::= '@forward' QuotedString AsClause? (ShowClause | HideClause)?
-**AsClause**    ::= 'as' [\<ident-token>][] '*'
-**ShowClause**  ::= 'show' MemberName (',' MemberName)*
-**HideClause**  ::= 'hide' MemberName (',' MemberName)*
+**AsClause**    ::= 'as' [\<ident-token>][] '\*'
+**ShowClause**  ::= 'show' MemberName (',' MemberName)\*
+**HideClause**  ::= 'hide' MemberName (',' MemberName)\*
 **MemberName**  ::= '$'? [\<ident-token>][]
 </pre></x>
 
