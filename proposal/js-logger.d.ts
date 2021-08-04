@@ -1,7 +1,8 @@
 /**
- * # JavaScript Logger API: Draft 1
+ * # JavaScript Logger API: Draft 2
  *
- * *([Issue](https://github.com/sass/sass/issues/2979))*
+ * *([Issue](https://github.com/sass/sass/issues/2979),
+ * [Changelog](js-logger.changes.md))*
  *
  * ## Background
  *
@@ -50,9 +51,23 @@
 import {URL} from 'url';
 
 import '../spec/js-api';
+import './new-js-api';
 
 declare module '../spec/js-api' {
   interface _Options {
+    /**
+     * An object that provides callbacks for the compiler to use in lieu of its
+     * default messaging behavior.
+     *
+     * The compiler must treat an `undefined` logger identically to an object
+     * that doesn't have `warn` or `debug` fields.
+     */
+    logger?: Logger;
+  }
+}
+
+declare module '../new-js-api' {
+  interface Options<sync extends 'sync' | 'async'> {
     /**
      * An object that provides callbacks for the compiler to use in lieu of its
      * default messaging behavior.
@@ -128,6 +143,11 @@ export interface Logger {
    * any way other than invoking `debug`.
    */
   debug?(message: string, options: {span: SourceSpan}): void;
+}
+
+export namespace Logger {
+  /** A Logger that does nothing when it warn or debug methods are called. */
+  export const silent: Logger;
 }
 
 /**
