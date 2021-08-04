@@ -1,7 +1,8 @@
 /**
- * # JavaScript Logger API: Draft 1
+ * # JavaScript Logger API: Draft 2
  *
- * *([Issue](https://github.com/sass/sass/issues/2979))*
+ * *([Issue](https://github.com/sass/sass/issues/2979),
+ * [Changelog](js-logger.changes.md))*
  *
  * ## Background
  *
@@ -128,6 +129,11 @@ export interface Logger {
    * any way other than invoking `debug`.
    */
   debug?(message: string, options: {span: SourceSpan}): void;
+}
+
+export namespace Logger {
+  /** A Logger that does nothing when it warn or debug methods are called. */
+  export const silent: Logger;
 }
 
 /**

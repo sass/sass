@@ -1,7 +1,8 @@
 /**
  * # New JavaScript API: Draft 3
  *
- * *([Issue](https://github.com/sass/sass/issues/3056))*
+ * *([Issue](https://github.com/sass/sass/issues/3056),
+ * [Changelog](new-js-api.changes.md))*
  *
  * ## Background
  *
