@@ -155,8 +155,30 @@ export abstract class Value {
    */
   get asList(): List<Value>;
 
+  /**
+   * Returns `this` as a `SassMap`.
+   *
+   * - If `internal` is a Sass map:
+   *   - Let `result` be an empty `OrderedMap`.
+   *   - Add each key and value from `internal`'s contents to `result`, in
+   *     order.
+   *   - Return `result`.
+   *
+   * - Otherwise, if `internal` is an empty Sass list, return an empty
+   *   `OrderedMap`.
+   *
+   * - Otherwise, return `null`.
+   */
+  get asMap(): OrderedMap<Value, Value> | null;
+
   /** Whether `internal` is a bracketed Sass list. */
   get hasBrackets(): boolean;
+
+  /**
+   * Must be the same for `Value`s that are equal to each other according to the
+   * `==` SassScript operator.
+   */
+  get hashCode(): number;
 
   /** Whether `this` is truthy. */
   get isTruthy(): boolean;
@@ -172,9 +194,13 @@ export abstract class Value {
    */
   get separator(): ListSeparator;
 
+  /** Whether `this == other` in SassScript. */
+  equals(other: Value): boolean;
+
   /**
    * Converts the Sass index `sassIndex` to a JS index into the array returned
-   * by `asList`:
+   * by `asList`. If there is an error in conversion, throws an error that
+   * that includes `name` (if given).
    *
    * - If `sassIndex` is not a unitless Sass number, throw an error.
    *
@@ -190,80 +216,55 @@ export abstract class Value {
    *   > Sass indices start counting at 1, and may be negative in order to index
    *   > from the end of the list.
    */
-  sassIndexToListIndex(sassIndex: Value): number;
+  sassIndexToListIndex(sassIndex: Value, name?: string): number;
 
   /**
    * Asserts that `this` is a `SassBoolean`.
    *
    * - If `internal` is a Sass boolean, return `this`.
-   * - Otherwise, throw an error.
+   * - Otherwise, throw an error that includes `name` (if given).
    */
-  assertBoolean(): SassBoolean;
+  assertBoolean(name?: string): SassBoolean;
 
   /**
    * Asserts that `this` is a `SassColor`.
    *
    * - If `internal` is a Sass color, return `this`.
-   * - Otherwise, throw an error.
+   * - Otherwise, throw an error that includes `name` (if given).
    */
-  assertColor(): SassColor;
+  assertColor(name?: string): SassColor;
 
   /**
    * Asserts that `this` is a `SassFunction`.
    *
    * - If `internal` is a Sass function, return `this`.
-   * - Otherwise, throw an error.
+   * - Otherwise, throw an error that includes `name` (if given).
    */
-  assertFunction(): SassFunction;
+  assertFunction(name?: string): SassFunction;
 
   /**
    * Asserts that `this` is a `SassMap`.
    *
    * - If `internal` is a Sass map, return `this`.
-   * - Otherwise, throw an error.
+   * - Otherwise, throw an error that includes `name` (if given).
    */
-  assertMap(): SassMap;
-
-  /**
-   * Returns `this` as a `SassMap`.
-   *
-   * - If `internal` is a Sass map:
-   *   - Let `result` be an empty `OrderedMap`.
-   *   - Add each key and value from `internal`'s contents to `result`, in
-   *     order.
-   *   - Return `result`.
-   *
-   * - Otherwise, if `internal` is an empty Sass list, return an empty
-   *   `OrderedMap`.
-   *
-   * - Otherwise, return `null`.
-   */
-  asMap(): OrderedMap<Value, Value> | null;
+  assertMap(name?: string): SassMap;
 
   /**
    * Asserts that `this` is a `SassNumber`.
    *
    * - If `internal` is a Sass number, return `this`.
-   * - Otherwise, throw an error.
+   * - Otherwise, throw an error that includes `name` (if given).
    */
-  assertNumber(): SassNumber;
+  assertNumber(name?: string): SassNumber;
 
   /**
    * Asserts that `this` is a `SassString`.
    *
    * - If `internal` is a Sass string, return `this`.
-   * - Otherwise, throw an error.
+   * - Otherwise, throw an error that includes `name` (if given).
    */
-  assertString(): SassString;
-
-  /** Whether `this == other` in SassScript. */
-  equals(other: Value): boolean;
-
-  /**
-   * Must be the same for `Value`s that are equal to each other according to the
-   * `==` SassScript operator.
-   */
-  hashCode(): string;
+  assertString(name?: string): SassString;
 }
 
 /** The JS API representation of the SassScript null singleton. */
@@ -711,9 +712,9 @@ export class SassNumber extends Value {
    * Asserts that `internal`'s value is an integer:
    *
    * - If `internal`'s value `fuzzyEquals` an integer, return that integer.
-   * - Otherwise, throw an error.
+   * - Otherwise, throw an error that includes `name` (if given).
    */
-  assertInt(): number;
+  assertInt(name?: string): number;
 
   /**
    * Asserts that `internal`'s value is within the specified range:
@@ -722,26 +723,27 @@ export class SassNumber extends Value {
    *   `max`, return it.
    * - Otherwise, if `internal`'s value `fuzzyEquals` `min`, return `min`.
    * - Otherwise, if `internal`'s value `fuzzyEquals` `max`, return `max`.
-   * - Otherwise, throw an error.
+   * - Otherwise, throw an error that includes `name` (if given).
    */
-  assertInRange(min: number, max: number): number;
+  assertInRange(min: number, max: number, name?: string): number;
 
   /**
    * Asserts that `internal` is unitless:
    *
-   * - If `internal` has any numerator or denominator units, throw an error.
+   * - If `internal` has any numerator or denominator units, throw an error that
+   *   includes `name` (if given).
    * - Otherwise, return `this`.
    */
-  assertNoUnits(): SassNumber;
+  assertNoUnits(name?: string): SassNumber;
 
   /**
    * Asserts the type of `internal`'s unit:
    *
    * - If `internal` has any denominator units, or if `unit` is not `internal`'s
-   *   only numerator unit, throw an error.
+   *   only numerator unit, throw an error that includes `name` (if given).
    * - Otherwise, return `this`.
    */
-  assertUnit(unit: string): SassNumber;
+  assertUnit(unit: string, name?: string): SassNumber;
 
   /**
    * Whether `internal` has the specified unit:
@@ -772,7 +774,8 @@ export class SassNumber extends Value {
    *   });
    *   ```
    *
-   * - If `converter` is not [compatible] with `internal`, throw an error.
+   * - If `converter` is not [compatible] with `internal`, throw an error
+   *   that includes `name` (if given).
    *
    * - Set `converter` to the result of `simplify`ing `converter`.
    *
@@ -781,7 +784,8 @@ export class SassNumber extends Value {
    */
   convert(
     newNumerators: string[] | List<string>,
-    newDenominators: string[] | List<string>
+    newDenominators: string[] | List<string>,
+    name?: string
   ): SassNumber;
 
   /**
@@ -790,29 +794,39 @@ export class SassNumber extends Value {
    *
    * - Let `newNumerators` be the numerator units of `other`.
    * - Let `newDenominators` be the denominator units of `other`.
-   * - Return the result of `convert(newNumerators, newDenominators)`.
+   * - Set `newNumber` to the result of `convert(newNumerators, newDenominators)`.
+   *   - If there was an error while running `convert`, throw an error that
+   *     includes both `name` and `otherName` (if given).
+   *   - Otherwise, return `newNumber`.
    */
-  convertToMatch(other: SassNumber): SassNumber;
+  convertToMatch(
+    other: SassNumber,
+    name?: string,
+    otherName?: string
+  ): SassNumber;
 
   /**
    * Returns the value of `internal`, converted to the units represented by
    * `newNumerators` and `newDenominators`:
    *
-   * - Return the value of the result of `convert(newNumerators, newDenominators)`.
+   * - Return the value of the result of `convert(newNumerators, newDenominators, name)`.
    */
   convertValue(
     newNumerators: string[] | List<string>,
-    newDenominators: string[] | List<string>
+    newDenominators: string[] | List<string>,
+    name?: string
   ): number;
 
   /**
    * Returns the value of `internal`, converted to the units of `other`.
    *
-   * - Let `newNumerators` be the numerator units of `other`.
-   * - Let `newDenominators` be the denominator units of `other`.
-   * - Return the result of `convertValue(newNumerators, newDenominators)`.
+   * - Return the value of the result of `convertToMatch(other, name, otherName)`.
    */
-  convertValueToMatch(other: SassNumber): number;
+  convertValueToMatch(
+    other: SassNumber,
+    name?: string,
+    otherName?: string
+  ): number;
 
   /**
    * Creates a new copy of `this` with its units converted to those represented
@@ -833,11 +847,12 @@ export class SassNumber extends Value {
    *     `newNumerators` to `internal`'s numerator units and `newDenominators`
    *     to `internal`'s denominator units.
    *
-   * - Return the result of `convert(newNumerators, newDenominators)`.
+   * - Return the result of `convert(newNumerators, newDenominators, name)`.
    */
   coerce(
     newNumerators: string[] | List<string>,
-    newDenominators: string[] | List<string>
+    newDenominators: string[] | List<string>,
+    name?: string
   ): SassNumber;
 
   /**
@@ -846,29 +861,39 @@ export class SassNumber extends Value {
    *
    * - Let `newNumerators` be the numerator units of `other`.
    * - Let `newDenominators` be the denominator units of `other`.
-   * - Return the result of `coerce(newNumerators, newDenominators)`.
+   * - Set `newNumber` to the result of `coerce(newNumerators, newDenominators)`.
+   *   - If there was an error while running `coerce`, throw an error that
+   *     includes both `name` and `otherName` (if given).
+   *   - Otherwise, return `newNumber`.
    */
-  coerceToMatch(other: SassNumber): SassNumber;
+  coerceToMatch(
+    other: SassNumber,
+    name?: string,
+    otherName?: string
+  ): SassNumber;
 
   /**
    * Returns the value of `internal`, converted to the units represented by
    * `newNumerators` and `newDenominators`:
    *
-   * - Return the value of the result of `coerce(newNumerators, newDenominators)`.
+   * - Return the value of the result of `coerce(newNumerators, newDenominators, name)`.
    */
   coerceValue(
     newNumerators: string[] | List<string>,
-    newDenominators: string[] | List<string>
+    newDenominators: string[] | List<string>,
+    name?: string
   ): number;
 
   /**
    * Returns the value of `internal`, converted to the units of `other`.
    *
-   * - Let `newNumerators` be the numerator units of `other`.
-   * - Let `newDenominators` be the denominator units of `other`.
-   * - Return the result of `coerceValue(newNumerators, newDenominators)`.
+   * - Return the value of the result of `coerceToMatch(other, name, otherName)`.
    */
-  coerceValueToMatch(other: SassNumber): number;
+  coerceValueToMatch(
+    other: SassNumber,
+    name?: string,
+    otherName?: string
+  ): number;
 }
 
 /**
@@ -914,7 +939,8 @@ export class SassString extends Value {
   get sassLength(): number;
 
   /**
-   * Converts the Sass index `sassIndex` to a JS index into `text`:
+   * Converts the Sass index `sassIndex` to a JS index into `text`. If there is
+   * an error in conversion, throws an error that includes `name` (if given).
    *
    * - If `sassIndex` is not a unitless Sass number, throw an error.
    *
@@ -935,5 +961,5 @@ export class SassString extends Value {
    *
    * - Return `jsIndex`.
    */
-  sassIndexToStringIndex(sassIndex: Value): number;
+  sassIndexToStringIndex(sassIndex: Value, name?: string): number;
 }
