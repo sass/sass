@@ -818,23 +818,15 @@ export class SassNumber extends Value {
   convertToMatch(other: SassNumber): SassNumber;
 
   /**
-   * Returns the value of `internal`, converted to the units represented by
-   * `newNumerators` and `newDenominators`:
-   *
-   * - Return the value of the result of `convert(newNumerators, newDenominators)`.
+   * Return the value of the result of `convert(newNumerators,
+   * newDenominators)`.
    */
   convertValue(
     newNumerators: string[] | List<string>,
     newDenominators: string[] | List<string>
   ): number;
 
-  /**
-   * Returns the value of `internal`, converted to the units of `other`.
-   *
-   * - Let `newNumerators` be the numerator units of `other`.
-   * - Let `newDenominators` be the denominator units of `other`.
-   * - Return the result of `convertValue(newNumerators, newDenominators)`.
-   */
+  /** Returns the value of the result of `convertToMatch(other)`. */
   convertValueToMatch(other: SassNumber): number;
 
   /**
@@ -874,23 +866,14 @@ export class SassNumber extends Value {
   coerceToMatch(other: SassNumber): SassNumber;
 
   /**
-   * Returns the value of `internal`, converted to the units represented by
-   * `newNumerators` and `newDenominators`:
-   *
-   * - Return the value of the result of `coerce(newNumerators, newDenominators)`.
+   * Return the value of the result of `coerce(newNumerators, newDenominators)`.
    */
   coerceValue(
     newNumerators: string[] | List<string>,
     newDenominators: string[] | List<string>
   ): number;
 
-  /**
-   * Returns the value of `internal`, converted to the units of `other`.
-   *
-   * - Let `newNumerators` be the numerator units of `other`.
-   * - Let `newDenominators` be the denominator units of `other`.
-   * - Return the result of `coerceValue(newNumerators, newDenominators)`.
-   */
+  /** Returns the value of the result of `coerceToMatch(other)`. */
   coerceValueToMatch(other: SassNumber): number;
 }
 
