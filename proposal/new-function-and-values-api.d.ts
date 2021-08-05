@@ -1,7 +1,8 @@
 /**
- * # New Function and Values API: Draft 1
+ * # New Function and Values API: Draft 2
  *
- * *([Issue](https://github.com/sass/sass/issues/2510))*
+ * *([Issue](https://github.com/sass/sass/issues/2510),
+ * [Changelog](new-function-and-values-api.changes.md))*
  *
  * ## Background
  *
@@ -51,9 +52,9 @@
  *
  * The new API exposes the following values:
  * - Singletons:
- *   - `SassNull`
- *   - `SassTrue`
- *   - `SassFalse`
+ *   - `sassNull`
+ *   - `sassTrue`
+ *   - `sassFalse`
  * - Types:
  *   - `SassBoolean`
  * - Classes:
@@ -193,39 +194,69 @@ export abstract class Value {
   sassIndexToListIndex(sassIndex: Value): number;
 
   /**
-   * Asserts that `this` is a `SassBoolean`.
+   * Asserts that `this` is a `SassBoolean`:
    *
    * - If `internal` is a Sass boolean, return `this`.
    * - Otherwise, throw an error.
+   *
+   * > The `name` parameter may be used for error reporting.
    */
-  assertBoolean(): SassBoolean;
+  assertBoolean(name?: string): SassBoolean;
 
   /**
-   * Asserts that `this` is a `SassColor`.
+   * Asserts that `this` is a `SassColor`:
    *
    * - If `internal` is a Sass color, return `this`.
    * - Otherwise, throw an error.
+   *
+   * > The `name` parameter may be used for error reporting.
    */
-  assertColor(): SassColor;
+  assertColor(name?: string): SassColor;
 
   /**
-   * Asserts that `this` is a `SassFunction`.
+   * Asserts that `this` is a `SassFunction`:
    *
    * - If `internal` is a Sass function, return `this`.
    * - Otherwise, throw an error.
+   *
+   * > The `name` parameter may be used for error reporting.
    */
-  assertFunction(): SassFunction;
+  assertFunction(name?: string): SassFunction;
 
   /**
-   * Asserts that `this` is a `SassMap`.
+   * Asserts that `this` is a `SassMap`:
    *
    * - If `internal` is a Sass map, return `this`.
+   * - If `internal` is an empty Sass list, return a `SassMap` with `internal`
+   *   set to an empty map.
    * - Otherwise, throw an error.
+   *
+   * > The `name` parameter may be used for error reporting.
    */
-  assertMap(): SassMap;
+  assertMap(name?: string): SassMap;
 
   /**
-   * Returns `this` as a `SassMap`.
+   * Asserts that `this` is a `SassNumber`:
+   *
+   * - If `internal` is a Sass number, return `this`.
+   * - Otherwise, throw an error.
+   *
+   * > The `name` parameter may be used for error reporting.
+   */
+  assertNumber(name?: string): SassNumber;
+
+  /**
+   * Asserts that `this` is a `SassString`:
+   *
+   * - If `internal` is a Sass string, return `this`.
+   * - Otherwise, throw an error.
+   *
+   * > The `name` parameter may be used for error reporting.
+   */
+  assertString(name?: string): SassString;
+
+  /**
+   * Returns `this`'s map contents, if it can be interpreted as a map.
    *
    * - If `internal` is a Sass map:
    *   - Let `result` be an empty `OrderedMap`.
@@ -238,23 +269,7 @@ export abstract class Value {
    *
    * - Otherwise, return `null`.
    */
-  asMap(): OrderedMap<Value, Value> | null;
-
-  /**
-   * Asserts that `this` is a `SassNumber`.
-   *
-   * - If `internal` is a Sass number, return `this`.
-   * - Otherwise, throw an error.
-   */
-  assertNumber(): SassNumber;
-
-  /**
-   * Asserts that `this` is a `SassString`.
-   *
-   * - If `internal` is a Sass string, return `this`.
-   * - Otherwise, throw an error.
-   */
-  assertString(): SassString;
+  tryMap(): OrderedMap<Value, Value> | null;
 
   /** Whether `this == other` in SassScript. */
   equals(other: Value): boolean;
@@ -263,7 +278,7 @@ export abstract class Value {
    * Must be the same for `Value`s that are equal to each other according to the
    * `==` SassScript operator.
    */
-  hashCode(): string;
+  hashCode(): number;
 }
 
 /** The JS API representation of the SassScript null singleton. */
@@ -543,9 +558,6 @@ export class SassFunction extends Value {
     signature: string,
     callback: CustomFunctionCallback<'sync'>
   );
-
-  /** `internal`'s signature. */
-  get signature(): string;
 }
 
 /**
@@ -650,6 +662,9 @@ export class SassMap extends Value {
    * - Return `result`.
    */
   get contents(): OrderedMap<Value, Value>;
+
+  /** Returns `this.contents`. */
+  tryMap(): OrderedMap<Value, Value>;
 }
 
 /**
@@ -712,8 +727,10 @@ export class SassNumber extends Value {
    *
    * - If `internal`'s value `fuzzyEquals` an integer, return that integer.
    * - Otherwise, throw an error.
+   *
+   * > The `name` parameter may be used for error reporting.
    */
-  assertInt(): number;
+  assertInt(name?: string): number;
 
   /**
    * Asserts that `internal`'s value is within the specified range:
@@ -723,16 +740,20 @@ export class SassNumber extends Value {
    * - Otherwise, if `internal`'s value `fuzzyEquals` `min`, return `min`.
    * - Otherwise, if `internal`'s value `fuzzyEquals` `max`, return `max`.
    * - Otherwise, throw an error.
+   *
+   * > The `name` parameter may be used for error reporting.
    */
-  assertInRange(min: number, max: number): number;
+  assertInRange(min: number, max: number, name?: string): number;
 
   /**
    * Asserts that `internal` is unitless:
    *
    * - If `internal` has any numerator or denominator units, throw an error.
    * - Otherwise, return `this`.
+   *
+   * > The `name` parameter may be used for error reporting.
    */
-  assertNoUnits(): SassNumber;
+  assertNoUnits(name?: string): SassNumber;
 
   /**
    * Asserts the type of `internal`'s unit:
@@ -740,15 +761,17 @@ export class SassNumber extends Value {
    * - If `internal` has any denominator units, or if `unit` is not `internal`'s
    *   only numerator unit, throw an error.
    * - Otherwise, return `this`.
+   *
+   * > The `name` parameter may be used for error reporting.
    */
-  assertUnit(unit: string): SassNumber;
+  assertUnit(unit: string, name?: string): SassNumber;
 
   /**
    * Whether `internal` has the specified unit:
    *
    * - If `internal` has any denominator units, return false.
    * - Otherwise, return whether `unit` is `internal`'s only numerator unit.
-   * */
+   */
   hasUnit(unit: string): boolean;
 
   /**
