@@ -17,6 +17,9 @@
 * Added `SassMap.tryMap()` to override `Value.tryMap()` and declare statically
   that it never returns `null`.
 
+* Make `Value` explicitly implement the `immutable` package's `ValueType`
+  interface.
+
 ## Draft 1
 
 * Initial draft.

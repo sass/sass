@@ -104,7 +104,7 @@
 
 /** API */
 
-import {List, OrderedMap} from 'immutable';
+import {List, OrderedMap, ValueObject} from 'immutable';
 
 import './new-js-api';
 
@@ -145,7 +145,7 @@ declare module './new-js-api' {
  * > `Value` has a virtual, private property named `internal` that refers to the
  * > Sass value it represents.
  */
-export abstract class Value {
+export abstract class Value implements ValueObject {
   /**
    * Returns `this` as an array:
    *
