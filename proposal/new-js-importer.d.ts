@@ -86,24 +86,25 @@
  * #### Canonicalizing Relative Loads
  *
  * When a stylesheet tries to load a relative URL, such as `@use "variables"`,
- * it's not clear from the document itself text whether that's meant to refer to
- * a file that exists relative to the stylesheet or to another importer or load
- * path. Here's how the importer API resolves that ambiguity:
+ * it's not clear from the document itself whether that refers to a file that
+ * exists relative to the stylesheet or to another importer or load path. Here's
+ * how the importer API resolves that ambiguity:
  *
- * * First, the relative URL is resolved relative to the old stylesheet's
- *   canonical URL. For example, if the canonical URL is
- *   `file:///path/to/my/_styles.scss`, then the resolved URL will be
- *   `file://path/to/my/variables`.
+ * * First, the relative URL is resolved relative to the canonical URL of the
+ *   stylesheet that contained the `@use` (or `@forward` or `@import`). For
+ *   example, if the canonical URL is `file:///path/to/my/_styles.scss`, then
+ *   the resolved URL will be `file:///path/to/my/variables`.
  *
  * * This URL is then passed to the `canonicalize()` method of the importer that
  *   loaded the old stylesheet. (That means it's important for your importers to
  *   support absolute URLs!) If the importer recognizes it, it returns the
- *   canonical value which is then passed to `load()`; otherwise, it returns
- *   `null`.
+ *   canonical value which is then passed to that importer's `load()`;
+ *   otherwise, it returns `null`.
  *
  * * If the old stylesheet's importer didn't recognize the URL, it's passed to
- *   all the `importers`' canonicalize functions in order, then checked for in
- *   all the `loadPaths`. If none of those recognizes it, the load fails.
+ *   all the `importers`' canonicalize functions in the order they appear in
+ *   `options`, then checked for in all the `loadPaths`. If none of those
+ *   recognizes it, the load fails.
  *
  * It's important that local relative paths take precedence over other importers
  * or load paths, because otherwise your local stylesheets could get
