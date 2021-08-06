@@ -1,3 +1,8 @@
+## Draft 2.1
+
+* Add `name` parameters to `Value.sassIndexToListIndex()` and
+  `SassString.sassIndexToStringIndex()`.
+
 ## Draft 2
 
 * Add `name` parameters to `assert*()` methods so that they can provide

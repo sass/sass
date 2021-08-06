@@ -190,8 +190,10 @@ export abstract class Value implements ValueObject {
    *
    *   > Sass indices start counting at 1, and may be negative in order to index
    *   > from the end of the list.
+   *
+   * > The `name` parameter may be used for error reporting.
    */
-  sassIndexToListIndex(sassIndex: Value): number;
+  sassIndexToListIndex(sassIndex: Value, name?: string): number;
 
   /**
    * Asserts that `this` is a `SassBoolean`:
@@ -940,6 +942,8 @@ export class SassString extends Value {
    *   > UTF-16 code units.
    *
    * - Return `jsIndex`.
+   *
+   * > The `name` parameter may be used for error reporting.
    */
-  sassIndexToStringIndex(sassIndex: Value): number;
+  sassIndexToStringIndex(sassIndex: Value, name?: string): number;
 }
