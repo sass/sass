@@ -131,7 +131,7 @@ accepted.
   See [Plain CSS `min()` and `max()`][min-max background] for a good example of
   a Background section.
 
-  [min-max background]: https://github.com/sass/sass/blob/master/accepted/min-max.md#background
+  [min-max background]: https://github.com/sass/sass/blob/main/accepted/min-max.md#background
 
 * **Summary**
 

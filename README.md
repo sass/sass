@@ -1,4 +1,4 @@
-<h1><img width="200px" alt="Sass" src="https://rawgit.com/sass/sass-site/master/source/assets/img/logos/logo.svg" /></h1>
+<h1><img width="200px" alt="Sass" src="https://rawgit.com/sass/sass-site/main/source/assets/img/logos/logo.svg" /></h1>
 
 [![@SassCSS on Twitter](https://img.shields.io/twitter/follow/SassCSS?label=%40SassCSS&style=social)](https://twitter.com/SassCSS)
 &nbsp;&nbsp;
@@ -96,9 +96,9 @@ This repository isn't an implementation of Sass. Those live in
 * [`accepted/`][], which contains proposals that have been accepted and are
   either implemented or in the process of being implemented.
 
-[`spec/`]: https://github.com/sass/sass/tree/master/spec
-[`proposal/`]: https://github.com/sass/sass/tree/master/proposal
-[`accepted/`]: https://github.com/sass/sass/tree/master/accepted
+[`spec/`]: https://github.com/sass/sass/tree/main/spec
+[`proposal/`]: https://github.com/sass/sass/tree/main/proposal
+[`accepted/`]: https://github.com/sass/sass/tree/main/accepted
 
 Note that this doesn't contain a full specification of Sass. Instead, feature
 specifications are written as needed when a new feature is being designed or
