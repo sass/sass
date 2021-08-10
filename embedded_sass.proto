@@ -220,6 +220,12 @@ message InboundMessage {
       // An error message explaining why the function call failed.
       string error = 3;
     }
+
+    // The IDs of all `Value.ArgumentList`s in `FunctionCallRequest.arguments`
+    // whose keywords were accessed. See `Value.ArgumentList` for details.
+    // Mandatory if `result.success` is set. This may not include the special
+    // value `0` and it may not include multiple instances of the same ID.
+    repeated uint32 accessed_argument_lists = 4;
   }
 
   // The wrapped message. Mandatory.
@@ -761,6 +767,46 @@ message Value {
     string signature = 2;
   }
 
+  // A SassScript argument list value. This represents rest arguments passed to
+  // a function's `$arg...` parameter. Unlike a normal `List`, an argument list
+  // has an associated keywords map which tracks keyword arguments passed in
+  // alongside positional arguments.
+  //
+  // For each `ArgumentList` in `FunctionCallRequest.arguments` (including those
+  // nested within `List`s and `Map`s), the host must track whether its keyword
+  // arguments were accessed by the user. If they were, it must add its
+  // `ArgumentList.id` to `FunctionCallResponse.accessed_argument_lists`.
+  //
+  // The compiler must treat every `ArgumentList` whose `ArgumentList.id`
+  // appears in `FunctionCallResponse.accessed_argument_lists` as though it had
+  // been passed to `meta.keywords()`.
+  message ArgumentList {
+    // An ID for this argument list that's unique within the scope of a given
+    // `FunctionCallRequest`.
+    //
+    // The special ID `0` is reserved for `ArgumentList`s created by the host,
+    // and may not be used by the compiler. These `ArgumentList`s do not need to
+    // have their IDs added to `FunctionCallResponse.accessed_argument_lists`,
+    // and the compiler should treat them as though their keywords have always
+    // been accessed.
+    uint32 id = 1;
+
+    // The type of separator for this list. The compiler must set this, but
+    // the host may omit it for `ArgumentList`s that were originally created by
+    // the compiler (that is, those with a non-0 ID).
+    ListSeparator separator = 2;
+
+    // The argument list's positional contents. The compiler must set this, but
+    // the host may omit it for `ArgumentList`s that were originally created by
+    // the compiler (that is, those with a non-0 ID).
+    repeated Value contents = 3;
+
+    // The argument list's keywords. The compiler must set this, but the host
+    // may omit it for `ArgumentList`s that were originally created by the
+    // compiler (that is, those with a non-0 ID).
+    map<string, Value> keywords = 4;
+  }
+
   // The value itself. Mandatory.
   //
   // This is wrapped in a message type rather than used directly to reduce
@@ -775,6 +821,7 @@ message Value {
     SingletonValue singleton = 7;
     CompilerFunction compiler_function = 8;
     HostFunction host_function = 9;
+    ArgumentList argument_list = 10;
   }
 }
 

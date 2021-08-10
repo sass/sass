@@ -1,4 +1,10 @@
-## 1.0.0-dev
+## 1.0.0-beta.12
+
+* Add the `Value.ArgumentList` type, as well as
+  `FunctionCallResponse.accessed_argument_lists` to track which argument lists
+  had their keywords accessed.
+
+## 1.0.0-beta.11
 
 * **Breaking change:** We now follow the [protocol buffer style guide]. This means:
   * Field names are now all underscore-separated rather than lower camel case.

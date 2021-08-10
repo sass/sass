@@ -249,6 +249,12 @@ unless there's a particular reason not to.
 Two lists are equal if they have the same elements, separator, and if they're
 both bracketed or both unbracketed. An empty list is equal to an empty map.
 
+`Value.ArgumentList`s should be exposed the same way as any other list, except
+that it should also provide access to the keyword map. For object-oriented host
+languages, an argument list's class should be a subtype of normal list's. It
+should be considered equal to a list with the same elements, regardless of its
+keywords.
+
 #### Maps
 
 Although maps are transferred as lists of pairs, they should be exposed to the
