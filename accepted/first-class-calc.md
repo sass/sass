@@ -21,6 +21,7 @@
   * [`CssMinMax`](#cssminmax)
 * [Types](#types)
   * [Operations](#operations)
+    * [Equality](#equality)
   * [Serialization](#serialization)
     * [Calculation](#calculation)
     * [`CalculationOperation`](#calculationoperation)
@@ -112,12 +113,11 @@ numbers.
 #### "Contagious" Calculations
 
 In this proposal, calculation objects throw errors if they're used with normal
-SassScript level math operations (`+`, `-`, `*`, `/`, and `%`). Another option
-would have been to make calculations "contagious", so that performing these
-operations with at least one calculation operand would produce another
-calculation as a result. For example, instead of throwing an error `1px +
-calc(100px + 10%)` would produce `calc(101px + 10%)` (or possibly just `calc(1 +
-100px + 10%)`).
+SassScript level math operations (`+`, `-`, `*`, and `%`). Another option would
+have been to make calculations "contagious", so that performing these operations
+with at least one calculation operand would produce another calculation as a
+result. For example, instead of throwing an error `1px + calc(100px + 10%)`
+would produce `calc(101px + 10%)` (or possibly just `calc(1 + 100px + 10%)`).
 
 We chose not to do this because calculations aren't *always* interchangeable
 with plain numbers, so making them contagious in this way could lead to
@@ -378,11 +378,20 @@ name is "calc".
 
 A calculation follows the default behavior of all SassScript operations, except
 that it throws an error if used as an operand of a unary or binary `+` or `-`
-operation.
+operation, and equality is defined as below.
 
 > This helps ensure that if a user expects a number and receives a calculation
-> instead, it will throw an error quickly rather than propagating as an unquoted
-> string.
+> instead, it will throw an error quickly rather than propagating as an
+> unquoted string.
+
+#### Equality
+
+Two calculations are considered equal if their names are equal, they have the
+same number of arguments, and each argument in one calculation is equal to the
+corresponding argument in the other.
+
+`CalculationOperation` and `CalculationInterpolation` values are equal if each
+field in one value is equal to the corresponding field in the other.
 
 ### Serialization
 

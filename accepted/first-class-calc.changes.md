@@ -7,6 +7,8 @@
 
 * Allow variables in `CalcValue`s to return calculations.
 
+* Define equality between calculations.
+
 * Properly parenthesize the right-hand side of `a / (b * c)`.
 
 * Fix some broken formatting.
