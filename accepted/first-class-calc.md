@@ -1,4 +1,4 @@
-# First-Class `calc()`: Draft 1.1
+# First-Class `calc()`: Draft 2
 
 *([Issue](https://github.com/sass/sass/issues/818),
 [Changelog](first-class-calc.changes.md))*
@@ -20,6 +20,7 @@
   * [Serialization](#serialization)
     * [Calculation](#calculation)
     * [`CalculationOperation`](#calculationoperation)
+    * [`CalculationInterpolation`](#calculationinterpolation)
 * [Procedures](#procedures)
   * [Simplifying a Calculation](#simplifying-a-calculation)
   * [Simplifying a `CalculationValue`](#simplifying-a-calculationvalue)
@@ -290,8 +291,13 @@ interface Calculation {
 type CalculationValue =
   | Number
   | UnquotedString
+  | CalculationInterpolation
   | CalculationOperation
   | Calculation;
+  
+interface CalculationInterpolation {
+  value: string;
+}
 
 interface CalculationOperation {
   operator: '+' | '-' | '*' | '/';
@@ -327,20 +333,27 @@ To serialize a `CalculationOperation`:
 * Let `left` and `right` be the result of serializing the left and right values,
   respectively.
 
-* If the operator is `"*"` or `"/"` and the left value is a
-  `CalculationOperation` with operator `"+"` or `"-"`, emit `"("` followed by
-  `left` followed by `")"`. Otherwise, emit `left`.
+* If either:
+
+  * the left value is a `CalculationInterpolation`, or
+  * the operator is `"*"` or `"/"` and the left value is a
+    `CalculationOperation` with operator `"+"` or `"-"`,
+
+  emit `"("` followed by `left` followed by `")"`. Otherwise, emit `left`.
 
 * Emit `" "`, then the operator, then `" "`.
 
-* If the operator is `"*"` or `"/"` and the right value is a
-  `CalculationOperation` with operator `"+"` or `"-"`, emit `"("` followed by
-  `right` followed by `")"`. Otherwise, emit `right`.
+* If either:
 
-  > TODO: If one of the operands is a result of an interpolated expression, it
-  > may need parentheses. However, we *don't* want to add parentheses for
-  > unquoted strings from e.g. `var()` expressions. We need to find a way to
-  > distinguish the two.
+  * the right value is a `CalculationInterpolation`, or
+  * the operator is `"*"` or `"/"` and the right value is a
+    `CalculationOperation` with operator `"+"` or `"-"`,
+  
+  emit `"("` followed by `right` followed by `")"`. Otherwise, emit `right`.
+
+#### `CalculationInterpolation`
+
+To serialize a `CalculationInterpolation`, emit its `value`.
 
 ## Procedures
 
@@ -378,7 +391,8 @@ This algorithm takes a `CalculationValue` `value` and returns a
 > This algorithm is intended to return a value that's CSS-semantically identical
 > to the input.
 
-* If `value` is a number or unquoted string, return it as-is.
+* If `value` is a number, unquoted string, or `CalculationInterpolation`, return
+  it as-is.
 
 * If `value` is a calculation:
 
@@ -386,11 +400,6 @@ This algorithm takes a `CalculationValue` `value` and returns a
 
     * If `result` is a calculation whose name is `"calc"`, return `result`'s
       single argument.
-
-      > TODO: If `result` was created via interpolation, it may not be
-      > syntactically sound to just strip the `calc()`. For example, `calc(-1 *
-      > calc(#{"1px + 10%"})` should return `calc(-1 * (1px + 10%))` rather than
-      > `calc(-1 * 1px + 10%)`.
 
     * Otherwise, return `result`.
 
@@ -459,8 +468,8 @@ To evaluate a `CssMinMax`:
 
 To evaluate a `CalcArgument` production `argument` into a `CalculationValue` object:
 
-* If `argument` is an `InterpolatedDeclarationValue`, evaluate it and return the
-  resulting unquoted string.
+* If `argument` is an `InterpolatedDeclarationValue`, evaluate it and a
+  `CalculationInterpolation` whose `value` is the resulting string.
 
 * Otherwise, return the result of [evaluating `argument`'s
   `CalcValue`](#calcvalue).
