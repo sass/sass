@@ -11,6 +11,7 @@
     * ["Contagious" Calculations](#contagious-calculations)
     * [Interpolation in `calc()`](#interpolation-in-calc)
     * [Vendor Prefixed `calc()`](#vendor-prefixed-calc)
+    * [Complex Simplification](#complex-simplification)
 * [Definitions](#definitions)
   * [Possibly-Compatible Units](#possibly-compatible-units)
   * [Possibly-Compatible Numbers](#possibly-compatible-numbers)
@@ -202,6 +203,24 @@ As such, this proposal only adds first-class calculation support for the
 vendor-prefixed `calc()` expressions will continue to be parsed as opaque
 special functions the way they always have, but they will not be interoperable
 with any of the new calculation features this proposal adds.
+
+#### Complex Simplification
+
+Since this spec does have support for simplifying calculations to some degree,
+it would make some sense for it to try to minimize the output size of all
+`calc()` and related expressions it emits to CSS. However, as currently written,
+it only simplifies enough to ensure that if the entire calculation reduces to a
+single number that number can be returned.
+
+For example, the current specification doesn't simplify expressions like
+`calc(1px + var(--length) + 1px)` to `calc(2px + var(--length))` or `calc(-1 *
+(10% + 5px))` to `calc(-10% - 5px)`. This is for ease of specification and
+implementation: simplifications of these sorts are highly complex and would make
+designing, testing, and implementing this spec substantially more difficult.
+
+It's possible a future proposal will add support for this advanced
+simplification logic later on. Until then, it's probably better to leave it to
+post-processors that are dedicated to CSS minification.
 
 ## Definitions
 
@@ -475,8 +494,6 @@ This algorithm takes a `CalculationValue` `value` and returns a
   * Otherwise, if `left` and `right` are [definitely-incompatible] numbers,
     throw an error.
 
-    > TODO: Should we try to simplify `calc(1px + 1% + 1px)`?
-
   * Otherwise, return a `CalculationOperation` with `value.operator`, `left`,
     and `right`.
 
@@ -484,9 +501,6 @@ This algorithm takes a `CalculationValue` `value` and returns a
 
   * If `left` and `right` are both numbers, return `left * right` or
     `math.div(left, right)`, respectively.
-
-    > TODO: Should we try to simplify `calc(2 * var(--foo) * 2)`? What about
-    > `calc(-1 * (var(--foo) + 1px)`?
 
   * Otherwise, return a `CalculationOperation` with `value.operator`, `left`,
     and `right`.

@@ -9,6 +9,8 @@
 
 * Fix some broken formatting.
 
+* Remove TODOs about extra simplification.
+
 ## Draft 1
 
 * Initial draft.
