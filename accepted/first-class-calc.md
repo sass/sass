@@ -11,6 +11,9 @@
     * ["Contagious" Calculations](#contagious-calculations)
     * [Interpolation in `calc()`](#interpolation-in-calc)
     * [Vendor Prefixed `calc()`](#vendor-prefixed-calc)
+* [Definitions](#definitions)
+  * [Possibly-Compatible Units](#possibly-compatible-units)
+  * [Possibly-Compatible Numbers](#possibly-compatible-numbers)
 * [Syntax](#syntax)
   * [`SpecialFunctionExpression`](#specialfunctionexpression)
   * [`CalcExpression`](#calcexpression)
@@ -200,6 +203,49 @@ vendor-prefixed `calc()` expressions will continue to be parsed as opaque
 special functions the way they always have, but they will not be interoperable
 with any of the new calculation features this proposal adds.
 
+## Definitions
+
+### Possibly-Compatible Units
+
+Two units are *possibly-compatible* with one another if and only if either both
+units appear in the same row in the following table, or either unit doesn't
+appear in the following table. Units are matched case-insensitively to determine
+possible-compatibility.
+
+> This is intended to be kept in sync with the unit types in [CSS Values and
+> Units]. Note that all unknown units are possibly-compatible with all other
+> units; this preserves forwards-compatibility with new units that are
+> introduced in browsers over time.
+
+[CSS Values and Units]: https://www.w3.org/TR/css-values-3/
+
+| Type           | Units                                                                                        |
+| -------------- | -------------------------------------------------------------------------------------------- |
+| `<length>`     | `em`, `ex`, `ch`, `rem`, `vw`, `vh`, `vmin`, `vmax`, `cm`, `mm`, `Q`, `in`, `pt`, `pc`, `px` |
+| `<angle>`      | `deg`, `grad`, `rad`, `turn`                                                                 |
+| `<time>`       | `s`, `ms`                                                                                    |
+| `<frequency>`  | `Hz`, `kHz`                                                                                  |
+| `<resolution>` | `dpi`, `dpcm`, `dppx`                                                                        |
+
+### Possibly-Compatible Numbers
+
+Two numbers are *possibly-compatible* if there's a one-to-one mapping between
+their numerator units, and another such mapping between their denominator units,
+such that each pair of units is [possibly-compatible](#possibly-compatible-units).
+Two numbers are *definitely-incompatible* if they are not possibly-compatible.
+
+> The definition of definite-incompatibility captures the notion of numbers that
+> can be determined at build time to be incompatible with one another, and thus
+> erroneous to ever combine. This allows us to eagerly produce error messages
+> for certain incompatible units rather than serving them to the browser where
+> they're much more difficult to debug.
+>
+> For example, `1px` is possibly-compatible with `2em`. Unitless numbers are
+> only possibly-compatible with other unitless numbers. In theory, this
+> definition defines a notion of possible-compatiblity for numbers with more
+> complex units, but in practice these numbers are already flagged as errors
+> prior to any possible-compatibility checks.
+
 ## Syntax
 
 ### `SpecialFunctionExpression`
@@ -372,13 +418,23 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
   it.
 
 * If `calc`'s name is `"min"`, `"max"`, or `"clamp"` and `arguments` are all
-  numbers whose units are mutually [compatible], return the result of calling
-  [`math.min()`], [`math.max()`], or `math.clamp()` (respectively) with those
-  arguments.
+  numbers:
 
-  [compatible]: ../spec/types/number.md#compatible-units
-  [`math.min()`]: ../spec/built-in-modules/math.md#min
-  [`math.max()`]: ../spec/built-in-modules/math.md#max
+  * If those arguments' units are mutually [compatible], return the result of
+    calling [`math.min()`], [`math.max()`], or `math.clamp()` (respectively)
+    with those arguments.
+
+    [compatible]: ../spec/types/number.md#compatible-units
+    [`math.min()`]: ../spec/built-in-modules/math.md#min
+    [`math.max()`]: ../spec/built-in-modules/math.md#max
+
+  * Otherwise, if any of those arguments have more than one numerator unit or
+    more than zero denominator units, throw an error.
+
+  * Otherwise, if any two of those arguments are [definitely-incompatible],
+    throw an error.
+
+    [definitely-incompatible]: #possibly-compatible-numbers
 
 * Otherwise, return a calculation with the same name as `calc` and `arguments`
   as its arguments.
@@ -413,10 +469,11 @@ This algorithm takes a `CalculationValue` `value` and returns a
   * If `left` and `right` are both numbers with [compatible] units, return
     `left + right` or `left - right`, respectively.
 
-    > TODO: Should we throw an error here for units we can prove are actively
-    > incompatible? For example, unitless numbers are always incompatible with
-    > numbers of any units, and numbers across different known types (length +
-    > time) are also invalid.
+  * Otherwise, if either `left` or `right` is a number with more than one
+    numerator unit or more than zero denominator units, throw an error.
+
+  * Otherwise, if `left` and `right` are [definitely-incompatible] numbers,
+    throw an error.
 
     > TODO: Should we try to simplify `calc(1px + 1% + 1px)`?
 
