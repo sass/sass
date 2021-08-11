@@ -1,6 +1,7 @@
-# First-Class `calc()`: Draft 1
+# First-Class `calc()`: Draft 1.1
 
-*([Issue](https://github.com/sass/sass/issues/818))*
+*([Issue](https://github.com/sass/sass/issues/818),
+[Changelog](first-class-calc.changes.md))*
 
 ## Table of Contents
 
@@ -224,11 +225,11 @@ immediately by `(`.
 The grammar for this production is:
 
 <x><pre>
-**CalcExpression** ::= `calc(`¹ CalcArgument ')'
-**ClampExpression** ::= `clamp(`¹ CalcArgument ',' CalcArgument ',' CalcArgument ')'
+**CalcExpression** ::= 'calc('¹ CalcArgument ')'
+**ClampExpression** ::= 'clamp('¹ CalcArgument ',' CalcArgument ',' CalcArgument ')'
 **CalcArgument**²  ::= InterpolatedDeclarationValue | CalcSum
-**CalcSum**     ::= CalcProduct (('+' | '-')³ CalcProduct)*
-**CalcProduct** ::= CalcValue (('*' | '/') CalcValue)*
+**CalcSum**     ::= CalcProduct (('+' | '-')³ CalcProduct)\*
+**CalcProduct** ::= CalcValue (('\*' | '/') CalcValue)\*
 **CalcValue**   ::= '(' CalcArgument ')'
 &#32;             | CalcExpression
 &#32;             | ClampExpression
@@ -357,8 +358,8 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
   only a single argument. If that argument is a number or calculation, return
   it.
 
-* If `calc`'s name is `min`, `max`, or `clamp` and `arguments` are all numbers
-  whose units are mutually [compatible], return the result of calling
+* If `calc`'s name is `"min"`, `"max"`, or `"clamp"` and `arguments` are all
+  numbers whose units are mutually [compatible], return the result of calling
   [`math.min()`], [`math.max()`], or `math.clamp()` (respectively) with those
   arguments.
 
@@ -502,7 +503,8 @@ To evaluate a `CalcValue` production `value` into a `CalculationValue` object:
   evaluating it.
 
 * If `value` is a `FunctionExpression` or `Variable`, evaluate it. If the result
-  is a number or an unquoted string, return it. Otherwise, throw an error.
+  is a number, an unquoted string, or a calculation, return it. Otherwise, throw
+  an error.
 
   > Allowing variables to return unquoted strings here supports referential
   > transparency, so that `$var: fn(); calc($var)` works the same as
