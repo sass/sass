@@ -649,7 +649,8 @@ Add the following clause to the [`meta.type-of()`] function and the top-level
 
 [`meta.type-of()`]: ../spec/built-in-modules/meta.md#type-of
 
-* If `$value` is a calculation, return `"calc"`.
+* If `$value` is a calculation, return an unquoted string with value
+  `"calculation"`.
 
 ### `meta.calc-name()`
 

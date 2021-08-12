@@ -17,6 +17,9 @@
 * Return calculations from `meta.calc-args()` as calculations, not unquoted
   strings.
 
+* Return an unquoted string with value `"calculation"` from `meta.type-of()` for
+  calculations, rather than a quoted string with value `"calc"`.
+
 * Simplify `calc(a + -b)` to `calc(a - b)`.
 
 * Fix some broken formatting.
