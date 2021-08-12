@@ -16,6 +16,7 @@
 * [Definitions](#definitions)
   * [Possibly-Compatible Units](#possibly-compatible-units)
   * [Possibly-Compatible Numbers](#possibly-compatible-numbers)
+  * [Special Number](#special-number)
 * [Syntax](#syntax)
   * [`SpecialFunctionExpression`](#specialfunctionexpression)
   * [`CalcExpression`](#calcexpression)
@@ -300,6 +301,23 @@ Two numbers are *definitely-incompatible* if they are not possibly-compatible.
 > definition defines a notion of possible-compatiblity for numbers with more
 > complex units, but in practice these numbers are already flagged as errors
 > prior to any possible-compatibility checks.
+
+### Special Number
+
+Replace the definition of [special number string] with the following definition:
+
+[special number string]: ../spec/functions.md#special-number-string
+
+A *special number* is either:
+
+* a calculation, or
+* an unquoted string that CSS will recognize as a function that may return a
+  number. For the purposes of Sass, this is any unquoted string that begins with
+  `calc(`, `var(`, `env(`, `clamp(`, `min(`, or `max(`. This matching is
+  case-insensitive.
+
+In addition, replace all references to special number strings with references to special
+numbers.
 
 ## Syntax
 

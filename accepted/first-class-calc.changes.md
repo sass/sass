@@ -12,6 +12,8 @@
 
 * Define equality between calculations.
 
+* Allow calculations in CSS color functions.
+
 * Properly parenthesize the right-hand side of `a / (b * c)`.
 
 * Return calculations from `meta.calc-args()` as calculations, not unquoted
