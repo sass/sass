@@ -493,7 +493,9 @@ This algorithm takes a `CalculationValue` `value` and returns a
 * Otherwise, `value` must be a `CalculationOperation`. Let `left` and `right` be
   the result of simplifying `value.left` and `value.right`, respectively.
 
-* If `value.operator` is `"+"` or `"-"`:
+* Let `operator` be `value.operator`.
+
+* If `operator` is `"+"` or `"-"`:
 
   * If `left` and `right` are both numbers with [compatible] units, return
     `left + right` or `left - right`, respectively.
@@ -504,16 +506,18 @@ This algorithm takes a `CalculationValue` `value` and returns a
   * Otherwise, if `left` and `right` are [definitely-incompatible] numbers,
     throw an error.
 
-  * Otherwise, return a `CalculationOperation` with `value.operator`, `left`,
-    and `right`.
+  * If `right` is a number whose value is fuzzy-less-than zero, set `right` to
+    `right * -1` and set `operator` to `"-"` or `"+"`, respectively.
 
-* If `value.operator` is `"*"` or `"/"`:
+  * Return a `CalculationOperation` with `operator`, `left`, and `right`.
+
+* If `operator` is `"*"` or `"/"`:
 
   * If `left` and `right` are both numbers, return `left * right` or
     `math.div(left, right)`, respectively.
 
-  * Otherwise, return a `CalculationOperation` with `value.operator`, `left`,
-    and `right`.
+  * Otherwise, return a `CalculationOperation` with `operator`, `left`, and
+    `right`.
 
 ## Semantics
 

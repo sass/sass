@@ -14,6 +14,8 @@
 * Return calculations from `meta.calc-args()` as calculations, not unquoted
   strings.
 
+* Simplify `calc(a + -b)` to `calc(a - b)`.
+
 * Fix some broken formatting.
 
 * Remove TODOs about extra simplification.
