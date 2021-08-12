@@ -9,6 +9,7 @@
 * [Summary](#summary)
   * [Design Decisions](#design-decisions)
     * ["Contagious" Calculations](#contagious-calculations)
+    * [Returning Numbers](#returning-numbers)
     * [Interpolation in `calc()`](#interpolation-in-calc)
     * [Vendor Prefixed `calc()`](#vendor-prefixed-calc)
     * [Complex Simplification](#complex-simplification)
@@ -148,6 +149,41 @@ she could simply wrap `calc()` around any mathematical expressions she writes.
 This will still return plain numbers when given compatible numbers as inputs,
 but it will also make it clear that `calc()`s are supported and that Miriam
 expects to support them on into the future.
+
+#### Returning Numbers
+
+In plain CSS, the expression `calc(<number>)` is not strictly equivalent to the
+same `<number>` on its own (and same for `calc(<dimension>)`). In certain
+property contexts, a `calc()`'s value can be rounded or clamped, so for example
+`width: calc(-5px)` and `z-index: calc(1.2)` are equivalent to `width: 0` and
+`z-index: 1`.
+
+In this proposal, rather than preserving calculations whose arguments are plain
+numbers or dimensions as `calc()` expressions, we convert them to Sass numbers.
+This is technically a slight violation of CSS compatibility, because it avoids
+the rounding/clamping behavior described above. However, we judge this slight
+incompatibility to be worthwhile for a number of reasons:
+
+* We get a lot of value from allowing calculations to simplify to numbers. In
+  addition to making it easier to work with `calc()` for its own sake, this
+  simplification makes it possible to use `calc()` to write division expressions
+  using `/`. Since `/`-as-division is otherwise deprecated due to `/` being used
+  as a separator in CSS, this provides a substantial ergonomic benefit to users.
+
+* Any situation where a *build-time calculation* could produce a number that
+  needs to be clamped or rounded in order to be valid is likely to be a result
+  of user error, and we generally have lower compatibility requirements for
+  errors than we do for valid and useful CSS. We know of know use-case for
+  writing CSS like `width: calc(-5px)` instead of `width: 0`. The use-case for
+  CSS's clamping and rounding behavior is for browse-time calculations like
+  `calc(20px - 3em)`, and these will continue to be emitted as `calc()`
+  expressions.
+
+* It's very easy to explicitly preserve the CSS behavior if it's desired. A
+  `CalculationInterpolation` will always produce a `calc()` expression, so
+  `calc(#{-5px})` can be used to force a calculation that won't return a number.
+  In addition, the `clamp()` syntax and `math.round()` function can be used to
+  do build-time clamping and rounding if that's desired.
 
 #### Interpolation in `calc()`
 

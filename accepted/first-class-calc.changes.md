@@ -1,5 +1,8 @@
 ## Draft 2
 
+* Add a design decision section on the choice to return numbers from simplified
+  calculations.
+
 * Store interpolations as a separate data type so that they can be parenthesized
   when used in `CalculationOperation`s.
 
