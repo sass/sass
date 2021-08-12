@@ -637,7 +637,7 @@ meta.calc-args($calc)
 
 * For each argument `arg` in `$calc`'s arguments:
 
-  * If `arg` is a number, add it to `args`.
+  * If `arg` is a number or a calculation, add it to `args`.
 
   * Otherwise, [serialize](#serialization) `arg` and add the result to `args` as
     an unquoted string.

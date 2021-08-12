@@ -11,6 +11,9 @@
 
 * Properly parenthesize the right-hand side of `a / (b * c)`.
 
+* Return calculations from `meta.calc-args()` as calculations, not unquoted
+  strings.
+
 * Fix some broken formatting.
 
 * Remove TODOs about extra simplification.
