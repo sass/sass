@@ -379,10 +379,6 @@ case-insensitively.
 > expressions. Because interpolation could inject any part of a `calc()`
 > expression regardless of syntax, for full compatibility it's necessary to
 > parse it very expansively.
->
-> Note that the interpolation in the definition of `CalcValue` is only reachable
-> from a `CssMinMax` production, *not* from `CalcExpression`. This is
-> intentional, for backwards-compatibility with the existing `CssMinMax` syntax.
 
 ### `CssMinMax`
 
