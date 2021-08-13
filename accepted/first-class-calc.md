@@ -347,7 +347,7 @@ The grammar for this production is:
 <x><pre>
 **CalcExpression** ::= 'calc('¹ CalcArgument ')'
 **ClampExpression** ::= 'clamp('¹ CalcArgument ',' CalcArgument ',' CalcArgument ')'
-**CalcArgument**²  ::= InterpolatedDeclarationValue | CalcSum
+**CalcArgument**²  ::= InterpolatedDeclarationValue† | CalcSum
 **CalcSum**     ::= CalcProduct (('+' | '-')³ CalcProduct)\*
 **CalcProduct** ::= CalcValue (('\*' | '/') CalcValue)\*
 **CalcValue**   ::= '(' CalcArgument ')'
@@ -356,7 +356,7 @@ The grammar for this production is:
 &#32;             | CssMinMax
 &#32;             | FunctionExpression⁴
 &#32;             | Number
-&#32;             | Variable
+&#32;             | Variable†
 </pre></x>
 
 1: The strings `calc(` and `clamp(` are matched case-insensitively.
@@ -369,6 +369,8 @@ parentheses (a `FunctionExpression` counts as parentheses).
 
 4: This `FunctionExpression` cannot begin with `min(`, `max(`, or `clamp(`,
 case-insensitively.
+
+†: These productions are invalid in plain CSS syntax.
 
 [`<function-token>`]: https://drafts.csswg.org/css-syntax-3/#ref-for-typedef-function-token%E2%91%A0
 
