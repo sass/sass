@@ -22,6 +22,8 @@
 * Return an unquoted string with value `"calculation"` from `meta.type-of()` for
   calculations, rather than a quoted string with value `"calc"`.
 
+* Allow calls to the global `min()` and `max()` functions in calculations.
+
 * Allow `clamp(var(--three-args))`.
 
 * Simplify `calc(a + -b)` to `calc(a - b)`.

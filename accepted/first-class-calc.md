@@ -353,7 +353,7 @@ The grammar for this production is:
 **CalcValue**   ::= '(' CalcArgument ')'
 &#32;             | CalcExpression
 &#32;             | ClampExpression
-&#32;             | CssMinMax
+&#32;             | MinMaxExpression
 &#32;             | FunctionExpression⁴
 &#32;             | Number
 &#32;             | Variable†
