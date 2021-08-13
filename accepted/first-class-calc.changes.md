@@ -22,7 +22,11 @@
 * Return an unquoted string with value `"calculation"` from `meta.type-of()` for
   calculations, rather than a quoted string with value `"calc"`.
 
+* Allow `clamp(var(--three-args))`.
+
 * Simplify `calc(a + -b)` to `calc(a - b)`.
+
+* Explicitly specify how calculations are parsed in plain-CSS mode.
 
 * Fix some broken formatting.
 

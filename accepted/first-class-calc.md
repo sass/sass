@@ -346,7 +346,7 @@ The grammar for this production is:
 
 <x><pre>
 **CalcExpression** ::= 'calc('¹ CalcArgument ')'
-**ClampExpression** ::= 'clamp('¹ CalcArgument ',' CalcArgument ',' CalcArgument ')'
+**ClampExpression** ::= 'clamp('¹ CalcArgument ( ',' CalcArgument ){2} ')'
 **CalcArgument**²  ::= InterpolatedDeclarationValue† | CalcSum
 **CalcSum**     ::= CalcProduct (('+' | '-')³ CalcProduct)\*
 **CalcProduct** ::= CalcValue (('\*' | '/') CalcValue)\*
@@ -502,6 +502,13 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
   only a single argument. If that argument is a number or calculation, return
   it.
 
+* If `calc`'s name is `"clamp"`, `arguments` has fewer than three elements, and
+  none of those are unquoted strings or `CalculationInterpolation`s, throw an
+  error.
+
+  > It's valid to write `clamp(var(--three-args))` or `clamp(#{"1, 2, 3"})`, but
+  > otherwise `clamp()` has to have three physical arguments.
+
 * If `calc`'s name is `"min"`, `"max"`, or `"clamp"` and `arguments` are all
   numbers:
 
@@ -512,9 +519,6 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
     [compatible]: ../spec/types/number.md#compatible-units
     [`math.min()`]: ../spec/built-in-modules/math.md#min
     [`math.max()`]: ../spec/built-in-modules/math.md#max
-
-  * Otherwise, if any of those arguments have more than one numerator unit or
-    more than zero denominator units, throw an error.
 
   * Otherwise, if any two of those arguments are [definitely-incompatible],
     throw an error.
