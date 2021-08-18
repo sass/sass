@@ -17,6 +17,7 @@
   * [Possibly-Compatible Units](#possibly-compatible-units)
   * [Possibly-Compatible Numbers](#possibly-compatible-numbers)
   * [Special Number](#special-number)
+  * [Potentially Slash-Separated Number](#potentially-slash-separated-number)
 * [Syntax](#syntax)
   * [`SpecialFunctionExpression`](#specialfunctionexpression)
   * [`CalcExpression`](#calcexpression)
@@ -318,6 +319,13 @@ A *special number* is either:
 
 In addition, replace all references to special number strings with references to special
 numbers.
+
+### Potentially Slash-Separated Number
+
+Add `CalcExpression`s, `ClampExpression`s, `CssMinMax`es to the list of operands
+of the `/` operator that can create a [potentially slash-separated number].
+
+[potentially slash-separated number]: ../spec/types/number.md#potentially-slash-separated-number
 
 ## Syntax
 

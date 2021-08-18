@@ -30,6 +30,9 @@
 
 * Explicitly specify how calculations are parsed in plain-CSS mode.
 
+* Allow numbers returned by simplifying calculations to create potentially
+  slash-separated numbers.
+
 * Fix some broken formatting.
 
 * Remove TODOs about extra simplification.
