@@ -201,6 +201,31 @@ plain CSS function named `"rgb"` that function is named `"rgba"` instead.
   * If `$channels` is a [special variable string][], return a plain CSS function
     string with the name `"rgb"` and the argument `$channels`.
 
+  * If `$channels` is an unbracketed slash-separated list:
+
+    * If `$channels` doesn't have exactly two elements, throw an error.
+      Otherwise, let `rgb` be the first element and `alpha` the second element.
+
+    * If either `rgb` or `alpha` is a special variable string, return a plain
+      CSS function string with the name `"rgb"` and the argument `$channels`.
+
+    * If `rgb` is not an unbracketed space-separated list, throw an error.
+
+    * If `rgb` has more than three elements, throw an error.
+
+    * If `rgb` has fewer than three elements:
+
+      * If any element of `rgb` is a [special variable string][], return a
+        plain CSS function string with the name `"rgb"` and the argument
+        `$channels`.
+
+      * Otherwise, throw an error.
+
+    * Let `red`, `green`, and `blue` be the three elements of `rgb`.
+
+    * Call `rgb()` with `red`, `green`, `blue`, and `alpha` as arguments and
+      return the result.
+
   * If `$channels` is not an unbracketed space-separated list, throw an error.
 
   * If `$channels` has more than three elements, throw an error.
@@ -305,6 +330,31 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
 
   * If `$channels` is a [special variable string][], return a plain CSS function
     string with the name `"hsl"` and the argument `$channels`.
+
+  * If `$channels` is an unbracketed slash-separated list:
+
+    * If `$channels` doesn't have exactly two elements, throw an error.
+      Otherwise, let `hsl` be the first element and `alpha` the second element.
+
+    * If either `hsl` or `alpha` is a special variable string, return a plain
+      CSS function string with the name `"hsl"` and the argument `$channels`.
+
+    * If `hsl` is not an unbracketed space-separated list, throw an error.
+
+    * If `hsl` has more than three elements, throw an error.
+
+    * If `hsl` has fewer than three elements:
+
+      * If any element of `hsl` is a [special variable string][], return a
+        plain CSS function string with the name `"hsl"` and the argument
+        `$channels`.
+
+      * Otherwise, throw an error.
+
+    * Let `hue`, `saturation`, and `lightness` be the three elements of `hsl`.
+
+    * Call `hsl()` with `hue`, `saturation`, `lightness`, and `alpha` as
+      arguments and return the result.
 
   * If `$channels` is not an unbracketed space-separated list, throw an error.
 

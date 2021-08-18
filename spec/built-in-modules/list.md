@@ -11,6 +11,7 @@ This built-in module is available from the URL `sass:list`.
   * [`join()`](#join)
   * [`length()`](#length)
   * [`separator()`](#separator)
+  * [`slash()`](#slash)
   * [`nth()`](#nth)
   * [`set-nth()`](#set-nth)
   * [`zip()`](#zip)
@@ -64,6 +65,15 @@ separator($list)
 ```
 
 This function is also available as a global function named `list-separator()`.
+
+### `slash()`
+
+```
+slash($elements...)
+```
+
+* If `$elements` contains zero or one values, throw an error.
+* Return an unbracketed slash-separated list containing `$elements`.
 
 ### `nth()`
 

@@ -457,10 +457,21 @@ This function is also available as a global function named `unit()`.
 math.div($number1, $number2)
 ```
 
-* If `$number1` or `$number2` is not a number, throw an error.
-* If `$number1` and `$number2` have units, but the units are not [compatible],
-  throw an error.
-* Return the result of dividing `$number1` by `$number2`.
+* If `$number1` is a color and `$number2` is either a number or a color, throw an
+  error.
+* Otherwise, if `$number2` is a number and `$number2` is a color, throw an error.
+* Otherwise, if either of `$number1` or `$number2` are not numbers, return an
+  unquoted string whose contents is the result of serializing `$number1`
+  followed by `"/"` followed by the result of serializing `$number2`.
+* Otherwise, let `value` be .
+* Let `quotient` be a number such that:
+  * Its value is the result of dividing `$number1`'s value by `$number2`'s
+    value.
+  * Its numerator units are equal to `$number1`'s numerator units followed by
+    `$number2`'s denominator units.
+  * Its denominator units are equal to `$number1`'s denominator units followed
+    by `$number2`'s numerator units.
+* Return the result of simplifying `quotient`.
 
 #### `percentage()`
 
