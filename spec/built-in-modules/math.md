@@ -454,7 +454,7 @@ This function is also available as a global function named `unit()`.
 #### `div()`
 
 ```
-math.div($number1, $number2)
+div($number1, $number2)
 ```
 
 * If `$number1` is a color and `$number2` is either a number or a color, throw an
@@ -463,7 +463,6 @@ math.div($number1, $number2)
 * Otherwise, if either of `$number1` or `$number2` are not numbers, return an
   unquoted string whose contents is the result of serializing `$number1`
   followed by `"/"` followed by the result of serializing `$number2`.
-* Otherwise, let `value` be .
 * Let `quotient` be a number such that:
   * Its value is the result of dividing `$number1`'s value by `$number2`'s
     value.
