@@ -1,3 +1,6 @@
 {
-  "extends": "./node_modules/gts/"
+  "extends": "./node_modules/gts/",
+  "parserOptions": {
+    "ecmaVersion": 2020
+  }
 }

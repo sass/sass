@@ -64,7 +64,7 @@ some cases.
 
 #### First Law of Extend: `spec(extend(S, A, B)[0]) >= spec(S)`
 
-This is not always the behavior in Sass, either in main or in stable; this is
+This is not always the behavior in Sass, either in master or in stable; this is
 clearly a bug that should be fixed.
 
 ### Specificity of Generated Selectors
