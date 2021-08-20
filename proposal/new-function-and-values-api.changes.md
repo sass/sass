@@ -1,3 +1,7 @@
+## Draft 3
+
+* Add a `toString()` method to `Value`.
+
 ## Draft 2.1
 
 * Add `name` parameters to `Value.sassIndexToListIndex()` and

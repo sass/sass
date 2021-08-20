@@ -1,5 +1,5 @@
 /**
- * # New Function and Values API: Draft 2
+ * # New Function and Values API: Draft 3
  *
  * *([Issue](https://github.com/sass/sass/issues/2510),
  * [Changelog](new-function-and-values-api.changes.md))*
@@ -281,6 +281,14 @@ export abstract class Value implements ValueObject {
    * `==` SassScript operator.
    */
   hashCode(): number;
+
+  /**
+   * Returns a serialized representation of `this`.
+   *
+   * > The specific format can vary from implementation to implementation and is
+   * > not guaranteed to be valid Sass source code.
+   */
+  toString(): string;
 }
 
 /** The JS API representation of the SassScript null singleton. */
