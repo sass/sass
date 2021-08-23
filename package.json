@@ -1,5 +1,10 @@
 {
   "name": "sass",
+  "//": [
+    "This is used to track dependencies for the Github Actions tests run on ",
+    "this repository. For the official Sass npm package, see ",
+    "https://npmjs.org/package/sass"
+  ],
   "engines": {
     "node": ">=14.0.0 <17.0.0"
   },
