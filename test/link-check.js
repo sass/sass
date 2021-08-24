@@ -14,79 +14,86 @@ const tocCache = new Map();
 
 function getToc(file) {
   file = path.normalize(file);
-  if (tocCache.has(file)) {
-    return tocCache.get(file);
-  } else {
-    const result = markdownToc(fs.readFileSync(file).toString(), {}).content;
-    tocCache.set(file, result);
-    return result;
+  let toc = tocCache.get(file);
+  if (toc === undefined) {
+    toc = markdownToc(fs.readFileSync(file).toString(), {}).content;
+    tocCache.set(file, toc);
+  }
+  return toc;
+}
+
+function verifyLinkCheckResults(file, results) {
+  const toc = getToc(file);
+
+  for (const result of results) {
+    const url = new URL(result.link, pathToFileURL(file));
+
+    // A link to another file.
+    if (url.protocol === 'file:' && !result.link.match(/ \(.*\)$/)) {
+      const target = fileURLToPath(url);
+      if (!fs.existsSync(target)) throw Error(`Missing file: ${result.link}`);
+      if (url.hash === '') return;
+      if (getToc(target).includes(url.hash)) return;
+      throw Error(`Dead: ${result.link}`);
+    }
+
+    // A link to a section within this file.
+    if (result.link.match(/^#/)) {
+      if (toc.includes(result.link)) return;
+      throw Error(`Dead: ${result.link}`);
+    }
+
+    // A link to an external website.
+    switch (result.status) {
+      case 'dead':
+        if (result.statusCode === 500) {
+          console.log(colors.yellow(`Server error on target: ${result.link}`));
+          return;
+        }
+        throw Error(`Dead: ${result.link}`);
+      case 'error':
+        throw Error(`Error: ${result.link}`);
+    }
   }
 }
 
-files.forEach((file, i) => {
-  const markdown = fs.readFileSync(file).toString();
+function runLinkCheck(file, {rateLimit}) {
+  return new Promise((resolve, reject) => {
+    setTimeout(check, rateLimit);
 
-  const checkOptions = {
-    retryOn429: true, // Retry if the github rate limit is reached
-    baseUrl: path.basename(path.dirname(fileURLToPath(import.meta.url))) + '/',
-  };
-
-  // Rate-limit http requests sent by `markdownLinkCheck` to avoid timeouts.
-  setTimeout(
-    () => markdownLinkCheck(markdown, checkOptions, handleCheckResult),
-    i * 500
-  );
-
-  function handleCheckResult(err, results) {
-    if (err) {
-      console.error('Error', err);
-      return;
+    function check() {
+      markdownLinkCheck(
+        fs.readFileSync(file).toString(),
+        {
+          baseUrl: '',
+          // If Github rate limit is reached, wait 60s and try again.
+          retryOn429: true,
+        },
+        (error, results) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          try {
+            verifyLinkCheckResults(file, results);
+            resolve();
+          } catch (error) {
+            reject(error);
+          }
+        }
+      );
     }
+  });
+}
 
-    console.log('Reading: ' + file);
-
-    // Get a list of all headers so we can verify intra-document links.
-    const markdownToc = getToc(file);
-
-    results.forEach(result => {
-      const url = new URL(result.link, pathToFileURL(file));
-      if (url.protocol === 'file:' && !result.link.match(/ \(.*\)$/)) {
-        const target = fileURLToPath(url);
-        if (!fs.existsSync(target)) {
-          process.exitCode = 1;
-          console.log(colors.red(`Missing file: ${result.link}`));
-          return;
-        }
-
-        if (url.hash === '') return;
-        const toc = getToc(target);
-
-        if (toc.includes(url.hash)) return;
-        process.exitCode = 1;
-        console.log(colors.red(`Dead: ${result.link}`));
-        return;
-      }
-
-      if (result.link.match(/^#/)) {
-        if (markdownToc.includes(result.link)) {
-          result.status = 'alive';
-        } else {
-          result.status = 'dead';
-          result.statusCode = 0;
-        }
-      }
-
-      if (result.status === 'dead') {
-        if (result.statusCode === 500) {
-          console.log(colors.yellow(`Server error on target: ${result.link}`));
-        } else {
-          process.exitCode = 1;
-          console.log(colors.red(`Dead: ${result.link}`));
-        }
-      } else if (result.status === 'error') {
-        process.exitCode = 1;
-        console.log(colors.red(`Error: ${result.link}`));
-      }
-    });
+(async () => {
+  for (const file of files) {
+    console.log('Checking links in ' + file);
+    try {
+      await runLinkCheck(file, {rateLimit: 500});
+    } catch (error) {
+      console.log(colors.red(error.message));
+      process.exitCode = 1;
+    }
   }
-});
+})();
