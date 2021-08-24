@@ -27,7 +27,7 @@ representation of a CSS selector.
 
 * If `selector` is a list:
 
-  * If `selector` is bracketed, throw an error.
+  * If `selector` is bracketed and/or slash-separated, throw an error.
 
   * If `selector` is space-separated:
 
