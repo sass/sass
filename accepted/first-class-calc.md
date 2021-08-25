@@ -120,7 +120,7 @@ SassScript level math operations (`+`, `-`, `*`, and `%`). Another option would
 have been to make calculations "contagious", so that performing these operations
 with at least one calculation operand would produce another calculation as a
 result. For example, instead of throwing an error `1px + calc(100px + 10%)`
-would produce `calc(101px + 10%)` (or possibly just `calc(1 + 100px + 10%)`).
+would produce `calc(101px + 10%)` (or possibly just `calc(1px + 100px + 10%)`).
 
 We chose not to do this because calculations aren't *always* interchangeable
 with plain numbers, so making them contagious in this way could lead to
@@ -175,9 +175,9 @@ incompatibility to be worthwhile for a number of reasons:
 * Any situation where a *build-time calculation* could produce a number that
   needs to be clamped or rounded in order to be valid is likely to be a result
   of user error, and we generally have lower compatibility requirements for
-  errors than we do for valid and useful CSS. We know of know use-case for
-  writing CSS like `width: calc(-5px)` instead of `width: 0`. The use-case for
-  CSS's clamping and rounding behavior is for browse-time calculations like
+  errors than we do for valid and useful CSS. We know of no use-case for writing
+  CSS like `width: calc(-5px)` instead of `width: 0`. The use-case for CSS's
+  clamping and rounding behavior is for browse-time calculations like
   `calc(20px - 3em)`, and these will continue to be emitted as `calc()`
   expressions.
 
@@ -617,7 +617,7 @@ To evaluate a `CssMinMax`:
 
 To evaluate a `CalcArgument` production `argument` into a `CalculationValue` object:
 
-* If `argument` is an `InterpolatedDeclarationValue`, evaluate it and a
+* If `argument` is an `InterpolatedDeclarationValue`, evaluate it and return a
   `CalculationInterpolation` whose `value` is the resulting string.
 
 * Otherwise, return the result of [evaluating `argument`'s
