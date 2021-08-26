@@ -1,6 +1,7 @@
-# First-Class `calc()`: Draft 1
+# First-Class `calc()`: Draft 2
 
-*([Issue](https://github.com/sass/sass/issues/818))*
+*([Issue](https://github.com/sass/sass/issues/818),
+[Changelog](first-class-calc.changes.md))*
 
 ## Table of Contents
 
@@ -8,17 +9,26 @@
 * [Summary](#summary)
   * [Design Decisions](#design-decisions)
     * ["Contagious" Calculations](#contagious-calculations)
+    * [Returning Numbers](#returning-numbers)
     * [Interpolation in `calc()`](#interpolation-in-calc)
     * [Vendor Prefixed `calc()`](#vendor-prefixed-calc)
+    * [Complex Simplification](#complex-simplification)
+* [Definitions](#definitions)
+  * [Possibly-Compatible Units](#possibly-compatible-units)
+  * [Possibly-Compatible Numbers](#possibly-compatible-numbers)
+  * [Special Number](#special-number)
+  * [Potentially Slash-Separated Number](#potentially-slash-separated-number)
 * [Syntax](#syntax)
   * [`SpecialFunctionExpression`](#specialfunctionexpression)
   * [`CalcExpression`](#calcexpression)
   * [`CssMinMax`](#cssminmax)
 * [Types](#types)
   * [Operations](#operations)
+    * [Equality](#equality)
   * [Serialization](#serialization)
     * [Calculation](#calculation)
     * [`CalculationOperation`](#calculationoperation)
+    * [`CalculationInterpolation`](#calculationinterpolation)
 * [Procedures](#procedures)
   * [Simplifying a Calculation](#simplifying-a-calculation)
   * [Simplifying a `CalculationValue`](#simplifying-a-calculationvalue)
@@ -106,12 +116,11 @@ numbers.
 #### "Contagious" Calculations
 
 In this proposal, calculation objects throw errors if they're used with normal
-SassScript level math operations (`+`, `-`, `*`, `/`, and `%`). Another option
-would have been to make calculations "contagious", so that performing these
-operations with at least one calculation operand would produce another
-calculation as a result. For example, instead of throwing an error `1px +
-calc(100px + 10%)` would produce `calc(101px + 10%)` (or possibly just `calc(1 +
-100px + 10%)`).
+SassScript level math operations (`+`, `-`, `*`, and `%`). Another option would
+have been to make calculations "contagious", so that performing these operations
+with at least one calculation operand would produce another calculation as a
+result. For example, instead of throwing an error `1px + calc(100px + 10%)`
+would produce `calc(101px + 10%)` (or possibly just `calc(1px + 100px + 10%)`).
 
 We chose not to do this because calculations aren't *always* interchangeable
 with plain numbers, so making them contagious in this way could lead to
@@ -142,6 +151,41 @@ she could simply wrap `calc()` around any mathematical expressions she writes.
 This will still return plain numbers when given compatible numbers as inputs,
 but it will also make it clear that `calc()`s are supported and that Miriam
 expects to support them on into the future.
+
+#### Returning Numbers
+
+In plain CSS, the expression `calc(<number>)` is not strictly equivalent to the
+same `<number>` on its own (and same for `calc(<dimension>)`). In certain
+property contexts, a `calc()`'s value can be rounded or clamped, so for example
+`width: calc(-5px)` and `z-index: calc(1.2)` are equivalent to `width: 0` and
+`z-index: 1`.
+
+In this proposal, rather than preserving calculations whose arguments are plain
+numbers or dimensions as `calc()` expressions, we convert them to Sass numbers.
+This is technically a slight violation of CSS compatibility, because it avoids
+the rounding/clamping behavior described above. However, we judge this slight
+incompatibility to be worthwhile for a number of reasons:
+
+* We get a lot of value from allowing calculations to simplify to numbers. In
+  addition to making it easier to work with `calc()` for its own sake, this
+  simplification makes it possible to use `calc()` to write division expressions
+  using `/`. Since `/`-as-division is otherwise deprecated due to `/` being used
+  as a separator in CSS, this provides a substantial ergonomic benefit to users.
+
+* Any situation where a *build-time calculation* could produce a number that
+  needs to be clamped or rounded in order to be valid is likely to be a result
+  of user error, and we generally have lower compatibility requirements for
+  errors than we do for valid and useful CSS. We know of no use-case for writing
+  CSS like `width: calc(-5px)` instead of `width: 0`. The use-case for CSS's
+  clamping and rounding behavior is for browse-time calculations like
+  `calc(20px - 3em)`, and these will continue to be emitted as `calc()`
+  expressions.
+
+* It's very easy to explicitly preserve the CSS behavior if it's desired. A
+  `CalculationInterpolation` will always produce a `calc()` expression, so
+  `calc(#{-5px})` can be used to force a calculation that won't return a number.
+  In addition, the `clamp()` syntax and `math.round()` function can be used to
+  do build-time clamping and rounding if that's desired.
 
 #### Interpolation in `calc()`
 
@@ -198,6 +242,91 @@ vendor-prefixed `calc()` expressions will continue to be parsed as opaque
 special functions the way they always have, but they will not be interoperable
 with any of the new calculation features this proposal adds.
 
+#### Complex Simplification
+
+Since this spec does have support for simplifying calculations to some degree,
+it would make some sense for it to try to minimize the output size of all
+`calc()` and related expressions it emits to CSS. However, as currently written,
+it only simplifies enough to ensure that if the entire calculation reduces to a
+single number that number can be returned.
+
+For example, the current specification doesn't simplify expressions like
+`calc(1px + var(--length) + 1px)` to `calc(2px + var(--length))` or `calc(-1 *
+(10% + 5px))` to `calc(-10% - 5px)`. This is for ease of specification and
+implementation: simplifications of these sorts are highly complex and would make
+designing, testing, and implementing this spec substantially more difficult.
+
+It's possible a future proposal will add support for this advanced
+simplification logic later on. Until then, it's probably better to leave it to
+post-processors that are dedicated to CSS minification.
+
+## Definitions
+
+### Possibly-Compatible Units
+
+Two units are *possibly-compatible* with one another if and only if either both
+units appear in the same row in the following table, or either unit doesn't
+appear in the following table. Units are matched case-insensitively to determine
+possible-compatibility.
+
+> This is intended to be kept in sync with the unit types in [CSS Values and
+> Units]. Note that all unknown units are possibly-compatible with all other
+> units; this preserves forwards-compatibility with new units that are
+> introduced in browsers over time.
+
+[CSS Values and Units]: https://www.w3.org/TR/css-values-3/
+
+| Type           | Units                                                                                        |
+| -------------- | -------------------------------------------------------------------------------------------- |
+| `<length>`     | `em`, `ex`, `ch`, `rem`, `vw`, `vh`, `vmin`, `vmax`, `cm`, `mm`, `Q`, `in`, `pt`, `pc`, `px` |
+| `<angle>`      | `deg`, `grad`, `rad`, `turn`                                                                 |
+| `<time>`       | `s`, `ms`                                                                                    |
+| `<frequency>`  | `Hz`, `kHz`                                                                                  |
+| `<resolution>` | `dpi`, `dpcm`, `dppx`                                                                        |
+
+### Possibly-Compatible Numbers
+
+Two numbers are *possibly-compatible* if there's a one-to-one mapping between
+their numerator units, and another such mapping between their denominator units,
+such that each pair of units is [possibly-compatible](#possibly-compatible-units).
+Two numbers are *definitely-incompatible* if they are not possibly-compatible.
+
+> The definition of definite-incompatibility captures the notion of numbers that
+> can be determined at build time to be incompatible with one another, and thus
+> erroneous to ever combine. This allows us to eagerly produce error messages
+> for certain incompatible units rather than serving them to the browser where
+> they're much more difficult to debug.
+>
+> For example, `1px` is possibly-compatible with `2em`. Unitless numbers are
+> only possibly-compatible with other unitless numbers. In theory, this
+> definition defines a notion of possible-compatiblity for numbers with more
+> complex units, but in practice these numbers are already flagged as errors
+> prior to any possible-compatibility checks.
+
+### Special Number
+
+Replace the definition of [special number string] with the following definition:
+
+[special number string]: ../spec/functions.md#special-number-string
+
+A *special number* is either:
+
+* a calculation, or
+* an unquoted string that CSS will recognize as a function that may return a
+  number. For the purposes of Sass, this is any unquoted string that begins with
+  `calc(`, `var(`, `env(`, `clamp(`, `min(`, or `max(`. This matching is
+  case-insensitive.
+
+In addition, replace all references to special number strings with references to special
+numbers.
+
+### Potentially Slash-Separated Number
+
+Add `CalcExpression`s, `ClampExpression`s, `CssMinMax`es to the list of operands
+of the `/` operator that can create a [potentially slash-separated number].
+
+[potentially slash-separated number]: ../spec/types/number.md#potentially-slash-separated-number
+
 ## Syntax
 
 ### `SpecialFunctionExpression`
@@ -224,18 +353,18 @@ immediately by `(`.
 The grammar for this production is:
 
 <x><pre>
-**CalcExpression** ::= `calc(`¹ CalcArgument ')'
-**ClampExpression** ::= `clamp(`¹ CalcArgument ',' CalcArgument ',' CalcArgument ')'
-**CalcArgument**²  ::= InterpolatedDeclarationValue | CalcSum
-**CalcSum**     ::= CalcProduct (('+' | '-')³ CalcProduct)*
-**CalcProduct** ::= CalcValue (('*' | '/') CalcValue)*
+**CalcExpression** ::= 'calc('¹ CalcArgument ')'
+**ClampExpression** ::= 'clamp('¹ CalcArgument ( ',' CalcArgument ){2} ')'
+**CalcArgument**²  ::= InterpolatedDeclarationValue† | CalcSum
+**CalcSum**     ::= CalcProduct (('+' | '-')³ CalcProduct)\*
+**CalcProduct** ::= CalcValue (('\*' | '/') CalcValue)\*
 **CalcValue**   ::= '(' CalcArgument ')'
 &#32;             | CalcExpression
 &#32;             | ClampExpression
-&#32;             | CssMinMax
+&#32;             | MinMaxExpression
 &#32;             | FunctionExpression⁴
 &#32;             | Number
-&#32;             | Variable
+&#32;             | Variable†
 </pre></x>
 
 1: The strings `calc(` and `clamp(` are matched case-insensitively.
@@ -249,6 +378,8 @@ parentheses (a `FunctionExpression` counts as parentheses).
 4: This `FunctionExpression` cannot begin with `min(`, `max(`, or `clamp(`,
 case-insensitively.
 
+†: These productions are invalid in plain CSS syntax.
+
 [`<function-token>`]: https://drafts.csswg.org/css-syntax-3/#ref-for-typedef-function-token%E2%91%A0
 
 > The `CalcArgument` production provides backwards-compatibility with the
@@ -256,10 +387,6 @@ case-insensitively.
 > expressions. Because interpolation could inject any part of a `calc()`
 > expression regardless of syntax, for full compatibility it's necessary to
 > parse it very expansively.
->
-> Note that the interpolation in the definition of `CalcValue` is only reachable
-> from a `CssMinMax` production, *not* from `CalcExpression`. This is
-> intentional, for backwards-compatibility with the existing `CssMinMax` syntax.
 
 ### `CssMinMax`
 
@@ -289,8 +416,13 @@ interface Calculation {
 type CalculationValue =
   | Number
   | UnquotedString
+  | CalculationInterpolation
   | CalculationOperation
   | Calculation;
+  
+interface CalculationInterpolation {
+  value: string;
+}
 
 interface CalculationOperation {
   operator: '+' | '-' | '*' | '/';
@@ -306,11 +438,20 @@ name is "calc".
 
 A calculation follows the default behavior of all SassScript operations, except
 that it throws an error if used as an operand of a unary or binary `+` or `-`
-operation.
+operation, and equality is defined as below.
 
 > This helps ensure that if a user expects a number and receives a calculation
-> instead, it will throw an error quickly rather than propagating as an unquoted
-> string.
+> instead, it will throw an error quickly rather than propagating as an
+> unquoted string.
+
+#### Equality
+
+Two calculations are considered equal if their names are equal, they have the
+same number of arguments, and each argument in one calculation is equal to the
+corresponding argument in the other.
+
+`CalculationOperation` and `CalculationInterpolation` values are equal if each
+field in one value is equal to the corresponding field in the other.
 
 ### Serialization
 
@@ -326,20 +467,28 @@ To serialize a `CalculationOperation`:
 * Let `left` and `right` be the result of serializing the left and right values,
   respectively.
 
-* If the operator is `"*"` or `"/"` and the left value is a
-  `CalculationOperation` with operator `"+"` or `"-"`, emit `"("` followed by
-  `left` followed by `")"`. Otherwise, emit `left`.
+* If either:
+
+  * the left value is a `CalculationInterpolation`, or
+  * the operator is `"*"` or `"/"` and the left value is a
+    `CalculationOperation` with operator `"+"` or `"-"`,
+
+  emit `"("` followed by `left` followed by `")"`. Otherwise, emit `left`.
 
 * Emit `" "`, then the operator, then `" "`.
 
-* If the operator is `"*"` or `"/"` and the right value is a
-  `CalculationOperation` with operator `"+"` or `"-"`, emit `"("` followed by
-  `right` followed by `")"`. Otherwise, emit `right`.
+* If either:
 
-  > TODO: If one of the operands is a result of an interpolated expression, it
-  > may need parentheses. However, we *don't* want to add parentheses for
-  > unquoted strings from e.g. `var()` expressions. We need to find a way to
-  > distinguish the two.
+  * the right value is a `CalculationInterpolation`, or
+  * the operator is `"*"` and the right value is a `CalculationOperation` with
+    operator `"+"` or `"-"`, or
+  * the operator is `"/"` and the right value is a `CalculationOperation`,
+  
+  emit `"("` followed by `right` followed by `")"`. Otherwise, emit `right`.
+
+#### `CalculationInterpolation`
+
+To serialize a `CalculationInterpolation`, emit its `value`.
 
 ## Procedures
 
@@ -357,14 +506,28 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
   only a single argument. If that argument is a number or calculation, return
   it.
 
-* If `calc`'s name is `min`, `max`, or `clamp` and `arguments` are all numbers
-  whose units are mutually [compatible], return the result of calling
-  [`math.min()`], [`math.max()`], or `math.clamp()` (respectively) with those
-  arguments.
+* If `calc`'s name is `"clamp"`, `arguments` has fewer than three elements, and
+  none of those are unquoted strings or `CalculationInterpolation`s, throw an
+  error.
 
-  [compatible]: ../spec/types/number.md#compatible-units
-  [`math.min()`]: ../spec/built-in-modules/math.md#min
-  [`math.max()`]: ../spec/built-in-modules/math.md#max
+  > It's valid to write `clamp(var(--three-args))` or `clamp(#{"1, 2, 3"})`, but
+  > otherwise `clamp()` has to have three physical arguments.
+
+* If `calc`'s name is `"min"`, `"max"`, or `"clamp"` and `arguments` are all
+  numbers:
+
+  * If those arguments' units are mutually [compatible], return the result of
+    calling [`math.min()`], [`math.max()`], or `math.clamp()` (respectively)
+    with those arguments.
+
+    [compatible]: ../spec/types/number.md#compatible-units
+    [`math.min()`]: ../spec/built-in-modules/math.md#min
+    [`math.max()`]: ../spec/built-in-modules/math.md#max
+
+  * Otherwise, if any two of those arguments are [definitely-incompatible],
+    throw an error.
+
+    [definitely-incompatible]: #possibly-compatible-numbers
 
 * Otherwise, return a calculation with the same name as `calc` and `arguments`
   as its arguments.
@@ -377,7 +540,8 @@ This algorithm takes a `CalculationValue` `value` and returns a
 > This algorithm is intended to return a value that's CSS-semantically identical
 > to the input.
 
-* If `value` is a number or unquoted string, return it as-is.
+* If `value` is a number, unquoted string, or `CalculationInterpolation`, return
+  it as-is.
 
 * If `value` is a calculation:
 
@@ -386,11 +550,6 @@ This algorithm takes a `CalculationValue` `value` and returns a
     * If `result` is a calculation whose name is `"calc"`, return `result`'s
       single argument.
 
-      > TODO: If `result` was created via interpolation, it may not be
-      > syntactically sound to just strip the `calc()`. For example, `calc(-1 *
-      > calc(#{"1px + 10%"})` should return `calc(-1 * (1px + 10%))` rather than
-      > `calc(-1 * 1px + 10%)`.
-
     * Otherwise, return `result`.
 
   [simplifying]: #simplifying-a-calculation
@@ -398,31 +557,31 @@ This algorithm takes a `CalculationValue` `value` and returns a
 * Otherwise, `value` must be a `CalculationOperation`. Let `left` and `right` be
   the result of simplifying `value.left` and `value.right`, respectively.
 
-* If `value.operator` is `"+"` or `"-"`:
+* Let `operator` be `value.operator`.
+
+* If `operator` is `"+"` or `"-"`:
 
   * If `left` and `right` are both numbers with [compatible] units, return
     `left + right` or `left - right`, respectively.
 
-    > TODO: Should we throw an error here for units we can prove are actively
-    > incompatible? For example, unitless numbers are always incompatible with
-    > numbers of any units, and numbers across different known types (length +
-    > time) are also invalid.
+  * Otherwise, if either `left` or `right` is a number with more than one
+    numerator unit or more than zero denominator units, throw an error.
 
-    > TODO: Should we try to simplify `calc(1px + 1% + 1px)`?
+  * Otherwise, if `left` and `right` are [definitely-incompatible] numbers,
+    throw an error.
 
-  * Otherwise, return a `CalculationOperation` with `value.operator`, `left`,
-    and `right`.
+  * If `right` is a number whose value is fuzzy-less-than zero, set `right` to
+    `right * -1` and set `operator` to `"-"` or `"+"`, respectively.
 
-* If `value.operator` is `"*"` or `"/"`:
+  * Return a `CalculationOperation` with `operator`, `left`, and `right`.
+
+* If `operator` is `"*"` or `"/"`:
 
   * If `left` and `right` are both numbers, return `left * right` or
     `math.div(left, right)`, respectively.
 
-    > TODO: Should we try to simplify `calc(2 * var(--foo) * 2)`? What about
-    > `calc(-1 * (var(--foo) + 1px)`?
-
-  * Otherwise, return a `CalculationOperation` with `value.operator`, `left`,
-    and `right`.
+  * Otherwise, return a `CalculationOperation` with `operator`, `left`, and
+    `right`.
 
 ## Semantics
 
@@ -458,8 +617,8 @@ To evaluate a `CssMinMax`:
 
 To evaluate a `CalcArgument` production `argument` into a `CalculationValue` object:
 
-* If `argument` is an `InterpolatedDeclarationValue`, evaluate it and return the
-  resulting unquoted string.
+* If `argument` is an `InterpolatedDeclarationValue`, evaluate it and return a
+  `CalculationInterpolation` whose `value` is the resulting string.
 
 * Otherwise, return the result of [evaluating `argument`'s
   `CalcValue`](#calcvalue).
@@ -502,7 +661,8 @@ To evaluate a `CalcValue` production `value` into a `CalculationValue` object:
   evaluating it.
 
 * If `value` is a `FunctionExpression` or `Variable`, evaluate it. If the result
-  is a number or an unquoted string, return it. Otherwise, throw an error.
+  is a number, an unquoted string, or a calculation, return it. Otherwise, throw
+  an error.
 
   > Allowing variables to return unquoted strings here supports referential
   > transparency, so that `$var: fn(); calc($var)` works the same as
@@ -517,7 +677,8 @@ Add the following clause to the [`meta.type-of()`] function and the top-level
 
 [`meta.type-of()`]: ../spec/built-in-modules/meta.md#type-of
 
-* If `$value` is a calculation, return `"calc"`.
+* If `$value` is a calculation, return an unquoted string with value
+  `"calculation"`.
 
 ### `meta.calc-name()`
 
@@ -545,7 +706,7 @@ meta.calc-args($calc)
 
 * For each argument `arg` in `$calc`'s arguments:
 
-  * If `arg` is a number, add it to `args`.
+  * If `arg` is a number or a calculation, add it to `args`.
 
   * Otherwise, [serialize](#serialization) `arg` and add the result to `args` as
     an unquoted string.
