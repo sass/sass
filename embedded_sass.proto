@@ -674,6 +674,11 @@ message Value {
   }
 
   // A SassScript color value, represented as red, green, and blue channels.
+  //
+  // All Sass color values can be equivalently represented as `RgbColor`,
+  // `HslColor`, and `HwbColor` messages without loss of color information that
+  // can affect CSS rendering. As such, either endpoint may choose to send any
+  // color value as any one of these three messages.
   message RgbColor {
     // The color's red channel. Mandatory. May not be above 255.
     uint32 red = 1;
@@ -701,6 +706,25 @@ message Value {
     // The color's percent lightness. Mandatory. Must be between 0 and 100,
     // inclusive.
     double lightness = 3;
+
+    // The color's alpha channel. Mandatory. Must be between 0 and 1,
+    // inclusive.
+    double alpha = 4;
+  }
+
+  // A SassScript color value, represented as hue, whiteness, and blackness
+  // channels.
+  message HwbColor {
+    // The color's hue. Mandatory.
+    double hue = 1;
+
+    // The color's percent whiteness. Mandatory. Must be between 0 and 100,
+    // inclusive. The sum of `whiteness` and `blackness` must not exceed 100.
+    double whiteness = 2;
+
+    // The color's percent blackness. Mandatory. Must be between 0 and 100,
+    // inclusive. The sum of `whiteness` and `blackness` must not exceed 100.
+    double blackness = 3;
 
     // The color's alpha channel. Mandatory. Must be between 0 and 1,
     // inclusive.
@@ -822,6 +846,7 @@ message Value {
     CompilerFunction compiler_function = 8;
     HostFunction host_function = 9;
     ArgumentList argument_list = 10;
+    HwbColor hwb_color = 11;
   }
 }
 

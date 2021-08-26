@@ -1,3 +1,10 @@
+## 1.0.0-beta.13
+
+* Add the `Value.HwbColor` type.
+
+* Explicitly specify that compilers may choose which color types to use to
+  represent each color.
+
 ## 1.0.0-beta.12
 
 * Add the `Value.ArgumentList` type, as well as
