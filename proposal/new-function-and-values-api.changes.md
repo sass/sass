@@ -1,3 +1,9 @@
+## Draft 3.1
+
+* Add `name` and `otherName` parameters to `SassNumber.convert*()` and
+  `SassNumber.coerce*()` methods so that they can provide additional debugging
+  information.
+
 ## Draft 3
 
 * Add a `toString()` method to `Value`.
