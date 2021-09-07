@@ -1,5 +1,5 @@
 /**
- * # New Function and Values API: Draft 3
+ * # New Function and Values API: Draft 3.1
  *
  * *([Issue](https://github.com/sass/sass/issues/2510),
  * [Changelog](new-function-and-values-api.changes.md))*
@@ -811,10 +811,13 @@ export class SassNumber extends Value {
    *
    * - Return a new `SassNumber` with `internal` set to the result of the
    *   SassScript expression `converter + internal`.
+   *
+   * > The `name` parameter may be used for error reporting.
    */
   convert(
     newNumerators: string[] | List<string>,
-    newDenominators: string[] | List<string>
+    newDenominators: string[] | List<string>,
+    name?: string
   ): SassNumber;
 
   /**
@@ -824,20 +827,37 @@ export class SassNumber extends Value {
    * - Let `newNumerators` be the numerator units of `other`.
    * - Let `newDenominators` be the denominator units of `other`.
    * - Return the result of `convert(newNumerators, newDenominators)`.
+   *
+   * > The `name` and `otherName` parameters may be used for error reporting.
    */
-  convertToMatch(other: SassNumber): SassNumber;
+  convertToMatch(
+    other: SassNumber,
+    name?: string,
+    otherName?: string
+  ): SassNumber;
 
   /**
    * Return the value of the result of `convert(newNumerators,
    * newDenominators)`.
+   *
+   * > The `name` parameter may be used for error reporting.
    */
   convertValue(
     newNumerators: string[] | List<string>,
-    newDenominators: string[] | List<string>
+    newDenominators: string[] | List<string>,
+    name?: string
   ): number;
 
-  /** Returns the value of the result of `convertToMatch(other)`. */
-  convertValueToMatch(other: SassNumber): number;
+  /**
+   * Returns the value of the result of `convertToMatch(other)`.
+   *
+   * > The `name` and `otherName` parameters may be used for error reporting.
+   */
+  convertValueToMatch(
+    other: SassNumber,
+    name?: string,
+    otherName?: string
+  ): number;
 
   /**
    * Creates a new copy of `this` with its units converted to those represented
@@ -859,10 +879,13 @@ export class SassNumber extends Value {
    *     to `internal`'s denominator units.
    *
    * - Return the result of `convert(newNumerators, newDenominators)`.
+   *
+   * > The `name` parameter may be used for error reporting.
    */
   coerce(
     newNumerators: string[] | List<string>,
-    newDenominators: string[] | List<string>
+    newDenominators: string[] | List<string>,
+    name?: string
   ): SassNumber;
 
   /**
@@ -872,19 +895,36 @@ export class SassNumber extends Value {
    * - Let `newNumerators` be the numerator units of `other`.
    * - Let `newDenominators` be the denominator units of `other`.
    * - Return the result of `coerce(newNumerators, newDenominators)`.
+   *
+   * > The `name` and `otherName` parameters may be used for error reporting.
    */
-  coerceToMatch(other: SassNumber): SassNumber;
+  coerceToMatch(
+    other: SassNumber,
+    name?: string,
+    otherName?: string
+  ): SassNumber;
 
   /**
    * Return the value of the result of `coerce(newNumerators, newDenominators)`.
+   *
+   * > The `name` parameter may be used for error reporting.
    */
   coerceValue(
     newNumerators: string[] | List<string>,
-    newDenominators: string[] | List<string>
+    newDenominators: string[] | List<string>,
+    name?: string
   ): number;
 
-  /** Returns the value of the result of `coerceToMatch(other)`. */
-  coerceValueToMatch(other: SassNumber): number;
+  /**
+   * Returns the value of the result of `coerceToMatch(other)`.
+   *
+   * > The `name` and `otherName` parameters may be used for error reporting.
+   */
+  coerceValueToMatch(
+    other: SassNumber,
+    name?: string,
+    otherName?: string
+  ): number;
 }
 
 /**
