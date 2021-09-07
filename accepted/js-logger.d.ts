@@ -53,7 +53,7 @@ import {URL} from 'url';
 import '../spec/js-api';
 import './new-js-api';
 
-declare module '../spec/js-api' {
+declare module '../spec/js-api/legacy/options' {
   interface _Options {
     /**
      * An object that provides callbacks for the compiler to use in lieu of its
