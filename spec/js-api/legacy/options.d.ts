@@ -1,3 +1,4 @@
+import {Logger} from '../logger';
 import {LegacyImporter} from './importer';
 import {LegacyFunction} from './function';
 
@@ -54,6 +55,15 @@ export interface _Options<sync = 'sync' | 'async'> {
    * @default false
    */
   verbose?: boolean;
+
+  /**
+   * An object that provides callbacks for the compiler to use in lieu of its
+   * default messaging behavior.
+   *
+   * The compiler must treat an `undefined` logger identically to an object that
+   * doesn't have `warn` or `debug` fields.
+   */
+  logger?: Logger;
 }
 
 export type LegacyOptions<sync = 'sync' | 'async'> = _Options<sync> &

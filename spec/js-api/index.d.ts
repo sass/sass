@@ -18,12 +18,57 @@
  * type checks. This must not be used as a way of adding custom extensions that
  * aren't shared across all implementations.
  *
- * As with other sections of this specification, the specification of the JS API
- * is incomplete, and is added to *lazily*. This means that portions of the
- * spec—particularly the documentation comments that serve as a behavioral
+ * Certain interfaces in the JS API are defined within the `legacy` directory,
+ * indicating that they're part of the legacy Node Sass API. This API is
+ * deprecated and implementations are not required to support it. However, at
+ * least partial support is recommended for compatibility with older
+ * applications and particularly build system plugins.
+ *
+ * As with other sections of this specification, the specification of the legacy
+ * JS API is incomplete, and is added to *lazily*. This means that portions of
+ * the spec—particularly the documentation comments that serve as a behavioral
  * specification—are only written when they're necessary as background for new
  * API proposals. */
 
+export {
+  CompileResult,
+  compile,
+  compileAsync,
+  compileString,
+  compileStringAsync,
+} from './compile';
+export {Exception} from './exception';
+export {
+  FileImporter,
+  FileImporterResult,
+  Importer,
+  ImporterResult,
+} from './importer';
+export {Logger, SourceSpan, SourceLocation} from './logger';
+export {
+  CustomFunction,
+  Options,
+  OutputStyle,
+  StringOptions,
+  Syntax,
+} from './options';
+export {
+  ListSeparator,
+  SassArgumentList,
+  SassBoolean,
+  SassColor,
+  SassFunction,
+  SassList,
+  SassMap,
+  SassNumber,
+  SassString,
+  Value,
+  sassFalse,
+  sassNull,
+  sassTrue,
+} from './value';
+
+// Legacy APIs
 export {LegacyException} from './legacy/exception';
 export {LegacyFunction, LegacyValue, types} from './legacy/function';
 export {LegacyImporter} from './legacy/importer';
