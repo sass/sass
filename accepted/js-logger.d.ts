@@ -67,6 +67,7 @@ declare module '../spec/js-api' {
 }
 
 declare module '../new-js-api' {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface Options<sync extends 'sync' | 'async'> {
     /**
      * An object that provides callbacks for the compiler to use in lieu of its

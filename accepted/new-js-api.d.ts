@@ -70,6 +70,7 @@ type OutputStyle = 'expanded' | 'compressed';
  * All of the options for a Sass compilation that are shared by compiling from a
  * path and by compiling from a string.
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface Options<sync extends 'sync' | 'async'> {
   /**
    * If true, the compiler must use only ASCII characters in the formatted
