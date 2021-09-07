@@ -1,5 +1,5 @@
-import {Importer} from './importer';
-import {CustomFunction} from './function';
+import {LegacyImporter} from './importer';
+import {LegacyFunction} from './function';
 
 /**
  * All the options for a Sass compilation except those that specify the specific
@@ -21,8 +21,8 @@ export interface _Options<sync = 'sync' | 'async'> {
   sourceMapContents?: boolean;
   sourceMapEmbed?: boolean;
   sourceMapRoot?: string;
-  importer?: Importer<sync> | Importer<sync>[];
-  functions?: {[key: string]: CustomFunction<sync>};
+  importer?: LegacyImporter<sync> | LegacyImporter<sync>[];
+  functions?: {[key: string]: LegacyFunction<sync>};
 
   /**
    * If `true`, the compiler may prepend `@charset "UTF-8";` or U+FEFF
@@ -56,7 +56,7 @@ export interface _Options<sync = 'sync' | 'async'> {
   verbose?: boolean;
 }
 
-export type Options<sync = 'sync' | 'async'> = _Options<sync> &
+export type LegacyOptions<sync = 'sync' | 'async'> = _Options<sync> &
   (
     | {
         file: string;

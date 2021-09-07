@@ -1,17 +1,17 @@
 import {PluginThis} from './plugin_this';
 
-type _SyncFunction = (this: PluginThis, ...args: Value[]) => Value;
+type _SyncFunction = (this: PluginThis, ...args: LegacyValue[]) => LegacyValue;
 
 type _AsyncFunction = (
   this: PluginThis,
-  ...args: [...Value[], (type: Value) => void]
+  ...args: [...LegacyValue[], (type: LegacyValue) => void]
 ) => void;
 
-export type CustomFunction<sync = 'sync' | 'async'> =
+export type LegacyFunction<sync = 'sync' | 'async'> =
   | _SyncFunction
   | (sync extends 'async' ? _AsyncFunction : never);
 
-export type Value =
+export type LegacyValue =
   | types.Null
   | types.Number
   | types.String
@@ -73,8 +73,8 @@ export namespace types {
 
   export class List {
     constructor(length: number, commaSeparator?: boolean);
-    getValue(index: number): Value | undefined;
-    setValue(index: number, value: Value): void;
+    getValue(index: number): LegacyValue | undefined;
+    setValue(index: number, value: LegacyValue): void;
     getSeparator(): boolean;
     setSeparator(isComma: boolean): void;
     getLength(): number;
@@ -82,10 +82,10 @@ export namespace types {
 
   export class Map {
     constructor(length: number);
-    getValue(index: number): Value;
-    setValue(index: number, value: Value): void;
-    getKey(index: number): Value;
-    setKey(index: number, key: Value): void;
+    getValue(index: number): LegacyValue;
+    setValue(index: number, value: LegacyValue): void;
+    getKey(index: number): LegacyValue;
+    setKey(index: number, key: LegacyValue): void;
     getLength(): number;
   }
 }

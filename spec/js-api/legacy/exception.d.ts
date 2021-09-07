@@ -1,4 +1,4 @@
-export interface SassException extends Error {
+export interface LegacyException extends Error {
   message: string;
   formatted: string;
   line: number;

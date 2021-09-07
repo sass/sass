@@ -1,7 +1,7 @@
-import {SassException} from './exception';
-import {Options} from './options';
+import {LegacyException} from './exception';
+import {LegacyOptions} from './options';
 
-export interface Result {
+export interface LegacyResult {
   css: Buffer;
   map?: Buffer;
   stats: {
@@ -13,9 +13,9 @@ export interface Result {
   };
 }
 
-export function renderSync(options: Options<'sync'>): Result;
+export function renderSync(options: LegacyOptions<'sync'>): LegacyResult;
 
 export function render(
-  options: Options<'async'>,
-  callback: (exception: SassException, result: Result) => void
+  options: LegacyOptions<'async'>,
+  callback: (exception: LegacyException, result: LegacyResult) => void
 ): void;

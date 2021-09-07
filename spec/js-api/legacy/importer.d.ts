@@ -28,6 +28,6 @@ type _AsyncImporter = (
   done: (data: {file: string} | {contents: string} | Error) => void
 ) => void;
 
-export type Importer<sync = 'sync' | 'async'> =
+export type LegacyImporter<sync = 'sync' | 'async'> =
   | _SyncImporter
   | (sync extends 'async' ? _AsyncImporter : never);

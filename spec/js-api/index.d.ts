@@ -24,8 +24,8 @@
  * specification—are only written when they're necessary as background for new
  * API proposals. */
 
-export {SassException} from './legacy/exception';
-export {CustomFunction, Value, types} from './legacy/function';
-export {Importer} from './legacy/importer';
-export {Options} from './legacy/options';
-export {Result, render, renderSync} from './legacy/render';
+export {LegacyException} from './legacy/exception';
+export {LegacyFunction, LegacyValue, types} from './legacy/function';
+export {LegacyImporter} from './legacy/importer';
+export {LegacyOptions} from './legacy/options';
+export {LegacyResult, render, renderSync} from './legacy/render';
