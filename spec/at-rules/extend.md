@@ -17,6 +17,7 @@ many interacting layers and a lot of intricate case analysis.
   * [Resolving a Module's Extensions](#resolving-a-modules-extensions)
   * [Extending a Selector](#extending-a-selector)
   * [Extending a Simple Selector](#extending-a-simple-selector)
+  * [Unifying a Simple Selector](#unifying-a-simple-selector)
   * [Limitations](#limitations)
   * [Specificity](#specificity)
     * [The First Law](#the-first-law)
@@ -338,6 +339,38 @@ and a selector list `extender` and returns a selector list.
 * Otherwise, return `extendee` as-is.
 
 [unprefixed]: ../syntax.md#vendor-prefix
+
+### Unifying a Simple Selector
+
+This procedure takes a simple selector `simple` and a compound selector
+`compound` and returns another compound selector or null.
+
+> Semantically, this returns a selector that matches the set of elements matched
+> by both `simple` and `compound`. In other words, it's the set intersection
+> operation. The null return value indicates the empty set.
+
+* If either `simple` or `compound` is a universal selector, return the other.
+
+* If `compound` contains a selector that's identical to `simple`, return
+  `compound`.
+
+* If `simple` is a type, ID, or [pseudo-element] selector and `compound`
+  contains a type, ID, or pseudo-element selector respectively, return null.
+
+  > Note that pseudo-element selectors like `:before` are still considered
+  > pseudo-elements even if they use the legacy single-colon syntax.
+
+* Return a copy of `compound` with `simple` added:
+
+  * If `simple` is a pseudo-element, add it to the end.
+
+  * Otherwise, if `simple` is a pseudo-selector, add it before any
+    pseudo-elements if they exist, and otherwise add it to the end.
+
+  * Otherwise, add `simple` before any pseudo-selectors or pseudo-elements if
+    they exist, and otherwise add it to the end.
+
+[pseudo-element]: https://www.w3.org/TR/selectors-4/#pseudo-elements
 
 ### Limitations
 
