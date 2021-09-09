@@ -360,6 +360,20 @@ This procedure takes a simple selector `simple` and a compound selector
   > Note that pseudo-element selectors like `:before` are still considered
   > pseudo-elements even if they use the legacy single-colon syntax.
 
+* If either `simple` or `compound` is a `:host` or `:host-context` selector, and
+  the other selector contains any selector other than a `:host` or a
+  pseudo-selector with a selector argument, return null.
+
+  > The `:host` and `:host-context` selectors select elements outside the
+  > current shadow DOM context, while most other selectors exclusively refer to
+  > elements *within* the current shadow DOM context. Thus the intersection
+  > between `:host` and, say, `div` is always empty.
+  >
+  > We carve out an exception for selector pseudos because it's possible they
+  > contain their own `:host` or `:host-context` selectors, and we don't want to
+  > add the complexity of determining for sure whether they do or not. For
+  > example, `:host(.foo):not(:host-context(.bar))` is valid.
+
 * Return a copy of `compound` with `simple` added:
 
   * If `simple` is a pseudo-element, add it to the end.
