@@ -349,17 +349,6 @@ This procedure takes a simple selector `simple` and a compound selector
 > by both `simple` and `compound`. In other words, it's the set intersection
 > operation. The null return value indicates the empty set.
 
-* If either `simple` or `compound` is a universal selector, return the other.
-
-* If `compound` contains a selector that's identical to `simple`, return
-  `compound`.
-
-* If `simple` is a type, ID, or [pseudo-element] selector and `compound`
-  contains a type, ID, or pseudo-element selector respectively, return null.
-
-  > Note that pseudo-element selectors like `:before` are still considered
-  > pseudo-elements even if they use the legacy single-colon syntax.
-
 * If either `simple` or `compound` is a `:host` or `:host-context` selector, and
   the other selector contains any selector other than a `:host` or a
   pseudo-selector with a selector argument, return null.
@@ -373,6 +362,17 @@ This procedure takes a simple selector `simple` and a compound selector
   > contain their own `:host` or `:host-context` selectors, and we don't want to
   > add the complexity of determining for sure whether they do or not. For
   > example, `:host(.foo):not(:host-context(.bar))` is valid.
+
+* If either `simple` or `compound` is a universal selector, return the other.
+
+* If `compound` contains a selector that's identical to `simple`, return
+  `compound`.
+
+* If `simple` is a type, ID, or [pseudo-element] selector and `compound`
+  contains a type, ID, or pseudo-element selector respectively, return null.
+
+  > Note that pseudo-element selectors like `:before` are still considered
+  > pseudo-elements even if they use the legacy single-colon syntax.
 
 * Return a copy of `compound` with `simple` added:
 
