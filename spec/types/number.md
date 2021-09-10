@@ -48,10 +48,19 @@ The following conversion factors are defined:
 
 ### Compatible Units
 
-Two units are said to be "compatible" if they are identical or if their
-[conversion factors] have the same unit.
+Two numbers' units are said to be *compatible* if:
+
+* there's a one-to-one mapping between those numbers' numerator units such
+  that each pair of units is either identical, or both units have a [conversion
+  factor] and those two conversion factors have the same unit; and
+
+* there's the same type of mapping between those numbers' denominator units.
 
 [conversion factors]: #conversion-factors
+
+Similarly, a number is *compatible with* a set of units if it's compatible with
+a number that has those units; and two sets of units are *compatible* if a
+number with one set is compatible with a number with the other.
 
 ### Potentially Slash-Separated Number
 

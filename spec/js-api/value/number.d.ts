@@ -110,8 +110,7 @@ export class SassNumber extends Value {
   hasUnit(unit: string): boolean;
 
   /**
-   * Whether `internal`'s numerator and denominator units are all [compatible]
-   * with `unit`.
+   * Whether `internal` is [compatible] with `unit`.
    *
    * [compatible]: ../spec/types/number.md#compatible-units
    */
