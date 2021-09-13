@@ -22,7 +22,7 @@ export interface SourceSpan {
   end: SourceLocation;
 
   /**
-   * The absolute URL of the file that this span refers to. For files on disk,
+   * The canonical URL of the file that this span refers to. For files on disk,
    * this must be a `file://` URL.
    *
    * This must be `undefined` for files that are passed to the compiler without
