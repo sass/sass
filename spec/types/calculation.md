@@ -154,8 +154,8 @@ To serialize a `CalculationOperation`:
 * If either:
 
   * the right value is a `CalculationInterpolation`, or
-  * the operator is `"*"` and the right value is a `CalculationOperation` with
-    operator `"+"` or `"-"`, or
+  * the operator is `"*"` or `"-"` and the right value is a
+    `CalculationOperation` with operator `"+"` or `"-"`, or
   * the operator is `"/"` and the right value is a `CalculationOperation`,
 
   emit `"("` followed by `right` followed by `")"`. Otherwise, emit `right`.
