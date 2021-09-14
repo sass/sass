@@ -313,3 +313,44 @@ The fast-track process works as follows:
    ensure any interested parties have a chance to comment on them. After that
    point, *and* after all three pull requests have been approved by reviewers,
    they should be landed simultaneously.
+
+## Emergency Track
+
+Despite our best efforts, every now and then a new language change will
+unintentionally breaks existing Sass stylesheets. In order to get users unbroken
+as quickly as possible, we have a special track for changes that's highly
+constrained but requires minimal up-front review.
+
+> Note: Bug fixes where the wording of the spec is inconsistent or clearly
+> doesn't match the intended behavior can just be fixed directly and don't need
+> an emergency-track proposal. This is only necessary for situations where the
+> intended behavior is unexpectedly harmful in some way.
+
+A change is eligible for the emergency track if it:
+
+* Affects a feature that has already been changed in the past two weeks.
+
+* Reverts that changed behavior in whole or in part to the original behavior
+  prior to that change.
+
+* Doesn't add any *new* behavior in addition to the reversion.
+
+The emergency track should only be used by Sass team members. The process works
+as follows:
+
+1. Three pull requests are sent out concurrently:
+
+   1. A formal proposal is written for the feature as a pull request to this
+      repository. *Unlike the full proposal process*, this pull request directly
+      modifies the appropriate spec in `specs/`.
+
+   2. A pull request is sent to [sass-spec] that adds or updates specs for the
+      change. This pull request message should include `[skip dart-sass]`.
+
+   3. A pull request is sent to [Dart Sass] that implements the change. This
+      pull request's message should link to the sass-spec pull request (for
+      example, `See sass/sass-spec#1293`).
+
+2. These pull requests may be merged as soon as they're approved. If the issue
+   appears outside of work hours, it may be merged without review, but a *post
+   facto* review should be done as soon as possible.
