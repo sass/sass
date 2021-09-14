@@ -104,12 +104,19 @@ interface CalculationOperation {
 ### Operations
 
 A calculation follows the default behavior of all SassScript operations, except
-that it throws an error if used as an operand of a unary or binary `+` or `-`
-operation, and equality is defined as below.
+that it throws an error if used as an operand of a:
+
+* unary or binary `-` operation,
+* unary `+` operation,
+* binary `+` operation where the other operand is not a string,
+
+and equality is defined as below.
 
 > This helps ensure that if a user expects a number and receives a calculation
-> instead, it will throw an error quickly rather than propagating as an
-> unquoted string.
+> instead, it will throw an error quickly rather than propagating as an unquoted
+> string. Binary `+` with a string is allowed specifically for
+> backwards-compatibility with the `$variable + ""` pattern for converting a
+> value to a string to dynamically inspect it.
 
 #### Equality
 
