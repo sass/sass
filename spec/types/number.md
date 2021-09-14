@@ -5,6 +5,8 @@
 * [Definitions](#definitions)
   * [Conversion Factors](#conversion-factors)
   * [Compatible Units](#compatible-units)
+  * [Possibly-Compatible Units](#possibly-compatible-units)
+  * [Possibly-Compatible Numbers](#possibly-compatible-numbers)
   * [Potentially Slash-Separated Number](#potentially-slash-separated-number)
 * [Procedures](#procedures)
   * [Converting a Number to a Unit](#converting-a-number-to-a-unit)
@@ -62,6 +64,47 @@ Similarly, a number is *compatible with* a set of units if it's compatible with
 a number that has those units; and two sets of units are *compatible* if a
 number with one set is compatible with a number with the other.
 
+### Possibly-Compatible Units
+
+Two units are *possibly-compatible* with one another if and only if either both
+units appear in the same row in the following table, or either unit doesn't
+appear in the following table. Units are matched case-insensitively to determine
+possible-compatibility.
+
+> This is intended to be kept in sync with the unit types in [CSS Values and
+> Units]. Note that all unknown units are possibly-compatible with all other
+> units; this preserves forwards-compatibility with new units that are
+> introduced in browsers over time.
+
+[CSS Values and Units]: https://www.w3.org/TR/css-values-3/
+
+| Type           | Units                                                                                        |
+| -------------- | -------------------------------------------------------------------------------------------- |
+| `<length>`     | `em`, `ex`, `ch`, `rem`, `vw`, `vh`, `vmin`, `vmax`, `cm`, `mm`, `Q`, `in`, `pt`, `pc`, `px` |
+| `<angle>`      | `deg`, `grad`, `rad`, `turn`                                                                 |
+| `<time>`       | `s`, `ms`                                                                                    |
+| `<frequency>`  | `Hz`, `kHz`                                                                                  |
+| `<resolution>` | `dpi`, `dpcm`, `dppx`                                                                        |
+
+### Possibly-Compatible Numbers
+
+Two numbers are *possibly-compatible* if there's a one-to-one mapping between
+their numerator units, and another such mapping between their denominator units,
+such that each pair of units is [possibly-compatible](#possibly-compatible-units).
+Two numbers are *definitely-incompatible* if they are not possibly-compatible.
+
+> The definition of definite-incompatibility captures the notion of numbers that
+> can be determined at build time to be incompatible with one another, and thus
+> erroneous to ever combine. This allows us to eagerly produce error messages
+> for certain incompatible units rather than serving them to the browser where
+> they're much more difficult to debug.
+>
+> For example, `1px` is possibly-compatible with `2em`. Unitless numbers are
+> only possibly-compatible with other unitless numbers. In theory, this
+> definition defines a notion of possible-compatiblity for numbers with more
+> complex units, but in practice these numbers are already flagged as errors
+> prior to any possible-compatibility checks.
+
 ### Potentially Slash-Separated Number
 
 A Sass number may be *potentially slash-separated*. If it is, it is associated
@@ -70,12 +113,20 @@ denominator*. A number that is not potentially slash-separated is known as
 *slash-free*.
 
 A potentially slash-separated number is created when a `ProductExpression` with
-a `/` operator is evaluated and both operands are *syntactically* either literal
-`Number`s or `ProductExpression`s that can themselves create potentially
-slash-separated numbers. In this case, both operands are guaranteed to be
-evaluated as numbers. The first operand is the original numerator of the
-potentially slash-separated number returned by the `/` operator, and the second
-is the original denominator.
+a `/` operator is evaluated and both operands are *syntactically* one of the
+following:
+
+* `Number`s,
+* [`Calculation`]s, or
+* `ProductExpression`s that can themselves create potentially slash-separated
+  numbers.
+
+[`Calculation`]: calculation.md#syntax
+  
+If both operands are evaluated as numbers, the resulting number is potentially
+slash-separated. The first operand is the original numerator of the potentially
+slash-separated number returned by the `/` operator, and the second is the
+original denominator.
 
 A potentially slash-separated number is converted to a slash-free number when:
 

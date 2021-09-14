@@ -3,7 +3,7 @@
 ## Table of Contents
 
 * [Definitions](#definitions)
-  * [Special Number String](#special-number-string)
+  * [Special Number](#special-number)
   * [Special Variable String](#special-variable-string)
 * [Syntax](#syntax)
 * [Semantics](#semantics)
@@ -16,26 +16,31 @@
 
 ## Definitions
 
-### Special Number String
+### Special Number
 
-A *special number string* is an unquoted string that CSS will recognize as a
-function that may return a number. For the purposes of Sass, this is any
-unquoted string that begins with `calc(`, `var(`, `env(`, `clamp(`, `min(`, or
-`max(`. This matching is case-insensitive.
+A *special number* is either:
+
+* a [calculation], or
+* an unquoted string that CSS will recognize as a function that may return a
+  number. For the purposes of Sass, this is any unquoted string that begins with
+  `calc(`, `var(`, `env(`, `clamp(`, `min(`, or `max(`. This matching is
+  case-insensitive.
+
+[calculation]: types/calculation.md
 
 > Sass functions that shadow CSS functions must work with any invocation that
-> CSS allows, which includes allowing special number strings anywhere a number
-> would be allowed.
+> CSS allows, which includes allowing special numbers anywhere a number would be
+> allowed.
 
 ### Special Variable String
 
-A *special variable string* is [special number string][] that begins with
-`var(`. This matching is case-insensitive.
+A *special variable string* is [special number] that begins with `var(`. This
+matching is case-insensitive.
 
-[special number string]: #special-number-string
+[special number]: #special-number
 
-> Unlike other special number strings, variables can expand into multiple
-> arguments to a single function.
+> Unlike other special numbers, variables can expand into multiple arguments to
+> a single function.
 
 ## Syntax
 
@@ -154,7 +159,7 @@ plain CSS function named `"rgb"` that function is named `"rgba"` instead.
   rgb($red, $green, $blue, $alpha)
   ```
 
-  * If any argument is a [special number string][], return a plain CSS function
+  * If any argument is a [special number], return a plain CSS function
     string with the name `"rgb"` and the arguments `$red`, `$green`, `$blue`,
     and `$alpha`.
 
@@ -174,9 +179,8 @@ plain CSS function named `"rgb"` that function is named `"rgba"` instead.
   rgb($red, $green, $blue)
   ```
 
-  * If any argument is a [special number string][], return a plain CSS function
-    string with the name `"rgb"` and the arguments `$red`, `$green`, and
-    `$blue`.
+  * If any argument is a [special number], return a plain CSS function string
+    with the name `"rgb"` and the arguments `$red`, `$green`, and `$blue`.
 
   * Otherwise, return the result of calling `rgb()` with `$red`, `$green`,
     `$blue`, and `1`.
@@ -273,7 +277,7 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
   hsl($hue, $saturation, $lightness, $alpha: 1)
   ```
 
-  * If any argument is a [special number string][], return a plain CSS function
+  * If any argument is a [special number], return a plain CSS function
     string with the name `"hsl"` and the arguments `$hue`, `$saturation`,
     `$lightness`, and `$alpha`.
 
@@ -306,14 +310,12 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
   hsl($hue, $saturation, $lightness)
   ```
 
-  * If any argument is a [special number strings][], return a plain CSS function
-    string with the name `"hsl"` and the arguments `$hue`, `$saturation`, and
+  * If any argument is a [special number], return a plain CSS function string
+    with the name `"hsl"` and the arguments `$hue`, `$saturation`, and
     `$lightness`.
 
   * Otherwise, return the result of calling `hsl()` with `$hue`, `$saturation`,
     `$lightness`, and `1`.
-
-  [special number strings]: #special-number-string
 
 * ```
   hsl($hue, $saturation)

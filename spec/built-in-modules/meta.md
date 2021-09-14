@@ -5,6 +5,8 @@ This built-in module is available from the URL `sass:meta`.
 ## Table of Contents
 
 * [Functions](#functions)
+  * [`calc-name()`](#calc-name)
+  * [`calc-args()`](#calc-args)
   * [`call()`](#call)
   * [`content-exists()`](#content-exists)
   * [`feature-exists()`](#feature-exists)
@@ -22,6 +24,35 @@ This built-in module is available from the URL `sass:meta`.
   * [`load-css()`](#load-css)
 
 ## Functions
+
+### `calc-name()`
+
+```
+calc-name($calc)
+```
+
+* If `$calc` is not a calculation, throw an error.
+
+* Return `$calc`'s name as a quoted string.
+
+### `calc-args()`
+
+```
+calc-args($calc)
+```
+
+* If `$calc` is not a calculation, throw an error.
+
+* Let `args` be an empty list.
+
+* For each argument `arg` in `$calc`'s arguments:
+
+  * If `arg` is a number or a calculation, add it to `args`.
+
+  * Otherwise, [serialize](#serialization) `arg` and add the result to `args` as
+    an unquoted string.
+
+* Return `args` as an unbracketed comma-separated list.
 
 ### `call()`
 
@@ -215,6 +246,22 @@ type-of($value)
 ```
 
 This function is also available as a global function named `type-of()`.
+
+* Look up `$value`'s type in the "Type" column of the table below, and return an
+  unquoted string whose value is the corresponding cell in the "Result" column:
+
+  | Type          | Result          |
+  | ------------- | --------------- |
+  | Argument list | `"arglist"`     |
+  | Boolean       | `"bool"`        |
+  | Calculation   | `"calculation"` |
+  | Color         | `"color"`       |
+  | Function      | `"function"`    |
+  | List          | `"list"`        |
+  | Map           | `"map"`         |
+  | Null          | `"null"`        |
+  | Number        | `"number"`      |
+  | String        | `"string"`      |
 
 ### `variable-exists()`
 
