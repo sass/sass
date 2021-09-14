@@ -83,7 +83,7 @@ proposal intentionally avoids that approach for several reasons:
 `clamp(` is added to the list of possible prefixes for a [special number
 string].
 
-[special number string]: ../spec/functions.md#special-number-string
+[special number string]: ../spec/functions.md#special-number
 
 ## Syntax
 

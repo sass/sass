@@ -9,7 +9,6 @@
   * [`InterpolatedIdentifier`](#interpolatedidentifier)
   * [`Name`](#name)
   * [`SpecialFunctionExpression`](#specialfunctionexpression)
-  * [`MinMaxExpression`](#minmaxexpression)
   * [`PseudoSelector`](#pseudoselector)
 * [Procedures](#procedures)
   * [Parsing Text](#parsing-text)
@@ -19,7 +18,6 @@
   * [Consuming a Name](#consuming-a-name)
   * [Consuming an Escaped Code Point](#consuming-an-escaped-code-point)
   * [Consuming a special function](#consuming-a-special-function)
-  * [Consuming `min()` or `max()`](#consuming-min-or-max)
 
 ## Definitions
 
@@ -69,8 +67,8 @@ No whitespace is allowed between components of an `InterpolatedIdentifier`.
 
 <x><pre>
 **SpecialFunctionExpression** ::= SpecialFunctionName InterpolatedDeclarationValue ')'
-**SpecialFunctionName**¹      ::= VendorPrefix? ('calc(' | 'element(' | 'expression(')
-&#32;                           | 'clamp('
+**SpecialFunctionName**¹      ::= VendorPrefix? ('element(' | 'expression(')
+&#32;                           | VendorPrefix 'calc('
 **VendorPrefix**¹             ::= '-' ([identifier-start code point] | [digit]) '-'
 </pre></x>
 
@@ -78,23 +76,6 @@ No whitespace is allowed between components of an `InterpolatedIdentifier`.
 
 1: Both `SpecialFunctionName` and `VendorPrefix` are matched case-insensitively,
    and neither may contain whitespace.
-
-### `MinMaxExpression`
-
-<x><pre>
-**MinMaxExpression** ::= CssMinMax | FunctionExpression
-**CssMinMax**        ::= ('min(' | 'max(')¹ CalcValue (',' CalcValue)* ')'
-**CalcValue**         ::= CalcValue (('+' | '-' | '*' | '/') CalcValue)+
-&#32;                   | '(' CalcValue ')'
-&#32;                   | CalcFunctionName InterpolatedDeclarationValue ')'
-&#32;                   | CssMinMax
-&#32;                   | Interpolation
-&#32;                   | Number
-**CalcFunctionName**¹ ::= 'calc(' | 'env(' | 'var(' | 'clamp('
-</pre></x>
-
-1: The strings `min(`, `max(`, `calc(`, `env(`, `var(`, and `clamp(` are matched
-   case-insensitively.
 
 ### `PseudoSelector`
 
@@ -399,20 +380,3 @@ SassScript expression.
 * Return an unquoted interpolated string expression that would be identical to
   the source text according to CSS semantics for all possible interpolated
   strings.
-
-### Consuming `min()` or `max()`
-
-This algorithm consumes input from a stream of [code points][] and returns a
-SassScript expression.
-
-* Let `expression` be the result of consuming a [`MinMaxExpression`][]. If the
-  expression is ambiguous between `CssMinMax` and `FunctionExpression`,
-  `CssMinMax` should take precedence.
-
-  [`MinMaxExpression`]: #minmaxexpression
-
-* If `expression` is a `FunctionExpression`, return it as-is.
-
-* Otherwise, if `expression` is a `CssMinMax`, return an unquoted interpolated
-  string expression that would be identical to the source text according to CSS
-  semantics for all possible interpolated strings.
