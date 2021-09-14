@@ -4,6 +4,7 @@
 
 * [Syntax](#syntax)
   * [`CalculationExpression`](#calculationexpression)
+  * [`MinMaxExpression`](#minmaxexpression)
 * [Types](#types)
   * [Operations](#operations)
     * [Equality](#equality)
@@ -17,7 +18,7 @@
 * [Semantics](#semantics)
   * [`CalcExpression`](#calcexpression)
   * [`ClampExpression`](#clampexpression)
-  * [`MinMaxCalcExpression`](#minmaxcalcexpression)
+  * [`CssMinMax`](#cssminmax)
   * [`CalcArgument`](#calcargument)
   * [`CalcSum`](#calcsum)
   * [`CalcProduct`](#calcproduct)
@@ -31,18 +32,12 @@ This production is parsed in a SassScript context when an expression is expected
 and the input stream starts with an identifier with value `calc` or `clamp`
 (ignoring case) followed immediately by `(`.
 
-> Although the `CalculationExpression` production includes
-> `MinMaxCalcExpression`, a top-level `min()` or `max()` in a SassScript context
-> will *not* be parsed as a `CalculationExpression` for backwards compatibility
-> with Sass's global `min()` and `max()` functions.
-
 The grammar for this production is:
 
 <x><pre>
-**CalculationExpression** ::= CalcExpression | ClampExpression | MinMaxCalcExpression
+**CalculationExpression** ::= CalcExpression | ClampExpression
 **CalcExpression**        ::= 'calc('¹ CalcArgument ')'
 **ClampExpression**       ::= 'clamp('¹ CalcArgument ( ',' CalcArgument ){2} ')'
-**MinMaxCalcExpression**  ::= ('min(' | 'max(')¹ CalcArgument (',' CalcArgument)* ')'
 **CalcArgument**²         ::= InterpolatedDeclarationValue† | CalcSum
 **CalcSum**               ::= CalcProduct (('+' | '-')³ CalcProduct)\*
 **CalcProduct**           ::= CalcValue (('\*' | '/') CalcValue)\*
@@ -54,7 +49,7 @@ The grammar for this production is:
 &#32;                       | Variable†
 </pre></x>
 
-1: The strings `calc(`, `clamp(`, `min(`, and `max(` are matched case-insensitively.
+1: The strings `calc(` and `clamp(` are matched case-insensitively.
 
 2: A `CalcArgument` is only parsed as an `InterpolatedDeclarationValue` if it
 includes interpolation, unless that interpolation is within a region bounded by
@@ -72,6 +67,23 @@ case-insensitively.
 > expressions. Because interpolation could inject any part of a `calc()`
 > expression regardless of syntax, for full compatibility it's necessary to
 > parse it very expansively.
+
+### `MinMaxExpression`
+
+This production is parsed in a SassScript context when an expression is expected
+and the input stream starts with an identifier with value `min` or `max`
+(ignoring case) followed immediately by `(`.
+
+<x><pre>
+**MinMaxExpression**¹ ::= CssMinMax | FunctionExpression
+**CssMinMax**         ::= ('min(' | 'max(')² CalcArgument (',' CalcArgument)* ')'
+</pre></x>
+
+1: If both `CssMinMax` and `FunctionExpression` could be consumed, `CssMinMax`
+   takes precedence.
+
+2: The strings `min(`, `max(`, `calc(`, `env(`, `var(`, and `clamp(` are matched
+   case-insensitively.
 
 ## Types
 
@@ -187,21 +199,34 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
   > It's valid to write `clamp(var(--three-args))` or `clamp(#{"1, 2, 3"})`, but
   > otherwise `clamp()` has to have three physical arguments.
 
-* If `calc`'s name is `"min"`, `"max"`, or `"clamp"` and `arguments` are all
+* If `calc`'s name is `"clamp"` and `arguments` are all
   numbers:
 
-  * If those arguments' units are mutually [compatible], return the result of
-    calling [`math.min()`], [`math.max()`], or `math.clamp()` (respectively)
-    with those arguments.
+  * If those arguments' are mutually [compatible], return the result of calling
+    `math.clamp()` with those arguments.
 
     [compatible]: ../spec/types/number.md#compatible-units
-    [`math.min()`]: ../spec/built-in-modules/math.md#min
-    [`math.max()`]: ../spec/built-in-modules/math.md#max
 
   * Otherwise, if any two of those arguments are [definitely-incompatible],
     throw an error.
 
     [definitely-incompatible]: #possibly-compatible-numbers
+
+* If `calc`'s name is `"min"` or `"max"` and `arguments` are all numbers:
+
+  * If the arguments with units are all mutually [compatible], call
+    [`math.min()`] or [`math.max()`] (respectively) with those arguments. If
+    this doesn't throw an error, return its result.
+
+    [`math.min()`]: ../spec/built-in-modules/math.md#min
+    [`math.max()`]: ../spec/built-in-modules/math.md#max
+
+    > `min()` and `max()` allow unitless numbers to be mixed with units because
+    > they need to be backwards-compatible with Sass's old global `min()` and
+    > `max()` functions.
+
+  * Otherwise, if any two of those arguments are [definitely-incompatible],
+    throw an error.
 
 * Otherwise, return a calculation with the same name as `calc` and `arguments`
   as its arguments.
@@ -237,6 +262,14 @@ This algorithm takes a `CalculationValue` `value` and returns a
 
   * If `left` and `right` are both numbers with [compatible] units, return
     `left + right` or `left - right`, respectively.
+
+  * Otherwise, if `left` and `right` are both numbers, the `name` of the
+    innermost `Calculation` that contains `value` is `"min"` or `"max"`, and
+    either `left` or `right` is unitless, return `left + right` or `left -
+    right`, respectively.
+
+    > This preserves backwards-compatibility with Sass's old global `min()` and
+    > `max()` functions, most of which are now parsed as `CssMinMax`es.
 
   * Otherwise, if either `left` or `right` is a number with more than one
     numerator unit or more than zero denominator units, throw an error.
@@ -277,13 +310,13 @@ To evaluate a `ClampExpression`:
 
 * Return the result of [simplifying] `clamp`.
 
-### `MinMaxCalcExpression`
+### `CssMinMax`
 
 To evaluate a `CssMinMax`:
 
 * Let `calc` be a calculation whose name is `"min"` or `"max"` according to the
-  `MinMaxCalcExpression`'s first token, and whose arguments are the results of
-  [evaluating the expression's `CalcArgument`s](#calcargument).
+  `CssMinMax`'s first token, and whose arguments are the results of [evaluating
+  the expression's `CalcArgument`s](#calcargument).
 
 * Return the result of [simplifying] `calc`.
 
@@ -331,8 +364,8 @@ object:
 
 To evaluate a `CalcValue` production `value` into a `CalculationValue` object:
 
-* If `value` is a `CalcArgument`, `MinMaxCalcExpression`, or `Number`, return
-  the result of evaluating it.
+* If `value` is a `CalcArgument`, `CssMinMax`, or `Number`, return the result of
+  evaluating it.
 
 * If `value` is a `FunctionExpression` or `Variable`, evaluate it. If the result
   is a number, an unquoted string, or a calculation, return it. Otherwise, throw
