@@ -74,3 +74,12 @@ export {LegacyFunction, LegacyValue, types} from './legacy/function';
 export {LegacyImporter} from './legacy/importer';
 export {LegacyOptions} from './legacy/options';
 export {LegacyResult, render, renderSync} from './legacy/render';
+
+/**
+ * Information about the Sass implementation. This must begin with a unique
+ * identifier for this package (typically but not necessarily the npm package
+ * name), followed by U+0009 TAB, followed by its npm package version. It may
+ * contain another tab character followed by additional information, but this is
+ * not required.
+ */
+export const info: string;
