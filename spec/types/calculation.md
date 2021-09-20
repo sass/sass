@@ -82,8 +82,7 @@ and the input stream starts with an identifier with value `min` or `max`
 1: If both `CssMinMax` and `FunctionExpression` could be consumed, `CssMinMax`
    takes precedence.
 
-2: The strings `min(`, `max(`, `calc(`, `env(`, `var(`, and `clamp(` are matched
-   case-insensitively.
+2: The strings `min(` and `max(` are matched case-insensitively.
 
 ## Types
 
