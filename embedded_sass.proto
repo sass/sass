@@ -831,6 +831,57 @@ message Value {
     map<string, Value> keywords = 4;
   }
 
+  // A SassScript calculation value. The compiler must send fully [simplified]
+  // calculations, meaning that simplifying it again will produce the same
+  // calculation. The host is not required to simplify calculations.
+  //
+  // [simplified]: https://github.com/sass/sass/tree/main/spec/types/calculation.md#simplifying-a-calculation
+  //
+  // The compiler must simplify any calculations it receives from the host
+  // before returning them from a function. If this simplification produces an
+  // error, it should be treated as though the function call threw that error.
+  // It should *not* be treated as a protocol error.
+  message Calculation {
+    // The calculation's name. Mandatory. The host may only set this to names
+    // that the Sass specification uses to create calculations.
+    string name = 1;
+
+    // The calculation's arguments. Mandatory. The host must use exaclty the
+    // number of arguments used by the Sass specification for calculations with
+    // the given `name`.
+    repeated CalculationValue argument = 2;
+
+    // A single component of a calculation expression.
+    message CalculationValue {
+      // The value of the component. Mandatory.
+      oneof value {
+        Number number = 1;
+
+        // An unquoted string, as from a function like `var()` or `env()`.
+        string string = 2;
+
+        // An unquoted string as created by interpolation for
+        // backwards-compatibility with older Sass syntax.
+        string interpolation = 3;
+
+        CalculationOperation operation = 4;
+        Calculation calculation = 5;
+      }
+    }
+
+    // A binary operation that appears in a calculation.
+    message CalculationOperation {
+      // The operator to perform.
+      CalculationOperator operator = 1;
+
+      // The left-hand side of the operation.
+      CalculationValue left = 2;
+
+      // The right-hand side of the operation.
+      CalculationValue right = 3;
+    }
+  }
+
   // The value itself. Mandatory.
   //
   // This is wrapped in a message type rather than used directly to reduce
@@ -847,6 +898,7 @@ message Value {
     HostFunction host_function = 9;
     ArgumentList argument_list = 10;
     HwbColor hwb_color = 11;
+    Calculation calculation = 12;
   }
 }
 
@@ -878,4 +930,19 @@ enum SingletonValue {
 
   // The SassScript null value.
   NULL = 2;
+}
+
+// An operator used in a calculation value's operation.
+enum CalculationOperator {
+  // The addition operator.
+  PLUS = 0;
+
+  // The subtraction operator.
+  MINUS = 1;
+
+  // The multiplication operator.
+  TIMES = 2;
+
+  // The division operator.
+  DIVIDE = 3;
 }
