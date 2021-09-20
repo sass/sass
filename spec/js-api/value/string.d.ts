@@ -17,7 +17,7 @@ export class SassString extends Value {
     text: string,
     options?: {
       /** @default true */
-      quotes: boolean;
+      quotes?: boolean;
     }
   );
 
@@ -28,10 +28,7 @@ export class SassString extends Value {
    *   `options.quotes`.
    * - Return `this`.
    */
-  static empty(options?: {
-    /** @default true */
-    quotes: boolean;
-  }): SassString;
+  static empty(options?: {/** @default true */ quotes?: boolean}): SassString;
 
   /** The contents of `internal` serialized as UTF-16 code units. */
   get text(): string;

@@ -23,6 +23,7 @@
   * [`CalcSum`](#calcsum)
   * [`CalcProduct`](#calcproduct)
   * [`CalcValue`](#calcvalue)
+  * [`ParenthesizedVar`](#parenthesizedvar)
 
 ## Syntax
 
@@ -41,15 +42,17 @@ The grammar for this production is:
 **CalcArgument**²         ::= InterpolatedDeclarationValue† | CalcSum
 **CalcSum**               ::= CalcProduct (('+' | '-')³ CalcProduct)\*
 **CalcProduct**           ::= CalcValue (('\*' | '/') CalcValue)\*
-**CalcValue**             ::= '(' CalcArgument ')'
+**CalcValue**             ::= ParenthesizedVar
+&#32;                       | '(' CalcArgument⁴ ')'
 &#32;                       | CalculationExpression
 &#32;                       | MinMaxExpression
-&#32;                       | FunctionExpression⁴
+&#32;                       | FunctionExpression⁵
 &#32;                       | Number
 &#32;                       | Variable†
+**ParenthesizedVar**      ::= '(' 'var('¹ ArgumentInvocation ')' ')'
 </pre></x>
 
-1: The strings `calc(` and `clamp(` are matched case-insensitively.
+1: The strings `calc(`, `clamp(`, and `var(` are matched case-insensitively.
 
 2: A `CalcArgument` is only parsed as an `InterpolatedDeclarationValue` if it
 includes interpolation, unless that interpolation is within a region bounded by
@@ -57,7 +60,9 @@ parentheses (a `FunctionExpression` counts as parentheses).
 
 3: Whitespace is required around these `"+"` and `"-"` tokens.
 
-4: This `FunctionExpression` cannot begin with `min(`, `max(`, or `clamp(`,
+4: This `CalcArgument` cannot begin with `var(`, case-insensitively.
+
+5: This `FunctionExpression` cannot begin with `min(`, `max(`, or `clamp(`,
 case-insensitively.
 
 †: These productions are invalid in plain CSS syntax.
@@ -363,8 +368,8 @@ object:
 
 To evaluate a `CalcValue` production `value` into a `CalculationValue` object:
 
-* If `value` is a `CalcArgument`, `CssMinMax`, or `Number`, return the result of
-  evaluating it.
+* If `value` is a `CalcArgument`, `CssMinMax`, `Number`, or `ParenthesizedVar`,
+  return the result of evaluating it.
 
 * If `value` is a `FunctionExpression` or `Variable`, evaluate it. If the result
   is a number, an unquoted string, or a calculation, return it. Otherwise, throw
@@ -373,3 +378,32 @@ To evaluate a `CalcValue` production `value` into a `CalculationValue` object:
   > Allowing variables to return unquoted strings here supports referential
   > transparency, so that `$var: fn(); calc($var)` works the same as
   > `calc(fn())`.
+
+### `ParenthesizedVar`
+
+> If a `var()` is written directly within parentheses, it's necessary to
+> preserve those parentheses. CSS resolves `var()` by literally replacing the
+> function with the value of the variable and *then* parsing the surrounding
+> context.
+>
+> For example, if `--ratio: 2/3`, `calc(1 / (var(--ratio)))` is parsed as
+> `calc(1 / (2/3)) = calc(3/2)` but `calc(1 / var(--ratio))` is parsed as
+> `calc(1 / 2/3) = calc(2/3)`.
+
+To evaluate a `ParenthesizedVar` production `value` into an unquoted string:
+
+* Let `function` be a [`FunctionCall`] with `"var"` as its
+  [`NamespacedIdentifier`] and with `value`'s `ArgumentInvocation`.
+
+  [`FunctionCall`]: ../functions.md#syntax
+  [`NamespacedIdentifier`]: ../modules.md#syntax
+
+* Let `result` be the result of evaluating `function`.
+
+* If `result` is a number or a calculation, return it.
+
+  > This could happen if the user defines a `var` function in Sass.
+
+* If `result` is not an unquoted string, throw an error.
+
+* Return `"(" + result + ")"` as an unquoted string.
