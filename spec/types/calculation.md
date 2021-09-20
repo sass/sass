@@ -357,7 +357,7 @@ To evaluate a `CalcValue` production `value` into a `CalculationValue` object:
 >
 > For example, if `--ratio: 2/3`, `calc(1 / (var(--ratio)))` is parsed as
 > `calc(1 / (2/3)) = calc(3/2)` but `calc(1 / var(--ratio))` is parsed as
-> `calc(1 / 2/3) = calc(2/3)`.
+> `calc(1 / 2/3) = calc(1/6)`.
 
 To evaluate a `ParenthesizedVar` production `value` into an unquoted string:
 
