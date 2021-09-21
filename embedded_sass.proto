@@ -846,7 +846,7 @@ message Value {
     // that the Sass specification uses to create calculations.
     string name = 1;
 
-    // The calculation's arguments. Mandatory. The host must use exaclty the
+    // The calculation's arguments. Mandatory. The host must use exactly the
     // number of arguments used by the Sass specification for calculations with
     // the given `name`.
     repeated CalculationValue argument = 2;
