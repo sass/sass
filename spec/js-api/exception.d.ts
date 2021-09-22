@@ -1,6 +1,10 @@
 import {SourceSpan} from './logger';
 
-/** The error thrown by the compiler when a Sass compilation fails. */
+/**
+ * The error thrown by the compiler when a Sass compilation fails. This should
+ * *not* be thrown for errors that occur outside of Sass compilation, such as
+ * argument verification errors.
+ */
 export interface Exception extends Error {
   /**
    * The compiler supplies this error message to the JS runtime. This should
@@ -22,26 +26,24 @@ export interface Exception extends Error {
   sassMessage: string;
 
   /**
-   * Syntax errors and errors thrown when evaluating a stylesheet must set this
-   * field to a human-friendly representation of the loads, function calls, and
-   * mixin includes that were active when this error was thrown.
+   * A human-friendly representation of the loads, function calls, and mixin
+   * includes that were active when this error was thrown.
    *
    * > The format can vary from implementation to implementation.
    */
-  sassStack?: string;
+  sassStack: string;
 
   /**
-   * Syntax errors and errors thrown when evaluating a stylesheet must set this
-   * field to a span whose `url` is the canonical URL of the stylesheet being
-   * parsed or evaluated, and whose `start` points to the line in that
-   * stylesheet on which the error occurred.
+   * A span whose `url` is the canonical URL of the stylesheet being parsed or
+   * evaluated, and whose `start` points to the line in that stylesheet on which
+   * the error occurred.
    *
    * > The other details of this span can vary from implementation to
    * > implementation, but implementations are strongly encouraged to ensure
    * > that this covers a span of text that clearly indicates the location of
    * > the error.
    */
-  span?: SourceSpan;
+  span: SourceSpan;
 
   /**
    * Provides a formatted string with useful information about the error.
