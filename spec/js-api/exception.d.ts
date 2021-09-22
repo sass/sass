@@ -5,7 +5,7 @@ import {SourceSpan} from './logger';
  * *not* be thrown for errors that occur outside of Sass compilation, such as
  * argument verification errors.
  */
-export interface Exception extends Error {
+export class Exception extends Error {
   /**
    * The compiler supplies this error message to the JS runtime. This should
    * contain the description of the Sass exception as well as human-friendly
