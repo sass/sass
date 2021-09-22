@@ -12,6 +12,7 @@
   * [Maps](#maps)
   * [Booleans](#booleans)
   * [Null](#null)
+  * [Calculations](#calculations)
   * [Functions](#functions)
 * [Versioning](#versioning)
 
@@ -284,6 +285,24 @@ The `Null` message is a singleton representing the Sass `null` value. It should
 expose Sass-specific APIs like the [assertions](#assertions) described above.
 
 `null` is only equal to `null`.
+
+#### Calculations
+
+Calculations are represented similarly to their representation in the Sass
+specification, as a tree of binary operations and other calculations that
+terminates in numbers or strings. This tree structure may be exposed to the host
+language, or the host may choose to keep the structure of calculations opaque.
+
+Two calculations are equal if their names are equal and each of their arguments
+are equal. Two `Calculation.CalculationOperation`s are equal if they have the
+same operator and their left and right values are equal, respectively.
+
+Note that this protocol chooses *not* to require host implementations to
+simplify calculations as they're constructed, for the sake of simplicity of
+implementation (although hosts *may* do so). This means that a host can
+construct calculations like `calc(1 + 1)` which, in Sass, would simplify to 2.
+The host is not required to take simplification into account when determining
+equality.
 
 #### Functions
 
