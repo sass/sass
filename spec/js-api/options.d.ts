@@ -44,13 +44,12 @@ export interface Options<sync extends 'sync' | 'async'> {
 
   /**
    * If true, the compiler may use terminal colors in the formatted message of
-   * errors and logs that aren't handled by a `logger`.
+   * errors and logs that aren't handled by a `logger`. Implementations may
+   * choose the default value for this based on their own heuristics of whether
+   * colored output would be useful or render appropriately. Implementations are
+   * not obligated to use colors even if this is `true`.
    *
    * > The specific format can vary from implementation to implementation.
-   * > Compilers are not obligated to use terminal colors if they are irrelevant
-   * > in the output environment.
-   *
-   * @default false
    */
   alertColor?: boolean;
 
