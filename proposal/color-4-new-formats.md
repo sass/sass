@@ -24,8 +24,8 @@ of these Sass-module function will be providing pre-processed conversion to an
 existing, well-supported color format.
 
 While `hwb()` is defined in the sRGB space, with simple conversion, `lab()` &
-`lch()` colors are defined in a device-indipendant and *perceptually uniform*
-CIE space, much larger than the avialable sRGB gamut. That uniformity is useful
+`lch()` colors are defined in a device-independant and *perceptually uniform*
+CIE space, much larger than the available sRGB gamut. That uniformity is useful
 for programmatic color manipulation and consistent contrast ratios, but careful
 conversions between CIElab and sRGB will be required.
 
@@ -56,7 +56,7 @@ leaves in-gamut colors un-affected.
 Conversions between color formats and color-spaces are well defined, and the
 CSS specification provides code samples to help with implementation, but
 handling out-of-gamut colors can be much more complex. There is no single
-"rendering intent" that works in every instance, and no well-defines algoythms
+"rendering intent" that works in every instance, and no well-defined algorithms
 even once a rendering intent is determined.
 
 Our solution attempts to balance several concerns:
