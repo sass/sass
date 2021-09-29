@@ -2,7 +2,10 @@
   "extends": "./node_modules/gts/tsconfig-google.json",
   "compilerOptions": {
     "allowJs": true,
-    "rootDir": "."
+    "rootDir": ".",
+    "paths": {
+      "*": ["./tool/types/*"]
+    }
   },
-  "include": ["accepted/**/*.ts", "proposal/**/*.ts", "spec/**/*.ts"]
+  "include": ["accepted/**/*.ts", "proposal/**/*.ts", "spec/**/*.ts", "tool/**/*.ts", "test/**/*.ts"]
 }

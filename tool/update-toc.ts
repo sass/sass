@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 
-import * as toc from './toc.js';
+import * as toc from './toc';
 
 toc.files.forEach(file => {
   const markdown = fs.readFileSync(file).toString();

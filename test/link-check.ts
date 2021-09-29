@@ -1,8 +1,9 @@
-import colors from 'colors/safe.js';
+import * as colors from 'colors/safe';
 import * as fs from 'fs';
-import glob from 'glob';
-import markdownLinkCheck from 'markdown-link-check';
-import markdownToc from 'markdown-toc';
+import * as glob from 'glob';
+import markdownLinkCheck = require('markdown-link-check');
+import * as linkCheck from 'markdown-link-check';
+import markdownToc = require('markdown-toc');
 import * as path from 'path';
 import {fileURLToPath, pathToFileURL, URL} from 'url';
 
@@ -10,9 +11,9 @@ const files = glob.sync('**/*.md', {
   ignore: ['node_modules/**/*.md'],
 });
 
-const tocCache = new Map();
+const tocCache = new Map<string, string>();
 
-function getToc(file) {
+function getToc(file: string): string {
   file = path.normalize(file);
   let toc = tocCache.get(file);
   if (toc === undefined) {
@@ -22,7 +23,10 @@ function getToc(file) {
   return toc;
 }
 
-function verifyLinkCheckResults(file, results) {
+function verifyLinkCheckResults(
+  file: string,
+  results: linkCheck.Result[]
+): void {
   const toc = getToc(file);
 
   for (const result of results) {
@@ -57,11 +61,12 @@ function verifyLinkCheckResults(file, results) {
   }
 }
 
-function runLinkCheck(file, {rateLimit}) {
+function runLinkCheck(
+  file: string,
+  {rateLimit}: {rateLimit?: number}
+): Promise<void> {
   return new Promise((resolve, reject) => {
-    setTimeout(check, rateLimit);
-
-    function check() {
+    setTimeout(() => {
       markdownLinkCheck(
         fs.readFileSync(file).toString(),
         {
@@ -82,7 +87,7 @@ function runLinkCheck(file, {rateLimit}) {
           }
         }
       );
-    }
+    }, rateLimit);
   });
 }
 
