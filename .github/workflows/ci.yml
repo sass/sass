@@ -18,3 +18,29 @@ jobs:
       - name: Generate protobuf code
         run: protoc --js_out=/tmp embedded_sass.proto
 
+  tag:
+    name: "Tag release"
+    runs-on: "ubuntu-latest"
+    if: |
+      github.event_name == 'push' &&
+          github.repository == 'sass/embedded-protocol' &&
+          github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get version information
+        id: version-info
+        run: |
+          echo "::set-output name=VERSION::$(cat VERSION)"
+          echo "::set-output name=VERSION_MODIFIED::$(
+            git diff --quiet HEAD^ VERSION && echo true || echo false
+          )"
+      - name: Create release
+        if: |
+          steps.version-info.VERSION_MODIFIED == 'true' &&
+            !endsWith(steps.version-info.VERSION, '-dev')
+        run: |
+          git config --global user.name 'SassBot'
+          git config --global user.email 'sass.bot.beep.boop@gmail.com'
+          git tag "${{ steps.version-info.VERSION }}"
+          git push --tags
