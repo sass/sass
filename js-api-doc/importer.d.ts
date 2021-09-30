@@ -1,21 +1,15 @@
 import {URL} from 'url';
 
 import {Syntax} from './options';
+import {PromiseOr} from './util/promise_or';
 
-interface SyncFileImporter {
+export interface FileImporter<
+  sync extends 'sync' | 'async' = 'sync' | 'async'
+> {
   findFileUrl(
     url: string,
     options: {fromImport: boolean}
-  ): FileImporterResult | null;
-
-  canonicalize?: never;
-}
-
-interface AsyncFileImporter {
-  findFileUrl(
-    url: string,
-    options: {fromImport: boolean}
-  ): Promise<FileImporterResult | null> | FileImporterResult | null;
+  ): PromiseOr<FileImporterResult | null, sync>;
 
   canonicalize?: never;
 }
@@ -26,21 +20,13 @@ export interface FileImporterResult {
   sourceMapUrl?: URL;
 }
 
-interface SyncImporter {
-  canonicalize(url: string, options: {fromImport: boolean}): URL | null;
-  load(canonicalUrl: URL): ImporterResult | null;
-  findFileUrl?: never;
-}
-
-interface AsyncImporter {
+export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
   canonicalize(
     url: string,
     options: {fromImport: boolean}
-  ): Promise<URL | null> | URL | null;
+  ): PromiseOr<URL | null, sync>;
 
-  load(
-    canonicalUrl: URL
-  ): Promise<ImporterResult | null> | ImporterResult | null;
+  load(canonicalUrl: URL): PromiseOr<ImporterResult | null, sync>;
 
   findFileUrl?: never;
 }
@@ -52,11 +38,3 @@ export interface ImporterResult {
 
   sourceMapUrl?: URL;
 }
-
-export type FileImporter<sync extends 'sync' | 'async'> = sync extends 'async'
-  ? AsyncFileImporter
-  : SyncFileImporter;
-
-export type Importer<sync extends 'sync' | 'async'> = sync extends 'async'
-  ? AsyncImporter
-  : SyncImporter;

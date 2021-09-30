@@ -3,18 +3,15 @@ import {URL} from 'url';
 import {FileImporter, Importer} from './importer';
 import {Logger} from './logger';
 import {Value} from './value';
+import {PromiseOr} from './util/promise_or';
 
 export type Syntax = 'scss' | 'indented' | 'css';
 
 export type OutputStyle = 'expanded' | 'compressed';
 
-export type CustomFunction<sync extends 'sync' | 'async'> = sync extends 'sync'
-  ? (args: Value[]) => Value
-  : (args: Value[]) => Value | Promise<Value>;
-
-type _Importer<sync extends 'sync' | 'async'> =
-  | Importer<sync>
-  | FileImporter<sync>;
+export type CustomFunction<sync extends 'sync' | 'async'> = (
+  args: Value[]
+) => PromiseOr<Value, sync>;
 
 export interface Options<sync extends 'sync' | 'async'> {
   alertAscii?: boolean;
@@ -23,7 +20,7 @@ export interface Options<sync extends 'sync' | 'async'> {
 
   functions?: Record<string, CustomFunction<sync>>;
 
-  importers?: _Importer<sync>[];
+  importers?: (Importer<sync> | FileImporter<sync>)[];
 
   loadPaths?: string[];
 
@@ -45,7 +42,7 @@ export type StringOptions<sync extends 'sync' | 'async'> = Options<sync> & {
         url?: URL;
       }
     | {
-        importer: _Importer<sync>;
+        importer: Importer<sync> | FileImporter<sync>;
         url: URL;
       }
   );
