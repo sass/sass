@@ -8,14 +8,16 @@
   "engines": {
     "node": ">=14.0.0 <17.0.0"
   },
-  "type": "module",
   "scripts": {
-    "link-check": "node test/link-check.js",
-    "toc-check": "node test/toc-check.js",
+    "link-check": "npx ts-node test/link-check.ts",
+    "toc-check": "npx ts-node test/toc-check.ts",
+    "update-toc": "npx ts-node tool/update-toc.ts",
     "fix": "gts fix",
     "test": "gts lint && tsc --noEmit && npm run toc-check && npm run link-check"
   },
   "dependencies": {
+    "@types/diff": "^5.0.1",
+    "@types/glob": "^7.1.4",
     "colors": "^1.3.3",
     "diff": "^4.0.1",
     "glob": "^7.1.3",

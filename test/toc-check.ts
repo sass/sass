@@ -1,8 +1,8 @@
-import colors from 'colors/safe.js';
+import * as colors from 'colors/safe';
 import * as diff from 'diff';
 import * as fs from 'fs';
 
-import * as toc from '../tool/toc.js';
+import * as toc from '../tool/toc';
 
 toc.files.forEach(file => {
   const markdown = fs.readFileSync(file).toString();

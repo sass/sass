@@ -1,5 +1,5 @@
-import glob from 'glob';
-import markdownToc from 'markdown-toc';
+import * as glob from 'glob';
+import markdownToc = require('markdown-toc');
 
 /** Files that may contain tables of contents. */
 export const files = glob.sync('**/*.md', {
@@ -8,7 +8,7 @@ export const files = glob.sync('**/*.md', {
 
 // Returns the index of the first `*` in `markdown`'s table of contents, or
 // `null` if `markdown` doesn't include a table of contents.
-function findStartIndex(markdown) {
+function findStartIndex(markdown: string): number | null {
   const match = markdown.match(/\n## Table of Contents\n/);
   if (match === null || match.index === undefined) return null;
   return match.index + match[0].length - 1;
@@ -18,7 +18,7 @@ function findStartIndex(markdown) {
  * Returns the table of contents in `markdown` if it contains one, or `null`
  * otherwise.
  */
-export function getCurrent(markdown) {
+export function getCurrent(markdown: string): string | null {
   const startIndex = findStartIndex(markdown);
   if (startIndex === null) return null;
 
@@ -29,7 +29,7 @@ export function getCurrent(markdown) {
 }
 
 /** Returns the expected table of contents for `markdown`. */
-export function generate(markdown) {
+export function generate(markdown: string): string {
   return markdownToc(markdown, {
     filter: contents => contents.indexOf('Table of Contents') === -1,
     firsth1: false,
