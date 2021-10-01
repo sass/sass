@@ -7,5 +7,5 @@
       "*": ["./tool/types/*"]
     }
   },
-  "include": ["accepted/**/*.ts", "proposal/**/*.ts", "spec/**/*.ts", "tool/**/*.ts", "test/**/*.ts"]
+  "include": ["accepted/**/*.ts", "proposal/**/*.ts", "spec/**/*.ts", "tool/**/*.ts", "test/**/*.ts", "js-api-doc/**/*.ts"]
 }
