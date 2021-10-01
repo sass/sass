@@ -2,6 +2,7 @@
 // written to provide user-facing documentation rather than to specify behavior for
 // implementations.
 
+/** @hidden */
 export {
   CompileResult,
   compile,
@@ -9,7 +10,9 @@ export {
   compileString,
   compileStringAsync,
 } from './compile';
+/** @hidden */
 export {Exception} from './exception';
+/** @hidden */
 export {
   FileImporter,
   FileImporterResult,
@@ -17,6 +20,7 @@ export {
   ImporterResult,
 } from './importer';
 export {Logger, SourceSpan, SourceLocation} from './logger';
+/** @hidden */
 export {
   CustomFunction,
   Options,
@@ -24,7 +28,9 @@ export {
   StringOptions,
   Syntax,
 } from './options';
+/** @hidden */
 export {PromiseOr} from './util/promise_or';
+/** @hidden */
 export {
   ListSeparator,
   SassArgumentList,
