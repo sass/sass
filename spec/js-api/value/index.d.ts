@@ -34,6 +34,8 @@ export const sassNull: Value;
  * > Sass value it represents.
  */
 export abstract class Value implements ValueObject {
+  protected constructor();
+
   /**
    * Returns `this` as an array:
    *
