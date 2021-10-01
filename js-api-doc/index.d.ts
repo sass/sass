@@ -57,7 +57,7 @@ export {
   types,
 } from './legacy/function';
 export {
-  ImporterThis,
+  LegacyImporterThis,
   LegacyAsyncImporter,
   LegacySyncImporter,
   LegacyImporter,
@@ -68,7 +68,7 @@ export {
   LegacyStringOptions,
   LegacyOptions,
 } from './legacy/options';
-export {PluginThis} from './legacy/plugin_this';
+export {LegacyPluginThis} from './legacy/plugin_this';
 export {LegacyResult, render, renderSync} from './legacy/render';
 
 export const info: string;

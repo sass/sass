@@ -1,12 +1,12 @@
-import {PluginThis} from './plugin_this';
+import {LegacyPluginThis} from './plugin_this';
 
 export type LegacySyncFunction = (
-  this: PluginThis,
+  this: LegacyPluginThis,
   ...args: LegacyValue[]
 ) => LegacyValue;
 
 export type LegacyAsyncFunction = (
-  this: PluginThis,
+  this: LegacyPluginThis,
   ...args: [...LegacyValue[], (type: LegacyValue) => void]
 ) => void;
 

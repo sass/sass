@@ -1,17 +1,17 @@
-import {PluginThis} from './plugin_this';
+import {LegacyPluginThis} from './plugin_this';
 
-interface ImporterThis extends PluginThis {
+interface LegacyImporterThis extends LegacyPluginThis {
   fromImport: boolean;
 }
 
 type LegacySyncImporter = (
-  this: ImporterThis,
+  this: LegacyImporterThis,
   url: string,
   prev: string
 ) => {file: string} | {contents: string};
 
 type LegacyAsyncImporter = (
-  this: ImporterThis,
+  this: LegacyImporterThis,
   url: string,
   prev: string,
   done: (data: {file: string} | {contents: string} | Error) => void

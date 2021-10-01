@@ -3,7 +3,7 @@
  * functions. The implementation must invoke importers and custom functions with
  * an appropriate `this`.
  */
-export interface PluginThis {
+export interface LegacyPluginThis {
   options: {
     /** The `file` option passed to the `render()` or `renderSync()` call. */
     file?: string;

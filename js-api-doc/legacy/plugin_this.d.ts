@@ -1,4 +1,4 @@
-export interface PluginThis {
+export interface LegacyPluginThis {
   options: {
     file?: string;
 
