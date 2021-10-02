@@ -7,7 +7,7 @@ import {LegacyFunction} from './function';
  * This is only exported so that it can be modified by proposals for new
  * features. It should not be referred to by user code.
  */
-export interface _Options<sync = 'sync' | 'async'> {
+export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
   includePaths?: string[];
   indentedSyntax?: boolean;
   indentType?: 'space' | 'tab';
@@ -32,13 +32,17 @@ export interface _Options<sync = 'sync' | 'async'> {
   logger?: Logger;
 }
 
-export type LegacyOptions<sync = 'sync' | 'async'> = _Options<sync> &
-  (
-    | {
-        file: string;
-      }
-    | {
-        data: string;
-        file?: string;
-      }
-  );
+export interface LegacyFileOptions<sync extends 'sync' | 'async'>
+  extends LegacySharedOptions<sync> {
+  file: string;
+}
+
+export interface LegacyStringOptions<sync extends 'sync' | 'async'>
+  extends LegacySharedOptions<sync> {
+  data: string;
+  file?: string;
+}
+
+export type LegacyOptions<sync extends 'sync' | 'async'> =
+  | LegacyFileOptions<sync>
+  | LegacySharedOptions<sync>;

@@ -4,19 +4,19 @@ interface ImporterThis extends PluginThis {
   fromImport: boolean;
 }
 
-type _SyncImporter = (
+type LegacySyncImporter = (
   this: ImporterThis,
   url: string,
   prev: string
 ) => {file: string} | {contents: string};
 
-type _AsyncImporter = (
+type LegacyAsyncImporter = (
   this: ImporterThis,
   url: string,
   prev: string,
   done: (data: {file: string} | {contents: string} | Error) => void
 ) => void;
 
-export type LegacyImporter<sync = 'sync' | 'async'> =
-  | _SyncImporter
-  | (sync extends 'async' ? _AsyncImporter : never);
+export type LegacyImporter<sync = 'sync' | 'async'> = sync extends 'async'
+  ? LegacySyncImporter | LegacyAsyncImporter
+  : LegacySyncImporter;

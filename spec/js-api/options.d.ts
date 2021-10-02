@@ -3,6 +3,7 @@ import {URL} from 'url';
 import {FileImporter, Importer} from './importer';
 import {Logger} from './logger';
 import {Value} from './value';
+import {PromiseOr} from './util/promise_or';
 
 /** The types of input syntax that the compiler can parse. */
 export type Syntax = 'scss' | 'indented' | 'css';
@@ -17,17 +18,9 @@ export type Syntax = 'scss' | 'indented' | 'css';
 export type OutputStyle = 'expanded' | 'compressed';
 
 /** A custom function that can be called from Sass stylesheets. */
-export type CustomFunction<sync extends 'sync' | 'async'> = sync extends 'sync'
-  ? (args: Value[]) => Value
-  : (args: Value[]) => Value | Promise<Value>;
-
-/**
- * > This type allows options to refer to tersely refer to everything that
- * > represents an importer.
- */
-type _Importer<sync extends 'sync' | 'async'> =
-  | Importer<sync>
-  | FileImporter<sync>;
+export type CustomFunction<sync extends 'sync' | 'async'> = (
+  args: Value[]
+) => PromiseOr<Value, sync>;
 
 /**
  * All of the options for a Sass compilation that are shared by compiling from a
@@ -64,7 +57,7 @@ export interface Options<sync extends 'sync' | 'async'> {
   functions?: Record<string, CustomFunction<sync>>;
 
   /** The list of of custom importers to use to resolve file loads. */
-  importers?: _Importer<sync>[];
+  importers?: (Importer<sync> | FileImporter<sync>)[];
 
   /** If set, the compiler must use these paths to resolve imports. */
   loadPaths?: string[];
@@ -132,7 +125,7 @@ export type StringOptions<sync extends 'sync' | 'async'> = Options<sync> & {
       }
     | {
         /** The importer to use to resolve relative imports in the entrypoint. */
-        importer: _Importer<sync>;
+        importer: Importer<sync> | FileImporter<sync>;
         /** The canonical URL of the entrypoint. */
         url: URL;
       }

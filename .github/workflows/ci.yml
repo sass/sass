@@ -1,17 +1,63 @@
 name: CI
 
+env: {NODE_VERSION: 14}
+
 on:
   push: {branches: [main, 'feature.*']}
   pull_request:
 
 jobs:
-  unit_tests:
-    name: Unit tests
+  static_analysis:
+    name: Static analysis
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v2
-      with: {node-version: '14'}
+      with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
-    - run: npm test
+    - run: npx gts lint && npx tsc --noEmit
+
+  toc:
+    name: Tables of contents
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2
+      with: {node-version: '${{ env.NODE_VERSION }}'}
+    - run: npm ci
+    - run: npm run toc-check
+
+  link:
+    name: Link referents
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2
+      with: {node-version: '${{ env.NODE_VERSION }}'}
+    - run: npm ci
+    - run: npm run link-check
+
+  js_api_mirroring:
+    name: JS API mirroring
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2
+      with: {node-version: '${{ env.NODE_VERSION }}'}
+    - run: npm ci
+    - run: npm run js-api-doc-check
+
+  typedoc:
+    name: Typedoc build
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2
+      with: {node-version: '${{ env.NODE_VERSION }}'}
+    - run: npm ci
+    - run: npm run typedoc

@@ -1,15 +1,18 @@
 import {PluginThis} from './plugin_this';
 
-type _SyncFunction = (this: PluginThis, ...args: LegacyValue[]) => LegacyValue;
+export type LegacySyncFunction = (
+  this: PluginThis,
+  ...args: LegacyValue[]
+) => LegacyValue;
 
-type _AsyncFunction = (
+export type LegacyAsyncFunction = (
   this: PluginThis,
   ...args: [...LegacyValue[], (type: LegacyValue) => void]
 ) => void;
 
-export type LegacyFunction<sync = 'sync' | 'async'> =
-  | _SyncFunction
-  | (sync extends 'async' ? _AsyncFunction : never);
+export type LegacyFunction<sync extends 'sync' | 'async'> = sync extends 'async'
+  ? LegacySyncFunction | LegacyAsyncFunction
+  : LegacySyncFunction;
 
 export type LegacyValue =
   | types.Null

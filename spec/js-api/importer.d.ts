@@ -1,6 +1,7 @@
 import {URL} from 'url';
 
 import {Syntax} from './options';
+import {PromiseOr} from './util/promise_or';
 
 /**
  * This interface represents an [importer]. When the importer is invoked with a
@@ -12,7 +13,8 @@ import {Syntax} from './options';
  *   and `false` otherwise.
  *
  * - Let `url` be the result of calling `findFileUrl` with `url` and
- *   `fromImport`.
+ *   `fromImport`. If it returns a promise, wait for it to complete and use its
+ *   value instead, or rethrow its error if it rejects.
  *
  * - If `url` is null, return null.
  *
@@ -36,26 +38,13 @@ import {Syntax} from './options';
  *
  * [resolving `url`]: ../spec/modules.md#resolving-a-file-url
  */
-interface SyncFileImporter {
+export interface FileImporter<
+  sync extends 'sync' | 'async' = 'sync' | 'async'
+> {
   findFileUrl(
     url: string,
     options: {fromImport: boolean}
-  ): FileImporterResult | null;
-
-  canonicalize?: never;
-}
-
-/**
- * This interface represents an [importer]. It has the same behavior as
- * `SyncFileImporter`, except that if `findFileUrl` returns a `Promise` it waits
- * for it to complete and uses its value as the return value. If a `Promise`
- * emits an error, it rethrows that error.
- */
-interface AsyncFileImporter {
-  findFileUrl(
-    url: string,
-    options: {fromImport: boolean}
-  ): Promise<FileImporterResult | null> | FileImporterResult | null;
+  ): PromiseOr<FileImporterResult | null, sync>;
 
   canonicalize?: never;
 }
@@ -93,11 +82,14 @@ export interface FileImporterResult {
  *   and `false` otherwise.
  *
  * - Let `url` be the result of calling `canonicalize` with `url` and
- *   `fromImport`.
+ *   `fromImport`. If it returns a promise, wait for it to complete and use its
+ *   value instead, or rethrow its error if it rejects.
  *
  * - If `url` is null, return null.
  *
- * - Let `result` be the result of calling `load` with `url`.
+ * - Let `result` be the result of calling `load` with `url`. If it returns a
+ *   promise, wait for it to complete and use its value instead, or rethrow its
+ *   error if it rejects.
  *
  * - If `result` is null, return null.
  *
@@ -111,27 +103,13 @@ export interface FileImporterResult {
  *
  * [resolving `url`]: ../spec/modules.md#resolving-a-file-url
  */
-interface SyncImporter {
-  canonicalize(url: string, options: {fromImport: boolean}): URL | null;
-  load(canonicalUrl: URL): ImporterResult | null;
-  findFileUrl?: never;
-}
-
-/**
- * This interface represents an [importer]. It has the same behavior as
- * `SyncImporter`, except that if `canonicalize` or `load` return a `Promise` it
- * waits for it to complete and uses its value as the return value. If a
- * `Promise` emits an error, it rethrows that error.
- */
-interface AsyncImporter {
+export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
   canonicalize(
     url: string,
     options: {fromImport: boolean}
-  ): Promise<URL | null> | URL | null;
+  ): PromiseOr<URL | null, sync>;
 
-  load(
-    canonicalUrl: URL
-  ): Promise<ImporterResult | null> | ImporterResult | null;
+  load(canonicalUrl: URL): PromiseOr<ImporterResult | null, sync>;
 
   findFileUrl?: never;
 }
@@ -152,19 +130,3 @@ export interface ImporterResult {
    */
   sourceMapUrl?: URL;
 }
-
-/**
- * > This type is exported so that TypeScript users can explicitly write a class
- * > that `implements FileImporter`.
- */
-export type FileImporter<sync extends 'sync' | 'async'> = sync extends 'async'
-  ? AsyncFileImporter
-  : SyncFileImporter;
-
-/**
- * > This type is exported so that TypeScript users can explicitly write a class
- * > that `implements Importer`.
- */
-export type Importer<sync extends 'sync' | 'async'> = sync extends 'async'
-  ? AsyncImporter
-  : SyncImporter;

@@ -24,6 +24,7 @@ export {
   StringOptions,
   Syntax,
 } from './options';
+export {PromiseOr} from './util/promise_or';
 export {
   ListSeparator,
   SassArgumentList,
@@ -42,9 +43,26 @@ export {
 
 // Legacy APIs
 export {LegacyException} from './legacy/exception';
-export {LegacyFunction, LegacyValue, types} from './legacy/function';
-export {LegacyImporter} from './legacy/importer';
-export {LegacyOptions} from './legacy/options';
+export {
+  LegacyAsyncFunction,
+  LegacySyncFunction,
+  LegacyFunction,
+  LegacyValue,
+  types,
+} from './legacy/function';
+export {
+  ImporterThis,
+  LegacyAsyncImporter,
+  LegacySyncImporter,
+  LegacyImporter,
+} from './legacy/importer';
+export {
+  LegacySharedOptions,
+  LegacyFileOptions,
+  LegacyStringOptions,
+  LegacyOptions,
+} from './legacy/options';
+export {PluginThis} from './legacy/plugin_this';
 export {LegacyResult, render, renderSync} from './legacy/render';
 
 export const info: string;
