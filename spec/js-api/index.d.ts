@@ -79,10 +79,11 @@ export {
   types,
 } from './legacy/function';
 export {
-  LegacyImporterThis,
   LegacyAsyncImporter,
-  LegacySyncImporter,
   LegacyImporter,
+  LegacyImporterResult,
+  LegacyImporterThis,
+  LegacySyncImporter,
 } from './legacy/importer';
 export {
   LegacySharedOptions,

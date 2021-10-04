@@ -15,17 +15,23 @@ interface LegacyImporterThis extends LegacyPluginThis {
   fromImport: boolean;
 }
 
+export type LegacyImporterResult =
+  | {file: string}
+  | {contents: string}
+  | Error
+  | null;
+
 type LegacySyncImporter = (
   this: LegacyImporterThis,
   url: string,
   prev: string
-) => {file: string} | {contents: string};
+) => LegacyImporterResult;
 
 type LegacyAsyncImporter = (
   this: LegacyImporterThis,
   url: string,
   prev: string,
-  done: (data: {file: string} | {contents: string} | Error) => void
+  done: (result: LegacyImporterResult) => void
 ) => void;
 
 export type LegacyImporter<sync = 'sync' | 'async'> = sync extends 'async'

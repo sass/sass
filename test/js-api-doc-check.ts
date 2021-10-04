@@ -17,7 +17,7 @@ const parser: prettier.CustomParser = (text, parsers) => {
 for (const specPath of glob.sync('spec/js-api/**/*.d.ts')) {
   const specFile = prettier.format(fs.readFileSync(specPath, 'utf-8'), {
     filepath: specPath,
-    parser
+    parser,
   });
   const docPath = p.join('js-api-doc', p.relative('spec/js-api', specPath));
 
@@ -31,7 +31,7 @@ for (const specPath of glob.sync('spec/js-api/**/*.d.ts')) {
 
   const docFile = prettier.format(fs.readFileSync(docPath, 'utf-8'), {
     filepath: specPath,
-    parser
+    parser,
   });
   if (specFile === docFile) continue;
 

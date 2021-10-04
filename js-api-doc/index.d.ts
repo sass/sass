@@ -57,10 +57,11 @@ export {
   types,
 } from './legacy/function';
 export {
-  LegacyImporterThis,
   LegacyAsyncImporter,
-  LegacySyncImporter,
   LegacyImporter,
+  LegacyImporterResult,
+  LegacyImporterThis,
+  LegacySyncImporter,
 } from './legacy/importer';
 export {
   LegacySharedOptions,
@@ -71,4 +72,14 @@ export {
 export {LegacyPluginThis} from './legacy/plugin_this';
 export {LegacyResult, render, renderSync} from './legacy/render';
 
+/**
+ * Information about the Sass implementation. This always begins with a unique
+ * identifier for the Sass implementation, followed by U+0009 TAB, followed by
+ * its npm package version. Some implementations include additional information
+ * as well, but not in any standardized format.
+ *
+ * * For Dart Sass, the implementation name is `dart-sass`.
+ * * For Node Sass, the implementation name is `node-sass`.
+ * * For the embedded host, the implementation name is `sass-embedded`.
+ */
 export const info: string;
