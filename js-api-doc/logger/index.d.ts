@@ -13,7 +13,7 @@ export {SourceSpan} from './source_span';
  * const fs = require('fs');
  * const sass = require('sass');
  *
- * const log = "";
+ * let log = "";
  * sass.renderSync({
  *   file: 'input.scss',
  *   logger: {
