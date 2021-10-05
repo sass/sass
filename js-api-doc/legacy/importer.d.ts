@@ -22,10 +22,10 @@ interface LegacyImporterThis extends LegacyPluginThis {
  * The result of running a [[LegacyImporter]]. It must be one of the following
  * types:
  *
- * * An object with the key contents whose value is the contents of a stylesheet
+ * * An object with the key `contents` whose value is the contents of a stylesheet
  *   (in SCSS syntax). This causes Sass to load that stylesheet’s contents.
  *
- * * An object with the key file whose value is a path on disk. This causes Sass
+ * * An object with the key `file` whose value is a path on disk. This causes Sass
  *   to load that file as though it had been imported directly.
  *
  * * `null`, which indicates that it doesn’t recognize the URL and another

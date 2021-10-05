@@ -9,7 +9,7 @@ as a native extension in the [`node-sass` package].
 
 ## Usage
 
-The JavaScript API has two entrypoints for compiling a Sass to CSS. Each one can
+The JavaScript API has two entrypoints for compiling Sass to CSS. Each one can
 compile either a Sass file by passing in [[LegacyFileOptions]] or a string of
 Sass code by passing in a [[LegacyStringOptions]].
 
