@@ -132,7 +132,7 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
   /**
    * The location that Sass expects the generated CSS to be saved to. It’s used
    * to determine the URL used to link from the generated CSS to the source map,
-   * and from the source map to t
+   * and from the source map to the Sass source files.
    *
    * <div class="sl-c-callout sl-c-callout--warning"><h3>⚠ Heads up!</h3>
    *
@@ -358,7 +358,6 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    * rule](https://sass-lang.com/documentation/at-rules/import) is encountered.
    * It can either be a single [[LegacyImporter]] function, or an array of
    * [[LegacyImporter]]s.
-   *
    *
    * Importers take the URL of the `@import` or `@use` rule and return a
    * [[LegacyImporterResult]] indicating how to handle that rule. For more

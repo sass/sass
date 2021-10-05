@@ -239,7 +239,6 @@ export namespace types {
      *
      * // string is `"\1F46D"`.
      * string.getValue(); // "👭"
-     * string.setValue(value) permalink
      * ```
      */
     getValue(): string;

@@ -6,8 +6,7 @@ export interface LegacyException extends Error {
   /**
    * The error message. For Dart Sass, when possible this includes a highlighted
    * indication of where in the source file the error occurred as well as the
-   * Sass stack
-   * trace.
+   * Sass stack trace.
    */
   message: string;
 
