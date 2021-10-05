@@ -552,6 +552,12 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
   verbose?: boolean;
 
   /**
+   * <dl class="impl-status sl-c-description-list sl-c-description-list--horizontal">
+   *   <div class="compatibility">Compatibility:</div>
+   *   <div><dt>Dart&nbsp;Sass</dt> <dd>since&nbsp;<span class="caps">1.43.0</span></dd></div>
+   *   <div><dt>Node&nbsp;Sass</dt> <dd>✗</dd></div>
+   * </dl>
+   *
    * An object to use to handle warnings and/or debug messages from Sass.
    *
    * By default, Sass emits warnings and debug messages to standard error, but
