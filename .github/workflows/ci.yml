@@ -61,3 +61,28 @@ jobs:
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
     - run: npm run typedoc
+
+  # Whenever anything changes in js-api-docs, redeploy the website so it picks
+  # up those changes.
+  heroku:
+    name: Deploy sass-lang.com
+    runs-on: ubuntu-latest
+    needs: [static_analysis, js_api_mirroring, typedoc]
+    if: |
+      github.event_name == 'push' &&
+      github.repository == 'sass/sass' &&
+      github.ref == 'refs/heads/main'
+
+    steps:
+    - uses: actions/checkout@v2
+      with: {fetch-depth: 0}
+
+    - name: Find changed files in js-api-doc
+      id: changed-files
+      uses: tj-actions/changed-files@b86b537e2b78397b630cfb1a8d0aec1e03379737
+      with: {path: js-api-doc}
+
+    - name: Deploy
+      if: steps.changed-files.outputs.any_changed == 'true'
+      run: tool/github-action/deploy-heroku.sh
+      env: {HEROKU_TOKEN: "${{ secrets.HEROKU_TOKEN }}"}
