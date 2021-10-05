@@ -13,7 +13,7 @@ export interface LegacyResult {
    * @example
    *
    * ```js
-   * var result = sass.renderSync({file: "style.scss"});
+   * const result = sass.renderSync({file: "style.scss"});
    *
    * console.log(result.css.toString());
    * ```
@@ -39,7 +39,7 @@ export interface LegacyResult {
    * @example
    *
    * ```js
-   * var result = sass.renderSync({
+   * const result = sass.renderSync({
    *   file: "style.scss",
    *   sourceMap: true,
    *   outFile: "style.css"
@@ -94,9 +94,9 @@ export interface LegacyResult {
  * @example
  *
  * ```js
- * var sass = require('sass'); // or require('node-sass');
+ * const sass = require('sass'); // or require('node-sass');
  *
- * var result = sass.renderSync({file: "style.scss"});
+ * const result = sass.renderSync({file: "style.scss"});
  * // ...
  * ```
  */
@@ -117,7 +117,7 @@ export function renderSync(options: LegacyOptions<'sync'>): LegacyResult;
  * </div>
  *
  * ```js
- * var sass = require('sass'); // or require('node-sass');
+ * const sass = require('sass'); // or require('node-sass');
  *
  * sass.render({
  *   file: "style.scss"

@@ -58,7 +58,7 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    * Whether the generated CSS should use spaces or tabs for indentation.
    *
    * ```js
-   * var result = sass.renderSync({
+   * const result = sass.renderSync({
    *   file: "style.scss",
    *   indentType: "tab",
    *   indentWidth: 1
@@ -113,7 +113,7 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    * If `true`, Sass won't add a link from the generated CSS to the source map.
    *
    * ```js
-   * var result = sass.renderSync({
+   * const result = sass.renderSync({
    *   file: "style.scss",
    *   sourceMap: "out.map",
    *   omitSourceMapUrl: true
@@ -175,7 +175,7 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    * @example
    *
    * ```js
-   * var source = `
+   * const source = `
    * h1 {
    *   font-size: 40px;
    *   code {
@@ -183,7 +183,7 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    *   }
    * }`;
    *
-   * var result = sass.renderSync({
+   * const result = sass.renderSync({
    *   data: source,
    *   outputStyle: "expanded"
    * });
@@ -244,7 +244,7 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    * @example
    *
    * ```js
-   * var result = sass.renderSync({
+   * const result = sass.renderSync({
    *   file: "style.scss",
    *   sourceMap: "out.map"
    * })
@@ -402,8 +402,8 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    *     // render().
    *     function(url, prev, done) {
    *       // Convert `@use "foo/bar"` to "node_modules/foo/sass/bar".
-   *       var components = url.split('/');
-   *       var innerPath = components.slice(1).join('/');
+   *       const components = url.split('/');
+   *       const innerPath = components.slice(1).join('/');
    *       done({
    *         file: `node_modules/${components.first}/sass/${innerPath}`
    *       });

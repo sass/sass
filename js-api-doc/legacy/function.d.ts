@@ -46,7 +46,7 @@ export type LegacySyncFunction = (
  * that error message.
  *
  * ```js
- * const result = sass.renderSync({
+ * sass.render({
  *   file: 'style.scss',
  *   functions: {
  *     "sum($arg1, $arg2)": (arg1, arg2, done) => {
@@ -58,6 +58,8 @@ export type LegacySyncFunction = (
  *       done(new sass.types.Number(arg1.getValue() + arg2.getValue()));
  *     }
  *   }
+ * }, (result, error) => {
+ *   // ...
  * });
  * ```
  *
@@ -150,8 +152,8 @@ export namespace types {
      * @example
      *
      * ```js
-     * var number = new sass.types.Number(10, "px");
-     * console.log(number.getValue()); // 10
+     * const number = new sass.types.Number(10, "px");
+     * number.getValue(); // 10
      * ```
      */
     getValue(): number;
@@ -172,10 +174,10 @@ export namespace types {
      *
      * ```js
      * // number is `10px`.
-     * console.log(number.getUnit()); // "px"
+     * number.getUnit(); // "px"
      *
      * // number is `math.div(10px, 1s)`.
-     * console.log(number.getUnit()); // "px/s"
+     * number.getUnit(); // "px/s"
      * ```
      */
     getUnit(): string;
@@ -448,7 +450,7 @@ export namespace types {
      * @example
      *
      * ```js
-     * var list = new sass.types.List(3);
+     * const list = new sass.types.List(3);
      * list.setValue(0, new sass.types.Number(10, "px"));
      * list.setValue(1, new sass.types.Number(15, "px"));
      * list.setValue(2, new sass.types.Number(32, "px"));
@@ -563,7 +565,7 @@ export namespace types {
      * @example
      *
      * ```js
-     * var map = new sass.types.Map(2);
+     * const map = new sass.types.Map(2);
      * map.setKey(0, new sass.types.String("width"));
      * map.setValue(0, new sass.types.Number(300, "px"));
      * map.setKey(1, new sass.types.String("height"));

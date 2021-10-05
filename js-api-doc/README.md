@@ -18,9 +18,9 @@ Sass code by passing in a [[LegacyStringOptions]].
   LegacyImporter | importer} and {@link LegacyFunction | function} plugins.
   
   ```js
-  var sass = require('sass'); // or require('node-sass');
+  const sass = require('sass'); // or require('node-sass');
 
-  var result = sass.renderSync({file: "style.scss"});
+  const result = sass.renderSync({file: "style.scss"});
   console.log(result.css.toString());
   ```
 
@@ -29,7 +29,7 @@ Sass code by passing in a [[LegacyStringOptions]].
   LegacyImporter | importer} and {@link LegacyFunction | function} plugins.
 
   ```js
-  var sass = require('sass'); // or require('node-sass');
+  const sass = require('sass'); // or require('node-sass');
 
   sass.render({
     file: "style.scss"
