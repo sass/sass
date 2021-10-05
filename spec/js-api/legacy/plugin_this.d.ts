@@ -3,7 +3,7 @@
  * functions. The implementation must invoke importers and custom functions with
  * an appropriate `this`.
  */
-export interface PluginThis {
+export interface LegacyPluginThis {
   options: {
     /** The `file` option passed to the `render()` or `renderSync()` call. */
     file?: string;
@@ -24,7 +24,7 @@ export interface PluginThis {
      * An integer. The specific semantics of this are left up to the
      * implementation. (The reference implementation always returns 1.)
      */
-    style: number;
+    style: 1;
 
     /**
      * The number 1 if the `indentType` option was `tab`. The number 0

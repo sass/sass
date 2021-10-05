@@ -1,10 +1,10 @@
-import {PluginThis} from './plugin_this';
+import {LegacyPluginThis} from './plugin_this';
 
 /**
  * The interface for the `this` keyword for custom importers. The implementation
  * must invoke importers with an appropriate `this`.
  */
-interface ImporterThis extends PluginThis {
+interface LegacyImporterThis extends LegacyPluginThis {
   /**
    * `true` if this importer invocation was caused by an `@import` statement and
    * `false` otherwise.
@@ -15,17 +15,23 @@ interface ImporterThis extends PluginThis {
   fromImport: boolean;
 }
 
+export type LegacyImporterResult =
+  | {file: string}
+  | {contents: string}
+  | Error
+  | null;
+
 type LegacySyncImporter = (
-  this: ImporterThis,
+  this: LegacyImporterThis,
   url: string,
   prev: string
-) => {file: string} | {contents: string};
+) => LegacyImporterResult;
 
 type LegacyAsyncImporter = (
-  this: ImporterThis,
+  this: LegacyImporterThis,
   url: string,
   prev: string,
-  done: (data: {file: string} | {contents: string} | Error) => void
+  done: (result: LegacyImporterResult) => void
 ) => void;
 
 export type LegacyImporter<sync = 'sync' | 'async'> = sync extends 'async'

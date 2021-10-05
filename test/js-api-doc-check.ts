@@ -4,11 +4,20 @@ import * as fs from 'fs';
 import * as glob from 'glob';
 import * as p from 'path';
 import * as prettier from 'prettier';
-import strip = require('strip-comments');
+
+/**
+ * A wrapper around the built-in TypeScript parser that removes all comments.
+ */
+const parser: prettier.CustomParser = (text, parsers) => {
+  const ast = parsers['typescript'](text);
+  delete ast.comments;
+  return ast;
+};
 
 for (const specPath of glob.sync('spec/js-api/**/*.d.ts')) {
-  const specFile = prettier.format(strip(fs.readFileSync(specPath, 'utf-8')), {
+  const specFile = prettier.format(fs.readFileSync(specPath, 'utf-8'), {
     filepath: specPath,
+    parser,
   });
   const docPath = p.join('js-api-doc', p.relative('spec/js-api', specPath));
 
@@ -20,8 +29,9 @@ for (const specPath of glob.sync('spec/js-api/**/*.d.ts')) {
     continue;
   }
 
-  const docFile = prettier.format(strip(fs.readFileSync(docPath, 'utf-8')), {
+  const docFile = prettier.format(fs.readFileSync(docPath, 'utf-8'), {
     filepath: specPath,
+    parser,
   });
   if (specFile === docFile) continue;
 

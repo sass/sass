@@ -8,7 +8,7 @@ import * as path from 'path';
 import {fileURLToPath, pathToFileURL, URL} from 'url';
 
 const files = glob.sync('**/*.md', {
-  ignore: ['node_modules/**/*.md'],
+  ignore: ['node_modules/**/*.md', 'js-api-doc/**/*.md'],
 });
 
 const tocCache = new Map<string, string>();

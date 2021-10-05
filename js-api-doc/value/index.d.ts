@@ -20,6 +20,8 @@ export {SassString} from './string';
 export const sassNull: Value;
 
 export abstract class Value implements ValueObject {
+  protected constructor();
+
   get asList(): List<Value>;
 
   get hasBrackets(): boolean;
