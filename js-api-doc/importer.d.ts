@@ -32,7 +32,7 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
 }
 
 export interface ImporterResult {
-  css: string;
+  contents: string;
 
   syntax: Syntax;
 

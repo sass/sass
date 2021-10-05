@@ -99,7 +99,7 @@ export interface FileImporterResult {
  *
  * - Otherwise, throw an error.
  *
- * - Return `result.css`, `syntax`, and `url`.
+ * - Return `result.contents`, `syntax`, and `url`.
  *
  * [resolving `url`]: ../spec/modules.md#resolving-a-file-url
  */
@@ -116,7 +116,7 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
 
 export interface ImporterResult {
   /** The contents of stylesheet loaded by an importer. */
-  css: string;
+  contents: string;
 
   /** The syntax to use to parse `css`. */
   syntax: Syntax;
