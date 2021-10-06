@@ -9,16 +9,22 @@ import {PromiseOr} from './util/promise_or';
  *
  * [importer]: ../spec/modules.md#importer
  *
- * - Let `fromImport` be `true` if the importer is being run for an `@import`
- *   and `false` otherwise.
+ * - If `string` is an absolute URL whose scheme is `file`:
  *
- * - Let `url` be the result of calling `findFileUrl` with `url` and
- *   `fromImport`. If it returns a promise, wait for it to complete and use its
- *   value instead, or rethrow its error if it rejects.
+ *   - Let `url` be string.
  *
- * - If `url` is null, return null.
+ * - Otherwise:
  *
- * - If `url`'s scheme is not `file`, throw an error.
+ *   - Let `fromImport` be `true` if the importer is being run for an `@import`
+ *     and `false` otherwise.
+ *
+ *   - Let `url` be the result of calling `findFileUrl` with `string` and
+ *     `fromImport`. If it returns a promise, wait for it to complete and use
+ *     its value instead, or rethrow its error if it rejects.
+ *
+ *   - If `url` is null, return null.
+ *
+ *   - If `url`'s scheme is not `file`, throw an error.
  *
  * - Let `resolved` be the result of [resolving `url`].
  *
