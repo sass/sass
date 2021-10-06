@@ -80,7 +80,7 @@ jobs:
     - name: Find changed files in js-api-doc
       id: changed-files
       uses: tj-actions/changed-files@b86b537e2b78397b630cfb1a8d0aec1e03379737
-      with: {path: js-api-doc}
+      with: {files: js-api-doc}
 
     - name: Deploy
       if: steps.changed-files.outputs.any_changed == 'true'
