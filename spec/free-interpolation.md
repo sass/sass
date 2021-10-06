@@ -7,7 +7,7 @@ interpolation is parsed as though it were an alphabetic character in an
 identifier. This means that:
 
 * It can be used within an identifier, as in `a#{b}c`, and is considered part of
-  that identifier. The contents of the interoplation is evaluated at runtime and
+  that identifier. The contents of the interpolation is evaluated at runtime and
   concatenated with the rest of the identifier to produce an unquoted string.
 
 * It can be used on its own, as in `#{b}`. This is a single expression that
