@@ -17,3 +17,7 @@ identifier. This means that:
   that hyphen is considered part of the identifier. This means that `$var -#{b}`
   is parsed as a space-separated list containing `$var` and `-#{b}` rather than
   as the operation `$var - #{b}`.
+
+* Because numbers are not an identifier start characters and the interpolation
+  is parsed as an alphabetic character, `0#{$b}` is parsed as a space-separated
+  list containing `0` and `#{$b}`
