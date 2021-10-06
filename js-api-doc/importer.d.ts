@@ -9,15 +9,9 @@ export interface FileImporter<
   findFileUrl(
     url: string,
     options: {fromImport: boolean}
-  ): PromiseOr<FileImporterResult | null, sync>;
+  ): PromiseOr<URL | null, sync>;
 
   canonicalize?: never;
-}
-
-export interface FileImporterResult {
-  url: URL;
-
-  sourceMapUrl?: URL;
 }
 
 export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {

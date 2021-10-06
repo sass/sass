@@ -13,12 +13,7 @@ export {
 /** @hidden */
 export {Exception} from './exception';
 /** @hidden */
-export {
-  FileImporter,
-  FileImporterResult,
-  Importer,
-  ImporterResult,
-} from './importer';
+export {FileImporter, Importer, ImporterResult} from './importer';
 export {Logger, SourceSpan, SourceLocation} from './logger';
 /** @hidden */
 export {
