@@ -134,12 +134,8 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    * to determine the URL used to link from the generated CSS to the source map,
    * and from the source map to the Sass source files.
    *
-   * <div class="sl-c-callout sl-c-callout--warning"><h3>⚠ Heads up!</h3>
-   *
-   * Despite the name, Sass does *not* write the CSS output to this file. The
-   * caller must do that themselves.
-   *
-   * </div>
+   * **Heads up!** Despite the name, Sass does *not* write the CSS output to
+   * this file. The caller must do that themselves.
    *
    * ```js
    * result = sass.renderSync({
@@ -427,13 +423,9 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    * types](https://sass-lang.com/documentation/js-api#value-types), and must
    * return the same.
    *
-   * <div class="sl-c-callout sl-c-callout--warning"><h3>⚠ Heads up!</h3>
-   *
-   * When writing custom functions, it’s important to ensure that all the
-   * arguments are the types you expect. Otherwise, users’ stylesheets could
-   * crash in hard-to-debug ways or, worse, compile to meaningless CSS.
-   *
-   * </div>
+   * **Heads up!** When writing custom functions, it’s important to ensure that
+   * all the arguments are the types you expect. Otherwise, users’ stylesheets
+   * could crash in hard-to-debug ways or, worse, compile to meaningless CSS.
    *
    * @example
    *
@@ -519,15 +511,11 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    * your own. However, please <em>also</em> notify your dependencies of the deprecations
    * so that they can get fixed as soon as possible!
    *
-   * <div class="sl-c-callout sl-c-callout--warning"><h3>⚠ Heads up!</h3>
-   *
-   * If [[render]] or [[renderSync]] is called without
+   * **Heads up!** If [[render]] or [[renderSync]] is called without
    * [[LegacyFileOptions.file]] or [[LegacyStringOptions.file]], <em>all</em>
    * stylesheets it loads will be considered dependencies. Since it doesn’t have
    * a path of its own, everything it loads is coming from a load path rather
    * than a relative import.
-   *
-   * </div>
    *
    * @defaultValue `false`
    * @category Messages

@@ -142,12 +142,8 @@ export namespace types {
     /**
      * Returns the value of the number, ignoring units.
      *
-     * <div class="sl-c-callout sl-c-callout--warning"><h3>⚠ Heads up!</h3>
-     *
-     * This means that `96px` and `1in` will return different values, even
-     * though they represent the same length.
-     *
-     * </div>
+     * **Heads up!** This means that `96px` and `1in` will return different
+     * values, even though they represent the same length.
      *
      * @example
      *
@@ -195,26 +191,18 @@ export namespace types {
   /**
    * Sass's [string type](https://sass-lang.com/documentation/values/strings).
    *
-   * <div class="sl-c-callout sl-c-callout--warning"><h3>⚠ Heads up!</h3>
-   *
-   * This API currently provides no way of distinguishing between a
-   * [quoted](https://sass-lang.com/documentation/values/strings#quoted) and
+   * **Heads up!** This API currently provides no way of distinguishing between
+   * a [quoted](https://sass-lang.com/documentation/values/strings#quoted) and
    * [unquoted](https://sass-lang.com/documentation/values/strings#unquoted)
    * string.
-   *
-   * </div>
    */
   export class String {
     /**
      * Creates an unquoted string with the given contents.
      *
-     * <div class="sl-c-callout sl-c-callout--warning"><h3>⚠ Heads up!</h3>
-     *
-     * This API currently provides no way of creating a
+     * **Heads up!** This API currently provides no way of creating a
      * [quoted](https://sass-lang.com/documentation/values/strings#quoted)
      * string.
-     *
-     * </div>
      */
     constructor(value: string);
 
@@ -247,12 +235,8 @@ export namespace types {
      * Destructively modifies this string by setting its numeric value to
      * `value`.
      *
-     * <div class="sl-c-callout sl-c-callout--warning"><h3>⚠ Heads up!</h3>
-     *
-     * Even if the string was originally quoted, this will cause it to become
-     * unquoted.
-     *
-     * </div>
+     * **Heads up!** Even if the string was originally quoted, this will cause
+     * it to become unquoted.
      *
      * @deprecated Use [[constructor]] instead.
      */
@@ -266,12 +250,8 @@ export namespace types {
    * [truthiness](https://sass-lang.com/documentation/at-rules/control/if#truthiness-and-falsiness)
    * by treating `false` and `null` as falsey and everything else as truthy.
    *
-   * <div class="sl-c-callout sl-c-callout--warning"><h3>⚠ Heads up!</h3>
-   *
-   * Boolean values can't be constructed, they can only be accessed through the
-   * [[TRUE]] and [[FALSE]] constants.
-   *
-   * </div>
+   * **Heads up!** Boolean values can't be constructed, they can only be
+   * accessed through the [[TRUE]] and [[FALSE]] constants.
    */
   export class Boolean<T extends boolean = boolean> {
     /**
@@ -426,25 +406,17 @@ export namespace types {
   /**
    * Sass's [list type](https://sass-lang.com/documentation/values/lists).
    *
-   * <div class="sl-c-callout sl-c-callout--warning"><h3>⚠ Heads up!</h3>
-   *
-   * This list type’s methods use 0-based indexing, even though within Sass
-   * lists use 1-based indexing. These methods also don’t support using negative
-   * numbers to index backwards from the end of the list.
-   *
-   * </div>
+   * **Heads up!** This list type’s methods use 0-based indexing, even though
+   * within Sass lists use 1-based indexing. These methods also don’t support
+   * using negative numbers to index backwards from the end of the list.
    */
   export class List {
     /**
      * Creates a new Sass list.
      *
-     * <div class="sl-c-callout sl-c-callout--warning"><h3>⚠ Heads up!</h3>
-     *
-     * The initial values of the list elements are undefined. These elements
-     * must be set using [[setValue]] before accessing them or passing the list
-     * back to Sass.
-     *
-     * </div>
+     * **Heads up!** The initial values of the list elements are undefined.
+     * These elements must be set using [[setValue]] before accessing them or
+     * passing the list back to Sass.
      *
      * @example
      *
@@ -538,28 +510,19 @@ export namespace types {
   /**
    * Sass's [map type](https://sass-lang.com/documentation/values/maps).
    *
-   * <div class="sl-c-callout sl-c-callout--warning"><h3>⚠ Heads up!</h3>
-   *
-   * This map type is represented as a list of key-value pairs rather than a
-   * mapping from keys to values. The only way to find the value associated with
-   * a given key is to iterate through the map checking for that key.
-   *
-   * Maps created through this API are still forbidden from having duplicate
+   * **Heads up!** This map type is represented as a list of key-value pairs
+   * rather than a mapping from keys to values. The only way to find the value
+   * associated with a given key is to iterate through the map checking for that
+   * key. Maps created through this API are still forbidden from having duplicate
    * keys.
-   *
-   * </div>
    */
   export class Map {
     /**
      * Creates a new Sass map.
      *
-     * <div class="sl-c-callout sl-c-callout--warning"><h3>⚠ Heads up!</h3>
-     *
-     * The initial keys and values of the map are undefined. They must be set
-     * using [[setKey]] and [[setValue]] before accessing them or passing the
-     * map back to Sass.
-     *
-     * </div>
+     * **Heads up!** The initial keys and values of the map are undefined. They
+     * must be set using [[setKey]] and [[setValue]] before accessing them or
+     * passing the map back to Sass.
      *
      * @example
      *
