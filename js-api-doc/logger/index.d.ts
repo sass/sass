@@ -68,13 +68,9 @@ export interface Logger {
 }
 
 /**
- * <dl class="impl-status sl-c-description-list sl-c-description-list--horizontal">
- *   <div class="compatibility">Compatibility:</div>
- *   <div><dt>Dart&nbsp;Sass</dt> <dd>since&nbsp;<span class="caps">1.43.0</span></dd></div>
- *   <div><dt>Node&nbsp;Sass</dt> <dd>✗</dd></div>
- * </dl>
- *
  * A namespace for built-in [[Logger]]s.
+ *
+ * @compatibility dart: "1.43.0", node: false
  */
 export namespace Logger {
   /** A [[Logger]] that silently ignores all warnings and debug messages. */
