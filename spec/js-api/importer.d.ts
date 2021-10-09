@@ -50,32 +50,9 @@ export interface FileImporter<
   findFileUrl(
     url: string,
     options: {fromImport: boolean}
-  ): PromiseOr<FileImporterResult | null, sync>;
+  ): PromiseOr<URL | null, sync>;
 
   canonicalize?: never;
-}
-
-export interface FileImporterResult {
-  /**
-   * The partially-resolved `file:` URL of a file on disk.
-   *
-   * > Because this is [resolved] after being returned, it doesn't need to be a
-   * > full canonical URL. Users' `FileImporter`s may simply append the relative
-   * > URL to a path and let the compiler resolve extensions, partials, and
-   * > index files.
-   *
-   * [resolved]: ../spec/modules.md#resolving-a-file-url
-   */
-  url: URL;
-
-  /**
-   * A browser-accessible URL indicating the resolved location of the imported
-   * stylesheet.
-   *
-   * The implementation must use this URL in source maps to refer to source
-   * spans in `css`.
-   */
-  sourceMapUrl?: URL;
 }
 
 /**
