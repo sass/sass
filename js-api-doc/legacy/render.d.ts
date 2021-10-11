@@ -108,13 +108,9 @@ export function renderSync(options: LegacyOptions<'sync'>): LegacyResult;
  * `callback` with a [[LegacyResult]] if compilation succeeds or
  * [[LegacyException]] if it fails.
  *
- * <div class="sl-c-callout sl-c-callout--warning"><h3>⚠ Heads up!</h3>
- *
- * When using Dart Sass, **[[renderSync]] is almost twice as fast as
- * [[render]]** by default, due to the overhead of making the entire evaluation
- * process asynchronous.
- *
- * </div>
+ * **Heads up!** When using Dart Sass, **[[renderSync]] is almost twice as fast
+ * as [[render]]** by default, due to the overhead of making the entire
+ * evaluation process asynchronous.
  *
  * ```js
  * const sass = require('sass'); // or require('node-sass');

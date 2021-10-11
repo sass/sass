@@ -12,17 +12,6 @@ import {LegacyFunction} from './function';
  */
 export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
   /**
-   * <dl class="impl-status sl-c-description-list sl-c-description-list--horizontal">
-   *   <div class="compatibility">Compatibility (<code>SASS_PATH</code>):</div>
-   *   <div><dt>Dart&nbsp;Sass</dt> <dd>since&nbsp;<span class="caps">1.15.0</span></dd></div>
-   *   <div><dt>Node&nbsp;Sass</dt> <dd>since&nbsp;<span class="caps">3.9.0</span></dd></div>
-   *   <div><a>▶</a></div>
-   * </dl>
-   * <div class="sl-c-callout sl-c-callout--impl-status">
-   *   Earlier versions of Dart Sass and Node Sass didn’t support the
-   *   <code>SASS_PATH</code> environment variable.
-   * </div>
-   *
    * This array of strings option provides [load
    * paths](https://sass-lang.com/documentation/at-rules/import#load-paths) for
    * Sass to look for stylesheets. Earlier load paths will take precedence over
@@ -45,16 +34,14 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    * ```
    *
    * @category Input
+   * @compatibility feature: "SASS_PATH", dart: "1.15.0", node: "3.9.0"
+   *
+   * Earlier versions of Dart Sass and Node Sass didn’t support the `SASS_PATH`
+   * environment variable.
    */
   includePaths?: string[];
 
   /**
-   * <dl class="impl-status sl-c-description-list sl-c-description-list--horizontal">
-   *   <div class="compatibility">Compatibility:</div>
-   *   <div><dt>Dart&nbsp;Sass</dt> <dd>✓</dd></div>
-   *   <div><dt>Node&nbsp;Sass</dt> <dd>since&nbsp;<span class="caps">3.0.0</span></dd></div>
-   * </dl>
-   *
    * Whether the generated CSS should use spaces or tabs for indentation.
    *
    * ```js
@@ -70,32 +57,22 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    *
    * @defaultValue `'space'`
    * @category Output
+   * @compatibility dart: true, node: "3.0.0"
    */
   indentType?: 'space' | 'tab';
 
   /**
-   * <dl class="impl-status sl-c-description-list sl-c-description-list--horizontal">
-   *   <div class="compatibility">Compatibility:</div>
-   *   <div><dt>Dart&nbsp;Sass</dt> <dd>✓</dd></div>
-   *   <div><dt>Node&nbsp;Sass</dt> <dd>since&nbsp;<span class="caps">3.0.0</span></dd></div>
-   * </dl>
-   *
    * How many spaces or tabs (depending on [[indentType]]) should be used per
    * indentation level in the generated CSS. It must be between 0 and 10
    * (inclusive).
    *
    * @defaultValue `2`
    * @category Output
+   * @compatibility dart: true, node: "3.0.0"
    */
   indentWidth?: number;
 
   /**
-   * <dl class="impl-status sl-c-description-list sl-c-description-list--horizontal">
-   *   <div class="compatibility">Compatibility:</div>
-   *   <div><dt>Dart&nbsp;Sass</dt> <dd>✓</dd></div>
-   *   <div><dt>Node&nbsp;Sass</dt> <dd>since&nbsp;<span class="caps">3.0.0</span></dd></div>
-   * </dl>
-   *
    * Which character sequence to use at the end of each line in the generated
    * CSS. It can have the following values:
    *
@@ -106,6 +83,7 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    *
    * @defaultValue `'lf'`
    * @category Output
+   * @compatibility dart: true, node: "3.0.0"
    */
   linefeed?: 'cr' | 'crlf' | 'lf' | 'lfcr';
 
@@ -134,12 +112,8 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    * to determine the URL used to link from the generated CSS to the source map,
    * and from the source map to the Sass source files.
    *
-   * <div class="sl-c-callout sl-c-callout--warning"><h3>⚠ Heads up!</h3>
-   *
-   * Despite the name, Sass does *not* write the CSS output to this file. The
-   * caller must do that themselves.
-   *
-   * </div>
+   * **Heads up!** Despite the name, Sass does *not* write the CSS output to
+   * this file. The caller must do that themselves.
    *
    * ```js
    * result = sass.renderSync({
@@ -320,39 +294,6 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
   sourceMapRoot?: string;
 
   /**
-   * <dl class="impl-status sl-c-description-list sl-c-description-list--horizontal">
-   *   <div class="compatibility">Compatibility:</div>
-   *   <div><dt>Dart&nbsp;Sass</dt> <dd>✓</dd></div>
-   *   <div><dt>Node&nbsp;Sass</dt> <dd>since&nbsp;<span class="caps">3.0.0</span></dd></div>
-   *   <div><a>▶</a></div>
-   * </dl>
-   * <div class="sl-c-callout sl-c-callout--impl-status">
-   *   <p>Versions of Node Sass before 3.0.0 don’t support arrays of importers,
-   *   nor do they support importers that return <code>Error</code> objects.
-   *   <p>Versions of Node Sass before 2.0.0 don’t support the
-   *   <code>importer</code> option at all.
-   * </div>
-   * <dl class="impl-status sl-c-description-list sl-c-description-list--horizontal">
-   *   <div class="compatibility">Compatibility (Import order):</div>
-   *   <div><dt>Dart&nbsp;Sass</dt> <dd>since&nbsp;<span class="caps">1.20.2</span></dd></div>
-   *   <div><dt>Node&nbsp;Sass</dt> <dd>since&nbsp;<span class="caps">✗</span></dd></div>
-   *   <div><a>▶</a></div>
-   * </dl>
-   * <div class="sl-c-callout sl-c-callout--impl-status">
-   *   <p>Versions of Dart Sass before 1.20.2 preferred resolving imports using
-   *   load paths (<a href="https://sass-lang.com/documentation/js-api#includepaths">includePaths</a>)
-   *   before resolving them using custom importers.
-   *   <p>All versions of Node Sass currently pass imports to importers before
-   *   loading them relative to the file in which the <code>@import</code>
-   *   appears. This behavior is considered incorrect and should not be relied
-   *   on because it violates the principle of <em>locality</em>, which says
-   *   that it should be possible to reason about a stylesheet without knowing
-   *   everything about how the entire system is set up. If a user tries to
-   *   import a stylesheet relative to another stylesheet, that import should
-   *   <em>always</em> work. It shouldn’t be possible for some configuration
-   *   somewhere else to break it.
-   * </div>
-   *
    * Additional handler(s) for loading files when a [`@use`
    * rule](https://sass-lang.com/documentation/at-rules/use) or an [`@import`
    * rule](https://sass-lang.com/documentation/at-rules/import) is encountered.
@@ -414,6 +355,27 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    * ```
    *
    * @category Plugins
+   * @compatibility dart: true, node: "3.0.0"
+   *
+   * Versions of Node Sass before 3.0.0 don’t support arrays of importers, nor
+   * do they support importers that return `Error` objects.
+   *
+   * Versions of Node Sass before 2.0.0 don’t support the `importer` option at
+   * all.
+   *
+   * @compatibility feature: "Import order", dart: "1.20.2", node: false
+   *
+   * Versions of Dart Sass before 1.20.2 preferred resolving imports using
+   * [[includePaths]] before resolving them using custom importers.
+   *
+   * All versions of Node Sass currently pass imports to importers before
+   * loading them relative to the file in which the `@import` appears. This
+   * behavior is considered incorrect and should not be relied on because it
+   * violates the principle of *locality*, which says that it should be possible
+   * to reason about a stylesheet without knowing everything about how the
+   * entire system is set up. If a user tries to import a stylesheet relative to
+   * another stylesheet, that import should *always* work. It shouldn’t be
+   * possible for some configuration somewhere else to break it.
    */
   importer?: LegacyImporter<sync> | LegacyImporter<sync>[];
 
@@ -427,13 +389,9 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    * types](https://sass-lang.com/documentation/js-api#value-types), and must
    * return the same.
    *
-   * <div class="sl-c-callout sl-c-callout--warning"><h3>⚠ Heads up!</h3>
-   *
-   * When writing custom functions, it’s important to ensure that all the
-   * arguments are the types you expect. Otherwise, users’ stylesheets could
-   * crash in hard-to-debug ways or, worse, compile to meaningless CSS.
-   *
-   * </div>
+   * **Heads up!** When writing custom functions, it’s important to ensure that
+   * all the arguments are the types you expect. Otherwise, users’ stylesheets
+   * could crash in hard-to-debug ways or, worse, compile to meaningless CSS.
    *
    * @example
    *
@@ -488,28 +446,17 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
   functions?: {[key: string]: LegacyFunction<sync>};
 
   /**
-   * <dl class="impl-status sl-c-description-list sl-c-description-list--horizontal">
-   *   <div class="compatibility">Compatibility:</div>
-   *   <div><dt>Dart&nbsp;Sass</dt> <dd>since&nbsp;<span class="caps">1.39.0</span></dd></div>
-   *   <div><dt>Node&nbsp;Sass</dt> <dd>✗</div>
-   * </dl>
-   *
    * By default, if the CSS document contains non-ASCII characters, Sass adds a
    * `@charset` declaration (in expanded output mode) or a byte-order mark (in
    * compressed mode) to indicate its encoding to browsers or other consumers.
    * If `charset` is `false`, these annotations are omitted.
    *
    * @category Output
+   * @compatibility dart: "1.39.0", node: false
    */
   charset?: boolean;
 
   /**
-   * <dl class="impl-status sl-c-description-list sl-c-description-list--horizontal">
-   *   <div class="compatibility">Compatibility:</div>
-   *   <div><dt>Dart&nbsp;Sass</dt> <dd>since&nbsp;<span class="caps">1.35.0</span></dd></div>
-   *   <div><dt>Node&nbsp;Sass</dt> <dd>✗</div>
-   * </dl>
-   *
    * If this option is set to `true`, Sass won’t print warnings that are caused
    * by dependencies. A “dependency” is defined as any file that’s loaded
    * through [[loadPaths]] or [[importer]]. Stylesheets that are imported
@@ -519,28 +466,19 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    * your own. However, please <em>also</em> notify your dependencies of the deprecations
    * so that they can get fixed as soon as possible!
    *
-   * <div class="sl-c-callout sl-c-callout--warning"><h3>⚠ Heads up!</h3>
-   *
-   * If [[render]] or [[renderSync]] is called without
+   * **Heads up!** If [[render]] or [[renderSync]] is called without
    * [[LegacyFileOptions.file]] or [[LegacyStringOptions.file]], <em>all</em>
    * stylesheets it loads will be considered dependencies. Since it doesn’t have
    * a path of its own, everything it loads is coming from a load path rather
    * than a relative import.
    *
-   * </div>
-   *
    * @defaultValue `false`
    * @category Messages
+   * @compatibility dart: "1.35.0", node: false
    */
   quietDeps?: boolean;
 
   /**
-   * <dl class="impl-status sl-c-description-list sl-c-description-list--horizontal">
-   *   <div class="compatibility">Compatibility:</div>
-   *   <div><dt>Dart&nbsp;Sass</dt> <dd>since&nbsp;<span class="caps">1.35.0</span></dd></div>
-   *   <div><dt>Node&nbsp;Sass</dt> <dd>✗</div>
-   * </dl>
-   *
    * By default, Dart Sass will print only five instances of the same
    * deprecation warning per compilation to avoid deluging users in console
    * noise. If you set `verbose` to `true`, it will instead print every
@@ -548,16 +486,11 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    *
    * @defaultValue `false`
    * @category Messages
+   * @compatibility dart: "1.35.0", node: false
    */
   verbose?: boolean;
 
   /**
-   * <dl class="impl-status sl-c-description-list sl-c-description-list--horizontal">
-   *   <div class="compatibility">Compatibility:</div>
-   *   <div><dt>Dart&nbsp;Sass</dt> <dd>since&nbsp;<span class="caps">1.43.0</span></dd></div>
-   *   <div><dt>Node&nbsp;Sass</dt> <dd>✗</dd></div>
-   * </dl>
-   *
    * An object to use to handle warnings and/or debug messages from Sass.
    *
    * By default, Sass emits warnings and debug messages to standard error, but
@@ -568,6 +501,7 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    * messages.
    *
    * @category Messages
+   * @compatibility dart: "1.43.0", node: false
    */
   logger?: Logger;
 }
@@ -583,22 +517,6 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
 export interface LegacyFileOptions<sync extends 'sync' | 'async'>
   extends LegacySharedOptions<sync> {
   /**
-   * <dl class="impl-status sl-c-description-list sl-c-description-list--horizontal">
-   *   <div class="compatibility">Compatibility (Plain CSS files):</div>
-   *   <div><dt>Dart&nbsp;Sass</dt> <dd>since&nbsp;<span class="caps">1.11.0</span></dd></div>
-   *   <div><dt>Node&nbsp;Sass</dt> <dd>partial</dd></div>
-   *   <div><a>▶</a></div>
-   * </dl>
-   * <div class="sl-c-callout sl-c-callout--impl-status">
-   *   <p>Node Sass and older versions of Dart Sass support loading files with
-   *   the extension <code>.css</code>, but contrary to the specification
-   *   they’re treated as SCSS files rather than being parsed as CSS. This
-   *   behavior has been deprecated and should not be relied on. Any files that
-   *   use Sass features should use the <code>.scss</code> extension.
-   *   <p>All versions of Node Sass and Dart Sass otherwise support the file
-   *   option as described below.
-   * </div>
-   *
    * The path to the file for Sass to load and compile. If the file’s extension
    * is `.scss`, it will be parsed as SCSS; if it’s `.sass`, it will be parsed
    * as the indented syntax; and if it’s `.css`, it will be parsed as plain CSS.
@@ -611,6 +529,16 @@ export interface LegacyFileOptions<sync extends 'sync' | 'async'>
    * ```
    *
    * @category Input
+   * @compatibility feature: "Plain CSS files", dart: "1.11.0", node: "partial"
+   *
+   * Node Sass and older versions of Dart Sass support loading files with the
+   * extension `.css`, but contrary to the specification they’re treated as SCSS
+   * files rather than being parsed as CSS. This behavior has been deprecated
+   * and should not be relied on. Any files that use Sass features should use
+   * the `.scss` extension.
+   *
+   * All versions of Node Sass and Dart Sass otherwise support the file option
+   * as described below.
    */
   file: string;
 

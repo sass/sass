@@ -3,17 +3,13 @@ import {LegacyPluginThis} from './plugin_this';
 /** The value of `this` in the context of a [[LegacyImporter]] function. */
 interface LegacyImporterThis extends LegacyPluginThis {
   /**
-   * <dl class="impl-status sl-c-description-list sl-c-description-list--horizontal">
-   *   <div class="compatibility">Compatibility:</div>
-   *   <div><dt>Dart&nbsp;Sass</dt> <dd>since&nbsp;<span class="caps">1.33.0</span></dd></div>
-   *   <div><dt>Node&nbsp;Sass</dt> <dd>✗</dd></div>
-   * </dl>
-   *
    * Whether the importer is being invoked because of a Sass `@import` rule, as
    * opposed to a `@use` or `@forward` rule.
    *
    * This should *only* be used for determining whether or not to load
    * [import-only files](https://sass-lang.com/documentation/at-rules/import#import-only-files).
+   *
+   * @compatibility dart: "1.33.0", node: false
    */
   fromImport: boolean;
 }
