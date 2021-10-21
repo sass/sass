@@ -73,6 +73,19 @@ export interface Logger {
  * @compatibility dart: "1.43.0", node: false
  */
 export namespace Logger {
-  /** A [[Logger]] that silently ignores all warnings and debug messages. */
+  /**
+   * A [[Logger]] that silently ignores all warnings and debug messages.
+   *
+   * @example
+   *
+   * ```js
+   * const sass = require('sass');
+   *
+   * const result = sass.renderSync({
+   *   file: 'input.scss',
+   *   logger: sass.Logger.silent,
+   * });
+   * ```
+   */
   export const silent: Logger;
 }
