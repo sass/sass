@@ -22,7 +22,7 @@
     "@types/glob": "^7.1.4",
     "@types/prettier": "^2.4.1",
     "colors": "^1.3.3",
-    "diff": "^4.0.1",
+    "diff": "^5.0.0",
     "glob": "^7.2.0",
     "immutable": "^4.0.0-rc.12",
     "markdown-link-check": "git+https://sassbot@github.com/nex3/markdown-link-check.git#check-references",

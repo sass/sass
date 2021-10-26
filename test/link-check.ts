@@ -97,7 +97,9 @@ function runLinkCheck(
     try {
       await runLinkCheck(file, {rateLimit: 500});
     } catch (error) {
-      console.log(colors.red(error.message));
+      console.log(
+        colors.red(error instanceof Error ? error.message : `${error}`)
+      );
       process.exitCode = 1;
     }
   }
