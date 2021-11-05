@@ -115,13 +115,13 @@ message InboundMessage {
 
     // Whether to encode the formatted message of errors and logs in ASCII.
     bool alert_ascii = 9;
-    
+
     // Whether to report all deprecation warnings or only the first few ones.
     // If this is `false`, the compiler may choose not to send events for
     // repeated deprecation warnings. If this is `true`, the compiler must emit
     // an event for every deprecation warning it encounters.
     bool verbose = 10;
-    
+
     // Whether to omit events for deprecation warnings coming from dependencies
     // (files loaded from a different importer than the input).
     bool quiet_deps = 11;
@@ -956,7 +956,8 @@ enum ListSeparator {
   // List elements are separated by a forward slash.
   SLASH = 2;
 
-  // The list's separator hasn't yet been determined.
+  // The list's separator hasn't yet been determined. This is only allowed for
+  // singleton and empty lists.
   //
   // Singleton lists and empty lists don't have separators defined. This means
   // that list functions will prefer other lists' separators if possible.
