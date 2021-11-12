@@ -5,13 +5,13 @@ import {Value} from './index';
 export class SassNumber extends Value {
   constructor(value: number, unit?: string);
 
-  static withUnits(
+  constructor(
     value: number,
     options?: {
       numeratorUnits?: string[] | List<string>;
       denominatorUnits?: string[] | List<string>;
     }
-  ): SassNumber;
+  );
 
   get value(): number;
 

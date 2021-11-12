@@ -1,26 +1,26 @@
 import {Value} from './index';
 
 export class SassColor extends Value {
-  static rgb(
-    red: number,
-    green: number,
-    blue: number,
-    alpha?: number
-  ): SassColor;
+  constructor(options: {
+    red: number;
+    green: number;
+    blue: number;
+    alpha?: number;
+  });
 
-  static hsl(
-    hue: number,
-    saturation: number,
-    lightness: number,
-    alpha?: number
-  ): SassColor;
+  constructor(options: {
+    hue: number;
+    saturation: number;
+    lightness: number;
+    alpha?: number;
+  });
 
-  static hwb(
-    hue: number,
-    whiteness: number,
-    blackness: number,
-    alpha?: number
-  ): SassColor;
+  constructor(options: {
+    hue: number;
+    whiteness: number;
+    blackness: number;
+    alpha?: number;
+  });
 
   get red(): number;
 
@@ -40,26 +40,24 @@ export class SassColor extends Value {
 
   get alpha(): number;
 
-  changeRgb(options: {
+  change(options: {
     red?: number;
     green?: number;
     blue?: number;
     alpha?: number;
   }): SassColor;
 
-  changeHsl(options: {
+  change(options: {
     hue?: number;
     saturation?: number;
     lightness?: number;
     alpha?: number;
   }): SassColor;
 
-  changeHwb(options: {
+  change(options: {
     hue?: number;
     whiteness?: number;
     blackness?: number;
     alpha?: number;
   }): SassColor;
-
-  changeAlpha(alpha: number): SassColor;
 }

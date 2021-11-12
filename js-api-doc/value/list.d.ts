@@ -10,17 +10,11 @@ export class SassList extends Value {
     options?: {
       /** @default ',' */
       separator?: ListSeparator;
-      /** @default false */
       brackets?: boolean;
     }
   );
 
-  static empty(options?: {
-    /** @default null */
-    separator?: ListSeparator;
-    /** @default false */
-    brackets?: boolean;
-  }): SassList;
+  constructor(options?: {separator?: ListSeparator; brackets?: boolean});
 
   get separator(): ListSeparator;
 }

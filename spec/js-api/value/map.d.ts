@@ -11,18 +11,11 @@ export class SassMap extends Value {
   /**
    * Creates a Sass map:
    *
+   * - If `contents` is undefined, set it to an empty `OrderedMap`.
    * - Set `internal` to a Sass map with contents set to `contents`.
    * - Return `this`.
    */
-  constructor(contents: OrderedMap<Value, Value>);
-
-  /**
-   * Creates an empty Sass map:
-   *
-   * - Set `internal` to an empty Sass map.
-   * - Return `this`.
-   */
-  static empty(): SassMap;
+  constructor(contents?: OrderedMap<Value, Value>);
 
   /**
    * Returns a map containing `internal`'s contents:

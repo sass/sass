@@ -9,17 +9,29 @@ export class SassString extends Value {
   /**
    * Creates a Sass string:
    *
+   * - If the first argument is a string:
+   *   - Let `text` be the first argument.
+   *   - Let `options` be the second argument, or `{}` if it's undefined.
+   *
+   * - Otherwise:
+   *   - Let `text` be `""`.
+   *   - Let `options` be the first argument, or `{}` if it's undefined.
+   *
+   * - Let `quotes` be `options.quotes`, or `true` if that's undefined.
+   *
    * - Set `internal` to a Sass string with contents set to `text` and quoted
-   *   value set to `options.quotes`.
+   *   set to `quotes`.
+   *
    * - Return `this`.
    */
   constructor(
     text: string,
     options?: {
-      /** @default true */
       quotes?: boolean;
     }
   );
+
+  constructor(options?: {/** @default true */ quotes?: boolean});
 
   /**
    * Creates an empty Sass string:
@@ -28,7 +40,6 @@ export class SassString extends Value {
    *   `options.quotes`.
    * - Return `this`.
    */
-  static empty(options?: {/** @default true */ quotes?: boolean}): SassString;
 
   /** The contents of `internal` serialized as UTF-16 code units. */
   get text(): string;
