@@ -110,23 +110,28 @@ export interface Options<sync extends 'sync' | 'async'> {
   verbose?: boolean;
 }
 
-/** Additional options specific to compiling from a string. */
-export type StringOptions<sync extends 'sync' | 'async'> = Options<sync> & {
+export interface StringOptionsWithoutImporter<sync extends 'sync' | 'async'>
+  extends Options<sync> {
   /**
    * The compiler must parse `source` using this syntax.
    *
    * @default 'scss'
    */
   syntax?: Syntax;
-} & (
-    | {
-        /** The canonical URL of the entrypoint. */
-        url?: URL;
-      }
-    | {
-        /** The importer to use to resolve relative imports in the entrypoint. */
-        importer: Importer<sync> | FileImporter<sync>;
-        /** The canonical URL of the entrypoint. */
-        url: URL;
-      }
-  );
+
+  /** When `importer` isn't passed, this is purely advisory. */
+  url?: URL;
+}
+
+export interface StringOptionsWithImporter<sync extends 'sync' | 'async'>
+  extends StringOptionsWithoutImporter<sync> {
+  /** The importer to use to resolve relative imports in the entrypoint. */
+  importer: Importer<sync> | FileImporter<sync>;
+
+  /** The canonical URL of the entrypoint. */
+  url: URL;
+}
+
+export type StringOptions<sync extends 'sync' | 'async'> =
+  | StringOptionsWithImporter<sync>
+  | StringOptionsWithoutImporter<sync>;

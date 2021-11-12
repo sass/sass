@@ -34,7 +34,7 @@ export class SassNumber extends Value {
 
   constructor(
     value: number,
-    options?: {
+    options: {
       numeratorUnits?: string[] | List<string>;
       denominatorUnits?: string[] | List<string>;
     }

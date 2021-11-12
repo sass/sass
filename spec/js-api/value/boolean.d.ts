@@ -7,6 +7,8 @@ export const sassTrue: SassBoolean;
 export const sassFalse: SassBoolean;
 
 /** The JS API representation of a Sass boolean. */
-export interface SassBoolean extends Value {
+export class SassBoolean extends Value {
+  private constructor();
+
   get value(): boolean;
 }

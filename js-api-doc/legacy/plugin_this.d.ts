@@ -1,6 +1,11 @@
 /**
  * The value of `this` in the context of a [[LegacyImporter]] or
  * [[LegacyFunction]] callback.
+ *
+ * @category Legacy
+ * @deprecated This is only used by the legacy [[render]] and [[renderSync]]
+ * APIs. Use [[compile]], [[compileString]], [[compileAsync]], and
+ * [[compileStringAsync]] instead.
  */
 export interface LegacyPluginThis {
   /**

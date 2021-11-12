@@ -9,6 +9,11 @@ import {LegacyFunction} from './function';
  * @typeParam sync - This lets the TypeScript checker verify that
  * [[LegacyAsyncImporter]]s and [[LegacyAsyncFunction]]s aren't passed to
  * [[renderSync]].
+ *
+ * @category Legacy
+ * @deprecated This only works with the legacy [[render]] and [[renderSync]]
+ * APIs. Use [[Options]] with [[compile]], [[compileString]], [[compileAsync]],
+ * and [[compileStringAsync]] instead.
  */
 export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
   /**
@@ -157,7 +162,7 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    *   }
    * }`;
    *
-   * const result = sass.renderSync({
+   * let result = sass.renderSync({
    *   data: source,
    *   outputStyle: "expanded"
    * });
@@ -218,7 +223,7 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    * @example
    *
    * ```js
-   * const result = sass.renderSync({
+   * let result = sass.renderSync({
    *   file: "style.scss",
    *   sourceMap: "out.map"
    * })
@@ -558,6 +563,11 @@ export interface LegacyFileOptions<sync extends 'sync' | 'async'>
  * @typeParam sync - This lets the TypeScript checker verify that
  * [[LegacyAsyncImporter]]s and [[LegacyAsyncFunction]]s aren't passed to
  * [[renderSync]].
+ *
+ * @category Legacy
+ * @deprecated This only works with the legacy [[render]] and [[renderSync]]
+ * APIs. Use [[StringOptions]] with [[compile]], [[compileString]],
+ * [[compileAsync]], and [[compileStringAsync]] instead.
  */
 export interface LegacyStringOptions<sync extends 'sync' | 'async'>
   extends LegacySharedOptions<sync> {
@@ -621,6 +631,11 @@ export interface LegacyStringOptions<sync extends 'sync' | 'async'>
  *
  * See [[LegacySharedOptions]] for options that are shared across both file and
  * string inputs.
+ *
+ * @category Legacy
+ * @deprecated This only works with the legacy [[render]] and [[renderSync]]
+ * APIs. Use [[Options]] with [[compile]], [[compileString]], [[compileAsync]],
+ * and [[compileStringAsync]] instead.
  */
 export type LegacyOptions<sync extends 'sync' | 'async'> =
   | LegacyFileOptions<sync>

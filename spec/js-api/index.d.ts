@@ -45,6 +45,8 @@ export {
   Options,
   OutputStyle,
   StringOptions,
+  StringOptionsWithImporter,
+  StringOptionsWithoutImporter,
   Syntax,
 } from './options';
 export {PromiseOr} from './util/promise_or';

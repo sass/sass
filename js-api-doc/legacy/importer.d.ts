@@ -1,6 +1,13 @@
 import {LegacyPluginThis} from './plugin_this';
 
-/** The value of `this` in the context of a [[LegacyImporter]] function. */
+/**
+ * The value of `this` in the context of a [[LegacyImporter]] function.
+ *
+ * @category Legacy
+ * @deprecated This is only used by the legacy [[render]] and [[renderSync]]
+ * APIs. Use [[Importer]] with [[compile]], [[compileString]], [[compileAsync]],
+ * and [[compileStringAsync]] instead.
+ */
 interface LegacyImporterThis extends LegacyPluginThis {
   /**
    * Whether the importer is being invoked because of a Sass `@import` rule, as
@@ -29,6 +36,11 @@ interface LegacyImporterThis extends LegacyPluginThis {
  *
  * * An [Error](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error)
  *   object, indicating that importing failed.
+ *
+ * @category Legacy
+ * @deprecated This only works with the legacy [[render]] and [[renderSync]]
+ * APIs. Use [[ImporterResult]] with [[compile]], [[compileString]],
+ * [[compileAsync]], and [[compileStringAsync]] instead.
  */
 export type LegacyImporterResult =
   | {file: string}
@@ -71,6 +83,11 @@ export type LegacyImporterResult =
  * * If the stylesheet was loaded from an importer that returned its contents,
  *   it’s the URL of the `@use` or `@import` rule that loaded it.
  * * If the stylesheet came from the data option, it’s the string "stdin".
+ *
+ * @category Legacy
+ * @deprecated This only works with the legacy [[render]] and [[renderSync]]
+ * APIs. Use [[Importer]] with [[compile]], [[compileString]], [[compileAsync]],
+ * and [[compileStringAsync]] instead.
  */
 type LegacySyncImporter = (
   this: LegacyImporterThis,
@@ -118,6 +135,11 @@ type LegacySyncImporter = (
  * * If the stylesheet came from the data option, it’s the string "stdin".
  *
  * @param done - The callback to call once the importer has finished running.
+ *
+ * @category Legacy
+ * @deprecated This only works with the legacy [[render]] and [[renderSync]]
+ * APIs. Use [[Importer]] with [[compile]], [[compileString]], [[compileAsync]],
+ * and [[compileStringAsync]] instead.
  */
 type LegacyAsyncImporter = (
   this: LegacyImporterThis,
@@ -135,6 +157,11 @@ type LegacyAsyncImporter = (
  * [[LegacyAsyncImporter]] which calls a callback with its result.
  *
  * See [[LegacySharedOptions.importer]] for more details.
+ *
+ * @category Legacy
+ * @deprecated This only works with the legacy [[render]] and [[renderSync]]
+ * APIs. Use [[Importer]] with [[compile]], [[compileString]], [[compileAsync]],
+ * and [[compileStringAsync]] instead.
  */
 export type LegacyImporter<sync = 'sync' | 'async'> = sync extends 'async'
   ? LegacySyncImporter | LegacyAsyncImporter
