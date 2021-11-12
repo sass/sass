@@ -1,4 +1,4 @@
-import {List, OrderedMap, ValueObject} from 'immutable';
+import {List, ValueObject} from 'immutable';
 
 import {SassBoolean} from './boolean';
 import {SassColor} from './color';
@@ -34,6 +34,8 @@ export abstract class Value implements ValueObject {
 
   sassIndexToListIndex(sassIndex: Value, name?: string): number;
 
+  get(index: number): Value | undefined;
+
   assertBoolean(name?: string): SassBoolean;
 
   assertColor(name?: string): SassColor;
@@ -46,7 +48,7 @@ export abstract class Value implements ValueObject {
 
   assertString(name?: string): SassString;
 
-  tryMap(): OrderedMap<Value, Value> | null;
+  tryMap(): SassMap | null;
 
   equals(other: Value): boolean;
 

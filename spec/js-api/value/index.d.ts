@@ -1,4 +1,4 @@
-import {List, OrderedMap, ValueObject} from 'immutable';
+import {List, ValueObject} from 'immutable';
 
 import {SassBoolean} from './boolean';
 import {SassColor} from './color';
@@ -86,6 +86,15 @@ export abstract class Value implements ValueObject {
   sassIndexToListIndex(sassIndex: Value, name?: string): number;
 
   /**
+   * - Return `this.asList.get(index)`.
+   *
+   * > Note that the `immutable` package uses zero-based indexing, with negative
+   * > numbers indexing backwards from the end of the list. Non-integer indices
+   * > are rounded down.
+   */
+  get(index: number): Value | undefined;
+
+  /**
    * Asserts that `this` is a `SassBoolean`:
    *
    * - If `internal` is a Sass boolean, return `this`.
@@ -148,20 +157,16 @@ export abstract class Value implements ValueObject {
   assertString(name?: string): SassString;
 
   /**
-   * Returns `this`'s map contents, if it can be interpreted as a map.
+   * Returns `this` interpreted as a map.
    *
-   * - If `internal` is a Sass map:
-   *   - Let `result` be an empty `OrderedMap`.
-   *   - Add each key and value from `internal`'s contents to `result`, in
-   *     order.
-   *   - Return `result`.
+   * - If `this` is a `SassMap`, return `this`.
    *
-   * - Otherwise, if `internal` is an empty Sass list, return an empty
-   *   `OrderedMap`.
+   * - Otherwise, if `internal` is an empty Sass list, return a `SassMap` with
+   *   its `internal` set to an empty `OrderedMap`.
    *
    * - Otherwise, return `null`.
    */
-  tryMap(): OrderedMap<Value, Value> | null;
+  tryMap(): SassMap | null;
 
   /** Whether `this == other` in SassScript. */
   equals(other: Value): boolean;

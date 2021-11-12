@@ -1,5 +1,6 @@
 import {OrderedMap} from 'immutable';
 
+import {SassList} from './list';
 import {Value} from './index';
 
 /**
@@ -26,6 +27,15 @@ export class SassMap extends Value {
    */
   get contents(): OrderedMap<Value, Value>;
 
-  /** Returns `this.contents`. */
-  tryMap(): OrderedMap<Value, Value>;
+  /**
+   * - If the first argument is a JavaScript number, pass it to
+   *   `this.asList.get` and return the result.
+   *
+   * - Otherwise, pass it to `this.contents.get` and return the result.
+   */
+  get(key: Value): Value | undefined;
+
+  get(index: number): SassList | undefined;
+
+  tryMap(): SassMap;
 }
