@@ -118,7 +118,7 @@ export class SassNumber extends Value {
   /**
    * Whether `internal` is [compatible] with `unit`.
    *
-   * [compatible]: ../spec/types/number.md#compatible-units
+   * [compatible]: ../../types/number.md#compatible-units
    */
   compatibleWithUnit(unit: string): boolean;
 
