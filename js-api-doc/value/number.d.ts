@@ -3,14 +3,14 @@ import {List} from 'immutable';
 import {Value} from './index';
 
 export class SassNumber extends Value {
-  constructor(value: number, unit?: string);
-
   constructor(
     value: number,
-    options?: {
-      numeratorUnits?: string[] | List<string>;
-      denominatorUnits?: string[] | List<string>;
-    }
+    unit?:
+      | string
+      | {
+          numeratorUnits?: string[] | List<string>;
+          denominatorUnits?: string[] | List<string>;
+        }
   );
 
   get value(): number;
