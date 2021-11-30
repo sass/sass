@@ -28,6 +28,11 @@ import {LegacyPluginThis} from './plugin_this';
  * that's passed to [[LegacySharedOptions.functions]]. If the signature [takes
  * arbitrary arguments](https://sass-lang.com/documentation/at-rules/function#taking-arbitrary-arguments),
  * they're passed as a single argument list in the last argument.
+ *
+ * @category Legacy
+ * @deprecated This only works with the legacy [[render]] and [[renderSync]]
+ * APIs. Use [[CustomFunction]] with [[compile]], [[compileString]],
+ * [[compileAsync]], and [[compileStringAsync]] instead.
  */
 export type LegacySyncFunction = (
   this: LegacyPluginThis,
@@ -68,6 +73,11 @@ export type LegacySyncFunction = (
  * arbitrary arguments](https://sass-lang.com/documentation/at-rules/function#taking-arbitrary-arguments),
  * they're passed as a single argument list in the last argument before the
  * callback.
+ *
+ * @category Legacy
+ * @deprecated This only works with the legacy [[render]] and [[renderSync]]
+ * APIs. Use [[CustomFunction]] with [[compile]], [[compileString]],
+ * [[compileAsync]], and [[compileStringAsync]] instead.
  */
 export type LegacyAsyncFunction = (
   this: LegacyPluginThis,
@@ -81,6 +91,11 @@ export type LegacyAsyncFunction = (
  * [[LegacyAsyncFunction]] which calls a callback with its result.
  *
  * See [[LegacySharedOptions.functions]] for more details.
+ *
+ * @category Legacy
+ * @deprecated This only works with the legacy [[render]] and [[renderSync]]
+ * APIs. Use [[CustomFunction]] with [[compile]], [[compileString]],
+ * [[compileAsync]], and [[compileStringAsync]] instead.
  */
 export type LegacyFunction<sync extends 'sync' | 'async'> = sync extends 'async'
   ? LegacySyncFunction | LegacyAsyncFunction
@@ -89,6 +104,11 @@ export type LegacyFunction<sync extends 'sync' | 'async'> = sync extends 'async'
 /**
  * A type representing all the possible values that may be passed to or returned
  * from a [[LegacyFunction]].
+ *
+ * @category Legacy
+ * @deprecated This only works with the legacy [[render]] and [[renderSync]]
+ * APIs. Use [[Value]] with [[compile]], [[compileString]], [[compileAsync]],
+ * and [[compileStringAsync]] instead.
  */
 export type LegacyValue =
   | types.Null
@@ -99,7 +119,14 @@ export type LegacyValue =
   | types.List
   | types.Map;
 
-/** The namespace for value types used in the legacy function API. */
+/**
+ * The namespace for value types used in the legacy function API.
+ *
+ * @category Legacy
+ * @deprecated This only works with the legacy [[render]] and [[renderSync]]
+ * APIs. Use [[Value]] with [[compile]], [[compileString]], [[compileAsync]],
+ * and [[compileStringAsync]] instead.
+ */
 export namespace types {
   /**
    * The class for Sass's singleton [`null`

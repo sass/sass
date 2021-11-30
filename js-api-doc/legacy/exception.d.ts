@@ -1,6 +1,11 @@
 /**
  * The exception type thrown by [[renderSync]] and passed as the error to
  * [[render]]'s callback.
+ *
+ * @category Legacy
+ * @deprecated This is only thrown by the legacy [[render]] and [[renderSync]]
+ * APIs. Use [[compile]], [[compileString]], [[compileAsync]], and
+ * [[compileStringAsync]] instead.
  */
 export interface LegacyException extends Error {
   /**

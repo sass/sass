@@ -6,7 +6,9 @@ import {Options, StringOptions} from './options';
 /** The object returned by the compiler when a Sass compilation succeeds. */
 export interface CompileResult {
   css: string;
+
   loadedUrls: URL[];
+
   sourceMap?: RawSourceMap;
 }
 

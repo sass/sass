@@ -4,6 +4,11 @@ import {LegacyOptions} from './options';
 /**
  * The object returned by [[render]] and [[renderSync]] after a successful
  * compilation.
+ *
+ * @category Legacy
+ * @deprecated This is only used by the legacy [[render]] and [[renderSync]]
+ * APIs. Use [[compile]], [[compileString]], [[compileAsync]], and
+ * [[compileStringAsync]] instead.
  */
 export interface LegacyResult {
   /**
@@ -99,6 +104,9 @@ export interface LegacyResult {
  * const result = sass.renderSync({file: "style.scss"});
  * // ...
  * ```
+ *
+ * @category Legacy
+ * @deprecated Use [[compile]] or [[compileString]] instead.
  */
 export function renderSync(options: LegacyOptions<'sync'>): LegacyResult;
 
@@ -121,6 +129,9 @@ export function renderSync(options: LegacyOptions<'sync'>): LegacyResult;
  *   // ...
  * });
  * ```
+ *
+ * @category Legacy
+ * @deprecated Use [[compileAsync]] or [[compileStringAsync]] instead.
  */
 export function render(
   options: LegacyOptions<'async'>,

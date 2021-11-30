@@ -6,6 +6,8 @@ import {SourceSpan} from './logger';
  * argument verification errors.
  */
 export class Exception extends Error {
+  private constructor();
+
   /**
    * The compiler supplies this error message to the JS runtime. This should
    * contain the description of the Sass exception as well as human-friendly
@@ -23,7 +25,7 @@ export class Exception extends Error {
    *
    * > The format can vary from implementation to implementation.
    */
-  sassMessage: string;
+  readonly sassMessage: string;
 
   /**
    * A human-friendly representation of the loads, function calls, and mixin
@@ -31,7 +33,7 @@ export class Exception extends Error {
    *
    * > The format can vary from implementation to implementation.
    */
-  sassStack: string;
+  readonly sassStack: string;
 
   /**
    * A span whose `url` is the canonical URL of the stylesheet being parsed or
@@ -43,7 +45,7 @@ export class Exception extends Error {
    * > that this covers a span of text that clearly indicates the location of
    * > the error.
    */
-  span: SourceSpan;
+  readonly span: SourceSpan;
 
   /**
    * Provides a formatted string with useful information about the error.

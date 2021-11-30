@@ -30,6 +30,8 @@ export {SourceSpan} from './source_span';
  *
  * fs.writeFileSync('log.txt', log);
  * ```
+ *
+ * @category Logger
  */
 export interface Logger {
   /**
@@ -70,6 +72,7 @@ export interface Logger {
 /**
  * A namespace for built-in [[Logger]]s.
  *
+ * @category Logger
  * @compatibility dart: "1.43.0", node: false
  */
 export namespace Logger {
