@@ -54,7 +54,7 @@ export interface CompileResult {
  * ```
  *
  * @category Compile
- * @compatibility dart: "1.44.0", node: false
+ * @compatibility dart: "1.45.0", node: false
  */
 export function compile(path: string, options?: Options<'sync'>): CompileResult;
 
@@ -80,7 +80,7 @@ export function compile(path: string, options?: Options<'sync'>): CompileResult;
  * ```
  *
  * @category Compile
- * @compatibility dart: "1.44.0", node: false
+ * @compatibility dart: "1.45.0", node: false
  */
 export function compileAsync(
   path: string,
@@ -110,7 +110,7 @@ export function compileAsync(
  * ```
  *
  * @category Compile
- * @compatibility dart: "1.44.0", node: false
+ * @compatibility dart: "1.45.0", node: false
  */
 export function compileString(
   source: string,
@@ -145,7 +145,7 @@ export function compileString(
  * ```
  *
  * @category Compile
- * @compatibility dart: "1.44.0", node: false
+ * @compatibility dart: "1.45.0", node: false
  */
 export function compileStringAsync(
   source: string,
