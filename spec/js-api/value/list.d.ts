@@ -18,33 +18,32 @@ export class SassList extends Value {
   /**
    * Creates a Sass list:
    *
+   * - If the first argument is an `Array` or a `List`:
+   *   - Let `contents` be the first argument.
+   *   - Let `options` be the second argument, or `{}` if it's undefined.
+   *
+   * - Otherwise:
+   *   - Let `contents` be `[]`.
+   *   - Let `options` be the first argument, or `{}` if it's undefined.
+   *
+   * - Let `separator` be `options.separator`, or `','` if that's undefined.
+   *
+   * - Let `brackets` be `options.brackets`, or `false` if that's undefined.
+   *
    * - Set `internal` to a Sass list with contents set to `contents`, separator
-   *   set to `options.separator`, and brackets set to `options.brackets`.
+   *   set to `separator`, and brackets set to `brackets`.
+   *
    * - Return `this`.
    */
   constructor(
     contents: Value[] | List<Value>,
     options?: {
-      /** @default ',' */
       separator?: ListSeparator;
-      /** @default false */
       brackets?: boolean;
     }
   );
 
-  /**
-   * Creates an empty Sass list:
-   *
-   * - Set `internal` to an empty Sass list with separator set to
-   *   `options.separator` and brackets set to `options.brackets`.
-   * - Return `this`.
-   */
-  static empty(options?: {
-    /** @default null */
-    separator?: ListSeparator;
-    /** @default false */
-    brackets?: boolean;
-  }): SassList;
+  constructor(options?: {separator?: ListSeparator; brackets?: boolean});
 
   /** `internal`'s list separator. */
   get separator(): ListSeparator;

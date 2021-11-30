@@ -7,97 +7,79 @@ import {Value} from './index';
  */
 export class SassColor extends Value {
   /**
-   * Creates an RGB color:
+   * - If `options.red` is set:
    *
-   * - Let `sassRed` be a Sass number with a value of `red` `fuzzyRound`ed to
-   *   the nearest integer.
+   *   - Let `red` be a Sass number with a value of `options.red` `fuzzyRound`ed
+   *     to the nearest integer.
    *
-   * - Let `sassGreen` be a Sass number with a value of `green` `fuzzyRound`ed
-   *   to the nearest integer
+   *   - Let `green` be a Sass number with a value of `options.green`
+   *     `fuzzyRound`ed to the nearest integer.
    *
-   * - Let `sassBlue` be a Sass number with a value of `blue` `fuzzyRound`ed to
-   *   the nearest integer.
+   *   - Let `blue` be a Sass number with a value of `options.blue`
+   *     `fuzzyRound`ed to the nearest integer.
    *
-   * - If `alpha` was passed, let `sassAlpha` be a Sass number with a value of
-   *   `alpha`.
+   *   - If `options.alpha` is set, let `alpha` be a Sass number with a value of
+   *     `options.alpha`. Otherwise, let `alpha` be `null`.
    *
-   * - Set `internal` to the result of running [`rgb()`] with the following
-   *   inputs:
-   *   - `$red` set to `sassRed`
-   *   - `$green` set to `sassGreen`
-   *   - `$blue` set to `sassBlue`
-   *   - If `alpha` was passed, `$alpha` set to `sassAlpha`
+   *   - Set `internal` to the result of running [`rgb()`] with `$red`, `$green`,
+   *     `$blue`, and `$alpha`.
    *
-   *   [`rgb()`]: ../spec/functions.md#rgb-and-rgba
+   *     [`rgb()`]: ../../functions.md#rgb-and-rgba
+   *
+   * - Otherwise, if `options.saturation` is set:
+   *
+   *   - Let `hue` be a Sass number with a value of `options.hue`.
+   *
+   *   - Let `saturation` be a Sass number with a value of `options.saturation`.
+   *
+   *   - Let `lightness` be a Sass number with a value of `options.lightness`.
+   *
+   *   - If `options.alpha` is set, let `alpha` be a Sass number with a value of
+   *     `options.alpha`. Otherwise, let `alpha` be `null`.
+   *
+   *   - Set `internal` to the result of running [`hsl()`] with `$hue`, `$saturation`,
+   *     `$lightness`, and `$alpha`.
+   *
+   *     [`hsl()`]: ../../functions.md#hsl-and-hsla
+   *
+   * - Otherwise, if `options.whiteness` is set:
+   *
+   *   - Let `hue` be a Sass number with a value of `options.hue`.
+   *
+   *   - Let `whiteness` be a Sass number with a value of `options.whiteness`.
+   *
+   *   - Let `blackness` be a Sass number with a value of `options.blackness`.
+   *
+   *   - If `options.alpha` is set, let `alpha` be a Sass number with a value of
+   *     `options.alpha`. Otherwise, let `alpha` be `null`.
+   *
+   *   - Set `internal` to the result of running [`hwb()`] with `$hue`, `$whiteness`,
+   *     `$blackness`, and `$alpha`.
+   *
+   *     [`hwb()`]: ../../built-in-modules/color.md#hwb
    *
    * - Return `this`.
    */
-  static rgb(
-    red: number,
-    green: number,
-    blue: number,
-    alpha?: number
-  ): SassColor;
+  constructor(options: {
+    red: number;
+    green: number;
+    blue: number;
+    alpha?: number;
+  });
 
-  /**
-   * Creates an HSL color:
-   *
-   * - Let `sassHue` be a Sass number with a value of `hue`.
-   *
-   * - Let `sassSaturation` be a Sass number with a value of `saturation`.
-   *
-   * - Let `sassLightness` be a Sass number with a value of `lightness`.
-   *
-   * - If `alpha` was passed, let `sassAlpha` be a Sass number with a value of
-   *   `alpha`.
-   *
-   * - Set `internal` to the result of running [`hsl()`] with the following
-   *   inputs:
-   *   - `$hue` set to `sassHue`
-   *   - `$saturation` set to `sassSaturation`
-   *   - `$lightness` set to `sassLightness`
-   *   - If `alpha` was passed, `$alpha` set to `sassAlpha`
-   *
-   *   [`hsl()`]: ../spec/functions.md#hsl-and-hsla
-   *
-   * - Return `this`.
-   */
-  static hsl(
-    hue: number,
-    saturation: number,
-    lightness: number,
-    alpha?: number
-  ): SassColor;
+  constructor(options: {
+    hue: number;
+    saturation: number;
+    lightness: number;
+    alpha?: number;
+  });
 
-  /**
-   * Creates an HWB color:
-   *
-   * - Let `sassHue` be a Sass number with a value of `hue`.
-   *
-   * - Let `sassWhiteness` be a Sass number with a value of `whiteness`.
-   *
-   * - Let `sassBlackness` be a Sass number with a value of `blackness`.
-   *
-   * - If `alpha` was passed, let `sassAlpha` be a Sass number with a value of
-   *   `alpha`.
-   *
-   * - Set `internal` to the result of running [`hwb()`] with the following
-   *   inputs:
-   *   - `$hue` set to `sassHue`
-   *   - `$whiteness` set to `sassWhiteness`
-   *   - `$blackness` set to `sassBlackness`
-   *   - If `alpha` was passed, `$alpha` set to `sassAlpha`
-   *
-   *   [`hwb()`]: ../spec/color.md#hwb
-   *
-   * - Return `this`.
-   */
-  static hwb(
-    hue: number,
-    whiteness: number,
-    blackness: number,
-    alpha?: number
-  ): SassColor;
+  constructor(options: {
+    hue: number;
+    whiteness: number;
+    blackness: number;
+    alpha?: number;
+  });
 
   /** `internal`'s red channel. */
   get red(): number;
@@ -154,89 +136,70 @@ export class SassColor extends Value {
    * Returns a new copy of `this` with one or more changes made to the RGB
    * channels:
    *
-   * - Let `oldColor` be `this`.
+   * - If `options.whiteness` or `options.blackness` is set:
    *
-   * - If `red` was passed, let `newRed = red`.
-   * - Otherwise, let `newRed = oldColor.red`.
+   *   - Let `hue` be `options.hue` if it was passed, or `this.hue` otherwise.
    *
-   * - If `green` was passed, let `newGreen = green`.
-   * - Otherwise, let `newGreen = oldColor.green`.
+   *   - Let `whiteness` be `options.whiteness` if it was passed, or
+   *     `this.whiteness` otherwise.
    *
-   * - If `blue` was passed, let `newBlue = blue`.
-   * - Otherwise, let `newBlue = oldColor.blue`.
+   *   - Let `blackness` be `options.blackness` if it was passed, or
+   *     `this.blackness` otherwise.
    *
-   * - If `alpha` was passed, let `newAlpha = alpha`.
-   * - Otherwise, let `newAlpha = oldColor.alpha`.
+   *   - Let `alpha` be `options.alpha` if it was passed, or `this.alpha`
+   *     otherwise.
    *
-   * - Return the result of
-   *   `SassColor.rgb(newRed, newGreen, newBlue, newAlpha)`.
+   *   - Return the result of `SassColor({hue, whiteness, blackness, alpha})`.
+   *
+   * - Otherwise, if `options.hue`, `options.saturation`, or `options.lightness`
+   *   is set:
+   *
+   *   - Let `hue` be `options.hue` if it was passed, or `this.hue` otherwise.
+   *
+   *   - Let `saturation` be `options.saturation` if it was passed, or
+   *     `this.saturation` otherwise.
+   *
+   *   - Let `lightness` be `options.lightness` if it was passed, or
+   *     `this.lightness` otherwise.
+   *
+   *   - Let `alpha` be `options.alpha` if it was passed, or `this.alpha`
+   *     otherwise.
+   *
+   *   - Return the result of `SassColor({hue, saturation, lightness, alpha})`.
+   *
+   * - Otherwise:
+   *
+   *   - Let `red` be `options.red` if it was passed, or `this.red` otherwise.
+   *
+   *   - Let `green` be `options.green` if it was passed, or `this.green`
+   *     otherwise.
+   *
+   *   - Let `blue` be `options.blue` if it was passed, or `this.blue`
+   *     otherwise.
+   *
+   *   - Let `alpha` be `options.alpha` if it was passed, or `this.alpha`
+   *     otherwise.
+   *
+   *   - Return the result of `SassColor({red, green, blue, alpha})`.
    */
-  changeRgb(options: {
+  change(options: {
     red?: number;
     green?: number;
     blue?: number;
     alpha?: number;
   }): SassColor;
 
-  /**
-   * Returns a new copy of `this` with one or more changes made to the HSL
-   * values:
-   *
-   * - Let `oldColor` be `this`.
-   *
-   * - If `hue` was passed, let `newHue = hue`.
-   * - Otherwise, let `newHue = oldColor.hue`.
-   *
-   * - If `saturation` was passed, let `newSaturation = saturation`.
-   * - Otherwise, let `newSaturation = oldColor.saturation`.
-   *
-   * - If `lightness` was passed, let `newLightness = lightness`.
-   * - Otherwise, let `newLightness = oldColor.lightness`.
-   *
-   * - If `alpha` was passed, let `newAlpha = alpha`.
-   * - Otherwise, let `newAlpha = oldColor.alpha`.
-   *
-   * - Return the result of
-   *   `SassColor.hsl(newHue, newSaturation, newLightness, newAlpha)`.
-   */
-  changeHsl(options: {
+  change(options: {
     hue?: number;
     saturation?: number;
     lightness?: number;
     alpha?: number;
   }): SassColor;
 
-  /**
-   * Returns a new copy of `this` with one or more changes made to the HWB
-   * values:
-   *
-   * - Let `oldColor` be `this`.
-   *
-   * - If `hue` was passed, let `newHue = hue`.
-   * - Otherwise, let `newHue = oldColor.hue`.
-   *
-   * - If `whiteness` was passed, let `newWhiteness = whiteness`.
-   * - Otherwise, let `newWhiteness = oldColor.whiteness`.
-   *
-   * - If `blackness` was passed, let `newBlackness = blackness`.
-   * - Otherwise, let `newBlackness = oldColor.blackness`.
-   *
-   * - If `alpha` was passed, let `newAlpha = alpha`.
-   * - Otherwise, let `newAlpha = oldColor.alpha`.
-   *
-   * - Return the result of
-   *   `SassColor.hwb(newHue, newWhiteness, newBlackness, newAlpha)`.
-   */
-  changeHwb(options: {
+  change(options: {
     hue?: number;
     whiteness?: number;
     blackness?: number;
     alpha?: number;
   }): SassColor;
-
-  /**
-   * Returns a new copy of `this` with `internal`'s alpha channel set to
-   * `alpha`.
-   */
-  changeAlpha(alpha: number): SassColor;
 }

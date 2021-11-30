@@ -9,7 +9,7 @@ export class SassString extends Value {
     }
   );
 
-  static empty(options?: {/** @default true */ quotes?: boolean}): SassString;
+  constructor(options?: {quotes?: boolean});
 
   get text(): string;
 

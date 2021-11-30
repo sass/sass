@@ -11,28 +11,34 @@ export class SassNumber extends Value {
   /**
    * Creates a Sass number:
    *
-   * - Set `internal` to a Sass number with value set to `value` and a single
-   *   numerator unit equal to `unit` (if passed).
-   * - Return `this`.
-   */
-  constructor(value: number, unit?: string);
-
-  /**
-   * Creates a Sass number:
+   * - If the second argument is undefined:
    *
-   * - Set `internal` to a Sass number with value set to `value`, numerator
-   *   units set to `options.numeratorUnits` (if passed), and denominator units
-   *   set to `options.denominatorUnits` (if passed).
-   * - Set `internal` to the result of `simplify`ing `internal`.
+   *   - Set `internal` to a Sass number with a value of `value`.
+   *
+   * - Otherwise, if the second argument is a string:
+   *
+   *   - Set `internal` to a Sass number with a value of `value` and that string
+   *     as its single numerator unit.
+   *
+   * - Otherwise,
+   *
+   *   - Let `options` be the second argument.
+   *
+   *   - Set `internal` to a Sass number with a value of `value`,
+   *     `options.numeratorUnits` as its numerator units (if passed), and
+   *     `options.denominatorUnits` as its denominator units (if passed).
+   *
    * - Return `this`.
    */
-  static withUnits(
+  constructor(
     value: number,
-    options?: {
-      numeratorUnits?: string[] | List<string>;
-      denominatorUnits?: string[] | List<string>;
-    }
-  ): SassNumber;
+    unit?:
+      | string
+      | {
+          numeratorUnits?: string[] | List<string>;
+          denominatorUnits?: string[] | List<string>;
+        }
+  );
 
   /** `internal`'s value. */
   get value(): number;
@@ -112,7 +118,7 @@ export class SassNumber extends Value {
   /**
    * Whether `internal` is [compatible] with `unit`.
    *
-   * [compatible]: ../spec/types/number.md#compatible-units
+   * [compatible]: ../../types/number.md#compatible-units
    */
   compatibleWithUnit(unit: string): boolean;
 

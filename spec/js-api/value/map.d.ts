@@ -1,5 +1,6 @@
 import {OrderedMap} from 'immutable';
 
+import {SassList} from './list';
 import {Value} from './index';
 
 /**
@@ -11,18 +12,11 @@ export class SassMap extends Value {
   /**
    * Creates a Sass map:
    *
+   * - If `contents` is undefined, set it to an empty `OrderedMap`.
    * - Set `internal` to a Sass map with contents set to `contents`.
    * - Return `this`.
    */
-  constructor(contents: OrderedMap<Value, Value>);
-
-  /**
-   * Creates an empty Sass map:
-   *
-   * - Set `internal` to an empty Sass map.
-   * - Return `this`.
-   */
-  static empty(): SassMap;
+  constructor(contents?: OrderedMap<Value, Value>);
 
   /**
    * Returns a map containing `internal`'s contents:
@@ -33,6 +27,15 @@ export class SassMap extends Value {
    */
   get contents(): OrderedMap<Value, Value>;
 
-  /** Returns `this.contents`. */
-  tryMap(): OrderedMap<Value, Value>;
+  /**
+   * - If the first argument is a JavaScript number, pass it to
+   *   `this.asList.get` and return the result.
+   *
+   * - Otherwise, pass it to `this.contents.get` and return the result.
+   */
+  get(key: Value): Value | undefined;
+
+  get(index: number): SassList | undefined;
+
+  tryMap(): SassMap;
 }
