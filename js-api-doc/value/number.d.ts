@@ -9,15 +9,6 @@ import {Value} from './index';
  */
 export class SassNumber extends Value {
   /**
-   * Creates a new number.
-   *
-   * @param value - The number's numeric value.
-   * @param unit - If this is passed, it's used as the single numerator unit for
-   * the number.
-   */
-  constructor(value: number, unit?: string);
-
-  /**
    * Creates a new number with more complex units than just a single numerator.
    *
    * Upon construction, any compatible numerator and denominator units are
@@ -25,22 +16,27 @@ export class SassNumber extends Value {
    *
    * @param value - The number's numeric value.
    *
-   * @param options.numeratorUnits - If passed, these are the numerator units to
+   * @param unit - If this is a string, it's used as the single numerator unit
+   * for the number.
+   *
+   * @param unit.numeratorUnits - If passed, these are the numerator units to
    * use for the number. This may be either a plain JavaScript array or an
    * immutable [[List]] from the [`immutable`
    * package](https://immutable-js.com/).
    *
-   * @param options.denominatorUnits - If passed, these are the denominator
-   * units to use for the number. This may be either a plain JavaScript array or
-   * an immutable [[List]] from the [`immutable`
+   * @param unit.denominatorUnits - If passed, these are the denominator units
+   * to use for the number. This may be either a plain JavaScript array or an
+   * immutable [[List]] from the [`immutable`
    * package](https://immutable-js.com/).
    */
   constructor(
     value: number,
-    options: {
-      numeratorUnits?: string[] | List<string>;
-      denominatorUnits?: string[] | List<string>;
-    }
+    unit?:
+      | string
+      | {
+          numeratorUnits?: string[] | List<string>;
+          denominatorUnits?: string[] | List<string>;
+        }
   );
 
   /** This number's numeric value. */

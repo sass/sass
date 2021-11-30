@@ -30,14 +30,14 @@ export class SassNumber extends Value {
    *
    * - Return `this`.
    */
-  constructor(value: number, unit?: string);
-
   constructor(
     value: number,
-    options: {
-      numeratorUnits?: string[] | List<string>;
-      denominatorUnits?: string[] | List<string>;
-    }
+    unit?:
+      | string
+      | {
+          numeratorUnits?: string[] | List<string>;
+          denominatorUnits?: string[] | List<string>;
+        }
   );
 
   /** `internal`'s value. */
@@ -118,7 +118,7 @@ export class SassNumber extends Value {
   /**
    * Whether `internal` is [compatible] with `unit`.
    *
-   * [compatible]: ../spec/types/number.md#compatible-units
+   * [compatible]: ../../types/number.md#compatible-units
    */
   compatibleWithUnit(unit: string): boolean;
 

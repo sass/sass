@@ -48,8 +48,19 @@ export interface Options<sync extends 'sync' | 'async'> {
 
   /**
    * When the compiler encounters a global function call with a signature that
-   * does not match that of a built-in function, but matches a key in this map,
-   * it must call the associated `CustomFunction` and return its result.
+   * does not match that of a built-in function, but matches a key in this
+   * record, it must call the associated `CustomFunction` and return its result.
+   * If the function throws an error or returns anything other than a `Value`,
+   * the compiler should treat it as the Sass function throwing an error.
+   *
+   * > As in the rest of Sass, `_`s and `-`s are considered equivalent when
+   * > determining which function signatures match.
+   *
+   * Before beginning compilation, if any key in this record is not an
+   * [<ident-token>] followed immediately by an `ArgumentDeclaration`, the
+   * compiler must throw an error.
+   *
+   * [<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
    *
    * The compiler must throw an error if the `CustomFunction` does not return a
    * `Value`.
