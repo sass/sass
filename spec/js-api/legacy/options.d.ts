@@ -78,7 +78,7 @@ export interface LegacyFileOptions<sync extends 'sync' | 'async'>
   extends LegacySharedOptions<sync> {
   file: string;
 
-  data: never;
+  data?: never;
 }
 
 export interface LegacyStringOptions<sync extends 'sync' | 'async'>

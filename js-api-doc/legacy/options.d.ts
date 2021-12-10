@@ -553,7 +553,7 @@ export interface LegacyFileOptions<sync extends 'sync' | 'async'>
    *
    * @category Input
    */
-  data: never;
+  data?: never;
 }
 
 /**
