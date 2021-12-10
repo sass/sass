@@ -1,5 +1,3 @@
-import {URL} from 'url';
-
 import {Syntax} from './options';
 import {PromiseOr} from './util/promise_or';
 

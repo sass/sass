@@ -3,6 +3,7 @@
   "compilerOptions": {
     "allowJs": true,
     "rootDir": ".",
+    "lib": ["dom"],
     "paths": {
       "*": ["./tool/types/*"]
     }

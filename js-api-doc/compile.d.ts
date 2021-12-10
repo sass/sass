@@ -1,4 +1,3 @@
-import {URL} from 'url';
 import {RawSourceMap} from 'source-map-js';
 
 import {Options, StringOptions} from './options';
