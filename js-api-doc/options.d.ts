@@ -1,5 +1,3 @@
-import {URL} from 'url';
-
 import {FileImporter, Importer} from './importer';
 import {Logger} from './logger';
 import {Value} from './value';
