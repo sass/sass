@@ -17,14 +17,12 @@ export class SassFunction extends Value {
    *   > This is optional to allow for implementations of the value API that
    *   > don't have easy access to a Sass parser, such as the embedded host.
    *   > These implementations must instead throw an error when the invalid
-   *   > function
+   *   > function is returned from the custom function.
    *
    * - Set `internal` to a Sass function with signature set to `signature` that,
    *   upon execution, runs `callback` and returns the result.
    *
    * - Return `this`.
-   *
-   * An implementation may verify that `signature` is a valid function signature
    */
   constructor(
     /**

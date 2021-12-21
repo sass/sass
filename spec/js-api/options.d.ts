@@ -64,10 +64,10 @@ export interface Options<sync extends 'sync' | 'async'> {
    * transitively contains an invalid value, the compiler must treat that as the
    * Sass function throwing an error. The following values are considered
    * invalid:
-   * 
-   * * An object that's not an instance of the `Value` class.
    *
-   * * A `SassFunction` whose `signature` field isn't a valid Sass function
+   * - An object that's not an instance of the `Value` class.
+   *
+   * - A `SassFunction` whose `signature` field isn't a valid Sass function
    *   signature that could appear after the `@function` directive in a Sass
    *   stylesheet.
    */
