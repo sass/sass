@@ -299,7 +299,7 @@ message OutboundMessage {
       // A message describing the reason for the failure.
       string message = 1;
 
-      // The span associated with the failure. Optional.
+      // The span associated with the failure. Mandatory.
       SourceSpan span = 2;
 
       // The stack trace associated with the failure.

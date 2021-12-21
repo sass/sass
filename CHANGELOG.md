@@ -1,3 +1,8 @@
+## 1.0.0-beta.16
+
+* Mark `CompileFailure.span` as mandatory. There's no instance where a
+  compilation itself should fail without having a source to point to.
+
 ## 1.0.0-beta.15
 
 * Pluralize `Calculation.arguments`.
