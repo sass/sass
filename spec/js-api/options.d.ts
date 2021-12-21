@@ -60,8 +60,16 @@ export interface Options<sync extends 'sync' | 'async'> {
    *
    * [<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
    *
-   * The compiler must throw an error if the `CustomFunction` does not return a
-   * `Value`.
+   * If the `CustomFunction` returns an invalid value, or a value that
+   * transitively contains an invalid value, the compiler must treat that as the
+   * Sass function throwing an error. The following values are considered
+   * invalid:
+   * 
+   * * An object that's not an instance of the `Value` class.
+   *
+   * * A `SassFunction` whose `signature` field isn't a valid Sass function
+   *   signature that could appear after the `@function` directive in a Sass
+   *   stylesheet.
    */
   functions?: Record<string, CustomFunction<sync>>;
 
