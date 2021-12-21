@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  dart_tests:
+  protoc:
     name: "Validate proto"
     runs-on: "ubuntu-latest"
 
@@ -17,6 +17,19 @@ jobs:
         with: { version: "3.x", repo-token: "${{ github.token }}" }
       - name: Generate protobuf code
         run: protoc --js_out=/tmp embedded_sass.proto
+
+  versions:
+    name: "Validate versions"
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Check versions match
+        run: |
+          if ! (grep -q '\-dev$' VERSION ||
+              [[ "$(head -n 1 CHANGELOG.md)" == "## $(cat VERSION)" ]]); then
+            echo "VERSION file doesn't match CHANGELOG version."
+          fi
 
   tag:
     name: "Tag release"

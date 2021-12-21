@@ -1,3 +1,13 @@
+## 1.0.0-beta.15
+
+* Pluralize `Calculation.arguments`.
+
+* Explicitly document how hosts should handle calculations.
+
+## 1.0.0-beta.14
+
+* Add support for calculation values.
+
 ## 1.0.0-beta.13
 
 * Add the `Value.HwbColor` type.
