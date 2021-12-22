@@ -3,6 +3,9 @@
 * Mark `CompileFailure.span` as mandatory. There's no instance where a
   compilation itself should fail without having a source to point to.
 
+* Make it the compiler's responsibility to verify `HostFunction.signature`.
+  This ensures that the host doesn't have to parse Sass code.
+
 ## 1.0.0-beta.15
 
 * Pluralize `Calculation.arguments`.

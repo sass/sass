@@ -824,9 +824,14 @@ message Value {
     // across all functions for *all* compilations. Mandatory.
     uint32 id = 1;
 
-    // The signatures for this function. This must be a valid Sass function
-    // signature that could appear in after `@function` in a Sass stylesheet,
-    // such as `mix($color1, $color2, $weight: 50%)`. Mandatory.
+    // The signature for this function. Mandatory.
+    //
+    // If this isn't a valid Sass function signature that could appear after
+    // `@function` in a Sass stylesheet (such as `mix($color1, $color2, $weight:
+    // 50%)`), the compiler must treat the function's return value as invalid.
+    //
+    // > This ensures that the host doesn't need to be able to correctly parse
+    // > the entire function declaration syntax.
     //
     // The compiler may not invoke the function by its name, since it's not
     // guaranteed to be globally unique. However, it may use the name to
