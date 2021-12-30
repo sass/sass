@@ -171,7 +171,9 @@ message InboundMessage {
       string source_map_url = 3;
     }
 
-    // The result of loading the URL. Mandatory.
+    // The result of loading the URL. Optional. If this is `null`, it indicates
+    // that the importer either did not recognize the URL, or could not find a
+    // stylesheet at the location it referred to.
     oneof result {
       // The contents of the loaded stylesheet.
       ImportSuccess success = 2;

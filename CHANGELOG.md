@@ -1,3 +1,8 @@
+## 1.0.0-beta.17
+
+* Mark `ImportResponse.result` as optional. Importers should be able to return
+  `null` to indicate that a file wasn't found.
+
 ## 1.0.0-beta.16
 
 * Mark `CompileFailure.span` as mandatory. There's no instance where a
