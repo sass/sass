@@ -41,6 +41,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+
       - name: Get version information
         id: version-info
         run: |
