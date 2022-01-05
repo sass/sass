@@ -5,10 +5,57 @@ export type LegacySyncFunction = (
   ...args: LegacyValue[]
 ) => LegacyValue;
 
-export type LegacyAsyncFunction = (
-  this: LegacyPluginThis,
-  ...args: [...LegacyValue[], (result: LegacyValue) => void]
-) => void;
+export type LegacyAsyncFunction =
+  | ((this: LegacyPluginThis, done: (result: LegacyValue) => void) => void)
+  | ((
+      this: LegacyPluginThis,
+      arg1: LegacyValue,
+      done: (result: LegacyValue) => void
+    ) => void)
+  | ((
+      this: LegacyPluginThis,
+      arg1: LegacyValue,
+      arg2: LegacyValue,
+      done: (result: LegacyValue) => void
+    ) => void)
+  | ((
+      this: LegacyPluginThis,
+      arg1: LegacyValue,
+      arg2: LegacyValue,
+      arg3: LegacyValue,
+      done: (result: LegacyValue) => void
+    ) => void)
+  | ((
+      this: LegacyPluginThis,
+      arg1: LegacyValue,
+      arg2: LegacyValue,
+      arg3: LegacyValue,
+      arg4: LegacyValue,
+      done: (result: LegacyValue) => void
+    ) => void)
+  | ((
+      this: LegacyPluginThis,
+      arg1: LegacyValue,
+      arg2: LegacyValue,
+      arg3: LegacyValue,
+      arg4: LegacyValue,
+      arg5: LegacyValue,
+      done: (result: LegacyValue) => void
+    ) => void)
+  | ((
+      this: LegacyPluginThis,
+      arg1: LegacyValue,
+      arg2: LegacyValue,
+      arg3: LegacyValue,
+      arg4: LegacyValue,
+      arg5: LegacyValue,
+      arg6: LegacyValue,
+      done: (result: LegacyValue) => void
+    ) => void)
+  | ((
+      this: LegacyPluginThis,
+      ...args: [...LegacyValue[], (result: LegacyValue) => void]
+    ) => void);
 
 export type LegacyFunction<sync extends 'sync' | 'async'> = sync extends 'async'
   ? LegacySyncFunction | LegacyAsyncFunction

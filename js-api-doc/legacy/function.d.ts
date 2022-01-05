@@ -68,9 +68,10 @@ export type LegacySyncFunction = (
  * });
  * ```
  *
- * @param args - One argument for each argument that's declared in the signature
- * that's passed to [[LegacySharedOptions.functions]]. If the signature [takes
- * arbitrary arguments](https://sass-lang.com/documentation/at-rules/function#taking-arbitrary-arguments),
+ * This is passed one argument for each argument that's declared in the
+ * signature that's passed to [[LegacySharedOptions.functions]]. If the
+ * signature [takes arbitrary
+ * arguments](https://sass-lang.com/documentation/at-rules/function#taking-arbitrary-arguments),
  * they're passed as a single argument list in the last argument before the
  * callback.
  *
@@ -79,10 +80,57 @@ export type LegacySyncFunction = (
  * APIs. Use [[CustomFunction]] with [[compile]], [[compileString]],
  * [[compileAsync]], and [[compileStringAsync]] instead.
  */
-export type LegacyAsyncFunction = (
-  this: LegacyPluginThis,
-  ...args: [...LegacyValue[], (result: LegacyValue) => void]
-) => void;
+export type LegacyAsyncFunction =
+  | ((this: LegacyPluginThis, done: (result: LegacyValue) => void) => void)
+  | ((
+      this: LegacyPluginThis,
+      arg1: LegacyValue,
+      done: (result: LegacyValue) => void
+    ) => void)
+  | ((
+      this: LegacyPluginThis,
+      arg1: LegacyValue,
+      arg2: LegacyValue,
+      done: (result: LegacyValue) => void
+    ) => void)
+  | ((
+      this: LegacyPluginThis,
+      arg1: LegacyValue,
+      arg2: LegacyValue,
+      arg3: LegacyValue,
+      done: (result: LegacyValue) => void
+    ) => void)
+  | ((
+      this: LegacyPluginThis,
+      arg1: LegacyValue,
+      arg2: LegacyValue,
+      arg3: LegacyValue,
+      arg4: LegacyValue,
+      done: (result: LegacyValue) => void
+    ) => void)
+  | ((
+      this: LegacyPluginThis,
+      arg1: LegacyValue,
+      arg2: LegacyValue,
+      arg3: LegacyValue,
+      arg4: LegacyValue,
+      arg5: LegacyValue,
+      done: (result: LegacyValue) => void
+    ) => void)
+  | ((
+      this: LegacyPluginThis,
+      arg1: LegacyValue,
+      arg2: LegacyValue,
+      arg3: LegacyValue,
+      arg4: LegacyValue,
+      arg5: LegacyValue,
+      arg6: LegacyValue,
+      done: (result: LegacyValue) => void
+    ) => void)
+  | ((
+      this: LegacyPluginThis,
+      ...args: [...LegacyValue[], (result: LegacyValue) => void]
+    ) => void);
 
 /**
  * A callback that implements a custom Sass function. For [[renderSync]], this
