@@ -70,8 +70,9 @@ export {
 export {LegacyException} from './legacy/exception';
 export {
   LegacyAsyncFunction,
-  LegacySyncFunction,
+  LegacyAsyncFunctionDone,
   LegacyFunction,
+  LegacySyncFunction,
   LegacyValue,
   types,
 } from './legacy/function';

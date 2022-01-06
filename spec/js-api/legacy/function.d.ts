@@ -10,20 +10,20 @@ export type LegacyAsyncFunction =
   | ((
       this: LegacyPluginThis,
       arg1: LegacyValue,
-      done: (result: LegacyValue) => void
+      done: LegacyAsyncFunctionDone
     ) => void)
   | ((
       this: LegacyPluginThis,
       arg1: LegacyValue,
       arg2: LegacyValue,
-      done: (result: LegacyValue) => void
+      done: LegacyAsyncFunctionDone
     ) => void)
   | ((
       this: LegacyPluginThis,
       arg1: LegacyValue,
       arg2: LegacyValue,
       arg3: LegacyValue,
-      done: (result: LegacyValue) => void
+      done: LegacyAsyncFunctionDone
     ) => void)
   | ((
       this: LegacyPluginThis,
@@ -31,7 +31,7 @@ export type LegacyAsyncFunction =
       arg2: LegacyValue,
       arg3: LegacyValue,
       arg4: LegacyValue,
-      done: (result: LegacyValue) => void
+      done: LegacyAsyncFunctionDone
     ) => void)
   | ((
       this: LegacyPluginThis,
@@ -40,7 +40,7 @@ export type LegacyAsyncFunction =
       arg3: LegacyValue,
       arg4: LegacyValue,
       arg5: LegacyValue,
-      done: (result: LegacyValue) => void
+      done: LegacyAsyncFunctionDone
     ) => void)
   | ((
       this: LegacyPluginThis,
@@ -50,12 +50,16 @@ export type LegacyAsyncFunction =
       arg4: LegacyValue,
       arg5: LegacyValue,
       arg6: LegacyValue,
-      done: (result: LegacyValue) => void
+      done: LegacyAsyncFunctionDone
     ) => void)
   | ((
       this: LegacyPluginThis,
-      ...args: [...LegacyValue[], (result: LegacyValue) => void]
+      ...args: [...LegacyValue[], LegacyAsyncFunctionDone]
     ) => void);
+
+export type LegacyAsyncFunctionDone = (
+  result: LegacyValue | types.Error
+) => void;
 
 export type LegacyFunction<sync extends 'sync' | 'async'> = sync extends 'async'
   ? LegacySyncFunction | LegacyAsyncFunction
@@ -151,5 +155,9 @@ export namespace types {
     setKey(index: number, key: LegacyValue): void;
 
     getLength(): number;
+  }
+
+  export class Error {
+    constructor(message: string);
   }
 }

@@ -85,20 +85,20 @@ export type LegacyAsyncFunction =
   | ((
       this: LegacyPluginThis,
       arg1: LegacyValue,
-      done: (result: LegacyValue) => void
+      done: LegacyAsyncFunctionDone
     ) => void)
   | ((
       this: LegacyPluginThis,
       arg1: LegacyValue,
       arg2: LegacyValue,
-      done: (result: LegacyValue) => void
+      done: LegacyAsyncFunctionDone
     ) => void)
   | ((
       this: LegacyPluginThis,
       arg1: LegacyValue,
       arg2: LegacyValue,
       arg3: LegacyValue,
-      done: (result: LegacyValue) => void
+      done: LegacyAsyncFunctionDone
     ) => void)
   | ((
       this: LegacyPluginThis,
@@ -106,7 +106,7 @@ export type LegacyAsyncFunction =
       arg2: LegacyValue,
       arg3: LegacyValue,
       arg4: LegacyValue,
-      done: (result: LegacyValue) => void
+      done: LegacyAsyncFunctionDone
     ) => void)
   | ((
       this: LegacyPluginThis,
@@ -115,7 +115,7 @@ export type LegacyAsyncFunction =
       arg3: LegacyValue,
       arg4: LegacyValue,
       arg5: LegacyValue,
-      done: (result: LegacyValue) => void
+      done: LegacyAsyncFunctionDone
     ) => void)
   | ((
       this: LegacyPluginThis,
@@ -125,12 +125,29 @@ export type LegacyAsyncFunction =
       arg4: LegacyValue,
       arg5: LegacyValue,
       arg6: LegacyValue,
-      done: (result: LegacyValue) => void
+      done: LegacyAsyncFunctionDone
     ) => void)
   | ((
       this: LegacyPluginThis,
-      ...args: [...LegacyValue[], (result: LegacyValue) => void]
+      ...args: [...LegacyValue[], LegacyAsyncFunctionDone]
     ) => void);
+
+/**
+ * The function called by a [[LegacyAsyncFunction]] to indicate that it's
+ * finished.
+ *
+ * @param result - If this is a [[LegacyValue]], that indicates that the
+ * function call completed successfully. If it's a [[types.Error]], that
+ * indicates that the function call failed.
+ *
+ * @category Legacy
+ * @deprecated This only works with the legacy [[render]] and [[renderSync]]
+ * APIs. Use [[CustomFunction]] with [[compile]], [[compileString]],
+ * [[compileAsync]], and [[compileStringAsync]] instead.
+ */
+export type LegacyAsyncFunctionDone = (
+  result: LegacyValue | types.Error
+) => void;
 
 /**
  * A callback that implements a custom Sass function. For [[renderSync]], this
@@ -696,5 +713,14 @@ export namespace types {
      * ```
      */
     getLength(): number;
+  }
+
+  /**
+   * An error that can be returned from a Sass function to signal that it
+   * encountered an error. This is the only way to signal an error
+   * asynchronously from a [[LegacyAsyncFunction]].
+   */
+  export class Error {
+    constructor(message: string);
   }
 }
