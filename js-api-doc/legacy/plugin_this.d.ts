@@ -13,6 +13,9 @@ export interface LegacyPluginThis {
    * [[renderSync]].
    */
   options: {
+    /** The same [[LegacyPluginThis]] instance that contains this object. */
+    context: LegacyPluginThis;
+
     /**
      * The value passed to [[LegacyFileOptions.file]] or
      * [[LegacyStringOptions.file]].

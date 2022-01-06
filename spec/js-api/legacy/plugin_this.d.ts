@@ -5,6 +5,9 @@
  */
 export interface LegacyPluginThis {
   options: {
+    /** The same `LegacyPluginThis` instance that contains this object. */
+    context: LegacyPluginThis;
+
     /** The `file` option passed to the `render()` or `renderSync()` call. */
     file?: string;
 
