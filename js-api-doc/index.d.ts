@@ -41,11 +41,13 @@ export {
 // Legacy APIs
 export {LegacyException} from './legacy/exception';
 export {
+  FALSE,
   LegacyAsyncFunction,
   LegacyAsyncFunctionDone,
   LegacyFunction,
   LegacySyncFunction,
   LegacyValue,
+  TRUE,
   types,
 } from './legacy/function';
 export {

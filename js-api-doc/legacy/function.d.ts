@@ -185,6 +185,26 @@ export type LegacyValue =
   | types.Map;
 
 /**
+ * A shorthand for `sass.types.TRUE`.
+ *
+ * @category Legacy
+ * @deprecated This only works with the legacy [[render]] and [[renderSync]]
+ * APIs. Use [[sassTrue]] with [[compile]], [[compileString]], [[compileAsync]],
+ * and [[compileStringAsync]] instead.
+ */
+export const TRUE: types.Boolean<true>;
+
+/**
+ * A shorthand for `sass.types.FALSE`.
+ *
+ * @category Legacy
+ * @deprecated This only works with the legacy [[render]] and [[renderSync]]
+ * APIs. Use [[sassFalse]] with [[compile]], [[compileString]], [[compileAsync]],
+ * and [[compileStringAsync]] instead.
+ */
+export const FALSE: types.Boolean<false>;
+
+/**
  * The namespace for value types used in the legacy function API.
  *
  * @category Legacy

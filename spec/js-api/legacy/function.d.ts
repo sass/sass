@@ -74,6 +74,10 @@ export type LegacyValue =
   | types.List
   | types.Map;
 
+export const TRUE: types.Boolean<true>;
+
+export const FALSE: types.Boolean<false>;
+
 export namespace types {
   export class Null {
     static readonly NULL: Null;
