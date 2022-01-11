@@ -75,6 +75,7 @@ export {
   LegacyFunction,
   LegacySyncFunction,
   LegacyValue,
+  NULL,
   TRUE,
   types,
 } from './legacy/function';
