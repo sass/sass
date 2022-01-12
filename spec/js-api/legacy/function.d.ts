@@ -78,6 +78,8 @@ export const TRUE: types.Boolean<true>;
 
 export const FALSE: types.Boolean<false>;
 
+export const NULL: types.Null;
+
 export namespace types {
   export class Null {
     static readonly NULL: Null;
