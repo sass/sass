@@ -25,7 +25,7 @@ export function getCurrent(markdown: string): string | null {
   const endIndex = markdown.indexOf('## ', startIndex) - 1;
   if (endIndex < 0) return null;
 
-  return markdown.substring(startIndex, endIndex).trim();
+  return markdown.substring(startIndex, endIndex).trim() || null;
 }
 
 /** Returns the expected table of contents for `markdown`. */
