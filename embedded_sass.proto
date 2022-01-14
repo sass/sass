@@ -125,6 +125,9 @@ message InboundMessage {
     // Whether to omit events for deprecation warnings coming from dependencies
     // (files loaded from a different importer than the input).
     bool quiet_deps = 11;
+
+    // Whether to include sources in the generated sourcemap
+    bool source_map_include_sources = 12;
   }
 
   // A response indicating the result of canonicalizing an imported URL.
