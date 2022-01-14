@@ -27,8 +27,8 @@ export interface LegacyPluginThis {
 
     /**
      * The value passed to [[LegacySharedOptions.includePaths]] separated by
-     * `";"` on Windows or `":"` on other operating systems, or an empty
-     * array if no value was passed.
+     * `";"` on Windows or `":"` on other operating systems. This always
+     * includes the current working directory as the first entry.
      */
     includePaths: string;
 
@@ -47,10 +47,10 @@ export interface LegacyPluginThis {
     indentWidth: number;
 
     /**
-     * The value passed to [[LegacySharedOptions.linefeed]], or `"lf"`
+     * The value passed to [[LegacySharedOptions.linefeed]], or `"\n"`
      * otherwise.
      */
-    linefeed: 'cr' | 'crlf' | 'lf' | 'lfcr';
+    linefeed: '\r' | '\r\n' | '\n' | '\n\r';
 
     /** A partially-constructed [[LegacyResult]] object. */
     result: {

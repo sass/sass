@@ -42,10 +42,15 @@ export interface LegacyPluginThis {
     indentWidth: number;
 
     /**
-     * The `linefeed` option passed to the `render()` or `renderSync()`, or
-     * `'lf'` if no value was passed.
+     * A value based on the `linefeed` option passed to the `render()` or
+     * `renderSync()`:
+     *
+     * * If `linefeed` is `"cr"`, this must be `"\r"`.
+     * * If `linefeed` is `"crlf"`, this must be `"\r\n"`.
+     * * If `linefeed` is `"lf"` or `undefined`, this must be `"\n"`.
+     * * If `linefeed` is `"lfcr"`, this must be `"\n\r"`.
      */
-    linefeed: 'cr' | 'crlf' | 'lf' | 'lfcr';
+    linefeed: '\r' | '\r\n' | '\n' | '\n\r';
 
     result: {
       stats: {
