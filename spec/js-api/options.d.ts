@@ -105,6 +105,14 @@ export interface Options<sync extends 'sync' | 'async'> {
   sourceMap?: boolean;
 
   /**
+   * If true, the compiler must include the sources in the sourceMap of the
+   * `CompileResult`.
+   *
+   * @default false
+   */
+  sourceMapIncludeSources?: boolean;
+
+  /**
    * If present, the compiler must format the emitted CSS in this style.
    *
    * Implementations may support any amount of options, provided that:

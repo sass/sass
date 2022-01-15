@@ -276,6 +276,16 @@ export interface Options<sync extends 'sync' | 'async'> {
   sourceMap?: boolean;
 
   /**
+   * Whether Sass should include the sources in the generated source map.
+   *
+   * This option has no effect if [[sourceMap]] is `false`.
+   *
+   * @defaultValue `false`
+   * @category Output
+   */
+  sourceMapIncludeSources?: boolean;
+
+  /**
    * The [[OutputStyle]] of the compiled CSS.
    *
    * @example
