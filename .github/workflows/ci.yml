@@ -58,5 +58,5 @@ jobs:
         run: |
           git config --global user.name 'SassBot'
           git config --global user.email 'sass.bot.beep.boop@gmail.com'
-          git tag "${{ steps.version-info.VERSION }}"
+          git tag "${{ steps.version-info.outputs.VERSION }}"
           git push --tags
