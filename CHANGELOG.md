@@ -1,3 +1,13 @@
+## 1.0.0
+
+* First stable release.
+
+## 1.0.0-beta.18
+
+* Add a `CompileRequest.source_map_include_sources` field that tells the
+  compiler to embed the contents of all source files in the generated source
+  maps.
+
 ## 1.0.0-beta.17
 
 * Mark `ImportResponse.result` as optional. Importers should be able to return
