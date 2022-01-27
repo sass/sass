@@ -53,8 +53,8 @@ jobs:
           )"
       - name: Create release
         if: |
-          steps.version-info.VERSION_MODIFIED == 'true' &&
-            !endsWith(steps.version-info.VERSION, '-dev')
+          steps.version-info.outputs.VERSION_MODIFIED == 'true' &&
+            !endsWith(steps.version-info.outputs.VERSION, '-dev')
         run: |
           git config --global user.name 'SassBot'
           git config --global user.email 'sass.bot.beep.boop@gmail.com'
