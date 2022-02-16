@@ -49,7 +49,7 @@ jobs:
         run: |
           echo "::set-output name=VERSION::$(cat VERSION)"
           echo "::set-output name=VERSION_MODIFIED::$(
-            git diff --quiet HEAD^ VERSION && echo true || echo false
+            git diff --quiet HEAD^ VERSION && echo false || echo true
           )"
       - name: Create release
         if: |
