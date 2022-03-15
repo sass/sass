@@ -79,12 +79,12 @@ deep-merge($map1, $map2)
 
   * If `$map2` has a key `new-key` that's `==` to `old-key`:
 
-    * Let `new-value` be the value associated with `new-key` in `$map1`.
+    * Let `new-value` be the value associated with `new-key` in `$map2`.
 
     * If both `old-value` and `new-value` are maps, set `new-value` to the
       result of calling `deep-merge()` with `old-value` and `new-value`.
 
-    * Associate `old-key` with `value` in `merged`.
+    * Associate `old-key` with `new-value` in `merged`.
 
   * Otherwise, associate `old-key` with `old-value` in `merged`.
 
