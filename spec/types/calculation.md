@@ -105,7 +105,7 @@ type CalculationValue =
   | CalculationInterpolation
   | CalculationOperation
   | Calculation;
-  
+
 interface CalculationInterpolation {
   value: string;
 }
@@ -192,6 +192,9 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
 * Let `arguments` be the result of [simplifying](#simplifying-a-calculationvalue) each
   of `calc`'s arguments.
 
+* If `calc` is contained within a supports declaration, return a calculation
+  with the same name as `calc` and `arguments` as its arguments.
+
 * If `calc`'s name is `"calc"`, the syntax guarantees that `arguments` contain
   only a single argument. If that argument is a number or calculation, return
   it.
@@ -257,8 +260,11 @@ This algorithm takes a `CalculationValue` `value` and returns a
 
   [simplifying]: #simplifying-a-calculation
 
-* Otherwise, `value` must be a `CalculationOperation`. Let `left` and `right` be
-  the result of simplifying `value.left` and `value.right`, respectively.
+* Otherwise, `value` must be a `CalculationOperation`. If within a supports
+  declaration, return `value` as-is.
+
+* Otherwise, let `left` and `right` be the result of simplifying `value.left`
+  and `value.right`, respectively.
 
 * Let `operator` be `value.operator`.
 
