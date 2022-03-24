@@ -23,7 +23,7 @@ import {PromiseOr} from './util/promise_or';
  * @example
  *
  * ```js
- * const {fileURLToPath} = require('url');
+ * const {pathToFileURL} = require('url');
  *
  * sass.compile('style.scss', {
  *   importers: [{
