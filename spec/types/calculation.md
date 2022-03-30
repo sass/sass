@@ -105,7 +105,7 @@ type CalculationValue =
   | CalculationInterpolation
   | CalculationOperation
   | Calculation;
-  
+
 interface CalculationInterpolation {
   value: string;
 }
@@ -188,6 +188,9 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
 
 > This algorithm is intended to return a value that's CSS-semantically identical
 > to the input.
+
+* If `calc` was parsed from an expression within a `SupportsDeclaration`'s
+  `Expression`, but outside any interpolation, return a `calc` as-is.
 
 * Let `arguments` be the result of [simplifying](#simplifying-a-calculationvalue) each
   of `calc`'s arguments.
