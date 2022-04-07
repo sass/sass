@@ -141,7 +141,8 @@ It runs as follows:
     > This importer will only ever be passed absolute URLs, so its base won't
     > matter.
 
-  * If `url` is not a `file:` URL, set `importer` to be a no-op importer.
+  * If `url` is not a `file:` URL, set `importer` to be a function that always
+    returns null.
 
 * Let `file` be the [source file][] with `ast`, canonical URL `url`, and
   importer `importer`.
