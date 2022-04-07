@@ -203,7 +203,7 @@ that includes CSS for *all* modules transitively used or forwarded by
 
     > Because this traverses modules depth-first, it emits CSS in reverse
     > topological order.
-    
+
   * Let `initial-imports` be the longest initial subsequence of top-level
     statements in `domestic`'s CSS tree that contains only comments and
     `@import` rules *and* that ends with an `@import` rule.
@@ -247,7 +247,7 @@ a selector list `extender` and returns a selector list.
     * If it's a combinator, add it to each selector in `options`.
 
     * For each simple selector `simple` in `compound`:
-    
+
       * Let `new-list` be the result of
         [extending](#extending-a-simple-selector) `simple` with `target` and
         `extender`.
@@ -289,7 +289,7 @@ and a selector list `extender` and returns a selector list.
   * Let `extended-arg` be `extend(arg, target, extender)`.
 
   * If `extendee`'s [unprefixed] name is `not`:
-  
+
     * If `arg` has no complex selectors with more than one compound selector,
       remove all complex selectors with more than one compound selector from
       `extended-arg`.
@@ -301,8 +301,8 @@ and a selector list `extender` and returns a selector list.
     * If any complex selectors in `extended-arg` contain only a single compound
       selector which in turn contains a single pseudo selector with a selector
       argument, remove them from `extended-arg`. If any of the removed selectors
-      were pseudo-selectors named `is` or `matches`, add their selector
-      arguments to `extended-arg`.
+      were pseudo-selectors named `is`, `where`, or `matches`, add their
+      selector arguments to `extended-arg`.
 
       > For example, `:not(:is(a, b))` becomes `:not(a, b)`.
 
@@ -439,8 +439,12 @@ For example, `extend(:not(.foo), .foo, .bar)` should produce
 
 The second law of extend says that the specificity of a new selector to match a
 given extender must be greater than or equal to the specificity of that
-extender. For example, `extend(a, a, a.foo)` should produce `a, a.foo` even
+extender when modified in the same way as the target is modified within the
+extendee. For example, `extend(a, a, a.foo)` should produce `a, a.foo` even
 though (again) `a.foo` matches a subset of elements matched by `a`.
+`extend(:where(.x), .x, .x .y)` should produce `:where(.x, .x .y)` even though
+it has lower specificity than `.x .y`, because `:where` eliminates the
+specificity of both `.x` and `.x .y`.
 
 This still leaves room for optimizations. For example,
 `extend(.bar a, a, a.foo)` can just produce `.bar a` (omitting `.bar a.foo`).
