@@ -16,9 +16,9 @@ This proposal adds `string.split()` to the `sass:string` module.
 > This section is non-normative.
 
 The `sass:string` module contains several functions for
-manipulating and finding out information about `strings`.
+manipulating and finding out information about strings.
 Currently, though, there is no built-in function that splits
-one `string` into a list of substrings, and authors have been
+one string into a list of substrings, and authors have been
 creating their own versions of functions that achieve this
 functionality.
 
@@ -27,11 +27,11 @@ functionality.
 > This section is non-normative.
 
 This proposal adds the `string.split()` function to the
-`sass:string` module. The function takes a `string`, splits it
+`sass:string` module. The function takes a string, splits it
 based on a provided `separator`, and returns a space-separated
 list of substrings.
 
-This could be used to take a provided `string` and repurpose
+This could be used to take a provided string and repurpose
 parts of it for some other use. For example, fonts 
 contained in a font stack list could be split off and 
 then used as keys in a new map. 
@@ -43,7 +43,7 @@ Examples:
     string.split($fonts, ', '); // "Helvetica Neue" "Helvetica" "Arial"
     ```
 
-A third argument can limit the number of `strings` 
+A third argument can limit the number of strings 
 returned in the list:
 
 - ```scss
@@ -51,7 +51,7 @@ returned in the list:
   ```
 
 
-An empty `$separator` returns all characters in the original `string`:
+An empty `$separator` returns all characters in the original string:
 
 - ```scss
   $font: "Helvetica"
@@ -61,29 +61,26 @@ An empty `$separator` returns all characters in the original `string`:
 
 ## Semantics
 
-This proposal adds the ability to split a `string` to the
-`sass:string` module.
-
-### `string.split()`
+### `split()`
 
 ```
 split($string, $separator, $limit)
 ```
 
-* If `$string` is not a `string`, throw an error.
+* If `$string` is not a string, throw an error.
 
-* If `$string` is an empty `string`(`''`), or $separator` is `null`, 
-return a `list` with `$string` as the only item.
+* If `$string` is an empty string, or `$separator` is `null`, 
+return a list with `$string` as the only item.
 
-* If `$limit` is 0 or `null`, return an empty `list`.
+* If `$limit` is 0 or `null`, return an empty list.
 
-* If `$separator` is empty (`''`), return a `list` of each individual 
+* If `$separator` is empty (`''`), return a list of each individual 
 character in `$string`.
 
-* If `$limit` is a value other than an `integer` or `null`, return an 
+* If `$limit` is a value other than an integer or `null`, return an 
 empty list.
 
-* Let `split-list` be an empty `list`.
+* Let `split-list` be an empty list.
 
 * Let `length` be the value of calling `string.length($string)`.
 
@@ -101,10 +98,10 @@ empty list.
     instance of the `$separator`.
 
     * Let `current-substring` be the returned value of calling 
-    `string.slice($string, 1, `index` - 1)`.
+    `string.slice($string, 1, index - 1)`.
 
     * Append `current-substring` to the end of `split-list`.
     
-    * Set `$string` to `string.slice($string, index + string.length($separator)`.
+    * Set `$string` to `string.slice($string, index + string.length($separator))`.
 
 * Return `split-list`.
