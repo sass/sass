@@ -9,7 +9,7 @@ This proposal adds `string.split()` to the `sass:string` module.
 * [Background](#background)
 * [Summary](#summary)
 * [Semantics](#semantics)
-  * [`string.split()`](#string.split)
+  * [`split()`](#split)
 
 ## Background
 
