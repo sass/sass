@@ -28,12 +28,12 @@ functionality.
 
 This proposal adds the `string.split()` function to the
 `sass:string` module. The function takes a string, splits it
-based on a provided `separator`, and returns a space-separated
+based on a provided separator, and returns a space-separated
 list of substrings.
 
-This could be used to take a provided string and repurpose
+This could be used to take a string and repurpose
 parts of it for some other use. For example, fonts 
-contained in a font stack list could be split off and 
+contained in a font stack list could be split into segments and 
 then used as keys in a new map. 
 
 Examples:
@@ -51,7 +51,7 @@ returned in the list:
   ```
 
 
-An empty `$separator` returns all characters in the original string:
+An empty `$separator` returns all Unicode code points in the original string:
 
 - ```scss
   $font: "Helvetica"
@@ -64,40 +64,38 @@ An empty `$separator` returns all characters in the original string:
 ### `split()`
 
 ```
-split($string, $separator, $limit)
+split($string, $separator, $limit: null)
 ```
 
 * If `$string` is not a string, throw an error.
 
-* If `$string` is an empty string, or `$separator` is `null`, 
-return a list with `$string` as the only item.
+* If `$string` is an empty string, return a list with `$string` as the only item.
 
-* If `$limit` is 0 or `null`, return an empty list.
+* If `$separator` is `null`, throw an error.
 
-* If `$separator` is empty (`''`), return a list of each individual 
-character in `$string`.
+* If `$separator` is empty (`''`), return a list consisting of each Unicode code point in `$string`.
 
-* If `$limit` is a value other than an integer or `null`, return an 
-empty list.
+* If `$limit` is a value other than an integer or `null`, throw an error.
+
+* If `$limit` is a negative number, throw an error. 
+
+* If `$limit` is 0, return an empty list.
 
 * Let `split-list` be an empty list.
 
-* Let `length` be the value of calling `string.length($string)`.
+* Let `length` be the result of calling `string.length($string)`.
 
-* Let `index` be the value of calling `string.index($string, $separator)`.
+* Let `index` be the result of calling `string.index($string, $separator)`.
 
-* If `$limit == > 0`:
+* Let `limit` be the value of `$limit`.
 
-  * Let `limit` be the value of `$limit`.
+* Otherwise, if `$limit` is `null`, set `limit` to the value of `length`.
 
-  * Otherwise, let `limit` be the value of `string.length($string)`.
+* While `list.length(split-list)` is less than `limit`:
 
-* While `list.length(split-list)` is less than `$limit`:
+    * Call `index` to find the first instance of `$separator`.
 
-    * Call `string.index($string, $separator)` to find the first 
-    instance of the `$separator`.
-
-    * Let `current-substring` be the returned value of calling 
+    * Let `current-substring` be the result of calling 
     `string.slice($string, 1, index - 1)`.
 
     * Append `current-substring` to the end of `split-list`.
