@@ -38,25 +38,25 @@ then used as keys in a new map.
 
 Examples:
 
-  - ```scss
-    $fonts: "Helvetica Neue, Helvetica, Arial";
-    string.split($fonts, ', '); // "Helvetica Neue" "Helvetica" "Arial"
-    ```
+```scss
+$fonts: "Helvetica Neue, Helvetica, Arial";
+string.split($fonts, ', '); // "Helvetica Neue" "Helvetica" "Arial"
+```
 
 A third argument can limit the number of strings 
 returned in the list:
 
-- ```scss
-  string.split($fonts, ', ', 2); // "Helvetica Neue" "Helvetica"
-  ```
+```scss
+string.split($fonts, ', ', 2); // "Helvetica Neue" "Helvetica"
+```
 
 
 An empty `$separator` returns all Unicode code points in the original string:
 
-- ```scss
-  $font: "Helvetica"
-  string.split($font, ''); // "H" "e" "l" "v" "e" "t" "i" "c" "a"
-  ```
+```scss
+$font: "Helvetica"
+string.split($font, ''); // "H" "e" "l" "v" "e" "t" "i" "c" "a"
+```
 
 
 ## Semantics
