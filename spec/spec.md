@@ -133,7 +133,16 @@ It runs as follows:
     > value, implementations should help users understand the source of the string
     > if possible.
 
-* If `importer` is null, set it to a function that always returns null.
+* If `importer` is null:
+
+  * If `url` is a `file:` URL, set `importer` to be a [filesystem importer] with an
+    arbitrary `base`.
+
+    > This importer will only ever be passed absolute URLs, so its base won't
+    > matter.
+
+  * If `url` is not a `file:` URL, set `importer` to be a function that always
+    returns null.
 
 * Let `file` be the [source file][] with `ast`, canonical URL `url`, and
   importer `importer`.

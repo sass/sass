@@ -333,8 +333,8 @@ export interface Options<sync extends 'sync' | 'async'> {
  * Options that can be passed to [[compileString]] or [[compileStringAsync]].
  *
  * If the [[StringOptionsWithImporter.importer]] field isn't passed, the
- * entrypoint file can't load files relative to itself and the [[url]] field is
- * optional.
+ * entrypoint file can load files relative to itself if a `file://` URL is
+ * passed to the [[url]] field.
  *
  * @typeParam sync - This lets the TypeScript checker verify that asynchronous
  * [[Importer]]s, [[FileImporter]]s, and [[CustomFunction]]s aren't passed to
@@ -354,9 +354,11 @@ export interface StringOptionsWithoutImporter<sync extends 'sync' | 'async'>
   syntax?: Syntax;
 
   /**
-   * The canonical URL of the entrypoint stylesheet. If this isn't passed along
-   * with [[StringOptionsWithoutImporter.importer]], it's optional and only used
-   * for error reporting.
+   * The canonical URL of the entrypoint stylesheet.
+   *
+   * A relative load's URL is first resolved relative to [[url]], then resolved
+   * to a file on disk if it's a `file://` URL. If it can't be resolved to a
+   * file on disk, it's then passed to [[importers]] and [[loadPaths]].
    *
    * @category Input
    */
