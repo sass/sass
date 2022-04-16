@@ -179,8 +179,8 @@ modifications. The following productions should produce errors:
   * `@warn`
   * `@while`
 
-* An `@import` that contains interpolation in the `url()`, the media query, or
-  the supports query.
+* An `@import` that contains interpolation in the `url()`, the media query, the
+  layer query, or the supports query.
 
 * An `@import` that appears within a style rule or at-rule.
 

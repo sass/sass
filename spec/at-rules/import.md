@@ -15,11 +15,13 @@ still supported for backwards-compatibility.
 
 <x><pre>
 **ImportRule**                ::= '@import' ImportArgument (',' ImportArgument)*
-**ImportArgument**            ::= ImportUrl ImportSupportsDeclaration? [MediaQueryList][]?
+**ImportArgument**            ::= ImportUrl ImportLayer? ImportSupportsDeclaration? [MediaQueryList][]?
+**ImportLayer**                 ::= 'layer' ('(' InterpolatedIdentifier ('.' InterpolatedIdentifier)* ')')?
 **ImportUrl**                 ::= QuotedString | [InterpolatedUrl][]
 **ImportSupportsDeclaration** ::= 'supports(' SupportsDeclaration ')'
 </pre></x>
 
+[InterpolatedIdentifier]: ../syntax.md#InterpolatedIdentifier
 [InterpolatedUrl]: ../syntax.md#InterpolatedUrl
 [MediaQueryList]: media.md#syntax
 
@@ -34,6 +36,7 @@ To execute an `@import` rule `rule`:
     * `argument`'s URL string begins with `http://` or `https://`.
     * `argument`'s URL string ends with `.css`.
     * `argument`'s URL is an `InterpolatedUrl`.
+    * `argument` has an `ImportLayer`.
     * `argument` has an `ImportSupportsDeclaration`.
     * `argument` has a `MediaQueryList`.
 
@@ -45,8 +48,8 @@ To execute an `@import` rule `rule`:
 
     * Evaluate any interpolation it contains.
 
-    * Add an `@import` with the evaluated string, media query, and/or supports
-      query to [the current module][]'s CSS AST.
+    * Add an `@import` with the evaluated string, media query, layer query,
+      and/or supports query to [the current module][]'s CSS AST.
 
   * Otherwise, let `file` be the result of [loading the file][] with
     `argument`'s URL string. If this returns null, throw an error.
