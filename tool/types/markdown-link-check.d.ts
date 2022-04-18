@@ -3,6 +3,7 @@ declare module 'markdown-link-check' {
     export interface Options {
       baseUrl?: string;
       retryOn429?: boolean;
+      ignorePatterns: Array<{pattern: RegExp}>;
     }
 
     export interface Result {
