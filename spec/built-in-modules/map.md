@@ -25,22 +25,31 @@ deep-merge($map1, $map2)
 
 * If `$map1` and `$map2` are not maps, throw an error.
 
-* Let `merged` be a copy of `$map1`.
+* Let `merged` be an empty map.
 
-* For each `new-key`/`new-value` pair in `$map2`:
+* For each `old-key`/`old-value` pair in `$map1`:
 
-  * If `merged` has a key `old-key` that's `==` to `new-key`:
+  * If `$map2` has a key `new-key` that's `==` to `old-key`:
 
-    * Let `old-value` be the value associated with `old-key` in `merged`.
-
-    * Remove `old-key`/`old-value` from `merged`.
+    * Let `new-value` be the value associated with `new-key` in `$map2`.
 
     * If both `old-value` and `new-value` are maps, set `new-value` to the
       result of calling `deep-merge()` with `old-value` and `new-value`.
 
-  * Associate `new-key` with `new-value` in `merged`.
+    * Associate `old-key` with `new-value` in `merged`.
+
+  * Otherwise, associate `old-key` with `old-value` in `merged`.
+
+* For each `new-key`/`new-value` pair in `$map2`:
+
+  * If `merged` doesn't have key that's `==` to `new-key`, associate `new-key`
+    with `new-value` in `merged`.
 
 * Return `merged`.
+
+> Note that the order of keys in each merged map is the same as the keys in
+> `$map1`, with any new keys from `$map2` added at the end in the same order
+> they appear in `$map2`. This matches the ordering of the `merge()` function.
 
 ### `deep-remove()`
 
