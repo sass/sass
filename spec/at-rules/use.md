@@ -95,8 +95,8 @@ This algorithm takes a `@use` rule `rule`, and returns either an identifier or
 * Let `basename` be the text after the final `/` in `path`, or the entire `path`
   if `path` doesn't contain `/`.
 
-* Let `module-name` be the text before the first `.` in `path`, or the entire
-  `path` if `path` doesn't contain `.`.
+* Let `module-name` be the text before the first `.` in `basename`, or the entire
+  `basename` if `basename` doesn't contain `.`.
 
 * If `module-name` begins with `_`, remove the leading `_` and set `module-name`
   to the result.
