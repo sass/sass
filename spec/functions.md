@@ -201,7 +201,7 @@ plain CSS function named `"rgb"` that function is named `"rgba"` instead.
 * ```
   rgb($channels)
   ```
-  
+
   * If `$channels` is a [special variable string][], return a plain CSS function
     string with the name `"rgb"` and the argument `$channels`.
 
@@ -286,8 +286,6 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
 
   * Let `hue` be the result of [converting] `$hue` to `deg` allowing unitless.
 
-  * Set `hue` to `(hue % 360deg) / 60deg`.
-
   * If `$saturation` and `$lightness` don't have unit `%`, throw an error.
 
   * Let `saturation` and `lightness` be the result of clamping `$saturation` and
@@ -325,7 +323,7 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
     function string with the name `"hsl"` and the same arguments.
 
   * Otherwise, throw an error.
-  
+
 * ```
   hsl($channels)
   ```

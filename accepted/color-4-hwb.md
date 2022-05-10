@@ -78,7 +78,7 @@ are left to a future proposal.
 
 ## Procedures
 
-### Scaling a Number 
+### Scaling a Number
 
 This algorithm takes a number `number`, a value `factor`, and a number `max`.
 It's written "scale `<number>` by `<factor>` with a `max` of `<max>`". It
@@ -112,7 +112,7 @@ All new functions are part of the `sass:color` built-in module.
   * If either of `$whiteness` or `$blackness` don't have unit `%` or aren't
     between `0%` and `100%` (inclusive), throw an error.
 
-  * Let `hue` be `($hue % 360) / 60` without units.
+  * Let `hue` be `$hue` without units.
 
   * Let `whiteness` be `$whiteness / 100%`.
 
@@ -131,7 +131,7 @@ All new functions are part of the `sass:color` built-in module.
     and rounded to the nearest integers.
 
   * Let `alpha` be the result of [percent-converting][] `$alpha` with a `max` of 1.
-  
+
   * Return a color with the given `red`, `green`, `blue`, and `alpha` channels.
 
   [percent-converting]: ../spec/built-in-modules/color.md#percent-converting-a-number
@@ -260,7 +260,7 @@ This function's new definition is as follows:
 
   * Let `hue`, `saturation`, and `lightness` be the result of calling
     `hue($color)`, `saturation($color)`, and `lightness($color)` respectively.
-  
+
   * If `$hue` isn't null, set `hue` to `hue + $hue`.
 
   * If `$saturation` isn't null, set `saturation` to `saturation + $saturation`
@@ -279,7 +279,7 @@ This function's new definition is as follows:
 
   * Let `hue`, `whiteness`, and `blackness` be the result of calling
     `hue($color)`, `whiteness($color)`, and `blackness($color)` respectively.
-  
+
   * If `$hue` isn't null, set `hue` to `hue + $hue`.
 
   * If `$whiteness` isn't null, set `whiteness` to `whiteness + $whiteness`
@@ -334,7 +334,7 @@ This function's new definition is as follows:
 
   * Let `green` be `$color`'s green channel if `$green` is null or `$green`
     without units otherwise.
-  
+
   * Let `blue` be `$color`'s blue channel if `$blue` is null or `$blue` without
     units otherwise.
 
@@ -401,7 +401,7 @@ This function's new definition is as follows:
 
 * If `$alpha` isn't null, set `alpha` to the result of [scaling][] `alpha` by
   `$alpha` with `max` 1.
-  
+
   [scaling]: #scaling-a-number
 
 * If any of `$red`, `$green`, or `$blue` aren't null:
