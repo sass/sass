@@ -15,26 +15,22 @@ This proposal adds `string.split()` to the `sass:string` module.
 
 > This section is non-normative.
 
-The `sass:string` module contains several functions for
-manipulating and finding out information about strings.
-Currently, though, there is no built-in function that splits
-one string into a list of substrings, and authors have been
-creating their own versions of functions that achieve this
-functionality.
+The `sass:string` module contains several functions for manipulating and finding 
+out information about strings. Currently, though, there is no built-in function 
+that splits one string into a list of substrings, and authors have been creating 
+their own versions of functions that achieve this functionality.
 
 ## Summary
 
 > This section is non-normative.
 
-This proposal adds the `string.split()` function to the
-`sass:string` module. The function takes a string, splits it
-based on a provided separator, and returns a space-separated
-list of substrings.
+This proposal adds the `string.split()` function to the `sass:string` module. 
+The function takes a string, splits it based on a provided separator, and 
+returns a space-separated list of substrings.
 
-This could be used to take a string and repurpose
-parts of it for some other use. For example, fonts 
-contained in a font stack list could be split into segments and 
-then used as keys in a new map. 
+This could be used to take a string and repurpose parts of it for some other 
+use. For example, fonts contained in a font stack list could be split into 
+segments and then used as keys in a new map. 
 
 Examples:
 
@@ -69,11 +65,13 @@ split($string, $separator, $limit: null)
 
 * If `$string` is not a string, throw an error.
 
-* If `$string` is an empty string, return a list with `$string` as the only item.
+* If `$string` is an empty string, return a list with `$string` as the only 
+item.
 
 * If `$separator` is `null`, throw an error.
 
-* If `$separator` is empty (`''`), return a list consisting of each Unicode code point in `$string`.
+* If `$separator` is empty (`''`), return a list consisting of each Unicode code 
+point in `$string`.
 
 * If `$limit` is a value other than an integer or `null`, throw an error.
 
@@ -100,6 +98,7 @@ split($string, $separator, $limit: null)
 
     * Append `current-substring` to the end of `split-list`.
     
-    * Set `$string` to `string.slice($string, index + string.length($separator))`.
+    * Set `$string` to 
+    `string.slice($string, index + string.length($separator))`.
 
 * Return `split-list`.
