@@ -6,6 +6,23 @@ still supported for backwards-compatibility.
 
 [`@use` rule]: use.md
 
+## Table of Contents
+
+* [Syntax](#syntax)
+* [Semantics](#semantics)
+
+## Syntax
+
+<x><pre>
+**ImportRule**                ::= '@import' ImportArgument (',' ImportArgument)*
+**ImportArgument**            ::= ImportUrl ImportSupportsDeclaration? [MediaQueryList][]?
+**ImportUrl**                 ::= QuotedString | [InterpolatedUrl][]
+**ImportSupportsDeclaration** ::= 'supports(' SupportsDeclaration ')'
+</pre></x>
+
+[InterpolatedUrl]: ../syntax.md#InterpolatedUrl
+[MediaQueryList]: media.md#syntax
+
 ## Semantics
 
 To execute an `@import` rule `rule`:
@@ -16,8 +33,9 @@ To execute an `@import` rule `rule`:
 
     * `argument`'s URL string begins with `http://` or `https://`.
     * `argument`'s URL string ends with `.css`.
-    * `argument`'s URL string is syntactically defined as a `url()`.
-    * `argument` has a media query and/or a supports query.
+    * `argument`'s URL is an `InterpolatedUrl`.
+    * `argument` has an `ImportSupportsDeclaration`.
+    * `argument` has a `MediaQueryList`.
 
     > Note that this means that imports that explicitly end with `.css` are
     > treated as plain CSS `@import` rules, rather than importing stylesheets as

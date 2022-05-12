@@ -73,6 +73,8 @@ function runLinkCheck(
           baseUrl: '',
           // If Github rate limit is reached, wait 60s and try again.
           retryOn429: true,
+          // Twitter links consistently fail.
+          ignorePatterns: [{pattern: /^https?:\/\/twitter\.com(\/|$)/}],
         },
         (error, results) => {
           if (error) {

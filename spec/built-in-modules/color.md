@@ -38,7 +38,7 @@ This built-in module is available from the URL `sass:color`.
 
 ## Procedures
 
-### Percent-Converting a Number 
+### Percent-Converting a Number
 
 This algorithm takes a SassScript number `number` and a number `max`. It returns
 a number between 0 and `max`.
@@ -401,8 +401,6 @@ This function is also available as a global function named `hue()`.
     throw an error.
 
   * Let `hue` be the result of [converting] `$hue` to `deg` allowing unitless.
-
-  * Set `hue` to `(hue % 360deg) / 60deg`.
 
   * If either of `$whiteness` or `$blackness` don't have unit `%` or aren't
     between `0%` and `100%` (inclusive), throw an error.

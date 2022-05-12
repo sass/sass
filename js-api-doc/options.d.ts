@@ -38,7 +38,8 @@ export type OutputStyle = 'expanded' | 'compressed';
  * const result = sass.compile('style.scss', {
  *   functions: {
  *     "sum($arg1, $arg2)": (args) => {
- *       const value1 = args[0].assertNumber('arg1').value;
+ *       const arg1 = args[0].assertNumber('arg1');
+ *       const value1 = arg1.value;
  *       const value2 = args[1].assertNumber('arg2')
  *           .convertValueToMatch(arg1, 'arg2', 'arg1');
  *       return new sass.SassNumber(value1 + value2).coerceToMatch(arg1);

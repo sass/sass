@@ -7,6 +7,7 @@
   * [Vendor Prefix](#vendor-prefix)
 * [Grammar](#grammar)
   * [`InterpolatedIdentifier`](#interpolatedidentifier)
+  * [`InterpolatedUrl`](#interpolatedurl)
   * [`Name`](#name)
   * [`SpecialFunctionExpression`](#specialfunctionexpression)
   * [`PseudoSelector`](#pseudoselector)
@@ -49,6 +50,17 @@ as the *unprefixed identifier*.
 [Name]: #name
 
 No whitespace is allowed between components of an `InterpolatedIdentifier`.
+
+### `InterpolatedUrl`
+
+<x><pre>
+**InterpolatedUrl**         ::= 'url(' (QuotedString | InterpolatedUnquotedUrlContents) ')'
+**InterpolatedUnquotedUrlContents** ::= ([unescaped url contents][] | [escape][] | Interpolation)*
+</pre></x>
+
+[unescaped url contents]: https://www.w3.org/TR/css-syntax-3/#url-token-diagram
+
+No whitespace is allowed between components of an `InterpolatedUnquotedUrlContents`.
 
 ### `Name`
 
