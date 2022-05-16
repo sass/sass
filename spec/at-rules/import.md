@@ -15,15 +15,24 @@ still supported for backwards-compatibility.
 
 <x><pre>
 **ImportRule**                ::= '@import' ImportArgument (',' ImportArgument)*
-**ImportArgument**            ::= ImportUrl ImportLayer? ImportSupportsDeclaration? [MediaQueryList][]?
-**ImportLayer**                 ::= 'layer' ('(' InterpolatedIdentifier ('.' InterpolatedIdentifier)* ')')?
+**ImportArgument**            ::= ImportUrl ImportModifier*
+**ImportModifier**            ::= ImportFunction | ImportSupports | [MediaQueryList]
+**ImportSupports**            ::= 'supports(' SupportsDeclaration ')'
+**ImportFunction**            ::= [InterpolatedIdentifier]¹ '(' InterpolatedDeclarationValue? ')'
 **ImportUrl**                 ::= QuotedString | [InterpolatedUrl][]
-**ImportSupportsDeclaration** ::= 'supports(' SupportsDeclaration ')'
 </pre></x>
 
 [InterpolatedIdentifier]: ../syntax.md#InterpolatedIdentifier
 [InterpolatedUrl]: ../syntax.md#InterpolatedUrl
 [MediaQueryList]: media.md#syntax
+
+1: This identifier may not be the `"supports"`. No whitespace is allowed between
+   it and the following `(`.
+
+> Note that this parses `@import "..." layer` differently than the CSS standard:
+> in CSS, `layer` is a CSS layering keyword but Sass parses it as part of a
+> media query. This doesn't pose a problem in practice because Sass's semantics
+> never depend on how import modifiers are parsed.
 
 ## Semantics
 
@@ -36,9 +45,7 @@ To execute an `@import` rule `rule`:
     * `argument`'s URL string begins with `http://` or `https://`.
     * `argument`'s URL string ends with `.css`.
     * `argument`'s URL is an `InterpolatedUrl`.
-    * `argument` has an `ImportLayer`.
-    * `argument` has an `ImportSupportsDeclaration`.
-    * `argument` has a `MediaQueryList`.
+    * `argument` has at least one `ImportModifier`.
 
     > Note that this means that imports that explicitly end with `.css` are
     > treated as plain CSS `@import` rules, rather than importing stylesheets as
@@ -46,10 +53,26 @@ To execute an `@import` rule `rule`:
 
   * If `argument` is "plain CSS":
 
-    * Evaluate any interpolation it contains.
+    * Evaluate its `ImportModifier`s in order and concatenate the results into a
+      single string with `" "` between each one:
 
-    * Add an `@import` with the evaluated string, media query, layer query,
-      and/or supports query to [the current module][]'s CSS AST.
+      * For an `ImportFunction`, concatenate:
+        * The result of evaluating its `InterpolatedIdentifier`
+        * `"("`
+        * The result of evaluating its `InterpolatedDeclarationValue` (or `""`
+          if it doesn't have one)
+        * `")"`
+
+      * For an `ImportSupports`, concatenate:
+        * `"supports("`
+        * The result of evaluating its `SupportsDeclaration` as a CSS string
+        * `")"
+
+      * For a `MediaQuery`, concatenate the result of evaluating it as a CSS
+        string.
+
+    * Add an `@import` with the evaluated modifiers to [the current module]'s
+      CSS AST.
 
   * Otherwise, let `file` be the result of [loading the file][] with
     `argument`'s URL string. If this returns null, throw an error.
