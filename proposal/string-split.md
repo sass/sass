@@ -65,17 +65,14 @@ split($string, $separator, $limit: null)
 
 * If `$string` is not a string, throw an error.
 
-* If `$string` is an empty string, return a list with `$string` as the only 
-item.
-
-* If `$separator` is `null`, throw an error.
-
-* If `$separator` is empty (`''`), return a list consisting of each Unicode code 
-point in `$string`.
+* If `$separator` is `null` or is not a string, throw an error.
 
 * If `$limit` is a value other than an integer or `null`, throw an error.
 
-* If `$limit` is a negative number, throw an error. 
+* If `$limit` is a negative number, throw an error.
+
+* If `$string` is an empty string, return a list with `$string` as the only 
+item.
 
 * If `$limit` is 0, return an empty list.
 
@@ -83,22 +80,30 @@ point in `$string`.
 
 * Let `length` be the result of calling `string.length($string)`.
 
-* Let `index` be the result of calling `string.index($string, $separator)`.
-
 * Let `limit` be the value of `$limit`.
 
 * Otherwise, if `$limit` is `null`, set `limit` to the value of `length`.
 
-* While `list.length(split-list)` is less than `limit`:
+* While `list.length(split-list)` is less than `limit` and 
+`string.length($string) > 0`:
 
-    * Call `index` to find the first instance of `$separator`.
+  * If `$separator` is empty (`''`),
 
-    * Let `current-substring` be the result of calling 
+    * Let `code-point` be the value of calling `string.slice($string, 1, 1)`.
+
+    * Set `$string` to `string.slice($string, 2)`.
+  
+    * Append `code-point` to the end of `split-list`.
+
+  * Otherwise, let `index` be the result of calling 
+  `string.index($string, $separator)`.
+
+  * Let `current-substring` be the result of calling 
     `string.slice($string, 1, index - 1)`.
 
-    * Append `current-substring` to the end of `split-list`.
+  * Append `current-substring` to the end of `split-list`.
     
-    * Set `$string` to 
-    `string.slice($string, index + string.length($separator))`.
+  * Set `$string` to 
+  `string.slice($string, index + string.length($separator))`.
 
 * Return `split-list`.
