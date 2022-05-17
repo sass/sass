@@ -84,16 +84,16 @@ item.
 
 * Otherwise, if `$limit` is `null`, set `limit` to the value of `length`.
 
-* While `list.length(split-list)` is less than `limit` and 
+* While `list.length(split-list)` is `<=` `limit` and 
 `string.length($string) > 0`:
 
   * If `$separator` is empty (`''`),
 
     * Let `code-point` be the value of calling `string.slice($string, 1, 1)`.
 
-    * Set `$string` to `string.slice($string, 2)`.
-  
     * Append `code-point` to the end of `split-list`.
+
+    * Set `$string` to `string.slice($string, 2)`.
 
   * Otherwise, let `index` be the result of calling 
   `string.index($string, $separator)`.
