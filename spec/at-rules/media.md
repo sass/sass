@@ -22,15 +22,16 @@ plain CSS.
 Media queries are parsed from Sass source using the following syntax:
 
 <x><pre>
-**MediaQueryList** ::= MediaQuery (',' MediaQuery)*
-**MediaQuery**     ::= MediaType | (MediaType 'and')? MediaFeature ('and' MediaFeature)*
-**MediaType**      ::= [InterpolatedIdentifier][] [InterpolatedIdentifier][]¹?
-**MediaFeature**   ::= Interpolation
-&#32;                 | '(' Expression² ')'
-&#32;                 | '(' Expression² ':' Expression ')'
-&#32;                 | '(' Expression² [\<mf-comparison>][] Expression² ')'
-&#32;                 | '(' Expression² [\<mf-lt>][] Expression² [\<mf-lt>][] Expression² ')'
-&#32;                 | '(' Expression² [\<mf-gt>][] Expression² [\<mf-gt>][] Expression² ')'
+**MediaQueryList**       ::= MediaQuery (',' MediaQuery)*
+**MediaQuery**           ::= MediaType ('and' MediaFeature)*
+&#32;                      | MediaFeatureInParens ('and' MediaFeature)*
+**MediaType**            ::= [InterpolatedIdentifier][] [InterpolatedIdentifier][]¹?
+**MediaFeature**         ::= Interpolation | MediaFeatureInParens
+**MediaFeatureInParens** ::= '(' Expression² ')'
+&#32;                      | '(' Expression² ':' Expression ')'
+&#32;                      | '(' Expression² [\<mf-comparison>][] Expression² ')'
+&#32;                      | '(' Expression² [\<mf-lt>][] Expression² [\<mf-lt>][] Expression² ')'
+&#32;                      | '(' Expression² [\<mf-gt>][] Expression² [\<mf-gt>][] Expression² ')'
 </pre></x>
 
 [InterpolatedIdentifier]: ../syntax.md#interpolatedidentifier
