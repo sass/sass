@@ -26,7 +26,7 @@ their own versions of functions that achieve this functionality.
 
 This proposal adds the `string.split()` function to the `sass:string` module. 
 The function takes a string, splits it based on a provided separator, and 
-returns a space-separated list of substrings.
+returns an unbracketed, comma-separated list of substrings.
 
 This could be used to take a string and repurpose parts of it for some other 
 use. For example, fonts contained in a font stack list could be split into 
@@ -36,14 +36,14 @@ Examples:
 
 ```scss
 $fonts: "Helvetica Neue, Helvetica, Arial";
-string.split($fonts, ', '); // "Helvetica Neue" "Helvetica" "Arial"
+string.split($fonts, ', '); // "Helvetica Neue", "Helvetica", "Arial"
 ```
 
-A third argument can limit the number of strings 
-returned in the list:
+A third argument can set a limit to the the number of splits performed on the 
+string:
 
 ```scss
-string.split($fonts, ', ', 2); // "Helvetica Neue" "Helvetica"
+string.split($fonts, ', ', 1); // "Helvetica Neue", "Helvetica, Arial"
 ```
 
 
@@ -51,7 +51,7 @@ An empty `$separator` returns all Unicode code points in the original string:
 
 ```scss
 $font: "Helvetica"
-string.split($font, ''); // "H" "e" "l" "v" "e" "t" "i" "c" "a"
+string.split($font, ''); // "H", "e", "l", "v", "e", "t", "i", "c", "a"
 ```
 
 
@@ -72,9 +72,9 @@ split($string, $separator, $limit: null)
 * If `$limit` is a negative number, throw an error.
 
 * If `$string` is an empty string, return a list with `$string` as the only 
-item.
+  item.
 
-* If `$limit` is 0, return an empty list.
+* If `$limit` is 0, return a list with `$string` as the only item.
 
 * Let `split-list` be an empty list.
 
@@ -84,26 +84,48 @@ item.
 
 * Otherwise, if `$limit` is `null`, set `limit` to the value of `length`.
 
-* While `list.length(split-list)` is `<=` `limit` and 
-`string.length($string) > 0`:
+* Let `split-counter` equal 0.
 
-  * If `$separator` is empty (`''`),
+* While `split-counter` is `<=` `limit` and `length` is `>` 0:
 
-    * Let `code-point` be the value of calling `string.slice($string, 1, 1)`.
+  * If `split-counter` `==` `limit`:
 
-    * Append `code-point` to the end of `split-list`.
+    * Append `$string` to `split-list`.
 
-    * Set `$string` to `string.slice($string, 2)`.
+    * Set `$string` to an empty string. 
 
-  * Otherwise, let `index` be the result of calling 
-  `string.index($string, $separator)`.
+  * Otherwise:
 
-  * Let `current-substring` be the result of calling 
-    `string.slice($string, 1, index - 1)`.
+    * If `$separator` is an empty string:
 
-  * Append `current-substring` to the end of `split-list`.
+      * Let `code-point` be the value of calling `string.slice($string, 1, 1)`.
+
+      * Append `code-point` to `split-list`.
+
+      * Set `$string` to `string.slice($string, 2)`.
+
+      * Increase `split-counter` by 1.
+
+    * Otherwise:
+
+      * Let `index` be the result of calling 
+        `string.index($string, $separator)`.
+
+      * If `index` is null, append `$string` to `split-list` and set `$string` 
+        to an empty string.
+
+      * Otherwise:
+
+        * Let `current-substring` be the result of calling
+          `string.slice($string, 1, index - 1)`.
+
+        * Append `current-substring` to `split-list`.
     
-  * Set `$string` to 
-  `string.slice($string, index + string.length($separator))`.
+        * Set `$string` to 
+          `string.slice($string, index + string.length($separator))`.
 
-* Return `split-list`.
+        * Increase `split-counter` by 1.
+
+  * Set `length` to `string.length($string)`.
+      
+* Return `split-list` as an unbracketed, comma-separated list.
