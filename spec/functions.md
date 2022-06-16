@@ -45,6 +45,28 @@ matching is case-insensitive.
 ## Syntax
 
 <x><pre>
+**FunctionExpression**¹ ::= [CssMinMax]
+&#32;                     | [SpecialFunctionExpression]
+&#32;                     | [CalculationExpression]
+&#32;                     | FunctionCall
+**FunctionCall**²       ::= [NamespacedIdentifier] ArgumentInvocation
+</pre></x>
+
+[CssMinMax]: types/calculation.md#cssminmax
+[SpecialFunctionExpression]: syntax.md#specialfunctionexpression
+[CalculationExpression]: types/calculation.md#calculationexpression
+[NamespacedIdentifier]: modules.md#syntax
+
+1: If both `CssMinMax` and `FunctionCall` could be consumed, `CssMinMax`
+   takes precedence.
+
+2: `FunctionCall` may not have any whitespace between the `NamespacedIdentifier`
+   and the `ArgumentInvocation`. It may not start with [`SpecialFunctionName`],
+   `'calc('`, or `'clamp('` (case-insensitively).
+
+[`SpecialFunctionName`]: #specialfunctionexpression
+
+<x><pre>
 **FunctionCall** ::= [NamespacedIdentifier][] ArgumentInvocation
 </pre></x>
 
