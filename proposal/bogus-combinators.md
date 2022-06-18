@@ -10,7 +10,23 @@ selector nesting.
 
 ## Table of Contents
 
-* [Foo](#foo)
+* [Background](#background)
+* [Summary](#summary)
+  * [Phase 1: Deprecation](#phase-1-deprecation)
+  * [Phase 2: Removal](#phase-2-removal)
+* [Definitions](#definitions)
+  * [Visible Combinator](#visible-combinator)
+  * [Complex Selector](#complex-selector)
+  * [Complex Selector Component](#complex-selector-component)
+  * [Trailing Combinator](#trailing-combinator)
+  * [Bogus Selector](#bogus-selector)
+* [Syntax](#syntax)
+* [Semantics](#semantics)
+  * [Evaluating a Style Rule](#evaluating-a-style-rule)
+* [Functions](#functions)
+* [Deprecation Process](#deprecation-process)
+  * [Phase 1](#phase-1)
+  * [Phase 2](#phase-2)
 
 ## Background
 
