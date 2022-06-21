@@ -42,11 +42,11 @@ users.
 
 > This section is non-normative.
 
-We will address the confusion by the ambiguous case entirely. Any expression of
-the form `$a -$b` or `$a +$b` will produce an error that will suggest the user
-disambiguate by either writing `$a - $b` or `$a (-$b)`, which clearly represent
-the intention to use a binary or unary operator, respectively. Other constructs
-such as `($a)-$b` will still be allowed.
+We will address the confusion by forbidding the ambiguous case entirely. Any
+expression of the form `$a -$b` or `$a +$b` will produce an error that will
+suggest the user disambiguate by either writing `$a - $b` or `$a (-$b)`, which
+clearly represent the intention to use a binary or unary operator, respectively.
+Other constructs such as `($a)-$b` will still be allowed.
 
 As with any breaking change, we will begin by deprecating the old behavior.
 Since this isn't a CSS compatibility issue, the breaking change won't land until
