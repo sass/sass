@@ -7,6 +7,8 @@
   * [Special Variable String](#special-variable-string)
 * [Syntax](#syntax)
 * [Semantics](#semantics)
+  * [`EmptyFallbackVar`:](#emptyfallbackvar)
+  * [`FunctionCall`](#functioncall)
 * [Global Functions](#global-functions)
   * [`adjust-hue()`](#adjust-hue)
   * [`alpha()`](#alpha)
@@ -48,8 +50,10 @@ matching is case-insensitive.
 **FunctionExpression**¹ ::= [CssMinMax]
 &#32;                     | [SpecialFunctionExpression]
 &#32;                     | [CalculationExpression]
+&#32;                     | EmptyFallbackVar
 &#32;                     | FunctionCall
-**FunctionCall**²       ::= [NamespacedIdentifier] ArgumentInvocation
+**EmptyFallbackVar**²   ::= 'var(' Expression ',' ')'
+**FunctionCall**⁴       ::= [NamespacedIdentifier] ArgumentInvocation
 </pre></x>
 
 [CssMinMax]: types/calculation.md#cssminmax
@@ -57,10 +61,12 @@ matching is case-insensitive.
 [CalculationExpression]: types/calculation.md#calculationexpression
 [NamespacedIdentifier]: modules.md#syntax
 
-1: If both `CssMinMax` and `FunctionCall` could be consumed, `CssMinMax`
-   takes precedence.
+1: Both `CssMinMax` and `EmptyFallbackVar` take precedence over `FunctionCall`
+   if either could be consumed.
 
-2: `FunctionCall` may not have any whitespace between the `NamespacedIdentifier`
+2: `'var('` is matched case-insensitively.
+
+4: `FunctionCall` may not have any whitespace between the `NamespacedIdentifier`
    and the `ArgumentInvocation`. It may not start with [`SpecialFunctionName`],
    `'calc('`, or `'clamp('` (case-insensitively).
 
@@ -77,13 +83,29 @@ No whitespace is allowed between the `NamespacedIdentifier` and the
 
 ## Semantics
 
+### `EmptyFallbackVar`:
+
+To evaluate an `EmptyFallbackVar` `call`:
+
+* Let `argument` be the result of evaluating `call`'s `Expression`.
+
+* Let `function` be the result of [resolving a function] named `'var'`.
+
+  [resolving a function]: modules.md#resolving-a-member
+
+* If `function` is null, return an unquoted string consisting of `'var('`
+  followed by `argument`'s CSS representation followed by `',)'`.
+
+* Return the result of calling `function` with `argument` as its first argument
+  and an empty unquoted string as its second argument.
+
+### `FunctionCall`
+
 To evaluate a `FunctionCall` `call`:
 
 * Let `name` be `call`'s `NamespacedIdentifier`.
 
 * Let `function` be the result of [resolving a function][] named `name`.
-
-  [resolving a function]: modules.md#resolving-a-member
 
 * If `function` is null and `name` is not a plain `Identifier`, throw an error.
 
