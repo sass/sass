@@ -1,6 +1,6 @@
-# Bogus Combinators: Draft 1
+# Bogus Combinators: Draft 2
 
-*([Issue](https://github.com/sass/sass/issues/3340))*
+*([Issue](https://github.com/sass/sass/issues/3340), [Changelog](bogus-combinators.changes.md))*
 
 This proposal increases the strictness with which Sass parses and resolves
 non-standard ("bogus") uses of selector combinators. In particular, it forbids
@@ -21,6 +21,7 @@ use of leading combinators (such as `> a`) and trailing combinators (such as `a
   * [Trailing Combinator](#trailing-combinator)
   * [Bogus Selector](#bogus-selector)
 * [Syntax](#syntax)
+  * [`ComplexSelector`](#complexselector)
 * [Semantics](#semantics)
   * [Evaluating a Style Rule](#evaluating-a-style-rule)
 * [Functions](#functions)
@@ -108,7 +109,7 @@ warnings. In particular:
 A *visible combinator* is any selector [combinator] other than the [descendant
 combinator].
 
-[selector combinator]: https://drafts.csswg.org/selectors-4/#combinators
+[combinator]: https://drafts.csswg.org/selectors-4/#combinators
 [descendant combinator]: https://drafts.csswg.org/selectors-4/#descendant-combinators
 
 ### Complex Selector
@@ -146,13 +147,16 @@ descendant combinator, the complex selector doesn't have a trailing combinator.
 
 A [complex selector] is *bogus* if it has a leading or [trailing combinator], or
 if any of the simple selectors it transitively contains is a selector pseudo
-with a bogus selector.
+with a bogus selector, except that `:has()` may contain complex selectors with
+leading combinators.
 
 A selector list is *bogus* if any of its complex selectors are bogus.
 
 [trailing combinator]: #trailing-combinator
 
 ## Syntax
+
+### `ComplexSelector`
 
 > Note that the existing productions being modified have not been defined
 > explicitly before this document. The old productions are listed in
@@ -162,12 +166,13 @@ This proposal modifies the existing `ComplexSelector` and
 `ComplexSelectorComponent` productions to drop support for multiple combinators:
 
 <x><pre>
-~~**ComplexSelector**          ::= Combinator* ComplexSelectorComponent+~~
-~~**ComplexSelectorComponent** ::= CompoundSelector Combinator*~~
-**ComplexSelector**          ::= Combinator? ComplexSelectorComponent+
-**ComplexSelectorComponent** ::= CompoundSelector Combinator?
-**Combinator**               ::= '+' | '>' | '~'
+~~**ComplexSelector**          ::= [\<combinator>]* ComplexSelectorComponent+~~
+~~**ComplexSelectorComponent** ::= CompoundSelector [\<combinator>]*~~
+**ComplexSelector**          ::= [\<combinator>]? ComplexSelectorComponent+
+**ComplexSelectorComponent** ::= CompoundSelector [\<combinator>]?
 </pre></x>
+
+[\<combinator>]: https://drafts.csswg.org/selectors-4/#typedef-combinator
 
 ## Semantics
 
@@ -209,8 +214,8 @@ In particular:
 
 * The newly-added errors produce deprecation warnings instead.
 
-* In [Evalutating a Style Rule], only append `css` to the current module's CSS
-  if its selector is not [bogus].
+* In [Evaluating a Style Rule], only append `css` to the current module's CSS if
+  its selector is not [bogus].
 
 * In [Extending a Selector], if a complex selector has multiple combinators, or
   if any of its components has multiple combinators, treat it as a selector that
