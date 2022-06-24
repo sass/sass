@@ -45,6 +45,18 @@ export interface Options<sync extends 'sync' | 'async'> {
   alertColor?: boolean;
 
   /**
+   * If `true`, the compiler may prepend `@charset "UTF-8";` or U+FEFF
+   * (byte-order marker) if it outputs non-ASCII CSS.
+   *
+   * If `false`, the compiler never emits these byte sequences. This is ideal
+   * when concatenating or embedding in HTML `<style>` tags. (The output will
+   * still be UTF-8.)
+   *
+   * @default true
+   */
+  charset?: boolean;
+
+  /**
    * When the compiler encounters a global function call with a signature that
    * does not match that of a built-in function, but matches a key in this
    * record, it must call the associated `CustomFunction` and return its result.
