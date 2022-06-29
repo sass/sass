@@ -1,3 +1,8 @@
+## 1.1.0
+
+* Add a `charset` option that controls whether or not Sass emits a
+  `@charset`/BOM for non-ASCII stylesheets.
+
 ## 1.0.0
 
 * First stable release.

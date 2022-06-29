@@ -128,6 +128,9 @@ message InboundMessage {
 
     // Whether to include sources in the generated sourcemap
     bool source_map_include_sources = 12;
+
+    // Whether to emit a `@charset`/BOM for non-ASCII stylesheets.
+    bool charset = 13;
   }
 
   // A response indicating the result of canonicalizing an imported URL.
