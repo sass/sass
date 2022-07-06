@@ -2,6 +2,8 @@
 
 * Clarify the definition of bogus selectors in Phase 2.
 
+* Support single leading combinators in Phase 1.
+
 ## Draft 2
 
 * Allow leading combinators in `:has()`.

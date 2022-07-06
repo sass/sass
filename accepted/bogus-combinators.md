@@ -213,7 +213,11 @@ In particular:
 * The newly-added errors produce deprecation warnings instead.
 
 * In [Evaluating a Style Rule], only append `css` to the current module's CSS if
-  its selector is not [bogus].
+  its selector is not [bogus], or if it has a single leading combinator but is
+  otherwise not bogus.
+
+  > Leading combinators are allowed in Phase 1 (but still emit deprecation
+  > warnings) because they may be used for nesting along with `meta.load-css()`.
 
 * In [Extending a Selector], if a complex selector has multiple combinators, or
   if any of its components has multiple combinators, treat it as a selector that
