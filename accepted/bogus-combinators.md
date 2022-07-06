@@ -1,4 +1,4 @@
-# Bogus Combinators: Draft 2
+# Bogus Combinators: Draft 3
 
 *([Issue](https://github.com/sass/sass/issues/3340), [Changelog](bogus-combinators.changes.md))*
 
@@ -207,10 +207,8 @@ In particular:
 
 * The parsing of `ComplexSelector` and `ComplexSelectorComponent` is unchanged.
 
-* A complex selector is instead considered [bogus] if it contains any leading
-  combinators, if its final component contains any combinators, or if any of its
-  components contains multiple combinators, or if any of the simple selectors it
-  transitively contains is a selector pseudo with a bogus selector.
+* A complex selector is instead considered [bogus] if it would be bogus in Phase
+  2 _or_ if it can be parsed in Phase 1 but not in Phase 2.
 
 * The newly-added errors produce deprecation warnings instead.
 
