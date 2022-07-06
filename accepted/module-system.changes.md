@@ -1,3 +1,7 @@
+## Draft 10
+
+* Update the timeline for the deprecation and removal of `@import`.
+
 ## Draft 9
 
 * Don't add imported module members to the global scope for a nested import.
