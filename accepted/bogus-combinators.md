@@ -189,12 +189,18 @@ creating a CSS style rule:
 
 ## Functions
 
-For the `selector.append()`, `selector.extend()`, `selector.is-superselector()`,
+For the `selector.extend()`, `selector.is-superselector()`,
 `selector.replace()`, and `selector.unify()` functions, after parsing their
 selector arguments, throw an error if any of the parsed selectors are [bogus].
 
-> `selector.nest()` is still allowed to take bogus selectors, because they're
-> explicitly useful for nesting.
+> `selector.append()`, `selector.nest()`, and `selector.parse()` are still
+> allowed to take bogus selectors because these functions are syntactic rather
+> than semantic. This means on one hand that there aren't ambiguities about how
+> to handle bogus selector inputs, and on the other that it may be useful to
+> emit bogus selectors for later use in nesting contexts.
+>
+> Note that `selector.append()` already forbids selectors with leading or
+> trailing combinators from being passed in between selectors.
 
 ## Deprecation Process
 

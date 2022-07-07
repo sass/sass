@@ -4,6 +4,8 @@
 
 * Support single leading combinators in Phase 1.
 
+* Allow bogus selectors in `selector.append()`.
+
 ## Draft 2
 
 * Allow leading combinators in `:has()`.
