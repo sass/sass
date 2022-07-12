@@ -11,6 +11,8 @@
   * Don't throw an error for style rules that contain no children, since this
     would break nesting.
 
+  * Throw an error for an `@extend` rule with a bogus extender.
+
   * Support single leading combinators.
 
   * Allow bogus selectors in `selector.append()`.

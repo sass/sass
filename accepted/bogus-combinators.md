@@ -24,6 +24,7 @@ use of leading combinators (such as `> a`) and trailing combinators (such as `a
   * [`ComplexSelector`](#complexselector)
 * [Semantics](#semantics)
   * [Evaluating a Style Rule](#evaluating-a-style-rule)
+  * [Executing an Extend Rule](#executing-an-extend-rule)
 * [Functions](#functions)
 * [Deprecation Process](#deprecation-process)
   * [Phase 1](#phase-1)
@@ -186,6 +187,15 @@ each child of `rule`:
 * If `css` contains any children and `selector` is [bogus], throw an error.
 
 [bogus]: #bogus-selector
+
+### Executing an Extend Rule
+
+This proposal adds the following to [Executing an Extend Rule], after checking
+for a current style rule:
+
+[Executing an Extend Rule]: ../spec/at-rules/extend.md#executing-an-extend-rule
+
+* If the current style rule is [bogus], throw an error.
 
 ## Functions
 
