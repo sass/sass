@@ -178,12 +178,12 @@ This proposal modifies the existing `ComplexSelector` and
 
 ### Evaluating a Style Rule
 
-This proposal adds the following to [Evaluating a Style Rule], before
-creating a CSS style rule:
+This proposal adds the following to [Evaluating a Style Rule], after executing
+each child of `rule`:
 
 [Evaluating a Style Rule]: ../spec/style-rules.md#semantics
 
-* If `selector` is [bogus], throw an error.
+* If `css` contains any children and `selector` is [bogus], throw an error.
 
 [bogus]: #bogus-selector
 

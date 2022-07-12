@@ -1,12 +1,19 @@
 ## Draft 3
 
-* Clarify the definition of bogus selectors in Phase 2.
+* In Phase 1:
 
-* Support single leading combinators in Phase 1.
+  * Clarify the definition of bogus selectors.
 
-* Only omit style rules if _all_ of their complex selectors are bogus.
+  * Only omit style rules if _all_ of their complex selectors are bogus.
 
-* Allow bogus selectors in `selector.append()`.
+* In Phase 2:
+
+  * Don't throw an error for style rules that contain no children, since this
+    would break nesting.
+
+  * Support single leading combinators.
+
+  * Allow bogus selectors in `selector.append()`.
 
 ## Draft 2
 
