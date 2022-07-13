@@ -116,14 +116,16 @@ combinator].
 ### Complex Selector
 
 ~~A *complex selector* is a sequence of [visible combinators] (its *leading
-combinators*) as well as a sequence of one or more [complex selector
-components].~~
+combinators*) as well as a sequence of [complex selector components]. Either,
+but not both, of these sequences may be empty~~
 
 [visible combinators]: #visible-combinator 
 [complex selector components]: #complex-selector-components
 
 A *complex selector* is an optional [visible combinator] (its *leading
-combinator*) as well as a sequence of one or more [complex selector components].
+combinator*) as well as a sequence of [complex selector components]. The
+component sequence may be empty only for complex selectors with leading
+combinators.
 
 [visible combinator]: #visible-combinator 
 
@@ -168,8 +170,10 @@ This proposal modifies the existing `ComplexSelector` and
 
 <x><pre>
 ~~**ComplexSelector**          ::= [\<combinator>]* ComplexSelectorComponent+~~
+~~&#32;                          | [\<combinator>]+~~
 ~~**ComplexSelectorComponent** ::= CompoundSelector [\<combinator>]*~~
 **ComplexSelector**          ::= [\<combinator>]? ComplexSelectorComponent+
+&#32;                          | [\<combinator>]
 **ComplexSelectorComponent** ::= CompoundSelector [\<combinator>]?
 </pre></x>
 

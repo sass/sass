@@ -15,6 +15,8 @@
 
   * Support single leading combinators.
 
+  * Support complex selectors composed of only a single combinator.
+
   * Allow bogus selectors in `selector.append()`.
 
 ## Draft 2
