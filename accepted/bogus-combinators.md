@@ -239,9 +239,16 @@ In particular:
   > Leading combinators are allowed in Phase 1 (but still emit deprecation
   > warnings) because they may be used for nesting along with `meta.load-css()`.
 
-* In [Extending a Selector], if a complex selector has multiple combinators, or
-  if any of its components has multiple combinators, treat it as a selector that
-  can match no elements.
+* Define a "useless" selector as:
+
+  * A complex selector that has multiple combinators.
+
+  * A bogus pseudo selector.
+
+  * Any selector that contains a useless selector.
+
+  In [Extending a Selector], treat useless selectors as selectors that can match
+  no elements.
 
   [Extending a Selector]: ../spec/at-rules/extend.md#extending-a-selector
 

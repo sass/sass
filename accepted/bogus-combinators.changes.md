@@ -6,6 +6,10 @@
 
   * Only omit style rules if _all_ of their complex selectors are bogus.
 
+  * Expand the set of selectors that are treated by the extend algorithm as
+    matching nothing to include bogus pseudo selectors, since these can never be
+    transformed into anything useful.
+
 * In Phase 2:
 
   * Don't throw an error for style rules that contain no children, since this
