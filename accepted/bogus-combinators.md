@@ -1,4 +1,4 @@
-# Bogus Combinators: Draft 2
+# Bogus Combinators: Draft 3
 
 *([Issue](https://github.com/sass/sass/issues/3340), [Changelog](bogus-combinators.changes.md))*
 
@@ -24,6 +24,7 @@ use of leading combinators (such as `> a`) and trailing combinators (such as `a
   * [`ComplexSelector`](#complexselector)
 * [Semantics](#semantics)
   * [Evaluating a Style Rule](#evaluating-a-style-rule)
+  * [Executing an Extend Rule](#executing-an-extend-rule)
 * [Functions](#functions)
 * [Deprecation Process](#deprecation-process)
   * [Phase 1](#phase-1)
@@ -115,14 +116,16 @@ combinator].
 ### Complex Selector
 
 ~~A *complex selector* is a sequence of [visible combinators] (its *leading
-combinators*) as well as a sequence of one or more [complex selector
-components].~~
+combinators*) as well as a sequence of [complex selector components]. Either,
+but not both, of these sequences may be empty~~
 
 [visible combinators]: #visible-combinator 
 [complex selector components]: #complex-selector-components
 
 A *complex selector* is an optional [visible combinator] (its *leading
-combinator*) as well as a sequence of one or more [complex selector components].
+combinator*) as well as a sequence of [complex selector components]. The
+component sequence may be empty only for complex selectors with leading
+combinators.
 
 [visible combinator]: #visible-combinator 
 
@@ -167,8 +170,10 @@ This proposal modifies the existing `ComplexSelector` and
 
 <x><pre>
 ~~**ComplexSelector**          ::= [\<combinator>]* ComplexSelectorComponent+~~
+~~&#32;                          | [\<combinator>]+~~
 ~~**ComplexSelectorComponent** ::= CompoundSelector [\<combinator>]*~~
 **ComplexSelector**          ::= [\<combinator>]? ComplexSelectorComponent+
+&#32;                          | [\<combinator>]
 **ComplexSelectorComponent** ::= CompoundSelector [\<combinator>]?
 </pre></x>
 
@@ -178,23 +183,38 @@ This proposal modifies the existing `ComplexSelector` and
 
 ### Evaluating a Style Rule
 
-This proposal adds the following to [Evaluating a Style Rule], before
-creating a CSS style rule:
+This proposal adds the following to [Evaluating a Style Rule], after executing
+each child of `rule`:
 
 [Evaluating a Style Rule]: ../spec/style-rules.md#semantics
 
-* If `selector` is [bogus], throw an error.
+* If `css` contains any children and `selector` is [bogus], throw an error.
 
 [bogus]: #bogus-selector
 
+### Executing an Extend Rule
+
+This proposal adds the following to [Executing an Extend Rule], after checking
+for a current style rule:
+
+[Executing an Extend Rule]: ../spec/at-rules/extend.md#executing-an-extend-rule
+
+* If the current style rule is [bogus], throw an error.
+
 ## Functions
 
-For the `selector.append()`, `selector.extend()`, `selector.is-superselector()`,
+For the `selector.extend()`, `selector.is-superselector()`,
 `selector.replace()`, and `selector.unify()` functions, after parsing their
 selector arguments, throw an error if any of the parsed selectors are [bogus].
 
-> `selector.nest()` is still allowed to take bogus selectors, because they're
-> explicitly useful for nesting.
+> `selector.append()`, `selector.nest()`, and `selector.parse()` are still
+> allowed to take bogus selectors because these functions are syntactic rather
+> than semantic. This means on one hand that there aren't ambiguities about how
+> to handle bogus selector inputs, and on the other that it may be useful to
+> emit bogus selectors for later use in nesting contexts.
+>
+> Note that `selector.append()` already forbids selectors with leading or
+> trailing combinators from being passed in between selectors.
 
 ## Deprecation Process
 
@@ -207,19 +227,28 @@ In particular:
 
 * The parsing of `ComplexSelector` and `ComplexSelectorComponent` is unchanged.
 
-* A complex selector is instead considered [bogus] if it contains any leading
-  combinators, if its final component contains any combinators, or if any of its
-  components contains multiple combinators, or if any of the simple selectors it
-  transitively contains is a selector pseudo with a bogus selector.
+* A complex selector is instead considered [bogus] if it would be bogus in Phase
+  2 _or_ if it can be parsed in Phase 1 but not in Phase 2.
 
 * The newly-added errors produce deprecation warnings instead.
 
-* In [Evaluating a Style Rule], only append `css` to the current module's CSS if
-  its selector is not [bogus].
+* In [Evaluating a Style Rule], remove any complex selectors from `css`'s
+  selectors that are [bogus], except those that have a single leading combinator
+  but are otherwise not bogus.
 
-* In [Extending a Selector], if a complex selector has multiple combinators, or
-  if any of its components has multiple combinators, treat it as a selector that
-  can match no elements.
+  > Leading combinators are allowed in Phase 1 (but still emit deprecation
+  > warnings) because they may be used for nesting along with `meta.load-css()`.
+
+* Define a "useless" selector as:
+
+  * A complex selector that has multiple combinators.
+
+  * A bogus pseudo selector.
+
+  * Any selector that contains a useless selector.
+
+  In [Extending a Selector], treat useless selectors as selectors that can match
+  no elements.
 
   [Extending a Selector]: ../spec/at-rules/extend.md#extending-a-selector
 
