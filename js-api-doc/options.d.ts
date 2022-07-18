@@ -116,7 +116,9 @@ export interface Options<sync extends 'sync' | 'async'> {
    * when concatenating or embedding in HTML `<style>` tags. (The output will
    * still be UTF-8.)
    *
-   * @default true
+   * @defaultValue `true`
+   * @category Output
+   * @compatibility dart: "1.54.0", node: false
    */
   charset?: boolean;
 
