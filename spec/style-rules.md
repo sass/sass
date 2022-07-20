@@ -37,6 +37,10 @@ To execute a style rule `rule`:
 
 * Execute each child `child` of `rule`.
 
+* If `css` contains any children and `selector` is [bogus], throw an error.
+
+  [bogus]: selectors.md#bogus-selector
+
 * Remove any [complex selectors][] containing a placeholder selector that
   begins with `-` or `_` from `css`'s selector.
   

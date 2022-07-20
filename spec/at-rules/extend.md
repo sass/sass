@@ -107,6 +107,10 @@ To execute an `@extend` rule `rule`:
 
   [current style rule]: ../style-rules.md#current-style-rule
 
+* If the current style rule is [bogus], throw an error.
+
+  [bogus]: ../selectors.md#bogus-selector
+
 * Let `target` be the result of evaluating all interpolation in `rule`'s
   selector and parsing the result as a list of simple selectors.
 
