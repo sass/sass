@@ -1,6 +1,6 @@
-# Media Logic: Draft 1
+# Media Logic: Draft 1.1
 
-*([Issue](https://github.com/sass/sass/issues/2538))*
+*([Issue](https://github.com/sass/sass/issues/2538), [Changelog](media-logic.changes.md))*
 
 This proposal adds support for the full [Media Queries Level 4] syntax for media
 conditions, including arbitrary boolean logic using `and`, `or`, and `not`.
@@ -61,17 +61,17 @@ all identifiers matched case-insensitively):
 
 <x><pre>
 **MediaQuery**     ::= MediaNot
-&#32;                | MediaOrInterp (MediaAnd* | MediaOr*)
+&#32;                | MediaInParens (MediaAnd* | MediaOr*)
 &#32;                | MediaType ('and' MediaNot | MediaAnd*)
 **MediaType**      ::= [InterpolatedIdentifier] [InterpolatedIdentifier]¹?
-**MediaNot**       ::= 'not' MediaOrInterp
-**MediaAnd**       ::= 'and' MediaOrInterp
-**MediaOr**        ::= 'or' MediaOrInterp
+**MediaNot**²      ::= 'not' MediaOrInterp
+**MediaAnd**²      ::= 'and' MediaOrInterp
+**MediaOr**²       ::= 'or' MediaOrInterp
 **MediaOrInterp**  ::= Interpolation | MediaInParens
-**MediaInParens**  ::= '(' Expression² ')'
-&#32;                | '(' Expression² [\<mf-comparison>] Expression² ')'
-&#32;                | '(' Expression² [\<mf-lt>] Expression² [\<mf-lt>] Expression² ')'
-&#32;                | '(' Expression² [\<mf-gt>] Expression² [\<mf-gt>] Expression² ')'
+**MediaInParens**  ::= '(' Expression³ ')'
+&#32;                | '(' Expression³ [\<mf-comparison>] Expression³ ')'
+&#32;                | '(' Expression³ [\<mf-lt>] Expression³ [\<mf-lt>] Expression³ ')'
+&#32;                | '(' Expression³ [\<mf-gt>] Expression³ [\<mf-gt>] Expression³ ')'
 &#32;                | '(' MediaNot ')'
 &#32;                | '(' MediaInParens (MediaAnd* | MediaOr*) ')'
 </pre></x>
@@ -83,7 +83,10 @@ all identifiers matched case-insensitively):
 
 1. This `InterpolatedIdentifier` may not be the identifier `"and"`.
 
-2. These `Expression`s may not:
+2. No whitespace is allowed between the identifier and the `MediaOrInterp` in
+   these productions.
+
+3. These `Expression`s may not:
 
    * Contain binary operator expressions with the operators `=`, `>`, `>=`, `<`,
      or `<=`, except within parentheses (including function calls and map
@@ -98,7 +101,7 @@ all identifiers matched case-insensitively):
 Replace the definition of the [`CssMediaQuery`] production with the following (with
 all identifiers matched case-insensitively):
 
-[`MediaQuery`]: ../spec/at-rules/media.md#css
+[`CssMediaQuery`]: ../spec/at-rules/media.md#css
 
 <x><pre>
 **CssMediaQuery**     ::= CssMediaCondition
