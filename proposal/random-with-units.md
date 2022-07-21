@@ -1,9 +1,10 @@
-# Random: Draft 1
+# Random With Units: Draft 1
 
 *([Issue](https://github.com/sass/sass/issues/1890))*
 
-This proposal defines the behavior of the built-in [`random()`][random]
-function.
+This proposal modifies the behavior of the built-in [`math.random()`][random]
+function to return a number with matching units to the numeric argument it
+received.
 
 [random]: ../spec/built-in-modules/math.md#random
 
@@ -12,6 +13,8 @@ function.
 * [Background](#background)
 * [Summary](#summary)
   * [Design Decisions](#design-decisions)
+    * [New Behavior vs New Syntax](#new-behavior-vs-new-syntax)
+    * [No Stripping Units Fallback](#no-stripping-units-fallback)
 * [Semantics](#semantics)
 * [Deprecation Process](#deprecation-process)
 
@@ -19,72 +22,71 @@ function.
 
 > This section is non-normative.
 
-Sass contains a built-in `random()` function which is [documented on the public
-site][random public], but the behavior itself is **not** [specified][].
+Sass provides a built-in [`math.random()` function][random] which takes an
+optional numeric parameter `$limit` (defaults to `null`).
 
-Currently the function parameter `$limit` (defaults to `null`) changes the
-behavior from returning a decimal in range `[0, 1]` to returning an integer in
-range `[1, $limit]`. An error is thrown when passing a non-numeric value.
+When `null` is passed it returns a decimal in range `[0, 1)`. When an integer
+greater than zero is passed it returns a number in range `[1, $limit)`.
+Otherwise it throws an error.
 
-It is undefined what happens when the `$limit` parameter contains a unit (e.g.
-`5px` or `8em`), and the current behavior is unexpected as `random()` will
-[drop the units and percent symbol][issue].
-For example: `random(42px) => 28` (there is no `px`).
+However a numeric integer can include units (e.g. `5px` or `8em`) and the
+current behavior [drops the units][issue], which is unexpected for most users.
+For example: `math.random(42px) => 28` (there is no `px`).
 
-[random public]: https://sass-lang.com/documentation/modules/math#random
-[specified]: ../spec/built-in-modules/math.md#random
+[random]: https://sass-lang.com/documentation/modules/math#random
 [issue]: https://github.com/sass/sass/issues/1890
 
 ## Summary
 
 > This section is non-normative.
 
-The built-in `random($limit: null)` function will keep its current behavior but
-it will now return units whenever a number with units or percentage is given as
-an argument.
+The built-in `math.random($limit: null)` function will keep the same behavior
+for numbers without units, but when given an integer with units it will return a
+random integer with matching units.
 
 ### Design Decisions
 
-This proposal keeps the existing syntax but changes the current semantics, and
-we therefore consider it a breaking change.
+#### New Behavior vs New Syntax
 
-An alternative that has also been suggested adding an optional second parameter
-to specify units, for example `random(42, 'px')` even though this can also have
-unexpected behavior such as dealing with `random(42em, 'px')` which under the
-current behavior it would strip the number from the units and replace it with
-different ones.
+This proposal keeps the existing syntax but changes the semantics, therefore it
+is a breaking change.
 
-We decided the alternative would be more confusing and instead will pursue with
-allowing numbers with units to be passed through and implement the expected
-behavior on the next major version. For now we'll include a deprecation warning
-whenever a number with units or percentages is passed as an argument.
+A backwards compatible alternative was a second optional parameter for units,
+e.g. `math.random(42, 'px')`, but it didn't solve the problem when the first
+parameter has units, e.g. `math.random(42em, 'px')`.
 
-One potential source of friction is that Sass doesn't include a built-in utility
-to strip away units so users relying on the current behavior for [stripping
-units] would need to implement it themselves.
+We decided to update the behavior and follow the [deprecation process].
 
-[stripping units]: https://stackoverflow.com/a/12335841
+[deprecation process]: #deprecation-process
+
+#### No Stripping Units Fallback
+
+Sass considers [stripping units an anti-pattern], so we won't provide a fallback
+option for the previous unit-stripping behavior. Users are expected to rely on
+unit-based arithmetic.
+
+[stripping units an anti-pattern]: https://github.com/sass/sass/issues/533#issuecomment-52531596
 
 ## Semantics
 
-The `random()` function can take an optional parameter `$limit` which defaults
-to `null`.
+The `math.random()` function can take an optional parameter `$limit` which
+defaults to `null`.
 
-* If `$limit` is `null` then return a floating-point number in range `[0, 1]`.
+* If `$limit` is `null` then return a floating-point number in range `[0, 1)`.
 
-  > Example: `random() => 0.1337001337`
+  > Example: `math.random() => 0.1337001337`
 
-* If `$limit` is an **integer** [number][] greater than zero:
+* If `$limit` is an **integer** [number] greater than zero:
 
-  * Generate an integer number in range `[1, $limit]`
+  * Generate an integer number in range `[1, $limit)`
 
-  * If `$limit` [is unitless][], return the generated number without units.
+  * If `$limit` [is unitless], return the generated number without units.
 
-    > Example: `random(123) => 87`
+    > Example: `math.random(123) => 87`
 
-  * If `$limit` has [units][], return the generated number with the same units.
+  * If `$limit` has [units], return the generated number with the same units.
 
-    > Examples: `random(123px) => 97px` and `random(500%) => 238%`
+    > Examples: `math.random(123px) => 97px` and `math.random(500%) => 238%`
 
 * Otherwise throw an error.
 
@@ -97,5 +99,5 @@ to `null`.
 Given some users may be relying on the existing Dart Sass implementation which
 strips off the units, this will be a breaking change for Dart Sass v1.
 
-We will emit deprecation warnings for any use of `random($limit)` where the
+We will emit deprecation warnings for any use of `math.random($limit)` where the
 `$limit` argument evaluates to a number with units.
