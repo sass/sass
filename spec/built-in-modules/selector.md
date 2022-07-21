@@ -80,6 +80,17 @@ extend($selector, $extendee, $extender)
 
 This function is also available as a global function named `selector-extend()`.
 
+* Let `selector`, `extendee`, and `extender` be the result of [parsing a
+  selector from] `$selector`, `$extendee`, and `$extender`, respectively.
+
+  [parsing a selector from]: #parsing-a-selector-from-a-sassscript-object
+
+* If any of `selector`, `extendee`, or `extender` is [bogus], throw an error.
+
+  [bogus]: ../selectors.md#bogus-selector
+
+* > Additional semantics have not yet been explicitly written.
+
 ### `is-superselector()`
 
 ```
@@ -87,6 +98,13 @@ is-superselector($super, $sub)
 ```
 
 This function is also available as a global function named `is-superselector()`.
+
+* Let `super` and `sub` be the result of [parsing a selector from] `$super` and
+  `$sub`, respectively.
+
+* If either `super` or `sub` is [bogus], throw an error.
+
+* > Additional semantics have not yet been explicitly written.
 
 ### `nest()`
 
@@ -112,6 +130,17 @@ replace($selector, $original, $replacement)
 
 This function is also available as a global function named `selector-replace()`.
 
+* Let `selector`, `original`, and `replacement` be the result of [parsing a
+  selector from] `$selector`, `$original`, and `$replacement`, respectively.
+
+  [parsing a selector from]: #parsing-a-selector-from-a-sassscript-object
+
+* If any of `selector`, `original`, or `replacement` is [bogus], throw an error.
+
+  [bogus]: ../selectors.md#bogus-selector
+
+* > Additional semantics have not yet been explicitly written.
+
 ### `simple-selectors()`
 
 ```
@@ -128,3 +157,9 @@ unify($selector1, $selector2)
 
 This function is also available as a global function named `selector-unify()`.
 
+* Let `selector1` and `selector2` be the result of [parsing a selector from]
+  `$selector1` and `$selector2`, respectively.
+
+* If either `selector1` or `selector2` is [bogus], throw an error.
+
+* > Additional semantics have not yet been explicitly written.
