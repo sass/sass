@@ -25,11 +25,11 @@ received.
 Sass provides a built-in [`math.random()` function][random] which takes an
 optional numeric parameter `$limit` (defaults to `null`).
 
-When `null` is passed it returns a decimal in range `[0, 1)`. When an integer
-greater than zero is passed it returns a number in range `[1, $limit)`.
-Otherwise it throws an error.
+When `null` is passed it returns a decimal in the range `[0, 1)`. When an
+integer greater than zero is passed it returns a number in the range
+`[1, $limit)`. Otherwise it throws an error.
 
-However a numeric integer can include units (e.g. `5px` or `8em`) and the
+However, a numeric integer can include units (e.g. `5px` or `8em`) and the
 current behavior [drops the units][issue], which is unexpected for most users.
 For example: `math.random(42px) => 28` (there is no `px`).
 
@@ -72,26 +72,24 @@ unit-based arithmetic.
 The `math.random()` function can take an optional parameter `$limit` which
 defaults to `null`.
 
-* If `$limit` is `null` then return a floating-point number in range `[0, 1)`.
+* If `$limit` is `null` then return a pseudo-random floating-point number in the
+  range `[0, 1)`.
 
   > Example: `math.random() => 0.1337001337`
 
 * If `$limit` is an **integer** [number] greater than zero:
 
-  * Generate an integer number in range `[1, $limit)`
+  * Return a pseudo-random integer in the range `[1, $limit)` with the same
+    [units] as `$limit`.
 
-  * If `$limit` [is unitless], return the generated number without units.
-
-    > Example: `math.random(123) => 87`
-
-  * If `$limit` has [units], return the generated number with the same units.
-
-    > Examples: `math.random(123px) => 97px` and `math.random(500%) => 238%`
+    > Examples:
+    > - `math.random(123) => 87`
+    > - `math.random(123px) => 43px`
+    > - `math.random(500%) => 238%`
 
 * Otherwise throw an error.
 
 [number]: https://sass-lang.com/documentation/values/numbers
-[is unitless]: ../spec/built-in-modules/math.md#is-unitless
 [units]: https://sass-lang.com/documentation/values/numbers#units
 
 ## Deprecation Process
