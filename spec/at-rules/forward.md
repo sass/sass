@@ -48,8 +48,8 @@ To execute a `@forward` rule `rule`:
 
 * If `rule` has an `AsClause` with identifier `prefix`:
 
-  * Let `rule-config` be an empty [configuration] inheriting the opaque ID
-    from [the current configuration].
+  * Let `rule-config` be an empty [configuration] with the same opaque ID as
+    [the current configuration].
 
   * For each variable `variable` in the current configuration:
 

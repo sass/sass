@@ -260,11 +260,13 @@ This algorithm takes a string `argument` and [configuration](#configuration)
 
 * If `file` is null, throw an error.
 
-* If `file` has already been [executed][]:
+* If `file` has already been [executed] by the [Loading a Module] procedure:
 
   [executed]: spec.md#executing-a-file
+  [Loading a Module]: #loading-a-module
 
-  * If `config` has a different ID than before and is not empty, throw an error.
+  * If `config` is not empty and has a different ID than the configuration that
+    was passed the first time `file` was executed, throw an error.
 
     > An ID may be reused in a new configuration via [`@forwards .. with`].
 
