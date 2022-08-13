@@ -6,7 +6,20 @@ This proposal restricts the use of invalid units in built-in Sass functions.
 
 ## Table of Contents
 
-* [Foo]()
+* [Background](#background)
+* [Summary](#summary)
+  * [Decision Decisions](#decision-decisions)
+    * [Alpha Units](#alpha-units)
+* [Functions](#functions)
+  * [`color.adjust()`](#coloradjust)
+  * [`color.scale()`](#colorscale)
+  * [`color.mix()`](#colormix)
+  * [`list.nth()` and `list.set-nth()`](#listnth-and-listset-nth)
+* [Deprecation Process](#deprecation-process)
+  * [`color.adjust()`](#coloradjust-1)
+  * [`color.scale()`](#colorscale-1)
+  * [`color.mix()`](#colormix-1)
+  * [`list.nth()` and `list.set-nth()`](#listnth-and-listset-nth-1)
 
 ## Background
 
