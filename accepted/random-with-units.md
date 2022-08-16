@@ -1,4 +1,4 @@
-# Random With Units: Draft 1
+# Random With Units
 
 *([Issue](https://github.com/sass/sass/issues/1890))*
 
