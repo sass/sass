@@ -48,9 +48,10 @@ To execute a `@forward` rule `rule`:
 
 * If `rule` has an `AsClause` with identifier `prefix`:
 
-  * Let `rule-config` be an empty [configuration][].
+  * Let `rule-config` be an empty [configuration] with the same opaque ID as
+    [the current configuration].
 
-  * For each variable `variable` in [the current configuration][]:
+  * For each variable `variable` in the current configuration:
 
     * If `variable`'s name begins with `prefix`:
 
@@ -66,7 +67,7 @@ To execute a `@forward` rule `rule`:
 
 * If `rule` has a `WithClause`:
 
-  * Set `rule-config` to a copy of itself.
+  * Set `rule-config` to a copy of itself including its opaque ID.
 
   * For each `ForwardWithArgument` `argument` in this clause:
 
@@ -96,7 +97,7 @@ To execute a `@forward` rule `rule`:
 * For every member `member` in `forwarded`:
 
   * Let `name` be `member`'s name.
-  
+
   * If `rule` has an `AsClause` `as`, prepend `as`'s identifier to `name` (after
     the `$` if `member` is a variable).
 
