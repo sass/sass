@@ -486,6 +486,8 @@ This function is also available as a global function named `percentage()`.
 random($limit: null)
 ```
 
+This function is also available as a global function named `random()`.
+
 The `random()` function can take an optional parameter `$limit` which defaults
 to `null`.
 
