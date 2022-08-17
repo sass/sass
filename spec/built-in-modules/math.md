@@ -486,4 +486,25 @@ This function is also available as a global function named `percentage()`.
 random($limit: null)
 ```
 
-This function is also available as a global function named `random()`.
+The `random()` function can take an optional parameter `$limit` which defaults
+to `null`.
+
+* If `$limit` is `null` then return a pseudo-random floating-point number in the
+  range `[0, 1)`.
+
+  > Example: `math.random() => 0.1337001337`
+
+* If `$limit` is an **integer** [number] greater than zero:
+
+  * Return a pseudo-random integer in the range `[1, $limit)` with the same
+    [units] as `$limit`.
+
+    > Examples:
+    > - `math.random(123) => 87`
+    > - `math.random(123px) => 43px`
+    > - `math.random(500%) => 238%`
+
+* Otherwise throw an error.
+
+[number]: https://sass-lang.com/documentation/values/numbers
+[units]: https://sass-lang.com/documentation/values/numbers#units
