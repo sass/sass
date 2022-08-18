@@ -1,6 +1,6 @@
-# Random With Units: Draft 1
+# Random With Units: Draft 1.1
 
-*([Issue](https://github.com/sass/sass/issues/1890))*
+*([Issue](https://github.com/sass/sass/issues/1890), [Changelog](random-with-units.changes.md))*
 
 This proposal modifies the behavior of the built-in [`math.random()`][random]
 function to return a number with matching units to the numeric argument it
@@ -72,14 +72,14 @@ unit-based arithmetic.
 The `math.random()` function can take an optional parameter `$limit` which
 defaults to `null`.
 
-* If `$limit` is `null` then return a pseudo-random floating-point number in the
-  range `[0, 1)`.
+* If `$limit` is `null` then return a pseudo-random unitless number whose value
+   is in the range `[0, 1)`.
 
   > Example: `math.random() => 0.1337001337`
 
 * If `$limit` is an **integer** [number] greater than zero:
 
-  * Return a pseudo-random integer in the range `[1, $limit)` with the same
+  * Return a pseudo-random integer in the range `[1, $limit]` with the same
     [units] as `$limit`.
 
     > Examples:

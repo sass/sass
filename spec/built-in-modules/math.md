@@ -488,17 +488,14 @@ random($limit: null)
 
 This function is also available as a global function named `random()`.
 
-The `random()` function can take an optional parameter `$limit` which defaults
-to `null`.
-
-* If `$limit` is `null` then return a pseudo-random floating-point number in the
-  range `[0, 1)`.
+* If `$limit` is `null` then return a pseudo-random unitless number whose value
+   is in the range `[0, 1)`.
 
   > Example: `math.random() => 0.1337001337`
 
 * If `$limit` is an **integer** [number] greater than zero:
 
-  * Return a pseudo-random integer in the range `[1, $limit)` with the same
+  * Return a pseudo-random integer in the range `[1, $limit]` with the same
     [units] as `$limit`.
 
     > Examples:
