@@ -8,7 +8,7 @@ This proposal restricts the use of invalid units in built-in Sass functions.
 
 * [Background](#background)
 * [Summary](#summary)
-  * [Decision Decisions](#decision-decisions)
+  * [Design Decisions](#design-decisions)
     * [Alpha Units](#alpha-units)
 * [Functions](#functions)
   * [`color.adjust()`](#coloradjust)
@@ -53,7 +53,7 @@ This proposal adds the following restrictions:
 
 * The `$n` parameter to `list.nth()` and `list.set-nth()` may not have units.
 
-### Decision Decisions
+### Design Decisions
 
 #### Alpha Units
 
