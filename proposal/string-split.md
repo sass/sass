@@ -65,7 +65,7 @@ split($string, $separator, $limit: null)
 
 * If `$string` is not a string, throw an error.
 
-* If `$separator` is `null` or is not a string, throw an error.
+* If `$separator` is not a string, throw an error.
 
 * If `$limit` is a value other than an integer or `null`, throw an error.
 
@@ -78,17 +78,14 @@ split($string, $separator, $limit: null)
 
 * Let `split-list` be an empty list.
 
-* Let `length` be the result of calling `string.length($string)`.
-
-* Let `limit` be the value of `$limit`.
-
-* Otherwise, if `$limit` is `null`, set `limit` to the value of `length`.
+* If `$limit` is `null`, set `$limit` to the value of calling 
+  `string.length($string)`.
 
 * Let `split-counter` equal 0.
 
-* While `split-counter` is `<=` `limit` and `length` is `>` 0:
+* While `split-counter <= $limit` and `string.length($string) > 0`:
 
-  * If `split-counter` `==` `limit`:
+  * If `split-counter == $limit`:
 
     * Append `$string` to `split-list`.
 
@@ -111,7 +108,7 @@ split($string, $separator, $limit: null)
       * Let `index` be the result of calling 
         `string.index($string, $separator)`.
 
-      * If `index` is null, append `$string` to `split-list` and set `$string` 
+      * If `index` is `null`, append `$string` to `split-list` and set `$string` 
         to an empty string.
 
       * Otherwise:
@@ -125,7 +122,5 @@ split($string, $separator, $limit: null)
           `string.slice($string, index + string.length($separator))`.
 
         * Increase `split-counter` by 1.
-
-  * Set `length` to `string.length($string)`.
       
-* Return `split-list` as an unbracketed, comma-separated list.
+* Return `split-list` as an unbracketed, comma-separated list.          
