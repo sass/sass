@@ -16,11 +16,15 @@ current stylesheet.
 The grammar for the `@forward` rule is as follows:
 
 <x><pre>
-**ForwardRule** ::= '@forward' QuotedString AsClause? (ShowClause | HideClause)?
-**AsClause**    ::= 'as' [\<ident-token>][] '\*'
-**ShowClause**  ::= 'show' MemberName (',' MemberName)\*
-**HideClause**  ::= 'hide' MemberName (',' MemberName)\*
-**MemberName**  ::= '$'? [\<ident-token>][]
+**ForwardRule**         ::= '@forward' QuotedString AsClause? (ShowClause | HideClause)?  WithClause?
+**AsClause**            ::= 'as' [\<ident-token>][] '\*'
+**ShowClause**          ::= 'show' MemberName (',' MemberName)\*
+**HideClause**          ::= 'hide' MemberName (',' MemberName)\*
+**WithClause**          ::= 'with' '('
+&#32;                     ForwardWithArgument (',' ForwardWithArgument)\* ','?
+&#32;                   ')'
+**ForwardWithArgument** ::= '$' Identifier ':' Expression '!default'?
+**MemberName**          ::= '$'? [\<ident-token>][]
 </pre></x>
 
 [\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
@@ -44,9 +48,10 @@ To execute a `@forward` rule `rule`:
 
 * If `rule` has an `AsClause` with identifier `prefix`:
 
-  * Let `rule-config` be an empty [configuration][].
+  * Let `rule-config` be an empty [configuration] with the same opaque ID as
+    [the current configuration].
 
-  * For each variable `variable` in [the current configuration][]:
+  * For each variable `variable` in the current configuration:
 
     * If `variable`'s name begins with `prefix`:
 
@@ -60,15 +65,39 @@ To execute a `@forward` rule `rule`:
 
 * Otherwise, let `rule-config` be the current configuration.
 
+* If `rule` has a `WithClause`:
+
+  * Set `rule-config` to a copy of itself including its opaque ID.
+
+  * For each `ForwardWithArgument` `argument` in this clause:
+
+    * If `argument` has a `!default` flag and a variable exists in `rule-config`
+      with the same name as `argument`'s identifier, do nothing.
+
+    * Otherwise, let `value` be the result of evaluating `argument`'s
+      expression.
+
+    * Add a variable to `rule-config` with the same name as `argument`'s
+      identifier, and with `value` as its value.
+
 * Let `forwarded` be the result of [loading the module][] with `rule`'s URL
   string and `rule-config`.
 
   [loading the module]: ../modules.md#loading-a-module
 
+* If `rule` has a `WithClause`:
+
+  * For each `ForwardWithArgument` `argument` in this clause:
+
+    * Let `variable` be the variable in `module` with the same name as
+      `argument`'s identifier. If no such variable exists, throw an error.
+
+    * If `variable` wasn't declared with a `!default` flag, throw an error.
+
 * For every member `member` in `forwarded`:
 
   * Let `name` be `member`'s name.
-  
+
   * If `rule` has an `AsClause` `as`, prepend `as`'s identifier to `name` (after
     the `$` if `member` is a variable).
 

@@ -1,4 +1,4 @@
-# The Next-Generation Sass Module System: Draft 6
+# The Next-Generation Sass Module System: Draft 10
 
 *([Issues](https://github.com/sass/sass/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A%22%40use%22), [Changelog](module-system.changes.md))*
 
@@ -1776,14 +1776,22 @@ However, doing away with `@import` entirely is the ultimate goal for simplicity,
 performance, and CSS compatibility. As such, we plan to gradually turn down
 support for `@import` on the following timeline:
 
-* One year after both implementations launch support for the module system *or*
-  two years after Dart Sass launches support for the module system, whichever
-  comes sooner (**1 October 2021** at latest): Deprecate `@import` as well as global
-  core library function calls that could be made through modules.
+* ~~One year after both implementations launch support for the module system
+  *or* two years after Dart Sass launches support for the module system,
+  whichever comes sooner (**1 October 2021** at latest): Deprecate `@import` as
+  well as global core library function calls that could be made through
+  modules.~~
 
-* One year after this deprecation goes into effect (**1 October 2022** at
+* ~~One year after this deprecation goes into effect (**1 October 2022** at
   latest): Drop support for `@import` and most global functions entirely. This
-  will involve a major version release for all implementations.
+  will involve a major version release for all implementations.~~
 
-This means that there will be at least two full years when `@import` and `@use`
-are both usable at once, and likely closer to three years in practice.
+~~This means that there will be at least two full years when `@import` and `@use`
+are both usable at once, and likely closer to three years in practice.~~
+
+**July 2022**: In light of the fact that LibSass was deprecated before ever
+adding support for the new module system, the timeline for deprecating and
+removing `@import` has been pushed back. We now intend to wait until 80% of
+users are using Dart Sass (measured by npm downloads) before deprecating
+`@import`, and wait at least a year after that and likely more before removing
+it entirely.

@@ -4,7 +4,7 @@
 
 * [Syntax](#syntax)
   * [`CalculationExpression`](#calculationexpression)
-  * [`MinMaxExpression`](#minmaxexpression)
+  * [`CssMinMax`](#cssminmax)
 * [Types](#types)
   * [Operations](#operations)
     * [Equality](#equality)
@@ -18,7 +18,7 @@
 * [Semantics](#semantics)
   * [`CalcExpression`](#calcexpression)
   * [`ClampExpression`](#clampexpression)
-  * [`CssMinMax`](#cssminmax)
+  * [`CssMinMax`](#cssminmax-1)
   * [`CalcArgument`](#calcargument)
   * [`CalcSum`](#calcsum)
   * [`CalcProduct`](#calcproduct)
@@ -73,21 +73,13 @@ case-insensitively.
 > expression regardless of syntax, for full compatibility it's necessary to
 > parse it very expansively.
 
-### `MinMaxExpression`
-
-This production is parsed in a SassScript context when an expression is expected
-and the input stream starts with an identifier with value `min` or `max`
-(ignoring case) followed immediately by `(`.
+### `CssMinMax`
 
 <x><pre>
-**MinMaxExpression**¹ ::= CssMinMax | FunctionExpression
-**CssMinMax**         ::= ('min(' | 'max(')² CalcArgument (',' CalcArgument)* ')'
+**CssMinMax**         ::= ('min(' | 'max(')¹ CalcArgument (',' CalcArgument)* ')'
 </pre></x>
 
-1: If both `CssMinMax` and `FunctionExpression` could be consumed, `CssMinMax`
-   takes precedence.
-
-2: The strings `min(` and `max(` are matched case-insensitively.
+1: The strings `min(` and `max(` are matched case-insensitively.
 
 ## Types
 

@@ -19,19 +19,25 @@ plain CSS.
 
 ### Sass
 
-Media queries are parsed from Sass source using the following syntax:
+Media queries are parsed from Sass source using the following syntax. All
+identifiers are matched case-insensitively:
 
 <x><pre>
-**MediaQueryList**       ::= MediaQuery (',' MediaQuery)*
-**MediaQuery**           ::= MediaType ('and' MediaFeature)*
-&#32;                      | MediaFeatureInParens ('and' MediaFeature)*
-**MediaType**            ::= [InterpolatedIdentifier][] [InterpolatedIdentifier][]¹?
-**MediaFeature**         ::= Interpolation | MediaFeatureInParens
-**MediaFeatureInParens** ::= '(' Expression² ')'
-&#32;                      | '(' Expression² ':' Expression ')'
-&#32;                      | '(' Expression² [\<mf-comparison>][] Expression² ')'
-&#32;                      | '(' Expression² [\<mf-lt>][] Expression² [\<mf-lt>][] Expression² ')'
-&#32;                      | '(' Expression² [\<mf-gt>][] Expression² [\<mf-gt>][] Expression² ')'
+**MediaQueryList** ::= MediaQuery (',' MediaQuery)*
+**MediaQuery**     ::= MediaNot
+&#32;                | MediaInParens (MediaAnd* | MediaOr*)
+&#32;                | MediaType ('and' MediaNot | MediaAnd*)
+**MediaType**      ::= [InterpolatedIdentifier] [InterpolatedIdentifier]¹?
+**MediaNot**²      ::= 'not' MediaOrInterp
+**MediaAnd**²      ::= 'and' MediaOrInterp
+**MediaOr**²       ::= 'or' MediaOrInterp
+**MediaOrInterp**  ::= Interpolation | MediaInParens
+**MediaInParens**  ::= '(' Expression³ ')'
+&#32;                | '(' Expression³ [\<mf-comparison>] Expression³ ')'
+&#32;                | '(' Expression³ [\<mf-lt>] Expression³ [\<mf-lt>] Expression³ ')'
+&#32;                | '(' Expression³ [\<mf-gt>] Expression³ [\<mf-gt>] Expression³ ')'
+&#32;                | '(' MediaNot ')'
+&#32;                | '(' MediaInParens (MediaAnd* | MediaOr*) ')'
 </pre></x>
 
 [InterpolatedIdentifier]: ../syntax.md#interpolatedidentifier
@@ -39,31 +45,38 @@ Media queries are parsed from Sass source using the following syntax:
 [\<mf-lt>]: https://drafts.csswg.org/mediaqueries-4/#typedef-mf-lt
 [\<mf-gt>]: https://drafts.csswg.org/mediaqueries-4/#typedef-mf-gt
 
-1: This `InterpolatedIdentifier` may not be the identifier `"and"`.
+1. This `InterpolatedIdentifier` may not be the identifier `"and"`.
 
-2: These `Expression`s may not contain binary operator expressions with the
-operators `=`, `>`, `>=`, `<`, or `<=`, except within parentheses (including
-function calls and map literals) and square brackets.
+2. No whitespace is allowed between the identifier and the `MediaOrInterp` in
+   these productions.
 
-> Note that Sass currently doesn't support parsing full media conditions
-> according to the level 4 specification, since no browsers support it yet. See
-> [sass/sass#2538][] for details.
+3. These `Expression`s may not:
 
-[sass/sass#2538]: https://github.com/sass/sass/issues/2538
+   * Contain binary operator expressions with the operators `=`, `>`, `>=`, `<`,
+     or `<=`, except within parentheses (including function calls and map
+     literals) and square brackets.
+
+   * Begin with the case-insensitive identifier `"not"`.
+
+   * Begin with the character `"("`.
 
 ### CSS
 
-Plain CSS media queries are parsed using the following syntax:
+Plain CSS media queries are parsed using the following syntax. All identifiers
+are matched case-insensitively:
 
 <x><pre>
-**CssMediaQueryList** ::= CssMediaQuery (',' CssMediaQuery)*
-**CssMediaQuery**     ::= CssMediaType
-&#32;                    | (CssMediaType 'and')? CssMediaFeature ('and' CssMediaFeature)*
-**CssMediaType**      ::= [\<ident-token>][] [\<ident-token>][]¹?
-**CssMediaFeature**   ::= '(' [\<declaration-value>][] ')'
+**CssMediaQuery**     ::= CssMediaCondition
+&#32;                   | CssMediaType ('and' CssMediaNot | CssMediaAnd*)
+**CssMediaType**      ::= [\<ident-token>] [\<ident-token>]¹?
+**CssMediaCondition** ::= CssMediaNot | CssMediaInParens (CssMediaAnd* | CssMediaOr*)
+**CssMediaNot**       ::= 'not' CssMediaInParens
+**CssMediaAnd**       ::= 'and' CssMediaInParens
+**CssMediaOr**        ::= 'or' CssMediaInParens
+**CssMediaInParens**  ::= '(' [\<declaration-value>] ')'
 </pre></x>
 
 [\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
 [\<declaration-value>]: https://drafts.csswg.org/css-syntax-3/#typedef-declaration-value
 
-1: This `<ident-token>` may not be the identifier `"and"`.
+1. This `<ident-token>` may not be the identifier `"and"`.

@@ -7,6 +7,8 @@
   * [Special Variable String](#special-variable-string)
 * [Syntax](#syntax)
 * [Semantics](#semantics)
+  * [`EmptyFallbackVar`:](#emptyfallbackvar)
+  * [`FunctionCall`](#functioncall)
 * [Global Functions](#global-functions)
   * [`adjust-hue()`](#adjust-hue)
   * [`alpha()`](#alpha)
@@ -45,6 +47,32 @@ matching is case-insensitive.
 ## Syntax
 
 <x><pre>
+**FunctionExpression**¹ ::= [CssMinMax]
+&#32;                     | [SpecialFunctionExpression]
+&#32;                     | [CalculationExpression]
+&#32;                     | EmptyFallbackVar
+&#32;                     | FunctionCall
+**EmptyFallbackVar**²   ::= 'var(' Expression ',' ')'
+**FunctionCall**⁴       ::= [NamespacedIdentifier] ArgumentInvocation
+</pre></x>
+
+[CssMinMax]: types/calculation.md#cssminmax
+[SpecialFunctionExpression]: syntax.md#specialfunctionexpression
+[CalculationExpression]: types/calculation.md#calculationexpression
+[NamespacedIdentifier]: modules.md#syntax
+
+1: Both `CssMinMax` and `EmptyFallbackVar` take precedence over `FunctionCall`
+   if either could be consumed.
+
+2: `'var('` is matched case-insensitively.
+
+4: `FunctionCall` may not have any whitespace between the `NamespacedIdentifier`
+   and the `ArgumentInvocation`. It may not start with [`SpecialFunctionName`],
+   `'calc('`, or `'clamp('` (case-insensitively).
+
+[`SpecialFunctionName`]: #specialfunctionexpression
+
+<x><pre>
 **FunctionCall** ::= [NamespacedIdentifier][] ArgumentInvocation
 </pre></x>
 
@@ -55,13 +83,29 @@ No whitespace is allowed between the `NamespacedIdentifier` and the
 
 ## Semantics
 
+### `EmptyFallbackVar`:
+
+To evaluate an `EmptyFallbackVar` `call`:
+
+* Let `argument` be the result of evaluating `call`'s `Expression`.
+
+* Let `function` be the result of [resolving a function] named `'var'`.
+
+  [resolving a function]: modules.md#resolving-a-member
+
+* If `function` is null, return an unquoted string consisting of `'var('`
+  followed by `argument`'s CSS representation followed by `',)'`.
+
+* Return the result of calling `function` with `argument` as its first argument
+  and an empty unquoted string as its second argument.
+
+### `FunctionCall`
+
 To evaluate a `FunctionCall` `call`:
 
 * Let `name` be `call`'s `NamespacedIdentifier`.
 
 * Let `function` be the result of [resolving a function][] named `name`.
-
-  [resolving a function]: modules.md#resolving-a-member
 
 * If `function` is null and `name` is not a plain `Identifier`, throw an error.
 

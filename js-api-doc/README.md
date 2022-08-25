@@ -18,29 +18,39 @@ much slower,** but they allow custom importers and functions to run
 asynchronously.
 
 * [[compile]] and [[compileAsync]] take a path to a Sass file and return the
-  result of compiling that file to CSS. 
+  result of compiling that file to CSS. These functions accept an additional
+  [[Options]] argument.
 
   ```js
   const sass = require('sass');
 
   const result = sass.compile("style.scss");
   console.log(result.css);
+
+  const compressed = sass.compile("style.scss", {style: "compressed"});
+  console.log(compressed.css);
   ```
 
 * [[compileString]] and [[compileStringAsync]] take a string that represents the
   contents of a Sass file and return the result of compiling that file to CSS.
+  These functions accept an additional [[StringOptions]] argument.
 
   ```js
   const sass = require('sass');
 
-  const result = sass.compileString(`
+  const input = `
   h1 {
     font-size: 40px;
     code {
       font-face: Roboto Mono;
     }
-  }`);
+  }`;
+
+  const result = sass.compileString(input);
   console.log(result.css);
+
+  const compressed = sass.compileString(input, {style: "compressed"});
+  console.log(compressed.css);
   ```
 
 ## Integrations
@@ -76,7 +86,7 @@ Sass code by passing in a [[LegacyStringOptions]].
 * [[renderSync]] runs synchronously. It's **by far the fastest option** when
   using Dart Sass, but at the cost of only supporting synchronous {@link
   LegacyImporter | importer} and {@link LegacyFunction | function} plugins.
-  
+
   ```js
   const sass = require('sass'); // or require('node-sass');
 

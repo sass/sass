@@ -38,7 +38,7 @@ Two members are considered identical if they have the same name, type, source
 location, and were defined in or forwarded from the same original module.
 
 > Each member type has its own namespace in Sass, so for example the mixin
-> `name` doesn't conflict with the function `name` or the variable `$name`. 
+> `name` doesn't conflict with the function `name` or the variable `$name`.
 
 ### CSS Tree
 
@@ -52,9 +52,9 @@ An *empty CSS tree* contains no statements.
 ### Configuration
 
 A *configuration* is a map from [variable](variables.md) names to SassScript
-values. An *empty configuration* contains no entries.
+values and an opaque ID. An *empty configuration* contains no entries.
 
-[source file]: syntax.md#source-file
+A new *configuration* ID is unique unless otherwise specified.
 
 ### Module
 
@@ -62,11 +62,11 @@ A *module* is a collection of various properties:
 
 * A set of [members](#member) that contains at most one member of any given type
   and name.
-  
+
   > For example, a module may not have two variables named `$name`, although it
   > may contain a function and a mixin with the same name or two functions with
   > different names.
-  
+
   > The names (and mixin and function signatures) of a module's members are
   > static, and can be determined without executing its associated source file.
   > This means that any possible module for a given source file has the same
@@ -98,6 +98,8 @@ A *module* is a collection of various properties:
 
   > Note that [built-in modules](#built-in-module) *do not* have source files
   > associated with them.
+
+  [source file]: syntax.md#source-file
 
 * An absolute URL, known as the module's *canonical URL*. If the module has a
   source file, this must be the same as the source file's canonical URL.
@@ -258,13 +260,21 @@ This algorithm takes a string `argument` and [configuration](#configuration)
 
 * If `file` is null, throw an error.
 
-* If `file` has already been [executed][]:
+* If `file` has already been [executed] by the [Loading a Module] procedure:
 
   [executed]: spec.md#executing-a-file
 
-  * If `config` is not empty, throw an error.
+  * If `config` is not empty and has a different ID than the configuration that
+    was passed the first time `file` was executed by the [Loading a Module]
+    procedure, throw an error.
+
+    > An ID may be reused in a new configuration via [`@forwards .. with`].
+
+    [`@forwards .. with`]: ../spec/at-rules/forward.md#semantics
 
   * Otherwise, return the module that execution produced.
+
+  [Loading a Module]: #loading-a-module
 
 * If `file` is currently being executed, throw an error.
 

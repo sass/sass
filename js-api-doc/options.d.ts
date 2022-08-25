@@ -109,6 +109,20 @@ export interface Options<sync extends 'sync' | 'async'> {
   alertColor?: boolean;
 
   /**
+   * If `true`, the compiler may prepend `@charset "UTF-8";` or U+FEFF
+   * (byte-order marker) if it outputs non-ASCII CSS.
+   *
+   * If `false`, the compiler never emits these byte sequences. This is ideal
+   * when concatenating or embedding in HTML `<style>` tags. (The output will
+   * still be UTF-8.)
+   *
+   * @defaultValue `true`
+   * @category Output
+   * @compatibility dart: "1.54.0", node: false
+   */
+  charset?: boolean;
+
+  /**
    * Additional built-in Sass functions that are available in all stylesheets.
    * This option takes an object whose keys are Sass function signatures like
    * you'd write for the [`@function
