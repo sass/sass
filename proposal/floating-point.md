@@ -162,6 +162,8 @@ A *double* is a floating-point datum representable in a format with
 
 as defined by [IEEE 754 2019], §3.2-3.3.
 
+[IEEE 754 2019]: https://ieeexplore.ieee.org/document/8766229
+
 > This is the standard 64-bit floating point representation, defined as
 > `binary64` in [IEEE 754 2019], §3.6.
 
@@ -183,8 +185,6 @@ Two [doubles] are said to be *fuzzy equal* to one another if either:
 
 * They are equal according to the according to the `compareQuietEqual` predicate
   as defined by [IEEE 754 2019], §5.11.
-
-  [IEEE 754 2019]: https://ieeexplore.ieee.org/document/8766229
 
 * They are both finite numbers and the mathematical numbers they represent
   produce the same value when rounded to the nearest 1e⁻¹¹ (with ties away from
@@ -338,8 +338,8 @@ units are the same as `number`'s.
 ### Converting a Number to Units
 
 This algorithm takes a SassScript number `number` and a [set of units] `units`.
-It returns a number. It's written "convert `number` to `units`" or "convert
-`number` to `units` allowing unitless". It returns a number with the given unit.
+It returns a number with the given units. It's written "convert `number` to
+`units`" or "convert `number` to `units` allowing unitless".
 
 * If `number` is unitless and this procedure allows unitless, return
   `number` with `units`.
