@@ -183,8 +183,8 @@ Two [doubles] are said to be *fuzzy equal* to one another if either:
 
 [doubles]: #double
 
-* They are equal according to the according to the `compareQuietEqual` predicate
-  as defined by [IEEE 754 2019], §5.11.
+* They are equal according to the `compareQuietEqual` predicate as defined
+  by [IEEE 754 2019], §5.11.
 
 * They are both finite numbers and the mathematical numbers they represent
   produce the same value when rounded to the nearest 1e⁻¹¹ (with ties away from
@@ -542,7 +542,7 @@ Replace this function's procedure with:
 
 * If `$number` has units, throw an error.
 
-* Let `result` by a number in `rad` whose value is the result of
+* Let `result` be a number in `rad` whose value is the result of
   `acos($number.value)` as defined by [IEEE 754 2019], §9.2.
 
 * Return the result of [converting `result` to `deg`].
@@ -555,7 +555,7 @@ Replace this function's procedure with:
 
 * If `$number` has units, throw an error.
 
-* Let `result` by a number in `rad` whose value is the result of
+* Let `result` be a number in `rad` whose value is the result of
   `asin($number.value)` as defined by [IEEE 754 2019], §9.2.
 
 * Return the result of [converting `result` to `deg`].
@@ -566,7 +566,7 @@ Replace this function's procedure with:
 
 * If `$number` has units, throw an error.
 
-* Let `result` by a number in `rad` whose value is the result of
+* Let `result` be a number in `rad` whose value is the result of
   `atan($number.value)` as defined by [IEEE 754 2019], §9.2.
 
 * Return the result of [converting `result` to `deg`].
@@ -575,7 +575,7 @@ Replace this function's procedure with:
 
 Replace the last line of this function's procedure with:
 
-* Let `result` by a number in `rad` whose value is the result of
+* Let `result` be a number in `rad` whose value is the result of
   `atan2($y.value, $x.value)` as defined by [IEEE 754 2019], §9.2.
 
 * Return the result of [converting `result` to `deg`].
