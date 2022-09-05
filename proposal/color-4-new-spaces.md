@@ -674,9 +674,9 @@ channels.
 
 * For each `channel` in `channels`:
 
-  * If `channel` is not a number or the keyword `'none'`, throw an error.
+  * If `channel` is not a number or the keyword `none`, throw an error.
 
-  * If `channel` is the keyword `'none'`, or if `space` is not a [known color
+  * If `channel` is the keyword `none`, or if `space` is not a [known color
     space], append `channel` as the next item in `normal`.
 
     > We don't attempt further channel normalization for unknown color spaces.
@@ -1254,7 +1254,7 @@ This function is also available as a global function named `adjust-color()`.
     error.
 
   * Set the corresponding `channel` in `channels` to `channel + adjust`,
-    treating any `'none'` keyword as a value of `0`.
+    treating any `none` keyword as a value of `0`.
 
 * If `space` is a [known color space], set `channels` to the result of
   [normalizing] `channels` in `space`.
@@ -1297,7 +1297,7 @@ This function is also available as a global function named `scale-color()`.
       throw an error.
 
     * Set `alpha` to the result of [scaling] `alpha` by `$alpha` with `max` 1,
-      treating any `'none'` keyword as a value of `0`.
+      treating any `none` keyword as a value of `0`.
 
 * Let `channel-args` be the remaining keyword arguments in `$args`, not
   including `$space` or `$alpha` arguments.
