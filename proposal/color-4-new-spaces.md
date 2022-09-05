@@ -110,17 +110,50 @@ gamut of visible color, much larger than the target sRGB gamut, out-of-range
 color definitions will be clipped using a *relative-colorimetric* approach that
 leaves in-gamut colors unaffected.
 
+There are several rules of thumb for working with color spaces in Sass:
+
+- The `rgb`, `hsl`, and `hwb` spaces are considered 'legacy spaces', and will
+  often get special handling for the sake of backwards compatibility. Colors
+  defined using hex notation or CSS color names are considered part of the
+  `rgb` color space. Legacy colors are emitted in the most compatible format.
+- Otherwise, any color defined in a given space will remain in that space, and
+  be emitted in that space.
+- Authors can explicitly convert a color's space by using `color.to-space()`.
+  This can be useful to enforce non-legacy behavior, by converting into a
+  non-legacy space, or to ensure the color output is compatible with older
+  browsers by converting colors into a legacy space before emitting.
+- The `srgb` color space is equivalent to `rgb`, except that one is a legacy
+  space, and the other is not.
+- Color functions that allow specifying a color space for manipulation will
+  always use the source color space by default. When an explicit space is
+  provided for manipulation, the resulting color will still be returned in the
+  same space as the origin color. For `color.mix()`, the first color parameter
+  is considered the origin color.
+- All legacy and RGB spaces represent bounded gamuts of color. When converting (
+  colors into a bounded gamut space, out-of-gamut channel values are maintained
+  whenever possible. The only exception is that `hsl` and `hwb` color spaces
+  are not able to express out-of-gamut color, so converting colors into those
+  spaces will require gamut-mapping.
+- Mapping colors into a gamut is a lossy process. Whenever possible, it should
+  be left to the browser, which can map colors based on a given user's display
+  capabilities. However, authors can perform explicit gamut mapping with the
+  `color.to-gamut()` function.
+- Legacy browsers require colors in the `srgb` gamut. However, most modern
+  displays support the wider `display-p3` gamut.
+
 The `oklab()` (cubic) and `oklch()` (cylindrical) functions provide access to
 an unbounded gamut of colors in perceptually uniform space. Authors can use
 these functions to define reliably uniform colors. For example, the following
-colors are perceptually similar in both luminosity and saturation. The `oklch()`
-format reflects that with consistent 'lightness' and 'chroma' values, while the
-`hsl()` format shows dramatic changes in both 'lightness' and 'saturation':
+colors are perceptually similar in luminosity and saturation:
 
 ```scss
 $pink: oklch(64% 0.196 353); // hsl(329.8 70.29% 58.75%)
 $blue: oklch(64% 0.196 253); // hsl(207.4 99.22% 50.69%)
 ```
+
+The `oklch()` format uses consistent 'lightness' and 'chroma' values, while the
+`hsl()` format shows dramatic changes in both 'lightness' and 'saturation'.
+As such, `oklch` is often the best space for consistent transforms.
 
 The new `color()` function provides access to a number of specialty spaces.
 Most notably, `display-p3` is a common space for wide-gamut monitors, making
@@ -133,7 +166,23 @@ $fallback-green: rgb(0% 100% 0%);
 $brighter-green: color(display-p3 0 1 0);
 ```
 
-<!-- flesh this out more -->
+By default, all Sass color transformations are handled and returned in the
+color space of the original color parameter. However, all relevant functions
+now allow specifying an explicit color space for transformations. For example,
+lightness & darkness adjustments are most reliable in `oklch`:
+
+```scss
+$brand: hsl(0 100% 25.1%);
+
+// result: hsl(0 100% 50.1%)
+$hsl-lightness: color.adjust($brand, $lightness: 25%);
+
+// result: hsl(6.57 61.7% 57.2%)
+$oklch-lightness: color.adjust($brand, $lightness: 25%, $space: oklch);
+```
+
+Note that the returned color is still emitted in the original color space, even
+when the adjustment is performed in a different space.
 
 ### Design Decisions
 
@@ -142,11 +191,12 @@ Most of the design decisions involved in the proposal are based on the
 closely as possible, while maintaining support for legacy projects. In some
 cases, that required major changes to the way Sass handles colors:
 
-1. Channel values are no longer clamped to the gamut of a given color space.
-   By default Sass will output CSS with out-of-gamut colors, because browsers
-   can provide better gamut mapping based on the user device capabilities.
-   However, authors can use the provided `to-gamut()` function to enforce
-   mapping a color into a specific gamut.
+1. RGB channel values are no longer clamped to the gamut of a color space,
+   except for the `hsl` and `hwb` spaces, which are unable to represent
+   out-of-gamut colors. By default Sass will output CSS with out-of-gamut
+   colors, because browsers can provide better gamut mapping based on the user
+   device capabilities. However, authors can use the provided `color.to-gamut()`
+   function to enforce mapping a color into a specific gamut.
 2. RGB channel values are no longer rounded to the nearest integer, since the
    spec now requires maintaining precision wherever possible. This is
    especially important in RGB spaces, where color distribution is inconsistent.
@@ -177,8 +227,6 @@ into those spaces (using `color.to-gamut()` or manipulating colors in those
 spaces) must always require gamut-mapping into the `srgb` gamut. This is
 defined as part of the [CSS Color Level 4][color-4] specification for
 [converting] colors.
-
-<!-- flesh this out more -->
 
 ## Definitions
 
