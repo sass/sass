@@ -938,8 +938,6 @@ Legacy global color functions are also deprecated:
 * `saturate()`/`desaturate()`
 * `transparentize()`/`opacify()`/`fade-in()`
 * `lighten()`/`darken()`
-* `adjust-color()`/`change-color()`/`scale-color()`
-* `mix()`/`complement()`/`invert()`/`grayscale()`
 
 While deprecated, if the specified color argument is not a [legacy color],
 throw an error.
