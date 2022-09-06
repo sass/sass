@@ -10,6 +10,7 @@ colors outside the sRGB gamut.
 
 ## Table of Contents
 
+* [Background](#background)
 * [Summary](#summary)
   * [Design Decisions](#design-decisions)
 * [Definitions](#definitions)
