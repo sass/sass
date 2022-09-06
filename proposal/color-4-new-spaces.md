@@ -63,7 +63,12 @@ colors outside the sRGB gamut.
 
 > This section is non-normative.
 
-When working with color on the web, there are a few important terms:
+Historically, CSS has only provided authors with color formats using the RGB
+model, limited to the sRGB gamut. As CSS is used for more applications (such as
+print) and displays continue to improve, those limitations become more clear.
+The [CSS Color Level 4][color-4] specification defines a number of new color
+spaces, each with its own syntax, representing both new color models and
+wider RGB gamuts.
 
 - A *color model* is a mathematical approach to representing colors and their
   relationships. Historically, RGB has been the dominant color model for both
@@ -72,33 +77,45 @@ When working with color on the web, there are a few important terms:
   distribution of colors, so that similar mathematical adjustments achieve
   visually similar results.
 - A *color space* is the result of projecting a color model into a coordinate
-  system. In CSS, each color format describes a specific (and often unique)
-  color space. For example, `rgb()` projects the RGB color model into a cubic
-  coordinate system, while `hsl()` projects the same model into a cylindrical
-  (polar-angle) space. Different spaces will have different benefits when
-  adjusting or interpolating colors for different purposes.
+  system. In CSS, each color syntax describes a specific (and often unique)
+  color space. For example, `rgb()`, `color(srgb)`, and `color(display-p3)` all
+  project the RGB color model into cubic coordinate systems, while `hsl()`
+  projects the same color model into a cylindrical (polar-angle) space.
+  Similarly, `oklab()` and `oklch()` provide different coordinate projections
+  of the OKLab model.
 - A *color gamut* is the full range of colors that can be described in a color
-  space. Historically, all CSS spaces have been limited to the same sRGB gamut.
-  However, modern computer monitors often support wider gamuts like display-p3.
+  space. Historically, all CSS syntaxes have been limited to the sRGB gamut.
+  However, modern computer monitors often support wider gamuts. Color spaces
+  like `srgb` and `display-p3` describe different gamuts of color, using the
+  same underlying RGB color model, and differently-mapped cubic coordinates.
 
-Historically, CSS has only provided authors with color formats using the RGB
-model, limited to the sRGB gamut. As CSS is used for more applications (such as
-print) and displays continue to improve, those limitations become more clear.
-The [CSS Color Level 4][color-4] specification defines a number of new color
-spaces, each with its own syntax, representing both new color models and
-wider RGB gamuts.
+These terms can get a bit confusing, since there is so much overlap. The term
+'RGB' can refer to a color model, a color space, a coordinate system, and also
+a color function. The 'RGB' color space is identical to the 'sRGB' space, and
+both describe the 'sRGB' gamut. But we have both `rgb()` and `color(srgb)`
+syntax, in order to distinguish legacy from non-legacy variations. Some new
+color syntaxes and spaces represent new color models, while some represent new
+coordinate systems and gamuts built on existing models.
+
+The result is that authors can generally think of each color syntax as a unique
+space, and each space implies an associated gamut and coordinate system. Color
+spaces become a simple way to refer to all parts combined. We've used that same
+approach in Sass, such that the name of a color space can be used to reference
+the associated gamut. For example, `color.to-gamut($color, hsl)` and
+`color.to-gamut($color, srgb)` have the same meaning, both mapping a color into
+the sRGB gamut.
 
 Since all CSS colors up until this point have been restricted to RGB math in
-the sRGB gamut, Sass has treated all color formats as interchangeable. That
-has allowed authors to inspect and manipulate colors in any space, without
-careful management or gamut mapping. It has also allowed Sass to output the
-most browser-compatible CSS format for any given color.
+the sRGB gamut, Sass has historically treated all color formats and spaces as
+interchangeable. That has allowed authors to inspect and manipulate colors in
+any space, without careful management or gamut mapping. It has also allowed
+Sass to output the most browser-compatible CSS format for any given color.
 
-In order to support the color spaces in CSS Sass will need to start tracking
-the space and gamut associated with any given color, and provide author tools
-for managing those color spaces. In addition to supporting the new color space
-functions, we plan to update all functions in the color module, and provide
-some additional space and gamut management and inspection functions.
+In order to support the color spaces in CSS, Sass will need to start tracking
+the space/gamut associated with any given color, and provide author tools for
+managing those color spaces/gamuts. In addition to supporting the new color
+space functions, we plan to update all functions in the color module, and
+provide some additional space and gamut management and inspection functions.
 
 ## Summary
 
