@@ -26,6 +26,7 @@ colors outside the sRGB gamut.
   * [Gamut Mapping](#gamut-mapping)
   * [Parsing Color Components](#parsing-color-components)
   * [Percent-Converting a Number](#percent-converting-a-number)
+  * [Validating a Color Channel](#validating-a-color-channel)
   * [Normalizing Color Channels](#normalizing-color-channels)
   * [Interpolating Colors](#interpolating-colors)
     * [Premultiply Transparent Colors](#premultiply-transparent-colors)
