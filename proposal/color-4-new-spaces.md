@@ -16,6 +16,7 @@ colors outside the sRGB gamut.
 * [Definitions](#definitions)
   * [Color](#color)
   * [Legacy Color](#legacy-color)
+  * [Color Equality](#color-equality)
   * [Known Color Space](#known-color-space)
   * [Predefined Color Spaces](#predefined-color-spaces)
   * [Missing Components](#missing-components)
@@ -41,6 +42,7 @@ colors outside the sRGB gamut.
   * [`color.is-in-gamut()`](#coloris-in-gamut)
   * [`color.to-gamut()`](#colorto-gamut)
   * [`color.channel()`](#colorchannel)
+  * [`color.same()`](#colorsame)
 * [Modified Color Module Functions](#modified-color-module-functions)
   * [`color.hwb()`](#colorhwb)
   * [`color.mix()`](#colormix)
@@ -302,6 +304,23 @@ behavior when manipulating legacy colors.
 > This includes colors defined using the CSS color names, hex syntax, `rgb()`,
 > `rgba()`, `hsl()`, `hsla()`, or `hwb()` -- along with colors that are
 > manually converted into legacy color spaces.
+
+### Color Equality
+
+For determining _equality_ between two colors:
+
+* If both colors are [legacy colors](#legacy-color):
+
+  * Set each color to the result of [converting] the color into `rgb` space.
+
+  * Colors are only equal if their channel values are fuzzy-equal.
+
+    > Since this definition no longer involves rounding channels, it is
+    > potentially a breaking change. Moving forward,
+    > `rgb(0 0 0.6) != rgb(0 0 1)`.
+
+* Otherwise, colors are only equal when they're in the same space and their
+  channel values are fuzzy-equal.
 
 ### Known Color Space
 
@@ -991,110 +1010,110 @@ These new functions are part of the built-in `sass:color` module.
 
 ### `color.space()`
 
-* ```
-  space($color)
-  ```
+```
+space($color)
+```
 
-  * If `$color` is not a color, throw an error.
+* If `$color` is not a color, throw an error.
 
-  * Return an unquoted string with the name of `$color`s [known color space].
+* Return an unquoted string with the name of `$color`s [known color space].
 
 ### `color.to-space()`
 
-* ```
-  to-space($color, $space)
-  ```
+```
+to-space($color, $space)
+```
 
-  * If `$color` is not a color, throw an error.
+* If `$color` is not a color, throw an error.
 
-  * Let `origin-space` be the result of calling `color.space($color)`.
+* Let `origin-space` be the result of calling `color.space($color)`.
 
-  * If `origin-space == $space`, return `$color`.
+* If `origin-space == $space`, return `$color`.
 
-    > This allows unknown spaces, as long as they match the origin space.
+  > This allows unknown spaces, as long as they match the origin space.
 
-  * If either `origin-space` or `$space` is not a [known color space], throw an
-    error.
+* If either `origin-space` or `$space` is not a [known color space], throw an
+  error.
 
-  * Return the result of [converting] the `origin-color` `$color` to the
-    `target-space` `$space`.
+* Return the result of [converting] the `origin-color` `$color` to the
+  `target-space` `$space`.
 
 ### `color.is-legacy()`
 
-* ```
-  is-legacy($color)
-  ```
+```
+is-legacy($color)
+```
 
-  * If `$color` is not a color, throw an error.
+* If `$color` is not a color, throw an error.
 
-  * Return `true` if `$color` is a [legacy color], or `false` otherwise.
+* Return `true` if `$color` is a [legacy color], or `false` otherwise.
 
 ### `color.is-powerless()`
 
-* ```
-  is-powerless($color, $channel, $space: null)
-  ```
+```
+is-powerless($color, $channel, $space: null)
+```
 
-  * If `$color` is not a color, throw an error.
+* If `$color` is not a color, throw an error.
 
-  * If `$channel` is not an unquoted string, throw an error.
+* If `$channel` is not an unquoted string, throw an error.
 
-  * If `$space` is null:
+* If `$space` is null:
 
-    * Let `color` be `$color`, and let `space` be the result of calling
-      `color.space($color)`.
+  * Let `color` be `$color`, and let `space` be the result of calling
+    `color.space($color)`.
 
-  * Otherwise:
+* Otherwise:
 
-    * Let `color` be the result of calling `color.to-space($color, $space)`,
-      and let `space` be `$space`.
+  * Let `color` be the result of calling `color.to-space($color, $space)`,
+    and let `space` be `$space`.
 
-  * If `space` is not a [known color space], throw an error.
+* If `space` is not a [known color space], throw an error.
 
-  * If `$channel` is not the name of a channel in the color-space `space`,
-    throw an error.
+* If `$channel` is not the name of a channel in the color-space `space`,
+  throw an error.
 
-  * Return `true` if the channel `$channel` is [powerless] in `color`,
-    otherwise return `false`.
+* Return `true` if the channel `$channel` is [powerless] in `color`,
+  otherwise return `false`.
 
 ### `color.is-in-gamut()`
 
-* ```
-  is-in-gamut($color, $space: null)
-  ```
+```
+is-in-gamut($color, $space: null)
+```
 
-  * If `$color` is not a color, throw an error.
+* If `$color` is not a color, throw an error.
 
-  * Let `space` be the value of `$space` if specified, or the result of calling
-    `color.space($color)` otherwise.
+* Let `space` be the value of `$space` if specified, or the result of calling
+  `color.space($color)` otherwise.
 
-  * If `space` is not a [known color space], throw an error.
+* If `space` is not a [known color space], throw an error.
 
-  * Let `color` be the result of calling `color.to-space($color, space)`.
+* Let `color` be the result of calling `color.to-space($color, space)`.
 
-  * For all bounded channels in `space`, if the associated channel value in
-    `$color` is outside the bounded range, return `false`.
+* For all bounded channels in `space`, if the associated channel value in
+  `$color` is outside the bounded range, return `false`.
 
-  * Otherwise, return `true`.
+* Otherwise, return `true`.
 
 ### `color.to-gamut()`
 
-* ```
-  to-gamut($color, $space: null)
-  ```
+```
+to-gamut($color, $space: null)
+```
 
-  * If `$color` is not a color, throw an error.
+* If `$color` is not a color, throw an error.
 
-  * Let `origin-space` be the result of calling `color.space($color)`.
+* Let `origin-space` be the result of calling `color.space($color)`.
 
-  * Let `target-space` be the value of `$space` if specified, or the value of
-    `origin-space` otherwise.
+* Let `target-space` be the value of `$space` if specified, or the value of
+  `origin-space` otherwise.
 
-  * If `target-space` is not a [known color space], throw an error.
+* If `target-space` is not a [known color space], throw an error.
 
-  * Return the result of [gamut mapping] with `$color` as the
-    origin color, `origin-space` as the origin color space, and
-    `target-space` as the destination color space.
+* Return the result of [gamut mapping] with `$color` as the
+  origin color, `origin-space` as the origin color space, and
+  `target-space` as the destination color space.
 
 [gamut mapping]: #gamut-mapping
 
@@ -1104,38 +1123,51 @@ These new functions are part of the built-in `sass:color` module.
 > out-of-gamut for the [known color space] used. Similarly, this color-channel
 > inspection function may return out-of-gamut channel values.
 
-* ```
-  channel($color, $channel, $space: null)
-  ```
+```
+channel($color, $channel, $space: null)
+```
 
-  * If `$channel` is not an integer or unquoted string, throw an error.
+* If `$channel` is not an integer or unquoted string, throw an error.
 
-  * If `$space` is null:
+* If `$space` is null:
 
-    * Let `space` be the result of calling `color.space($color)`, and let
-      `color` be the value of `$color`.
+  * Let `space` be the result of calling `color.space($color)`, and let
+    `color` be the value of `$color`.
 
-  * Otherwise:
+* Otherwise:
 
-    * Let `color` be the result of calling `color.to-space($color, $space)`,
-      and let `space` be the value of `$space`.
+  * Let `color` be the result of calling `color.to-space($color, $space)`,
+    and let `space` be the value of `$space`.
 
-  * Let `channels` be a map from 1-indexed integer channel keys to their
-    corresponding values in `color`.
+* Let `channels` be a map from 1-indexed integer channel keys to their
+  corresponding values in `color`.
 
-  * If `space` is a [known color space]:
+* If `space` is a [known color space]:
 
-    * Let `named-channels` be a map of channel names defined by `space`, and
-      their corresponding values in `color`.
+  * Let `named-channels` be a map of channel names defined by `space`, and
+    their corresponding values in `color`.
 
-    * Set `channels` to the result of `map.merge(channels, named-channels)`.
+  * Set `channels` to the result of `map.merge(channels, named-channels)`.
 
-  * Let `value` be the result of calling `map.get(channels, $channel)`.
+* Let `value` be the result of calling `map.get(channels, $channel)`.
 
-  * If `value` is `null`, throw an error.
+* If `value` is `null`, throw an error.
 
-  * Otherwise, return `value`.
+* Otherwise, return `value`.
 
+### `color.same()`
+
+```
+same($color1, $color2)
+```
+
+* If either `$color1` or `$color2` is not a color in a [known color space],
+  throw an error.
+
+* Let `color1` and `color2` be the result of [converting] `$color1` and
+  `$color2` into `xyz` color space, respectively.
+
+* Return `color1 == color2`.
 
 ## Modified Color Module Functions
 
