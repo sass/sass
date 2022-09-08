@@ -800,7 +800,7 @@ channel is invalid for the color space, or returns a normalized channel value ot
 
 [normalizing]: #normalizing-color-channels
 
-This process accepts a list `channels` to validate, and a color space `space`
+This process accepts a list of `channels` to validate, and a color space `space`
 to normalize against. It throws an error if any channel is invalid for the
 color space, or returns a normalized list of valid channels otherwise.
 
