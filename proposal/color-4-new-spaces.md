@@ -231,7 +231,7 @@ cases, that required major changes to the way Sass handles colors:
    colors, because browsers can provide better gamut mapping based on the user
    device capabilities. However, authors can use the provided `color.to-gamut()`
    function to enforce mapping a color into a specific gamut.
-2. RGB channel values are no longer rounded to the nearest integer, since the
+2. RGB-style channel values are no longer rounded to the nearest integer, since the
    spec now requires maintaining precision wherever possible. This is
    especially important in RGB spaces, where color distribution is inconsistent.
 
