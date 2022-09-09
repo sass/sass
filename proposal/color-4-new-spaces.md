@@ -501,7 +501,7 @@ in certain circumstances.
 
   > The current spec has an inline issue asking if high values of
   > `lightness` (whites) should make the `a` and `b` values powerless:
-  > See: https://drafts.csswg.org/css-color-4/#issue-e05ac5c3
+  > See: https://www.w3.org/TR/css-color-4/#issue-e05ac5c3
 
 * `lch`/`oklch`:
 
@@ -554,7 +554,7 @@ is given by either the `PolarColorSpace` or `RectangularColorSpace` productions.
 > specification provides [additional guidance][default-space] for determining
 > appropriate defaults.
 
-[default-space]: https://drafts.csswg.org/css-color-4/#interpolation-space
+[default-space]: https://www.w3.org/TR/css-color-4/#interpolation-space
 
 ## Procedures
 
@@ -615,8 +615,8 @@ space.
 > the destination gamut are unchanged. Since the process is lossy, authors
 > should be encouraged to let the browser handle gamut mapping when possible.
 
-[css-mapping]: https://drafts.csswg.org/css-color-4/#css-gamut-mapping-algorithm
-[css-map]: https://drafts.csswg.org/css-color-4/#css-gamut-map
+[css-mapping]: https://www.w3.org/TR/css-color-4/#css-gamut-mapping-algorithm
+[css-map]: https://www.w3.org/TR/css-color-4/#css-gamut-map
 
 ### Parsing Color Components
 
@@ -825,7 +825,7 @@ color space, or returns a normalized list of valid channels otherwise.
 ### Interpolating Colors
 
 > This procedure is based on the
-> [color interpolation](https://drafts.csswg.org/css-color-4/#interpolation)
+> [color interpolation](https://www.w3.org/TR/css-color-4/#interpolation)
 > procedures defined in [CSS Color Level 4][color-4].
 
 This procedure accepts two color arguments (`color1` and `color2`), a
