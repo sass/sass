@@ -1225,12 +1225,20 @@ to-gamut($color, $space: null)
 channel($color, $channel, $space: null)
 ```
 
+* If `$color` is not a color, throw an error.
+
 * If `$channel` is not an integer or unquoted string, throw an error.
+
+* If `$channel == alpha` (ignoring case), return the alpha value of `$color`.
 
 * If `$space` is null:
 
-  * Let `space` be the result of calling `color.space($color)`, and let
-    `color` be the value of `$color`.
+  * Let `origin-space` be the result of calling `color.space($color)`.
+
+  * Let `space` be the result of [looking up a known color space] named
+    `origin-space`.
+
+  * Let `color` be `$color`.
 
 * Otherwise:
 
