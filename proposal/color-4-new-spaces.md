@@ -23,12 +23,14 @@ colors outside the sRGB gamut.
   * [Powerless Components](#powerless-components)
   * [Color Interpolation Method](#color-interpolation-method)
 * [Procedures](#procedures)
+  * [Looking Up a Known Color Space](#looking-up-a-known-color-space)
   * [Converting a Color](#converting-a-color)
   * [Gamut Mapping](#gamut-mapping)
   * [Parsing Color Components](#parsing-color-components)
   * [Percent-Converting a Number](#percent-converting-a-number)
   * [Validating a Color Channel](#validating-a-color-channel)
   * [Normalizing Color Channels](#normalizing-color-channels)
+  * [Interpolating Legacy Colors](#interpolating-legacy-colors)
   * [Interpolating Colors](#interpolating-colors)
     * [Premultiply Transparent Colors](#premultiply-transparent-colors)
     * [Hue Interpolation](#hue-interpolation)
@@ -231,8 +233,8 @@ cases, that required major changes to the way Sass handles colors:
    colors, because browsers can provide better gamut mapping based on the user
    device capabilities. However, authors can use the provided `color.to-gamut()`
    function to enforce mapping a color into a specific gamut.
-2. RGB-style channel values are no longer rounded to the nearest integer, since the
-   spec now requires maintaining precision wherever possible. This is
+2. RGB-style channel values are no longer rounded to the nearest integer, since
+   the spec now requires maintaining precision wherever possible. This is
    especially important in RGB spaces, where color distribution is inconsistent.
 
 We are not attempting to support all of [CSS Color Level 5][color-5] at this
@@ -319,8 +321,8 @@ For determining _equality_ between two colors:
     > potentially a breaking change. Moving forward,
     > `rgb(0 0 0.6) != rgb(0 0 1)`.
 
-* Otherwise, colors are only equal when they're in the same space and their
-  channel values are fuzzy-equal.
+* Otherwise, colors are only equal when they're in the same color space and
+  their channel values are fuzzy-equal.
 
 ### Known Color Space
 
@@ -544,8 +546,9 @@ parsed according to the following syntax definition:
 &#32;                            ) 'hue'
 </pre></x>
 
-The resulting _interpolation color space_ is the [known color space] whose name
-is given by either the `PolarColorSpace` or `RectangularColorSpace` productions.
+The _interpolation color space_ is the result of [looking up a known color
+space] named by either the `PolarColorSpace` or `RectangularColorSpace`
+productions.
 
 > Different color interpolation methods provide different advantages. For that
 > reason, individual color procedures and functions can establish their own
@@ -557,6 +560,22 @@ is given by either the `PolarColorSpace` or `RectangularColorSpace` productions.
 [default-space]: https://www.w3.org/TR/css-color-4/#interpolation-space
 
 ## Procedures
+
+### Looking Up a Known Color Space
+
+This procedure accepts a `name`, and attempts to look up a [known color space]
+with a matching name. It throws an error if `name` is not a valid color space
+name, and either returns the known color space, or `name` if no color space is
+matched.
+
+* If `name` is not an unquoted string, throw an error.
+
+* If `lower-name` is the name of a [known color space], ignoring case, return
+  the matching color space.
+
+* Otherwise, return `name`.
+
+[looking up a known color space]: #looking-up-a-known-color-space
 
 ### Converting a Color
 
@@ -606,10 +625,20 @@ the special value `none`.
 > appearance.
 
 Gamut mapping in Sass follows the [CSS gamut mapping algorithm][css-mapping].
-This procedure accepts a color `origin` in the color space `origin color space`,
-and a destination color space `destination`. It returns the result of a
-[CSS gamut map][css-map] procedure, which is a color in the `destination` color
-space.
+This procedure accepts a color `origin`, and a [known color space]
+`destination`. It returns the result of a [CSS gamut map][css-map] procedure,
+converted back into the original color space.
+
+* Let `origin-space` be `origin`'s color space.
+
+* If either `origin-space` or `destination` is not a [known color space], throw
+  an error.
+
+* Let `mapped` be the result of [CSS gamut mapping][css-mapping] `origin`
+  color, with an origin color space of `origin-space`, and destination of
+  `destination`.
+
+* Return the result of [converting] `mapped` into `origin-space`.
 
 > This algorithm implements a relative colorimetric intent, and colors inside
 > the destination gamut are unchanged. Since the process is lossy, authors
@@ -691,10 +720,8 @@ The procedure is:
 
       * Let `input-space` be the first element in `components`.
 
-      * If `input-space` is not either a [known color space] or an unquoted
-        string, throw an error.
-
-      * Let `space` be the value of `input-space`.
+      * Set `space` be the result of [looking up a known color space] with the
+        name `input-space`.
 
       * Let `channels` be an unbracketed space-separated list with the
         remaining elements from `components`.
@@ -702,7 +729,7 @@ The procedure is:
     * Otherwise, let `channels` be the value of `components`.
 
     * Let `expected` be the number of channels in `space` if `space` is a
-      [known color space], and null otherwise.
+      [known color space], and `null` otherwise.
 
     * If any element of channels is not either a number, a special variable
       string, a special number string, or the special value `none`, throw an
@@ -763,7 +790,8 @@ This process accepts a `channel` to validate, a color space `space` to validate
 against, and the `key` name or index of the channel. It throws an error if the
 channel is invalid for the color space, or returns a normalized channel value otherwise.
 
-* If `space` is not a [known color space] or an unquoted string, throw an error.
+* Set `space` to the result of [looking up a known color space] with the name
+  `space`.
 
 * If `channel` is not a number or the special value `none`, throw an error.
 
@@ -804,7 +832,8 @@ This process accepts a list of `channels` to validate, and a color space `space`
 to normalize against. It throws an error if any channel is invalid for the
 color space, or returns a normalized list of valid channels otherwise.
 
-* If `space` is not a [known color space] or an unquoted string, throw an error.
+* Set `space` to the result of [looking up a known color space] with the name
+  `space`.
 
 * If `channels` is not a list, throw an error.
 
@@ -822,6 +851,69 @@ color space, or returns a normalized list of valid channels otherwise.
 
 * Return `normal`.
 
+### Interpolating Legacy Colors
+
+> This procedure is based on the legacy behavior of the `color.mix()` function,
+> but returns a color in the original `color1` color space.
+
+This procedure accepts two legacy colors (`color1` and `color2`), and an
+optional percentage `weight` for `color1` in the mix. It returns a new color
+`mix` that represents the appropriate mix of input colors.
+
+* Let `origin-space` be `color1`'s color space.
+
+* Let `rgb1` and `rgb2` be the result of [converting] `color1` and `color2`
+  respectively into `rgb`.
+
+* If `weight` is null, set `weight-scale` to `0.5`.
+
+* Otherwise, set `weight-scale` to the result of [percent-converting] `weight`
+  with a max of 1, and then clamping the value between 0 and 1 (inclusive).
+
+* Let `normal-weight` be `weight-scale * 2 - 1`.
+
+* Let `alpha1` and `alpha2` be the alpha values of `rgb1` and `rgb2`
+  respectively.
+
+* Let `alpha-distance` be `alpha1 - alpha2`.
+
+* Let `weight-by-distance` be `normal-weight * alpha-distance`.
+
+* If `weight-by-distance == -1`, let `combined-weight1` be `normal-weight`.
+
+* Otherwise:
+
+  * Let `weight-distance-sum` be `normal-weight + alpha-distance`.
+
+  * Let `combined-weight1` be `weight-distance-sum / (1 + weight-by-distance)`.
+
+* Let `weight1` be `(combined-weight1 + 1) / 2`.
+
+* Let `weight2` be `1 - weight1`.
+
+* Let `red1` and `red2` be the red channels of `rgb1` and `rgb2` respectively.
+
+* Let `red` be `red1 * weight1 + red2 * weight2`.
+
+* Let `green1` and `green2` be the green channels of `rgb1` and `rgb2`
+  respectively.
+
+* Let `green` be `green1 * weight1 + green2 * weight2`.
+
+* Let `blue1` and `blue2` be the blue channels of `rgb1` and `rgb2`
+  respectively.
+
+* Let `blue` be `blue1 * weight1 + blue2 * weight2`.
+
+* Let `alpha` be `alpha1 * weight-scale + alpha2 * (1 - weight-scale)`.
+
+* Let `mix` be a [legacy color] in the `rgb` space, with the given `red`,
+  `green`, and `blue` channels, and `alpha` value.
+
+* Return the result of [converting] `mix` into `origin-space`.
+
+[legacy interpolation]: #interpolating-legacy-colors
+
 ### Interpolating Colors
 
 > This procedure is based on the
@@ -833,30 +925,27 @@ This procedure accepts two color arguments (`color1` and `color2`), a
 in the mix. It returns a new color `mix` that represents the appropriate mix of
 input colors.
 
-* If either `color1` or `color2` is not a color, throw an error.
+* If either `color1` or `color2` is not a color in a [known color space], throw
+  an error.
 
-* If `weight` is null, set `weight` to `50%`.
+* Let `origin-space` be `color1`'s color space.
 
-* Set `weight` to the result of [percent-converting] `weight` with a max of 1,
-  and then clamping the value between 0 and 1, inclusive.
+* If `weight` is null, set `weight` to `0.5`.
 
-* Otherwise:
+* Otherwise, set `weight` to the result of [percent-converting] `weight` with a
+  max of 1, and then clamping the value between 0 and 1 (inclusive).
 
-  * If `method` is not a [color interpolation method][color-method], throw an
-    error.
+* Let `space` be the _interpolation color space_ specified by the `method`
+  [color interpolation method].
 
-  * Let `space` be the _interpolation color space_ specified in `method`.
+  > Only known color spaces are allowed as part of a color interpolation method.
 
-  * If `space` is a [PolarColorSpace][color-method]:
+* If `space` is a [PolarColorSpace][color-method]:
 
     * Let `hue-arc` be the `HueInterpolationMethod` specified in `method`, or
       `shorter` if no hue interpolation is specified.
 
 * For each `color` of `color1` and `color2`:
-
-  * Let `origin-space` be `color`'s color space.
-
-  * If `origin-space` is not a [known color space], throw an error.
 
   * Let `missing` be a list of channel names in `color` that are [missing].
 
@@ -875,8 +964,8 @@ input colors.
 
   * Set `color` to the result of [premultiplying] `color`.
 
-* Let `mix` be a new color in the [known color space] `space`, with `none` for
-  alpha and all channel values.
+* Let `mix` be a new color in the color space `space`, with `none` for all
+  channel and alpha values.
 
 * For each `channel` of `mix`:
 
@@ -892,7 +981,9 @@ input colors.
 
     > Channel rounding has been removed, since it is a lossy transform.
 
-* Return the result of [un-premultiplying] `mix`.
+* Set `mix` the result of [un-premultiplying] `mix`.
+
+* Return the result of [converting] `mix` into `origin-space`.
 
 [premultiplying]: #premultiply-transparent-colors
 [un-premultiplying]: #premultiply-transparent-colors
@@ -1016,7 +1107,7 @@ space($color)
 
 * If `$color` is not a color, throw an error.
 
-* Return an unquoted string with the name of `$color`s [known color space].
+* Return an unquoted string with the name of `$color`s color space.
 
 ### `color.to-space()`
 
@@ -1032,7 +1123,9 @@ to-space($color, $space)
 
   > This allows unknown spaces, as long as they match the origin space.
 
-* If either `origin-space` or `$space` is not a [known color space], throw an
+* Let `space` be the result of [looking up a known color space] named `$space`.
+
+* If either `origin-space` or `space` is not a [known color space], throw an
   error.
 
 * Return the result of [converting] the `origin-color` `$color` to the
@@ -1060,13 +1153,16 @@ is-powerless($color, $channel, $space: null)
 
 * If `$space` is null:
 
-  * Let `color` be `$color`, and let `space` be the result of calling
-    `color.space($color)`.
+  * Let `color` be `$color`
+
+  * Let `space` be the result of calling `color.space($color)`.
 
 * Otherwise:
 
-  * Let `color` be the result of calling `color.to-space($color, $space)`,
-    and let `space` be `$space`.
+  * Let `color` be the result of calling `color.to-space($color, $space)`.
+
+  * Let `space` be the result of [looking up a known color space] named
+    `$space`.
 
 * If `space` is not a [known color space], throw an error.
 
@@ -1084,8 +1180,11 @@ is-in-gamut($color, $space: null)
 
 * If `$color` is not a color, throw an error.
 
-* Let `space` be the value of `$space` if specified, or the result of calling
-  `color.space($color)` otherwise.
+* If `$space` is null, let `space` be the result of calling
+  `color.space($color)`.
+
+* Otherwise, let `space` be the result of [looking up a known color space]
+  named `$space`.
 
 * If `space` is not a [known color space], throw an error.
 
@@ -1111,9 +1210,8 @@ to-gamut($color, $space: null)
 
 * If `target-space` is not a [known color space], throw an error.
 
-* Return the result of [gamut mapping] with `$color` as the
-  origin color, `origin-space` as the origin color space, and
-  `target-space` as the destination color space.
+* Return the result of [gamut mapping] `$color` with a `target-space`
+  destination.
 
 [gamut mapping]: #gamut-mapping
 
@@ -1136,8 +1234,10 @@ channel($color, $channel, $space: null)
 
 * Otherwise:
 
-  * Let `color` be the result of calling `color.to-space($color, $space)`,
-    and let `space` be the value of `$space`.
+  * Let `space` be the result of [looking up a known color space] named
+    `$space`.
+
+  * Let `color` be the result of calling `color.to-space($color, $space)`.
 
 * Let `channels` be a map from 1-indexed integer channel keys to their
   corresponding values in `color`.
@@ -1157,15 +1257,27 @@ channel($color, $channel, $space: null)
 
 ### `color.same()`
 
+> While it's already possible to compare the [equality](#color-equality) of
+> two colors, the result is always false when the two colors are in different
+> color spaces. This function compares colors across color spaces, to determine
+> if they are equal after being converted into the same space.
+
 ```
 same($color1, $color2)
 ```
 
-* If either `$color1` or `$color2` is not a color in a [known color space],
-  throw an error.
+* If either `$color1` or `$color2` is not a color in a [known color space]:
 
-* Let `color1` and `color2` be the result of [converting] `$color1` and
-  `$color2` into `xyz` color space, respectively.
+  * Let `color1` be `$color1`, and let `color2` be `$color2`.
+
+  > We can compare, but we can't do conversion. The color space remains
+  > relevant to equality. While this is technically the same as using `==`,
+  > it makes the function more robust to allow comparison of all colors.
+
+* Otherwise:
+
+  * Let `color1` and `color2` be the result of [converting] `$color1` and
+    `$color2` into `xyz` color space, respectively.
 
 * Return `color1 == color2`.
 
@@ -1196,10 +1308,7 @@ mix($color1, $color2,
   $method: null)
 ```
 
-* If either `$color1` or `$color2` is not a color with a [known color space],
-  throw an error.
-
-* Let `origin-space` be `$color1`'s color space.
+* If either `$color1` or `$color2` is not a color, throw an error.
 
 * If `$method` is null:
 
@@ -1209,67 +1318,13 @@ mix($color1, $color2,
     > function defined in [Colors Level 5][color-5], and allows us to add
     > additional default behavior in the future.
 
-  * Let `color1` and `color2` be the result of [converting] `$color1` and
-    `$color2` respectively into the `rgb` [known color space].
+  * Return the result of [legacy interpolation] between `$color1` and `$color2`
+    with the specified `$weight`.
 
-  * Let `weight-scale` be the result of [percent-converting] `$weight` with a
-    `max` of 1, and clamping the value between 0 and 1, inclusive.
+* Otherwise, if `$method` is not a [color interpolation method], throw an error.
 
-  * Let `normal-weight` be `weight-scale * 2 - 1`.
-
-  * Let `alpha1` and `alpha2` be the alpha values of `color1` and `color2`,
-    respectively.
-
-  * Let `alpha-distance` be `alpha1 - alpha2`.
-
-  * Let `weight-by-distance` be `normal-weight * alpha-distance`.
-
-  * If `weight-by-distance == -1`, let `combined-weight1` be `normal-weight`.
-
-  * Otherwise:
-
-    * Let `weight-distance-sum` be `normal-weight + alpha-distance`.
-
-    * Let `combined-weight1` be `weight-distance-sum / (1 + weight-by-distance)`.
-
-  * Let `weight1` be `(combined-weight1 + 1) / 2`.
-
-  * Let `weight2` be `1 - weight1`.
-
-  * Let `red1` and `red2` be the red channels of `color1` and `color2`
-    respectively.
-
-  * Let `red` be `red1 * weight1 + red2 * weight2`.
-
-  * Let `green1` and `green2` be the green channels of `color1` and `color2`
-    respectively.
-
-  * Let `green` be `green1 * weight1 + green2 * weight2`.
-
-  * Let `blue1` and `blue2` be the blue channels of `color1` and `color2`
-    respectively.
-
-  * Let `blue` be `blue1 * weight1 + blue2 * weight2`.
-
-  * Let `alpha` be `alpha1 * weight-scale + alpha2 * (1 - weight-scale)`.
-
-  * Return a [legacy color] in the `rgb` space, with the given `red`, `green`,
-    and `blue` channels, and `alpha` value.
-
-* Otherwise:
-
-  * If `$method` is not a [color interpolation method][color-method], throw an
-    error.
-
-  * Let `space` be the [known color space] specified in `$method`.
-
-* Let `color1` and `color2` be the result of [converting] `$color1` and
-  `$color2` respectively into `space`.
-
-* Let `mix` be the result of [interpolating] between `color1` and `color2` with
-  the specified `$weight` and `$method`.
-
-* Return the result of [converting] `mix` into `origin-space`.
+* Return the result of [interpolating] between `$color1` and
+  `$color2` with the specified `$weight` and `$method`.
 
 ### `color.change()`
 
@@ -1283,18 +1338,25 @@ This function is also available as a global function named `change-color()`.
 
 * If any item in `$args` is not a keyword argument, throw an error.
 
-* Let `space` and `origin-space` both be `$color`'s color space.
+* Let `origin-space` be `$color`'s color space.
 
 * If the keyword argument `$space` is specified in `$args`:
 
-    * If `$space` is not a [known color space], and `$space != space`, throw an
-      error.
+    * Let `space` be the result of [looking up a known color space] named
+      `$space`.
 
-    * Set `space` to the value of `$space`.
+    * If `space` is not a [known color space], and `space != origin-space`,
+      throw an error.
+
+      > We can make changes in an unknown space, but we can't do conversion.
 
     * Let `color` be the result of [converting] `$color` to `space`.
 
-* Otherwise, let `color` be the value of `$color`.
+* Otherwise:
+
+  * Let `space` be `origin-space`.
+
+  * Let `color` be the value of `$color`.
 
 * Let `alpha` be `color`'s alpha property.
 
@@ -1346,18 +1408,25 @@ This function is also available as a global function named `adjust-color()`.
 
 * If any item in `$args` is not a keyword argument, throw an error.
 
-* Let `space` and `origin-space` both be `$color`'s color space.
+* Let `origin-space` be `$color`'s color space.
 
 * If the keyword argument `$space` is specified in `$args`:
 
-    * If `$space` is not a [known color space], and `$space != space`, throw an
-      error.
+    * Let `space` be the result of [looking up a known color space] named
+      `$space`.
 
-    * Set `space` to the value of `$space`.
+    * If `space` is not a [known color space], and `space != origin-space`,
+      throw an error.
+
+      > We can make adjustments in an unknown space, but we can't do conversion.
 
     * Let `color` be the result of [converting] `$color` to `space`.
 
-* Otherwise, let `color` be the value of `$color`.
+* Otherwise:
+
+  * Let `space` be `origin-space`.
+
+  * Let `color` be the value of `$color`.
 
 * Let `alpha` be `color`'s alpha property.
 
@@ -1380,7 +1449,7 @@ This function is also available as a global function named `adjust-color()`.
   * If `key` is a string in the format `channel<integer>`, set `key` to the
     value of `<integer>`.
 
-    > This allows e.g. `color.change($color, $channel1: 0.25)` for changing
+    > This allows e.g. `color.adjust($color, $channel1: 0.25)` for adjusting
     > color channels in unknown color spaces.
 
   * If `key` is not the name or index of a channel in `channels`, throw an
@@ -1412,17 +1481,25 @@ This function is also available as a global function named `scale-color()`.
 
 * If any item in `$args` is not a keyword argument, throw an error.
 
-* Let `space` and `origin-space` both be `$color`'s color space.
+* Let `origin-space` be `$color`'s color space.
 
 * If the keyword argument `$space` is specified in `$args`:
 
-    * If `$space` is not a [known color space], throw an error.
+    * Let `space` be the result of [looking up a known color space] named
+      `$space`.
 
-    * Set `space` to the value of `$space`.
+    * If `space` is not a [known color space], throw an error.
+
+      > We cannot scale channels in an unknown space, since there are no
+      > defined boundaries for a given channel to scale in relation to.
 
     * Let `color` be the result of [converting] `$color` to `space`.
 
-* Otherwise, let `color` be the value of `$color`.
+* Otherwise:
+
+  * Let `space` be `origin-space`.
+
+  * Let `color` be the value of `$color`.
 
 * Let `alpha` be `color`'s alpha property.
 
@@ -1452,8 +1529,7 @@ This function is also available as a global function named `scale-color()`.
   * Set the corresponding `channel` in `channels` to the result of [scaling]
     `channel` by `factor` with `max`.
 
-* If `space` is a [known color space], set `channels` be the result of
-  [normalizing] `channels` in `space`.
+* Set `channels` be the result of [normalizing] `channels` in `space`.
 
 * Let `new` be a color in color space `space`, with `channels` channels, and an
   alpha of `alpha`.
@@ -1475,13 +1551,17 @@ This function is also available as a global function named `complement()`.
 
 * If `$space` is null:
 
-  * If `$color` is a legacy color, let `space` be `hsl`.
+  * If `$color` is a legacy color, let `space` be the [known color space]
+    named `hsl`.
 
   * Otherwise, throw an error.
 
 * Otherwise:
 
-  * If `$space` is not a [known color space] with a polar-angle hue channel,
+  * Let `space` be the result of [looking up a known color space] named
+    `$space`.
+
+  * If `space` is not a [known color space] with a polar-angle hue channel,
     throw an error.
 
     > This currently allows `hsl`, `hwb`, `lch`, and `oklch`. We may decide to
@@ -1513,9 +1593,12 @@ This function is also available as a global function named `invert()`.
 
 * Otherwise:
 
-  * If `$space` is not a [known color space], throw an error.
+  * Let `space` be the result of [looking up a known color space] named
+    `$space`.
 
-  * Let `space` be `$space`, and let `mix-space` be `$space`.
+  * If `space` is not a [known color space], throw an error.
+
+  * Let `mix-space` be `space`.
 
 * Let `color` be the result of [converting] and [gamut mapping] `$color`
   into the color space `space`.
