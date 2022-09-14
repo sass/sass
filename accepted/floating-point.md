@@ -1,4 +1,4 @@
-# Floating Point Numbers: Draft 1
+# Floating Point Numbers: Draft 1.1
 
 *([Issue](https://github.com/sass/sass/issues/2892))*
 
@@ -9,6 +9,8 @@ This proposal standardizes Sass on using 64-bit floating-point numbers.
 * [Background](#background)
 * [Summary](#summary)
   * [Potentially-Breaking Changes](#potentially-breaking-changes)
+  * [Design Decisions](#design-decisions)
+    * [Math Function Special Cases](#math-function-special-cases)
 * [Definitions](#definitions)
   * [Double](#double)
   * [Set of Units](#set-of-units)
@@ -149,6 +151,36 @@ where a change would be welcome.
 Finally, there's not a realistic way for us to provide deprecation messaging for
 this change without dire performance implications. Given that, this proposal
 immediately changes the behavior of the language without a deprecation period.
+
+### Design Decisions
+
+#### Math Function Special Cases
+
+The existing spec for Sass's suite of math functions carves out a number of
+special cases where the mathematical functions have asymptotic behavior around a
+particular integer argument. For example, since the tangent function tends to
+infinity as its input approaches `π/4 ± 2πn`, Sass defined `math.tan()` to
+return `Infinity` for any input that fuzzy-equals `90deg +/- 360deg * n`.
+
+However, this has a number of problems:
+
+* It's inconsistent with `math.div()`, which does *not* do this special-casing
+  for divisors very close to 0.
+
+* It's inconsistent with [CSS Values and Units 4], which uses standard
+  floating-point operations everywhere.
+
+* Most importantly, it runs the risk of losing information if the small
+  differences between values are semantically meaningful.
+
+[CSS Values and Units 4]: https://www.w3.org/TR/css-values-4/#math
+
+Given these, we decided to introduce a rule of thumb. A number is always treated
+as a standard double except for:
+
+* explicit Sass-level equality comparisons (including map access),
+* rounding RGB color channels (until we support Color Level 4),
+* and serializing a number to CSS.
 
 ## Definitions
 
