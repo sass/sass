@@ -123,12 +123,12 @@ represent various boundaries when dealing with floating-point values:
   number greater than 1.
 
 * `math.$max-safe-integer`: The maximum integer that can be represented "safely"
-  in Sass—that is, the maximum integer such that each integer between 0 and it
-  has a precise representation.
+  in Sass—that is, the maximum integer `n` such that `n` and `n + 1` both have a
+  precise representation.
 
 * `math.$min-safe-integer`: The minimum integer that can be represented "safely"
-  in Sass—that is, the minimum integer such that each integer between it and 0
-  has a precise representation.
+  in Sass—that is, the minimum integer `n` such that `n` and `n - 1` both have a
+  precise representation.
 
 * `math.$max-number`: The maximum numeric value representable in Sass.
 
@@ -470,15 +470,15 @@ A unitless number whose value is the difference between 1 and the smallest
 
 ### `$max-safe-integer`
 
-A unitless number whose value represents the maximum mathematical integer such
-that each mathematical integer between 0 and it has a [double] representation.
+A unitless number whose value represents the maximum mathematical integer `n`
+such that `n` and `n + 1` both have an exact [double] representation.
 
 > This is `9007199254740991`.
 
 ### `$min-safe-integer`
 
-A unitless number whose value represents the minimum mathematical integer such
-that each mathematical integer between it and 0 has a [double] representation.
+A unitless number whose value represents the minimum mathematical integer `n`
+such that `n` and `n - 1` both have an exact [double] representation.
 
 > This is `-9007199254740991`.
 
