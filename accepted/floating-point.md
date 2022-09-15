@@ -1,6 +1,6 @@
 # Floating Point Numbers: Draft 1
 
-*([Issue](https://github.com/sass/sass/issues/))*
+*([Issue](https://github.com/sass/sass/issues/2892))*
 
 This proposal standardizes Sass on using 64-bit floating-point numbers.
 
