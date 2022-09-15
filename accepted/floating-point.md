@@ -1,4 +1,4 @@
-# Floating Point Numbers: Draft 1.1
+# Floating Point Numbers: Draft 1.2
 
 *([Issue](https://github.com/sass/sass/issues/2892))*
 
@@ -27,6 +27,7 @@ This proposal standardizes Sass on using 64-bit floating-point numbers.
     * [Addition](#addition)
     * [Subtraction](#subtraction)
     * [Multiplication](#multiplication)
+    * [Modulo](#modulo)
     * [Negation](#negation)
 * [Procedures](#procedures)
   * [Converting a Number to Units](#converting-a-number-to-units)
@@ -358,6 +359,31 @@ Let `n1` and `n2` be two numbers. To determine `n1 * n2`:
 * Return the result of [simplifying] `product`.
 
   [simplifying]: #simplifying-a-number
+
+#### Modulo
+
+Let `n1` and `n2` be two numbers. To determine `n1 % n2`:
+
+* Let `c1` and `c2` be the result of [matching units] for `n1` and `n2` allowing
+  unitless.
+
+* Let `remainder` be a number whose value is the result of `remainder(c1.value,
+  c2.value)` as defined by [IEEE 754 2019], §5.3.1; and whose units are the same
+  as `c1`'s.
+
+* If `c2`'s value is less than 0 and `remainder`'s value isn't `0` or `-0`,
+  return `result - c2`.
+
+  > This is known as [floored division]. It differs from the standard IEEE 754
+  > specification because it was originally inherited from Ruby when that was
+  > used for Sass's original implementation.
+  >
+  > [floored division]: https://en.wikipedia.org/wiki/Modulo_operation#Variants_of_the_definition
+  >
+  > Note: These comparisons are not the same as `c2 < 0` or `remainder == 0`,
+  > because they don't do fuzzy equality.
+
+* Otherwise, return `result`.
 
 #### Negation
 
