@@ -1,3 +1,7 @@
+## Draft 1.2
+
+* Add a section on the modulo operation.
+
 ## Draft 1.1
 
 * Add a design decision section about the new math function semantics.
