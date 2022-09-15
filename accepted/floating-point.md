@@ -1,4 +1,4 @@
-# Floating Point Numbers: Draft 1
+# Floating Point Numbers: Draft 1.1
 
 *([Issue](https://github.com/sass/sass/issues/2892))*
 
@@ -9,6 +9,8 @@ This proposal standardizes Sass on using 64-bit floating-point numbers.
 * [Background](#background)
 * [Summary](#summary)
   * [Potentially-Breaking Changes](#potentially-breaking-changes)
+  * [Design Decisions](#design-decisions)
+    * [Math Function Special Cases](#math-function-special-cases)
 * [Definitions](#definitions)
   * [Double](#double)
   * [Set of Units](#set-of-units)
@@ -121,12 +123,12 @@ represent various boundaries when dealing with floating-point values:
   number greater than 1.
 
 * `math.$max-safe-integer`: The maximum integer that can be represented "safely"
-  in Sass—that is, the maximum integer such that each integer between 0 and it
-  has a precise representation.
+  in Sass—that is, the maximum integer `n` such that `n` and `n + 1` both have a
+  precise representation.
 
 * `math.$min-safe-integer`: The minimum integer that can be represented "safely"
-  in Sass—that is, the minimum integer such that each integer between it and 0
-  has a precise representation.
+  in Sass—that is, the minimum integer `n` such that `n` and `n - 1` both have a
+  precise representation.
 
 * `math.$max-number`: The maximum numeric value representable in Sass.
 
@@ -149,6 +151,36 @@ where a change would be welcome.
 Finally, there's not a realistic way for us to provide deprecation messaging for
 this change without dire performance implications. Given that, this proposal
 immediately changes the behavior of the language without a deprecation period.
+
+### Design Decisions
+
+#### Math Function Special Cases
+
+The existing spec for Sass's suite of math functions carves out a number of
+special cases where the mathematical functions have asymptotic behavior around a
+particular integer argument. For example, since the tangent function tends to
+infinity as its input approaches `π/4 ± 2πn`, Sass defined `math.tan()` to
+return `Infinity` for any input that fuzzy-equals `90deg +/- 360deg * n`.
+
+However, this has a number of problems:
+
+* It's inconsistent with `math.div()`, which does *not* do this special-casing
+  for divisors very close to 0.
+
+* It's inconsistent with [CSS Values and Units 4], which uses standard
+  floating-point operations everywhere.
+
+* Most importantly, it runs the risk of losing information if the small
+  differences between values are semantically meaningful.
+
+[CSS Values and Units 4]: https://www.w3.org/TR/css-values-4/#math
+
+Given these, we decided to introduce a rule of thumb. A number is always treated
+as a standard double except for:
+
+* explicit Sass-level equality comparisons (including map access),
+* rounding RGB color channels (until we support Color Level 4),
+* and serializing a number to CSS.
 
 ## Definitions
 
@@ -438,15 +470,15 @@ A unitless number whose value is the difference between 1 and the smallest
 
 ### `$max-safe-integer`
 
-A unitless number whose value represents the maximum mathematical integer such
-that each mathematical integer between 0 and it has a [double] representation.
+A unitless number whose value represents the maximum mathematical integer `n`
+such that `n` and `n + 1` both have an exact [double] representation.
 
 > This is `9007199254740991`.
 
 ### `$min-safe-integer`
 
-A unitless number whose value represents the minimum mathematical integer such
-that each mathematical integer between it and 0 has a [double] representation.
+A unitless number whose value represents the minimum mathematical integer `n`
+such that `n` and `n - 1` both have an exact [double] representation.
 
 > This is `-9007199254740991`.
 
