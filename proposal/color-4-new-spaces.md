@@ -15,6 +15,7 @@ colors outside the sRGB gamut.
   * [Design Decisions](#design-decisions)
 * [Definitions](#definitions)
   * [Color](#color)
+    * [Serialization of Non-Legacy Colors](#serialization-of-non-legacy-colors)
   * [Legacy Color](#legacy-color)
   * [Color Equality](#color-equality)
   * [Known Color Space](#known-color-space)
@@ -290,6 +291,29 @@ A *color* is an object with several parts:
   > meaningless, and can be clamped by input functions when generating a color.
 
 [known color space]: #known-color-space
+
+#### Serialization of Non-Legacy Colors
+
+To serialize a non-legacy color `color`:
+
+* Let `components` be a space-separated list of `color`'s channel values.
+
+* Let `alpha` be the alpha value of `color`.
+
+* If `alpha != 1`:
+
+  * Set `components` to the result of appending " / " and then the values of
+    `alpha` to the end of `components`.
+
+* Let `color-space` be a lowercase string of the [color space] name.
+
+* If `color` has a [predefined color space]:
+
+  * Emit "color(", followed by `color-space`, " ", `components`, and then ")".
+
+* Otherwise, emit `color-space` followed by "(", `components`, and then ")".
+
+[predefined color space]: #predefined-color-spaces
 
 ### Legacy Color
 
@@ -1821,8 +1845,6 @@ These new CSS functions are provided globally.
     the alpha value of `parsed`.
 
   * Return a color in `space`, with the given `channels` and `alpha` value.
-
-[predefined]: #predefined-color-spaces
 
 ## Modified Global Functions
 
