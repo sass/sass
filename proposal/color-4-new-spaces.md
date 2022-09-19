@@ -36,7 +36,6 @@ colors outside the sRGB gamut.
     * [Premultiply Transparent Colors](#premultiply-transparent-colors)
     * [Hue Interpolation](#hue-interpolation)
   * [Scaling a Number](#scaling-a-number)
-* [Deprecated Functions](#deprecated-functions)
 * [New Color Module Functions](#new-color-module-functions)
   * [`color.space()`](#colorspace)
   * [`color.to-space()`](#colorto-space)
@@ -66,6 +65,8 @@ colors outside the sRGB gamut.
 * [Modified Global Functions](#modified-global-functions)
   * [`rgb()` and `rgba()`](#rgb-and-rgba)
   * [`hsl()` and `hsla()`](#hsl-and-hsla)
+* [Deprecated Functions](#deprecated-functions)
+* [Deprecation Process](#deprecation-process)
 
 ## Background
 
@@ -1093,32 +1094,6 @@ returns a number with a value between 0 and `max` and the same units as
 
 * Otherwise, return `number + number * factor / 100%`.
 
-## Deprecated Functions
-
-Individual color-channel functions defined globally or in the color module are
-deprecated in favor of the new `color.channel()` function. That includes:
-
-* `color.red()`/`red()`
-* `color.green()`/`green()`
-* `color.blue()`/`blue()`
-* `color.hue()`/`hue()`
-* `color.saturation()`/`saturation()`
-* `color.lightness()`/`lightness()`
-* `color.whiteness()`
-* `color.blackness()`
-
-Legacy global color functions are also deprecated:
-
-* `adjust-hue()`
-* `saturate()`/`desaturate()`
-* `transparentize()`/`opacify()`/`fade-in()`
-* `lighten()`/`darken()`
-
-While deprecated, if the specified color argument is not a [legacy color],
-throw an error.
-
-[legacy color]: #legacy-color
-
 ## New Color Module Functions
 
 These new functions are part of the built-in `sass:color` module.
@@ -1975,3 +1950,35 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
 
   * Return a [legacy color] in the `hsl` space, with the given `hue`,
     `saturation`, and `lightness` channels, and `alpha` value.
+
+## Deprecated Functions
+
+Individual color-channel functions defined globally or in the color module are
+deprecated in favor of the new `color.channel()` function. That includes:
+
+* `color.red()`/`red()`
+* `color.green()`/`green()`
+* `color.blue()`/`blue()`
+* `color.hue()`/`hue()`
+* `color.saturation()`/`saturation()`
+* `color.lightness()`/`lightness()`
+* `color.whiteness()`
+* `color.blackness()`
+
+Legacy global color functions are also deprecated:
+
+* `adjust-hue()`
+* `saturate()`/`desaturate()`
+* `transparentize()`/`opacify()`/`fade-in()`
+* `lighten()`/`darken()`
+
+These functions always throw errors.
+
+[legacy color]: #legacy-color
+
+## Deprecation Process
+
+For all [deprecated functions](#deprecated-functions) in this proposal, while
+deprecated:
+
+* If the specified color argument is not a [legacy color], throw an error.
