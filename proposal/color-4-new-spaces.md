@@ -422,6 +422,11 @@ provides us with the most flexibility to change our behavior in the future.
 [color-5]: https://www.w3.org/TR/css-color-5/
 [relative color syntax]: https://drafts.csswg.org/css-color-5/#relative-colors
 
+Thanks to the editors of the CSS Color Level 4 specification (Tab Atkins Jr.,
+Chris Lilley, and Lea Verou) for answering our many questions along the way. We
+also used Chris and Lea's [Color.js](https://colorjs.io/) library as a
+reference as we developed this proposal.
+
 ## Definitions
 
 ### Color
