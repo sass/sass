@@ -310,7 +310,7 @@ $orange-oklch: oklch(68.72% 20.966858279% 41.4189852913deg);
 $equal: $orange-rgb == $orange-oklch;
 
 // result: true
-$same: color.same($orange-rb, $orange-oklch);
+$same: color.same($orange-rgb, $orange-oklch);
 ```
 
 ### Existing Sass Color Functions
