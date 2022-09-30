@@ -1,4 +1,4 @@
-# CSS Color Level 4, New Color Spaces: Draft 1.1
+# CSS Color Level 4, New Color Spaces: Draft 1.2
 
 *([Issue](https://github.com/sass/sass/issues/2831))*
 
@@ -2154,7 +2154,10 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
   * Let `hue`, `saturation`, and `lightness` be the three elements returned
     by [normalizing] `($hue, $saturation, $lightness)` in `hsl` color space.
 
-  > Clamping and conversion to rgb have been removed.
+  * Set `saturation` and `lightness` respectively to the results of clamping
+    the `saturation` and `lightness` values between 0 and 100, inclusive.
+
+  > Conversion to rgb has been removed.
 
   * Return a [legacy color] in the `hsl` space, with the given `hue`,
     `saturation`, and `lightness` channels, and `alpha` value.
