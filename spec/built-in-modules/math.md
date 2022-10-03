@@ -123,6 +123,8 @@ This function is also available as a global function named `ceil()`.
   `convertToIntegerTowardPositive($number.value)` as defined by [IEEE 754 2019],
   §5.8; and whose units are the same as `$number`'s.
 
+[IEEE 754 2019]: https://ieeexplore.ieee.org/document/8766229
+
 #### `clamp()`
 
 ```
