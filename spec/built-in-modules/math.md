@@ -14,6 +14,11 @@ though some have special handling of units.
 * [Variables](#variables)
   * [`$e`](#e)
   * [`$pi`](#pi)
+  * [`$epsilon`](#epsilon)
+  * [`$max-safe-integer`](#max-safe-integer)
+  * [`$min-safe-integer`](#min-safe-integer)
+  * [`$max-number`](#max-number)
+  * [`$min-number`](#min-number)
 * [Functions](#functions)
   * [Bounding Functions](#bounding-functions)
     * [`ceil()`](#ceil)
@@ -34,7 +39,6 @@ though some have special handling of units.
     * [`asin()`](#asin)
     * [`atan()`](#atan)
     * [`atan2()`](#atan2)
-      * [Edge cases](#edge-cases)
     * [`cos()`](#cos)
     * [`sin()`](#sin)
     * [`tan()`](#tan)
@@ -51,13 +55,57 @@ though some have special handling of units.
 
 ### `$e`
 
-Equal to the value of the mathematical constant `e` with a precision of 10
-digits after the decimal point: `2.7182818285`.
+A unitless number whose value is the closest possible [double] approximation of
+the [mathematical constant e].
+
+[double]: ../types/number.md#double
+[mathematical constant e]: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+
+> This is `2.718281828459045`.
 
 ### `$pi`
 
-Equal to the value of the mathematical constant `pi` with a precision of 10
-digits after the decimal point: `3.1415926536`.
+A unitless number whose value is the closest possible [double] approximation of
+the [mathematical constant π].
+
+[mathematical constant π]: https://en.wikipedia.org/wiki/Pi
+
+> This is `3.141592653589793`.
+
+### `$epsilon`
+
+A unitless number whose value is the difference between 1 and the smallest
+[double] greater than 1.
+
+> This is `2.220446049250313e-16`.
+
+### `$max-safe-integer`
+
+A unitless number whose value represents the maximum mathematical integer `n`
+such that `n` and `n + 1` both have an exact [double] representation.
+
+> This is `9007199254740991`.
+
+### `$min-safe-integer`
+
+A unitless number whose value represents the minimum mathematical integer `n`
+such that `n` and `n - 1` both have an exact [double] representation.
+
+> This is `-9007199254740991`.
+
+### `$max-number`
+
+A unitless number whose value represents the greatest finite number that can be
+represented by a [double].
+
+> This is `1.7976931348623157e+308`.
+
+### `$min-number`
+
+A unitless number whose value represents the least positive number that can be
+represented by a [double].
+
+> This is `5e-324`.
 
 ## Functions
 
@@ -70,6 +118,10 @@ ceil($number)
 ```
 
 This function is also available as a global function named `ceil()`.
+
+* Return a number whose value is the result of
+  `convertToIntegerTowardPositive($number.value)` as defined by [IEEE 754 2019],
+  §5.8; and whose units are the same as `$number`'s.
 
 #### `clamp()`
 
@@ -95,6 +147,10 @@ floor($number)
 
 This function is also available as a global function named `floor()`.
 
+* Return a number whose value is the result of
+  `convertToIntegerTowardNegative($number.value)` as defined by [IEEE 754 2019],
+  §5.8; and whose units are the same as `$number`'s.
+
 #### `max()`
 
 ```
@@ -119,6 +175,10 @@ round($number)
 
 This function is also available as a global function named `round()`.
 
+* Return a number whose value is the result of
+  `convertToIntegerTiesToAway($number.value)` as defined by [IEEE 754 2019],
+  §5.8; and whose units are the same as `$number`'s.
+
 ### Distance Functions
 
 #### `abs()`
@@ -128,6 +188,9 @@ abs($number)
 ```
 
 This function is also available as a global function named `abs()`.
+
+* Return a number whose value is the result of `abs($number.value)` as defined
+  by [IEEE 754 2019], §5.5.1; and whose units are the same as `$number`'s.
 
 #### `hypot()`
 
@@ -156,16 +219,15 @@ hypot($numbers...)
 log($number, $base: null)
 ```
 
-* If `$number` has units, throw an error.
-* If `$base` is null:
-  * If `$number < 0`, return `NaN` as a unitless number.
-  * If `$number == 0`, return `-Infinity` as a unitless number.
-  * If `$number == Infinity`, return `Infinity` as a unitless number.
-  * Return the [natural log] of `$number`, as a unitless number.
-* Otherwise, return the natural log of `$number` divided by the natural log of
-  `$base`, as a unitless number.
 
-[natural log]: https://en.wikipedia.org/wiki/Natural_logarithm
+* If `$number` has units, throw an error.
+
+* Return a unitless number whose value is the result of `log($number.value)` as
+  defined by [IEEE 754 2019], §9.2.
+
+> This is the [natural logarithm].
+>
+> [natural logarithm]: https://en.wikipedia.org/wiki/Natural_logarithm
 
 #### `pow()`
 
@@ -175,36 +237,8 @@ pow($base, $exponent)
 
 * If `$base` or `$exponent` has units, throw an error.
 
-* If `$exponent == 0`, return `1` as a unitless number.
-
-* Otherwise, if `$exponent == Infinity` or `$exponent == -Infinity`:
-  * If `$base == 1` or `$base == -1`, return `NaN` as a unitless number.
-  * If `$base < -1` or `$base > 1` and if `$exponent > 0`, *or* if `$base > -1`
-    and `$base < 1` and `$exponent < 0`, return `Infinity` as a
-    unitless number.
-  * Return `0` as a unitless number.
-
-* Otherwise:
-  * If `$base < 0` and `$exponent` is not an integer, return `NaN` as a unitless
-    number.
-
-  * If `$base == 0` and `$exponent < 0`, or if `$base == Infinity` and
-    `$exponent > 0`, return `Infinity` as a unitless number.
-
-  * If `$base == -0` and `$exponent < 0`, or if `$base == -Infinity` and
-    `$exponent > 0`:
-    * If `$exponent` is an odd integer, return `-Infinity` as a unitless number.
-    * Return `Infinity` as a unitless number.
-
-  * If `$base == 0` and `$exponent > 0`, or if `$base == Infinity` and
-    `$exponent < 0`, return `0` as a unitless number.
-
-  * If `$base == -0` and `$exponent > 0`, or if `$base == -Infinity` and
-    `$exponent < 0`:
-    * If `$exponent` is an odd integer, return `-0` as a unitless number.
-    * Return `0` as a unitless number.
-
-  * Return `$base` raised to the power of `$exponent`, as a unitless number.
+* Return a unitless number whose value is the result of `pow($number.value,
+  $exponent.value)` as defined by [IEEE 754 2019], §9.2.
 
 #### `sqrt()`
 
@@ -213,11 +247,9 @@ sqrt($number)
 ```
 
 * If `$number` has units, throw an error.
-* If `$number < 0`, return `NaN` as a unitless number.
-* If `$number == -0`, return `-0` as a unitless number.
-* If `$number == 0`, return `0` as a unitless number.
-* If `$number == Infinity`, return `Infinity` as a unitless number.
-* Return the square root of `$number`, as a unitless number.
+
+* Return a unitless number whose value is the result of `rootn($number.value,
+  2)` as defined by [IEEE 754 2019], §9.2.
 
 ### Trigonometric Functions
 
@@ -237,11 +269,13 @@ acos($number)
 ```
 
 * If `$number` has units, throw an error.
-* If `$number < -1` or `$number > 1`, return `NaN` as a number in `deg`.
-* If `$number == 1`, return `0deg`.
-* Return the [arccosine] of `$number`, as a number in `deg`.
 
-[arccosine]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions#Basic_properties
+* Let `result` be a number in `rad` whose value is the result of
+  `acos($number.value)` as defined by [IEEE 754 2019], §9.2.
+
+* Return the result of [converting `result` to `deg`].
+
+  [converting `result` to `deg`]: ../spec/types/number.md#converting-a-number-to-a-unit
 
 #### `asin()`
 
@@ -250,12 +284,11 @@ asin($number)
 ```
 
 * If `$number` has units, throw an error.
-* If `$number < -1` or `$number > 1`, return `NaN` as a number in `deg`.
-* If `$number == -0`, return `-0deg`.
-* If `$number == 0`, return `0deg`.
-* Return the [arcsine] of `$number`, as a number in `deg`.
 
-[arcsine]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions#Basic_properties
+* Let `result` be a number in `rad` whose value is the result of
+  `asin($number.value)` as defined by [IEEE 754 2019], §9.2.
+
+* Return the result of [converting `result` to `deg`].
 
 #### `atan()`
 
@@ -264,13 +297,11 @@ atan($number)
 ```
 
 * If `$number` has units, throw an error.
-* If `$number == -0`, return `-0deg`.
-* If `$number == 0`, return `0deg`.
-* If `$number == -Infinity`, return `-90deg`.
-* If `$number == Infinity`, return `90deg`.
-* Return the [arctangent] of `$number`, as a number in `deg`.
 
-[arctangent]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions#Basic_properties
+* Let `result` be a number in `rad` whose value is the result of
+  `atan($number.value)` as defined by [IEEE 754 2019], §9.2.
+
+* Return the result of [converting `result` to `deg`].
 
 #### `atan2()`
 
@@ -284,89 +315,13 @@ atan2($y, $x)
 ```
 
 * If the units of `$y` and `$x` are not [compatible], throw an error.
+
 * If `$y` has units and `$x` does not, or vice-versa, throw an error.
-* If the inputs match one of the following edge cases, return the provided
-  number. Otherwise, return the [2-argument arctangent] of `$y` and `$x`, as a
-  number in `deg`.
 
-[2-argument arctangent]: https://en.wikipedia.org/wiki/Atan2
+* Let `result` be a number in `rad` whose value is the result of
+  `atan2($y.value, $x.value)` as defined by [IEEE 754 2019], §9.2.
 
-##### Edge cases
-
-<table>
-  <thead>
-    <tr>
-      <td colspan="2"></td>
-      <th colspan="6" style="text-align: center">X</th>
-    </tr>
-    <tr>
-      <td colspan="2"></td>
-      <th>−Infinity</th>
-      <th>-finite</th>
-      <th>-0</th>
-      <th>0</th>
-      <th>finite</th>
-      <th>Infinity</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th rowspan="6">Y</th>
-      <th>−Infinity</th>
-      <td>-135deg</td>
-      <td>-90deg</td>
-      <td>-90deg</td>
-      <td>-90deg</td>
-      <td>-90deg</td>
-      <td>-45deg</td>
-    </tr>
-    <tr>
-      <th>-finite</th>
-      <td>-180deg</td>
-      <td></td>
-      <td>-90deg</td>
-      <td>-90deg</td>
-      <td></td>
-      <td>-0deg</td>
-    </tr>
-    <tr>
-      <th>-0</th>
-      <td>-180deg</td>
-      <td>-180deg</td>
-      <td>-180deg</td>
-      <td>-0deg</td>
-      <td>-0deg</td>
-      <td>-0deg</td>
-    </tr>
-    <tr>
-      <th>0</th>
-      <td>180deg</td>
-      <td>180deg</td>
-      <td>180deg</td>
-      <td>0deg</td>
-      <td>0deg</td>
-      <td>0deg</td>
-    </tr>
-    <tr>
-      <th>finite</th>
-      <td>180deg</td>
-      <td></td>
-      <td>90deg</td>
-      <td>90deg</td>
-      <td></td>
-      <td>0deg</td>
-    </tr>
-    <tr>
-      <th>Infinity</th>
-      <td>135deg</td>
-      <td>90deg</td>
-      <td>90deg</td>
-      <td>90deg</td>
-      <td>90deg</td>
-      <td>45deg</td>
-    </tr>
-  </tbody>
-</table>
+* Return the result of [converting `result` to `deg`].
 
 #### `cos()`
 
@@ -374,13 +329,13 @@ atan2($y, $x)
 cos($number)
 ```
 
-* If `$number` has units but is not an angle, throw an error.
-* If `$number` is unitless, treat it as though its unit were `rad`.
-* If `$number == Infinity` or `$number == -Infinity`, return `NaN` as a unitless
-  number.
-* Return the [cosine] of `$number`, as a unitless number.
+* Let `double` be the value of [converting `$number` to `rad`] allowing
+  unitless.
 
-[cosine]: https://en.wikipedia.org/wiki/Trigonometric_functions#Right-angled_triangle_definitions
+  [converting `$number` to `rad`]: #converting-a-number-to-units
+
+* Return a unitless number whose value is the result of `cos(double)` as defined
+  by [IEEE 754 2019], §9.2.
 
 #### `sin()`
 
@@ -388,15 +343,13 @@ cos($number)
 sin($number)
 ```
 
-* If `$number` has units but is not an angle, throw an error.
-* If `$number` is unitless, treat it as though its unit were `rad`.
-* If `$number == Infinity` or `$number == -Infinity`, return `NaN` as a unitless
-  number.
-* If `$number == -0`, return `-0` as a unitless number.
-* If `$number == 0`, return `0` as a unitless number.
-* Return the [sine] of `$number`, as a unitless number.
+* Let `double` be the value of [converting `$number` to `rad`] allowing
+  unitless.
 
-[sine]: https://en.wikipedia.org/wiki/Trigonometric_functions#Right-angled_triangle_definitions
+  [converting `$number` to `rad`]: #converting-a-number-to-units
+
+* Return a unitless number whose value is the result of `sin(double)` as defined
+  by [IEEE 754 2019], §9.2.
 
 #### `tan()`
 
@@ -404,19 +357,13 @@ sin($number)
 tan($number)
 ```
 
-* If `$number` has units but is not an angle, throw an error.
-* If `$number` is unitless, treat it as though its unit were `rad`.
-* If `$number == Infinity` or `$number == -Infinity`, return `NaN` as a unitless
-  number.
-* If `$number == -0`, return `-0` as a unitless number.
-* If `$number == 0`, return `0` as a unitless number.
-* If `$number` is equivalent to `90deg +/- 360deg * n`, where `n` is any
-  integer, return `Infinity` as a unitless number.
-* If `$number` is equivalent to `-90deg +/- 360deg * n`, where `n` is any
-  integer, return `-Infinity` as a unitless number.
-* Return the [tangent] of `$number`, as a unitless number.
+* Let `double` be the value of [converting `$number` to `rad`] allowing
+  unitless.
 
-[tangent]: https://en.wikipedia.org/wiki/Trigonometric_functions#Right-angled_triangle_definitions
+  [converting `$number` to `rad`]: #converting-a-number-to-units
+
+* Return a unitless number whose value is the result of `tan(double)` as defined
+  by [IEEE 754 2019], §9.2.
 
 ### Unit Functions
 
@@ -464,8 +411,8 @@ div($number1, $number2)
   unquoted string whose contents is the result of serializing `$number1`
   followed by `"/"` followed by the result of serializing `$number2`.
 * Let `quotient` be a number such that:
-  * Its value is the result of dividing `$number1`'s value by `$number2`'s
-    value.
+  * Its value is the result of `divide($number1.value, $number2.value)` as defined
+    by [IEEE 754 2019], §5.4.1.
   * Its numerator units are equal to `$number1`'s numerator units followed by
     `$number2`'s denominator units.
   * Its denominator units are equal to `$number1`'s denominator units followed
@@ -493,10 +440,10 @@ This function is also available as a global function named `random()`.
 
   > Example: `math.random() => 0.1337001337`
 
-* If `$limit` is an **integer** [number] greater than zero:
+* If `$limit` is an [integer] greater than zero:
 
   * Return a pseudo-random integer in the range `[1, $limit]` with the same
-    [units] as `$limit`.
+    units as `$limit`.
 
     > Examples:
     > - `math.random(123) => 87`
@@ -505,5 +452,4 @@ This function is also available as a global function named `random()`.
 
 * Otherwise throw an error.
 
-[number]: https://sass-lang.com/documentation/values/numbers
-[units]: https://sass-lang.com/documentation/values/numbers#units
+[integer]: ../types/number.md#integer
