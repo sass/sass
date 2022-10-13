@@ -770,6 +770,26 @@ To serialize a non-legacy color `color`:
 
 ## Procedures
 
+### Normalizing a Color Space Name
+
+This procedure accepts a color space `name`, throws an error if the name is
+invalid, and returns a normalized version of the name when possible.
+
+* If `name` is not an unquoted string, throw an error.
+
+* If `name` is a [dashed ident], return `name`.
+
+  > Dashed ident's are valid custom color spaces, and case-sensitive.
+
+* Return the result of calling `string.to-lower-case(name)`.
+
+  > Non-[dashed ident]s represent known spaces, which are case-insensitive and
+  > serialized in their lower-case form. For future compatibility with new
+  > color spaces in CSS, we allow and normalize unknown names in this format.
+
+[dashed ident]: https://drafts.csswg.org/css-values-4/#typedef-dashed-ident
+[normalizing a color space name]: #normalizing-a-color-space-name
+
 ### Looking Up a Known Color Space
 
 This procedure accepts a `name`, and attempts to look up a [known color space]
@@ -777,10 +797,10 @@ with a matching name. It throws an error if `name` is not a valid color space
 name, and either returns the known color space, or `null` if no color space is
 matched.
 
-* If `name` is not an unquoted string, throw an error.
+* Set `name` to the result of [normalizing a color space name] named `name`.
 
-* If `name` is the name of a [known color space], ignoring case, return the
-  matching [known color space].
+* If `name` is the name of a [known color space], return the matching [known
+  color space].
 
 * Otherwise, return `null`.
 
@@ -934,8 +954,6 @@ The procedure is:
 
       * Let `input-space` be the first element in `components`.
 
-      * If `input-space` is not an unquoted string, throw an error.
-
       * Set `space` be the result of [looking up a known color space] with the
         name `input-space`.
 
@@ -977,7 +995,8 @@ The procedure is:
 
   * If `space` is null:
 
-    * Let `space-name` be `input-space`, converted to lowercase.
+    * Let `space-name` be the result of [normalizing the color space name]
+      `input-space`.
 
   * Otherwise:
 
@@ -1332,19 +1351,26 @@ to-space($color, $space)
 
 * If `$color` is not a color, throw an error.
 
+* Let `space` be the result of [normalizing a color space name] named `$space`.
+
 * Let `origin-space` be the result of calling `color.space($color)`.
 
-* If `origin-space == $space` (ignoring case), return `$color`.
+  > The `color.space()` function always returns a normalized color space name.
 
-  > This allows unknown spaces, as long as they match the origin space.
+* If `origin-space == space`, return `$color`.
 
-* Let `space` be the result of [looking up a known color space] named `$space`.
+  > This allows unknown spaces, as long as they match the origin space. While
+  > the comparison is case-sensitive, all non-custom spaces have been
+  > normalized to lower-case at this point.
 
-* If either `origin-space` or `space` is not a [known color space], throw an
-  error.
+* Let `known-space` be the result of [looking up a known color space] named
+  `space`, and let `known-origin` be the result of [looking up a known color
+  space] named `origin-space`.
+
+* If either `known-origin` or `known-space` is null, throw an error.
 
 * Return the result of [converting] the `origin-color` `$color` to the
-  `target-space` `$space`.
+  `target-space` `known-space`.
 
 ### `color.is-legacy()`
 
@@ -1370,7 +1396,10 @@ is-powerless($color, $channel, $space: null)
 
   * Let `color` be `$color`
 
-  * Let `space` be the result of calling `color.space($color)`.
+  * Let `origin-space` be the result of calling `color.space($color)`.
+
+  * Let `space` be the result of [looking up a known color space] named
+    `origin-space`.
 
 * Otherwise:
 
@@ -1397,11 +1426,11 @@ is-in-gamut($color, $space: null)
 
 * If `$color` is not a color, throw an error.
 
-* If `$space` is null, let `space` be the result of calling
-  `color.space($color)`.
+* Let `space-name` be the result of calling `color.space($color)` if `$space`
+  is null, and the value of `$space` otherwise.
 
-* Otherwise, let `space` be the result of [looking up a known color space]
-  named `$space`.
+* Let `space` be the result of [looking up a known color space] named
+  `space-name`.
 
 * If `space` is null, throw an error.
 
@@ -1421,12 +1450,17 @@ to-gamut($color, $space: null)
 
 * If `$color` is not a color, throw an error.
 
-* Let `origin-space` be the result of calling `color.space($color)`.
+* If `$space` is null:
 
-* Let `target-space` be the value of `$space` if specified, or the value of
-  `origin-space` otherwise.
+  * Let `origin-space` be the result of calling `color.space($color)`.
 
-* If `target-space` is not a [known color space], throw an error.
+  * Let `target-space` be the result of [looking up a known color space] named
+    `origin-space`.
+
+* Otherwise, let `target-space` be the result of [looking up a known color
+  space] named `$space`.
+
+* If `target-space` is null, throw an error.
 
 * Return the result of [gamut mapping] `$color` with a `target-space`
   destination.
@@ -1449,21 +1483,10 @@ channel($color, $channel, $space: null)
 
 * If `$channel == alpha` (ignoring case), return the alpha value of `$color`.
 
-* If `$space` is null:
+* Let `color` be `$color` if `$space` is null, and the result of calling
+  `color.to-space($color, $space)` otherwise.
 
-  * Let `origin-space` be the result of calling `color.space($color)`.
-
-  * Let `space` be the result of [looking up a known color space] named
-    `origin-space`.
-
-  * Let `color` be `$color`.
-
-* Otherwise:
-
-  * Let `space` be the result of [looking up a known color space] named
-    `$space`.
-
-  * Let `color` be the result of calling `color.to-space($color, $space)`.
+* Let `space` be `color`'s color space.
 
 * Let `channels` be a map from 1-indexed integer channel keys to their
   corresponding values in `color`.
@@ -1564,25 +1587,27 @@ This function is also available as a global function named `change-color()`.
 
 * If any item in `$args` is not a keyword argument, throw an error.
 
-* Let `origin-space` be `$color`'s color space.
+* Let `color` be the value of `$color`.
+
+* Let `origin-space` be the result of calling `color.space(color)`.
 
 * If the keyword argument `$space` is specified in `$args`:
 
-    * Let `space` be the result of [looking up a known color space] named
-      `$space`.
+    * Let `space` be the result of [normalizing a color space name] `$space`.
 
-    * If `space` is not a [known color space], and `$space != origin-space`
-      (ignoring case), throw an error.
+    * If `space != origin-space`, set `color` to the result of calling
+      `color.to-space(color, space)`.
 
-      > We can make changes in an unknown space, but we can't do conversion.
-
-    * Let `color` be the result of [converting] `$color` to `space`.
+      > The `color.to-space()` function will error if conversion isn't possible.
+      > If conversion isn't required, we can perform changes on colors in an
+      > unknown color space.
 
 * Otherwise:
 
   * Let `space` be `origin-space`.
 
-  * Let `color` be the value of `$color`.
+* Let `known-space` be the result of [looking up a known color space] named
+  `space`.
 
 * Let `alpha` be `color`'s alpha property.
 
@@ -1615,8 +1640,8 @@ This function is also available as a global function named `change-color()`.
 
   * Set the corresponding `channel`'s value in `channels` to `new`.
 
-* If `space` is a [known color space], set `channels` to the result of
-  [normalizing] `channels` in `space`.
+* If `known-space` is a [known color space], set `channels` to the result of
+  [normalizing] `channels` in `known-space`.
 
 * Let `new` be a color in color space `space`, with `channels` channels, and an
   alpha of `alpha`.
@@ -1635,25 +1660,25 @@ This function is also available as a global function named `adjust-color()`.
 
 * If any item in `$args` is not a keyword argument, throw an error.
 
-* Let `origin-space` be `$color`'s color space.
+* Let `color` be the value of `$color`.
+
+* Let `origin-space` be the result of calling `color.space(color)`.
 
 * If the keyword argument `$space` is specified in `$args`:
 
-    * Let `space` be the result of [looking up a known color space] named
-      `$space`.
+    * Let `space` be the result of [normalizing a color space name] `$space`.
 
-    * If `space` is not a [known color space], and `$space != origin-space`
-      (ignoring case), throw an error.
+    * If `space != origin-space`, set `color` to the result of calling
+      `color.to-space(color, space)`.
 
-      > We can make adjustments in an unknown space, but we can't do conversion.
+      > The `color.to-space()` function will error if conversion isn't possible.
+      > If conversion isn't required, we can perform changes on colors in an
+      > unknown color space.
 
-    * Let `color` be the result of [converting] `$color` to `space`.
+* Otherwise, let `space` be `origin-space`.
 
-* Otherwise:
-
-  * Let `space` be `origin-space`.
-
-  * Let `color` be the value of `$color`.
+* Let `known-space` be the result of [looking up a known color space] named
+  `space`.
 
 * Let `alpha` be `color`'s alpha property.
 
@@ -1686,12 +1711,6 @@ This function is also available as a global function named `adjust-color()`.
   * If `key` is not the name or index of a channel in `channels`, throw an
     error.
 
-  * Set `adjust` to the result of [validating] `adjust` as `key` channel in
-    `space`.
-
-    > This ensures that `adjust` is percent-converted when necessary, and
-    > throws errors when the adjustment is not a valid value for the space.
-
   * Let `channel` be the channel in `channels` with name or index of `key`.
 
   * If `channel == none`, throw an error.
@@ -1702,11 +1721,16 @@ This function is also available as a global function named `adjust-color()`.
 
   * Set `channel` to `channel + adjust`.
 
+    > This will throw an error if `adjust` and `channel` are not compatible.
+
   * If `channel` is a polar-angle channel in a [known color space], set
     `channel` to `channel % 360deg`.
 
     > While we maintain angles outside the 0-360 range when set explicitly,
     > we avoid creating them implicitly with hue adjustments.
+
+* If `known-space` is a [known color space], set `channels` to the result of
+  [normalizing] `channels` in `known-space`.
 
 * Let `new` be a color in color space `space`, with `channels` channels, and an
   alpha of `alpha`.
@@ -1732,7 +1756,7 @@ This function is also available as a global function named `scale-color()`.
     * Let `space` be the result of [looking up a known color space] named
       `$space`.
 
-    * If `space` is not a [known color space], throw an error.
+    * If `space` is null, throw an error.
 
       > We cannot scale channels in an unknown space, since there are no
       > defined boundaries for a given channel to scale in relation to.
@@ -1810,16 +1834,16 @@ This function is also available as a global function named `complement()`.
 
 * Otherwise:
 
-  * Let `space` be the result of [looking up a known color space] named
+  * Let `space` be the result of [normalizing a color space name] `$space`.
+
+  * Let `known-space` be the result of [looking up a known color space] named
     `$space`.
 
-  * If `space` is not a [known color space] with a polar-angle hue channel,
-    throw an error.
+  * If `known-space` is not a [known color space] with a polar-angle hue
+    channel, throw an error.
 
     > This currently allows `hsl`, `hwb`, `lch`, and `oklch`. We may decide to
     > provide additional options in the future.
-
-  * Let `space` be the value of `$space`.
 
 * Return the result of calling
   `color.adjust($color, $hue: 180deg, $space: space)`.
@@ -1832,7 +1856,7 @@ invert($color, $space: null)
 
 This function is also available as a global function named `invert()`.
 
-* If `$color` is not a color, throw an error.
+* If `$color` is not a color in a [known color space], throw an error.
 
 * If `$space` is null:
 
@@ -1854,7 +1878,7 @@ This function is also available as a global function named `invert()`.
 
 * Let `color` be the result of [converting] `$color` into `space`.
 
-* If `space == hwb` (ignoring case):
+* If `space` is the [known color space] named `hwb`:
 
   * Let `hue`, `white`, and `black` be the three elements of `color`'s channels.
 
@@ -2062,6 +2086,11 @@ These new CSS functions are provided globally.
 
   * Let `space` be the color space, `channels` the channel list, and `alpha`
     the alpha value of `parsed`.
+
+  * Set `space` to the result of [normalizing a color space name] `space`.
+
+    > This ensures that colors always have a valid and normalized space name,
+    > even when using unknown color spaces.
 
   * Return a color in `space`, with the given `channels` and `alpha` value.
 
