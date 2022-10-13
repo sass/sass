@@ -1334,7 +1334,7 @@ to-space($color, $space)
 
 * Let `origin-space` be the result of calling `color.space($color)`.
 
-* If `origin-space == $space`, return `$color`.
+* If `origin-space == $space` (ignoring case), return `$color`.
 
   > This allows unknown spaces, as long as they match the origin space.
 
@@ -1854,7 +1854,7 @@ This function is also available as a global function named `invert()`.
 
 * Let `color` be the result of [converting] `$color` into `space`.
 
-* If `space == hwb`:
+* If `space == hwb` (ignoring case):
 
   * Let `hue`, `white`, and `black` be the three elements of `color`'s channels.
 
