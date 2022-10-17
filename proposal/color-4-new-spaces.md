@@ -1634,9 +1634,7 @@ This function is also available as a global function named `change-color()`.
       > If conversion isn't required, we can perform changes on colors in an
       > unknown color space.
 
-* Otherwise:
-
-  * Let `space` be `origin-space`.
+* Otherwise, let `space` be `origin-space`.
 
 * Let `known-space` be the result of [looking up a known color space] named
   `space`.
@@ -1667,10 +1665,29 @@ This function is also available as a global function named `change-color()`.
     > This allows e.g. `color.change($color, $channel1: 0.25)` for changing
     > color channels in unknown color spaces.
 
-  * If `key` is not the name or index of a channel in `channels`, throw an
-    error.
+  * If `key` is not the name or index of a channel in `channels`:
 
-  * Set the corresponding `channel`'s value in `channels` to `new`.
+    * If `$space` is specified, throw an error.
+
+    * If `color` is not a [legacy color], throw an error.
+
+    * If `key` is one of `red`, `green`, or `blue`:
+
+      * Let `legacy-color` be the result of [converting] `color` to `rgb`.
+
+    * Otherwise, if `key` is one of `hue`, `saturation`, or `lightness`:
+
+      * Let `legacy-color` be the result of [converting] `color` to `hsl`.
+
+    * Otherwise, if `key` is one of `whiteness`, or `blackness`:
+
+      * Let `legacy-color` be the result of [converting] `color` to `hwb`.
+
+    * Otherwise, throw an error.
+
+    * Set `channels` to be a list of `legacy-color`'s channels.
+
+  * Set the corresponding `key` value in `channels` to `new`.
 
 * If `known-space` is a [known color space], set `channels` to the result of
   [normalizing] `channels` in `known-space`.
@@ -1740,8 +1757,27 @@ This function is also available as a global function named `adjust-color()`.
     > This allows e.g. `color.adjust($color, $channel1: 0.25)` for adjusting
     > color channels in unknown color spaces.
 
-  * If `key` is not the name or index of a channel in `channels`, throw an
-    error.
+  * If `key` is not the name or index of a channel in `channels`:
+
+    * If `$space` is specified, throw an error.
+
+    * If `color` is not a [legacy color], throw an error.
+
+    * If `key` is one of `red`, `green`, or `blue`:
+
+      * Let `legacy-color` be the result of [converting] `color` to `rgb`.
+
+    * Otherwise, if `key` is one of `hue`, `saturation`, or `lightness`:
+
+      * Let `legacy-color` be the result of [converting] `color` to `hsl`.
+
+    * Otherwise, if `key` is one of `whiteness`, or `blackness`:
+
+      * Let `legacy-color` be the result of [converting] `color` to `hwb`.
+
+    * Otherwise, throw an error.
+
+    * Set `channels` to be a list of `legacy-color`'s channels.
 
   * Let `channel` be the channel in `channels` with name or index of `key`.
 
@@ -1820,8 +1856,27 @@ This function is also available as a global function named `scale-color()`.
 
 * For each keyword `scale`, `factor` in `channel-args`:
 
-  * If `scale` is not the name of a [scalable] channel in `channels`, throw an
-    error.
+  * If `scale` is not the name of a [scalable] channel in `channels`:
+
+    * If `$space` is specified, throw an error.
+
+    * If `color` is not a [legacy color], throw an error.
+
+    * If `scale` is one of `red`, `green`, or `blue`:
+
+      * Let `legacy-color` be the result of [converting] `color` to `rgb`.
+
+    * Otherwise, if `scale` is one of `hue`, `saturation`, or `lightness`:
+
+      * Let `legacy-color` be the result of [converting] `color` to `hsl`.
+
+    * Otherwise, if `scale` is one of `whiteness`, or `blackness`:
+
+      * Let `legacy-color` be the result of [converting] `color` to `hwb`.
+
+    * Otherwise, throw an error.
+
+    * Set `channels` to be a list of `legacy-color`'s channels.
 
   * Let `channel` be the corresponding `channel` in `channels` with a name
     matching `scale`.

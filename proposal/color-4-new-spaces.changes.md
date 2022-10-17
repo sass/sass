@@ -29,6 +29,10 @@
 * Channel values are indexed like other Sass lists, allowing both positive and
   negative-indexed access in `color.channel()`.
 
+* For backwards compatibility, the `color.change()`, `color.scale()`, and
+  `color.adjust()` functions allow manipulating legacy colors in any legacy
+  space, if the `$space` argument is not explicitly set.
+
 ## Draft 1.1
 
 * Expand the summary section to describe more of the proposal.
