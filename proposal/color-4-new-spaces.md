@@ -810,10 +810,12 @@ matched.
 
 Colors can be converted from one [known color space] to another. Algorithms for
 color conversion are defined in the [CSS Color Level 4][color-4]
-specification. Each algorithm takes a color `origin-color`, and a [known color
-space] `target-space`, and returns a color `output-color`.
+specification. [CSS color conversion] takes a color `origin-color`, and a
+[known color space] `target-space`, and returns a color `output-color`.
 
-The algorithms are:
+[CSS color conversion]: https://www.w3.org/TR/css-color-4/#color-conversion
+
+The individual conversion algorithms are:
 
 * [HSL to sRGB](https://www.w3.org/TR/css-color-4/#hsl-to-rgb)
 

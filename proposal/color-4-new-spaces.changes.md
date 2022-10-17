@@ -1,6 +1,7 @@
 ## Draft 1.2
 
-* Clamp `hsl` saturation & lightness when generating `hsl` colors.
+* Clamp `hsl` saturation & lightness when generating `hsl` colors, and as part
+  of the color conversion process.
 
 * Ensure that color space names are unquoted strings, and normalize them before
   creating colors or comparing color space names.
