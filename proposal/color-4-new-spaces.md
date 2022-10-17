@@ -957,6 +957,12 @@ The procedure is:
       * Set `space` be the result of [looking up a known color space] with the
         name `input-space`.
 
+      * If `space` is a [known color space] and not a [predefined color space],
+        throw an error.
+
+        > Only custom and predefined spaces can be passed in as color
+        > components. All other known color spaces have explicit functions.
+
       * Let `channels` be an unbracketed space-separated list with the
         remaining elements from `components`.
 

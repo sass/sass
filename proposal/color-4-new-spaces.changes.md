@@ -13,6 +13,11 @@
   normalization process, rather than the individual functions. This also allows
   it to happen when normalizing the results of color manipulation or conversion.
 
+* Throw an error in the color component parsing procedure if a known color space
+  is one of the components, and has a function of it's own (e.g. `rgb` or
+  `oklch`). Only custom color spaces and predefined spaces can be defined using
+  the `color(<space> <channels>)` syntax.
+
 * Add missing `$weight` to the `color.invert()` signature, and return early
   when the specified weight is `0%` or `100%`.
 
