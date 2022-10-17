@@ -485,7 +485,7 @@ For determining _equality_ between two colors:
 ### Known Color Space
 
 Each known color space has a name and an ordered list of associated channels.
-Each channel has a name and position index (1-indexed) defined by the space and
+Each channel has a name and Sass-style position index defined by the space and
 the order of channels in that space, and a number value with units matching
 those allowed by the space. Space and channel names match unquoted strings,
 ignoring case. They are always emitted as unquoted lowercase strings by
@@ -1528,17 +1528,9 @@ channel($color, $channel, $space: null)
 
 * Let `space` be `color`'s color space.
 
-* Let `channels` be a map from 1-indexed integer channel keys to their
-  corresponding values in `color`.
+* If `channel` is not the name or index of a channel in `color`, throw an error.
 
-* If `space` is a [known color space]:
-
-  * Let `named-channels` be a map of channel names defined by `space`, and
-    their corresponding values in `color`.
-
-  * Set `channels` to the result of `map.merge(channels, named-channels)`.
-
-* Let `value` be the result of calling `map.get(channels, $channel)`.
+* Let `value` be the channel value in `color` with name or index of `channel`.
 
 * If `value` is `null`, throw an error.
 

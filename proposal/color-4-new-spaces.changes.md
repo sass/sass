@@ -1,7 +1,7 @@
 ## Draft 1.2
 
 * Clamp `hsl` saturation & lightness when generating `hsl` colors, and as part
-  of the color conversion process.
+  of the color conversion process
 
 * Ensure that color space names are unquoted strings, and normalize them before
   creating colors or comparing color space names.
@@ -25,6 +25,9 @@
 * Update the color interpolation procedure handling of `weight` values to error
   when `weight` is outside the `[0,1]` range, and return early when `weight` is
   equal to 0 or 1.
+
+* Channel values are indexed like other Sass lists, allowing both positive and
+  negative-indexed access in `color.channel()`.
 
 ## Draft 1.1
 
