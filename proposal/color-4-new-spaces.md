@@ -1851,7 +1851,9 @@ This function is also available as a global function named `complement()`.
 ### `color.invert()`
 
 ```
-invert($color, $space: null)
+invert($color,
+  $weight: 100%,
+  $space: null)
 ```
 
 This function is also available as a global function named `invert()`.
@@ -1875,6 +1877,8 @@ This function is also available as a global function named `invert()`.
   * If `space` is not a [known color space], throw an error.
 
   * Let `mix-space` be `space`.
+
+* If `$weight == 0%`, return the value of `$color`.
 
 * Let `color` be the result of [converting] `$color` into `space`.
 
@@ -1909,6 +1913,8 @@ This function is also available as a global function named `invert()`.
       * Let `new` be `max - channel` if `min == 0`, and `channel * -1` otherwise.
 
     * Set the corresponding channel of `invert` to be `new`.
+
+* If `$weight == 100%`, return the value of `invert`.
 
 * Return the result of calling `color.mix(invert, color, $weight, mix-space)`.
 

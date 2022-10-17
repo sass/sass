@@ -9,6 +9,9 @@
   resulting channel values. This allows more flexibility, while ensuring that
   `hsl` or `hwb` clamp out-of-gamut results.
 
+* Add missing `$weight` to the `color.invert()` signature, and return early
+  when the specified weight is `0%` or `100%`.
+
 ## Draft 1.1
 
 * Expand the summary section to describe more of the proposal.
