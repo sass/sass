@@ -21,6 +21,10 @@
 * Add missing `$weight` to the `color.invert()` signature, and return early
   when the specified weight is `0%` or `100%`.
 
+* Update the color interpolation procedure handling of `weight` values to error
+  when `weight` is outside the `[0,1]` range, and return early when `weight` is
+  equal to 0 or 1.
+
 ## Draft 1.1
 
 * Expand the summary section to describe more of the proposal.

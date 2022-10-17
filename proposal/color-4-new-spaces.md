@@ -1212,7 +1212,13 @@ input colors.
 * If `weight` is null, set `weight` to `0.5`.
 
 * Otherwise, set `weight` to the result of [percent-converting] `weight` with a
-  max of 1, and then clamping the value between 0 and 1 (inclusive).
+  max of 1.
+
+* If `weight` is greater than 1 or less than 0, throw an error.
+
+* If `weight == 0`, return `color2`.
+
+* If `weight == 1`, return `color1`.
 
 * Let `space` be the _interpolation color space_ specified by the `method`
   [color interpolation method].
