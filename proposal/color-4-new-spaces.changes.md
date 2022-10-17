@@ -9,6 +9,10 @@
   resulting channel values. This allows more flexibility, while ensuring that
   `hsl` or `hwb` clamp out-of-gamut results.
 
+* Channel clamping and scaling for `hsl` and `hwb` colors is handled in the
+  normalization process, rather than the individual functions. This also allows
+  it to happen when normalizing the results of color manipulation or conversion.
+
 * Add missing `$weight` to the `color.invert()` signature, and return early
   when the specified weight is `0%` or `100%`.
 

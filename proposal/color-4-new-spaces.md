@@ -1096,6 +1096,32 @@ color space, or returns a normalized list of valid channels otherwise.
 
   * Append `valid` as the next item in `normal`.
 
+* If `known-space` is the [known color space] named `hsl`:
+
+  * Let `hue`, `saturation`, and `lightness` be the three elements in `normal`.
+
+  * Set `saturation` and `lightness` respectively to the results of clamping
+    the `saturation` and `lightness` values between 0 and 100, inclusive.
+
+  * Set the three elements of `normal` to the values of `hue`, `saturation`,
+    and `lightness` respectively.
+
+* If `known-space` is the [known color space] named `hwb`:
+
+  * Let `hue`, `whiteness`, and `blackness` be the three elements in `normal`.
+
+  * Set `whiteness` and `blackness` to the result of clamping `whiteness` and
+    `blackness` respectively between 0-100 (inclusive).
+
+  * If `whiteness + blackness > 100%`:
+
+    * Set `whiteness` to `whiteness / (whiteness + blackness) * 100%`.
+
+    * Set `blackness` to `blackness / (whiteness + blackness) * 100%`.
+
+  * Set the three elements of `normal` to the values of `hue`, `whiteness`,
+    and `blackness` respectively.
+
 * Return `normal`.
 
 ### Interpolating Legacy Colors
@@ -1986,21 +2012,14 @@ These new CSS functions are provided globally.
 
   * Let `parsed` be the result of [parsing] `$channels` in `hwb` space.
 
+    > Normalization and clamping is handled as part of the [parsing] process.
+
   * If `parsed` is null, return a plain CSS function string with the name
     `"hwb"` and the argument `$channels`.
 
   * Let `channels` be the channel list, and `alpha` the alpha value of `parsed`.
 
   * Let `hue`, `whiteness`, and `blackness` be the three elements of `channels`.
-
-  * Set `whiteness` and `blackness` to the result of clamping `whiteness` and
-    `blackness` respectively between 0-100 (inclusive).
-
-  * If `whiteness + blackness > 100%`:
-
-    * Set `whiteness` to `whiteness / (whiteness + blackness) * 100%`.
-
-    * Set `blackness` to `blackness / (whiteness + blackness) * 100%`.
 
   * Return a [legacy color] in the `hwb` space, with the given `hue`,
     `whiteness`, and `blackness` channels, and `alpha` value.
@@ -2189,9 +2208,6 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
   * Let `hue`, `saturation`, and `lightness` be the three elements returned
     by [normalizing] `($hue, $saturation, $lightness)` in `hsl` color space.
 
-  * Set `saturation` and `lightness` respectively to the results of clamping
-    the `saturation` and `lightness` values between 0 and 100, inclusive.
-
   > Conversion to rgb has been removed.
 
   * Return a [legacy color] in the `hsl` space, with the given `hue`,
@@ -2222,6 +2238,8 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
   ```
 
   * Let `parsed` be the result of [parsing] `$channels` in `hsl` space.
+
+    > Normalization and clamping is handled as part of the [parsing] process.
 
   * If `parsed` is null, return a plain CSS function string with the name
     `"hsl"` and the argument `$channels`.
