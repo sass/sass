@@ -680,10 +680,8 @@ A _color interpolation method_ is a space-separated list of unquoted strings,
 parsed according to the following syntax definition:
 
 <x><pre>
-**ColorInterpolationMethod** ::= 'in' (
-&#32;                                 RectangularColorSpace
-&#32;                               | PolarColorSpace HueInterpolationMethod?
-&#32;                             )
+**ColorInterpolationMethod** ::= RectangularColorSpace
+&#32;                          | (PolarColorSpace HueInterpolationMethod?)
 **RectangularColorSpace**    ::= 'srgb'
 &#32;                          | 'srgb-linear'
 &#32;                          | 'lab'

@@ -33,6 +33,9 @@
   `color.adjust()` functions allow manipulating legacy colors in any legacy
   space, if the `$space` argument is not explicitly set.
 
+* Remove `in` prefix from the color interpolation method syntax, since the Sass
+  function syntax is already explicit about which parameter is where.
+
 ## Draft 1.1
 
 * Expand the summary section to describe more of the proposal.
