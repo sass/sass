@@ -41,6 +41,7 @@ colors outside the sRGB gamut.
 * [Serialization](#serialization)
   * [Serialization of Non-Legacy Colors](#serialization-of-non-legacy-colors)
 * [Procedures](#procedures)
+  * [Normalizing a Color Space Name](#normalizing-a-color-space-name)
   * [Looking Up a Known Color Space](#looking-up-a-known-color-space)
   * [Converting a Color](#converting-a-color)
   * [Gamut Mapping](#gamut-mapping)
