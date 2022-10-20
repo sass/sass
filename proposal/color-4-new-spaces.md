@@ -494,8 +494,8 @@ inspection functions.
 
 Values outside a _bounded gamut_ range (including infinity or negative infinity)
 are valid, and remain un-clamped, but are considered _out of gamut_ for the
-given color space. If the channel is bounded, or has a percentage mapping with
-a lower-boundary of zero, then the channel is considered _scalable_.
+given color space. If the channel is bounded, or has a percentage mapping, then
+the channel is considered _scalable_.
 
 Some color spaces use a _polar angle_ value for the `hue` channel. Polar-angle
 hues represent an angle position around a given hue wheel, using a CSS `<angle>`
@@ -549,7 +549,7 @@ The known color spaces and their channels are:
       > Percentages `[0%,100%]` map to the `[0,100]` range.
 
   * `a`, `b`:
-    * gamut: un-bounded
+    * gamut: un-bounded, scalable
     * number: `[-125,125]`
 
       > Percentages `[-100%,100%]` map to the `[-125,125]` range.
@@ -577,7 +577,7 @@ The known color spaces and their channels are:
       > Percentages `[0%,100%]` map to the `[0,1]` range.
 
   * `a`, `b`:
-    * gamut: un-bounded
+    * gamut: un-bounded, scalable
     * number: `[-0.4,0.4]`
 
       > Percentages `[-100%,100%]` map to the `[-0.4,0.4]` range.
@@ -1343,10 +1343,10 @@ both hue angles are set to `angle % 360deg` prior to interpolation.
 
 ### Scaling a Number
 
-This algorithm takes a number `number`, a value `factor`, and a number `max`.
-It's written "scale `<number>` by `<factor>` with a `max` of `<max>`". It
-returns a number with a value between 0 and `max` and the same units as
-`number`.
+This algorithm takes a number `number`, a value `factor`, a number `max`, and
+an optional number `min`. It's written "scale `<number>` by `<factor>` with a
+`max` of `<max>` and a `min` of `<min>`". It returns a number with a value
+between `min` (or 0) and `max` and the same units as `number`.
 
 > Note that this no longer assumes the original `number` is in a range of
 > 0 to `max`. We now allow scaling up negative numbers, and scaling down
@@ -1355,6 +1355,8 @@ returns a number with a value between 0 and `max` and the same units as
 
 * If `factor` isn't a number with unit `%` between `-100%` and `100%`
   (inclusive), throw an error.
+
+* If `min` is not specified, set `min` to 0.
 
 * If `factor > 0%`:
 
@@ -1366,7 +1368,7 @@ returns a number with a value between 0 and `max` and the same units as
 
   * If `number < 0`, return `number`.
 
-  * Otherwise, return `number + number * factor / 100%`.
+  * Otherwise, return `number + (number - min) * factor / 100%`.
 
 ## New Color Module Functions
 
@@ -1865,7 +1867,7 @@ This function is also available as a global function named `scale-color()`.
 
       * Let `legacy-color` be the result of [converting] `color` to `rgb`.
 
-    * Otherwise, if `scale` is one of `hue`, `saturation`, or `lightness`:
+    * Otherwise, if `scale` is one of `saturation`, or `lightness`:
 
       * Let `legacy-color` be the result of [converting] `color` to `hsl`.
 
@@ -1886,10 +1888,13 @@ This function is also available as a global function named `scale-color()`.
     > match CSS relative color syntax if possible. Throwing an error for now
     > means we can adjust to match the CSS behavior once it is defined.
 
-  * Let `max` be the upper boundary of `channel` in `space`.
+  * Let `channel-max` be the upper boundary of `channel` in `space`.
+
+  * Let `channel-min` be the lower boundary of `channel` in `space`.
 
   * Set the corresponding `channel` in `channels` to the result of [scaling]
-    `channel` by `factor` with `max`.
+    `channel` by `factor` with a `max` of `channel-max` and a `min` of
+    `channel-min`.
 
 * Set `channels` be the result of [normalizing] `channels` in `space`.
 

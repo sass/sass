@@ -39,6 +39,9 @@
 * `color.invert()` throws an error when `$weight` would require mixing in an
   invalid `color.mix()` _interpolation color space_.
 
+* Allow scaling channels with a non-0 minimum value, such as the `a` and `b`
+  channels in `lab()`/`oklab()`.
+
 ## Draft 1.1
 
 * Expand the summary section to describe more of the proposal.
