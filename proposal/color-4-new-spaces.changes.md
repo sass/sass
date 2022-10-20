@@ -36,6 +36,9 @@
 * Remove `in` prefix from the color interpolation method syntax, since the Sass
   function syntax is already explicit about which parameter is where.
 
+* `color.invert()` throws an error when `$weight` would require mixing in an
+  invalid `color.mix()` _interpolation color space_.
+
 ## Draft 1.1
 
 * Expand the summary section to describe more of the proposal.

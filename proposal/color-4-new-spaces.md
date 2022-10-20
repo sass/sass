@@ -1966,6 +1966,9 @@ This function is also available as a global function named `invert()`.
 
 * If `$weight == 0%`, return the value of `$color`.
 
+* If `space` is not a valid [color interpolation method] _interpolation color
+  space_, and `$weight != 100%`, throw an error.
+
 * Let `color` be the result of [converting] `$color` into `space`.
 
 * If `space` is the [known color space] named `hwb`:
