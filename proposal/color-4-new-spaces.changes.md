@@ -47,6 +47,9 @@
 * Allow scaling channels with a non-0 minimum value, such as the `a` and `b`
   channels in `lab()`/`oklab()`.
 
+* Ensure that percentage and percentage-mapped number values are normalized
+  before they are added together in `color.adjust()`
+
 ## Draft 1.1
 
 * Expand the summary section to describe more of the proposal.

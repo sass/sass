@@ -534,33 +534,33 @@ The known color spaces and their channels are:
 
 * `xyz`, `xyz-d50`, `xyz-d65`:
   * `x`, `y`, `z`:
-    * gamut: un-bounded, scalable
+    * gamut: un-bounded
     * number: `[0,1]`
 
       > Percentages `[0%,100%]` map to the `[0,1]` range.
 
 * `lab`:
   * `lightness`:
-    * gamut: un-bounded, scalable
+    * gamut: un-bounded
     * number: `[0,100]`
 
       > Percentages `[0%,100%]` map to the `[0,100]` range.
 
   * `a`, `b`:
-    * gamut: un-bounded, scalable
+    * gamut: un-bounded
     * number: `[-125,125]`
 
       > Percentages `[-100%,100%]` map to the `[-125,125]` range.
 
 * `lch`:
   * `lightness`:
-    * gamut: un-bounded, scalable
+    * gamut: un-bounded
     * number: `[0,100]`
 
       > Percentages `[0%,100%]` map to the `[0,100]` range.
 
   * `chroma`:
-    * gamut: un-bounded, scalable
+    * gamut: un-bounded
     * number: `[0,150]`
 
       > Percentages `[0%,100%]` map to the `[0,150]` range.
@@ -570,26 +570,26 @@ The known color spaces and their channels are:
 
 * `oklab`:
   * `lightness`:
-    * gamut: un-bounded, scalable
+    * gamut: un-bounded
     * number: `[0,1]`
 
       > Percentages `[0%,100%]` map to the `[0,1]` range.
 
   * `a`, `b`:
-    * gamut: un-bounded, scalable
+    * gamut: un-bounded
     * number: `[-0.4,0.4]`
 
       > Percentages `[-100%,100%]` map to the `[-0.4,0.4]` range.
 
 * `oklch`:
   * `lightness`:
-    * gamut: un-bounded, scalable
+    * gamut: un-bounded
     * number: `[0,1]`
 
       > Percentages `[0%,100%]` map to the `[0,1]` range.
 
   * `chroma`:
-    * gamut: un-bounded, scalable
+    * gamut: un-bounded
     * number: `[0,0.4]`
 
       > Percentages `[0%,100%]` map to the `[0,0.4]` range.
@@ -778,8 +778,8 @@ matched.
 
 * Let `lower-name` be the result of calling `string.to-lower-case(name)`.
 
-* If `name` is the name of a [known color space], return the matching [known
-  color space].
+* If `lower-name` is the name of a [known color space], return the matching
+  [known color space].
 
 * Otherwise, throw an error.
 
@@ -1043,8 +1043,8 @@ normalized channel value otherwise.
 
     * Return `channel`.
 
-  * Otherwise, return the result of [percent-converting] `channel` with a `max`
-    defined by the `valid` channel range.
+  * Otherwise, return the result of [percent-converting] `channel` with a `min`
+    and `max` defined by the `valid` channel range.
 
 [number-to-unit]: https://github.com/sass/sass/blob/main/spec/types/number.md#converting-a-number-to-a-unit
 
@@ -1183,7 +1183,7 @@ input colors.
 * Otherwise, set `weight` to the result of [percent-converting] `weight` with a
   max of 1.
 
-* If `weight` is greater than 1 or less than 0, throw an error.
+* If `weight > 1` or `weight < 0`, throw an error.
 
 * If `weight == 0`, return `color2`.
 
@@ -1710,7 +1710,9 @@ This function is also available as a global function named `adjust-color()`.
 
     * Set `channels` to be a list of `legacy-color`'s channels.
 
-  * Let `channel` be the channel in `channels` with name of `key`.
+  * Let `channel` be the value of the channel in `channels` with name of `key`.
+
+  * Let `valid` be the channel in by `known-space` with a name of `key`.
 
   * If `channel == none`, throw an error.
 
@@ -1718,12 +1720,23 @@ This function is also available as a global function named `adjust-color()`.
     > match CSS relative color syntax if possible. Throwing an error for now
     > means we can adjust to match the CSS behavior once it is defined.
 
+  * If `adjust` has the unit `%`:
+
+    * If `valid` requires a percentage, set `channel` to the result of appending
+      `%` units to `channel`.
+
+    * Otherwise, if `valid` allows percentage mapping, set `adjust` to the
+      result of [percent-converting] `adjust` with a `min` and `max` defined
+      by the `valid` channel range.
+
+    * Otherwise, throw an error.
+
   * Set `channel` to `channel + adjust`.
 
-    > This will throw an error if `adjust` and `channel` are not compatible.
+    > Once percentage/number conversions have been normalized, this will throw
+    > an error if `adjust` and `channel` are not compatible.
 
-  * If `channel` is a polar-angle channel in a [known color space], set
-    `channel` to `channel % 360deg`.
+  * If `valid` is a polar-angle channel, set `channel` to `channel % 360deg`.
 
     > While we maintain angles outside the 0-360 range when set explicitly,
     > we avoid creating them implicitly with hue adjustments.
