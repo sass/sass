@@ -1,10 +1,18 @@
 ## Draft 1.2
 
-* Clamp `hsl` saturation & lightness when generating `hsl` colors, and as part
-  of the color conversion process
+* Clamp `hsl` saturation & lightness when generating `hsl` colors, and gamut-map
+  when converting colors into either `hsl` or `hwb`, since those spaces cannot
+  properly maintain out-of-gamut color values.
 
-* Ensure that color space names are unquoted strings, and normalize them before
-  creating colors or comparing color space names.
+* Ensure that color space names are unquoted strings, and compared insensitive
+  to case.
+
+* Remove support for custom or unknown color spaces. There are too many open
+  questions in the CSS spec, as browsers have not started to implement this
+  feature yet.
+
+* Remove channel indexing, and syntax to access channels by index, since all
+  known color channels have names.
 
 * Allow channel adjustment values to be out-of-gamut, and then normalize the
   resulting channel values. This allows more flexibility, while ensuring that
@@ -12,7 +20,7 @@
 
 * Channel clamping and scaling for `hsl` and `hwb` colors is handled in the
   normalization process, rather than the individual functions. This also allows
-  it to happen when normalizing the results of color manipulation or conversion.
+  it to happen when normalizing the results of color manipulation.
 
 * Throw an error in the color component parsing procedure if a known color space
   is one of the components, and has a function of it's own (e.g. `rgb` or
@@ -25,9 +33,6 @@
 * Update the color interpolation procedure handling of `weight` values to error
   when `weight` is outside the `[0,1]` range, and return early when `weight` is
   equal to 0 or 1.
-
-* Channel values are indexed like other Sass lists, allowing both positive and
-  negative-indexed access in `color.channel()`.
 
 * For backwards compatibility, the `color.change()`, `color.scale()`, and
   `color.adjust()` functions allow manipulating legacy colors in any legacy
