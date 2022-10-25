@@ -1743,7 +1743,7 @@ scale($color, $args...)
 
 This function is also available as a global function named `scale-color()`.
 
-* If `$color` is not a color in a [known color space], throw an error.
+* If `$color` is not a color, throw an error.
 
 * If any item in `$args` is not a keyword argument, throw an error.
 
@@ -1838,7 +1838,7 @@ complement($color, $space: null)
 
 This function is also available as a global function named `complement()`.
 
-* If `$color` is not a color in a [known color space], throw an error.
+* If `$color` is not a color, throw an error.
 
 * If `$space` is null:
 
@@ -1871,7 +1871,7 @@ invert($color,
 
 This function is also available as a global function named `invert()`.
 
-* If `$color` is not a color in a [known color space], throw an error.
+* If `$color` is not a color, throw an error.
 
 * If `$space` is null:
 
@@ -1944,7 +1944,7 @@ grayscale($color)
 
 This function is also available as a global function named `grayscale()`.
 
-* If `$color` is not a color in a [known color space], throw an error.
+* If `$color` is not a color, throw an error.
 
 * If `$color` is a legacy color:
 
