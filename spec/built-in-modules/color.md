@@ -86,7 +86,13 @@ This function is also available as a global function named `adjust-color()`.
 
 * If `$alpha` isn't null:
 
-  * If `$alpha` isn't a number between -1 and 1 (inclusive), throw an error.
+  * If `$alpha` isn't a number, throw an error.
+
+  * If `$alpha` has units other than `%`, throw an error.
+
+  * If `$alpha` has unit `%`, set it to `math.div($alpha, 100%)`.
+
+  * If `$alpha < -1` or `$alpha > 1`, throw an error.
 
   * Set `alpha` to `alpha + $alpha` clamped between 0 and 1.
 
@@ -239,11 +245,17 @@ This function is also available as a global function named `change-color()`.
 
 * If `$color` isn't a color, throw an error.
 
-* If `$alpha` isn't either null or a number between 0 and 1 (inclusive), throw
-  an error.
+* If `$alpha` is null, let `alpha` be `$color`'s alpha channel. Otherwise:
 
-* Let `alpha` be `$color`'s alpha channel if `$alpha` is null or `$alpha`
-  without units otherwise.
+  * If `$alpha` isn't a number, throw an error.
+
+  * If `$alpha` has units other than `%`, throw an error.
+
+  * If `$alpha` has unit `%`, set it to `math.div($alpha, 100%)`.
+
+  * If `$alpha < 0` or `$alpha > 1`, throw an error.
+
+  * Let `alpha` be `$alpha` clamped between 0 and 1.
 
 * If `$hue` isn't a number or null, throw an error.
 
@@ -508,6 +520,51 @@ This function is also available as a global function named `lightness()`.
 ```
 mix($color1, $color2, $weight: 50%)
 ```
+
+* If either `$color1` or `$color2` is not a color, throw an error.
+
+* If `$weight` isn't a number with unit `%`, throw an error.
+
+* Let `normal-weight` be `$weight / 50% - 1`.
+
+* Let `alpha1` and `alpha2` be the alpha values of `$color1` and `$color2`
+  respectively.
+
+* Let `alpha-distance` be `alpha1 - alpha2`.
+
+* Let `weight-by-distance` be `normal-weight * alpha-distance`.
+
+* If `weight-by-distance == -1`, let `combined-weight1` be `normal-weight`.
+
+* Otherwise:
+
+  * Let `weight-distance-sum` be `normal-weight + alpha-distance`.
+
+  * Let `combined-weight1` be `weight-distance-sum / (1 + weight-by-distance)`.
+
+* Let `weight1` be `(combined-weight1 + 1) / 2`.
+
+* Let `weight2` be `1 - weight1`.
+
+* Let `red1` and `red2` be the red channels of `$color1` and `$color2`
+  respectively.
+
+* Let `red` be `red1 * weight1 + red2 * weight2`.
+
+* Let `green1` and `green2` be the green channels of `$color1` and `$color2`
+  respectively.
+
+* Let `green` be `green1 * weight1 + green2 * weight2`.
+
+* Let `blue1` and `blue2` be the blue channels of `$color1` and `$color2`
+  respectively.
+
+* Let `blue` be `blue1 * weight1 + blue2 * weight2`.
+
+* Let `alpha` be `alpha1 * weight-scale + alpha2 * (1 - weight-scale)`.
+
+* Return a color with the given `red`, `green`, and `blue` channels, and `alpha`
+  value.
 
 ### `opacify()`
 

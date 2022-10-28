@@ -83,6 +83,17 @@ nth($list, $n)
 
 This function is also available as a global function named `nth()`.
 
+* If `$n` isn't a unitless [integer], throw an error.
+
+* If `$n` is an [invalid index] for `$list`'s [list value], throw an error.
+
+* Return the value [indexed by] `$n` in `$list`'s list value.
+
+[integer]: ../types/number.md#integer
+[invalid index]: ../types/list.md#index
+[indexed by]: ../types/list.md#index
+[list value]: ../types/list.md#list-value
+
 ### `set-nth()`
 
 ```
@@ -90,6 +101,16 @@ set-nth($list, $n, $value)
 ```
 
 This function is also available as a global function named `set-nth()`.
+
+* If `$n` isn't a unitless [integer], throw an error.
+
+* Let `list` be a copy of `$list`'s [list value].
+
+* If `$n` is an [invalid index] for `list`, throw an error.
+
+* Replace the value indexed by `$n` in `list` with `$value`.
+
+* Return `list`.
 
 ### `zip()`
 
