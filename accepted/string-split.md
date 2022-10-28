@@ -1,4 +1,4 @@
-# Add split function to Strings Module: Draft 1
+# `string.split()`: Draft 1
 
 *([Issue](https://github.com/sass/sass/issues/1950))*
 
