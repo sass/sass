@@ -1,6 +1,6 @@
-# Function Units: Draft 1
+# Function Units: Draft 1.1
 
-*([Issue](https://github.com/sass/sass/issues/3374))*
+*([Issue](https://github.com/sass/sass/issues/3374), [Changelog](function-units.changes.md))*
 
 This proposal restricts the use of invalid units in built-in Sass functions.
 
@@ -12,12 +12,12 @@ This proposal restricts the use of invalid units in built-in Sass functions.
     * [Alpha Units](#alpha-units)
 * [Functions](#functions)
   * [`color.adjust()`](#coloradjust)
-  * [`color.scale()`](#colorscale)
+  * [`color.change()`](#colorchange)
   * [`color.mix()`](#colormix)
   * [`list.nth()` and `list.set-nth()`](#listnth-and-listset-nth)
 * [Deprecation Process](#deprecation-process)
   * [`color.adjust()`](#coloradjust-1)
-  * [`color.scale()`](#colorscale-1)
+  * [`color.change()`](#colorchange-1)
   * [`color.mix()`](#colormix-1)
   * [`list.nth()` and `list.set-nth()`](#listnth-and-listset-nth-1)
 
@@ -92,7 +92,7 @@ Replace the "If `$alpha` isn't null" block with the following:
 
   * Set `alpha` to `alpha + $alpha` clamped between 0 and 1.
 
-### `color.scale()`
+### `color.change()`
 
 Replace
 
@@ -139,7 +139,7 @@ Add the following to the beginning of the "If `$alpha` isn't null" block:
 
 * If `$alpha` has any units, emit a deprecation warning.
 
-### `color.scale()`
+### `color.change()`
 
 Replace
 
