@@ -1,4 +1,4 @@
-# `string.split()`: Draft 1
+# `string.split()`: Draft 1.1
 
 *([Issue](https://github.com/sass/sass/issues/1950))*
 
@@ -26,7 +26,7 @@ their own versions of functions that achieve this functionality.
 
 This proposal adds the `string.split()` function to the `sass:string` module. 
 The function takes a string, splits it based on a provided separator, and 
-returns an unbracketed, comma-separated list of substrings.
+returns a bracketed, comma-separated list of substrings.
 
 This could be used to take a string and repurpose parts of it for some other 
 use. For example, fonts contained in a font stack list could be split into 
@@ -36,14 +36,14 @@ Examples:
 
 ```scss
 $fonts: "Helvetica Neue, Helvetica, Arial";
-string.split($fonts, ', '); // "Helvetica Neue", "Helvetica", "Arial"
+string.split($fonts, ', '); // ["Helvetica Neue", "Helvetica", "Arial"]
 ```
 
 A third argument can set a limit to the the number of splits performed on the 
 string:
 
 ```scss
-string.split($fonts, ', ', 1); // "Helvetica Neue", "Helvetica, Arial"
+string.split($fonts, ', ', 1); // ["Helvetica Neue", "Helvetica, Arial"]
 ```
 
 
@@ -51,7 +51,7 @@ An empty `$separator` returns all Unicode code points in the original string:
 
 ```scss
 $font: "Helvetica"
-string.split($font, ''); // "H", "e", "l", "v", "e", "t", "i", "c", "a"
+string.split($font, ''); // ["H", "e", "l", "v", "e", "t", "i", "c", "a"]
 ```
 
 
@@ -123,4 +123,4 @@ split($string, $separator, $limit: null)
 
         * Increase `split-counter` by 1.
       
-* Return `split-list` as an unbracketed, comma-separated list.          
+* Return `split-list` as a bracketed, comma-separated list.          
