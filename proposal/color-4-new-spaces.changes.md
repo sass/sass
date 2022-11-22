@@ -48,7 +48,13 @@
   channels in `lab()`/`oklab()`.
 
 * Ensure that percentage and percentage-mapped number values are normalized
-  before they are added together in `color.adjust()`
+  before they are added together in `color.adjust()`.
+
+* Clarify that channel values are stored as raw doubles, and add/remove units
+  as necessary for normalization/serialization.
+
+* Legacy colors with missing channels are serialized using the non-legacy
+  serialization logic.
 
 ## Draft 1.1
 

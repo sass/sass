@@ -30,7 +30,7 @@ colors outside the sRGB gamut.
     * [Deprecations](#deprecations)
   * [Design Decisions](#design-decisions)
 * [Definitions](#definitions)
-  * [Color](#color)
+  * [Color](#color-1)
   * [Legacy Color](#legacy-color)
   * [Color Equality](#color-equality)
   * [Known Color Space](#known-color-space)
@@ -437,16 +437,17 @@ A *color* is an object with several parts:
 
 * A *color space* that is either a [known color space] or an unquoted string.
 
-* An ordered list of *channel* values, either a floating-point number or the
-  special value `none`.
+* An ordered list of *channel*s, each one containing a [double] or the special
+  value `none`.
 
-* An *alpha* value that is either the special value `none` or a floating-point
-  number between `0-1` (inclusive).
+* An *alpha* that is either the special value `none` or a [double] between
+  `0-1` (inclusive).
 
   > While it's valid to specify numbers outside this range, they are
   > meaningless, and can be clamped by input functions when generating a color.
 
 [known color space]: #known-color-space
+[double]: ../types/number.md#double
 
 ### Legacy Color
 
@@ -460,6 +461,9 @@ considered *legacy colors*. The output of a legacy color is not required to
 match the input color space, and several color functions maintain legacy
 behavior when manipulating legacy colors.
 
+Legacy colors that have [missing components](#missing-components) are
+[serialized as non-legacy colors](#serialization-of-non-legacy-colors).
+
 > This includes colors defined using the CSS color names, hex syntax, `rgb()`,
 > `rgba()`, `hsl()`, `hsla()`, or `hwb()` -- along with colors that are
 > manually converted into legacy color spaces.
@@ -472,14 +476,14 @@ For determining _equality_ between two colors:
 
   * Set each color to the result of [converting] the color into `rgb` space.
 
-  * Colors are only equal if their channel values are fuzzy-equal.
+  * Colors are only equal if their channel and alpha values are fuzzy-equal.
 
     > Since this definition no longer involves rounding channels, it is
     > potentially a breaking change. Moving forward,
     > `rgb(0 0 0.6) != rgb(0 0 1)`.
 
 * Otherwise, colors are only equal when they're in the same color space and
-  their channel values are fuzzy-equal.
+  their channel and alpha values are fuzzy-equal.
 
 ### Known Color Space
 
@@ -737,11 +741,10 @@ To serialize a non-legacy color `color`:
 
   * Otherwise:
 
-    * If the corresponding channel in `known-space` requires percentages,
-      append `%` units to the `channel` value.
+    * Let `unit` be the unit associated with `channel` in `known-space`, if
+      defined, and `null` otherwise.
 
-    * Otherwise, if the corresponding channel in `known-space` requires a
-      polar angle, append `deg` units to the `channel` value.
+    * If `unit` is not null, append `unit` units to the `channel` value.
 
   * Append `channel` as the last element of `components`.
 
@@ -1097,7 +1100,17 @@ the color space, or returns a normalized list of valid channels otherwise.
   * Set the three elements of `normal` to the values of `hue`, `whiteness`,
     and `blackness` respectively.
 
-* Return `normal`.
+* Let `unitless` be an empty list.
+
+* For each `channel` in `normal`.
+
+  * If the value of `channel` is the special value `none`, append `none` as the
+    next item in `unitless`.
+
+  * Otherwise, append the value of `channel` as a [double] without units as the
+    next item in `unitless`.
+
+* Return `unitless`.
 
 ### Interpolating Legacy Colors
 
@@ -1481,9 +1494,10 @@ channel($color, $channel, $space: null)
 
 * If `channel` is not the name of a channel in `color`, throw an error.
 
-* Let `value` be the channel value in `color` with name of `channel`.
+˚* If the channel in `color` with a name of `channel` is missing a value, return
+  the unquoted string "none".
 
-˚* If `value` is `null`, throw an error.
+* Let `value` be the channel value in `color` with name of `channel`.
 
 * Let `unit` be the unit associated with `channel` in `space`, if defined, and
   `null` otherwise.
