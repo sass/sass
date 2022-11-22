@@ -1401,7 +1401,7 @@ is-powerless($color, $channel, $space: null)
 
 * If `$color` is not a color, throw an error.
 
-* If `$channel` is not an integer or unquoted string, throw an error.
+* If `$channel` is not an unquoted string, throw an error.
 
 * If `$space` is null:
 
@@ -1483,28 +1483,49 @@ channel($color, $channel, $space: null)
 
 * If `$color` is not a color, throw an error.
 
-* If `$channel` is not an integer or unquoted string, throw an error.
+* If `$channel` is not an unquoted string, throw an error.
 
-* If `$channel == alpha` (ignoring case), return the alpha value of `$color`.
+* If `$channel == alpha` (ignoring case), let `value` be the alpha value of
+  `$color`.
 
-* Let `color` be `$color` if `$space` is null, and the result of calling
-  `color.to-space($color, $space)` otherwise.
+* Otherwise:
 
-* Let `space` be `color`'s color space.
+  * Let `color` be `$color` if `$space` is null, and the result of calling
+    `color.to-space($color, $space)` otherwise.
 
-* If `channel` is not the name of a channel in `color`, throw an error.
+  * If `channel` is not the name of a channel in `color`, throw an error.
 
-˚* If the channel in `color` with a name of `channel` is missing a value, return
-  the unquoted string "none".
+  * Let `value` be the channel value in `color` with name of `channel`.
 
-* Let `value` be the channel value in `color` with name of `channel`.
+  * Let `unit` be the unit associated with `channel` in `color`'s [color space],
+    if defined, and `null` otherwise.
 
-* Let `unit` be the unit associated with `channel` in `space`, if defined, and
-  `null` otherwise.
+* If `value` is `null`, return `0`.
 
 * If `unit` is not null, return the result of appending `unit` units to `value`.
 
-* Otherwise, return `value`.
+* Return `value`.
+
+### `color.is-missing()`
+
+```
+is-missing($color, $channel)
+```
+
+* If `$color` is not a color, throw an error.
+
+* If `$channel` is not an unquoted string, throw an error.
+
+* If `$channel == alpha` (ignoring case), let `value` be the alpha value of
+  `$color`.
+
+* Otherwise:
+
+  * If `channel` is not the name of a channel in `$color`, throw an error.
+
+  * Let `value` be the channel value in `color` with name of `channel`.
+
+* Return `true` if `value == null`, and `false` otherwise.
 
 ### `color.same()`
 

@@ -56,6 +56,12 @@
 * Legacy colors with missing channels are serialized using the non-legacy
   serialization logic.
 
+* `color.channel()` returns `0` when the channel value is missing, rather than
+  throwing an error.
+
+* Added `color.is-missing($color, $channel)` to inspect if a channel is set to
+  'none' (e.g. missing).
+
 ## Draft 1.1
 
 * Expand the summary section to describe more of the proposal.
