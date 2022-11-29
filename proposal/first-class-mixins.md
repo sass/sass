@@ -9,12 +9,11 @@ This proposal promotes mixins to first-class values and adds members to the
 
 * [Background](#background)
 * [Summary](#summary)
-* [Semantics](#semantics)
-  * [Functions](#functions)
-    * [`get-mixin()`](#get-mixin)
-    * [`module-mixins()`](#module-mixins)
-  * [Mixins](#mixins)
-    * [`apply()`](#apply)
+* [Functions](#functions)
+  * [`get-mixin()`](#get-mixin)
+  * [`module-mixins()`](#module-mixins)
+* [Mixins](#mixins)
+  * [`apply()`](#apply)
 
 ## Background
 
@@ -40,11 +39,9 @@ you would with function values:
 
 * `call()` → `apply()`
 
-## Semantics
+## Functions
 
-### Functions
-
-#### `get-mixin()`
+### `get-mixin()`
 
 ```
 get-mixin($name, $module: null)
@@ -67,7 +64,7 @@ get-mixin($name, $module: null)
   * Return [`use`'s module][]'s mixin named `$name`, or throw an error if no
     such mixin exists.
 
-#### `module-mixins()`
+### `module-mixins()`
 
 ```
 module-mixins($module)
@@ -81,9 +78,9 @@ module-mixins($module)
 * Return a map whose keys are the names of mixins in [`use`'s module][] and
   whose values are the corresponding mixins.
 
-### Mixins
+## Mixins
 
-#### `apply()`
+### `apply()`
 
 ```
 apply($mixin, $args...)
