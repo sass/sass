@@ -62,6 +62,7 @@ colors outside the sRGB gamut.
   * [`color.is-in-gamut()`](#coloris-in-gamut)
   * [`color.to-gamut()`](#colorto-gamut)
   * [`color.channel()`](#colorchannel-1)
+  * [`color.is-missing()`](#coloris-missing)
   * [`color.same()`](#colorsame-1)
 * [Modified Color Module Functions](#modified-color-module-functions)
   * [`color.hwb()`](#colorhwb)
@@ -258,6 +259,24 @@ $hsl-lightness: color.channel($brand, "lightness");
 
 // result: 37.67%
 $oklch-lightness: color.channel($brand, "lightness", $space: oklch);
+```
+
+#### `color.is-missing()`
+
+This function returns if a given channel value is 'missing' (set to `none`).
+This is necessary, since `color.channel` returns `0` for missing channels.
+Since color-space conversion can change what channels are missing, this
+function only supports inspecting channels that are part of the color's own
+space.
+
+```scss
+$brand: hsl(none 100% 25.1%);
+
+// result: false
+$missing-lightness: color.is-missing($brand, "lightness");
+
+// result: true
+$missing-hue: color.is-missing($brand, "hue");
 ```
 
 #### `color.space()`
