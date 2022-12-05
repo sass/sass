@@ -80,7 +80,7 @@ colors outside the sRGB gamut.
   * [`lch()`](#lch)
   * [`oklab()`](#oklab)
   * [`oklch()`](#oklch)
-  * [`color()`](#color-1)
+  * [`color()`](#color-2)
 * [Modified Global Functions](#modified-global-functions)
   * [`rgb()` and `rgba()`](#rgb-and-rgba)
   * [`hsl()` and `hsla()`](#hsl-and-hsla)
