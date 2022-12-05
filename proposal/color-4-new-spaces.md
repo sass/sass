@@ -867,8 +867,8 @@ converted back into the original color space.
 
 This procedure accepts an `input` parameter to parse, along with an optional
 [known color space] `space`. It throws common parse errors when necessary, and
-returns either `null` or three values: a color space, a list of channel values,
-and an alpha value.
+returns either a single string of components to emit in a CSS function, or
+three values: a color space, a list of channel values, and an alpha value.
 
 > This supports both the space-specific color formats like `hsl()` and `rgb()`,
 > where the space is determined by the function, as well as the syntax of
@@ -877,7 +877,8 @@ and an alpha value.
 
 The procedure is:
 
-  * If `input` is a [special variable string], return `null`.
+  * If `input` is a [special variable string], return an unquoted string with
+    the value of `input`.
 
   * If `input` is a bracketed list, or a list with a separator other than
     'slash' or 'space', throw an error.
@@ -908,12 +909,13 @@ The procedure is:
           the current value of the item with the resulting number value.
 
         * If any item in `split-last` is not a number or an unquoted string
-          that's case-insensitively equal to 'none', return `null`.
+          that's case-insensitively equal to 'none', return an unquoted string
+          with the value of `input`.
 
         * Otherwise, let `alpha` be the second element in `split-last`, and
           append the first element of `split-last` to `components`.
 
-      * Otherwise, return `null`.
+      * Otherwise, return an unquoted string with the value of `input`.
 
       > This solves for a legacy handling of `/` in Sass that would produce an
       > unquoted string when the alpha value is a CSS function such as `var()`
@@ -941,7 +943,8 @@ The procedure is:
 
       * Let `input-space` be the first element in `components`.
 
-      * If `input-space` is a [special variable string], return `null`.
+      * If `input-space` is a [special variable string], return an unquoted
+        string with the value of `input`.
 
       * Set `space` be the result of [looking up a known color space] with the
         name `input-space`.
@@ -973,9 +976,18 @@ The procedure is:
     * Otherwise, throw an error.
 
   * If `channels` is a [special variable string], or if `alpha` is a [special
-    number string], return `null`.
+    number string], return an unquoted string with the value of `input`.
 
-  * If any element of `channels` is a [special number string], return `null`.
+  * If any element of `channels` is a [special number string]:
+
+    * If `space` is a [legacy color] space:
+
+      * Let `comma-list` be the result of calling
+        `list.append(channels, alpha, 'comma')`.
+
+      * Return an unquoted string with the value of `comma-list`.
+
+    * Otherwise, return an unquoted string with the value of `input`.
 
     > Doing this late in the process allows us to throw any obvious syntax
     > errors, even for colors that can't be fully resolved during compilation.
@@ -2052,8 +2064,8 @@ These new CSS functions are provided globally.
 
     > Normalization and clamping is handled as part of the [parsing] process.
 
-  * If `parsed` is null, return a plain CSS function string with the name
-    `"hwb"` and the argument `$channels`.
+  * If `parsed` is a string, return a plain CSS function string with the name
+    `"hwb"` and the argument `parsed`.
 
   * Let `channels` be the channel list, and `alpha` the alpha value of `parsed`.
 
@@ -2072,8 +2084,8 @@ These new CSS functions are provided globally.
 
   * Let `parsed` be the result of [parsing] `$channels` in `lab` space.
 
-  * If `parsed` is null, return a plain CSS function string with the name
-    `"lab"` and the argument `$channels`.
+  * If `parsed` is a string, return a plain CSS function string with the name
+    `"lab"` and the argument `parsed`.
 
   * Let `channels` be the channel list, and `alpha` the alpha value of `parsed`.
 
@@ -2090,8 +2102,8 @@ These new CSS functions are provided globally.
 
   * Let `parsed` be the result of [parsing] `$channels` in `lch` space.
 
-  * If `parsed` is null, return a plain CSS function string with the name
-    `"lch"` and the argument `$channels`.
+  * If `parsed` is a string, return a plain CSS function string with the name
+    `"lch"` and the argument `parsed`.
 
   * Let `channels` be the channel list, and `alpha` the alpha value of `parsed`.
 
@@ -2108,8 +2120,8 @@ These new CSS functions are provided globally.
 
   * Let `parsed` be the result of [parsing] `$channels` in `oklab` space.
 
-  * If `parsed` is null, return a plain CSS function string with the name
-    `"oklab"` and the argument `$channels`.
+  * If `parsed` is a string, return a plain CSS function string with the name
+    `"oklab"` and the argument `parsed`.
 
   * Let `channels` be the channel list, and `alpha` the alpha value of `parsed`.
 
@@ -2126,8 +2138,8 @@ These new CSS functions are provided globally.
 
   * Let `parsed` be the result of [parsing] `$channels` in `oklch` space.
 
-  * If `parsed` is null, return a plain CSS function string with the name
-    `"oklch"` and the argument `$channels`.
+  * If `parsed` is a string, return a plain CSS function string with the name
+    `"oklch"` and the argument `parsed`.
 
   * Let `channels` be the channel list, and `alpha` the alpha value of `parsed`.
 
@@ -2144,8 +2156,8 @@ These new CSS functions are provided globally.
 
   * Let `parsed` be the result of [parsing] `$description` without a space.
 
-  * If `parsed` is null, return a plain CSS function string with the name
-    `"color"` and the argument `$description`.
+  * If `parsed` is a string, return a plain CSS function string with the name
+    `"color"` and the argument `parsed`.
 
   * Let `space` be the color space, `channels` the channel list, and `alpha`
     the alpha value of `parsed`.
@@ -2199,8 +2211,8 @@ plain CSS function named `"rgb"` that function is named `"rgba"` instead.
 
   * Let `parsed` be the result of [parsing] `$channels` in `rgb` space.
 
-  * If `parsed` is null, return a plain CSS function string with the name
-    `"rgb"` and the argument `$channels`.
+  * If `parsed` is a string, return a plain CSS function string with the name
+    `"rgb"` and the argument `parsed`.
 
   * Let `channels` be the channel list, and `alpha` the alpha value of `parsed`.
 
@@ -2275,8 +2287,8 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
 
     > Normalization and clamping is handled as part of the [parsing] process.
 
-  * If `parsed` is null, return a plain CSS function string with the name
-    `"hsl"` and the argument `$channels`.
+  * If `parsed` is a string, return a plain CSS function string with the name
+    `"hsl"` and the argument `parsed`.
 
   * Let `channels` be the channel list, and `alpha` the alpha value of `parsed`.
 

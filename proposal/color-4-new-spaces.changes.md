@@ -62,6 +62,17 @@
 * Added `color.is-missing($color, $channel)` to inspect if a channel is set to
   'none' (e.g. missing).
 
+* Legacy colors using a space-separated syntax with special number values that
+  are not adjacent to a `/` symbol are emitted using the legacy
+  (comma-separated) CSS syntax. For example:
+
+  * `hsl(20deg 5% var(--foo))` emits `hsl(20deg, 5%, var(--foo))`.
+
+  * `hsl(20deg var(--foo) 5% / 0.5)` emits `hsl(20deg, var(--foo), 5%, 0.5)`.
+
+  * `hsl(20deg 5% var(--foo) / 0.5)` emits `hsl(20deg 5% var(--foo)/0.5)`
+    since the special value is adjacent to the slash.
+
 ## Draft 1.1
 
 * Expand the summary section to describe more of the proposal.
