@@ -20,6 +20,7 @@ colors outside the sRGB gamut.
     * [`color()`](#color)
   * [New Sass Color Functions](#new-sass-color-functions)
     * [`color.channel()`](#colorchannel)
+    * [`color.is-missing()`](#coloris-missing)
     * [`color.space()`](#colorspace)
     * [`color.is-in-gamut()`, `color.is-legacy()`](#coloris-in-gamut-coloris-legacy)
     * [`color.is-powerless()`](#coloris-powerless)
