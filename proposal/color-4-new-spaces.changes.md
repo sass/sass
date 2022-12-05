@@ -54,7 +54,9 @@
   as necessary for normalization/serialization.
 
 * Legacy colors with missing channels are serialized using the non-legacy
-  serialization logic.
+  serialization logic. When converting colors into legacy spaces with
+  `color.to-space()`, all missing components are replaced with `0` for better
+  legacy output.
 
 * `color.channel()` returns `0` when the channel value is missing, rather than
   throwing an error.

@@ -461,7 +461,7 @@ considered *legacy colors*. The output of a legacy color is not required to
 match the input color space, and several color functions maintain legacy
 behavior when manipulating legacy colors.
 
-Legacy colors that have [missing components](#missing-components) are
+Legacy colors that have [missing] components are
 [serialized as non-legacy colors](#serialization-of-non-legacy-colors).
 
 > This includes colors defined using the CSS color names, hex syntax, `rgb()`,
@@ -1392,8 +1392,15 @@ to-space($color, $space)
 
 * If `known-origin == known-space`, return `$color`.
 
-* Return the result of [converting] the `origin-color` `$color` to the
-  `target-space` `known-space`.
+* Let `converted` be the result of [converting] the `origin-color` `$color` to
+  the `target-space` `known-space`.
+
+* If `converted` is a [legacy] color:
+
+  * For each `component` in the channels and alpha value of `converted`, if
+    `component` is [missing], set `component` to `0`.
+
+* Return `converted`.
 
 ### `color.is-legacy()`
 
