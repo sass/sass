@@ -1,3 +1,16 @@
+## 1.2.0
+
+* Have the compiler treat several user-generated invalid responses as
+  compilation errors rather than `ProtocolError`s:
+
+  * Invalid function signatures in `CompileRequest.global_functions`.
+
+  * Non-absolute URLs in `CanonicalizeResponse.result.url`,
+    `ImportSuccess.source_map_url`, and `FileImportResponse.result.file_url`.
+
+* Clarify that an invalid signature in a `HostFunction` should treat the current
+  function as failing, rather than the `HostFunction`.
+
 ## 1.1.0
 
 * Add a `charset` option that controls whether or not Sass emits a

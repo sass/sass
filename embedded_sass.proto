@@ -100,13 +100,15 @@ message InboundMessage {
     repeated Importer importers = 6;
 
     // Signatures for custom global functions whose behavior is defined by the
-    // host. These must be valid Sass function signatures that could appear in
-    // after `@function` in a Sass stylesheet, such as
-    // `mix($color1, $color2, $weight: 50%)`.
+    // host.
+    //
+    // If this is not a valid Sass function signature that could appear after
+    // `@function` in a Sass stylesheet (such as `mix($color1, $color2, $weight:
+    // 50%)`), or if it conflicts with a function name that's built into the
+    // Sass language, the compiler must treat the compilation as failed.
     //
     // Compilers must ensure that pure-Sass functions take precedence over
-    // custom global functions. They must also reject any custom function names
-    // that conflict with function names built into the Sass language.
+    // custom global functions.
     repeated string global_functions = 7;
 
     // Whether to use terminal colors in the formatted message of errors and
@@ -141,8 +143,10 @@ message InboundMessage {
     // that the importer either did not recognize the URL, or could not find a
     // stylesheet at the location it referred to.
     oneof result {
-      // The successfully canonicalized URL. This must be an absolute URL,
-      // including scheme.
+      // The successfully canonicalized URL.
+      //
+      // If this is not an absolute URL (including scheme), the compiler must
+      // treat that as an error thrown by the importer.
       string url = 2;
 
       // An error message explaining why canonicalization failed.
@@ -173,7 +177,8 @@ message InboundMessage {
       // acceptable as well. If no URL is supplied, a `data:` URL is generated
       // automatically from `contents`.
       //
-      // If this is provided, it must be an absolute URL, including scheme.
+      // If this is provided and is not an absolute URL (including scheme) the
+      // compiler must treat that as an error thrown by the importer.
       string source_map_url = 3;
     }
 
@@ -200,9 +205,10 @@ message InboundMessage {
       // The absolute `file:` URL to look for the file on the physical
       // filesystem.
       //
-      // The host must ensure that this URL follows the format for an absolute
-      // `file:` URL on the current operating system without a hostname, and the
-      // compiler must verify this to the best of its ability. See
+      // The compiler must verify to the best of its ability that this URL
+      // follows the format for an absolute `file:` URL on the current operating
+      // system without a hostname. If it doesn't, the compiler must treat that
+      // as an error thrown by the importer. See
       // https://en.wikipedia.org/wiki/File_URI_scheme for details on the
       // format.
       //
@@ -836,7 +842,8 @@ message Value {
     //
     // If this isn't a valid Sass function signature that could appear after
     // `@function` in a Sass stylesheet (such as `mix($color1, $color2, $weight:
-    // 50%)`), the compiler must treat the function's return value as invalid.
+    // 50%)`), the compiler must treat it as though the function that returned
+    // this `HostFunction` threw an error.
     //
     // > This ensures that the host doesn't need to be able to correctly parse
     // > the entire function declaration syntax.

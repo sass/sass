@@ -137,8 +137,7 @@ not limited to:
 
 * Sending a message with a `null` value for a mandatory field.
 
-The `ProtocolError` message must *not* be used to report Sass errors or errors
-running custom functions or importers.
+The `ProtocolError` message must *not* be used to report Sass language errors.
 
 ### Host Language API
 
