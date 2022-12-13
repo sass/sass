@@ -1,6 +1,6 @@
-# `string.split()`: Draft 1.1
+# `string.split()`: Draft 1.2
 
-*([Issue](https://github.com/sass/sass/issues/1950))*
+*([Issue](https://github.com/sass/sass/issues/1950), [Changelog](string-split.changes.md))*
 
 This proposal adds `string.split()` to the `sass:string` module.
 
@@ -69,12 +69,10 @@ split($string, $separator, $limit: null)
 
 * If `$limit` is a value other than an integer or `null`, throw an error.
 
-* If `$limit` is a negative number, throw an error.
+* If `$limit` is less than 1, throw an error.
 
 * If `$string` is an empty string, return a list with `$string` as the only 
   item.
-
-* If `$limit` is 0, return a list with `$string` as the only item.
 
 * Let `split-list` be an empty list.
 
