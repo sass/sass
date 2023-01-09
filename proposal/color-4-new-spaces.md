@@ -1,4 +1,4 @@
-# CSS Color Level 4, New Color Spaces: Draft 1.2
+# CSS Color Level 4, New Color Spaces: Draft 1.3
 
 *([Issue](https://github.com/sass/sass/issues/2831))*
 
@@ -375,6 +375,7 @@ being deprecated in favor of color-space-friendly functions like
 * `color.lightness()`
 * `color.whiteness()`
 * `color.blackness()`
+* `color.alpha()`
 * `adjust-hue()`
 * `saturate()`
 * `desaturate()`
@@ -2337,6 +2338,7 @@ deprecated in favor of the new `color.channel()` function. That includes:
 * `color.lightness()`/`lightness()`
 * `color.whiteness()`
 * `color.blackness()`
+* `color.alpha()`
 
 Legacy global color functions are also deprecated:
 

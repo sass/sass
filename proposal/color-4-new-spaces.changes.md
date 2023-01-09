@@ -1,3 +1,8 @@
+## Draft 1.3
+
+* Deprecate the `color.alpha()` function along with the other legacy channel
+  access functions.
+
 ## Draft 1.2
 
 * Clamp `hsl` saturation & lightness when generating `hsl` colors, and gamut-map
