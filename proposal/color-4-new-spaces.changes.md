@@ -3,6 +3,13 @@
 * Deprecate the `color.alpha()` function along with the other legacy channel
   access functions.
 
+* Require quoted strings for channel names in `color.is-powerless()` and
+  `color.channel()`, to avoid syntax conflicts between `rgb` channel names and
+  their respective named colors (e.g. `'red'` the channel vs `red` the color).
+
+* Define how deprecated functions behave as alias functions during the
+  deprecation process.
+
 ## Draft 1.2
 
 * Clamp `hsl` saturation & lightness when generating `hsl` colors, and gamut-map

@@ -1443,7 +1443,7 @@ is-powerless($color, $channel, $space: null)
 
 * If `$color` is not a color, throw an error.
 
-* If `$channel` is not an unquoted string, throw an error.
+* If `$channel` is not a quoted string, throw an error.
 
 * If `$space` is null:
 
@@ -1525,9 +1525,9 @@ channel($color, $channel, $space: null)
 
 * If `$color` is not a color, throw an error.
 
-* If `$channel` is not an unquoted string, throw an error.
+* If `$channel` is not a quoted string, throw an error.
 
-* If `$channel == alpha` (ignoring case), let `value` be the alpha value of
+* If `$channel == 'alpha'` (ignoring case), let `value` be the alpha value of
   `$color`.
 
 * Otherwise:
