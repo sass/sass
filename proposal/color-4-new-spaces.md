@@ -472,6 +472,8 @@ A *color* is an object with several parts:
 
 ### Legacy Color
 
+[legacy color]: #legacy-color
+
 > Both Sass and CSS have similar legacy behavior that relies on all colors
 > being interchangeable as part of a shared `srgb` color space. While the new
 > color spaces will opt users into new default behavior, some legacy color
@@ -2328,32 +2330,40 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
 ## Deprecated Functions
 
 Individual color-channel functions defined globally or in the color module are
-deprecated in favor of the new `color.channel()` function. That includes:
+deprecated in favor of the new `color.channel()` function. Legacy global color
+functions are also deprecated. These functions always throw errors. During
+the deprecation process, they act as alias functions described below.
 
-* `color.red()`/`red()`
-* `color.green()`/`green()`
-* `color.blue()`/`blue()`
-* `color.hue()`/`hue()`
-* `color.saturation()`/`saturation()`
-* `color.lightness()`/`lightness()`
-* `color.whiteness()`
-* `color.blackness()`
-* `color.alpha()`
+### `color.red()`, `red()`
 
-Legacy global color functions are also deprecated:
+* ```
+  color.red($color)
+  ```
 
-* `adjust-hue()`
-* `saturate()`/`desaturate()`
-* `transparentize()`/`opacify()`/`fade-in()`
-* `lighten()`/`darken()`
+  * If `$color` is not a [legacy color], throw an error.
 
-These functions always throw errors.
+  * Return the result of calling `color.channel($color, 'red')`.
 
-[legacy color]: #legacy-color
+* ```
+  red($color)
+  ```
 
-## Deprecation Process
+  * If `$color` is not a [legacy color], throw an error.
 
-For all [deprecated functions](#deprecated-functions) in this proposal, while
-deprecated:
+  * Return the result of calling `color.channel($color, 'red')`.
 
-* If the specified color argument is not a [legacy color], throw an error.
+### `color.green()`, `green()`
+### `color.blue()`, `blue()`
+### `color.hue()`, `hue()`
+### `color.saturation()`, `saturation()`
+### `color.lightness()`, `lightness()`
+### `color.whiteness()`
+### `color.blackness()`
+### `color.alpha()`
+### `adjust-hue()`
+### `saturate()`
+### `desaturate()`
+### `transparentize()`
+### `opacify()`, `fade-in()`
+### `lighten()`
+### `darken()`
