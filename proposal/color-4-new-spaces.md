@@ -85,6 +85,22 @@ colors outside the sRGB gamut.
   * [`rgb()` and `rgba()`](#rgb-and-rgba)
   * [`hsl()` and `hsla()`](#hsl-and-hsla)
 * [Deprecated Functions](#deprecated-functions)
+  * [`color.red()`](#color.red-red)
+  * [`color.green()`](#color.green-green)
+  * [`color.blue()`](#color.blue-blue)
+  * [`color.hue()`](#color.hue-hue)
+  * [`color.saturation()`](#color.saturation-saturation)
+  * [`color.lightness()`](#color.lightness-lightness)
+  * [`color.whiteness()`](#color.whiteness)
+  * [`color.blackness()`](#color.blackness)
+  * [`color.alpha()`](#color.alpha)
+  * [`adjust-hue()`](#adjust-hue)
+  * [`saturate()`](#saturate)
+  * [`desaturate()`](#desaturate)
+  * [`transparentize()`/ `fade-out()`](#transparentize-fade-out)
+  * [`opacify()`/ `fade-in()`](#opacify-fade-in)
+  * [`lighten()`](#lighten)
+  * [`darken()`](#darken)
 * [Deprecation Process](#deprecation-process)
 
 ## Background
@@ -2442,13 +2458,117 @@ the deprecation process, they act as alias functions described below.
 
   * Return the result of calling `color.channel($color, 'lightness')`.
   
-### `color.whiteness()`
+  ### `color.whiteness()`
+
+* ```
+  color.whiteness($color)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling `color.channel($color, 'whiteness')`.
+  
 ### `color.blackness()`
+
+* ```
+  color.blackness($color)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling `color.channel($color, 'blackness')`.
+
 ### `color.alpha()`
+
+* ```
+  color.alpha($color)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling `color.channel($color, 'alpha')`.
+
 ### `adjust-hue()`
+
+* ```
+  adjust-hue($color, $amount)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling `color.adjust($color, $hue: $amount)`.
+
 ### `saturate()`
+
+* ```
+  saturate($color, $amount)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling `color.adjust($color, $saturation: $amount)`.
+
 ### `desaturate()`
-### `transparentize()`
+
+* ```
+  desaturate($color, $amount)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling `color.adjust($color, $saturation: -$amount)`.
+
+### `transparentize(), `fade-out()`
+
+* ```
+  transparentize($color, $amount)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling `color.adjust($color, $alpha: -$amount)`.
+
+* ```
+  fade-out($color, $amount)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling `color.adjust($color, $alpha: -$amount)`.
+
 ### `opacify()`, `fade-in()`
+
+* ```
+  opacify($color, $amount)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling `color.adjust($color, $alpha: $amount)`.
+
+* ```
+  fade-in($color, $amount)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling `color.adjust($color, $alpha: $amount)`.
+
 ### `lighten()`
+
+* ```
+  lighten($color, $amount)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling `color.adjust($color, $lightness: $amount)`.
 ### `darken()`
+
+* ```
+  darken($color, $amount)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling `color.adjust($color, $lightness: -$amount)`.
