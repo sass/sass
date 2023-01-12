@@ -2389,8 +2389,59 @@ the deprecation process, they act as alias functions described below.
   * Return the result of calling `color.channel($color, 'blue')`.
 
 ### `color.hue()`, `hue()`
+
+* ```
+  color.hue($color)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling `color.channel($color, 'hue')`.
+
+* ```
+  hue($color)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling `color.channel($color, 'hue')`.
+
 ### `color.saturation()`, `saturation()`
+
+* ```
+  color.saturation($color)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling `color.channel($color, 'saturation')`.
+
+* ```
+  saturation($color)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling `color.channel($color, 'saturation')`.
+
 ### `color.lightness()`, `lightness()`
+
+* ```
+  color.lightness($color)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling `color.channel($color, 'lightness')`.
+
+* ```
+  lightness($color)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling `color.channel($color, 'lightness')`.
+  
 ### `color.whiteness()`
 ### `color.blackness()`
 ### `color.alpha()`
