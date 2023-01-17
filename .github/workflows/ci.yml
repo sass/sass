@@ -1,6 +1,6 @@
 name: CI
 
-env: {NODE_VERSION: 14}
+env: {NODE_VERSION: 18}
 
 on:
   push: {branches: [main, 'feature.*']}
