@@ -2357,15 +2357,9 @@ the deprecation process, they act as alias functions described below.
 
   * If `$color` is not a [legacy color], throw an error.
 
-  * Return the result of calling `color.channel($color, 'red')`.
+  * Return the result of calling `color.channel($color, 'red', rgb)`.
 
-* ```
-  red($color)
-  ```
-
-  * If `$color` is not a [legacy color], throw an error.
-
-  * Return the result of calling `color.channel($color, 'red')`.
+This function is also available as a global function named `red()`.
 
 ### `color.green()`, `green()`
 
@@ -2375,15 +2369,9 @@ the deprecation process, they act as alias functions described below.
 
   * If `$color` is not a [legacy color], throw an error.
 
-  * Return the result of calling `color.channel($color, 'green')`.
+  * Return the result of calling `color.channel($color, 'green', rgb)`.
 
-* ```
-  green($color)
-  ```
-
-  * If `$color` is not a [legacy color], throw an error.
-
-  * Return the result of calling `color.channel($color, 'green')`.
+This function is also available as a global function named `green()`.
 
 ### `color.blue()`, `blue()`
 
@@ -2393,15 +2381,9 @@ the deprecation process, they act as alias functions described below.
 
   * If `$color` is not a [legacy color], throw an error.
 
-  * Return the result of calling `color.channel($color, 'blue')`.
+  * Return the result of calling `color.channel($color, 'blue', rgb)`.
 
-* ```
-  blue($color)
-  ```
-
-  * If `$color` is not a [legacy color], throw an error.
-
-  * Return the result of calling `color.channel($color, 'blue')`.
+This function is also available as a global function named `blue()`.
 
 ### `color.hue()`, `hue()`
 
@@ -2411,15 +2393,9 @@ the deprecation process, they act as alias functions described below.
 
   * If `$color` is not a [legacy color], throw an error.
 
-  * Return the result of calling `color.channel($color, 'hue')`.
+  * Return the result of calling `color.channel($color, 'hue', hsl)`.
 
-* ```
-  hue($color)
-  ```
-
-  * If `$color` is not a [legacy color], throw an error.
-
-  * Return the result of calling `color.channel($color, 'hue')`.
+This function is also available as a global function named `hue()`.
 
 ### `color.saturation()`, `saturation()`
 
@@ -2429,15 +2405,9 @@ the deprecation process, they act as alias functions described below.
 
   * If `$color` is not a [legacy color], throw an error.
 
-  * Return the result of calling `color.channel($color, 'saturation')`.
+  * Return the result of calling `color.channel($color, 'saturation', hsl)`.
 
-* ```
-  saturation($color)
-  ```
-
-  * If `$color` is not a [legacy color], throw an error.
-
-  * Return the result of calling `color.channel($color, 'saturation')`.
+This function is also available as a global function named `saturation()`.
 
 ### `color.lightness()`, `lightness()`
 
@@ -2447,16 +2417,10 @@ the deprecation process, they act as alias functions described below.
 
   * If `$color` is not a [legacy color], throw an error.
 
-  * Return the result of calling `color.channel($color, 'lightness')`.
+  * Return the result of calling `color.channel($color, 'lightness', hsl)`.
 
-* ```
-  lightness($color)
-  ```
+This function is also available as a global function named `lightness()`.
 
-  * If `$color` is not a [legacy color], throw an error.
-
-  * Return the result of calling `color.channel($color, 'lightness')`.
-  
   ### `color.whiteness()`
 
 * ```
@@ -2465,8 +2429,8 @@ the deprecation process, they act as alias functions described below.
 
   * If `$color` is not a [legacy color], throw an error.
 
-  * Return the result of calling `color.channel($color, 'whiteness')`.
-  
+  * Return the result of calling `color.channel($color, 'whiteness', hwb)`.
+
 ### `color.blackness()`
 
 * ```
@@ -2475,7 +2439,7 @@ the deprecation process, they act as alias functions described below.
 
   * If `$color` is not a [legacy color], throw an error.
 
-  * Return the result of calling `color.channel($color, 'blackness')`.
+  * Return the result of calling `color.channel($color, 'blackness', hwb)`.
 
 ### `color.alpha()`
 
@@ -2495,7 +2459,8 @@ the deprecation process, they act as alias functions described below.
 
   * If `$color` is not a [legacy color], throw an error.
 
-  * Return the result of calling `color.adjust($color, $hue: $amount)`.
+  * Return the result of calling
+    `color.adjust($color, $hue: $amount, $space: hsl)`.
 
 ### `saturate()`
 
@@ -2505,7 +2470,8 @@ the deprecation process, they act as alias functions described below.
 
   * If `$color` is not a [legacy color], throw an error.
 
-  * Return the result of calling `color.adjust($color, $saturation: $amount)`.
+  * Return the result of calling
+    `color.adjust($color, $saturation: $amount, $space: hsl)`.
 
 ### `desaturate()`
 
@@ -2515,7 +2481,8 @@ the deprecation process, they act as alias functions described below.
 
   * If `$color` is not a [legacy color], throw an error.
 
-  * Return the result of calling `color.adjust($color, $saturation: -$amount)`.
+  * Return the result of calling
+    `color.adjust($color, $saturation: -$amount, $space: hsl)`.
 
 ### `transparentize(), `fade-out()`
 
@@ -2527,13 +2494,7 @@ the deprecation process, they act as alias functions described below.
 
   * Return the result of calling `color.adjust($color, $alpha: -$amount)`.
 
-* ```
-  fade-out($color, $amount)
-  ```
-
-  * If `$color` is not a [legacy color], throw an error.
-
-  * Return the result of calling `color.adjust($color, $alpha: -$amount)`.
+This function is also available as a global function named `fade-out()`.
 
 ### `opacify()`, `fade-in()`
 
@@ -2545,13 +2506,7 @@ the deprecation process, they act as alias functions described below.
 
   * Return the result of calling `color.adjust($color, $alpha: $amount)`.
 
-* ```
-  fade-in($color, $amount)
-  ```
-
-  * If `$color` is not a [legacy color], throw an error.
-
-  * Return the result of calling `color.adjust($color, $alpha: $amount)`.
+This function is also available as a global function named `fade-in()`.
 
 ### `lighten()`
 
@@ -2561,7 +2516,9 @@ the deprecation process, they act as alias functions described below.
 
   * If `$color` is not a [legacy color], throw an error.
 
-  * Return the result of calling `color.adjust($color, $lightness: $amount)`.
+  * Return the result of calling
+    `color.adjust($color, $lightness: $amount, $space: hsl)`.
+
 ### `darken()`
 
 * ```
@@ -2570,4 +2527,5 @@ the deprecation process, they act as alias functions described below.
 
   * If `$color` is not a [legacy color], throw an error.
 
-  * Return the result of calling `color.adjust($color, $lightness: -$amount)`.
+  * Return the result of calling
+    `color.adjust($color, $lightness: -$amount, $space: hsl)`.
