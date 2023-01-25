@@ -31,7 +31,7 @@ colors outside the sRGB gamut.
     * [Deprecations](#deprecations)
   * [Design Decisions](#design-decisions)
 * [Definitions](#definitions)
-  * [Color](#color)
+  * [Color](#color-1)
   * [Legacy Color](#legacy-color)
   * [Color Equality](#color-equality)
   * [Known Color Space](#known-color-space)
@@ -80,25 +80,25 @@ colors outside the sRGB gamut.
   * [`lch()`](#lch)
   * [`oklab()`](#oklab)
   * [`oklch()`](#oklch)
-  * [`color()`](#color-1)
+  * [`color()`](#color-2)
 * [Modified Global Functions](#modified-global-functions)
   * [`rgb()` and `rgba()`](#rgb-and-rgba)
   * [`hsl()` and `hsla()`](#hsl-and-hsla)
 * [Deprecated Functions](#deprecated-functions)
-  * [`color.red()`](#colorred-red)
-  * [`color.green()`](#colorgreen-green)
-  * [`color.blue()`](#colorblue-blue)
-  * [`color.hue()`](#colorhue-hue)
-  * [`color.saturation()`](#colorsaturation-saturation)
-  * [`color.lightness()`](#colorlightness-lightness)
+  * [`color.red()`, `red()`](#colorred-red)
+  * [`color.green()`, `green()`](#colorgreen-green)
+  * [`color.blue()`, `blue()`](#colorblue-blue)
+  * [`color.hue()`, `hue()`](#colorhue-hue)
+  * [`color.saturation()`, `saturation()`](#colorsaturation-saturation)
+  * [`color.lightness()`, `lightness()`](#colorlightness-lightness)
   * [`color.whiteness()`](#colorwhiteness)
   * [`color.blackness()`](#colorblackness)
   * [`color.alpha()`](#coloralpha)
   * [`adjust-hue()`](#adjust-hue)
   * [`saturate()`](#saturate)
   * [`desaturate()`](#desaturate)
-  * [`transparentize()`/ `fade-out()`](#transparentize-fade-out)
-  * [`opacify()`/ `fade-in()`](#opacify-fade-in)
+  * [`transparentize()`, `fade-out()`](#transparentize-fade-out)
+  * [`opacify()`, `fade-in()`](#opacify-fade-in)
   * [`lighten()`](#lighten)
   * [`darken()`](#darken)
 
@@ -2421,7 +2421,7 @@ This function is also available as a global function named `saturation()`.
 
 This function is also available as a global function named `lightness()`.
 
-  ### `color.whiteness()`
+### `color.whiteness()`
 
 * ```
   color.whiteness($color)
@@ -2484,7 +2484,7 @@ This function is also available as a global function named `lightness()`.
   * Return the result of calling
     `color.adjust($color, $saturation: -$amount, $space: hsl)`.
 
-### `transparentize(), `fade-out()`
+### `transparentize()`, `fade-out()`
 
 * ```
   transparentize($color, $amount)
