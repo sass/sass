@@ -431,7 +431,7 @@ two guarantees about the result. These are known as the "laws of extend".
 
 The first law of `@extend` says that the specificity of the first generated
 selector must be greater than or equal to that of the original extendee. For
-example, `extend(a.foo, .foo, .a)` should generate `a.foo, a` even though
+example, `extend(a.foo, .foo, a)` should generate `a.foo, a` even though
 `a.foo` matches a subset of elements matched by `a`.
 
 In most cases, the first generated selector will be identical to the extendee,
