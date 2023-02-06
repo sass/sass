@@ -7,6 +7,8 @@ import markdownToc = require('markdown-toc');
 import * as path from 'path';
 import {fileURLToPath, pathToFileURL, URL} from 'url';
 
+if (process.env.CI) colors.enable();
+
 const files = glob.sync('**/*.md', {
   ignore: ['node_modules/**/*.md', 'js-api-doc/**/*.md'],
 });
