@@ -5,6 +5,8 @@ import * as glob from 'glob';
 import * as p from 'path';
 import * as prettier from 'prettier';
 
+if (process.env.CI) colors.enable();
+
 /**
  * A wrapper around the built-in TypeScript parser that removes all comments.
  */
