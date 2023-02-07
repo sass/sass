@@ -1,4 +1,4 @@
-# CSS Color Level 4, New Color Spaces: Draft 1.2
+# CSS Color Level 4, New Color Spaces: Draft 1.3
 
 *([Issue](https://github.com/sass/sass/issues/2831))*
 
@@ -85,7 +85,22 @@ colors outside the sRGB gamut.
   * [`rgb()` and `rgba()`](#rgb-and-rgba)
   * [`hsl()` and `hsla()`](#hsl-and-hsla)
 * [Deprecated Functions](#deprecated-functions)
-* [Deprecation Process](#deprecation-process)
+  * [`color.red()`, `red()`](#colorred-red)
+  * [`color.green()`, `green()`](#colorgreen-green)
+  * [`color.blue()`, `blue()`](#colorblue-blue)
+  * [`color.hue()`, `hue()`](#colorhue-hue)
+  * [`color.saturation()`, `saturation()`](#colorsaturation-saturation)
+  * [`color.lightness()`, `lightness()`](#colorlightness-lightness)
+  * [`color.whiteness()`](#colorwhiteness)
+  * [`color.blackness()`](#colorblackness)
+  * [`color.alpha()`](#coloralpha)
+  * [`adjust-hue()`](#adjust-hue)
+  * [`saturate()`](#saturate)
+  * [`desaturate()`](#desaturate)
+  * [`transparentize()`, `fade-out()`](#transparentize-fade-out)
+  * [`opacify()`, `fade-in()`](#opacify-fade-in)
+  * [`lighten()`](#lighten)
+  * [`darken()`](#darken)
 
 ## Background
 
@@ -375,6 +390,7 @@ being deprecated in favor of color-space-friendly functions like
 * `color.lightness()`
 * `color.whiteness()`
 * `color.blackness()`
+* `color.alpha()`
 * `adjust-hue()`
 * `saturate()`
 * `desaturate()`
@@ -470,6 +486,8 @@ A *color* is an object with several parts:
 [double]: ../types/number.md#double
 
 ### Legacy Color
+
+[legacy color]: #legacy-color
 
 > Both Sass and CSS have similar legacy behavior that relies on all colors
 > being interchangeable as part of a shared `srgb` color space. While the new
@@ -1440,7 +1458,7 @@ is-powerless($color, $channel, $space: null)
 
 * If `$color` is not a color, throw an error.
 
-* If `$channel` is not an unquoted string, throw an error.
+* If `$channel` is not a quoted string, throw an error.
 
 * If `$space` is null:
 
@@ -1522,9 +1540,9 @@ channel($color, $channel, $space: null)
 
 * If `$color` is not a color, throw an error.
 
-* If `$channel` is not an unquoted string, throw an error.
+* If `$channel` is not a quoted string, throw an error.
 
-* If `$channel == alpha` (ignoring case), let `value` be the alpha value of
+* If `$channel == 'alpha'` (ignoring case), let `value` be the alpha value of
   `$color`.
 
 * Otherwise:
@@ -2327,31 +2345,187 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
 ## Deprecated Functions
 
 Individual color-channel functions defined globally or in the color module are
-deprecated in favor of the new `color.channel()` function. That includes:
+deprecated in favor of the new `color.channel()` function. Legacy global color
+functions are also deprecated. These functions always throw errors. During
+the deprecation process, they act as alias functions described below.
 
-* `color.red()`/`red()`
-* `color.green()`/`green()`
-* `color.blue()`/`blue()`
-* `color.hue()`/`hue()`
-* `color.saturation()`/`saturation()`
-* `color.lightness()`/`lightness()`
-* `color.whiteness()`
-* `color.blackness()`
+### `color.red()`, `red()`
 
-Legacy global color functions are also deprecated:
+* ```
+  color.red($color)
+  ```
 
-* `adjust-hue()`
-* `saturate()`/`desaturate()`
-* `transparentize()`/`opacify()`/`fade-in()`
-* `lighten()`/`darken()`
+  * If `$color` is not a [legacy color], throw an error.
 
-These functions always throw errors.
+  * Return the result of calling `color.channel($color, 'red', rgb)`.
 
-[legacy color]: #legacy-color
+This function is also available as a global function named `red()`.
 
-## Deprecation Process
+### `color.green()`, `green()`
 
-For all [deprecated functions](#deprecated-functions) in this proposal, while
-deprecated:
+* ```
+  color.green($color)
+  ```
 
-* If the specified color argument is not a [legacy color], throw an error.
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling `color.channel($color, 'green', rgb)`.
+
+This function is also available as a global function named `green()`.
+
+### `color.blue()`, `blue()`
+
+* ```
+  color.blue($color)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling `color.channel($color, 'blue', rgb)`.
+
+This function is also available as a global function named `blue()`.
+
+### `color.hue()`, `hue()`
+
+* ```
+  color.hue($color)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling `color.channel($color, 'hue', hsl)`.
+
+This function is also available as a global function named `hue()`.
+
+### `color.saturation()`, `saturation()`
+
+* ```
+  color.saturation($color)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling `color.channel($color, 'saturation', hsl)`.
+
+This function is also available as a global function named `saturation()`.
+
+### `color.lightness()`, `lightness()`
+
+* ```
+  color.lightness($color)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling `color.channel($color, 'lightness', hsl)`.
+
+This function is also available as a global function named `lightness()`.
+
+### `color.whiteness()`
+
+* ```
+  color.whiteness($color)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling `color.channel($color, 'whiteness', hwb)`.
+
+### `color.blackness()`
+
+* ```
+  color.blackness($color)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling `color.channel($color, 'blackness', hwb)`.
+
+### `color.alpha()`
+
+* ```
+  color.alpha($color)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling `color.channel($color, 'alpha')`.
+
+### `adjust-hue()`
+
+* ```
+  adjust-hue($color, $amount)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling
+    `color.adjust($color, $hue: $amount, $space: hsl)`.
+
+### `saturate()`
+
+* ```
+  saturate($color, $amount)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling
+    `color.adjust($color, $saturation: $amount, $space: hsl)`.
+
+### `desaturate()`
+
+* ```
+  desaturate($color, $amount)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling
+    `color.adjust($color, $saturation: -$amount, $space: hsl)`.
+
+### `transparentize()`, `fade-out()`
+
+* ```
+  transparentize($color, $amount)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling `color.adjust($color, $alpha: -$amount)`.
+
+This function is also available as a global function named `fade-out()`.
+
+### `opacify()`, `fade-in()`
+
+* ```
+  opacify($color, $amount)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling `color.adjust($color, $alpha: $amount)`.
+
+This function is also available as a global function named `fade-in()`.
+
+### `lighten()`
+
+* ```
+  lighten($color, $amount)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling
+    `color.adjust($color, $lightness: $amount, $space: hsl)`.
+
+### `darken()`
+
+* ```
+  darken($color, $amount)
+  ```
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling
+    `color.adjust($color, $lightness: -$amount, $space: hsl)`.
