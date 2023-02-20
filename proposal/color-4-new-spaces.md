@@ -699,23 +699,15 @@ in certain circumstances.
 
 * `lab`/`oklab`:
 
-  * If the `lightness` value is `0%`, then both the `a` and `b` channels are
-    powerless.
-
-  > The current spec has an inline issue asking if high values of
-  > `lightness` (whites) should make the `a` and `b` values powerless:
-  > See: https://www.w3.org/TR/css-color-4/#issue-e05ac5c3
+  * If the `lightness` value is either `0%` or `100%`, then both the `a` and
+  `b` channels are powerless.
 
 * `lch`/`oklch`:
 
   * If the `chroma` value is 0%, then the `hue` channel is powerless.
 
-  * If the `lightness` value is `0%`, then both the `hue` and `chroma` channels
-    are powerless.
-
-  > The current spec has an inline issue asking if high values of
-  > `lightness` (whites) should make the `hue` and `chroma` values powerless.
-  > See: https://drafts.csswg.org/css-color-4/#issue-1813c844
+  * If the `lightness` value is either `0%` or `100%`, then both the `hue` and
+    `chroma` channels are powerless.
 
 ### Color Interpolation Method
 
@@ -1113,8 +1105,13 @@ normalized channel value otherwise.
 
     * Return `channel`.
 
-  * Otherwise, return the result of [percent-converting] `channel` with a `min`
-    and `max` defined by the `valid` channel range.
+  * Otherwise, set `channel` to the result of [percent-converting] `channel`
+    with a `min` and `max` defined by the `valid` channel range.
+
+  * If `valid` is a `lightness` channel, set `channel` to the result of
+    clamping the `channel` value between 0 and 100, inclusive.
+
+  * Return `channel`.
 
 [number-to-unit]: https://github.com/sass/sass/blob/main/spec/types/number.md#converting-a-number-to-a-unit
 
@@ -1145,8 +1142,10 @@ the color space, or returns a normalized list of valid channels otherwise.
 
   * Let `hue`, `saturation`, and `lightness` be the three elements in `normal`.
 
-  * Set `saturation` and `lightness` respectively to the results of clamping
-    the `saturation` and `lightness` values between 0 and 100, inclusive.
+  * Set `saturation` to the results of clamping the `saturation` value between
+    0 and 100, inclusive.
+
+    > All lightness channels are clamped in the validation process.
 
   * Set the three elements of `normal` to the values of `hue`, `saturation`,
     and `lightness` respectively.

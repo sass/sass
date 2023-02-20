@@ -1,5 +1,7 @@
 ## Draft 1.4
 
+* All `lightness` channels are now clamped in the `[0,100]` range.
+
 * Missing channels and mixed numbers/percentages are not allowed in legacy
   comma-separated `rgb`/`rgba` or `hsl`/`hsla` syntaxes.
 
