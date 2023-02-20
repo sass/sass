@@ -1,5 +1,12 @@
 ## Draft 1.4
 
+* Colors conversion is only performed when necessary. Previously, colors could
+  be converted into their current space.
+
+* Color conversion procedure explicitly handles 'carrying forward' missing
+  channels when converting to a space with an analogous component. This was
+  previously only applied to interpolation.
+
 * Allow all color spaces to be used for hue interpolation.
 
 * Remove `specified` hue interpolation method, and normalize hues to be in the

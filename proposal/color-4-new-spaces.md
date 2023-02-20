@@ -821,10 +821,46 @@ matched.
 
 ### Converting a Color
 
-Colors can be converted from one [known color space] to another. Algorithms for
-color conversion are defined in the [CSS Color Level 4][color-4]
-specification. [CSS color conversion] takes a color `origin-color`, and a
-[known color space] `target-space`, and returns a color `output-color`.
+Colors can be converted from one [known color space] to another. This procedure
+accepts a color `origin-color`, and a [known color space] `target-space`, and
+returns a color `color`.
+
+> Since the individual CSS color conversion algorithms don't explicitly handle
+> the process of 'carrying over' missing values on analogous channels, we have
+> to handle that here.
+
+* Let `origin-space` be `origin-color`'s color space.
+
+* If `origin-space == target-space` return `origin-color`.
+
+  > CSS doesn't perform conversions unless they are required.
+
+* Let `missing` be a list of channel names in `origin-color` that are [missing].
+
+* Let `color` be the result of [css-converting] `origin-color` into
+  `target-space`.
+
+* For each `channel` in `missing`:
+
+  * If `target-space` has an [analogous component][missing] to `channel`, set
+    the analogous component in `color` to `none`.
+
+* If any `channel` of `color` is [powerless] and not already [missing], set
+  `channel` to the special value `none`.
+
+* Return `color`.
+
+[missing]: #missing-components
+[powerless]: #powerless-components
+
+## CSS-Converting a Color Space
+
+[css-converting]: #css-converting-a-color-space
+
+Algorithms for individual color space conversion are defined in the
+[CSS Color Level 4][color-4] specification. [CSS color conversion] takes a
+color `origin-color`, and a [known color space] `target-space`, and returns a
+color `output-color`.
 
 [CSS color conversion]: https://www.w3.org/TR/css-color-4/#color-conversion
 
@@ -847,13 +883,6 @@ The individual conversion algorithms are:
 * [Any RGB to Lab/OKLab](https://www.w3.org/TR/css-color-4/#predefined-to-lab-oklab)
 
 * [Lab/OKLab to any RGB](https://www.w3.org/TR/css-color-4/#oklab-lab-to-predefined)
-
-If a [powerless] channel value is produced as the result of color-space
-conversion, then that value is considered to be [missing], and is replaced by
-the special value `none`.
-
-[missing]: #missing-components
-[powerless]: #powerless-components
 
 > For additional details, see the [Sample code for color conversions][convert].
 
@@ -1250,18 +1279,10 @@ input colors.
     * Let `hue-arc` be the `HueInterpolationMethod` specified in `method`, or
       `shorter` if no hue interpolation is specified.
 
-* Let `missing1` be a list of channel names in `color1` that are [missing], and
-  let `missing2` be a list of channel names in `color2` that are [missing].
-
 * Set `color1` and `color2` respectively to the results of [converting] `color1`
   and `color2` into `space`.
 
-* For each `color`/`missing` in `color1`/`missing1` and `color2`/`missing2`:
-
-  * For each `channel` in `missing`:
-
-    * If `space` has an [analogous component][missing] to `channel`, set the
-      analogous component in `color` to `none`.
+* For each `color` in `color1` and `color2`:
 
   * If any `component` of `color` is `none`, set that `component` to the value
     of the corresponding component in the other color.
