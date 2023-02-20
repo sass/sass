@@ -2229,9 +2229,19 @@ plain CSS function named `"rgb"` that function is named `"rgba"` instead.
   rgb($red, $green, $blue, $alpha: 1)
   ```
 
+  * If any argument is an unquoted string that's case-insensitively equal to
+    'none', throw an error.
+
+    > Missing channels are not allowed in legacy syntax.
+
   * If any argument is a [special number], return a plain CSS function
     string with the name `"rgb"` and the arguments `$red`, `$green`, `$blue`,
     and `$alpha`.
+
+  * If `$red`, `$green`, and `$blue` are not all numbers with the same units,
+    throw an error.
+
+    > Mixing unitless numbers with percentages is not allowed in legacy syntax.
 
   * If `$alpha` is not a number, throw an error.
 
@@ -2288,6 +2298,11 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
 * ```
   hsl($hue, $saturation, $lightness, $alpha: 1)
   ```
+
+  * If any argument is an unquoted string that's case-insensitively equal to
+    'none', throw an error.
+
+    > Missing channels are not allowed in legacy syntax.
 
   * If any argument is a [special number], return a plain CSS function
     string with the name `"hsl"` and the arguments `$hue`, `$saturation`,

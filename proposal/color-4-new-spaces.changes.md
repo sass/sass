@@ -1,5 +1,8 @@
 ## Draft 1.4
 
+* Missing channels and mixed numbers/percentages are not allowed in legacy
+  comma-separated `rgb`/`rgba` or `hsl`/`hsla` syntaxes.
+
 * Colors conversion is only performed when necessary. Previously, colors could
   be converted into their current space.
 
