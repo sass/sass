@@ -1,3 +1,10 @@
+## Draft 1.4
+
+* Allow all color spaces to be used for hue interpolation.
+
+* Remove `specified` hue interpolation method, and normalize hues to be in the
+  `[0,360]` range.
+
 ## Draft 1.3
 
 * Deprecate the `color.alpha()` function along with the other legacy channel

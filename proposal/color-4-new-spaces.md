@@ -1,4 +1,4 @@
-# CSS Color Level 4, New Color Spaces: Draft 1.3
+# CSS Color Level 4, New Color Spaces: Draft 1.4
 
 *([Issue](https://github.com/sass/sass/issues/2831))*
 
@@ -725,29 +725,19 @@ parsed according to the following syntax definition:
 <x><pre>
 **ColorInterpolationMethod** ::= RectangularColorSpace
 &#32;                          | (PolarColorSpace HueInterpolationMethod?)
-**RectangularColorSpace**    ::= 'srgb'
-&#32;                          | 'srgb-linear'
-&#32;                          | 'lab'
-&#32;                          | 'oklab'
-&#32;                          | 'xyz'
-&#32;                          | 'xyz-d50'
-&#32;                          | 'xyz-d65'
-**PolarColorSpace**          ::= 'hsl'
-&#32;                          | 'hwb'
-&#32;                          | 'lch'
-&#32;                          | 'oklch'
 **HueInterpolationMethod**   ::= (
 &#32;                                'shorter'
 &#32;                              | 'longer'
 &#32;                              | 'increasing'
 &#32;                              | 'decreasing'
-&#32;                              | 'specified'
 &#32;                            ) 'hue'
 </pre></x>
 
-The _interpolation color space_ is the result of [looking up a known color
-space] named by either the `PolarColorSpace` or `RectangularColorSpace`
-productions.
+A valid _PolarColorSpace_ is the name of a [known color space] with a polar
+angle hue channel. A _RectangularColorSpace_ is the name of any other
+[known color space], without a polar-angle hue. The _interpolation color space_
+is the result of [looking up a known color space] named by either the
+`PolarColorSpace` or `RectangularColorSpace` productions.
 
 > Different color interpolation methods provide different advantages. For that
 > reason, individual color procedures and functions can establish their own
@@ -1083,12 +1073,10 @@ normalized channel value otherwise.
 
   * If `valid` is a polar-angle `hue`:
 
-    * Return the result of [converting][number-to-unit] `channel` to `deg`
-      allowing unitless.
+    * Let `angle` be the result of [converting][number-to-unit] `channel` to
+      `deg` allowing unitless.
 
-    > Normalizing the result into a half-open range of `[0,360)` would be a
-    > lossy transformation, since some forms of [hue interpolation][hue-method]
-    > require the specified hue values.
+    * Return the result of `angle % 360deg`.
 
   * Otherwise, if `valid` requires a percentage:
 
@@ -1357,8 +1345,7 @@ adjusted according to the given `method`. When no hue interpolation `method` is
 specified, the default is `shorter`.
 
 The process for each [hue interpolation method][hue-interpolation] is defined
-in [CSS Color Level 4][color-4]. If the `method` is not the value `'specified'`,
-both hue angles are set to `angle % 360deg` prior to interpolation.
+in [CSS Color Level 4][color-4].
 
 * [shorter](https://www.w3.org/TR/css-color-4/#shorter)
 
@@ -1827,11 +1814,6 @@ This function is also available as a global function named `adjust-color()`.
 
     > Once percentage/number conversions have been normalized, this will throw
     > an error if `adjust` and `channel` are not compatible.
-
-  * If `valid` is a polar-angle channel, set `channel` to `channel % 360deg`.
-
-    > While we maintain angles outside the 0-360 range when set explicitly,
-    > we avoid creating them implicitly with hue adjustments.
 
 * Set `channels` to the result of [normalizing] `channels` in `known-space`.
 
