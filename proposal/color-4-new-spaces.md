@@ -44,6 +44,7 @@ colors outside the sRGB gamut.
 * [Procedures](#procedures)
   * [Looking Up a Known Color Space](#looking-up-a-known-color-space)
   * [Converting a Color](#converting-a-color)
+* [CSS-Converting a Color Space](#css-converting-a-color-space)
   * [Gamut Mapping](#gamut-mapping)
   * [Parsing Color Components](#parsing-color-components)
   * [Percent-Converting a Number](#percent-converting-a-number)
