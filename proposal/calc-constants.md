@@ -6,7 +6,26 @@ This proposal adds support for constant names in CSS calculations.
 
 ## Table of Contents
 
-* [foo]()
+* [Background](#background)
+* [Summary](#summary)
+  * [Design Decisions](#design-decisions)
+    * [Arbitrary Identifiers](#arbitrary-identifiers)
+  * [Serializing Complex Units](#serializing-complex-units)
+* [Definitions](#definitions)
+  * [Degenerate Number](#degenerate-number)
+* [Syntax](#syntax)
+  * [`CalculationExpression`](#calculationexpression)
+* [Types](#types)
+  * [Calculations](#calculations)
+* [Semantics](#semantics)
+  * [`CalcValue`](#calcvalue)
+* [Serialization](#serialization)
+  * [Calculations](#calculations-1)
+    * [`Number`](#number)
+    * [`CalculationOperation`](#calculationoperation)
+  * [Numbers](#numbers)
+* [Procedures](#procedures)
+  * [Converting a Number to a Calculation](#converting-a-number-to-a-calculation)
 
 ## Background
 
