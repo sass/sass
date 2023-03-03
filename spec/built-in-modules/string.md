@@ -10,6 +10,7 @@ This built-in module is available from the URL `sass:string`.
   * [`length()`](#length)
   * [`quote()`](#quote)
   * [`slice()`](#slice)
+  * [`split()`](#split)
   * [`to-lower-case()`](#to-lower-case)
   * [`to-upper-case()`](#to-upper-case)
   * [`unique-id()`](#unique-id)
