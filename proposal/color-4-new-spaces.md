@@ -1,4 +1,4 @@
-# CSS Color Level 4, New Color Spaces: Draft 1.3
+# CSS Color Level 4, New Color Spaces: Draft 1.4
 
 *([Issue](https://github.com/sass/sass/issues/2831))*
 
@@ -44,6 +44,7 @@ colors outside the sRGB gamut.
 * [Procedures](#procedures)
   * [Looking Up a Known Color Space](#looking-up-a-known-color-space)
   * [Converting a Color](#converting-a-color)
+* [CSS-Converting a Color Space](#css-converting-a-color-space)
   * [Gamut Mapping](#gamut-mapping)
   * [Parsing Color Components](#parsing-color-components)
   * [Percent-Converting a Number](#percent-converting-a-number)
@@ -699,23 +700,15 @@ in certain circumstances.
 
 * `lab`/`oklab`:
 
-  * If the `lightness` value is `0%`, then both the `a` and `b` channels are
-    powerless.
-
-  > The current spec has an inline issue asking if high values of
-  > `lightness` (whites) should make the `a` and `b` values powerless:
-  > See: https://www.w3.org/TR/css-color-4/#issue-e05ac5c3
+  * If the `lightness` value is either `0%` or `100%`, then both the `a` and
+  `b` channels are powerless.
 
 * `lch`/`oklch`:
 
   * If the `chroma` value is 0%, then the `hue` channel is powerless.
 
-  * If the `lightness` value is `0%`, then both the `hue` and `chroma` channels
-    are powerless.
-
-  > The current spec has an inline issue asking if high values of
-  > `lightness` (whites) should make the `hue` and `chroma` values powerless.
-  > See: https://drafts.csswg.org/css-color-4/#issue-1813c844
+  * If the `lightness` value is either `0%` or `100%`, then both the `hue` and
+    `chroma` channels are powerless.
 
 ### Color Interpolation Method
 
@@ -725,29 +718,19 @@ parsed according to the following syntax definition:
 <x><pre>
 **ColorInterpolationMethod** ::= RectangularColorSpace
 &#32;                          | (PolarColorSpace HueInterpolationMethod?)
-**RectangularColorSpace**    ::= 'srgb'
-&#32;                          | 'srgb-linear'
-&#32;                          | 'lab'
-&#32;                          | 'oklab'
-&#32;                          | 'xyz'
-&#32;                          | 'xyz-d50'
-&#32;                          | 'xyz-d65'
-**PolarColorSpace**          ::= 'hsl'
-&#32;                          | 'hwb'
-&#32;                          | 'lch'
-&#32;                          | 'oklch'
 **HueInterpolationMethod**   ::= (
 &#32;                                'shorter'
 &#32;                              | 'longer'
 &#32;                              | 'increasing'
 &#32;                              | 'decreasing'
-&#32;                              | 'specified'
 &#32;                            ) 'hue'
 </pre></x>
 
-The _interpolation color space_ is the result of [looking up a known color
-space] named by either the `PolarColorSpace` or `RectangularColorSpace`
-productions.
+A valid _PolarColorSpace_ is the name of a [known color space] with a polar
+angle hue channel. A _RectangularColorSpace_ is the name of any other
+[known color space], without a polar-angle hue. The _interpolation color space_
+is the result of [looking up a known color space] named by either the
+`PolarColorSpace` or `RectangularColorSpace` productions.
 
 > Different color interpolation methods provide different advantages. For that
 > reason, individual color procedures and functions can establish their own
@@ -831,10 +814,46 @@ matched.
 
 ### Converting a Color
 
-Colors can be converted from one [known color space] to another. Algorithms for
-color conversion are defined in the [CSS Color Level 4][color-4]
-specification. [CSS color conversion] takes a color `origin-color`, and a
-[known color space] `target-space`, and returns a color `output-color`.
+Colors can be converted from one [known color space] to another. This procedure
+accepts a color `origin-color`, and a [known color space] `target-space`, and
+returns a color `color`.
+
+> Since the individual CSS color conversion algorithms don't explicitly handle
+> the process of 'carrying over' missing values on analogous channels, we have
+> to handle that here.
+
+* Let `origin-space` be `origin-color`'s color space.
+
+* If `origin-space == target-space` return `origin-color`.
+
+  > CSS doesn't perform conversions unless they are required.
+
+* Let `missing` be a list of channel names in `origin-color` that are [missing].
+
+* Let `color` be the result of [css-converting] `origin-color` into
+  `target-space`.
+
+* For each `channel` in `missing`:
+
+  * If `target-space` has an [analogous component][missing] to `channel`, set
+    the analogous component in `color` to `none`.
+
+* If any `channel` of `color` is [powerless] and not already [missing], set
+  `channel` to the special value `none`.
+
+* Return `color`.
+
+[missing]: #missing-components
+[powerless]: #powerless-components
+
+## CSS-Converting a Color Space
+
+[css-converting]: #css-converting-a-color-space
+
+Algorithms for individual color space conversion are defined in the
+[CSS Color Level 4][color-4] specification. [CSS color conversion] takes a
+color `origin-color`, and a [known color space] `target-space`, and returns a
+color `output-color`.
 
 [CSS color conversion]: https://www.w3.org/TR/css-color-4/#color-conversion
 
@@ -857,13 +876,6 @@ The individual conversion algorithms are:
 * [Any RGB to Lab/OKLab](https://www.w3.org/TR/css-color-4/#predefined-to-lab-oklab)
 
 * [Lab/OKLab to any RGB](https://www.w3.org/TR/css-color-4/#oklab-lab-to-predefined)
-
-If a [powerless] channel value is produced as the result of color-space
-conversion, then that value is considered to be [missing], and is replaced by
-the special value `none`.
-
-[missing]: #missing-components
-[powerless]: #powerless-components
 
 > For additional details, see the [Sample code for color conversions][convert].
 
@@ -1083,12 +1095,10 @@ normalized channel value otherwise.
 
   * If `valid` is a polar-angle `hue`:
 
-    * Return the result of [converting][number-to-unit] `channel` to `deg`
-      allowing unitless.
+    * Let `angle` be the result of [converting][number-to-unit] `channel` to
+      `deg` allowing unitless.
 
-    > Normalizing the result into a half-open range of `[0,360)` would be a
-    > lossy transformation, since some forms of [hue interpolation][hue-method]
-    > require the specified hue values.
+    * Return the result of `angle % 360deg`.
 
   * Otherwise, if `valid` requires a percentage:
 
@@ -1096,8 +1106,13 @@ normalized channel value otherwise.
 
     * Return `channel`.
 
-  * Otherwise, return the result of [percent-converting] `channel` with a `min`
-    and `max` defined by the `valid` channel range.
+  * Otherwise, set `channel` to the result of [percent-converting] `channel`
+    with a `min` and `max` defined by the `valid` channel range.
+
+  * If `valid` is a `lightness` channel, set `channel` to the result of
+    clamping the `channel` value between 0 and 100, inclusive.
+
+  * Return `channel`.
 
 [number-to-unit]: https://github.com/sass/sass/blob/main/spec/types/number.md#converting-a-number-to-a-unit
 
@@ -1128,8 +1143,10 @@ the color space, or returns a normalized list of valid channels otherwise.
 
   * Let `hue`, `saturation`, and `lightness` be the three elements in `normal`.
 
-  * Set `saturation` and `lightness` respectively to the results of clamping
-    the `saturation` and `lightness` values between 0 and 100, inclusive.
+  * Set `saturation` to the results of clamping the `saturation` value between
+    0 and 100, inclusive.
+
+    > All lightness channels are clamped in the validation process.
 
   * Set the three elements of `normal` to the values of `hue`, `saturation`,
     and `lightness` respectively.
@@ -1262,18 +1279,10 @@ input colors.
     * Let `hue-arc` be the `HueInterpolationMethod` specified in `method`, or
       `shorter` if no hue interpolation is specified.
 
-* Let `missing1` be a list of channel names in `color1` that are [missing], and
-  let `missing2` be a list of channel names in `color2` that are [missing].
-
 * Set `color1` and `color2` respectively to the results of [converting] `color1`
   and `color2` into `space`.
 
-* For each `color`/`missing` in `color1`/`missing1` and `color2`/`missing2`:
-
-  * For each `channel` in `missing`:
-
-    * If `space` has an [analogous component][missing] to `channel`, set the
-      analogous component in `color` to `none`.
+* For each `color` in `color1` and `color2`:
 
   * If any `component` of `color` is `none`, set that `component` to the value
     of the corresponding component in the other color.
@@ -1357,8 +1366,7 @@ adjusted according to the given `method`. When no hue interpolation `method` is
 specified, the default is `shorter`.
 
 The process for each [hue interpolation method][hue-interpolation] is defined
-in [CSS Color Level 4][color-4]. If the `method` is not the value `'specified'`,
-both hue angles are set to `angle % 360deg` prior to interpolation.
+in [CSS Color Level 4][color-4].
 
 * [shorter](https://www.w3.org/TR/css-color-4/#shorter)
 
@@ -1828,11 +1836,6 @@ This function is also available as a global function named `adjust-color()`.
     > Once percentage/number conversions have been normalized, this will throw
     > an error if `adjust` and `channel` are not compatible.
 
-  * If `valid` is a polar-angle channel, set `channel` to `channel % 360deg`.
-
-    > While we maintain angles outside the 0-360 range when set explicitly,
-    > we avoid creating them implicitly with hue adjustments.
-
 * Set `channels` to the result of [normalizing] `channels` in `known-space`.
 
 * Let `new` be a color in color space `known-space`, with `channels` channels,
@@ -2226,6 +2229,11 @@ plain CSS function named `"rgb"` that function is named `"rgba"` instead.
   rgb($red, $green, $blue, $alpha: 1)
   ```
 
+  * If any argument is an unquoted string that's case-insensitively equal to
+    'none', throw an error.
+
+    > Missing channels are not allowed in legacy syntax.
+
   * If any argument is a [special number], return a plain CSS function
     string with the name `"rgb"` and the arguments `$red`, `$green`, `$blue`,
     and `$alpha`.
@@ -2285,6 +2293,11 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
 * ```
   hsl($hue, $saturation, $lightness, $alpha: 1)
   ```
+
+  * If any argument is an unquoted string that's case-insensitively equal to
+    'none', throw an error.
+
+    > Missing channels are not allowed in legacy syntax.
 
   * If any argument is a [special number], return a plain CSS function
     string with the name `"hsl"` and the arguments `$hue`, `$saturation`,

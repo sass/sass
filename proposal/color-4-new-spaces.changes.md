@@ -1,3 +1,22 @@
+## Draft 1.4
+
+* All `lightness` channels are now clamped in the `[0,100]` range.
+
+* Missing channels are not allowed in legacy comma-separated `rgb`/`rgba` or
+  `hsl`/`hsla` syntaxes.
+
+* Colors conversion is only performed when necessary. Previously, colors could
+  be converted into their current space.
+
+* Color conversion procedure explicitly handles 'carrying forward' missing
+  channels when converting to a space with an analogous component. This was
+  previously only applied to interpolation.
+
+* Allow all color spaces to be used for hue interpolation.
+
+* Remove `specified` hue interpolation method, and normalize hues to be in the
+  `[0,360]` range.
+
 ## Draft 1.3
 
 * Deprecate the `color.alpha()` function along with the other legacy channel
