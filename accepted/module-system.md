@@ -1795,3 +1795,8 @@ removing `@import` has been pushed back. We now intend to wait until 80% of
 users are using Dart Sass (measured by npm downloads) before deprecating
 `@import`, and wait at least a year after that and likely more before removing
 it entirely.
+
+**March 2023**: As week of Mar 06 to Mar 12, the npm downloads of the sass and
+node-sass packages are 11,700,729 and 2,831,234 respectively, meaning we have
+reached 80.5% adoption rate for Dart Sass, which is above the target for making
+the deprecation `@import` current.
