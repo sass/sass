@@ -86,7 +86,7 @@ A number is _degenerate_ if its value is degenerate.
 This proposal adds <code>| [\<ident-token>]</code> to the `CalcValue`
 production.
 
-[\<calc-constant>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
+[\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
 
 ## Semantics
 
