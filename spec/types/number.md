@@ -4,6 +4,7 @@
 
 * [Definitions](#definitions)
   * [Double](#double)
+  * [Degenerate Number](#degenerate-number)
   * [Conversion Factors](#conversion-factors)
   * [Set of Units](#set-of-units)
   * [Compatible Units](#compatible-units)
@@ -24,10 +25,12 @@
     * [Multiplication](#multiplication)
     * [Modulo](#modulo)
     * [Negation](#negation)
+  * [Serialization](#serialization)
 * [Procedures](#procedures)
   * [Converting a Number to a Unit](#converting-a-number-to-a-unit)
   * [Matching Two Numbers' Units](#matching-two-numbers-units)
   * [Simplifying a Number](#simplifying-a-number)
+  * [Converting a Number to a Calculation](#converting-a-number-to-a-calculation)
 
 ## Definitions
 
@@ -45,6 +48,12 @@ as defined by [IEEE 754 2019], §3.2-3.3.
 
 > This is the standard 64-bit floating point representation, defined as
 > `binary64` in [IEEE 754 2019], §3.6.
+
+### Degenerate Number
+
+The doubles `Infinity`, `-Infinity`, and `NaN` are _degenerate_.
+
+A number is _degenerate_ if its value is degenerate.
 
 ### Conversion Factors
 
@@ -360,6 +369,25 @@ Let `number` be a number. To determine `-number`, return a number whose value is
 the result of `negate(number)` as defined by [IEEE 754 2019], §5.5.1; and whose
 units are the same as `number`'s.
 
+### Serialization
+
+To serialize a number to CSS:
+
+* If the number has more than one numerator unit, or more than zero denominator
+  units, throw an error.
+
+* If the number is degenerate, [convert it to a calculation] then serialize that
+  to CSS.
+
+* Otherwise:
+
+  * Emit a string that can be parsed as a [`<number-token>`] with the
+    same value as the number.
+
+    [`<number-token>`]: https://www.w3.org/TR/css-syntax-3/#typedef-number-token
+
+  * If the number has a numerator unit, emit that unit.
+
 ## Procedures
 
 ### Converting a Number to a Unit
@@ -435,3 +463,37 @@ number with simplified units.
 * Return the result of [converting `number` to `newUnits`].
 
   [converting `number` to `newUnits`]: #converting-a-number-to-units
+
+### Converting a Number to a Calculation
+
+Given a number `number`, this procedure returns a CSS-compatible calculation
+that represents the same numeric value.
+
+* If `number`'s value is `Infinity`, let `value` be an `UnquotedString` whose
+  `value` is `'infinity'`.
+
+* Otherwise, if `number`'s value is `-Infinity`, let `value` be an
+  `UnquotedString` whose `value` is `'-infinity'`.
+
+* Otherwise, if `number`'s value is `NaN`, let `value` be an `UnquotedString`
+  whose `value` is `'NaN'`.
+
+* Otherwise, let `value` be a `CalculationValue` whose value is `number` without
+  units.
+
+* For each unit `unit` in `number`'s numerator units:
+
+  * Set `value` to a `CalculationOperation` with `operator` set to `'*'`, `left`
+    set to `value`, and `right` set to a number with value 1 and unit `unit`.
+
+* For each unit `unit` in `number`'s denominator units:
+
+  * Set `value` to a `CalculationOperation` with `operator` set to `'/'`, `left`
+    set to `value`, and `right` set to a number with value 1 and unit `unit`.
+
+* Return a `Calculation` with `name` set to `'calc'` and arguments set to
+  `[value]`.
+
+> Currently the logic for serializing multiple numerator or denominator units is
+> unused, but it's likely to be useful later when determining whether/how to
+> serialize numbers with complex units.

@@ -12,6 +12,7 @@
     * [Calculation](#calculation)
     * [`CalculationOperation`](#calculationoperation)
     * [`CalculationInterpolation`](#calculationinterpolation)
+    * [`Number`](#number)
 * [Procedures](#procedures)
   * [Simplifying a Calculation](#simplifying-a-calculation)
   * [Simplifying a `CalculationValue`](#simplifying-a-calculationvalue)
@@ -49,8 +50,11 @@ The grammar for this production is:
 &#32;                       | FunctionExpression⁵
 &#32;                       | Number
 &#32;                       | Variable†
+&#32;                       | [\<ident-token>]
 **ParenthesizedVar**      ::= '(' 'var('¹ ArgumentInvocation ')' ')'
 </pre></x>
+
+[\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
 
 1: The strings `calc(`, `clamp(`, and `var(` are matched case-insensitively.
 
@@ -165,12 +169,31 @@ To serialize a `CalculationOperation`:
   * the operator is `"*"` or `"-"` and the right value is a
     `CalculationOperation` with operator `"+"` or `"-"`, or
   * the operator is `"/"` and the right value is a `CalculationOperation`,
+  * the operator is `"/"` and the right value is a degenerate number with one or
+    more units.
 
   emit `"("` followed by `right` followed by `")"`. Otherwise, emit `right`.
 
 #### `CalculationInterpolation`
 
 To serialize a `CalculationInterpolation`, emit its `value`.
+
+#### `Number`
+
+To serialize a `Number` within a `CalculationExpression`:
+
+* If the number is [degenerate]:
+
+  * If the number has more than one numerator unit, or more than zero denominator
+    units, throw an error.
+
+  * Otherwise, [convert the number to a calculation], then serialize the
+    resulting calculation's sole argument.
+
+  [degenerate]: number.md#degenerate-number
+  [convert the number to a calculation]: number.md#converting-a-number-to-a-calculation
+
+* Otherwise, serialize the number as normal.
 
 ## Procedures
 
@@ -373,6 +396,25 @@ To evaluate a `CalcValue` production `value` into a `CalculationValue` object:
   > Allowing variables to return unquoted strings here supports referential
   > transparency, so that `$var: fn(); calc($var)` works the same as
   > `calc(fn())`.
+
+* If `value` is case-insensitively equal to `pi`, return 3.141592653589793.
+
+  > This is the closest double approximation of the mathematical constant π.
+
+* If `value` is case-insensitively equal to `e`, return 2.718281828459045.
+
+  > This is the closest double approximation of the mathematical constant e.
+
+* If `value` is case-insensitively equal to `infinity`, return the double
+  `Infinity`.
+
+* If `value` is case-insensitively equal to `-infinity`, return the double
+  `-Infinity`.
+
+* If `value` is case-insensitively equal to `nan`, return the double `NaN`.
+
+* If `value` is any other `<identifier>`, return an `UnquotedString` with
+  `value` as its contents.
 
 ### `ParenthesizedVar`
 
