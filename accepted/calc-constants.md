@@ -1,6 +1,6 @@
-# Calculation Constants: Draft 1
+# Calculation Constants: Draft 1.1
 
-*([Issue](https://github.com/sass/sass/issues/3258))*
+*([Issue](https://github.com/sass/sass/issues/3258), [Changelog](calc-constants.changes.md))*
 
 This proposal adds support for constant names in CSS calculations.
 
@@ -15,12 +15,10 @@ This proposal adds support for constant names in CSS calculations.
   * [Degenerate Number](#degenerate-number)
 * [Syntax](#syntax)
   * [`CalculationExpression`](#calculationexpression)
-* [Types](#types)
-  * [Calculations](#calculations)
 * [Semantics](#semantics)
   * [`CalcValue`](#calcvalue)
 * [Serialization](#serialization)
-  * [Calculations](#calculations-1)
+  * [Calculations](#calculations)
     * [`Number`](#number)
     * [`CalculationOperation`](#calculationoperation)
   * [Numbers](#numbers)
@@ -90,15 +88,6 @@ production.
 
 [\<calc-constant>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
 
-## Types
-
-### Calculations
-
-Rename `CalculationInterpolation` to `CalculationRaw`.
-
-> This reflects the fact that this will now be produced by identifiers that are
-> not interpolated.
-
 ## Semantics
 
 ### `CalcValue`
@@ -121,7 +110,8 @@ Add the following to the existing semantics for `CalcValue`:
 
 * If `value` is case-insensitively equal to `nan`, return the double `NaN`.
 
-* If `value` is any other `<identifier>`, return a `CalcuationRaw` with `value`.
+* If `value` is any other `<identifier>`, return an `UnquotedString` with
+  `value` as its contents.
 
 ## Serialization
 
@@ -131,11 +121,16 @@ Add the following to the existing semantics for `CalcValue`:
 
 To serialize a `Number` within a `CalculationExpression`:
 
-* If the number is [degenerate], [convert it to a calculation], then serialize
-  the resulting calculation's sole argument.
+* If the number is [degenerate]:
+
+  * If the number has more than one numerator unit, or more than zero denominator
+    units, throw an error.
+
+  * Otherwise, [convert the number to a calculation], then serialize the
+    resulting calculation's sole argument.
 
   [degenerate]: #degenerate-number
-  [convert it to a calculation]: #converting-a-number-to-a-calculation
+  [convert the number to a calculation]: #converting-a-number-to-a-calculation
 
 * Otherwise, serialize the number as normal.
 
@@ -143,8 +138,8 @@ To serialize a `Number` within a `CalculationExpression`:
 
 Add another possible condition for parenthesizing the right value:
 
-* the operator is `"+"`, `"-"`, or `"/"` and the right value is a degenerate
-  number with one or more units.
+* the operator is `"/"` and the right value is a degenerate number with one or
+  more units.
 
 ### Numbers
 
@@ -172,14 +167,14 @@ To serialize a number to CSS:
 Given a number `number`, this procedure returns a CSS-compatible calculation
 that represents the same numeric value.
 
-* If `number` is `Infinity`, let `value` be a `CalculationRaw` whose `value` is
-  `'infinity'`.
+* If `number`'s value is `Infinity`, let `value` be an `UnquotedString` whose
+  `value` is `'infinity'`.
 
-* Otherwise, if `number` is `-Infinity`, let `value` be a `CalculationRaw` whose
-  `value` is `'-infinity'`.
+* Otherwise, if `number`'s value is `-Infinity`, let `value` be an
+  `UnquotedString` whose `value` is `'-infinity'`.
 
-* Otherwise, if `number` is `NaN`, let `value` be a `CalculationRaw` whose
-  `value` is `'NaN`.
+* Otherwise, if `number`'s value is `NaN`, let `value` be an `UnquotedString`
+  whose `value` is `'NaN'`.
 
 * Otherwise, let `value` be a `CalculationValue` whose value is `number` without
   units.
@@ -195,7 +190,7 @@ that represents the same numeric value.
     set to `value`, and `right` set to a number with value 1 and unit `unit`.
 
 * Return a `Calculation` with `name` set to `'calc'` and arguments set to
-  `[calculation]`.
+  `[value]`.
 
 > Currently the logic for serializing multiple numerator or denominator units is
 > unused, but it's likely to be useful later when determining whether/how to
