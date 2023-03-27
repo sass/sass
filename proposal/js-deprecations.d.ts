@@ -20,17 +20,19 @@
  *
  * > This section is non-normative.
  *
- * This proposal adds two new interfaces to the JS API (`Deprecation` and
- * `Version`), three new optional properties on `Options` (`fatalDeprecations`,
+ * This proposal adds a new `Deprecation` interface and `Version` class to the
+ * JS API, three new optional properties on `Options` (`fatalDeprecations`,
  * `silenceDeprecations`, and `futureDeprecations`), a new parameter on
  * `Logger.warn` (`options.deprecationType`) two type aliases (`DeprecationOrId`
  * and `DeprecationStatus`) and a new object `deprecations` that contains the
  * various `Deprecation` objects.
  *
- * All language-wide deprecations are specified in `deprecations`, and any new
- * deprecations added in the future should update the specification accordingly.
- * However, the `deprecations` object also allows individual implementations to
- * add their own, implementation-specific deprecations.
+ * All deprecations are specified in `deprecations`, and any new deprecations
+ * added in the future (even those specific to a particular implementation)
+ * should update the specification accordingly. Deprecations should never be
+ * removed from the specification; when the behavior being deprecated is removed
+ * (i.e. there's a major version release), the deprecation status should be
+ * changed to obsolete, but remain in the specification.
  *
  * Every `Deprecation` has a unique `id`, one of four `status` values, and
  * (optionally) a human-readable `description`. Depending on the status, each
@@ -62,42 +64,48 @@
  * across implementations in practice, potential future implementers should not
  * need to be tied to Dart Sass's versioning.
  *
- * #### Errors and Warnings for Invalid Deprecations
+ * #### Warnings for Invalid Deprecations and Precedence of Options
  *
- * For all of the deprecation options, we chose to have the API throw an error
- * if a string ID is passed for a deprecation that does not exist. This will
- * ensure that typos are caught early and is consistent with the behavior on the
- * command line.
+ * Whenever potentially invalid sets of deprecations are passed to any of the
+ * options, we choose to emit warnings rather than errors, as the status of
+ * each deprecation can change over time, and users may share a configuration
+ * when compiling across multiple implementations/versions whose dependency
+ * statuses may not be in sync.
  *
- * For `fatalDeprecations`, we chose to make passing in a future deprecation
- * that's not also passed to `futureDeprecations` an error, since, in a
- * sense, future deprecations aren't really deprecations yet unless they're
- * enabled via `futureDeprecations`. This also prevents someone who just passes
- * all deprecations to `fatalDeprecations` from accidentally opting into a
- * deprecation that hasn't been released yet. This is not yet consistent with
- * the behavior on the command line / Dart API, but we plan to update them to
- * match this specification.
+ * The situations we chose to warn for are:
  *
- * For obsolete deprecations passed to `fatalDeprecations`, we chose to emit a
- * warning so users can know to update their configuration, but we allow
- * compilation to proceed without an error, since an obsolete deprecation means
- * the underlying behavior has now been removed, which should match the behavior
- * of making that deprecation fatal while it was still active.
+ * - an invalid string ID.
  *
- * For `silenceDeprecations`, we chose to make passing anything other than
- * an active deprecation an error to prevent users from unintentionally
- * over-silencing. Future deprecations are already effectively silenced, so
- * users shouldn't be able to pass it here until it's actually active. If the
- * deprecation a user was silencing is now obsolete, that means the breaking
- * change has now been made, so silencing has no effect, and users who were
- * silencing it may not be ready for the actual breaking change. There is no
- * way to distinguish between different user-authored deprecations, so they
- * should not be able to be silenced as a group.
+ *   This is disallowed by the API's types, but may still occur at runtime,
+ *   and should be warned for accordingly.
  *
- * For `futureDeprecations`, we only emit a warning for non-future deprecations,
- * since future deprecations all eventually become active. The warning will let
- * users know to clean up their configuration, but there should be no behavior
- * change.
+ * - a future deprecation is passed to `fatalDeprecations` but not
+ *   `futureDeprecations`.
+ *
+ *   In this scenario, the future deprecation will still be treated as fatal,
+ *   but we want to warn users to prevent situtations where a user tries to
+ *   make every deprecation fatal and ends up including future ones too.
+ *
+ * - an obsolete deprecation is passed to `fatalDeprecations`.
+ *
+ *   If a deprecation is obsolete, that means the breaking change has already
+ *   happened, so making it fatal is a no-op.
+ *
+ * - passing anything other than an active deprecation to `silenceDeprecations`.
+ *
+ *   This is particularly important for obsolete deprecations, since otherwise
+ *   users may not be aware of a subtle breaking change for which they were
+ *   previously silencing warnings. We also warn for passing
+ *   `Deprecation.userAuthored`, since there's no way to distinguish between
+ *   different deprecations from user-authored code, so silencing them as a
+ *   group is inadvisable. Passing a future deprecation here is either a no-op,
+ *   or cancels out passing it to `futureDeprecations`, so we warn for that as
+ *   well.
+ *
+ * - passing a non-future deprecation to `futureDeprecations`.
+ *
+ *   This is a no-op, so we should warn users so they can clean up their
+ *   configuration.
  */
 
 /* ## API */
@@ -109,35 +117,54 @@ declare module '../spec/js-api' {
     /**
      * A set of deprecations to treat as fatal.
      *
-     * If a version is provided, then all deprecations released in that
-     * version or earlier will be treated as fatal. If a string is provided, it
-     * will resolve to the deprecation with that ID, or error if none exists.
+     * If a deprecation warning of any provided type is encountered during
+     * compilation, the compiler must error instead.
      *
-     * This will throw an error if a future deprecation is included here, unless
-     * that future deprecation is also passed to `futureDeprecations`. This
-     * will emit a warning if an obsolete deprecation is included here. */
-    fatalDeprecations?: (Deprecation | string | Version)[];
+     * The compiler should convert any string passed here to a `Deprecation`
+     * by indexing `Deprecations`.
+     *
+     * If a version is passed here, it should be treated equivalently to passing
+     * all active deprecations whose `deprecatedIn` version is less than or
+     * equal to it.
+     *
+     * The compiler must error if a future deprecation is included here, unless
+     * that future deprecation is also passed to `futureDeprecations`. It must
+     * emit a warning if an obsolete deprecation is included here.
+     *
+     * If a deprecation is passed both here and to `silenceDeprecations`, a
+     * warning must be emitted, but making it fatal must take precedence.
+     */
+    fatalDeprecations?: (DeprecationOrId | Version)[];
 
     /**
      * A set of active deprecations to ignore.
      *
-     * If a string is provided, it will resolve to the deprecation with that ID,
-     * or error if none exists.
+     * If a deprecation warning of any provided type is encountered during
+     * compilation, the compiler must ignore it.
      *
-     * This will throw an error if a future, obsolete, or user-authored
-     * deprecation is included here.
+     * The compiler should convert any string passed here to a `Deprecation`
+     * by indexing `Deprecations`.
+     *
+     * The compiler must error if an obsolete or user-authored is included here.
+     * It must emit a warning if a future deprecation is included here, but
+     * silencing it takes precedence over `futureDeprecations` enabling it.
      */
-    silenceDeprecations?: (Deprecation | string)[];
+    silenceDeprecations?: DeprecationOrId[];
 
     /**
      * A set of future deprecations to opt into early.
      *
-     * If a string is provided, it will resolve to the deprecation with that ID,
-     * or error if none exists.
+     * For each future deprecation provided here, the compiler must treat that
+     * deprecation as if it is active, emitting warnings as necessary (subject
+     * to `fatalDeprecations` and `silenceDeprecations`).
      *
-     * This will emit a warning if a non-future deprecation is included here.
+     * The compiler should convert any string passed here to a `Deprecation`
+     * by indexing `Deprecations`.
+     *
+     * The compiler must emit a warning if a non-future deprecation is included
+     * here.
      */
-    futureDeprecations?: (Deprecation | string)[];
+    futureDeprecations?: DeprecationOrId[];
   }
 
   interface Logger {
@@ -162,82 +189,65 @@ declare module '../spec/js-api' {
   }
 
   /**
-   * An object containing all of the deprecations recognized by this
-   * implementation as properties, as well as a `find` function to get the
-   * deprecation for a given ID.
+   * An object containing all of the deprecations.
    */
-  export const deprecations: Readonly<
-    _Deprecations & {[key: string]: Deprecation}
-  >;
+  export const deprecations: Deprecations;
 }
 
-interface _Deprecations {
+interface Deprecations {
   /** Deprecation for passing a string to `call` instead of `get-function`. */
-  callString: Deprecation<'call-string', 'active'>;
+  'call-string': Deprecation<'call-string', 'active'>;
 
   /** Deprecation for `@elseif`. */
   elseif: Deprecation<'elseif', 'active'>;
 
   /** Deprecation for parsing `@-moz-document`. */
-  mozDocument: Deprecation<'moz-document', 'active'>;
+  'moz-document': Deprecation<'moz-document', 'active'>;
 
   /** Deprecation for importers using relative canonical URLs. */
-  relativeCanonical: Deprecation<'relative-canonical', 'active'>;
+  'relative-canonical': Deprecation<'relative-canonical', 'active'>;
 
   /** Deprecation for declaring new variables with `!global`. */
-  newGlobal: Deprecation<'new-global', 'active'>;
+  'new-global': Deprecation<'new-global', 'active'>;
 
   /**
    * Deprecation for certain functions in the color module matching the
    * behavior of their global counterparts for compatibility reasons.
    */
-  colorModuleCompat: Deprecation<'color-module-compat', 'active'>;
+  'color-module-compat': Deprecation<'color-module-compat', 'active'>;
 
   /** Deprecation for treaing `/` as division. */
-  slashDiv: Deprecation<'slash-div', 'active'>;
+  'slash-div': Deprecation<'slash-div', 'active'>;
 
   /** Deprecation for leading, trailing, and repeated combinators. */
-  bogusCombinators: Deprecation<'bogus-combinators', 'active'>;
+  'bogus-combinators': Deprecation<'bogus-combinators', 'active'>;
 
   /** Deprecation for ambiguous `+` and `-` operators. */
-  strictUnary: Deprecation<'strict-unary', 'active'>;
+  'strict-unary': Deprecation<'strict-unary', 'active'>;
 
   /** Deprecation for passing invalid units to certain built-in functions. */
-  functionUnits: Deprecation<'function-units', 'active'>;
+  'function-units': Deprecation<'function-units', 'active'>;
 
   /** Deprecation for `@import` rules. */
-  importRules: Deprecation<'import', 'future'>;
+  import: Deprecation<'import', 'future'>;
 
   /** Used for deprecations coming from user-authored code. */
-  userAuthored: Deprecation<'user-authored', 'user'>;
-
-  /**
-   * Returns the deprecation with the given ID, or null if none exists.
-   *
-   * This must support all specified deprecations, but implementations may also
-   * have their own deprecations beyond those specified by the language.
-   */
-  find(id: string): Deprecation<typeof id, DeprecationStatus> | null;
+  'user-authored': Deprecation<'user-authored', 'user'>;
 }
 
 /** A deprecation, or the ID of one. */
-export type DeprecationOrId = Deprecation | string;
+export type DeprecationOrId = Deprecation | keyof Deprecations;
 
 /** A deprecation's status. */
 export type DeprecationStatus = 'active' | 'user' | 'future' | 'obsolete';
 
 /** A deprecated feature in the language. */
 export interface Deprecation<
-  id extends string = string,
+  id extends keyof Deprecations = keyof Deprecations,
   status extends DeprecationStatus = DeprecationStatus
 > {
   /**
-   * An ID for this deprecation.
-   *
-   * For language-wide deprecations specified in the API, this will be a short,
-   * alphanumeric, kebab-case identifier. Implementation-specific deprecations
-   * should be prefixed with an implementation identifier followed by a slash to
-   * avoid collision with future language-wide deprecations.
+   * A kebab-case ID for this deprecation.
    */
   id: id;
 
@@ -278,25 +288,32 @@ export interface Deprecation<
 }
 
 /** A semantic version of the compiler. */
-export interface Version {
+export class Version {
   /**
    * The major version.
    *
    * This must be a non-negative integer.
    */
-  major: number;
+  readonly major: number;
 
   /**
    * The minor version.
    *
    * This must be a non-negative integer.
    */
-  minor: number;
+  readonly minor: number;
 
   /**
    * The patch version.
    *
    * This must be a non-negative integer.
    */
-  patch: number;
+  readonly patch: number;
+
+  constructor(major: number, minor: number, patch: number);
+
+  /**
+   * Parses a string in the form "major.minor.patch" into a `Version`.
+   */
+  static parse(version: string): Version;
 }
