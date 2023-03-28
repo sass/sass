@@ -121,8 +121,7 @@ declare module '../spec/js-api' {
      * compilation, the compiler must error instead.
      *
      * The compiler should convert any string passed here to a `Deprecation`
-     * by indexing `Deprecations`.
-     *
+     * by indexing `deprecations`.     *
      * If a version is passed here, it should be treated equivalently to passing
      * all active deprecations whose `deprecatedIn` version is less than or
      * equal to it.
@@ -132,7 +131,8 @@ declare module '../spec/js-api' {
      * emit a warning if an obsolete deprecation is included here.
      *
      * If a deprecation is passed both here and to `silenceDeprecations`, a
-     * warning must be emitted, but making it fatal must take precedence.
+     * warning must be emitted, but making the deprecation fatal must take
+     * precedence.
      */
     fatalDeprecations?: (DeprecationOrId | Version)[];
 
@@ -145,9 +145,10 @@ declare module '../spec/js-api' {
      * The compiler should convert any string passed here to a `Deprecation`
      * by indexing `Deprecations`.
      *
-     * The compiler must error if an obsolete or user-authored is included here.
-     * It must emit a warning if a future deprecation is included here, but
-     * silencing it takes precedence over `futureDeprecations` enabling it.
+     * The compiler must error if an obsolete deprecation or
+     * `deprecations['user-authored']` is included here. It must emit a warning
+     * if a future deprecation is included here, but silencing it takes
+     * precedence over `futureDeprecations` enabling it.
      */
     silenceDeprecations?: DeprecationOrId[];
 
@@ -216,19 +217,45 @@ interface Deprecations {
    */
   'color-module-compat': Deprecation<'color-module-compat', 'active'>;
 
-  /** Deprecation for treaing `/` as division. */
+  /**
+   * Deprecation for treaing `/` as division.
+   *
+   * Update the proposal for forward slash as a separator to say that it emits
+   * deprecation warnings with ID 'slash-div'.
+   */
   'slash-div': Deprecation<'slash-div', 'active'>;
 
-  /** Deprecation for leading, trailing, and repeated combinators. */
+  /**
+   * Deprecation for leading, trailing, and repeated combinators.
+   *
+   * Update the proposal for bogus combinators to say that it emits deprecation
+   * warnings with ID 'bogus-combinators'.
+   */
   'bogus-combinators': Deprecation<'bogus-combinators', 'active'>;
 
-  /** Deprecation for ambiguous `+` and `-` operators. */
+  /**
+   * Deprecation for ambiguous `+` and `-` operators.
+   *
+   * Update the proposal for strict unary operators to say that it emits
+   * deprecation warnings with ID 'strict-unary'.
+   */
   'strict-unary': Deprecation<'strict-unary', 'active'>;
 
-  /** Deprecation for passing invalid units to certain built-in functions. */
+  /**
+   * Deprecation for passing invalid units to certain built-in functions.
+   *
+   * Update the proposals for function units, random with units, and angle units
+   * to say that they emit deprecation warnings with ID 'function-units'.
+   */
   'function-units': Deprecation<'function-units', 'active'>;
 
-  /** Deprecation for `@import` rules. */
+  /**
+   * Deprecation for `@import` rules.
+   *
+   * Update the proposal for the module system to say that, when `@import` is
+   * deprecated, Sass will emit deprecation warnings with ID 'import' when
+   * `@import` rules are encountered.
+   */
   import: Deprecation<'import', 'future'>;
 
   /** Used for deprecations coming from user-authored code. */
