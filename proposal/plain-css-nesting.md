@@ -4,7 +4,16 @@
 
 ## Table of Contents
 
-* [foo]
+* [Background](#background)
+* [Summary](#summary)
+  * [Design Decisions](#design-decisions)
+    * [The `&foo` Syntax](#the-foo-syntax)
+* [Procedures](#procedures)
+  * [Parsing Text as CSS](#parsing-text-as-css)
+* [Semantics](#semantics)
+  * [Style Rules](#style-rules)
+* [Serialization](#serialization)
+  * [Parent Selector](#parent-selector)
 
 ## Background
 
