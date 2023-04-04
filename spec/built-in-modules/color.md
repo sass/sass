@@ -193,9 +193,9 @@ This function is also available as a global function named `opacity()`.
 >
 > [global functions]: ../functions.md#alpha
 
-* If `$color` is a number and this function is called as the global `opacity()`
-  function, return a plain CSS function string with the name `"opacity"` and the
-  argument `$color`.
+* If `$color` is a number or a [special variable string], and this function is
+  called as the global `opacity()` function, return a plain CSS function string
+  with the name `"opacity"` and the argument `$color`.
 
 * Otherwise, if `$color` is not a color, throw an error.
 
@@ -378,9 +378,9 @@ grayscale($color)
 
 This function is also available as a global function named `grayscale()`.
 
-* If `$color` is a number and this function is called as a global function,
-  return a plain CSS function string with the name `"grayscale"` and the
-  argument `$color`.
+* If `$color` is a number or a [special variable string], and this function is
+  called as a global function, return a plain CSS function string with the name
+  `"grayscale"` and the argument `$color`.
 
 * Otherwise, if `$color` is not a color, throw an error.
 
@@ -481,7 +481,8 @@ invert($color, $weight: 100%)
 
 This function is also available as a global function named `invert()`.
 
-* If `$color` is a number and this function is called as a global function:
+* If `$color` is a number or a [special variable string], and this function is
+  called as a global function:
 
   * If `$weight` is not `100%`, throw an error.
 
@@ -593,7 +594,24 @@ This function is also available as a global function named `mix()`.
 saturate($color, $amount)
 ```
 
-* Throw an error.
+* If this function is called as a global function:
+
+  * If this function is called with a single argument `$amount`:
+
+    * If `$amount` is a number or a [special variable string], return a plain
+      CSS function string with the name `"saturate"` and the argument `$amount`.
+
+  * Otherwise:
+
+    * If `$color` isn't a color, throw an error.
+
+    * If `$amount` isn't a number, throw an error.
+
+    * Return the result of calling `changeHsl($saturation)`, where `$saturation`
+      is the `$color`'s saturation incremented by `$amount` clamped between the
+      inclusive range `[0, 100]`.
+
+* Otherwise, throw an error.
 
   > This error should indicate that the user should use the [`adjust()`
   > function](#adjust) instead.
@@ -711,3 +729,5 @@ whiteness($color)
   > RGB channels and convert back when `whiteness()` or `blackness()` is called,
   > where another may keep around their original HWB values and return those
   > as-is.
+
+[special variable string]: ../spec.md#special-variable-string
