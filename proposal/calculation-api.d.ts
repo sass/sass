@@ -73,7 +73,7 @@ declare module '../spec/js-api/options' {
      *   - Let `name` be `signature`'s <ident-token>.
      *
      *   - If there's already a global function whose name is
-     *     underscore-insensitively equal to `name`, contineu to the next
+     *     underscore-insensitively equal to `name`, continue to the next
      *     key/value pair.
      *
      *   - Otherwise, add a global function whose signature is `signature`. When
