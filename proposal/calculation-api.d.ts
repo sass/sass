@@ -119,6 +119,10 @@ type CalculationValue =
  * [calculation]: ../spec/types/calculation.md#types
  *
  * `internal` refers to a Sass calculation.
+ *
+ * > Note: in the JS API calculations are not simplified eagerly. This also
+ * > means that unsimplified calculations are not equal to the numbers they
+ * > would be simplified to.
  */
 export class SassCalculation extends Value {
   /**
