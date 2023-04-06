@@ -63,7 +63,7 @@ Adjust the list of productions that should produce errors as follows:
 
 * Add "A style rule whose selector contains a trailing combinator."
 
-  > While the [bogus combinators] deprecation in place, style rules with
+  > While the [bogus combinators] deprecation is in place, style rules with
   > trailing combinators that _don't_ have nested rules will produce warnings.
   > Those with nested rules will produce errors since Sass never parsed them
   > successfully in the first place.
