@@ -1,6 +1,6 @@
      <!-- bad formatting -->
      
-     new text making a new commit hash!
+     new text making a new commit hash! and again!
 
 <h1><img width="200px" alt="Sass" src="https://rawgit.com/sass/sass-site/main/source/assets/img/logos/logo.svg" /></h1>
 
