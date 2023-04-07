@@ -1,4 +1,4 @@
-# Sass Specificiation
+# Sass Specification
 
 This directory contains the formal specification for the Sass language.
 

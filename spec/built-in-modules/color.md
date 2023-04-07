@@ -193,13 +193,15 @@ This function is also available as a global function named `opacity()`.
 >
 > [global functions]: ../functions.md#alpha
 
-* If `$color` is a number and this function is called as the global `opacity()`
-  function, return a plain CSS function string with the name `"opacity"` and the
-  argument `$color`.
+* If `$color` is a number or a [special number], and this function is called as
+  the global `opacity()` function, return a plain CSS function string with the
+  name `"opacity"` and the argument `$color`.
 
 * Otherwise, if `$color` is not a color, throw an error.
 
 * Return the alpha channel of `$color` as a unitless number.
+
+[special number]: ../functions.md#special-number
 
 ### `blackness()`
 
@@ -378,9 +380,9 @@ grayscale($color)
 
 This function is also available as a global function named `grayscale()`.
 
-* If `$color` is a number and this function is called as a global function,
-  return a plain CSS function string with the name `"grayscale"` and the
-  argument `$color`.
+* If `$color` is a number or a [special number], and this function is called as
+  a global function, return a plain CSS function string with the name
+  `"grayscale"` and the argument `$color`.
 
 * Otherwise, if `$color` is not a color, throw an error.
 
@@ -481,7 +483,8 @@ invert($color, $weight: 100%)
 
 This function is also available as a global function named `invert()`.
 
-* If `$color` is a number and this function is called as a global function:
+* If `$color` is a number or a [special number], and this function is called as
+  a global function:
 
   * If `$weight` is not `100%`, throw an error.
 
@@ -589,14 +592,30 @@ This function is also available as a global function named `mix()`.
 
 ### `saturate()`
 
-```
-saturate($color, $amount)
-```
+This function is also available as a global function named `saturate()`.
 
-* Throw an error.
+* ```
+  saturate($amount)
+  ```
 
-  > This error should indicate that the user should use the [`adjust()`
-  > function](#adjust) instead.
+  * If this function is not called as a global function, throw an error.
+
+    > This error should indicate that the user should use the [`adjust()`
+    > function](#adjust) instead.
+
+  * If `$amount` is not a number or a [special number], throw an error.
+
+  * Return a plain CSS function string with the name `"saturate"` and the
+    argument `$amount`.
+
+* ```
+  saturate($color, $amount)
+  ```
+
+  * Throw an error.
+
+    > This error should indicate that the user should use the [`adjust()`
+    > function](#adjust) instead.
 
 ### `saturation()`
 
