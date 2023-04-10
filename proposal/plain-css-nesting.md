@@ -1,6 +1,7 @@
 # Plain CSS Nesting: Draft 1
 
-*([Issue](https://github.com/sass/sass/issues/3524))*
+*([Issue](https://github.com/sass/sass/issues/3524),
+[Changelog](plain-css-nesting.changes.md))*
 
 ## Table of Contents
 
@@ -92,9 +93,13 @@ To execute a style rule `rule`:
 * Let `selector` be the result of evaluating all interpolation in `rule`'s
   selector and parsing the result as a selector list.
 
-* **If the current stylesheet wasn't [parsed as CSS]**:
+* **If `rule`'s stylesheet wasn't [parsed as CSS]**:
 
   [parsed as CSS]: ../spec/syntax.md#parsing-text-as-css
+
+  > Checking whether `rule`'s stylesheet is CSS ensures that the plain CSS
+  > behavior occurs even when plain CSS is evaluated in a Sass context, such as
+  > through a nested `@import` or a `meta.load-css()` call.
 
   * If there is a [current style rule]:
 
@@ -126,9 +131,9 @@ To execute a style rule `rule`:
 
 * Unless `css`'s selector is now empty:
 
-  * **If the current stylesheet was [parsed as CSS] and there is a [current
-    style rule] or a current at-rule, append `css` to whichever of the two
-    exists, or the innermost if both exist.**
+  * **If `rule`'s stylesheet was [parsed as CSS] and there is a [current style
+    rule] or a current at-rule, append `css` to whichever of the two exists, or
+    the innermost if both exist.**
 
   * **If there is a current at-rule, append `css` to its children.**
   
