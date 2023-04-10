@@ -1,7 +1,8 @@
 /**
- * # JavaScript Deprecations API: Draft 1
+ * # JavaScript Deprecations API: Draft 1.1
  *
- * *([Issue](https://github.com/sass/sass/issues/3520))*
+ * *([Issue](https://github.com/sass/sass/issues/3520),
+ * [Changelog](js-deprecations.changes.md))*
  *
  * ## Background
  *
@@ -248,6 +249,14 @@ interface Deprecations {
    * to say that they emit deprecation warnings with ID 'function-units'.
    */
   'function-units': Deprecation<'function-units', 'active'>;
+
+  /**
+   * Deprecation for using mutliple `!global` or `!default` flags on a single
+   * variable.
+   *
+   * > This deprecation was never explicitly listed in a proposal.
+   */
+  'duplicate-var-flags': Deprecation<'duplicate-var-flags', 'active'>;
 
   /**
    * Deprecation for `@import` rules.
