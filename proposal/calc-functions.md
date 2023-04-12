@@ -347,4 +347,4 @@ following modification:
 
 * When simplifying a calculation named `"abs"` whose sole argument is a number
   _without_ [known units], return the result of calling `math.abs()` with that
-  number and emit a deprecation warning.
+  number and emit a deprecation warning named `abs-percent`.
