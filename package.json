@@ -25,6 +25,7 @@
     "diff": "^5.0.0",
     "glob": "^7.2.0",
     "immutable": "^4.0.0",
+    "indent-string": "^4.0.0",
     "markdown-link-check": "git+https://sassbot@github.com/nex3/markdown-link-check.git#check-references",
     "markdown-toc": "^1.2.0",
     "prettier": "^2.4.1",
