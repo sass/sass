@@ -46,7 +46,7 @@ The grammar for this production is:
 **CalcValue**             ::= ParenthesizedVar
 &#32;                       | '(' CalcArgument⁴ ')'
 &#32;                       | CalculationExpression
-&#32;                       | MinMaxExpression
+&#32;                       | CssMinMax
 &#32;                       | FunctionExpression⁵
 &#32;                       | Number
 &#32;                       | Variable†
