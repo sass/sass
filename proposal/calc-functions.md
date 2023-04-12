@@ -4,7 +4,20 @@
 
 ## Table of Contents
 
-* Foo
+* [Background](#background)
+* [Summary](#summary)
+* [Definitions](#definitions)
+  * [Known Units](#known-units)
+* [Syntax](#syntax)
+  * [`FunctionExpression`](#functionexpression)
+  * [`CalculationExpression`](#calculationexpression)
+  * [`CssRound`](#cssround)
+  * [`CssAbs`](#cssabs)
+* [Procedures](#procedures)
+  * [Simplifying a Calculation](#simplifying-a-calculation)
+* [Semantics](#semantics)
+  * [Calculation Expressions](#calculation-expressions)
+* [Deprecation Process](#deprecation-process)
 
 ## Background
 
