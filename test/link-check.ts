@@ -10,7 +10,8 @@ import * as indentString from 'indent-string';
 
 if (process.env.CI) colors.enable();
 
-const files = glob.sync('**/*.md', {
+const args = process.argv.slice(2);
+const files = glob.sync(args.length === 0 ? '**/*.md' : args, {
   ignore: ['node_modules/**/*.md', 'js-api-doc/**/*.md'],
 });
 
