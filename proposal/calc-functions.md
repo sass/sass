@@ -51,7 +51,32 @@ equivalent of `-10%` since percentages are resolved before calculations. To
 handle this, we'll deprecate the global `abs()` function with a percentage and
 recommend users explicitly write `math.abs()` or `abs(#{})` instead.
 
+### Design Decisions
+
+#### Changing Mod Infinity Behavior
+
+This proposal changes the behavior of the `%` operation when the right-hand side
+is infinite _and_ has a different sign than the left-hand side. Sass used to
+return the right-hand side in accordance with the floating point specification,
+but it now returns NaN to match CSS's `mod()` function.
+
+Although this is technically a breaking change, we think it's highly unlikely
+that it will break anyone in practice, so we're not going to do a deprecation
+process for it.
+
 ## Definitions
+
+### Exact Equality
+
+Two [doubles] are said to be *exactly equal* if they are equal according to the
+`compareQuietEqual` predicate as defined by [IEEE 754 2019], §5.11.
+
+[doubles]: ../spec/types/number.md#double
+[IEEE 754 2019]: https://ieeexplore.ieee.org/document/8766229
+
+> This is as opposed to [fuzzy equality].
+>
+> [fuzzy equality]: ../spec/types/number.md#fuzzy-equality
 
 ### Known Units
 
@@ -158,6 +183,43 @@ Add the following production:
 
 1: The string `abs(` is matched case-insensitively.
 
+## Operations
+
+### Modulo
+
+Replace [the definition of modulo for numbers] with the following:
+
+[the definition of modulo for numbers]: ../types/number.md#modulo
+
+> Differences are highlighted in bold.
+
+Let `n1` and `n2` be two numbers. To determine `n1 % n2`:
+
+* Let `c1` and `c2` be the result of [matching units] for `n1` and `n2` allowing
+  unitless.
+
+* **If `c2` is infinity and has a different sign than `c2` (including
+  oppositely-signed zero), return NaN with the same units as `c1`.**
+
+  > This matches the behavior of CSS's `mod()` function.
+
+* Let `remainder` be a number whose value is the result of `remainder(c1.value,
+  c2.value)` as defined by [IEEE 754 2019], §5.3.1; and whose units are the same
+  as `c1`'s.
+
+* If `c2`'s value is less than 0 and `remainder`'s value isn't [exactly equal]
+  to `0`, return `result - c2`.
+
+  > This is known as [floored division]. It differs from the standard IEEE 754
+  > specification, but matches the behavior of CSS's `mod()` function.
+  >
+  > [floored division]: https://en.wikipedia.org/wiki/Modulo_operation#Variants_of_the_definition
+  >
+  > Note: These comparisons are not the same as `c2 < 0` or `remainder == 0`,
+  > because they don't do fuzzy equality.
+
+* Otherwise, return `result`.
+
 ## Procedures
 
 ### Simplifying a Calculation
@@ -174,8 +236,9 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
 * If `calc` was parsed from an expression within a `SupportsDeclaration`'s
   `Expression`, but outside any interpolation, return a `calc` as-is.
 
-* Let `arguments` be the result of [simplifying](#simplifying-a-calculationvalue) each
-  of `calc`'s arguments.
+* Let `arguments` be the result of [simplifying] each of `calc`'s arguments.
+
+  [simplifying]: ../spec/types/calculation.md#simplifying-a-calculationvalue
 
 * If `calc`'s name is `"calc"` and `arguments` contains exactly a single number
   or calculation, return it.
@@ -206,7 +269,7 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
   * If `number`'s value is negative, return `-1`.
   * Otherwise, return a unitless number with the same value as `number`.
   
-    > In this case, `number` is either positive zero, negative zero, or NaN.
+    > In this case, `number` is either `+0`, `-0`, or NaN.
   
   > To match CSS's behavior, these computations _don't_ use fuzzy comparisons.
 
@@ -235,15 +298,20 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
 
       [definitely-incompatible]: ../spec/types/number.md#possibly-compatible-numbers
 
-    * If `dividend` and `modulus` are mutually [compatible], let `result` be the
-      result of `dividend % modulus`.
+    * If `dividend` and `modulus` are mutually [compatible]:
 
-      [compatible]: ../spec/types/number.md#compatible-units
+      * Let `result` be the result of `dividend % modulus`.
 
-    * If `calc`'s name is `"rem"`, and if `dividend` is positive and `modulus`
-      is negative or vice versa, set `result` to `mod - dividend`.
+        [compatible]: ../spec/types/number.md#compatible-units
 
-    * Return `result`.
+      * If `calc`'s name is `"rem"`, and if `dividend` is positive and `modulus`
+        is negative or vice versa:
+
+        * If `modulus` is infinite, return `dividend`.
+        * If `result` [exactly equals] 0, return `-result`.
+        * Otherwise, return `result - dividend`.
+
+      * Otherwise, return `result`.
 
 * If `calc`'s name is `"round"`:
 
@@ -272,6 +340,8 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
       string or interpolation with value `"nearest"`, `"up"`, `"down"`, or
       `"to-zero"`, throw an error.
 
+      [special variable string]: ../spec/functions.md#special-variable-string
+
     * If `strategy` is an unquoted string or interpolation and both `number` and
       `step` are numbers:
 
@@ -279,10 +349,38 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
 
       * If `number` and `step` are mutually [compatible]:
 
+        * If `number`'s and `step`'s values are both infinite, if `step` is
+          [exactly equal] to 0, or if either `number`'s or `step`'s values are
+          NaN, return NaN with the same units as `number`.
+
+          [exactly equal]: #exact-equality
+
+        * If `number`'s value is infinite, return `number`.
+
+        * If `step`'s value is infinite:
+
+          * If `strategy`'s value is `"nearest"` or `"to-zero"`, return `+0` if
+            `number`'s value is positive or `+0` and `-0` otherwise.
+
+          * If `strategy`'s value is `"up"`, return positive infinity if
+            `number`'s value is positive, `+0` if `number`'s value is `+0`, and
+            `-0` otherwise.
+
+          * If `strategy`'s value is `"down"`, return negative infinity if
+            `number`'s value is negative, `-0` if `number`'s value is `-0`, and
+            `+0` otherwise.
+
+        * Set `number` and `step` to the result of [matching units] for `number`
+          and `step`.
+
+          [matching units]: ../spec/types/number.md#matching-two-numbers-units
+
+        * If `number`'s value is [exactly equal] to `step`'s, return `number`.
+
         * Let `upper` and `lower` be the two integer multiples of `step` which
           are closest to `number` such that `upper` is greater than `lower`. If
-          `upper` would be 0, it's specifically positive zero; if `lower` would
-          be zero, it's specifically negative zero.
+          `upper` would be 0, it's specifically `-0`; if `lower` would be zero,
+          it's specifically `-0`.
 
         * If `strategy`'s value is `"nearest"`, return whichever of `upper` and
           `lower` has the smallest absolute distance from `number`. If both have
