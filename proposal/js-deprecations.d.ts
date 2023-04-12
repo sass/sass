@@ -58,12 +58,13 @@
  * implementations. However, if an implementation wishes to add a deprecation
  * that applies only to itself, it may still do so.
  *
- * Additionally, while a deprecation's status is part of the specification, we
- * chose to leave the `deprecatedIn` and `obsoleteIn` versions of each
- * deprecation out of the specification. As the two current implementers of this
- * API are both based on Dart Sass, these versions are _currently_ consistent
- * across implementations in practice, potential future implementers should not
- * need to be tied to Dart Sass's versioning.
+ * Additionally, we chose to leave the `status`, `deprecatedIn` version, and
+ * `obsoleteIn` version of each deprecation out of the specification. As the
+ * two current implementers of this API are both based on Dart Sass, these
+ * fields are _currently_ consistent across implementations in practice, but
+ * the status of each deprecation in other potential future implementers would
+ * not always match Dart Sass, and the relevent versions would almost certainly
+ * not match.
  *
  * #### Warnings for Invalid Deprecations and Precedence of Options
  *
@@ -198,25 +199,25 @@ declare module '../spec/js-api' {
 
 interface Deprecations {
   /** Deprecation for passing a string to `call` instead of `get-function`. */
-  'call-string': Deprecation<'call-string', 'active'>;
+  'call-string': Deprecation<'call-string'>;
 
   /** Deprecation for `@elseif`. */
-  elseif: Deprecation<'elseif', 'active'>;
+  elseif: Deprecation<'elseif'>;
 
   /** Deprecation for parsing `@-moz-document`. */
-  'moz-document': Deprecation<'moz-document', 'active'>;
+  'moz-document': Deprecation<'moz-document'>;
 
   /** Deprecation for importers using relative canonical URLs. */
-  'relative-canonical': Deprecation<'relative-canonical', 'active'>;
+  'relative-canonical': Deprecation<'relative-canonical'>;
 
   /** Deprecation for declaring new variables with `!global`. */
-  'new-global': Deprecation<'new-global', 'active'>;
+  'new-global': Deprecation<'new-global'>;
 
   /**
    * Deprecation for certain functions in the color module matching the
    * behavior of their global counterparts for compatibility reasons.
    */
-  'color-module-compat': Deprecation<'color-module-compat', 'active'>;
+  'color-module-compat': Deprecation<'color-module-compat'>;
 
   /**
    * Deprecation for treaing `/` as division.
@@ -224,7 +225,7 @@ interface Deprecations {
    * Update the proposal for forward slash as a separator to say that it emits
    * deprecation warnings with ID 'slash-div'.
    */
-  'slash-div': Deprecation<'slash-div', 'active'>;
+  'slash-div': Deprecation<'slash-div'>;
 
   /**
    * Deprecation for leading, trailing, and repeated combinators.
@@ -232,7 +233,7 @@ interface Deprecations {
    * Update the proposal for bogus combinators to say that it emits deprecation
    * warnings with ID 'bogus-combinators'.
    */
-  'bogus-combinators': Deprecation<'bogus-combinators', 'active'>;
+  'bogus-combinators': Deprecation<'bogus-combinators'>;
 
   /**
    * Deprecation for ambiguous `+` and `-` operators.
@@ -240,7 +241,7 @@ interface Deprecations {
    * Update the proposal for strict unary operators to say that it emits
    * deprecation warnings with ID 'strict-unary'.
    */
-  'strict-unary': Deprecation<'strict-unary', 'active'>;
+  'strict-unary': Deprecation<'strict-unary'>;
 
   /**
    * Deprecation for passing invalid units to certain built-in functions.
@@ -248,15 +249,15 @@ interface Deprecations {
    * Update the proposals for function units, random with units, and angle units
    * to say that they emit deprecation warnings with ID 'function-units'.
    */
-  'function-units': Deprecation<'function-units', 'active'>;
+  'function-units': Deprecation<'function-units'>;
 
   /**
-   * Deprecation for using mutliple `!global` or `!default` flags on a single
+   * Deprecation for using multiple `!global` or `!default` flags on a single
    * variable.
    *
    * > This deprecation was never explicitly listed in a proposal.
    */
-  'duplicate-var-flags': Deprecation<'duplicate-var-flags', 'active'>;
+  'duplicate-var-flags': Deprecation<'duplicate-var-flags'>;
 
   /**
    * Deprecation for `@import` rules.
@@ -265,7 +266,7 @@ interface Deprecations {
    * deprecated, Sass will emit deprecation warnings with ID 'import' when
    * `@import` rules are encountered.
    */
-  import: Deprecation<'import', 'future'>;
+  import: Deprecation<'import'>;
 
   /** Used for deprecations coming from user-authored code. */
   'user-authored': Deprecation<'user-authored', 'user'>;
