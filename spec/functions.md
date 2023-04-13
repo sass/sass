@@ -70,7 +70,7 @@ matching is case-insensitive.
    and the `ArgumentInvocation`. It may not start with [`SpecialFunctionName`],
    `'calc('`, or `'clamp('` (case-insensitively).
 
-[`SpecialFunctionName`]: #specialfunctionexpression
+[`SpecialFunctionName`]: syntax.md#specialfunctionexpression
 
 <x><pre>
 **FunctionCall** ::= [NamespacedIdentifier][] ArgumentInvocation

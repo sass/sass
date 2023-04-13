@@ -277,7 +277,7 @@ acos($number)
 
 * Return the result of [converting `result` to `deg`].
 
-  [converting `result` to `deg`]: ../spec/types/number.md#converting-a-number-to-a-unit
+  [converting `result` to `deg`]: ../types/number.md#converting-a-number-to-a-unit
 
 #### `asin()`
 
@@ -334,7 +334,7 @@ cos($number)
 * Let `double` be the value of [converting `$number` to `rad`] allowing
   unitless.
 
-  [converting `$number` to `rad`]: #converting-a-number-to-units
+  [converting `$number` to `rad`]: ../types/number.md#converting-a-number-to-a-unit
 
 * Return a unitless number whose value is the result of `cos(double)` as defined
   by [IEEE 754 2019], §9.2.
@@ -348,8 +348,6 @@ sin($number)
 * Let `double` be the value of [converting `$number` to `rad`] allowing
   unitless.
 
-  [converting `$number` to `rad`]: #converting-a-number-to-units
-
 * Return a unitless number whose value is the result of `sin(double)` as defined
   by [IEEE 754 2019], §9.2.
 
@@ -361,8 +359,6 @@ tan($number)
 
 * Let `double` be the value of [converting `$number` to `rad`] allowing
   unitless.
-
-  [converting `$number` to `rad`]: #converting-a-number-to-units
 
 * Return a unitless number whose value is the result of `tan(double)` as defined
   by [IEEE 754 2019], §9.2.

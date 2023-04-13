@@ -76,7 +76,7 @@ all identifiers matched case-insensitively):
 &#32;                | '(' MediaInParens (MediaAnd* | MediaOr*) ')'
 </pre></x>
 
-[InterpolatedIdentifier]: ../syntax.md#interpolatedidentifier
+[InterpolatedIdentifier]: ../spec/syntax.md#interpolatedidentifier
 [\<mf-comparison>]: https://drafts.csswg.org/mediaqueries-4/#typedef-mf-comparison
 [\<mf-lt>]: https://drafts.csswg.org/mediaqueries-4/#typedef-mf-lt
 [\<mf-gt>]: https://drafts.csswg.org/mediaqueries-4/#typedef-mf-gt

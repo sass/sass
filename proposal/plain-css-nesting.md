@@ -68,8 +68,8 @@ Adjust the list of productions that should produce errors as follows:
   > trailing combinators that _don't_ have nested rules will produce warnings.
   > Those with nested rules will produce errors since Sass never parsed them
   > successfully in the first place.
-  >
-  > [bogus combinators]: ../accepted/bogus-combinators.md
+
+  [bogus combinators]: ../accepted/bogus-combinators.md
 
 Add the following to the list of parsing differences:
 
@@ -103,18 +103,17 @@ To execute a style rule `rule`:
 
   * If there is a [current style rule]:
 
-    [current style rule]: ../spec/style-rules.md#current-style-rule
-
     * If `selector` contains one or more parent selectors, replace them with the
       current style rule's selector and set `selector` to the result.
 
     * Otherwise, nest `selector` within the current style rule's selector using
       the [descendant combinator] and set `selector` to the result.
 
-      [descendant combinator]: https://www.w3.org/TR/selectors-3/#descendant-combinators
-
   * Otherwise, if `selector` contains one or more parent selectors, throw an
     error.
+
+  [current style rule]: ../spec/style-rules.md#current-style-rule
+  [descendant combinator]: https://www.w3.org/TR/selectors-3/#descendant-combinators
 
 * Let `css` be a CSS style rule with selector `selector`.
 
@@ -122,7 +121,7 @@ To execute a style rule `rule`:
 
 * If `css` contains any children and `selector` is [bogus], throw an error.
 
-  [bogus]: selectors.md#bogus-selector
+  [bogus]: ../spec/selectors.md#bogus-selector
 
 * Remove any [complex selectors][] containing a placeholder selector that
   begins with `-` or `_` from `css`'s selector.
@@ -141,7 +140,7 @@ To execute a style rule `rule`:
 
   * Otherwise, append `css` to [the current module]'s CSS.
 
-  [the current module]: spec.md#current-module
+  [the current module]: ../spec/spec.md#current-module
 
 ## Serialization
 

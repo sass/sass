@@ -268,13 +268,13 @@ This algorithm takes a string `argument` and [configuration](#configuration)
     was passed the first time `file` was executed by the [Loading a Module]
     procedure, throw an error.
 
-    > An ID may be reused in a new configuration via [`@forwards .. with`].
-
-    [`@forwards .. with`]: ../spec/at-rules/forward.md#semantics
+    > An ID may be reused in a new configuration via [`@forward ... with`].
 
   * Otherwise, return the module that execution produced.
 
   [Loading a Module]: #loading-a-module
+
+[`@forward ... with`]: at-rules/forward.md#semantics
 
 * If `file` is currently being executed, throw an error.
 

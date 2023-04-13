@@ -112,7 +112,7 @@ Two numbers' units are said to be *compatible* if both:
 * There's the same type of mapping between those numbers' denominator units.
   This mapping is known as the numbers' *denominator compatibility map*.
 
-[conversion factor]: ../spec/types/number.md#conversion-factors
+[conversion factor]: #conversion-factors
 
 Similarly, a number is *compatible with* a [set of units] if it's compatible
 with a number that has those units; and two sets of units are *compatible* if a
@@ -356,10 +356,10 @@ Let `n1` and `n2` be two numbers. To determine `n1 % n2`:
   > specification because it was originally inherited from Ruby when that was
   > used for Sass's original implementation.
   >
-  > [floored division]: https://en.wikipedia.org/wiki/Modulo_operation#Variants_of_the_definition
-  >
   > Note: These comparisons are not the same as `c2 < 0` or `remainder == 0`,
   > because they don't do fuzzy equality.
+
+  [floored division]: https://en.wikipedia.org/wiki/Modulo_operation#Variants_of_the_definition
 
 * Otherwise, return `result`.
 
@@ -379,14 +379,16 @@ To serialize a number to CSS:
 * If the number is degenerate, [convert it to a calculation] then serialize that
   to CSS.
 
+  [convert it to a calculation]: #converting-a-number-to-a-calculation
+
 * Otherwise:
 
   * Emit a string that can be parsed as a [`<number-token>`] with the
     same value as the number.
 
-    [`<number-token>`]: https://www.w3.org/TR/css-syntax-3/#typedef-number-token
-
   * If the number has a numerator unit, emit that unit.
+
+  [`<number-token>`]: https://www.w3.org/TR/css-syntax-3/#typedef-number-token
 
 ## Procedures
 
@@ -413,13 +415,15 @@ It returns a number with the given units. It's written "convert `number` to
 
   * Let `v1` and `v2` be the values of `u1` and `u2`'s [conversion factors].
 
-    [conversion factors]: ../spec/types/number.md#conversion-factors
-
   * Set `value` to `division(multiplication(value, v1), v2)` as defined by
     [IEEE 754 2019], §5.4.1.
 
+  [conversion factors]: #conversion-factors
+
 * For each pair of units `u1`, `u2` in the [denominator compatibility map]
   between `number` and `units` such that `u1 != u2`:
+
+  [denominator compatibility map]: #compatible-units
 
   * Let `v1` and `v2` be the values of `u1` and `u2`'s [conversion factors].
 
@@ -442,7 +446,7 @@ and `n2` allowing unitless".
 
 * Return `n1` and the result of [converting `n2` to `n1`'s units].
 
-  [converting `n1` to `n2`'s units]: #converting-a-number-to-units
+  [converting `n2` to `n1`'s units]: #converting-a-number-to-a-unit
 
 ### Simplifying a Number
 
@@ -462,7 +466,7 @@ number with simplified units.
 
 * Return the result of [converting `number` to `newUnits`].
 
-  [converting `number` to `newUnits`]: #converting-a-number-to-units
+  [converting `number` to `newUnits`]: #converting-a-number-to-a-unit
 
 ### Converting a Number to a Calculation
 

@@ -151,14 +151,16 @@ To serialize a number to CSS:
 * If the number is degenerate, [convert it to a calculation] then serialize that
   to CSS.
 
+  [convert it to a calculation]: ../spec/types/number.md#converting-a-number-to-a-calculation
+
 * Otherwise:
 
   * Emit a string that can be parsed as a [`<number-token>`] with the
     same value as the number.
 
-    [`<number-token>`]: https://www.w3.org/TR/css-syntax-3/#typedef-number-token
-
   * If the number has a numerator unit, emit that unit.
+
+  [`<number-token>`]: https://www.w3.org/TR/css-syntax-3/#typedef-number-token
 
 ## Procedures
 

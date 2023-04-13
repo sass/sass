@@ -227,12 +227,11 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
   * If those arguments' are mutually [compatible], return the result of calling
     `math.clamp()` with those arguments.
 
-    [compatible]: ../spec/types/number.md#compatible-units
-
   * Otherwise, if any two of those arguments are [definitely-incompatible],
     throw an error.
 
-    [definitely-incompatible]: #possibly-compatible-numbers
+  [compatible]: number.md#compatible-units
+  [definitely-incompatible]: number.md#possibly-compatible-numbers
 
 * If `calc`'s name is `"min"` or `"max"` and `arguments` are all numbers:
 
@@ -240,15 +239,15 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
     [`math.min()`] or [`math.max()`] (respectively) with those arguments. If
     this doesn't throw an error, return its result.
 
-    [`math.min()`]: ../spec/built-in-modules/math.md#min
-    [`math.max()`]: ../spec/built-in-modules/math.md#max
-
     > `min()` and `max()` allow unitless numbers to be mixed with units because
     > they need to be backwards-compatible with Sass's old global `min()` and
     > `max()` functions.
 
   * Otherwise, if any two of those arguments are [definitely-incompatible],
     throw an error.
+
+  [`math.min()`]: ../built-in-modules/math.md#min
+  [`math.max()`]: ../built-in-modules/math.md#max
 
 * Otherwise, return a calculation with the same name as `calc` and `arguments`
   as its arguments.

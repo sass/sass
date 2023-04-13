@@ -26,8 +26,8 @@ still supported for backwards-compatibility.
 **ImportUrl**             ::= QuotedString | [InterpolatedUrl][]
 </pre></x>
 
-[InterpolatedIdentifier]: ../syntax.md#InterpolatedIdentifier
-[InterpolatedUrl]: ../syntax.md#InterpolatedUrl
+[InterpolatedIdentifier]: ../syntax.md#interpolatedidentifier
+[InterpolatedUrl]: ../syntax.md#interpolatedurl
 [MediaFeatureInParens]: media.md#syntax
 [MediaQueryList]: media.md#syntax
 
@@ -150,6 +150,7 @@ To execute an `@import` rule `rule`:
     > Members from `imported` override members of the same name and type that
     > have already been added to `import` and `module`.
 
+  [`MediaQueryList`]: media.md#syntax
   [the current module]: ../spec.md#current-module
   [loading the file]: ../modules.md#loading-a-source-file
   [current source file]: ../spec.md#current-source-file

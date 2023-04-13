@@ -83,7 +83,7 @@ This function is also available as a global function named `selector-extend()`.
 * Let `selector`, `extendee`, and `extender` be the result of [parsing a
   selector from] `$selector`, `$extendee`, and `$extender`, respectively.
 
-  [parsing a selector from]: #parsing-a-selector-from-a-sassscript-object
+  [parsing a selector from]: #parse-a-selector-from-a-sassscript-object
 
 * If any of `selector`, `extendee`, or `extender` is [bogus], throw an error.
 
@@ -132,8 +132,6 @@ This function is also available as a global function named `selector-replace()`.
 
 * Let `selector`, `original`, and `replacement` be the result of [parsing a
   selector from] `$selector`, `$original`, and `$replacement`, respectively.
-
-  [parsing a selector from]: #parsing-a-selector-from-a-sassscript-object
 
 * If any of `selector`, `original`, or `replacement` is [bogus], throw an error.
 

@@ -108,7 +108,7 @@ The [`SpecialFunctionName`] production will be changed to the following:
 
 The [`CalcValue`] production will be changed to the following:
 
-[`CalcValue`]: ../spec/syntax.md#minmaxexpression
+[`CalcValue`]: ../spec/types/calculation.md#calculationexpression
 
 <x><pre>
 **CalcValue**         ::= CalcValue (('+' | '-' | '*' | '/') CalcValue)+
