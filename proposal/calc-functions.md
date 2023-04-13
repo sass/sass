@@ -205,7 +205,7 @@ Let `n1` and `n2` be two numbers. To determine `n1 % n2`:
 
   [matching units]: ../spec/types/number.md#matching-two-numbers-units
 
-* **If `c2` is infinity and has a different sign than `c2` (including
+* **If `c2` is infinity and has a different sign than `c1` (including
   oppositely-signed zero), return NaN with the same units as `c1`.**
 
   > This matches the behavior of CSS's `mod()` function.
