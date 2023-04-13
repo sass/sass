@@ -132,7 +132,7 @@ Replace [the definition of `FunctionExpression`] with the following:
    [`UnaryCalcName`], [`BinaryCalcName`], `'hypot('`, or `'clamp('`
    (case-insensitively).
 
-[`SpecialFunctionName`]: #specialfunctionexpression
+[`SpecialFunctionName`]: ../spec/syntax.md#specialfunctionexpression
 [`UnaryCalcName`]: #calculationexpression
 [`BinaryCalcName`]: #calculationexpression
 
@@ -194,7 +194,7 @@ Add the following production:
 
 Replace [the definition of modulo for numbers] with the following:
 
-[the definition of modulo for numbers]: ../types/number.md#modulo
+[the definition of modulo for numbers]: ../spec/types/number.md#modulo
 
 > Differences are highlighted in bold.
 
@@ -202,6 +202,8 @@ Let `n1` and `n2` be two numbers. To determine `n1 % n2`:
 
 * Let `c1` and `c2` be the result of [matching units] for `n1` and `n2` allowing
   unitless.
+
+  [matching units]: ../spec/types/number.md#matching-two-numbers-units
 
 * **If `c2` is infinity and has a different sign than `c2` (including
   oppositely-signed zero), return NaN with the same units as `c1`.**
@@ -213,17 +215,19 @@ Let `n1` and `n2` be two numbers. To determine `n1 % n2`:
   as `c1`'s.
 
 * If `c2`'s value is less than 0 and `remainder`'s value isn't [exactly equal]
-  to `0`, return `result - c2`.
+  to `0`, return `remainder - c2`.
+
+  [exactly equal]: #exact-equality
 
   > This is known as [floored division]. It differs from the standard IEEE 754
   > specification, but matches the behavior of CSS's `mod()` function.
   >
-  > [floored division]: https://en.wikipedia.org/wiki/Modulo_operation#Variants_of_the_definition
-  >
   > Note: These comparisons are not the same as `c2 < 0` or `remainder == 0`,
   > because they don't do fuzzy equality.
 
-* Otherwise, return `result`.
+  [floored division]: https://en.wikipedia.org/wiki/Modulo_operation#Variants_of_the_definition
+
+* Otherwise, return `remainder`.
 
 ## Procedures
 
@@ -301,13 +305,9 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
 
     * If `dividend` and `modulus` are [definitely-incompatible], throw an error.
 
-      [definitely-incompatible]: ../spec/types/number.md#possibly-compatible-numbers
-
     * If `dividend` and `modulus` are mutually [compatible]:
 
       * Let `result` be the result of `dividend % modulus`.
-
-        [compatible]: ../spec/types/number.md#compatible-units
 
       * If `calc`'s name is `"rem"`, and if `dividend` is positive and `modulus`
         is negative or vice versa:
@@ -317,6 +317,10 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
         * Otherwise, return `result - dividend`.
 
       * Otherwise, return `result`.
+
+  [definitely-incompatible]: ../spec/types/number.md#possibly-compatible-numbers
+  [compatible]: ../spec/types/number.md#compatible-units
+  [exactly equals]: #exact-equality
 
 * If `calc`'s name is `"round"`:
 
@@ -345,8 +349,6 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
       string or interpolation with value `"nearest"`, `"up"`, `"down"`, or
       `"to-zero"`, throw an error.
 
-      [special variable string]: ../spec/functions.md#special-variable-string
-
     * If `strategy` is an unquoted string or interpolation and both `number` and
       `step` are numbers:
 
@@ -357,8 +359,6 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
         * If `number`'s and `step`'s values are both infinite, if `step` is
           [exactly equal] to 0, or if either `number`'s or `step`'s values are
           NaN, return NaN with the same units as `number`.
-
-          [exactly equal]: #exact-equality
 
         * If `number`'s value is infinite, return `number`.
 
@@ -378,8 +378,6 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
         * Set `number` and `step` to the result of [matching units] for `number`
           and `step`.
 
-          [matching units]: ../spec/types/number.md#matching-two-numbers-units
-
         * If `number`'s value is [exactly equal] to `step`'s, return `number`.
 
         * Let `upper` and `lower` be the two integer multiples of `step` which
@@ -397,6 +395,8 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
 
         * If `strategy`'s value is `"to-zero"`, return whichever of `upper` and
           `lower` has the smallest absolute difference from 0.
+
+  [special variable string]: ../spec/functions.md#special-variable-string
 
 * If `calc`'s name is `"clamp"`:
 
@@ -425,15 +425,15 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
     [`math.min()`] or [`math.max()`] (respectively) with those arguments. If
     this doesn't throw an error, return its result.
 
-    [`math.min()`]: ../spec/built-in-modules/math.md#min
-    [`math.max()`]: ../spec/built-in-modules/math.md#max
-
     > `min()` and `max()` allow unitless numbers to be mixed with units because
     > they need to be backwards-compatible with Sass's old global `min()` and
     > `max()` functions.
 
   * Otherwise, if any two of those arguments are [definitely-incompatible],
     throw an error.
+
+  [`math.min()`]: ../spec/built-in-modules/math.md#min
+  [`math.max()`]: ../spec/built-in-modules/math.md#max
 
 * Otherwise, return a calculation with the same name as `calc` and `arguments`
   as its arguments.
@@ -452,7 +452,9 @@ To evaluate a `UnaryCalcExpression`, `BinaryCalcExpression`, `HypotExpression`,
   trailing parenthesis.
 
 * Let `calc` be a calculation whose name is `name` and whose arguments are the
-  results of [evaluating the expression's `CalcArgument`s](#calcargument).
+  results of [evaluating the expression's `CalcArgument`s].
+
+  [evaluating the expression's `CalcArgument`s]: ../spec/types/calculation.md#calcargument
 
 * Return the result of [simplifying] `calc`.
 
