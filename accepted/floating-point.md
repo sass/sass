@@ -85,7 +85,7 @@ instead became fixed-size, and only guaranteed to be fully accurate up to 53
 bits.
 
 In addition to the specific details of numeric representation, Ruby Sass papered
-over floating-point numbers' [accuracy issues] by defining a heuristic for
+over floating-point numbers' accuracy issues by defining a heuristic for
 determining when similar numbers were considered equivalent to Sass's logic.
 This heuristic has persisted relatively unchanged through to modern
 implementations, but it introduces a problematic [intransitivity] in Sass's
@@ -269,7 +269,7 @@ Define the value type known as a *number* as three components:
 * A list of strings called *numerator units*.
 * A list of strings called *denominator units*.
 
-[double]: #doubles
+[double]: #double
 
 Several shorthands exist when referring to numbers:
 
@@ -378,10 +378,11 @@ Let `n1` and `n2` be two numbers. To determine `n1 % n2`:
   > specification because it was originally inherited from Ruby when that was
   > used for Sass's original implementation.
   >
-  > [floored division]: https://en.wikipedia.org/wiki/Modulo_operation#Variants_of_the_definition
   >
   > Note: These comparisons are not the same as `c2 < 0` or `remainder == 0`,
   > because they don't do fuzzy equality.
+
+  [floored division]: https://en.wikipedia.org/wiki/Modulo_operation#Variants_of_the_definition
 
 * Otherwise, return `result`.
 
@@ -416,13 +417,15 @@ It returns a number with the given units. It's written "convert `number` to
 
   * Let `v1` and `v2` be the values of `u1` and `u2`'s [conversion factors].
 
-    [conversion factors]: ../spec/types/number.md#conversion-factors
-
   * Set `value` to `division(multiplication(value, v1), v2)` as defined by
     [IEEE 754 2019], §5.4.1.
 
+  [conversion factors]: ../spec/types/number.md#conversion-factors
+
 * For each pair of units `u1`, `u2` in the [denominator compatibility map]
   between `number` and `units` such that `u1 != u2`:
+
+  [denominator compatibility map]: #compatible-units
 
   * Let `v1` and `v2` be the values of `u1` and `u2`'s [conversion factors].
 
@@ -445,7 +448,7 @@ and `n2` allowing unitless".
 
 * Return `n1` and the result of [converting `n2` to `n1`'s units].
 
-  [converting `n1` to `n2`'s units]: #converting-a-number-to-units
+  [converting `n2` to `n1`'s units]: #converting-a-number-to-units
 
 ### Simplifying a Number
 

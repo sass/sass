@@ -484,7 +484,7 @@ A *color* is an object with several parts:
   > meaningless, and can be clamped by input functions when generating a color.
 
 [known color space]: #known-color-space
-[double]: ../types/number.md#double
+[double]: ../spec/types/number.md#double
 
 ### Legacy Color
 
@@ -748,8 +748,7 @@ is the result of [looking up a known color space] named by either the
 
 To serialize a non-legacy color `color`:
 
-* Let `space-name` be an unquoted lowercase string of `color`'s [color space]
-  name.
+* Let `space-name` be an unquoted lowercase string of `color`'s space name.
 
 * Let `known-space` be the result of [looking up a known color space] with a
   `name` of `space-name`.
@@ -883,12 +882,11 @@ The individual conversion algorithms are:
 
 ### Gamut Mapping
 
-> Some [known color space]s describe limited [color gamuts](#color-gamuts).
-> If a color is 'out of gamut' for a particular space (most often because of
-> conversion from a larger-gamut color-space), it can be useful to 'map' that
-> color to the nearest available 'in-gamut' color. Gamut mapping is the process
-> of finding an in-gamut color with the least objectionable change in visual
-> appearance.
+> Some [known color space]s describe limited color gamuts. If a color is 'out of
+> gamut' for a particular space (most often because of conversion from a
+> larger-gamut color-space), it can be useful to 'map' that color to the nearest
+> available 'in-gamut' color. Gamut mapping is the process of finding an
+> in-gamut color with the least objectionable change in visual appearance.
 
 Gamut mapping in Sass follows the [CSS gamut mapping algorithm][css-mapping].
 This procedure accepts a color `origin`, and a [known color space]
@@ -1012,12 +1010,12 @@ The procedure is:
     * Let `expected` be the number of channels in `space`.
 
     * If any element of `channels` is not either a number, a special variable
-      string, a special number string, or an unquoted string that's
+      string, a [special number], or an unquoted string that's
       case-insensitively equal to 'none', throw an error.
 
   * If `alpha` is null, let `alpha` be `1`.
 
-  * Otherwise, If `alpha` is not a [special number string]:
+  * Otherwise, If `alpha` is not a [special number]:
 
     * If `alpha` is a number, set `alpha` to the result of
       [percent-converting] `alpha` with a max of 1, and then clamping the value
@@ -1026,9 +1024,9 @@ The procedure is:
     * Otherwise, throw an error.
 
   * If `channels` is a [special variable string], or if `alpha` is a [special
-    number string], return an unquoted string with the value of `input`.
+    number], return an unquoted string with the value of `input`.
 
-  * If any element of `channels` is a [special number string]:
+  * If any element of `channels` is a [special number]:
 
     * If `space` is a [legacy color] space:
 
@@ -1054,7 +1052,7 @@ The procedure is:
   * Return `space-name`, `channels` channels, and `alpha` alpha value.
 
 [special variable string]: ../spec/functions.md#special-variable-string
-[special number string]: ../spec/functions.md#special-number-string
+[special number]: ../spec/functions.md#special-number
 [percent-converting]: #percent-converting-a-number
 
 ### Percent-Converting a Number
@@ -1434,14 +1432,14 @@ to-space($color, $space)
 * Let `known-space` be the result of [looking up a known color space] named
   `$space`.
 
-* Let `known-origin` be `$color`'s [color space].
+* Let `known-origin` be `$color`'s space.
 
 * If `known-origin == known-space`, return `$color`.
 
 * Let `converted` be the result of [converting] the `origin-color` `$color` to
   the `target-space` `known-space`.
 
-* If `converted` is a [legacy] color:
+* If `converted` is a [legacy color]:
 
   * For each `component` in the channels and alpha value of `converted`, if
     `component` is [missing], set `component` to `0`.
@@ -1562,8 +1560,8 @@ channel($color, $channel, $space: null)
 
   * Let `value` be the channel value in `color` with name of `channel`.
 
-  * Let `unit` be the unit associated with `channel` in `color`'s [color space],
-    if defined, and `null` otherwise.
+  * Let `unit` be the unit associated with `channel` in `color`'s space, if
+    defined, and `null` otherwise.
 
 * If `value` is `null`, return `0`.
 
@@ -1677,7 +1675,7 @@ This function is also available as a global function named `change-color()`.
 
 * Let `color` be the value of `$color`.
 
-* Let `origin-space` be `color`'s [color space].
+* Let `origin-space` be `color`'s space.
 
 * If the keyword argument `$space` is specified in `$args`:
 
@@ -1754,7 +1752,7 @@ This function is also available as a global function named `adjust-color()`.
 
 * Let `color` be the value of `$color`.
 
-* Let `origin-space` be `color`'s [color space].
+* Let `origin-space` be `color`'s space.
 
 * If the keyword argument `$space` is specified in `$args`:
 

@@ -51,7 +51,7 @@ To execute a `VariableDeclaration` `declaration`:
 
 * Let `resolved` be the result of [resolving a variable][] named `name`.
 
-  [resolving a variable]: ../spec/modules.md#resolving-a-member
+  [resolving a variable]: modules.md#resolving-a-member
 
 * If `name` is a `NamespacedVariable` and `declaration` has a `!global` flag,
   throw an error.

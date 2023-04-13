@@ -6,10 +6,12 @@ import * as linkCheck from 'markdown-link-check';
 import markdownToc = require('markdown-toc');
 import * as path from 'path';
 import {fileURLToPath, pathToFileURL, URL} from 'url';
+import * as indentString from 'indent-string';
 
 if (process.env.CI) colors.enable();
 
-const files = glob.sync('**/*.md', {
+const args = process.argv.slice(2);
+const files = glob.sync(args.length === 0 ? '**/*.md' : args, {
   ignore: ['node_modules/**/*.md', 'js-api-doc/**/*.md'],
 });
 
@@ -25,40 +27,62 @@ function getToc(file: string): string {
   return toc;
 }
 
+function pathIsWithin(child: string, parent: string): boolean {
+  const relative = path.relative(parent, child);
+  return !relative.startsWith('../');
+}
+
+function flagDeadLink(link: string): void {
+  console.error(`${colors.red(colors.bold('Dead:'))} ${link}`);
+  process.exitCode = 1;
+}
+
 function verifyLinkCheckResults(
   file: string,
   results: linkCheck.Result[]
 ): void {
-  const toc = getToc(file);
-
   for (const result of results) {
     const url = new URL(result.link, pathToFileURL(file));
 
     // A link to another file.
     if (url.protocol === 'file:' && !result.link.match(/ \(.*\)$/)) {
       const target = fileURLToPath(url);
-      if (!fs.existsSync(target)) throw Error(`Missing file: ${result.link}`);
-      if (url.hash === '') return;
-      if (getToc(target).includes(url.hash)) return;
-      throw Error(`Dead: ${result.link}`);
-    }
-
-    // A link to a section within this file.
-    if (result.link.match(/^#/)) {
-      if (toc.includes(result.link)) return;
-      throw Error(`Dead: ${result.link}`);
+      if (!fs.existsSync(target)) {
+        flagDeadLink(result.link);
+      } else if (url.hash !== '' && !getToc(target).includes(`(${url.hash})`)) {
+        flagDeadLink(result.link);
+      } else if (
+        result.link.includes('../spec/') &&
+        pathIsWithin(file, 'spec')
+      ) {
+        console.error(
+          `${colors.yellow(colors.bold('Unnecessary ../spec:'))} ${result.link}`
+        );
+        process.exitCode = 1;
+      }
+      continue;
     }
 
     // A link to an external website.
     switch (result.status) {
       case 'dead':
         if (result.statusCode === 500) {
-          console.log(colors.yellow(`Server error on target: ${result.link}`));
-          return;
+          console.error(
+            colors.yellow(`Server error on target: ${result.link}`)
+          );
+        } else {
+          flagDeadLink(result.link);
         }
-        throw Error(`Dead: ${result.link}`);
+        break;
+
       case 'error':
-        throw Error(`Error: ${result.link}`);
+        console.error(
+          `${colors.red(colors.bold('Error:'))} ${result.link}` +
+            (result.err
+              ? '\n' + indentString(result.err.toString(), 1, {indent: '| '})
+              : '')
+        );
+        process.exitCode = 1;
     }
   }
 }
@@ -72,7 +96,7 @@ function runLinkCheck(
       markdownLinkCheck(
         fs.readFileSync(file).toString(),
         {
-          baseUrl: '',
+          baseUrl: pathToFileURL(file).toString(),
           // If Github rate limit is reached, wait 60s and try again.
           retryOn429: true,
           // Twitter links consistently fail.
@@ -97,13 +121,11 @@ function runLinkCheck(
 
 (async () => {
   for (const file of files) {
-    console.log('Checking links in ' + file);
+    console.log(colors.grey('Checking links in ' + file));
     try {
       await runLinkCheck(file, {rateLimit: 500});
     } catch (error) {
-      console.log(
-        colors.red(error instanceof Error ? error.message : `${error}`)
-      );
+      console.error(error);
       process.exitCode = 1;
     }
   }

@@ -120,7 +120,7 @@ combinators*) as well as a sequence of [complex selector components]. Either,
 but not both, of these sequences may be empty~~
 
 [visible combinators]: #visible-combinator 
-[complex selector components]: #complex-selector-components
+[complex selector components]: #complex-selector-component
 
 A *complex selector* is an optional [visible combinator] (its *leading
 combinator*) as well as a sequence of [complex selector components]. The

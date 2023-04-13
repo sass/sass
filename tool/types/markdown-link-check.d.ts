@@ -10,6 +10,7 @@ declare module 'markdown-link-check' {
       link: string;
       status: string;
       statusCode: number;
+      err: string | null;
     }
   }
 

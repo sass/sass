@@ -49,8 +49,10 @@ calc-args($calc)
 
   * If `arg` is a number or a calculation, add it to `args`.
 
-  * Otherwise, [serialize](#serialization) `arg` and add the result to `args` as
-    an unquoted string.
+  * Otherwise, [serialize] `arg` and add the result to `args` as an unquoted
+    string.
+
+  [serialize]: ../types/calculation.md#serialization
 
 * Return `args` as an unbracketed comma-separated list.
 
@@ -303,7 +305,7 @@ load-css($url, $with: null)
 
 * Let `css` be the result of [resolving `module`'s extensions][].
 
-  [resolving `module`'s extensions]: ../at-rules/extend.md#resolving-a-modules-extension
+  [resolving `module`'s extensions]: ../at-rules/extend.md#resolving-a-modules-extensions
 
   > This means that, if a module loaded by `load-css()` shares some dependencies
   > with the entrypoint module, those dependencies' CSS will be included twice.

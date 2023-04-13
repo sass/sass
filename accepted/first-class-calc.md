@@ -307,7 +307,7 @@ Two numbers are *definitely-incompatible* if they are not possibly-compatible.
 
 Replace the definition of [special number string] with the following definition:
 
-[special number string]: ../spec/functions.md#special-number-string
+[special number string]: ../spec/functions.md#special-number
 
 A *special number* is either:
 
@@ -393,7 +393,7 @@ case-insensitively.
 This proposal replaces the reference to `CalcValue` in the definition of
 [`CssMinMax`] with `CalcArgument`.
 
-[`CssMinMax`]: ../spec/syntax.md#minmaxexpression
+[`CssMinMax`]: ../spec/types/calculation.md#cssminmax
 
 > Note that this increases the number of cases where a `MinMaxExpression` will
 > be parsed as a `CssMinMax` rather than a `FunctionExpression` (for example,
@@ -520,14 +520,13 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
     calling [`math.min()`], [`math.max()`], or `math.clamp()` (respectively)
     with those arguments.
 
-    [compatible]: ../spec/types/number.md#compatible-units
-    [`math.min()`]: ../spec/built-in-modules/math.md#min
-    [`math.max()`]: ../spec/built-in-modules/math.md#max
-
   * Otherwise, if any two of those arguments are [definitely-incompatible],
     throw an error.
 
-    [definitely-incompatible]: #possibly-compatible-numbers
+  [compatible]: ../spec/types/number.md#compatible-units
+  [`math.min()`]: ../spec/built-in-modules/math.md#min
+  [`math.max()`]: ../spec/built-in-modules/math.md#max
+  [definitely-incompatible]: #possibly-compatible-numbers
 
 * Otherwise, return a calculation with the same name as `calc` and `arguments`
   as its arguments.
