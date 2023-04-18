@@ -158,6 +158,8 @@ Replace the line of [the `@import` semantics] that reads:
 * Add an `@import` with the evaluated modifiers to [the current module]'s
   CSS AST.
 
+  [the current module]: ../spec/spec.md#current-module
+
 with one that reads:
 
 * Add an `@import` with the evaluated modifiers to [the current module]'s CSS
