@@ -131,12 +131,12 @@ definition of the traversing procedure with the following:
     statements in `domestic`'s CSS tree that contains only comments and
     `@import` rules *and* that ends with an `@import` rule.
 
-  * Insert a copy of `initial-imports` in `css` after the last `@import` rule,
-    or after the longest initial subsequence of comments in `css` if it doesn't
-    contain any `@import` rules.
+  * Insert a copy of `initial-imports` in `css` after the longest initial
+    subsequence of comments and `@import` rules in `css`.
 
-    > If there are no comments in `css`, this initial subsequence is empty and
-    > `initial-imports` is inserted at the beginning of `css`.
+    > If there are no comments or `@import` rules in `css`, this initial
+    > subsequence is empty and `initial-imports` is inserted at the beginning of
+    > `css`.
 
   * For each top-level statement `statement` in `domestic`'s CSS tree after
     `initial-imports`:
