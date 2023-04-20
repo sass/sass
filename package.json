@@ -6,7 +6,7 @@
     "https://npmjs.org/package/sass"
   ],
   "engines": {
-    "node": ">=14.0.0 <17.0.0"
+    "node": ">=14.0.0"
   },
   "scripts": {
     "link-check": "npx ts-node test/link-check.ts",
@@ -26,7 +26,7 @@
     "glob": "^10.0.0",
     "immutable": "^4.0.0",
     "indent-string": "^4.0.0",
-    "markdown-link-check": "git+https://sassbot@github.com/nex3/markdown-link-check.git#check-references",
+    "markdown-link-check": "3.11.1",
     "markdown-toc": "^1.2.0",
     "prettier": "^2.4.1",
     "source-map-js": "^0.6.2",
