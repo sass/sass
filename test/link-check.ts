@@ -99,8 +99,12 @@ function runLinkCheck(
           baseUrl: pathToFileURL(file).toString(),
           // If Github rate limit is reached, wait 60s and try again.
           retryOn429: true,
-          // Twitter links consistently fail.
-          ignorePatterns: [{pattern: /^https?:\/\/twitter\.com(\/|$)/}],
+          ignorePatterns: [
+            // Twitter links consistently fail.
+            {pattern: /^https?:\/\/twitter\.com(\/|$)/},
+            // tcort/markdown-link-check#260
+            {pattern: /^https?:\/\/blogs\.msdn\.microsoft\.com(\/|$)/},
+          ],
         },
         (error, results) => {
           if (error) {
