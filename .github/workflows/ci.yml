@@ -16,7 +16,7 @@ jobs:
     - uses: actions/setup-node@v3
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
-    - run: npx gts lint && npx tsc --noEmit
+    - run: npm run tangle && npx gts lint && npx tsc --noEmit
 
   toc:
     name: Tables of contents

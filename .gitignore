@@ -1,3 +1,9 @@
+# Ignore the tangled output of literate TypeScript specs.
+/proposal/*.d.ts
+/accepted/*.d.ts
+/spec/**/*.d.ts
+!/spec/util/**/*.d.ts
+
 # Created by https://www.gitignore.io/api/node
 # Edit at https://www.gitignore.io/?templates=node
 
