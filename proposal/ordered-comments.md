@@ -90,7 +90,7 @@ a {
 ```scss
 // In linked order
 /* before @use */
-/* before @forward
+/* before @forward */
 a {
   b: c;
 }
