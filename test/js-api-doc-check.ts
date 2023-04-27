@@ -17,10 +17,12 @@ const parser: prettier.CustomParser = (text, parsers) => {
 };
 
 for (const specPath of glob.sync('spec/js-api/**/*.d.ts')) {
-  const specFile = prettier.format(fs.readFileSync(specPath, 'utf-8'), {
-    filepath: specPath,
-    parser,
-  });
+  const specFile = prettier
+    .format(fs.readFileSync(specPath, 'utf-8'), {
+      filepath: specPath,
+      parser,
+    })
+    .replace(/\n\n+/g, '\n');
   const docPath = p.join('js-api-doc', p.relative('spec/js-api', specPath));
 
   if (!fs.existsSync(docPath)) {
@@ -31,10 +33,12 @@ for (const specPath of glob.sync('spec/js-api/**/*.d.ts')) {
     continue;
   }
 
-  const docFile = prettier.format(fs.readFileSync(docPath, 'utf-8'), {
-    filepath: specPath,
-    parser,
-  });
+  const docFile = prettier
+    .format(fs.readFileSync(docPath, 'utf-8'), {
+      filepath: specPath,
+      parser,
+    })
+    .replace(/\n\n+/g, '\n');
   if (specFile === docFile) continue;
 
   const diffResult = diff.createTwoFilesPatch(

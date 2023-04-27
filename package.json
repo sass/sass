@@ -12,14 +12,17 @@
     "link-check": "npx ts-node test/link-check.ts",
     "toc-check": "npx ts-node test/toc-check.ts",
     "update-toc": "npx ts-node tool/update-toc.ts",
-    "js-api-doc-check": "npx ts-node test/js-api-doc-check.ts",
-    "typedoc": "npx typedoc --treatWarningsAsErrors js-api-doc/index.d.ts",
-    "fix": "gts fix",
-    "test": "gts lint && tsc --noEmit && npm run toc-check && npm run link-check && npm run js-api-doc-check && npm run typedoc"
+    "js-api-doc-check": "npm run tangle && npx ts-node test/js-api-doc-check.ts",
+    "typedoc": "npm run tangle && npx typedoc --treatWarningsAsErrors js-api-doc/index.d.ts",
+    "tangle": "npx ts-node tool/tangle.ts",
+    "untangle": "npx ts-node tool/untangle.ts",
+    "fix": "npm run update-toc && npm run tangle && gts fix && npm run untangle",
+    "test": "npm run tangle && gts lint && tsc --noEmit && npm run toc-check && npm run link-check && npm run js-api-doc-check && npm run typedoc"
   },
   "dependencies": {
     "@types/diff": "^5.0.1",
     "@types/glob": "^7.1.4",
+    "@types/marked": "^4.0.8",
     "@types/prettier": "^2.4.1",
     "colors": "^1.3.3",
     "diff": "^5.0.0",
@@ -28,8 +31,10 @@
     "indent-string": "^4.0.0",
     "markdown-link-check": "3.11.1",
     "markdown-toc": "^1.2.0",
+    "marked": "^4.3.0",
     "prettier": "^2.4.1",
     "source-map-js": "^0.6.2",
+    "ts-dedent": "^2.2.0",
     "ts-node": "^10.2.1",
     "typedoc": "^0.22.4"
   },
