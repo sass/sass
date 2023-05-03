@@ -41,6 +41,8 @@ toc.files.forEach(file => {
     }
   }
   console.error();
+  
+  console.log("hi jenny, creating a log, merge conflict");
 
   process.exitCode = 1;
 });
