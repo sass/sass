@@ -211,38 +211,35 @@ accepted.
 
 ### JavaScript API Proposals
 
-Sass's shared JavaScript API is specified as TypeScript type declarations rather
-than as prose written in Markdown files, so the structure for those proposals is
-somewhat different. The entire proposal should be written as a `.d.ts` file,
-with the introduction, Background, and Summary sections in a top-level JSDoc
-comment (`/** ... */`). Rather than Syntax and Semantics sections, it should
-define the new behavior as TypeScript declarations under an "API" heading, using
-[declaration merging] when possible and prose otherwise to describe the changes
-to the existing API. If a Deprecation Process section is necessary, it should be
-written in another JSDoc comment after the API.
+Sass's shared JavaScript API is specified as TypeScript type declarations
+written as code blocks in Markdown files with the extension `.d.ts.md`. This is
+a variant of the [literate programming] style, which allows the specification
+(which is primarily prose) to be well-formatted with headings and cross-links,
+while still allowing the type declarations to be statically analyzed and
+automatically formatted. Spec editors can run `npm run tangle` to generate true
+`.d.ts` files, although this is typically handled automatically in the other npm
+tasks.
+
+[literate programming]: https://en.wikipedia.org/wiki/Literate_programming
+
+A JS API proposal has the same introduction, Background, and Summary sections as
+a normal language proposal. Rather than Syntax and Semantics sections, it should
+define the new behavior as TypeScript declarations, using [declaration merging]
+when possible and prose otherwise to describe the changes to the existing API.
+If a Deprecation Process section is necessary, it should be written after the
+API.
 
 [declaration merging]: https://www.typescriptlang.org/docs/handbook/declaration-merging.html
 
-The new API should have its own JSDoc comments which formally describe the
-behavior of the compiler. These should be written *as a specification*, rather
-than *as documentation*—that is, they should explicitly specify the behavior of
-the implementation in enough detail to ensure that multiple implementations will
-not produce different user-visible behavior.
+The new API should formally describe the behavior of the compiler. These should
+be written *as a specification*, rather than *as documentation*—that is, they
+should explicitly specify the behavior of the implementation in enough detail to
+ensure that multiple implementations will not produce different user-visible
+behavior.
 
-While a `.d.ts` file is recommended for any substantial API-centric proposals
-for its static analyzability and formatability, it's not *required*. It's
-sometimes better to just include the TypeScript as a code snippet in a Markdown
-document. For example, this may be better for:
-
-* Small changes (although these should use the [fast track] process if
-  possible).
-
-* Changes that are difficult to express using [declaration merging], such as
-  removing a parameter from a function.
-
-* Changes that don't affect the type structure of the API, only its behavior.
-
-[fast track]: #fast-track
+When defining new types or members, each type should have its own top-level
+section with each of its members should have a subsection beneath it.
+Module-level fields should go in the "Fields" top-level section.
 
 ## Fast Track
 
