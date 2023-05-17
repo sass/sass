@@ -13,6 +13,7 @@ process][], very small features can follow the [fast-track process][] instead.
 * [Process](#process)
 * [Proposal](#proposal)
   * [JavaScript API Proposals](#javascript-api-proposals)
+    * [Embedded Protocol](#embedded-protocol)
 * [Fast Track](#fast-track)
 * [Emergency Track](#emergency-track)
 
@@ -240,6 +241,19 @@ behavior.
 When defining new types or members, each type should have its own top-level
 section with each of its members should have a subsection beneath it.
 Module-level fields should go in the "Fields" top-level section.
+
+#### Embedded Protocol
+
+Most proposals that affect the JavaScript API will also need to update the
+[embedded protocol], which is used to communicate between the Dart Sass compiler
+and the [Node.js embedded host] (as well as embedded hosts in other languages).
+
+Although the protocol buffer definition format isn't automatically checked from
+Markdown the way TypeScript is, you should still include it in code blocks in
+your proposal under the "Embedded Protocol" section.
+
+[embedded protocol]: spec/embedded-protocol.md
+[Node.js embedded host]: https://github.com/sass/embedded-host-node
 
 ## Fast Track
 
