@@ -1,0 +1,1012 @@
+// Copyright 2019 Google Inc. Use of this source code is governed by an
+// MIT-style license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/MIT.
+
+syntax = "proto3";
+
+package sass.embedded_protocol;
+
+// The wrapper type for all messages sent from the host to the compiler. This
+// provides a `oneof` that makes it possible to determine the type of each
+// inbound message.
+message InboundMessage {
+  // A request for information about the version of the embedded compiler. The
+  // host can use this to provide diagnostic information to the user, to check
+  // which features the compiler supports, or to ensure that it's compatible
+  // with the same protocol version the compiler supports.
+  message VersionRequest {
+    // This version request's id. Mandatory.
+    uint32 id = 1;
+
+    // This message's contents are intentionally empty. It just acts as a signal
+    // to the compiler to send a VersionResponse. More fields may be added in
+    // the future.
+  }
+
+  // A request that compiles an entrypoint to CSS.
+  message CompileRequest {
+    // This compilation's request id. This is included in messages sent from the
+    // compiler to the host. Mandatory.
+    uint32 id = 1;
+
+    // An input stylesheet provided as plain text, rather than loaded from the
+    // filesystem.
+    message StringInput {
+      // The contents of the stylesheet.
+      string source = 1;
+
+      // The location from which `source` was loaded. If this is empty, it
+      // indicates that the URL is unknown.
+      //
+      // This must be a canonical URL recognized by `importer`, if it's passed.
+      string url = 2;
+
+      // The syntax to use to parse `source`.
+      Syntax syntax = 3;
+
+      // The importer to use to resolve imports relative to `url`.
+      Importer importer = 4;
+    }
+
+    // The input stylesheet to parse. Mandatory.
+    oneof input {
+      // A stylesheet loaded from its contents.
+      StringInput string = 2;
+
+      // A stylesheet loaded from the given path on the filesystem.
+      string path = 3;
+    }
+
+    // How to format the CSS output.
+    OutputStyle style = 4;
+
+    // Whether to generate a source map. Note that this will *not* add a source
+    // map comment to the stylesheet; that's up to the host or its users.
+    bool source_map = 5;
+
+    // A wrapper message that represents either a user-defined importer or a
+    // load path on disk. This must be a wrapper because `oneof` types can't be
+    // `repeated`.
+    message Importer {
+      // The possible types of importer. Mandatory.
+      oneof importer {
+        // A built-in importer that loads Sass files within the given directory
+        // on disk.
+        string path = 1;
+
+        // A unique ID for a user-defined importer. This ID will be included in
+        // outbound `CanonicalizeRequest` and `ImportRequest` messages to
+        // indicate which importer is being called. The host is responsible for
+        // generating this ID and ensuring that it's unique across all
+        // importers registered for this compilation.
+        uint32 importer_id = 2;
+
+        // A unique ID for a special kind of user-defined importer that tells
+        // the compiler where to look for files on the physical filesystem, but
+        // leaves the details of resolving partials and extensions and loading
+        // the file from disk up to the compiler itself.
+        //
+        // This ID will be included in outbound `FileImportRequest` messages to
+        // indicate which importer is being called. The host is responsible for
+        // generating this ID and ensuring that it's unique across all importers
+        // registered for this compilation.
+        uint32 file_importer_id = 3;
+      }
+    }
+
+    // Importers (including load paths on the filesystem) to use when resolving
+    // imports that can't be resolved relative to the file that contains it. Each
+    // importer is checked in order until one recognizes the imported URL.
+    repeated Importer importers = 6;
+
+    // Signatures for custom global functions whose behavior is defined by the
+    // host.
+    //
+    // If this is not a valid Sass function signature that could appear after
+    // `@function` in a Sass stylesheet (such as `mix($color1, $color2, $weight:
+    // 50%)`), or if it conflicts with a function name that's built into the
+    // Sass language, the compiler must treat the compilation as failed.
+    //
+    // Compilers must ensure that pure-Sass functions take precedence over
+    // custom global functions.
+    repeated string global_functions = 7;
+
+    // Whether to use terminal colors in the formatted message of errors and
+    // logs.
+    bool alert_color = 8;
+
+    // Whether to encode the formatted message of errors and logs in ASCII.
+    bool alert_ascii = 9;
+
+    // Whether to report all deprecation warnings or only the first few ones.
+    // If this is `false`, the compiler may choose not to send events for
+    // repeated deprecation warnings. If this is `true`, the compiler must emit
+    // an event for every deprecation warning it encounters.
+    bool verbose = 10;
+
+    // Whether to omit events for deprecation warnings coming from dependencies
+    // (files loaded from a different importer than the input).
+    bool quiet_deps = 11;
+
+    // Whether to include sources in the generated sourcemap
+    bool source_map_include_sources = 12;
+
+    // Whether to emit a `@charset`/BOM for non-ASCII stylesheets.
+    bool charset = 13;
+  }
+
+  // A response indicating the result of canonicalizing an imported URL.
+  message CanonicalizeResponse {
+    uint32 id = 1;
+
+    // The result of canonicalization. Optional. If this is `null`, it indicates
+    // that the importer either did not recognize the URL, or could not find a
+    // stylesheet at the location it referred to.
+    oneof result {
+      // The successfully canonicalized URL.
+      //
+      // If this is not an absolute URL (including scheme), the compiler must
+      // treat that as an error thrown by the importer.
+      string url = 2;
+
+      // An error message explaining why canonicalization failed.
+      //
+      // This indicates that a stylesheet was found, but a canonical URL for it
+      // could not be determined. If no stylesheet was found, `result` should be
+      // `null` instead.
+      string error = 3;
+    }
+  }
+
+  // A response indicating the result of importing a canonical URL.
+  message ImportResponse {
+    uint32 id = 1;
+
+    // The stylesheet's contents were loaded successfully.
+    message ImportSuccess {
+      // The text of the stylesheet. Mandatory.
+      string contents = 1;
+
+      // The syntax of `contents`. Mandatory.
+      Syntax syntax = 2;
+
+      // An absolute, browser-accessible URL indicating the resolved location of
+      // the imported stylesheet. Optional.
+      //
+      // This should be a `file:` URL if one is available, but an `http:` URL is
+      // acceptable as well. If no URL is supplied, a `data:` URL is generated
+      // automatically from `contents`.
+      //
+      // If this is provided and is not an absolute URL (including scheme) the
+      // compiler must treat that as an error thrown by the importer.
+      string source_map_url = 3;
+    }
+
+    // The result of loading the URL. Optional. If this is `null`, it indicates
+    // that the importer either did not recognize the URL, or could not find a
+    // stylesheet at the location it referred to.
+    oneof result {
+      // The contents of the loaded stylesheet.
+      ImportSuccess success = 2;
+
+      // An error message explaining why the URL could not be loaded.
+      string error = 3;
+    }
+  }
+
+  // A response indicating the result of redirecting a URL to the filesystem.
+  message FileImportResponse {
+    uint32 id = 1;
+
+    // The result of loading the URL. Optional. A null result indicates that the
+    // importer did not recognize the URL and other importers or load paths
+    // should be tried.
+    oneof result {
+      // The absolute `file:` URL to look for the file on the physical
+      // filesystem.
+      //
+      // The compiler must verify to the best of its ability that this URL
+      // follows the format for an absolute `file:` URL on the current operating
+      // system without a hostname. If it doesn't, the compiler must treat that
+      // as an error thrown by the importer. See
+      // https://en.wikipedia.org/wiki/File_URI_scheme for details on the
+      // format.
+      //
+      // The compiler must handle turning this into a canonical URL by resolving
+      // it for partials, file extensions, and index files. The compiler must
+      // then loading the contents of the resulting canonical URL from the
+      // filesystem.
+      string file_url = 2;
+
+      // An error message explaining why the URL could not be loaded.
+      string error = 3;
+    }
+  }
+
+  // A response indicating the result of calling a custom Sass function defined
+  // in the host.
+  message FunctionCallResponse {
+    uint32 id = 1;
+
+    // The result of calling the function. Mandatory.
+    oneof result {
+      // The return value of a successful function call.
+      Value success = 2;
+
+      // An error message explaining why the function call failed.
+      string error = 3;
+    }
+
+    // The IDs of all `Value.ArgumentList`s in `FunctionCallRequest.arguments`
+    // whose keywords were accessed. See `Value.ArgumentList` for details.
+    // Mandatory if `result.success` is set. This may not include the special
+    // value `0` and it may not include multiple instances of the same ID.
+    repeated uint32 accessed_argument_lists = 4;
+  }
+
+  // The wrapped message. Mandatory.
+  oneof message {
+    CompileRequest compile_request = 2;
+    CanonicalizeResponse canonicalize_response = 3;
+    ImportResponse import_response = 4;
+    FileImportResponse file_import_response = 5;
+    FunctionCallResponse function_call_response = 6;
+    VersionRequest version_request = 7;
+  }
+}
+
+// The wrapper type for all messages sent from the compiler to the host. This
+// provides a `oneof` that makes it possible to determine the type of each
+// outbound message.
+message OutboundMessage {
+  // A response that contains the version of the embedded compiler.
+  message VersionResponse {
+    // This version request's id. Mandatory.
+    uint32 id = 5;
+
+    // The version of the embedded protocol, in semver format.
+    string protocol_version = 1;
+
+    // The version of the embedded compiler package. This has no guaranteed
+    // format, although compilers are encouraged to use semver.
+    string compiler_version = 2;
+
+    // The version of the Sass implementation that the embedded compiler wraps.
+    // This has no guaranteed format, although Sass implementations are
+    // encouraged to use semver.
+    string implementation_version = 3;
+
+    // The name of the Sass implementation that the embedded compiler wraps.
+    string implementation_name = 4;
+  }
+
+  // A response that contains the result of a compilation.
+  message CompileResponse {
+    // The compilation's request id. Mandatory.
+    uint32 id = 1;
+
+    // A message indicating that the Sass file was successfully compiled to CSS.
+    message CompileSuccess {
+      // The compiled CSS.
+      string css = 1;
+
+      // The JSON-encoded source map, or the empty string if
+      // `CompileRequest.source_map` was `false`.
+      //
+      // The compiler must not add a `"file"` key to this source map. It's the
+      // host's (or the host's user's) responsibility to determine how the
+      // generated CSS can be reached from the source map.
+      string source_map = 2;
+
+      // The canonical URLs of all source files loaded during the compilation.
+      //
+      // The compiler must ensure that each canonical URL appears only once in
+      // this list. This must include the entrypoint file's URL if either
+      // `CompileRequest.input.path` or `CompileRequest.StringInput.url` was
+      // passed.
+      repeated string loaded_urls = 3;
+    }
+
+    // A message indicating that the Sass file could not be successfully
+    // compiled to CSS.
+    message CompileFailure {
+      // A message describing the reason for the failure.
+      string message = 1;
+
+      // The span associated with the failure. Mandatory.
+      SourceSpan span = 2;
+
+      // The stack trace associated with the failure.
+      //
+      // The empty string indicates that no stack trace is available. Otherwise,
+      // the format of this stack trace is not specified and is likely to be
+      // inconsistent between implementations.
+      string stack_trace = 3;
+
+      // A formatted, human-readable string that contains the message, span
+      // (if available), and trace (if available). The format of this string is
+      // not specified and is likely to be inconsistent between implementations.
+      string formatted = 4;
+    }
+
+    // The success or failure result of the compilation. Mandatory.
+    oneof result {
+      // The result of a successful compilation.
+      CompileSuccess success = 2;
+
+      // The result of a failed compilation.
+      CompileFailure failure = 3;
+    }
+  }
+
+  // An event indicating that a message should be displayed to the user.
+  message LogEvent {
+    // The request id for the compilation that triggered the message. Mandatory.
+    uint32 compilation_id = 1;
+
+    LogEventType type = 2;
+
+    // The text of the message.
+    string message = 3;
+
+    // The span associated with this message. Optional.
+    SourceSpan span = 4;
+
+    // The stack trace associated with this message.
+    //
+    // The empty string indicates that no stack trace is available. Otherwise,
+    // the format of this stack trace is not specified and is likely to be
+    // inconsistent between implementations.
+    string stack_trace = 5;
+
+    // A formatted, human-readable string that contains the message, span (if
+    // available), and trace (if available). The format of this string is not
+    // specified and is likely to be inconsistent between implementations.
+    string formatted = 6;
+  }
+
+  // A request for a custom importer to convert an imported URL to its canonical
+  // format.
+  //
+  // If the URL is not recognized by this importer, or if no stylesheet is found
+  // at that URL, `CanonicalizeResponse.result` must be `null`. Otherwise, the
+  // importer must return an absolute URL, including a scheme.
+  //
+  // > The host's documentation should encourage the use of file importers (via
+  // > `CompileRequest.Importer.file_importer_id`, `FileImportRequest`, and
+  // > `FileImportResponse`) for any importers that simply refer to files on
+  // > disk. This will allow Sass to handle the logic of resolving partials,
+  // > file extensions, and index files.
+  //
+  // If Sass has already loaded a stylesheet with the returned canonical URL, it
+  // re-uses the existing parse tree. This means that importers must ensure that
+  // the same canonical URL always refers to the same stylesheet, *even across
+  // different importers*. Importers must also ensure that any canonicalized
+  // URLs they return can be passed back to `CanonicalizeRequest` and will be
+  // returned unchanged.
+  //
+  // If this importer's URL format supports file extensions, it should
+  // canonicalize them the same way as the default filesystem importer:
+  //
+  // * The importer should look for stylesheets by adding the prefix `_` to the
+  //   URL's basename, and by adding the extensions `.sass` and `.scss` if the
+  //   URL doesn't already have one of those extensions. For example, if the URL
+  //   was `foo/bar/baz`, the importer would look for:
+  //
+  //   * `foo/bar/baz.sass`
+  //   * `foo/bar/baz.scss`
+  //   * `foo/bar/_baz.sass`
+  //   * `foo/bar/_baz.scss`
+  //
+  //   If the URL was foo/bar/baz.scss, the importer would just look for:
+  //
+  //   * `foo/bar/baz.scss`
+  //   * `foo/bar/_baz.scss`
+  //
+  //   If the importer finds a stylesheet at more than one of these URLs, it
+  //   should respond with a `CanonicalizeResponse.result.error` indicating that
+  //   the import is ambiguous. Note that if the extension is explicitly
+  //   specified, a stylesheet with another extension may exist without error.
+  //
+  // * If none of the possible paths is valid, the importer should perform the
+  //   same resolution on the URL followed by `/index`. In the example above, it
+  //   would look for:
+  //
+  //   * `foo/bar/baz/_index.sass`
+  //   * `foo/bar/baz/index.sass`
+  //   * `foo/bar/baz/_index.scss`
+  //   * `foo/bar/baz/index.scss`
+  //
+  //   As above, if the importer finds a stylesheet at more than one of these
+  //   URLs, it should respond with a `CanonicalizeResponse.result.error`
+  //   indicating that the import is ambiguous.
+  message CanonicalizeRequest {
+    uint32 id = 1;
+
+    // The request id for the compilation that triggered the message. Mandatory.
+    uint32 compilation_id = 2;
+
+    // The unique ID of the importer being invoked. This must match an importer
+    // ID passed to this compilation in `CompileRequest.importers` or
+    // `CompileRequest.input.string.importer`. Mandatory.
+    uint32 importer_id = 3;
+
+    // The URL of the import to be canonicalized. This may be either absolute or
+    // relative.
+    //
+    // When loading a URL, the compiler must first try resolving that URL
+    // relative to the canonical URL of the current file, and canonicalizing the
+    // result using the importer that loaded the current file. If this returns
+    // `null`, the compiler must then try canonicalizing the original URL with
+    // each importer in order until one returns something other than `null`.
+    // That is the result of the import.
+    string url = 4;
+
+    /// Whether this request comes from an `@import` rule.
+    ///
+    /// When evaluating `@import` rules, URLs should canonicalize to an
+    /// [import-only file] if one exists for the URL being canonicalized.
+    /// Otherwise, canonicalization should be identical for `@import` and `@use`
+    /// rules.
+    ///
+    /// [import-only file]: https://sass-lang.com/documentation/at-rules/import#import-only-files
+    bool from_import = 5;
+  }
+
+  // A request for a custom importer to load the contents of a stylesheet.
+  message ImportRequest {
+    uint32 id = 1;
+
+    // The request id for the compilation that triggered the message. Mandatory.
+    uint32 compilation_id = 2;
+
+    // The unique ID of the importer being invoked. This must match an
+    // `Importer.importer_id` passed to this compilation in
+    // `CompileRequest.importers` or `CompileRequest.input.string.importer`.
+    // Mandatory.
+    uint32 importer_id = 3;
+
+    // The canonical URL of the import. This is guaranteed to be a URL returned
+    // by a `CanonicalizeRequest` to this importer.
+    string url = 4;
+  }
+
+  // A request for a custom filesystem importer to load the contents of a
+  // stylesheet.
+  //
+  // A filesystem importer is represented in the compiler as an [importer]. When
+  // the importer is invoked with a string `string`:
+  //
+  // [importer]: https://github.com/sass/sass/tree/main/spec/modules.md#importer
+  //
+  // * If `string` is an absolute URL whose scheme is `file`:
+  //
+  //   * Let `url` be string.
+  //
+  // * Otherwise:
+  //
+  //   * Let `fromImport` be `true` if the importer is being run for an
+  //     `@import` and `false` otherwise.
+  //
+  //   * Let `response` be the result of sending a `FileImportRequest` with
+  //     `string` as its `url` and `fromImport` as `from_import`.
+  //
+  //   * If `response.result` is null, return null.
+  //
+  //   * Otherwise, if `response.result.error` is set, throw an error.
+  //
+  //   * Otherwise, let `url` be `response.result.file_url`.
+  //
+  // * Let `resolved` be the result of [resolving `url`].
+  //
+  // * If `resolved` is null, return null.
+  //
+  // * Let `text` be the contents of the file at `resolved`.
+  //
+  // * Let `syntax` be:
+  //   * "scss" if `url` ends in `.scss`.
+  //   * "indented" if `url` ends in `.sass`.
+  //   * "css" if `url` ends in `.css`.
+  //
+  //   > The algorithm for resolving a `file:` URL guarantees that `url` will have
+  //   > one of these extensions.
+  //
+  // * Return `text`, `syntax`, and `resolved`.
+  //
+  // [resolving `url`]: https://github.com/sass/sass/tree/main/spec/modules.md#resolving-a-file-url
+  message FileImportRequest {
+    uint32 id = 1;
+
+    // The request id for the compilation that triggered the message. Mandatory.
+    uint32 compilation_id = 2;
+
+    // The unique ID of the importer being invoked. This must match an
+    // `Importer.file_importer_id` passed to this compilation in
+    // `CompileRequest.importers` or `CompileRequest.input.string.importer`.
+    // Mandatory.
+    uint32 importer_id = 3;
+
+    // The (non-canonicalized) URL of the import.
+    string url = 4;
+
+    /// Whether this request comes from an `@import` rule.
+    ///
+    /// When evaluating `@import` rules, filesystem importers should load an
+    /// [import-only file] if one exists for the URL being canonicalized.
+    /// Otherwise, canonicalization should be identical for `@import` and `@use`
+    /// rules.
+    ///
+    /// [import-only file]: https://sass-lang.com/documentation/at-rules/import#import-only-files
+    bool from_import = 5;
+  }
+
+  // A request to invoke a custom Sass function and return its result.
+  message FunctionCallRequest {
+    uint32 id = 1;
+
+    // The request id for the compilation that triggered the message. Mandatory.
+    uint32 compilation_id = 2;
+
+    // An identifier that indicates which function to invoke. Mandatory.
+    oneof identifier {
+      // The name of the function to invoke.
+      //
+      // This must match the name of a function signature the host passed to the
+      // corresponding `CompileRequest.global_functions` call, including hyphens
+      // and underscores.
+      string name = 3;
+
+      // The opaque ID of the function to invoke.
+      //
+      // This must match the ID of a `Value.HostFunction` that the host passed
+      // to the compiler.
+      uint32 function_id = 4;
+    }
+
+    // The arguments passed to the function, in the order they appear in the
+    // function signature passed to `CompileRequest.global_functions`. Mandatory.
+    //
+    // The compiler must ensure that a valid number of arguments are passed for
+    // the given signature, that default argument values are instantiated
+    // appropriately, and that variable argument lists (`$args...`) are passed
+    // as `Value.ArgumentList`s.
+    repeated Value arguments = 5;
+  }
+
+  // The wrapped message. Mandatory.
+  oneof message {
+    ProtocolError error = 1;
+    CompileResponse compile_response = 2;
+    LogEvent log_event = 3;
+    CanonicalizeRequest canonicalize_request = 4;
+    ImportRequest import_request = 5;
+    FileImportRequest file_import_request = 6;
+    FunctionCallRequest function_call_request = 7;
+    VersionResponse version_response = 8;
+  }
+}
+
+// Possible ways to format the CSS output. The compiler is not required to
+// support all possible options; if the host requests an unsupported style, the
+// compiler should choose the closest supported style.
+enum OutputStyle {
+  // Each selector and declaration is written on its own line.
+  EXPANDED = 0;
+
+  // The entire stylesheet is written on a single line, with as few characters
+  // as possible.
+  COMPRESSED = 1;
+}
+
+// Possible syntaxes for a Sass stylesheet.
+enum Syntax {
+  // The CSS-superset `.scss` syntax.
+  SCSS = 0;
+
+  // The indented `.sass` syntax.
+  INDENTED = 1;
+
+  // Plain CSS syntax that doesn't support any special Sass features.
+  CSS = 2;
+}
+
+// The possible types of [LogEvent].
+enum LogEventType {
+  // A warning for something other than a deprecated Sass feature. Often emitted
+  // due to a stylesheet using the `@warn` rule.
+  WARNING = 0;
+
+  // A warning indicating that the stylesheet is using a deprecated Sass
+  // feature. Compilers should not add text like "deprecation warning" to
+  // deprecation warnings; it's up to the host to determine how to signal that
+  // to the user.
+  DEPRECATION_WARNING = 1;
+
+  // A message generated by the user for their own debugging purposes.
+  DEBUG = 2;
+}
+
+// An error reported when an endpoint violates the embedded Sass protocol.
+message ProtocolError {
+  ProtocolErrorType type = 1;
+
+  // The ID of the request that had an error. This MUST be `4294967295` if the
+  // request ID couldn't be determined, or if the error is being reported for a
+  // response or an event.
+  uint32 id = 2;
+
+  // A human-readable message providing more detail about the error.
+  string message = 3;
+}
+
+// Potential types of protocol errors.
+enum ProtocolErrorType {
+  // A message was received that couldn't be decoded as an `InboundMessage` (for
+  // the compiler) or `OutboundMessage` (for the host).
+  PARSE = 0;
+
+  // A message was received that violated a documented restriction, such as not
+  // providing a mandatory field.
+  PARAMS = 1;
+
+  // Something unexpected went wrong within the endpoint.
+  INTERNAL = 2;
+}
+
+// A chunk of a source file.
+message SourceSpan {
+  // The text covered by the source span. Compilers must guarantee that this is
+  // the text between `start.offset` and `end.offset` in the source file
+  // referred to by `url`.
+  string text = 1;
+
+  // A single point in a source file.
+  message SourceLocation {
+    // The 0-based offset of this location within the source file. Mandatory.
+    uint32 offset = 1;
+
+    // The 0-based line number of this location within the source file.
+    // Mandatory.
+    uint32 line = 2;
+
+    // The 0-based column number of this location within its line. Mandatory.
+    uint32 column = 3;
+  }
+
+  // The location of the first character in this span. Mandatory.
+  SourceLocation start = 2;
+
+  // The location of the first character after this span. Optional.
+  //
+  // If this is omitted, it indicates that the span is empty and points
+  // immediately before `start`. In that case, `text` must be empty.
+  //
+  // This must not point to a location before `start`.
+  SourceLocation end = 3;
+
+  // The URL of the file to which this span refers.
+  //
+  // This may be empty, indicating that the span refers to a
+  // `CompileRequest.StringInput` file that doesn't specify a URL.
+  string url = 4;
+
+  // Additional source text surrounding this span.
+  //
+  // If this isn't empty, it must contain `text`. Furthermore, `text` must begin
+  // at column `start.column` of a line in `context`.
+  //
+  // This usually contains the full lines the span begins and ends on if the
+  // span itself doesn't cover the full lines.
+  string context = 5;
+}
+
+// A SassScript value, passed to and returned by functions.
+message Value {
+  // A SassScript string value.
+  message String {
+    // The contents of the string. Mandatory.
+    string text = 1;
+
+    // Whether the string is quoted or unquoted. Mandatory.
+    bool quoted = 2;
+  }
+
+  // A SassScript number value.
+  message Number {
+    // The number's numeric value. Mandatory.
+    double value = 1;
+
+    // The number's numerator units.
+    //
+    // The endpoint sending the number must ensure that no numerator units are
+    // [compatible][] with any denominator units. Such compatible units must be
+    // simplified away according to the multiplicative factor between them
+    // defined in the CSS Values and Units spec.
+    //
+    // [compatible]: https://www.w3.org/TR/css-values-4/#compat
+    repeated string numerators = 2;
+
+    // The number's denominator units.
+    repeated string denominators = 3;
+  }
+
+  // A SassScript color value, represented as red, green, and blue channels.
+  //
+  // All Sass color values can be equivalently represented as `RgbColor`,
+  // `HslColor`, and `HwbColor` messages without loss of color information that
+  // can affect CSS rendering. As such, either endpoint may choose to send any
+  // color value as any one of these three messages.
+  message RgbColor {
+    // The color's red channel. Mandatory. May not be above 255.
+    uint32 red = 1;
+
+    // The color's green channel. Mandatory. May not be above 255.
+    uint32 green = 2;
+
+    // The color's blue channel. Mandatory. May not be above 255.
+    uint32 blue = 3;
+
+    // The color's alpha channel. Mandatory. Must be between 0 and 1,
+    // inclusive.
+    double alpha = 4;
+  }
+
+  // A SassScript color value, represented as hue, saturation, and lightness channels.
+  message HslColor {
+    // The color's hue. Mandatory.
+    double hue = 1;
+
+    // The color's percent saturation. Mandatory. Must be between 0 and 100,
+    // inclusive.
+    double saturation = 2;
+
+    // The color's percent lightness. Mandatory. Must be between 0 and 100,
+    // inclusive.
+    double lightness = 3;
+
+    // The color's alpha channel. Mandatory. Must be between 0 and 1,
+    // inclusive.
+    double alpha = 4;
+  }
+
+  // A SassScript color value, represented as hue, whiteness, and blackness
+  // channels.
+  message HwbColor {
+    // The color's hue. Mandatory.
+    double hue = 1;
+
+    // The color's percent whiteness. Mandatory. Must be between 0 and 100,
+    // inclusive. The sum of `whiteness` and `blackness` must not exceed 100.
+    double whiteness = 2;
+
+    // The color's percent blackness. Mandatory. Must be between 0 and 100,
+    // inclusive. The sum of `whiteness` and `blackness` must not exceed 100.
+    double blackness = 3;
+
+    // The color's alpha channel. Mandatory. Must be between 0 and 1,
+    // inclusive.
+    double alpha = 4;
+  }
+
+  // A SassScript list value.
+  message List {
+    // The type of separator for this list. Mandatory.
+    ListSeparator separator = 1;
+
+    // Whether this list has square brackets. Mandatory.
+    bool has_brackets = 2;
+
+    // The elements of this list.
+    repeated Value contents = 3;
+  }
+
+  // A SassScript map value.
+  message Map {
+    // A single key/value pair in the map.
+    message Entry {
+      // The key this entry is associated with. Mandatory.
+      Value key = 1;
+
+      // The value associated with this key. Mandatory.
+      Value value = 2;
+    }
+
+    // The entries in this map. The sending endpoint must guarantee that no two
+    // entries have the same key.
+    repeated Entry entries = 1;
+  }
+
+  // A first-class function defined in the compiler. New `CompilerFunction`s may
+  // only be created by the compiler, but the host may pass `CompilerFunction`s
+  // back to the compiler as long as their IDs match IDs of functions received
+  // by the host during that same compilation.
+  message CompilerFunction {
+    // A unique ID for this function. The compiler is responsible for generating
+    // this ID and ensuring it's unique across all functions passed to the host
+    // for this compilation. Mandatory.
+    uint32 id = 1;
+  }
+
+  // An anonymous custom function defined in the host. New `HostFunction`s may
+  // only be created by the host, and `HostFunction`s may *never* be passed from
+  // the compiler to the host. The compiler must instead pass a
+  // `CompilerFunction` that wraps the `HostFunction`.
+  message HostFunction {
+    // A unique ID for this function. The compiler must pass this ID as
+    // `OutboundRequest.FunctionCallRequest.id` when invoking this function. The
+    // host is responsible for generating this ID and ensuring it's unique
+    // across all functions for *all* compilations. Mandatory.
+    uint32 id = 1;
+
+    // The signature for this function. Mandatory.
+    //
+    // If this isn't a valid Sass function signature that could appear after
+    // `@function` in a Sass stylesheet (such as `mix($color1, $color2, $weight:
+    // 50%)`), the compiler must treat it as though the function that returned
+    // this `HostFunction` threw an error.
+    //
+    // > This ensures that the host doesn't need to be able to correctly parse
+    // > the entire function declaration syntax.
+    //
+    // The compiler may not invoke the function by its name, since it's not
+    // guaranteed to be globally unique. However, it may use the name to
+    // generate the string representation of this function.
+    string signature = 2;
+  }
+
+  // A SassScript argument list value. This represents rest arguments passed to
+  // a function's `$arg...` parameter. Unlike a normal `List`, an argument list
+  // has an associated keywords map which tracks keyword arguments passed in
+  // alongside positional arguments.
+  //
+  // For each `ArgumentList` in `FunctionCallRequest.arguments` (including those
+  // nested within `List`s and `Map`s), the host must track whether its keyword
+  // arguments were accessed by the user. If they were, it must add its
+  // `ArgumentList.id` to `FunctionCallResponse.accessed_argument_lists`.
+  //
+  // The compiler must treat every `ArgumentList` whose `ArgumentList.id`
+  // appears in `FunctionCallResponse.accessed_argument_lists` as though it had
+  // been passed to `meta.keywords()`.
+  message ArgumentList {
+    // An ID for this argument list that's unique within the scope of a given
+    // `FunctionCallRequest`.
+    //
+    // The special ID `0` is reserved for `ArgumentList`s created by the host,
+    // and may not be used by the compiler. These `ArgumentList`s do not need to
+    // have their IDs added to `FunctionCallResponse.accessed_argument_lists`,
+    // and the compiler should treat them as though their keywords have always
+    // been accessed.
+    uint32 id = 1;
+
+    // The type of separator for this list. The compiler must set this, but
+    // the host may omit it for `ArgumentList`s that were originally created by
+    // the compiler (that is, those with a non-0 ID).
+    ListSeparator separator = 2;
+
+    // The argument list's positional contents. The compiler must set this, but
+    // the host may omit it for `ArgumentList`s that were originally created by
+    // the compiler (that is, those with a non-0 ID).
+    repeated Value contents = 3;
+
+    // The argument list's keywords. The compiler must set this, but the host
+    // may omit it for `ArgumentList`s that were originally created by the
+    // compiler (that is, those with a non-0 ID).
+    map<string, Value> keywords = 4;
+  }
+
+  // A SassScript calculation value. The compiler must send fully [simplified]
+  // calculations, meaning that simplifying it again will produce the same
+  // calculation. The host is not required to simplify calculations.
+  //
+  // [simplified]: https://github.com/sass/sass/tree/main/spec/types/calculation.md#simplifying-a-calculation
+  //
+  // The compiler must simplify any calculations it receives from the host
+  // before returning them from a function. If this simplification produces an
+  // error, it should be treated as though the function call threw that error.
+  // It should *not* be treated as a protocol error.
+  message Calculation {
+    // The calculation's name. Mandatory. The host may only set this to names
+    // that the Sass specification uses to create calculations.
+    string name = 1;
+
+    // The calculation's arguments. Mandatory. The host must use exactly the
+    // number of arguments used by the Sass specification for calculations with
+    // the given `name`.
+    repeated CalculationValue arguments = 2;
+
+    // A single component of a calculation expression.
+    message CalculationValue {
+      // The value of the component. Mandatory.
+      oneof value {
+        Number number = 1;
+
+        // An unquoted string, as from a function like `var()` or `env()`.
+        string string = 2;
+
+        // An unquoted string as created by interpolation for
+        // backwards-compatibility with older Sass syntax.
+        string interpolation = 3;
+
+        CalculationOperation operation = 4;
+        Calculation calculation = 5;
+      }
+    }
+
+    // A binary operation that appears in a calculation.
+    message CalculationOperation {
+      // The operator to perform.
+      CalculationOperator operator = 1;
+
+      // The left-hand side of the operation.
+      CalculationValue left = 2;
+
+      // The right-hand side of the operation.
+      CalculationValue right = 3;
+    }
+  }
+
+  // The value itself. Mandatory.
+  //
+  // This is wrapped in a message type rather than used directly to reduce
+  // repetition, and because oneofs can't be repeated.
+  oneof value {
+    String string = 1;
+    Number number = 2;
+    RgbColor rgb_color = 3;
+    HslColor hsl_color = 4;
+    List list = 5;
+    Map map = 6;
+    SingletonValue singleton = 7;
+    CompilerFunction compiler_function = 8;
+    HostFunction host_function = 9;
+    ArgumentList argument_list = 10;
+    HwbColor hwb_color = 11;
+    Calculation calculation = 12;
+  }
+}
+
+// Different types of separators a list can have.
+enum ListSeparator {
+  // List elements are separated by a comma.
+  COMMA = 0;
+
+  // List elements are separated by whitespace.
+  SPACE = 1;
+
+  // List elements are separated by a forward slash.
+  SLASH = 2;
+
+  // The list's separator hasn't yet been determined. This is only allowed for
+  // singleton and empty lists.
+  //
+  // Singleton lists and empty lists don't have separators defined. This means
+  // that list functions will prefer other lists' separators if possible.
+  UNDECIDED = 3;
+}
+
+// Singleton SassScript values that have no internal state.
+enum SingletonValue {
+  // The SassScript boolean true value.
+  TRUE = 0;
+
+  // The SassScript boolean false value.
+  FALSE = 1;
+
+  // The SassScript null value.
+  NULL = 2;
+}
+
+// An operator used in a calculation value's operation.
+enum CalculationOperator {
+  // The addition operator.
+  PLUS = 0;
+
+  // The subtraction operator.
+  MINUS = 1;
+
+  // The multiplication operator.
+  TIMES = 2;
+
+  // The division operator.
+  DIVIDE = 3;
+}
