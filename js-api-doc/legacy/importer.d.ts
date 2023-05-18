@@ -1,12 +1,12 @@
 import {LegacyPluginThis} from './plugin_this';
 
 /**
- * The value of `this` in the context of a [[LegacyImporter]] function.
+ * The value of `this` in the context of a {@link LegacyImporter} function.
  *
  * @category Legacy
- * @deprecated This is only used by the legacy [[render]] and [[renderSync]]
- * APIs. Use [[Importer]] with [[compile]], [[compileString]], [[compileAsync]],
- * and [[compileStringAsync]] instead.
+ * @deprecated This is only used by the legacy {@link render} and {@link
+ * renderSync} APIs. Use {@link Importer} with {@link compile}, {@link
+ * compileString}, {@link compileAsync}, and {@link compileStringAsync} instead.
  */
 interface LegacyImporterThis extends LegacyPluginThis {
   /**
@@ -22,8 +22,8 @@ interface LegacyImporterThis extends LegacyPluginThis {
 }
 
 /**
- * The result of running a [[LegacyImporter]]. It must be one of the following
- * types:
+ * The result of running a {@link LegacyImporter}. It must be one of the
+ * following types:
  *
  * * An object with the key `contents` whose value is the contents of a stylesheet
  *   (in SCSS syntax). This causes Sass to load that stylesheet’s contents.
@@ -38,9 +38,9 @@ interface LegacyImporterThis extends LegacyPluginThis {
  *   object, indicating that importing failed.
  *
  * @category Legacy
- * @deprecated This only works with the legacy [[render]] and [[renderSync]]
- * APIs. Use [[ImporterResult]] with [[compile]], [[compileString]],
- * [[compileAsync]], and [[compileStringAsync]] instead.
+ * @deprecated This only works with the legacy {@link render} and {@link
+ * renderSync} APIs. Use {@link ImporterResult} with {@link compile}, {@link
+ * compileString}, {@link compileAsync}, and {@link compileStringAsync} instead.
  */
 export type LegacyImporterResult =
   | {file: string}
@@ -52,10 +52,10 @@ export type LegacyImporterResult =
  * A synchronous callback that implements custom Sass loading logic for
  * [`@import` rules](https://sass-lang.com/documentation/at-rules/import) and
  * [`@use` rules](https://sass-lang.com/documentation/at-rules/use). This can be
- * passed to [[LegacySharedOptions.importer]] for either [[render]] or
- * [[renderSync]].
+ * passed to {@link LegacySharedOptions.importer} for either {@link render} or
+ * {@link renderSync}.
  *
- * See [[LegacySharedOptions.importer]] for more detailed documentation.
+ * See {@link LegacySharedOptions.importer} for more detailed documentation.
  *
  * ```js
  * sass.renderSync({
@@ -85,9 +85,9 @@ export type LegacyImporterResult =
  * * If the stylesheet came from the data option, it’s the string "stdin".
  *
  * @category Legacy
- * @deprecated This only works with the legacy [[render]] and [[renderSync]]
- * APIs. Use [[Importer]] with [[compile]], [[compileString]], [[compileAsync]],
- * and [[compileStringAsync]] instead.
+ * @deprecated This only works with the legacy {@link render} and {@link
+ * renderSync} APIs. Use {@link Importer} with {@link compile}, {@link
+ * compileString}, {@link compileAsync}, and {@link compileStringAsync} instead.
  */
 type LegacySyncImporter = (
   this: LegacyImporterThis,
@@ -99,13 +99,13 @@ type LegacySyncImporter = (
  * An asynchronous callback that implements custom Sass loading logic for
  * [`@import` rules](https://sass-lang.com/documentation/at-rules/import) and
  * [`@use` rules](https://sass-lang.com/documentation/at-rules/use). This can be
- * passed to [[LegacySharedOptions.importer]] for either [[render]] or
- * [[renderSync]].
+ * passed to {@link LegacySharedOptions.importer} for either {@link render} or
+ * {@link renderSync}.
  *
  * An asynchronous importer must return `undefined`, and then call `done` with
- * the result of its [[LegacyImporterResult]] once it's done running.
+ * the result of its {@link LegacyImporterResult} once it's done running.
  *
- * See [[LegacySharedOptions.importer]] for more detailed documentation.
+ * See {@link LegacySharedOptions.importer} for more detailed documentation.
  *
  * ```js
  * sass.render({
@@ -137,9 +137,9 @@ type LegacySyncImporter = (
  * @param done - The callback to call once the importer has finished running.
  *
  * @category Legacy
- * @deprecated This only works with the legacy [[render]] and [[renderSync]]
- * APIs. Use [[Importer]] with [[compile]], [[compileString]], [[compileAsync]],
- * and [[compileStringAsync]] instead.
+ * @deprecated This only works with the legacy {@link render} and {@link
+ * renderSync} APIs. Use {@link Importer} with {@link compile}, {@link
+ * compileString}, {@link compileAsync}, and {@link compileStringAsync} instead.
  */
 type LegacyAsyncImporter = (
   this: LegacyImporterThis,
@@ -151,17 +151,18 @@ type LegacyAsyncImporter = (
 /**
  * A callback that implements custom Sass loading logic for [`@import`
  * rules](https://sass-lang.com/documentation/at-rules/import) and [`@use`
- * rules](https://sass-lang.com/documentation/at-rules/use). For [[renderSync]],
- * this must be a [[LegacySyncImporter]] which returns its result directly; for
- * [[render]], it may be either a [[LegacySyncImporter]] or a
- * [[LegacyAsyncImporter]] which calls a callback with its result.
+ * rules](https://sass-lang.com/documentation/at-rules/use). For {@link
+ * renderSync}, this must be a {@link LegacySyncImporter} which returns its
+ * result directly; for {@link render}, it may be either a {@link
+ * LegacySyncImporter} or a {@link LegacyAsyncImporter} which calls a callback
+ * with its result.
  *
- * See [[LegacySharedOptions.importer]] for more details.
+ * See {@link LegacySharedOptions.importer} for more details.
  *
  * @category Legacy
- * @deprecated This only works with the legacy [[render]] and [[renderSync]]
- * APIs. Use [[Importer]] with [[compile]], [[compileString]], [[compileAsync]],
- * and [[compileStringAsync]] instead.
+ * @deprecated This only works with the legacy {@link render} and {@link
+ * renderSync} APIs. Use {@link Importer} with {@link compile}, {@link
+ * compileString}, {@link compileAsync}, and {@link compileStringAsync} instead.
  */
 export type LegacyImporter<sync = 'sync' | 'async'> = sync extends 'async'
   ? LegacySyncImporter | LegacyAsyncImporter

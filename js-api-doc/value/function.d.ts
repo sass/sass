@@ -16,7 +16,7 @@ export class SassFunction extends Value {
    * @param signature - The function signature, like you'd write for the
    * [`@function rule`](https://sass-lang.com/documentation/at-rules/function).
    * @param callback - The callback that's invoked when this function is called,
-   * just like for a [[CustomFunction]].
+   * just like for a {@link CustomFunction}.
    */
   constructor(signature: string, callback: (args: Value[]) => Value);
 }

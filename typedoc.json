@@ -1,6 +1,8 @@
 {
-  "excludePrivate": true,
-  "excludeProtected": true,
+  "navigation": {
+    "includeCategories": true,
+  },
+  "hideParameterTypesInTitle": false,
   "categorizeByGroup": false,
   "categoryOrder": [
     "Compile",

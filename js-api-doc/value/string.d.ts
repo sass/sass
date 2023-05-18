@@ -62,7 +62,7 @@ export class SassString extends Value {
   get sassLength(): number;
 
   /**
-   * Converts `sassIndex` to a JavaScript index into [[text]].
+   * Converts `sassIndex` to a JavaScript index into {@link text}.
    *
    * Sass indices are one-based, while JavaScript indices are zero-based. Sass
    * indices may also be negative in order to index from the end of the string.

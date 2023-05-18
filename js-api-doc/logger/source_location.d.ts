@@ -1,8 +1,8 @@
 /**
  * A specific location within a source file.
  *
- * This is always associated with a [[SourceSpan]] which indicates *which* file
- * it refers to.
+ * This is always associated with a {@link SourceSpan} which indicates *which*
+ * file it refers to.
  *
  * @category Logger
  */

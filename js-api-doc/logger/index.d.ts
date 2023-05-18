@@ -4,8 +4,8 @@ export {SourceLocation} from './source_location';
 export {SourceSpan} from './source_span';
 
 /**
- * An object that can be passed to [[LegacySharedOptions.logger]] to control how
- * Sass emits warnings and debug messages.
+ * An object that can be passed to {@link LegacySharedOptions.logger} to control
+ * how Sass emits warnings and debug messages.
  *
  * @example
  *
@@ -70,14 +70,14 @@ export interface Logger {
 }
 
 /**
- * A namespace for built-in [[Logger]]s.
+ * A namespace for built-in {@link Logger}s.
  *
  * @category Logger
  * @compatibility dart: "1.43.0", node: false
  */
 export namespace Logger {
   /**
-   * A [[Logger]] that silently ignores all warnings and debug messages.
+   * A {@link Logger} that silently ignores all warnings and debug messages.
    *
    * @example
    *

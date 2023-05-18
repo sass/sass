@@ -12,9 +12,9 @@ export interface SourceSpan {
   /**
    * The end of this span, exclusive.
    *
-   * If [[start]] and [[end]] refer to the same location, the span has zero
-   * length and refers to the point immediately after [[start]] and before the
-   * next character.
+   * If {@link start} and {@link end} refer to the same location, the span has
+   * zero length and refers to the point immediately after {@link start} and
+   * before the next character.
    */
   end: SourceLocation;
 

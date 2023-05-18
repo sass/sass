@@ -3,17 +3,17 @@ import {LegacyImporter} from './importer';
 import {LegacyFunction} from './function';
 
 /**
- * Options for [[render]] and [[renderSync]] that are shared between
- * [[LegacyFileOptions]] and [[LegacyStringOptions]].
+ * Options for {@link render} and {@link renderSync} that are shared between
+ * {@link LegacyFileOptions} and {@link LegacyStringOptions}.
  *
- * @typeParam sync - This lets the TypeScript checker verify that
- * [[LegacyAsyncImporter]]s and [[LegacyAsyncFunction]]s aren't passed to
- * [[renderSync]].
+ * @typeParam sync - This lets the TypeScript checker verify that {@link
+ * LegacyAsyncImporter}s and {@link LegacyAsyncFunction}s aren't passed to
+ * {@link renderSync}.
  *
  * @category Legacy
- * @deprecated This only works with the legacy [[render]] and [[renderSync]]
- * APIs. Use [[Options]] with [[compile]], [[compileString]], [[compileAsync]],
- * and [[compileStringAsync]] instead.
+ * @deprecated This only works with the legacy {@link render} and {@link
+ * renderSync} APIs. Use {@link Options} with {@link compile}, {@link
+ * compileString}, {@link compileAsync}, and {@link compileStringAsync} instead.
  */
 export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
   /**
@@ -67,8 +67,8 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
   indentType?: 'space' | 'tab';
 
   /**
-   * How many spaces or tabs (depending on [[indentType]]) should be used per
-   * indentation level in the generated CSS. It must be between 0 and 10
+   * How many spaces or tabs (depending on {@link indentType}) should be used
+   * per indentation level in the generated CSS. It must be between 0 and 10
    * (inclusive).
    *
    * @defaultValue `2`
@@ -206,19 +206,19 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
 
   /**
    * Whether or not Sass should generate a source map. If it does, the source
-   * map will be available as [[LegacyResult.map]] (unless [[sourceMapEmbed]] is
-   * `true`).
+   * map will be available as {@link LegacyResult.map} (unless {@link
+   * sourceMapEmbed} is `true`).
    *
    * If this option is a string, it’s the path that the source map is expected
    * to be written to, which is used to link to the source map from the
    * generated CSS and to link *from* the source map to the Sass source files.
-   * Note that if `sourceMap` is a string and [[outFile]] isn’t passed, Sass
+   * Note that if `sourceMap` is a string and {@link outFile} isn’t passed, Sass
    * assumes that the CSS will be written to the same directory as the file
    * option if it’s passed.
    *
-   * If this option is `true`, the path is assumed to be [[outFile]] with `.map`
-   * added to the end. If it’s `true` and [[outFile]] isn’t passed, it has no
-   * effect.
+   * If this option is `true`, the path is assumed to be {@link outFile} with
+   * `.map` added to the end. If it’s `true` and {@link outFile} isn’t passed,
+   * it has no effect.
    *
    * @example
    *
@@ -302,12 +302,12 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    * Additional handler(s) for loading files when a [`@use`
    * rule](https://sass-lang.com/documentation/at-rules/use) or an [`@import`
    * rule](https://sass-lang.com/documentation/at-rules/import) is encountered.
-   * It can either be a single [[LegacyImporter]] function, or an array of
-   * [[LegacyImporter]]s.
+   * It can either be a single {@link LegacyImporter} function, or an array of
+   * {@link LegacyImporter}s.
    *
-   * Importers take the URL of the `@import` or `@use` rule and return a
-   * [[LegacyImporterResult]] indicating how to handle that rule. For more
-   * details, see [[LegacySyncImporter]] and [[LegacyAsyncImporter]].
+   * Importers take the URL of the `@import` or `@use` rule and return a {@link
+   * LegacyImporterResult} indicating how to handle that rule. For more details,
+   * see {@link LegacySyncImporter} and {@link LegacyAsyncImporter}.
    *
    * Loads are resolved by trying, in order:
    *
@@ -318,7 +318,7 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    *
    * * Loading a file relative to the current working directory.
    *
-   * * Each load path in [[includePaths]].
+   * * Each load path in {@link includePaths}.
    *
    * * Each load path specified in the `SASS_PATH` environment variable, which
    *   should be semicolon-separated on Windows and colon-separated elsewhere.
@@ -371,7 +371,7 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    * @compatibility feature: "Import order", dart: "1.20.2", node: false
    *
    * Versions of Dart Sass before 1.20.2 preferred resolving imports using
-   * [[includePaths]] before resolving them using custom importers.
+   * {@link includePaths} before resolving them using custom importers.
    *
    * All versions of Node Sass currently pass imports to importers before
    * loading them relative to the file in which the `@import` appears. This
@@ -387,8 +387,8 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
   /**
    * Additional built-in Sass functions that are available in all stylesheets.
    * This option takes an object whose keys are Sass function signatures and
-   * whose values are [[LegacyFunction]]s. Each function should take the same
-   * arguments as its signature.
+   * whose values are {@link LegacyFunction}s. Each function should take the
+   * same arguments as its signature.
    *
    * Functions are passed JavaScript representations of [Sass value
    * types](https://sass-lang.com/documentation/js-api#value-types), and must
@@ -464,18 +464,18 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
   /**
    * If this option is set to `true`, Sass won’t print warnings that are caused
    * by dependencies. A “dependency” is defined as any file that’s loaded
-   * through [[loadPaths]] or [[importer]]. Stylesheets that are imported
-   * relative to the entrypoint are not considered dependencies.
+   * through {@link includePaths} or {@link importer}. Stylesheets that are
+   * imported relative to the entrypoint are not considered dependencies.
    *
    * This is useful for silencing deprecation warnings that you can’t fix on
    * your own. However, please <em>also</em> notify your dependencies of the deprecations
    * so that they can get fixed as soon as possible!
    *
-   * **Heads up!** If [[render]] or [[renderSync]] is called without
-   * [[LegacyFileOptions.file]] or [[LegacyStringOptions.file]], <em>all</em>
-   * stylesheets it loads will be considered dependencies. Since it doesn’t have
-   * a path of its own, everything it loads is coming from a load path rather
-   * than a relative import.
+   * **Heads up!** If {@link render} or {@link renderSync} is called without
+   * {@link LegacyFileOptions.file} or {@link LegacyStringOptions.file},
+   * <em>all</em> stylesheets it loads will be considered dependencies. Since it
+   * doesn’t have a path of its own, everything it loads is coming from a load
+   * path rather than a relative import.
    *
    * @defaultValue `false`
    * @category Messages
@@ -499,10 +499,10 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    * An object to use to handle warnings and/or debug messages from Sass.
    *
    * By default, Sass emits warnings and debug messages to standard error, but
-   * if [[Logger.warn]] or [[Logger.debug]] is set, this will invoke them
-   * instead.
+   * if {@link Logger.warn} or {@link Logger.debug} is set, this will invoke
+   * them instead.
    *
-   * The special value [[Logger.silent]] can be used to easily silence all
+   * The special value {@link Logger.silent} can be used to easily silence all
    * messages.
    *
    * @category Messages
@@ -512,12 +512,12 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
 }
 
 /**
- * If [[file]] is passed without [[data]], Sass will load the stylesheet at
- * [[file]] and compile it to CSS.
+ * If {@link file} is passed without {@link data}, Sass will load the stylesheet
+ * at {@link file} and compile it to CSS.
  *
- * @typeParam sync - This lets the TypeScript checker verify that
- * [[LegacyAsyncImporter]]s and [[LegacyAsyncFunction]]s aren't passed to
- * [[renderSync]].
+ * @typeParam sync - This lets the TypeScript checker verify that {@link
+ * LegacyAsyncImporter}s and {@link LegacyAsyncFunction}s aren't passed to
+ * {@link renderSync}.
  */
 export interface LegacyFileOptions<sync extends 'sync' | 'async'>
   extends LegacySharedOptions<sync> {
@@ -548,8 +548,8 @@ export interface LegacyFileOptions<sync extends 'sync' | 'async'>
   file: string;
 
   /**
-   * See [[LegacyStringOptions.file]] for documentation of passing [[file]] along
-   * with [[data]].
+   * See {@link LegacyStringOptions.file} for documentation of passing {@link
+   * file} along with {@link data}.
    *
    * @category Input
    */
@@ -557,26 +557,26 @@ export interface LegacyFileOptions<sync extends 'sync' | 'async'>
 }
 
 /**
- * If [[data]] is passed, Sass will use it as the contents of the stylesheet to
- * compile.
+ * If {@link data} is passed, Sass will use it as the contents of the stylesheet
+ * to compile.
  *
- * @typeParam sync - This lets the TypeScript checker verify that
- * [[LegacyAsyncImporter]]s and [[LegacyAsyncFunction]]s aren't passed to
- * [[renderSync]].
+ * @typeParam sync - This lets the TypeScript checker verify that {@link
+ * LegacyAsyncImporter}s and {@link LegacyAsyncFunction}s aren't passed to
+ * {@link renderSync}.
  *
  * @category Legacy
- * @deprecated This only works with the legacy [[render]] and [[renderSync]]
- * APIs. Use [[StringOptions]] with [[compile]], [[compileString]],
- * [[compileAsync]], and [[compileStringAsync]] instead.
+ * @deprecated This only works with the legacy {@link render} and {@link
+ * renderSync} APIs. Use {@link StringOptions} with {@link compile}, {@link
+ * compileString}, {@link compileAsync}, and {@link compileStringAsync} instead.
  */
 export interface LegacyStringOptions<sync extends 'sync' | 'async'>
   extends LegacySharedOptions<sync> {
   /**
-   * The contents of the stylesheet to compile. Unless [[file]] is passed as
+   * The contents of the stylesheet to compile. Unless {@link file} is passed as
    * well, the stylesheet’s URL is set to `"stdin"`.
    *
    * By default, this stylesheet is parsed as SCSS. This can be controlled using
-   * [[indentedSyntax]].
+   * {@link indentedSyntax}.
    *
    * @example
    *
@@ -594,17 +594,17 @@ export interface LegacyStringOptions<sync extends 'sync' | 'async'>
   data: string;
 
   /**
-   * If `file` and [[data]] are both passed, `file` is used as the path of the
-   * stylesheet for error reporting, but [[data]] is used as the contents of the
-   * stylesheet. In this case, `file`’s extension is not used to determine the
-   * syntax of the stylesheet.
+   * If `file` and {@link data} are both passed, `file` is used as the path of
+   * the stylesheet for error reporting, but {@link data} is used as the
+   * contents of the stylesheet. In this case, `file`’s extension is not used to
+   * determine the syntax of the stylesheet.
    *
    * @category Input
    */
   file?: string;
 
   /**
-   * This flag controls whether [[data]] is parsed as the indented syntax or
+   * This flag controls whether {@link data} is parsed as the indented syntax or
    * not.
    *
    * @example
@@ -625,17 +625,17 @@ export interface LegacyStringOptions<sync extends 'sync' | 'async'>
 }
 
 /**
- * Options for [[render]] and [[renderSync]]. This can either be
- * [[LegacyFileOptions]] to load a file from disk, or [[LegacyStringOptions]] to
- * compile a string of Sass code.
+ * Options for {@link render} and {@link renderSync}. This can either be {@link
+ * LegacyFileOptions} to load a file from disk, or {@link LegacyStringOptions}
+ * to compile a string of Sass code.
  *
- * See [[LegacySharedOptions]] for options that are shared across both file and
- * string inputs.
+ * See {@link LegacySharedOptions} for options that are shared across both file
+ * and string inputs.
  *
  * @category Legacy
- * @deprecated This only works with the legacy [[render]] and [[renderSync]]
- * APIs. Use [[Options]] with [[compile]], [[compileString]], [[compileAsync]],
- * and [[compileStringAsync]] instead.
+ * @deprecated This only works with the legacy {@link render} and {@link
+ * renderSync} APIs. Use {@link Options} with {@link compile}, {@link
+ * compileString}, {@link compileAsync}, and {@link compileStringAsync} instead.
  */
 export type LegacyOptions<sync extends 'sync' | 'async'> =
   | LegacyFileOptions<sync>

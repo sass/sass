@@ -32,7 +32,7 @@ export type OutputStyle = 'expanded' | 'compressed';
 
 /**
  * A callback that implements a custom Sass function. This can be passed to
- * [[Options.functions]].
+ * {@link Options.functions}.
  *
  * ```js
  * const result = sass.compile('style.scss', {
@@ -49,21 +49,21 @@ export type OutputStyle = 'expanded' | 'compressed';
  * ```
  *
  * @typeParam sync - A `CustomFunction<'sync'>` must return synchronously, but
- * in return it can be passed to [[compile]] and [[compileString]] in addition
- * to [[compileAsync]] and [[compileStringAsync]].
+ * in return it can be passed to {@link compile} and {@link compileString} in
+ * addition to {@link compileAsync} and {@link compileStringAsync}.
  *
  * A `CustomFunction<'async'>` may either return synchronously or
- * asynchronously, but it can only be used with [[compileAsync]] and
- * [[compileStringAsync]].
+ * asynchronously, but it can only be used with {@link compileAsync} and {@link
+ * compileStringAsync}.
  *
  * @param args - An array of arguments passed by the function's caller. If the
  * function takes [arbitrary
  * arguments](https://sass-lang.com/documentation/at-rules/function#taking-arbitrary-arguments),
- * the last element will be a [[SassArgumentList]].
+ * the last element will be a {@link SassArgumentList}.
  *
  * @returns The function's result. This may be in the form of a `Promise`, but
- * if it is the function may only be passed to [[compileAsync]] and
- * [[compileStringAsync]], not [[compile]] or [[compileString]].
+ * if it is the function may only be passed to {@link compileAsync} and {@link
+ * compileStringAsync}, not {@link compile} or {@link compileString}.
  *
  * @throws any - This function may throw an error, which the Sass compiler will
  * treat as the function call failing. If the exception object has a `message`
@@ -78,12 +78,12 @@ export type CustomFunction<sync extends 'sync' | 'async'> = (
 ) => PromiseOr<Value, sync>;
 
 /**
- * Options that can be passed to [[compile]], [[compileAsync]],
- * [[compileString]], or [[compileStringAsync]].
+ * Options that can be passed to {@link compile}, {@link compileAsync}, {@link
+ * compileString}, or {@link compileStringAsync}.
  *
  * @typeParam sync - This lets the TypeScript checker verify that asynchronous
- * [[Importer]]s, [[FileImporter]]s, and [[CustomFunction]]s aren't passed to
- * [[compile]] or [[compileString]].
+ * {@link Importer}s, {@link FileImporter}s, and {@link CustomFunction}s aren't
+ * passed to {@link compile} or {@link compileString}.
  *
  * @category Options
  */
@@ -127,7 +127,7 @@ export interface Options<sync extends 'sync' | 'async'> {
    * This option takes an object whose keys are Sass function signatures like
    * you'd write for the [`@function
    * rule`](https://sass-lang.com/documentation/at-rules/function) and whose
-   * values are [[CustomFunction]]s.
+   * values are {@link CustomFunction}s.
    *
    * Functions are passed JavaScript representations of [Sass value
    * types](https://sass-lang.com/documentation/js-api#value-types), and must
@@ -137,18 +137,18 @@ export interface Options<sync extends 'sync' | 'async'> {
    * and as close to the standards set by Sass's core functions as possible. Some
    * good guidelines to follow include:
    *
-   * * Use `Value.assert*` methods, like [[Value.assertString]], to cast untyped
-   *   `Value` objects to more specific types. For values that were passed
-   *   directly as arguments, pass in the argument name as well. This ensures
-   *   that the user gets good error messages when they pass in the wrong type
-   *   to your function.
+   * * Use `Value.assert*` methods, like {@link Value.assertString}, to cast
+   *   untyped `Value` objects to more specific types. For values that were
+   *   passed directly as arguments, pass in the argument name as well. This
+   *   ensures that the user gets good error messages when they pass in the
+   *   wrong type to your function.
    *
-   * * Individual classes may have more specific `assert*` methods, like
-   *   [[SassNumber.assertInt]], which should be used when possible.
+   * * Individual classes may have more specific `assert*` methods, like {@link
+   *   SassNumber.assertInt}, which should be used when possible.
    *
    * * In Sass, every value counts as a list. Rather than trying to detect the
-   *   [[SassList]] type, you should use [[Value.asList]] to treat all values as
-   *   lists.
+   *   {@link SassList} type, you should use {@link Value.asList} to treat all
+   *   values as lists.
    *
    * * When manipulating values like lists, strings, and numbers that have
    *   metadata (comma versus space separated, bracketed versus unbracketed,
@@ -160,9 +160,8 @@ export interface Options<sync extends 'sync' | 'async'> {
    *
    * * In Sass, lists and strings use one-based indexing and use negative
    *   indices to index from the end of value. Functions should follow these
-   *   conventions. [[Value.sassIndexToListIndex]] and
-   *   [[SassString.sassIndexToStringIndex]] can be used to do this
-   *   automatically.
+   *   conventions. {@link Value.sassIndexToListIndex} and {@link
+   *   SassString.sassIndexToStringIndex} can be used to do this automatically.
    *
    * * String indexes in Sass refer to Unicode code points while JavaScript
    *   string indices refer to UTF-16 code units. For example, the character
@@ -170,9 +169,9 @@ export interface Options<sync extends 'sync' | 'async'> {
    *   is represented in UTF-16 as two code units (`0xD83D` and `0xDE0A`). So in
    *   JavaScript, `"a😊b".charCodeAt(1)` returns `0xD83D`, whereas in Sass
    *   `str-slice("a😊b", 1, 1)` returns `"😊"`. Functions should follow Sass's
-   *   convention. [[SassString.sassIndexToStringIndex]] can be used to do this
-   *   automatically, and the [[SassString.sassLength]] getter can be used to
-   *   access a string's length in code points.
+   *   convention. {@link SassString.sassIndexToStringIndex} can be used to do
+   *   this automatically, and the {@link SassString.sassLength} getter can be
+   *   used to access a string's length in code points.
    *
    * @example
    *
@@ -209,9 +208,10 @@ export interface Options<sync extends 'sync' | 'async'> {
    * - The importer that was used to load the current stylesheet, with the
    *   loaded URL resolved relative to the current stylesheet's canonical URL.
    *
-   * - Each [[Importer]] or [[FileImporter]] in [[importers]], in order.
+   * - Each {@link Importer} or {@link FileImporter} in {@link importers}, in
+   *   order.
    *
-   * - Each load path in [[loadPaths]], in order.
+   * - Each load path in {@link loadPaths}, in order.
    *
    * If none of these return a Sass file, the load fails and Sass throws an
    * error.
@@ -225,7 +225,7 @@ export interface Options<sync extends 'sync' | 'async'> {
    * [`@use`](https://sass-lang.com/documentation/at-rules/use) and
    * [`@import`](https://sass-lang.com/documentation/at-rules/import).
    *
-   * A load path `loadPath` is equivalent to the following [[FileImporter]]:
+   * A load path `loadPath` is equivalent to the following {@link FileImporter}:
    *
    * ```js
    * {
@@ -245,10 +245,10 @@ export interface Options<sync extends 'sync' | 'async'> {
    * An object to use to handle warnings and/or debug messages from Sass.
    *
    * By default, Sass emits warnings and debug messages to standard error, but
-   * if [[Logger.warn]] or [[Logger.debug]] is set, this will invoke them
-   * instead.
+   * if {@link Logger.warn} or {@link Logger.debug} is set, this will invoke
+   * them instead.
    *
-   * The special value [[Logger.silent]] can be used to easily silence all
+   * The special value {@link Logger.silent} can be used to easily silence all
    * messages.
    *
    * @category Messages
@@ -258,18 +258,18 @@ export interface Options<sync extends 'sync' | 'async'> {
   /**
    * If this option is set to `true`, Sass won’t print warnings that are caused
    * by dependencies. A “dependency” is defined as any file that’s loaded
-   * through [[loadPaths]] or [[importer]]. Stylesheets that are imported
-   * relative to the entrypoint are not considered dependencies.
+   * through {@link loadPaths} or {@link importers}. Stylesheets that are
+   * imported relative to the entrypoint are not considered dependencies.
    *
    * This is useful for silencing deprecation warnings that you can’t fix on
    * your own. However, please <em>also</em> notify your dependencies of the deprecations
    * so that they can get fixed as soon as possible!
    *
-   * **Heads up!** If [[compileString]] or [[compileStringAsync]] is called
-   * without [[StringWithoutImporter.url]], <em>all</em> stylesheets it loads
-   * will be considered dependencies. Since it doesn’t have a path of its own,
-   * everything it loads is coming from a load path rather than a relative
-   * import.
+   * **Heads up!** If {@link compileString} or {@link compileStringAsync} is
+   * called without {@link StringOptionsWithoutImporter.url}, <em>all</em>
+   * stylesheets it loads will be considered dependencies. Since it doesn’t have
+   * a path of its own, everything it loads is coming from a load path rather
+   * than a relative import.
    *
    * @defaultValue `false`
    * @category Messages
@@ -278,7 +278,7 @@ export interface Options<sync extends 'sync' | 'async'> {
 
   /**
    * Whether or not Sass should generate a source map. If it does, the source
-   * map will be available as [[CompileResult.sourceMap]].
+   * map will be available as {@link CompileResult.sourceMap}.
    *
    * **Heads up!** Sass doesn't automatically add a `sourceMappingURL` comment
    * to the generated CSS. It's up to callers to do that, since callers have
@@ -293,7 +293,7 @@ export interface Options<sync extends 'sync' | 'async'> {
   /**
    * Whether Sass should include the sources in the generated source map.
    *
-   * This option has no effect if [[sourceMap]] is `false`.
+   * This option has no effect if {@link sourceMap} is `false`.
    *
    * @defaultValue `false`
    * @category Output
@@ -301,7 +301,7 @@ export interface Options<sync extends 'sync' | 'async'> {
   sourceMapIncludeSources?: boolean;
 
   /**
-   * The [[OutputStyle]] of the compiled CSS.
+   * The {@link OutputStyle} of the compiled CSS.
    *
    * @example
    *
@@ -345,22 +345,23 @@ export interface Options<sync extends 'sync' | 'async'> {
 }
 
 /**
- * Options that can be passed to [[compileString]] or [[compileStringAsync]].
+ * Options that can be passed to {@link compileString} or {@link
+ * compileStringAsync}.
  *
- * If the [[StringOptionsWithImporter.importer]] field isn't passed, the
+ * If the {@link StringOptionsWithImporter.importer} field isn't passed, the
  * entrypoint file can load files relative to itself if a `file://` URL is
- * passed to the [[url]] field.
+ * passed to the {@link url} field.
  *
  * @typeParam sync - This lets the TypeScript checker verify that asynchronous
- * [[Importer]]s, [[FileImporter]]s, and [[CustomFunction]]s aren't passed to
- * [[compile]] or [[compileString]].
+ * {@link Importer}s, {@link FileImporter}s, and {@link CustomFunction}s aren't
+ * passed to {@link compile} or {@link compileString}.
  *
  * @category Options
  */
 export interface StringOptionsWithoutImporter<sync extends 'sync' | 'async'>
   extends Options<sync> {
   /**
-   * The [[Syntax]] to use to parse the entrypoint stylesheet.
+   * The {@link Syntax} to use to parse the entrypoint stylesheet.
    *
    * @default `'scss'`
    *
@@ -371,9 +372,10 @@ export interface StringOptionsWithoutImporter<sync extends 'sync' | 'async'>
   /**
    * The canonical URL of the entrypoint stylesheet.
    *
-   * A relative load's URL is first resolved relative to [[url]], then resolved
-   * to a file on disk if it's a `file://` URL. If it can't be resolved to a
-   * file on disk, it's then passed to [[importers]] and [[loadPaths]].
+   * A relative load's URL is first resolved relative to {@link url}, then
+   * resolved to a file on disk if it's a `file://` URL. If it can't be resolved
+   * to a file on disk, it's then passed to {@link importers} and {@link
+   * loadPaths}.
    *
    * @category Input
    */
@@ -381,15 +383,16 @@ export interface StringOptionsWithoutImporter<sync extends 'sync' | 'async'>
 }
 
 /**
- * Options that can be passed to [[compileString]] or [[compileStringAsync]].
+ * Options that can be passed to {@link compileString} or {@link
+ * compileStringAsync}.
  *
- * If the [[StringOptionsWithImporter.importer]] field is passed, the entrypoint
- * file uses it to load files relative to itself and the [[url]] field is
- * mandatory.
+ * If the {@link StringOptionsWithImporter.importer} field is passed, the
+ * entrypoint file uses it to load files relative to itself and the {@link url}
+ * field is mandatory.
  *
  * @typeParam sync - This lets the TypeScript checker verify that asynchronous
- * [[Importer]]s, [[FileImporter]]s, and [[CustomFunction]]s aren't passed to
- * [[compile]] or [[compileString]].
+ * {@link Importer}s, {@link FileImporter}s, and {@link CustomFunction}s aren't
+ * passed to {@link compile} or {@link compileString}.
  *
  * @category Options
  */
@@ -399,9 +402,9 @@ export interface StringOptionsWithImporter<sync extends 'sync' | 'async'>
    * The importer to use to handle loads that are relative to the entrypoint
    * stylesheet.
    *
-   * A relative load's URL is first resolved relative to [[url]], then passed to
-   * [[importer]]. If the importer doesn't recognize it, it's then passed to
-   * [[importers]] and [[loadPaths]].
+   * A relative load's URL is first resolved relative to {@link url}, then
+   * passed to {@link importer}. If the importer doesn't recognize it, it's then
+   * passed to {@link importers} and {@link loadPaths}.
    *
    * @category Input
    */
@@ -409,8 +412,8 @@ export interface StringOptionsWithImporter<sync extends 'sync' | 'async'>
 
   /**
    * The canonical URL of the entrypoint stylesheet. If this is passed along
-   * with [[importer]], it's used to resolve relative loads in the entrypoint
-   * stylesheet.
+   * with {@link importer}, it's used to resolve relative loads in the
+   * entrypoint stylesheet.
    *
    * @category Input
    */
@@ -418,15 +421,16 @@ export interface StringOptionsWithImporter<sync extends 'sync' | 'async'>
 }
 
 /**
- * Options that can be passed to [[compileString]] or [[compileStringAsync]].
+ * Options that can be passed to {@link compileString} or {@link
+ * compileStringAsync}.
  *
- * This is a [[StringOptionsWithImporter]] if it has a
- * [[StringOptionsWithImporter.importer]] field, and a
- * [[StringOptionsWithoutImporter]] otherwise.
+ * This is a {@link StringOptionsWithImporter} if it has a {@link
+ * StringOptionsWithImporter.importer} field, and a {@link
+ * StringOptionsWithoutImporter} otherwise.
  *
  * @typeParam sync - This lets the TypeScript checker verify that asynchronous
- * [[Importer]]s, [[FileImporter]]s, and [[CustomFunction]]s aren't passed to
- * [[compile]] or [[compileString]].
+ * {@link Importer}s, {@link FileImporter}s, and {@link CustomFunction}s aren't
+ * passed to {@link compile} or {@link compileString}.
  *
  * @category Options
  */

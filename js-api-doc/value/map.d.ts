@@ -13,13 +13,13 @@ export class SassMap extends Value {
    * Creates a new map.
    *
    * @param contents - The contents of the map. This is an immutable
-   * [[OrderedMap]] from the [`immutable` package](https://immutable-js.com/).
+   * `OrderedMap` from the [`immutable` package](https://immutable-js.com/).
    * Defaults to an empty map.
    */
   constructor(contents?: OrderedMap<Value, Value>);
 
   /**
-   * Returns the contents of this map as an immutable [[OrderedMap]] from the
+   * Returns the contents of this map as an immutable {@link OrderedMap} from the
    * [`immutable` package](https://immutable-js.com/).
    */
   get contents(): OrderedMap<Value, Value>;
@@ -33,7 +33,7 @@ export class SassMap extends Value {
    */
   get(key: Value): Value | undefined;
 
-  /** Inherited from [[Value.get]]. */
+  /** Inherited from {@link Value.get}. */
   get(index: number): SassList | undefined;
 
   /** @hidden */
