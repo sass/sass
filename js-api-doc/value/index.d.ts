@@ -27,8 +27,8 @@ export const sassNull: Value;
 /**
  * The abstract base class of Sass's value types.
  *
- * This is passed to and returned by [[CustomFunction]]s, which are passed into
- * the Sass implementation using [[Options.functions]].
+ * This is passed to and returned by {@link CustomFunction}s, which are passed
+ * into the Sass implementation using {@link Options.functions}.
  *
  * @category Custom Function
  */
@@ -41,7 +41,7 @@ export abstract class Value implements ValueObject {
    * All SassScript values can be used as lists. Maps count as lists of pairs,
    * and all other values count as single-value lists.
    *
-   * @returns An immutable [[List]] from the [`immutable`
+   * @returns An immutable {@link List} from the [`immutable`
    * package](https://immutable-js.com/).
    */
   get asList(): List<Value>;
@@ -61,7 +61,7 @@ export abstract class Value implements ValueObject {
   get isTruthy(): boolean;
 
   /**
-   * Returns JavaScript's `null` value if this is [[sassNull]], and returns
+   * Returns JavaScript's `null` value if this is {@link sassNull}, and returns
    * `this` otherwise.
    */
   get realNull(): null | Value;
@@ -76,7 +76,7 @@ export abstract class Value implements ValueObject {
 
   /**
    * Converts `sassIndex` into a JavaScript-style index into the list returned
-   * by [[asList]].
+   * by {@link asList}.
    *
    * Sass indexes are one-based, while JavaScript indexes are zero-based. Sass
    * indexes may also be negative in order to index from the end of the list.
@@ -85,7 +85,7 @@ export abstract class Value implements ValueObject {
    * @param name - The name of the function argument `sassIndex` came from
    * (without the `$`) if it came from an argument. Used for error reporting.
    * @throws `Error` If `sassIndex` isn't a number, if that number isn't an
-   * integer, or if that integer isn't a valid index for [[asList]].
+   * integer, or if that integer isn't a valid index for {@link asList}.
    */
   sassIndexToListIndex(sassIndex: Value, name?: string): number;
 
@@ -106,9 +106,9 @@ export abstract class Value implements ValueObject {
   get(index: number): Value | undefined;
 
   /**
-   * Throws if `this` isn't a [[SassBoolean]].
+   * Throws if `this` isn't a {@link SassBoolean}.
    *
-   * **Heads up!** Functions should generally use [[isTruthy]] rather than
+   * **Heads up!** Functions should generally use {@link isTruthy} rather than
    * requiring a literal boolean.
    *
    * @param name - The name of the function argument `this` came from (without
@@ -117,7 +117,7 @@ export abstract class Value implements ValueObject {
   assertBoolean(name?: string): SassBoolean;
 
   /**
-   * Throws if `this` isn't a [[SassColor]].
+   * Throws if `this` isn't a {@link SassColor}.
    *
    * @param name - The name of the function argument `this` came from (without
    * the `$`) if it came from an argument. Used for error reporting.
@@ -125,7 +125,7 @@ export abstract class Value implements ValueObject {
   assertColor(name?: string): SassColor;
 
   /**
-   * Throws if `this` isn't a [[SassFunction]].
+   * Throws if `this` isn't a {@link SassFunction}.
    *
    * @param name - The name of the function argument `this` came from (without
    * the `$`) if it came from an argument. Used for error reporting.
@@ -133,7 +133,7 @@ export abstract class Value implements ValueObject {
   assertFunction(name?: string): SassFunction;
 
   /**
-   * Throws if `this` isn't a [[SassMap]].
+   * Throws if `this` isn't a {@link SassMap}.
    *
    * @param name - The name of the function argument `this` came from (without
    * the `$`) if it came from an argument. Used for error reporting.
@@ -141,7 +141,7 @@ export abstract class Value implements ValueObject {
   assertMap(name?: string): SassMap;
 
   /**
-   * Throws if `this` isn't a [[SassNumber]].
+   * Throws if `this` isn't a {@link SassNumber}.
    *
    * @param name - The name of the function argument `this` came from (without
    * the `$`) if it came from an argument. Used for error reporting.
@@ -149,7 +149,7 @@ export abstract class Value implements ValueObject {
   assertNumber(name?: string): SassNumber;
 
   /**
-   * Throws if `this` isn't a [[SassString]].
+   * Throws if `this` isn't a {@link SassString}.
    *
    * @param name - The name of the function argument `this` came from (without
    * the `$`) if it came from an argument. Used for error reporting.

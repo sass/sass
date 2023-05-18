@@ -21,12 +21,12 @@ export class SassNumber extends Value {
    *
    * @param unit.numeratorUnits - If passed, these are the numerator units to
    * use for the number. This may be either a plain JavaScript array or an
-   * immutable [[List]] from the [`immutable`
+   * immutable {@link List} from the [`immutable`
    * package](https://immutable-js.com/).
    *
    * @param unit.denominatorUnits - If passed, these are the denominator units
    * to use for the number. This may be either a plain JavaScript array or an
-   * immutable [[List]] from the [`immutable`
+   * immutable {@link List} from the [`immutable`
    * package](https://immutable-js.com/).
    */
   constructor(
@@ -42,23 +42,23 @@ export class SassNumber extends Value {
   /** This number's numeric value. */
   get value(): number;
 
-  /** Whether [[value]] is an integer according to Sass's equality logic. */
+  /** Whether {@link value} is an integer according to Sass's equality logic. */
   get isInt(): boolean;
 
   /**
-   * If [[value]] is an integer according to [[isInt]], returns [[value]]
-   * rounded to that integer. If it's not an integer, returns `null`.
+   * If {@link value} is an integer according to {@link isInt}, returns {@link
+   * value} rounded to that integer. If it's not an integer, returns `null`.
    */
   get asInt(): number | null;
 
   /**
-   * This number's numerator units as an immutable [[List]] from the
+   * This number's numerator units as an immutable {@link List} from the
    * [`immutable` package](https://immutable-js.com/).
    */
   get numeratorUnits(): List<string>;
 
   /**
-   * This number's denominator units as an immutable [[List]] from the
+   * This number's denominator units as an immutable {@link List} from the
    * [`immutable` package](https://immutable-js.com/).
    */
   get denominatorUnits(): List<string>;
@@ -67,8 +67,8 @@ export class SassNumber extends Value {
   get hasUnits(): boolean;
 
   /**
-   * If [[value]] is an integer according to [[isInt]], returns it rounded to
-   * that integer. Otherwise, throws an error.
+   * If {@link value} is an integer according to {@link isInt}, returns it
+   * rounded to that integer. Otherwise, throws an error.
    *
    * @param name - The name of the function argument `this` came from (without
    * the `$`) if it came from an argument. Used for error reporting.
@@ -76,9 +76,9 @@ export class SassNumber extends Value {
   assertInt(name?: string): number;
 
   /**
-   * Returns [[value]] if it's within `min` and `max`. If [[value]] is equal to
-   * `min` or `max` according to Sass's equality, returns `min` or `max`
-   * respectively. Otherwise, throws an error.
+   * Returns {@link value} if it's within `min` and `max`. If {@link value} is
+   * equal to `min` or `max` according to Sass's equality, returns `min` or
+   * `max` respectively. Otherwise, throws an error.
    *
    * @param name - The name of the function argument `this` came from (without
    * the `$`) if it came from an argument. Used for error reporting.
@@ -120,12 +120,12 @@ export class SassNumber extends Value {
    * either `newNumerators` or `newDenominators` are not empty, or vice-versa.
    *
    * @param newNumerators - The numerator units to convert this number to. This
-   * may be either a plain JavaScript array or an immutable [[List]] from the
-   * [`immutable` package](https://immutable-js.com/).
+   * may be either a plain JavaScript array or an immutable {@link List} from
+   * the [`immutable` package](https://immutable-js.com/).
    *
    * @param newDenominators - The denominator units to convert this number to.
-   * This may be either a plain JavaScript array or an immutable [[List]] from
-   * the [`immutable` package](https://immutable-js.com/).
+   * This may be either a plain JavaScript array or an immutable {@link List}
+   * from the [`immutable` package](https://immutable-js.com/).
    *
    * @param name - The name of the function argument `this` came from (without
    * the `$`) if it came from an argument. Used for error reporting.
@@ -155,20 +155,20 @@ export class SassNumber extends Value {
   ): SassNumber;
 
   /**
-   * Returns [[value]], converted to the units represented by `newNumerators`
-   * and `newDenominators`.
+   * Returns {@link value}, converted to the units represented by
+   * `newNumerators` and `newDenominators`.
    *
    * @throws `Error` if this number's units are incompatible with
    * `newNumerators` and `newDenominators`; or if this number is unitless and
    * either `newNumerators` or `newDenominators` are not empty, or vice-versa.
    *
-   * @param newNumerators - The numerator units to convert [[value]] to. This
-   * may be either a plain JavaScript array or an immutable [[List]] from the
-   * [`immutable` package](https://immutable-js.com/).
+   * @param newNumerators - The numerator units to convert {@link value} to.
+   * This may be either a plain JavaScript array or an immutable {@link List}
+   * from the [`immutable` package](https://immutable-js.com/).
    *
-   * @param newDenominators - The denominator units to convert [[value]] to.
-   * This may be either a plain JavaScript array or an immutable [[List]] from
-   * the [`immutable` package](https://immutable-js.com/).
+   * @param newDenominators - The denominator units to convert {@link value} to.
+   * This may be either a plain JavaScript array or an immutable {@link List}
+   * from the [`immutable` package](https://immutable-js.com/).
    *
    * @param name - The name of the function argument `this` came from (without
    * the `$`) if it came from an argument. Used for error reporting.
@@ -180,7 +180,7 @@ export class SassNumber extends Value {
   ): number;
 
   /**
-   * Returns [[value]], converted to the same units as `other`.
+   * Returns {@link value}, converted to the same units as `other`.
    *
    * @throws `Error` if this number's units are incompatible with `other`'s
    * units, or if either number is unitless but the other is not.
@@ -201,7 +201,7 @@ export class SassNumber extends Value {
    * Returns a copy of this number, converted to the units represented by
    * `newNumerators` and `newDenominators`.
    *
-   * Unlike [[convert]] this does *not* throw an error if this number is
+   * Unlike {@link convert} this does *not* throw an error if this number is
    * unitless and either `newNumerators` or `newDenominators` are not empty, or
    * vice-versa. Instead, it treats all unitless numbers as convertible to and
    * from all units without changing the value.
@@ -210,12 +210,12 @@ export class SassNumber extends Value {
    * `newNumerators` and `newDenominators`.
    *
    * @param newNumerators - The numerator units to convert this number to. This
-   * may be either a plain JavaScript array or an immutable [[List]] from the
-   * [`immutable` package](https://immutable-js.com/).
+   * may be either a plain JavaScript array or an immutable {@link List} from
+   * the [`immutable` package](https://immutable-js.com/).
    *
    * @param newDenominators - The denominator units to convert this number to.
-   * This may be either a plain JavaScript array or an immutable [[List]] from
-   * the [`immutable` package](https://immutable-js.com/).
+   * This may be either a plain JavaScript array or an immutable {@link List}
+   * from the [`immutable` package](https://immutable-js.com/).
    *
    * @param name - The name of the function argument `this` came from (without
    * the `$`) if it came from an argument. Used for error reporting.
@@ -230,10 +230,10 @@ export class SassNumber extends Value {
    * Returns a copy of this number, converted to the units represented by
    * `newNumerators` and `newDenominators`.
    *
-   * Unlike [[convertToMatch]] this does *not* throw an error if this number is
-   * unitless and either `newNumerators` or `newDenominators` are not empty, or
-   * vice-versa. Instead, it treats all unitless numbers as convertible to and
-   * from all units without changing the value.
+   * Unlike {@link convertToMatch} this does *not* throw an error if this number
+   * is unitless and either `newNumerators` or `newDenominators` are not empty,
+   * or vice-versa. Instead, it treats all unitless numbers as convertible to
+   * and from all units without changing the value.
    *
    * @throws `Error` if this number's units are incompatible with `other`'s
    * units.
@@ -251,24 +251,24 @@ export class SassNumber extends Value {
   ): SassNumber;
 
   /**
-   * Returns [[value]], converted to the units represented by `newNumerators` and
-   * `newDenominators`.
+   * Returns {@link value}, converted to the units represented by
+   * `newNumerators` and `newDenominators`.
    *
-   * Unlike [[convertValue]] this does *not* throw an error if this number is
-   * unitless and either `newNumerators` or `newDenominators` are not empty, or
-   * vice-versa. Instead, it treats all unitless numbers as convertible to and
-   * from all units without changing the value.
+   * Unlike {@link convertValue} this does *not* throw an error if this number
+   * is unitless and either `newNumerators` or `newDenominators` are not empty,
+   * or vice-versa. Instead, it treats all unitless numbers as convertible to
+   * and from all units without changing the value.
    *
    * @throws `Error` if this number's units are incompatible with
    * `newNumerators` and `newDenominators`.
    *
-   * @param newNumerators - The numerator units to convert [[value]] to. This
-   * may be either a plain JavaScript array or an immutable [[List]] from the
-   * [`immutable` package](https://immutable-js.com/).
+   * @param newNumerators - The numerator units to convert {@link value} to.
+   * This may be either a plain JavaScript array or an immutable {@link List}
+   * from the [`immutable` package](https://immutable-js.com/).
    *
-   * @param newDenominators - The denominator units to convert [[value]] to.
-   * This may be either a plain JavaScript array or an immutable [[List]] from
-   * the [`immutable` package](https://immutable-js.com/).
+   * @param newDenominators - The denominator units to convert {@link value} to.
+   * This may be either a plain JavaScript array or an immutable {@link List}
+   * from the [`immutable` package](https://immutable-js.com/).
    *
    * @param name - The name of the function argument `this` came from (without
    * the `$`) if it came from an argument. Used for error reporting.
@@ -280,10 +280,10 @@ export class SassNumber extends Value {
   ): number;
 
   /**
-   * Returns [[value]], converted to the units represented by `newNumerators`
-   * and `newDenominators`.
+   * Returns {@link value}, converted to the units represented by
+   * `newNumerators` and `newDenominators`.
    *
-   * Unlike [[convertValueToMatch]] this does *not* throw an error if this
+   * Unlike {@link convertValueToMatch} this does *not* throw an error if this
    * number is unitless and either `newNumerators` or `newDenominators` are not
    * empty, or vice-versa. Instead, it treats all unitless numbers as
    * convertible to and from all units without changing the value.

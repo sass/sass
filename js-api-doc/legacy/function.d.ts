@@ -2,8 +2,8 @@ import {LegacyPluginThis} from './plugin_this';
 
 /**
  * A synchronous callback that implements a custom Sass function. This can be
- * passed to [[LegacySharedOptions.functions]] for either [[render]] or
- * [[renderSync]].
+ * passed to {@link LegacySharedOptions.functions} for either {@link render} or
+ * {@link renderSync}.
  *
  * If this throws an error, Sass will treat that as the function failing with
  * that error message.
@@ -25,14 +25,15 @@ import {LegacyPluginThis} from './plugin_this';
  * ```
  *
  * @param args - One argument for each argument that's declared in the signature
- * that's passed to [[LegacySharedOptions.functions]]. If the signature [takes
- * arbitrary arguments](https://sass-lang.com/documentation/at-rules/function#taking-arbitrary-arguments),
+ * that's passed to {@link LegacySharedOptions.functions}. If the signature
+ * [takes arbitrary
+ * arguments](https://sass-lang.com/documentation/at-rules/function#taking-arbitrary-arguments),
  * they're passed as a single argument list in the last argument.
  *
  * @category Legacy
- * @deprecated This only works with the legacy [[render]] and [[renderSync]]
- * APIs. Use [[CustomFunction]] with [[compile]], [[compileString]],
- * [[compileAsync]], and [[compileStringAsync]] instead.
+ * @deprecated This only works with the legacy {@link render} and {@link
+ * renderSync} APIs. Use {@link CustomFunction} with {@link compile}, {@link
+ * compileString}, {@link compileAsync}, and {@link compileStringAsync} instead.
  */
 export type LegacySyncFunction = (
   this: LegacyPluginThis,
@@ -41,7 +42,7 @@ export type LegacySyncFunction = (
 
 /**
  * An asynchronous callback that implements a custom Sass function. This can be
- * passed to [[LegacySharedOptions.functions]], but only for [[render]].
+ * passed to {@link LegacySharedOptions.functions}, but only for {@link render}.
  *
  * An asynchronous function must return `undefined`. Its final argument will
  * always be a callback, which it should call with the result of the function
@@ -69,16 +70,16 @@ export type LegacySyncFunction = (
  * ```
  *
  * This is passed one argument for each argument that's declared in the
- * signature that's passed to [[LegacySharedOptions.functions]]. If the
+ * signature that's passed to {@link LegacySharedOptions.functions}. If the
  * signature [takes arbitrary
  * arguments](https://sass-lang.com/documentation/at-rules/function#taking-arbitrary-arguments),
  * they're passed as a single argument list in the last argument before the
  * callback.
  *
  * @category Legacy
- * @deprecated This only works with the legacy [[render]] and [[renderSync]]
- * APIs. Use [[CustomFunction]] with [[compile]], [[compileString]],
- * [[compileAsync]], and [[compileStringAsync]] instead.
+ * @deprecated This only works with the legacy {@link render} and {@link
+ * renderSync} APIs. Use {@link CustomFunction} with {@link compile}, {@link
+ * compileString}, {@link compileAsync}, and {@link compileStringAsync} instead.
  */
 export type LegacyAsyncFunction =
   | ((this: LegacyPluginThis, done: (result: LegacyValue) => void) => void)
@@ -133,34 +134,34 @@ export type LegacyAsyncFunction =
     ) => void);
 
 /**
- * The function called by a [[LegacyAsyncFunction]] to indicate that it's
+ * The function called by a {@link LegacyAsyncFunction} to indicate that it's
  * finished.
  *
- * @param result - If this is a [[LegacyValue]], that indicates that the
- * function call completed successfully. If it's a [[types.Error]], that
+ * @param result - If this is a {@link LegacyValue}, that indicates that the
+ * function call completed successfully. If it's a {@link types.Error}, that
  * indicates that the function call failed.
  *
  * @category Legacy
- * @deprecated This only works with the legacy [[render]] and [[renderSync]]
- * APIs. Use [[CustomFunction]] with [[compile]], [[compileString]],
- * [[compileAsync]], and [[compileStringAsync]] instead.
+ * @deprecated This only works with the legacy {@link render} and {@link
+ * renderSync} APIs. Use {@link CustomFunction} with {@link compile}, {@link
+ * compileString}, {@link compileAsync}, and {@link compileStringAsync} instead.
  */
 export type LegacyAsyncFunctionDone = (
   result: LegacyValue | types.Error
 ) => void;
 
 /**
- * A callback that implements a custom Sass function. For [[renderSync]], this
- * must be a [[LegacySyncFunction]] which returns its result directly; for
- * [[render]], it may be either a [[LegacySyncFunction]] or a
- * [[LegacyAsyncFunction]] which calls a callback with its result.
+ * A callback that implements a custom Sass function. For {@link renderSync},
+ * this must be a {@link LegacySyncFunction} which returns its result directly;
+ * for {@link render}, it may be either a {@link LegacySyncFunction} or a {@link
+ * LegacyAsyncFunction} which calls a callback with its result.
  *
- * See [[LegacySharedOptions.functions]] for more details.
+ * See {@link LegacySharedOptions.functions} for more details.
  *
  * @category Legacy
- * @deprecated This only works with the legacy [[render]] and [[renderSync]]
- * APIs. Use [[CustomFunction]] with [[compile]], [[compileString]],
- * [[compileAsync]], and [[compileStringAsync]] instead.
+ * @deprecated This only works with the legacy {@link render} and {@link
+ * renderSync} APIs. Use {@link CustomFunction} with {@link compile}, {@link
+ * compileString}, {@link compileAsync}, and {@link compileStringAsync} instead.
  */
 export type LegacyFunction<sync extends 'sync' | 'async'> = sync extends 'async'
   ? LegacySyncFunction | LegacyAsyncFunction
@@ -168,12 +169,12 @@ export type LegacyFunction<sync extends 'sync' | 'async'> = sync extends 'async'
 
 /**
  * A type representing all the possible values that may be passed to or returned
- * from a [[LegacyFunction]].
+ * from a {@link LegacyFunction}.
  *
  * @category Legacy
- * @deprecated This only works with the legacy [[render]] and [[renderSync]]
- * APIs. Use [[Value]] with [[compile]], [[compileString]], [[compileAsync]],
- * and [[compileStringAsync]] instead.
+ * @deprecated This only works with the legacy {@link render} and {@link
+ * renderSync} APIs. Use {@link Value} with {@link compile}, {@link
+ * compileString}, {@link compileAsync}, and {@link compileStringAsync} instead.
  */
 export type LegacyValue =
   | types.Null
@@ -188,9 +189,9 @@ export type LegacyValue =
  * A shorthand for `sass.types.Boolean.TRUE`.
  *
  * @category Legacy
- * @deprecated This only works with the legacy [[render]] and [[renderSync]]
- * APIs. Use [[sassTrue]] with [[compile]], [[compileString]], [[compileAsync]],
- * and [[compileStringAsync]] instead.
+ * @deprecated This only works with the legacy {@link render} and {@link
+ * renderSync} APIs. Use {@link sassTrue} with {@link compile}, {@link
+ * compileString}, {@link compileAsync}, and {@link compileStringAsync} instead.
  */
 export const TRUE: types.Boolean<true>;
 
@@ -198,9 +199,9 @@ export const TRUE: types.Boolean<true>;
  * A shorthand for `sass.types.Boolean.FALSE`.
  *
  * @category Legacy
- * @deprecated This only works with the legacy [[render]] and [[renderSync]]
- * APIs. Use [[sassFalse]] with [[compile]], [[compileString]], [[compileAsync]],
- * and [[compileStringAsync]] instead.
+ * @deprecated This only works with the legacy {@link render} and {@link
+ * renderSync} APIs. Use {@link sassFalse} with {@link compile}, {@link
+ * compileString}, {@link compileAsync}, and {@link compileStringAsync} instead.
  */
 export const FALSE: types.Boolean<false>;
 
@@ -208,9 +209,9 @@ export const FALSE: types.Boolean<false>;
  * A shorthand for `sass.types.Null.NULL`.
  *
  * @category Legacy
- * @deprecated This only works with the legacy [[render]] and [[renderSync]]
- * APIs. Use [[sassNull]] with [[compile]], [[compileString]], [[compileAsync]],
- * and [[compileStringAsync]] instead.
+ * @deprecated This only works with the legacy {@link render} and {@link
+ * renderSync} APIs. Use {@link sassNull} with {@link compile}, {@link
+ * compileString}, {@link compileAsync}, and {@link compileStringAsync} instead.
  */
 export const NULL: types.Null;
 
@@ -218,15 +219,15 @@ export const NULL: types.Null;
  * The namespace for value types used in the legacy function API.
  *
  * @category Legacy
- * @deprecated This only works with the legacy [[render]] and [[renderSync]]
- * APIs. Use [[Value]] with [[compile]], [[compileString]], [[compileAsync]],
- * and [[compileStringAsync]] instead.
+ * @deprecated This only works with the legacy {@link render} and {@link
+ * renderSync} APIs. Use {@link Value} with {@link compile}, {@link
+ * compileString}, {@link compileAsync}, and {@link compileStringAsync} instead.
  */
 export namespace types {
   /**
    * The class for Sass's singleton [`null`
    * value](https://sass-lang.com/documentation/values/null). The value itself
-   * can be accessed through the [[NULL]] field.
+   * can be accessed through the {@link NULL} field.
    */
   export class Null {
     /** Sass's singleton `null` value. */
@@ -280,13 +281,13 @@ export namespace types {
      * Destructively modifies this number by setting its numeric value to
      * `value`, independent of its units.
      *
-     * @deprecated Use [[constructor]] instead.
+     * @deprecated Use {@link constructor} instead.
      */
     setValue(value: number): void;
 
     /**
      * Returns a string representation of this number's units. Complex units are
-     * returned in the same format that [[constructor]] accepts them.
+     * returned in the same format that {@link constructor} accepts them.
      *
      * @example
      *
@@ -303,9 +304,9 @@ export namespace types {
     /**
      * Destructively modifies this number by setting its units to `unit`,
      * independent of its numeric value. Complex units are specified in the same
-     * format as [[constructor]].
+     * format as {@link constructor}.
      *
-     * @deprecated Use [[constructor]] instead.
+     * @deprecated Use {@link constructor} instead.
      */
     setUnit(unit: string): void;
   }
@@ -360,7 +361,7 @@ export namespace types {
      * **Heads up!** Even if the string was originally quoted, this will cause
      * it to become unquoted.
      *
-     * @deprecated Use [[constructor]] instead.
+     * @deprecated Use {@link constructor} instead.
      */
     setValue(value: string): void;
   }
@@ -373,7 +374,7 @@ export namespace types {
    * by treating `false` and `null` as falsey and everything else as truthy.
    *
    * **Heads up!** Boolean values can't be constructed, they can only be
-   * accessed through the [[TRUE]] and [[FALSE]] constants.
+   * accessed through the {@link TRUE} and {@link FALSE} constants.
    */
   export class Boolean<T extends boolean = boolean> {
     /**
@@ -451,7 +452,7 @@ export namespace types {
      * Sets the red channel of the color. The value must be an integer between 0
      * and 255 (inclusive).
      *
-     * @deprecated Use [[constructor]] instead.
+     * @deprecated Use {@link constructor} instead.
      */
     setR(value: number): void;
 
@@ -474,7 +475,7 @@ export namespace types {
      * Sets the green channel of the color. The value must be an integer between
      * 0 and 255 (inclusive).
      *
-     * @deprecated Use [[constructor]] instead.
+     * @deprecated Use {@link constructor} instead.
      */
     setG(value: number): void;
 
@@ -497,7 +498,7 @@ export namespace types {
      * Sets the blue channel of the color. The value must be an integer between
      * 0 and 255 (inclusive).
      *
-     * @deprecated Use [[constructor]] instead.
+     * @deprecated Use {@link constructor} instead.
      */
     setB(value: number): void;
 
@@ -520,7 +521,7 @@ export namespace types {
      * Sets the alpha channel of the color. The value must be between 0 and 1
      * (inclusive).
      *
-     * @deprecated Use [[constructor]] instead.
+     * @deprecated Use {@link constructor} instead.
      */
     setA(value: number): void;
   }
@@ -537,8 +538,8 @@ export namespace types {
      * Creates a new Sass list.
      *
      * **Heads up!** The initial values of the list elements are undefined.
-     * These elements must be set using [[setValue]] before accessing them or
-     * passing the list back to Sass.
+     * These elements must be set using {@link setValue} before accessing them
+     * or passing the list back to Sass.
      *
      * @example
      *
@@ -643,8 +644,8 @@ export namespace types {
      * Creates a new Sass map.
      *
      * **Heads up!** The initial keys and values of the map are undefined. They
-     * must be set using [[setKey]] and [[setValue]] before accessing them or
-     * passing the map back to Sass.
+     * must be set using {@link setKey} and {@link setValue} before accessing
+     * them or passing the map back to Sass.
      *
      * @example
      *
@@ -748,7 +749,7 @@ export namespace types {
   /**
    * An error that can be returned from a Sass function to signal that it
    * encountered an error. This is the only way to signal an error
-   * asynchronously from a [[LegacyAsyncFunction]].
+   * asynchronously from a {@link LegacyAsyncFunction}.
    */
   export class Error {
     constructor(message: string);
