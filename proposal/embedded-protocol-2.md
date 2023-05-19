@@ -151,7 +151,7 @@ Replace the paragraph that beings "Implementations must guarantee that they use
 a unique `id` for every request" with:
 
 Each endpoint must guarantee that each request's `id` doesn't match the `id` of
-any other outstanding with the same [compilation ID] request from that endpoint.
+any other outstanding request with the same [compilation ID] from that endpoint.
 The same `id` may be used for an inbound request and an outbound request, and
 the same `id` may be used for two requests with different compilation IDs. The
 host must similarly guarantee that a `CompileRequest`'s compilation ID doesn't
