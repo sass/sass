@@ -7,6 +7,17 @@
 ## Table of Contents
 
 * [Background](#background)
+* [Summary](#summary)
+* [Overview](#overview)
+* [RPCs](#rpcs)
+  * [Type Definitions](#type-definitions)
+  * [ID Requirements](#id-requirements)
+  * [Optional and Mandatory Fields](#optional-and-mandatory-fields)
+* [Error Handling](#error-handling)
+* [Protocol Buffer](#protocol-buffer)
+  * [ID Fields](#id-fields)
+  * [Optional Fields](#optional-fields)
+  * [Loaded URLs](#loaded-urls)
 
 ## Background
 
