@@ -59,8 +59,9 @@ This proposal makes three breaking changes to the embedded Sass protocol:
 
 #### Length Before Compilation ID
 
-This proposal includes the compilation ID for each request _after_ the length,
-and includes the size of the compilation ID in the total length.
+This proposal places the compilation ID for each request _after_ the length. The
+length is defined as the length of the protocol buffer plus the length of the
+compilation ID.
 
 Another possible approach would be to have the compilation ID first, then the
 length, and have the length list only the length of the protocol buffer itself.
