@@ -111,11 +111,12 @@ Replace the paragraph that beings "Implementations must guarantee that they use
 a unique `id` for every request" with:
 
 Each endpoint must guarantee that each request's `id` doesn't match the `id` of
-any other outstanding request from that endpoint, although the same `id` may be
-used for an inbound request and an outbound request. The host must similarly
-guarantee that a `CompileRequest`'s [compilation ID] doesn't match the
-compilation ID of any other outstanding `CompileRequest`. The compiler must
-ensure that all outbound requests' compilation IDs match that of the
+any other outstanding with the same [compilation ID] request from that endpoint.
+The same `id` may be used for an inbound request and an outbound request, and
+the same `id` may be used for two requests with different compilation IDs. The
+host must similarly guarantee that a `CompileRequest`'s compilation ID doesn't
+match the compilation ID of any other outstanding `CompileRequest`. The compiler
+must ensure that all outbound requests' compilation IDs match that of the
 `CompileRequest` that triggered its associated compilation.
 
 The compilation ID 0 is reserved for `VersionRequest` and `VersionResponse`,
