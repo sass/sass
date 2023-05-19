@@ -53,6 +53,46 @@ This proposal makes three breaking changes to the embedded Sass protocol:
 * Move `CompileSuccess.loaded_urls` to `CompileResult.loaded_urls` so it's
   available even when compilation fails.
 
+### Design Decisions
+
+#### Length Before Compilation ID
+
+This proposal includes the compilation ID for each request _after_ the length,
+and includes the size of the compilation ID in the total length.
+
+Another possible approach would be to have the compilation ID first, then the
+length, and have the length list only the length of the protocol buffer itself.
+This approach would have the benefit of being somewhat easier to decode, since
+the only length-delimited chunk of input would be parsed as a unit by the
+protocol buffer parser rather than needing to be sliced out of the (compilation
+ID, protocol buffer) pair.
+
+However, the embedded protocol is intended to be transport-independent, and not
+all transports will necessarily require an explicit length encoding at all.
+Although today all use of the embedded protocol is over stdin/stdout which
+requires a length delimiter, it's likely that we'll eventually add WASM support
+as well which won't.
+
+We want to make it easy for the same compiler and host codebases to support
+multiple transports. Making the length-delimiting process a layer that can be
+transparently applied to the same message blobs that are used in other transport
+layers makes it easier for the underlying endpoint logic to just work with those
+blobs regardless of where they came from.
+
+For languages that can parse protocol buffers from a subsequence of binary
+content without copying, it should be easy to slice off the compilation ID and
+parse the remaining binary data. For those that can't, the true length of the
+protocol buffer can be determined by taking the given length and subtracting the
+length of the compilation ID, which is given by the following table:
+
+| compilation ID          | length in bytes |
+|-------------------------|-----------------|
+| [0, 128)                | 1               |
+| [128, 16384)            | 2               |
+| [16384, 2097152)        | 3               |
+| [2097152, 268435456)    | 4               |
+| [268435456, 4294967296) | 5               |
+
 ## Overview
 
 ### Packet Structure
