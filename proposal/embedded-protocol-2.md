@@ -9,6 +9,7 @@
 * [Background](#background)
 * [Summary](#summary)
 * [Overview](#overview)
+  * [Packet Structure](#packet-structure)
 * [RPCs](#rpcs)
   * [Type Definitions](#type-definitions)
   * [ID Requirements](#id-requirements)
