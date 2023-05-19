@@ -54,6 +54,8 @@ This proposal makes three breaking changes to the embedded Sass protocol:
 
 ## Overview
 
+### Packet Structure
+
 Replace the last paragraph of the [embedded protocol overview] with:
 
 [embedded protocol overview]: ../spec/embedded-protocol.md#overview
@@ -92,11 +94,13 @@ For a length-delimited stream, each packet has the following structure:
 Replace the following RPC type definitions:
 
 * *Requests* usually include a mandatory `uint32 id` field so that the other
-  endpoint can respond, except for `CompilationRequest` which uses the
-  compilation ID as its ID. All request message types end in `Request`.
+  endpoint can respond, except for `CompileRequest` which uses the [compilation
+  ID] as its ID. All request message types end in `Request`.
+
+  [compilation ID]: #packet-structure
 
 * *Responses* usually include a mandatory `uint32 id` field whose value must be
-  the same as their associated request's `id`, except for `CompilationResponse`
+  the same as their associated request's `id`, except for `CompileResponse`
   which uses the compilation ID as its ID. All response message types begin with
   the corresponding request name and end with `Response`.
 
@@ -108,10 +112,10 @@ a unique `id` for every request" with:
 Each endpoint must guarantee that each request's `id` doesn't match the `id` of
 any other outstanding request from that endpoint, although the same `id` may be
 used for an inbound request and an outbound request. The host must similarly
-guarantee that a `CompileRequest`'s compilation ID doesn't match the compilation
-ID of any other outstanding `CompileRequest`. The compiler must ensure that all
-outbound requests' compilation IDs match that of the `CompileRequest` that
-triggered its associated compilation.
+guarantee that a `CompileRequest`'s [compilation ID] doesn't match the
+compilation ID of any other outstanding `CompileRequest`. The compiler must
+ensure that all outbound requests' compilation IDs match that of the
+`CompileRequest` that triggered its associated compilation.
 
 The compilation ID 0 is reserved for `VersionRequest` and `VersionResponse`,
 since they're not specific to any individual compilation.
@@ -133,8 +137,8 @@ must reject the message if it's not set.
 
 Append to the first paragraph:
 
-The compilation ID must match the compilation ID of the request or response that
-triggered the error.
+The [compilation ID] must match the compilation ID of the request or response
+that triggered the error.
 
 ## Protocol Buffer
 
