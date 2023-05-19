@@ -1,4 +1,4 @@
-# Calculation Functions: Draft 1.0
+# Calculation Functions: Draft 1.1
 
 *([Issue](https://github.com/sass/sass/issues/3504))*
 
@@ -253,7 +253,7 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
   or calculation, return it.
 
 * If `calc`'s name is `"mod"`, `"rem"`, `"atan2"`, or `"pow"`; `arguments` has
-  fewer than three elements; and none of those are unquoted strings or
+  fewer than two elements; and none of those are unquoted strings or
   `CalculationInterpolation`s, throw an error.
 
   > It's valid to write `pow(var(--two-args))` or `pow(#{"2, 3"})`, but
