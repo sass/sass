@@ -8,6 +8,8 @@
 
 * [Background](#background)
 * [Summary](#summary)
+  * [Design Decisions](#design-decisions)
+    * [Length Before Compilation ID](#length-before-compilation-id)
 * [Overview](#overview)
   * [Packet Structure](#packet-structure)
 * [RPCs](#rpcs)
