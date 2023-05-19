@@ -67,7 +67,7 @@ jobs:
     runs-on: "ubuntu-latest"
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: arduino/setup-protoc@v1
         with: { version: "3.x", repo-token: "${{ github.token }}" }
       - name: Generate protobuf code
@@ -78,7 +78,7 @@ jobs:
     runs-on: "ubuntu-latest"
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Check versions match
         run: |
           if ! (grep -q '\-dev$' spec/EMBEDDED_PROTOCOL_VERSION ||
@@ -96,17 +96,17 @@ jobs:
           github.ref == 'refs/heads/main'
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 2
 
       - name: Get version information
         id: version-info
         run: |
-          echo "::set-output name=VERSION::$(cat spec/EMBEDDED_PROTOCOL_VERSION)"
-          echo "::set-output name=VERSION_MODIFIED::$(
+          echo "VERSION=$(cat spec/EMBEDDED_PROTOCOL_VERSION)" | tee --append "$GITHUB_OUTPUT"
+          echo "VERSION_MODIFIED=$(
             git diff --quiet HEAD^ spec/EMBEDDED_PROTOCOL_VERSION && echo false || echo true
-          )"
+          )" | tee --append "$GITHUB_OUTPUT"
       - name: Create release
         if: |
           steps.version-info.outputs.VERSION_MODIFIED == 'true' &&
