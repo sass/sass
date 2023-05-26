@@ -12,14 +12,14 @@ functions}.
 ## Usage
 
 The JavaScript API provides two entrypoints for compiling Sass to CSS, each of
-which has a synchronous variant that returns a plain [[CompileResult]] and an
-asynchronous variant that returns a `Promise`. **The asynchronous variants are
-much slower,** but they allow custom importers and functions to run
+which has a synchronous variant that returns a plain {@link CompileResult} and
+an asynchronous variant that returns a `Promise`. **The asynchronous variants
+are much slower,** but they allow custom importers and functions to run
 asynchronously.
 
-* [[compile]] and [[compileAsync]] take a path to a Sass file and return the
-  result of compiling that file to CSS. These functions accept an additional
-  [[Options]] argument.
+* {@link compile} and {@link compileAsync} take a path to a Sass file and return
+  the result of compiling that file to CSS. These functions accept an additional
+  {@link Options} argument.
 
   ```js
   const sass = require('sass');
@@ -31,9 +31,10 @@ asynchronously.
   console.log(compressed.css);
   ```
 
-* [[compileString]] and [[compileStringAsync]] take a string that represents the
-  contents of a Sass file and return the result of compiling that file to CSS.
-  These functions accept an additional [[StringOptions]] argument.
+* {@link compileString} and {@link compileStringAsync} take a string that
+  represents the contents of a Sass file and return the result of compiling that
+  file to CSS. These functions accept an additional {@link StringOptions}
+  argument.
 
   ```js
   const sass = require('sass');
@@ -80,10 +81,10 @@ which is a native extension wrapper for the deprecated [LibSass] implementation.
 [LibSass]: https://sass-lang.com/libsass
 
 The legacy API has two entrypoints for compiling Sass to CSS. Each one can
-compile either a Sass file by passing in [[LegacyFileOptions]] or a string of
-Sass code by passing in a [[LegacyStringOptions]].
+compile either a Sass file by passing in {@link LegacyFileOptions} or a string
+of Sass code by passing in a {@link LegacyStringOptions}.
 
-* [[renderSync]] runs synchronously. It's **by far the fastest option** when
+* {@link renderSync} runs synchronously. It's **by far the fastest option** when
   using Dart Sass, but at the cost of only supporting synchronous {@link
   LegacyImporter | importer} and {@link LegacyFunction | function} plugins.
 
@@ -94,7 +95,7 @@ Sass code by passing in a [[LegacyStringOptions]].
   console.log(result.css.toString());
   ```
 
-* [[render]] runs asynchronously and calls a callback when it finishes. It's
+* {@link render} runs asynchronously and calls a callback when it finishes. It's
   much slower when using Dart Sass, but it supports asynchronous {@link
   LegacyImporter | importer} and {@link LegacyFunction | function} plugins.
 

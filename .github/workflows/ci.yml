@@ -62,6 +62,61 @@ jobs:
     - run: npm ci
     - run: npm run typedoc
 
+  protoc:
+    name: "Validate proto"
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: arduino/setup-protoc@v1
+        with: { version: "3.x", repo-token: "${{ github.token }}" }
+      - name: Generate protobuf code
+        run: protoc --js_out=/tmp spec/embedded_sass.proto
+
+  embedded_protocol_versions:
+    name: "Validate Embedded Protocol versions"
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check versions match
+        run: |
+          if ! (grep -q '\-dev$' spec/EMBEDDED_PROTOCOL_VERSION ||
+              [[ "$(head -n 1 EMBEDDED_PROTOCOL_CHANGELOG.md)" == \
+                 "## $(cat spec/EMBEDDED_PROTOCOL_VERSION)" ]]); then
+            echo "spec/EMBEDDED_PROTOCOL_VERSION file doesn't match EMBEDDED_PROTOCOL_CHANGELOG version."
+          fi
+
+  embedded_protocol_tag:
+    name: "Tag Embedded Protocol release"
+    runs-on: "ubuntu-latest"
+    if: |
+      github.event_name == 'push' &&
+          github.repository == 'sass/sass' &&
+          github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - name: Get version information
+        id: version-info
+        run: |
+          echo "VERSION=$(cat spec/EMBEDDED_PROTOCOL_VERSION)" | tee --append "$GITHUB_OUTPUT"
+          echo "VERSION_MODIFIED=$(
+            git diff --quiet HEAD^ spec/EMBEDDED_PROTOCOL_VERSION && echo false || echo true
+          )" | tee --append "$GITHUB_OUTPUT"
+      - name: Create release
+        if: |
+          steps.version-info.outputs.VERSION_MODIFIED == 'true' &&
+            !endsWith(steps.version-info.outputs.VERSION, '-dev')
+        run: |
+          git config --global user.name 'SassBot'
+          git config --global user.email 'sass.bot.beep.boop@gmail.com'
+          git tag "embedded-protocol-${{ steps.version-info.outputs.VERSION }}"
+          git push --tags
+
   # Whenever anything changes in js-api-docs, redeploy the website so it picks
   # up those changes.
   heroku:

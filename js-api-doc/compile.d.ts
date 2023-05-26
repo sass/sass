@@ -3,8 +3,8 @@ import {RawSourceMap} from 'source-map-js';
 import {Options, StringOptions} from './options';
 
 /**
- * The result of compiling Sass to CSS. Returned by [[compile]],
- * [[compileAsync]], [[compileString]], and [[compileStringAsync]].
+ * The result of compiling Sass to CSS. Returned by {@link compile}, {@link
+ * compileAsync}, {@link compileString}, and {@link compileStringAsync}.
  *
  * @category Compile
  */
@@ -29,19 +29,20 @@ export interface CompileResult {
    * generated CSS back to locations in the Sass source code.
    *
    * This typically uses absolute `file:` URLs to refer to Sass files, although
-   * this can be controlled by having a custom [[Importer]] return
-   * [[ImporterResult.sourceMapUrl]].
+   * this can be controlled by having a custom {@link Importer} return {@link
+   * ImporterResult.sourceMapUrl}.
    *
-   * This is set if and only if [[Options.sourceMap]] is `true`.
+   * This is set if and only if {@link Options.sourceMap} is `true`.
    */
   sourceMap?: RawSourceMap;
 }
 
 /**
  * Synchronously compiles the Sass file at `path` to CSS. If it succeeds it
- * returns a [[CompileResult]], and if it fails it throws an [[Exception]].
+ * returns a {@link CompileResult}, and if it fails it throws an {@link
+ * Exception}.
  *
- * This only allows synchronous [[Importer]]s and [[CustomFunction]]s.
+ * This only allows synchronous {@link Importer}s and {@link CustomFunction}s.
  *
  * @example
  *
@@ -59,15 +60,15 @@ export function compile(path: string, options?: Options<'sync'>): CompileResult;
 
 /**
  * Asynchronously compiles the Sass file at `path` to CSS. Returns a promise
- * that resolves with a [[CompileResult]] if it succeeds and rejects with an
- * [[Exception]] if it fails.
+ * that resolves with a {@link CompileResult} if it succeeds and rejects with an
+ * {@link Exception} if it fails.
  *
- * This only allows synchronous or asynchronous [[Importer]]s and
- * [[CustomFunction]]s.
+ * This only allows synchronous or asynchronous {@link Importer}s and
+ * {@link CustomFunction}s.
  *
- * **Heads up!** When using Dart Sass, **[[compile]] is almost twice as fast as
- * [[compileAsync]]**, due to the overhead of making the entire evaluation
- * process asynchronous.
+ * **Heads up!** When using Dart Sass, **{@link compile} is almost twice as fast
+ * as {@link compileAsync}**, due to the overhead of making the entire
+ * evaluation process asynchronous.
  *
  * @example
  *
@@ -88,10 +89,10 @@ export function compileAsync(
 
 /**
  * Synchronously compiles a stylesheet whose contents is `source` to CSS. If it
- * succeeds it returns a [[CompileResult]], and if it fails it throws an
- * [[Exception]].
+ * succeeds it returns a {@link CompileResult}, and if it fails it throws an
+ * {@link Exception}.
  *
- * This only allows synchronous [[Importer]]s and [[CustomFunction]]s.
+ * This only allows synchronous {@link Importer}s and {@link CustomFunction}s.
  *
  * @example
  *
@@ -118,15 +119,15 @@ export function compileString(
 
 /**
  * Asynchronously compiles a stylesheet whose contents is `source` to CSS.
- * Returns a promise that resolves with a [[CompileResult]] if it succeeds and
- * rejects with an [[Exception]] if it fails.
+ * Returns a promise that resolves with a {@link CompileResult} if it succeeds
+ * and rejects with an {@link Exception} if it fails.
  *
- * This only allows synchronous or asynchronous [[Importer]]s and
- * [[CustomFunction]]s.
+ * This only allows synchronous or asynchronous {@link Importer}s and {@link
+ * CustomFunction}s.
  *
- * **Heads up!** When using Dart Sass, **[[compile]] is almost twice as fast as
- * [[compileAsync]]**, due to the overhead of making the entire evaluation
- * process asynchronous.
+ * **Heads up!** When using Dart Sass, **{@link compile} is almost twice as fast
+ * as {@link compileAsync}**, due to the overhead of making the entire
+ * evaluation process asynchronous.
  *
  * @example
  *

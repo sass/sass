@@ -1,32 +1,32 @@
 /**
- * The value of `this` in the context of a [[LegacyImporter]] or
- * [[LegacyFunction]] callback.
+ * The value of `this` in the context of a {@link LegacyImporter} or {@link
+ * LegacyFunction} callback.
  *
  * @category Legacy
- * @deprecated This is only used by the legacy [[render]] and [[renderSync]]
- * APIs. Use [[compile]], [[compileString]], [[compileAsync]], and
- * [[compileStringAsync]] instead.
+ * @deprecated This is only used by the legacy {@link render} and {@link
+ * renderSync} APIs. Use {@link compile}, {@link compileString}, {@link
+ * compileAsync}, and {@link compileStringAsync} instead.
  */
 export interface LegacyPluginThis {
   /**
-   * A partial representation of the options passed to [[render]] or
-   * [[renderSync]].
+   * A partial representation of the options passed to {@link render} or {@link
+   * renderSync}.
    */
   options: {
-    /** The same [[LegacyPluginThis]] instance that contains this object. */
+    /** The same {@link LegacyPluginThis} instance that contains this object. */
     context: LegacyPluginThis;
 
     /**
-     * The value passed to [[LegacyFileOptions.file]] or
-     * [[LegacyStringOptions.file]].
+     * The value passed to {@link LegacyFileOptions.file} or {@link
+     * LegacyStringOptions.file}.
      */
     file?: string;
 
-    /** The value passed to [[LegacyStringOptions.data]]. */
+    /** The value passed to {@link LegacyStringOptions.data}. */
     data?: string;
 
     /**
-     * The value passed to [[LegacySharedOptions.includePaths]] separated by
+     * The value passed to {@link LegacySharedOptions.includePaths} separated by
      * `";"` on Windows or `":"` on other operating systems. This always
      * includes the current working directory as the first entry.
      */
@@ -38,21 +38,22 @@ export interface LegacyPluginThis {
     /** Always the number 1. */
     style: 1;
 
-    /** 1 if [[LegacySharedOptions.indentType]] was `"tab"`, 0 otherwise. */
+    /** 1 if {@link LegacySharedOptions.indentType} was `"tab"`, 0 otherwise. */
     indentType: 1 | 0;
 
     /**
-     * The value passed to [[LegacySharedOptions.indentWidth]], or `2` otherwise.
+     * The value passed to {@link LegacySharedOptions.indentWidth}, or `2`
+     * otherwise.
      */
     indentWidth: number;
 
     /**
-     * The value passed to [[LegacySharedOptions.linefeed]], or `"\n"`
+     * The value passed to {@link LegacySharedOptions.linefeed}, or `"\n"`
      * otherwise.
      */
     linefeed: '\r' | '\r\n' | '\n' | '\n\r';
 
-    /** A partially-constructed [[LegacyResult]] object. */
+    /** A partially-constructed {@link LegacyResult} object. */
     result: {
       /** Partial information about the compilation in progress. */
       stats: {
@@ -63,7 +64,7 @@ export interface LegacyPluginThis {
         start: number;
 
         /**
-         * [[LegacyFileOptions.file]] if it was passed, otherwise the string
+         * {@link LegacyFileOptions.file} if it was passed, otherwise the string
          * `"data"`.
          */
         entry: string;

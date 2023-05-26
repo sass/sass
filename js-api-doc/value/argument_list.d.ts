@@ -8,8 +8,8 @@ import {SassList, ListSeparator} from './list';
  * type](https://sass-lang.com/documentation/values/lists#argument-lists).
  *
  * An argument list comes from a rest argument. It's distinct from a normal
- * [[SassList]] in that it may contain a keyword map as well as the positional
- * arguments.
+ * {@link SassList} in that it may contain a keyword map as well as the
+ * positional arguments.
  *
  * @category Custom Function
  */
@@ -19,13 +19,13 @@ export class SassArgumentList extends SassList {
    *
    * @param contents - The positional arguments that make up the primary
    * contents of the list. This may be either a plain JavaScript array or an
-   * immutable [[List]] from the [`immutable`
+   * immutable {@link List} from the [`immutable`
    * package](https://immutable-js.com/).
    *
    * @param keywords - The keyword arguments attached to this argument list,
    * whose names should exclude `$`. This can be either a plain JavaScript
-   * object with argument names as fields, or an immutable [[OrderedMap]] from
-   * the [`immutable` package](https://immutable-js.com/)
+   * object with argument names as fields, or an immutable {@link OrderedMap}
+   * from the [`immutable` package](https://immutable-js.com/)
    *
    * @param separator - The separator for this list. Defaults to `','`.
    */
@@ -40,7 +40,7 @@ export class SassArgumentList extends SassList {
    *
    * The argument names don't include `$`.
    *
-   * @returns An immutable [[OrderedMap]] from the [`immutable`
+   * @returns An immutable {@link OrderedMap} from the [`immutable`
    * package](https://immutable-js.com/).
    */
   get keywords(): OrderedMap<string, Value>;

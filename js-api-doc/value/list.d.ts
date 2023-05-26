@@ -21,7 +21,7 @@ export class SassList extends Value {
    * Creates a new list.
    *
    * @param contents - The contents of the list. This may be either a plain
-   * JavaScript array or an immutable [[List]] from the [`immutable`
+   * JavaScript array or an immutable {@link List} from the [`immutable`
    * package](https://immutable-js.com/).
    *
    * @param options.separator - The separator to use between elements of this

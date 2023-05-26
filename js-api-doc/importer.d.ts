@@ -3,22 +3,23 @@ import {PromiseOr} from './util/promise_or';
 
 /**
  * A special type of importer that redirects all loads to existing files on
- * disk. Although this is less powerful than a full [[Importer]], it
+ * disk. Although this is less powerful than a full {@link Importer}, it
  * automatically takes care of Sass features like resolving partials and file
  * extensions and of loading the file from disk.
  *
  * Like all importers, this implements custom Sass loading logic for [`@use`
  * rules](https://sass-lang.com/documentation/at-rules/use) and [`@import`
  * rules](https://sass-lang.com/documentation/at-rules/import). It can be passed
- * to [[Options.importers]] or [[StringOptionsWithImporter.importer]].
+ * to {@link Options.importers} or {@link StringOptionsWithImporter.importer}.
  *
- * @typeParam sync - A `FileImporter<'sync'>`'s [[findFileUrl]] must return
- * synchronously, but in return it can be passed to [[compile]] and
- * [[compileString]] in addition to [[compileAsync]] and [[compileStringAsync]].
+ * @typeParam sync - A `FileImporter<'sync'>`'s {@link findFileUrl} must return
+ * synchronously, but in return it can be passed to {@link compile} and {@link
+ * compileString} in addition to {@link compileAsync} and {@link
+ * compileStringAsync}.
  *
- * A `FileImporter<'async'>`'s [[findFileUrl]] may either return synchronously
- * or asynchronously, but it can only be used with [[compileAsync]] and
- * [[compileStringAsync]].
+ * A `FileImporter<'async'>`'s {@link findFileUrl} may either return
+ * synchronously or asynchronously, but it can only be used with {@link
+ * compileAsync} and {@link compileStringAsync}.
  *
  * @example
  *
@@ -48,12 +49,12 @@ export interface FileImporter<
    * [`@import`](https://sass-lang.com/documentation/at-rules/import)) to a file
    * on disk.
    *
-   * Unlike an [[Importer]], the compiler will automatically handle relative
-   * loads for a [[FileImporter]]. See [[Options.importers]] for more details on
-   * the way loads are resolved.
+   * Unlike an {@link Importer}, the compiler will automatically handle relative
+   * loads for a {@link FileImporter}. See {@link Options.importers} for more
+   * details on the way loads are resolved.
    *
    * @param url - The loaded URL. Since this might be relative, it's represented
-   * as a string rather than a [[URL]] object.
+   * as a string rather than a {@link URL} object.
    *
    * @param options.fromImport - Whether this is being invoked because of a Sass
    * `@import` rule, as opposed to a `@use` or `@forward` rule.
@@ -73,8 +74,8 @@ export interface FileImporter<
    * handle it.
    *
    * This may also return a `Promise`, but if it does the importer may only be
-   * passed to [[compileAsync]] and [[compileStringAsync]], not [[compile]] or
-   * [[compileString]].
+   * passed to {@link compileAsync} and {@link compileStringAsync}, not {@link
+   * compile} or {@link compileString}.
    *
    * @throws any - If this importer recognizes `url` but determines that it's
    * invalid, it may throw an exception that will be wrapped by Sass. If the
@@ -95,35 +96,38 @@ export interface FileImporter<
  * An object that implements custom Sass loading logic for [`@use`
  * rules](https://sass-lang.com/documentation/at-rules/use) and [`@import`
  * rules](https://sass-lang.com/documentation/at-rules/import). It can be passed
- * to [[Options.importers]] or [[StringOptionsWithImporter.importer]].
+ * to {@link Options.importers} or {@link StringOptionsWithImporter.importer}.
  *
  * Importers that simply redirect to files on disk are encouraged to use the
- * [[FileImporter]] interface instead.
+ * {@link FileImporter} interface instead.
  *
- * See [[Options.importers]] for more details on the way loads are resolved.
- *
- * @typeParam sync - An `Importer<'sync'>`'s [[canonicalize]] and [[load]] must
- * return synchronously, but in return it can be passed to [[compile]] and
- * [[compileString]] in addition to [[compileAsync]] and [[compileStringAsync]].
- *
- * An `Importer<'async'>`'s [[canonicalize]] and [[load]] may either return
- * synchronously or asynchronously, but it can only be used with
- * [[compileAsync]] and [[compileStringAsync]].
- *
- * @example Resolving a Load
+ * ### Resolving a Load
  *
  * This is the process of resolving a load using a custom importer:
  *
  * - The compiler encounters `@use "db:foo/bar/baz"`.
- * - It calls [[canonicalize]] with `"db:foo/bar/baz"`.
- * - [[canonicalize]] returns `new URL("db:foo/bar/baz/_index.scss")`.
+ * - It calls {@link canonicalize} with `"db:foo/bar/baz"`.
+ * - {@link canonicalize} returns `new URL("db:foo/bar/baz/_index.scss")`.
  * - If the compiler has already loaded a stylesheet with this canonical URL, it
  *   re-uses the existing module.
- * - Otherwise, it calls [[load]] with `new URL("db:foo/bar/baz/_index.scss")`.
- * - [[load]] returns an [[ImporterResult]] that the compiler uses as the
- *   contents of the module.
+ * - Otherwise, it calls {@link load} with `new
+ *   URL("db:foo/bar/baz/_index.scss")`.
+ * - {@link load} returns an {@link ImporterResult} that the compiler uses as
+ *   the contents of the module.
  *
- * @example Code Sample
+ * See {@link Options.importers} for more details on the way loads are resolved
+ * using multiple importers and load paths.
+ *
+ * @typeParam sync - An `Importer<'sync'>`'s {@link canonicalize} and {@link
+ * load} must return synchronously, but in return it can be passed to {@link
+ * compile} and {@link compileString} in addition to {@link compileAsync} and
+ * {@link compileStringAsync}.
+ *
+ * An `Importer<'async'>`'s {@link canonicalize} and {@link load} may either
+ * return synchronously or asynchronously, but it can only be used with {@link
+ * compileAsync} and {@link compileStringAsync}.
+ *
+ * @example
  *
  * ```js
  * sass.compile('style.scss', {
@@ -192,29 +196,29 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
    *
    * If no stylesheets are found, the importer should return `null`.
    *
-   * Calling [[canonicalize]] multiple times with the same URL must return the
-   * same result. Calling [[canonicalize]] with a URL returned by a previous
-   * call to [[canonicalize]] must return that URL.
+   * Calling {@link canonicalize} multiple times with the same URL must return
+   * the same result. Calling {@link canonicalize} with a URL returned by a
+   * previous call to {@link canonicalize} must return that URL.
    *
    * Relative loads in stylesheets loaded from an importer are handled by
    * resolving the loaded URL relative to the canonical URL of the stylesheet
-   * that contains it, and passing that URL back to the importer's
-   * [[canonicalize]] method. For example, suppose the "Resolving a Load"
-   * example {@link Importer | above} returned a stylesheet that contained
-   * `@use "mixins"`:
+   * that contains it, and passing that URL back to the importer's {@link
+   * canonicalize} method. For example, suppose the "Resolving a Load" example
+   * {@link Importer | above} returned a stylesheet that contained `@use
+   * "mixins"`:
    *
    * - The compiler resolves the URL `mixins` relative to the current
    *   stylesheet's canonical URL `db:foo/bar/baz/_index.scss` to get
    *   `db:foo/bar/baz/mixins`.
-   * - It calls [[canonicalize]] with `"db:foo/bar/baz/mixins"`.
-   * - [[canonicalize]] returns `new URL("db:foo/bar/baz/_mixins.scss")`.
+   * - It calls {@link canonicalize} with `"db:foo/bar/baz/mixins"`.
+   * - {@link canonicalize} returns `new URL("db:foo/bar/baz/_mixins.scss")`.
    *
-   * Because of this, [[canonicalize]] must return a meaningful result when
-   * called with a URL relative to one returned by an earlier call to
-   * [[canonicalize]].
+   * Because of this, {@link canonicalize} must return a meaningful result when
+   * called with a URL relative to one returned by an earlier call to {@link
+   * canonicalize}.
    *
    * @param url - The loaded URL. Since this might be relative, it's represented
-   * as a string rather than a [[URL]] object.
+   * as a string rather than a {@link URL} object.
    *
    * @param options.fromImport - Whether this is being invoked because of a Sass
    * `@import` rule, as opposed to a `@use` or `@forward` rule.
@@ -227,8 +231,8 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
    * Options.loadPaths | load paths} may handle the load.
    *
    * This may also return a `Promise`, but if it does the importer may only be
-   * passed to [[compileAsync]] and [[compileStringAsync]], not [[compile]] or
-   * [[compileString]].
+   * passed to {@link compileAsync} and {@link compileStringAsync}, not {@link
+   * compile} or {@link compileString}.
    *
    * @throws any - If this importer recognizes `url` but determines that it's
    * invalid, it may throw an exception that will be wrapped by Sass. If the
@@ -246,15 +250,15 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
    * importer can't find the stylesheet it refers to.
    *
    * @param canonicalUrl - The canonical URL of the stylesheet to load. This is
-   * guaranteed to come from a call to [[canonicalize]], although not every call
-   * to [[canonicalize]] will result in a call to [[load]].
+   * guaranteed to come from a call to {@link canonicalize}, although not every
+   * call to {@link canonicalize} will result in a call to {@link load}.
    *
    * @returns The contents of the stylesheet at `canonicalUrl` if it can be
    * loaded, or `null` if it can't.
    *
    * This may also return a `Promise`, but if it does the importer may only be
-   * passed to [[compileAsync]] and [[compileStringAsync]], not [[compile]] or
-   * [[compileString]].
+   * passed to {@link compileAsync} and {@link compileStringAsync}, not {@link
+   * compile} or {@link compileString}.
    *
    * @throws any - If this importer finds a stylesheet at `url` but it fails to
    * load for some reason, or if `url` is uniquely associated with this importer
@@ -271,7 +275,7 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
 }
 
 /**
- * The result of successfully loading a stylesheet with an [[Importer]].
+ * The result of successfully loading a stylesheet with an {@link Importer}.
  *
  * @category Importer
  */
@@ -279,7 +283,7 @@ export interface ImporterResult {
   /** The contents of the stylesheet. */
   contents: string;
 
-  /** The syntax with which to parse [[contents]]. */
+  /** The syntax with which to parse {@link contents}. */
   syntax: Syntax;
 
   /**

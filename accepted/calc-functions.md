@@ -1,4 +1,4 @@
-# Calculation Functions: Draft 1.0
+# Calculation Functions: Draft 1.2
 
 *([Issue](https://github.com/sass/sass/issues/3504))*
 
@@ -253,16 +253,16 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
   or calculation, return it.
 
 * If `calc`'s name is `"mod"`, `"rem"`, `"atan2"`, or `"pow"`; `arguments` has
-  fewer than three elements; and none of those are unquoted strings or
+  fewer than two elements; and none of those are unquoted strings or
   `CalculationInterpolation`s, throw an error.
 
   > It's valid to write `pow(var(--two-args))` or `pow(#{"2, 3"})`, but
   > otherwise calculations' arguments must match the expected number.
 
 * If `calc`'s name is `"sin"`, `"cos"`, `"tan"`, `"asin"`, `"acos"`, `"atan"`,
-  `"sqrt"`, `"abs"`, or `"log"` and `arguments` contains exactly a single number
-  with [known units], return the result of passing that number to the function
-  in [`sass:math`] whose name matches `calc`'s.
+  `"sqrt"`, `"abs"`, `"log"`, or `"round"` and `arguments` contains exactly a
+  single number with [known units], return the result of passing that number to
+  the function in [`sass:math`] whose name matches `calc`'s.
 
   [known units]: #known-units
   [`sass:math`]: ../spec/built-in-modules/math.md
@@ -277,16 +277,16 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
   * If `number`'s value is positive, return `1`.
   * If `number`'s value is negative, return `-1`.
   * Otherwise, return a unitless number with the same value as `number`.
-  
+
     > In this case, `number` is either `+0`, `-0`, or NaN.
-  
+
   > To match CSS's behavior, these computations _don't_ use fuzzy comparisons.
 
 * If `calc`'s name is `"atan2"`, `"pow"`, or `"log"`:
 
   * If `calc`'s name isn't `"log"`, `arguments` has only one element, and it's
     not an unquoted string or a `CalculationInterpolation`, throw an error.
-  
+
   * Otherwise, if `arguments` contains exactly two numbers with [known units],
     return the result of passing that number to the function in [`sass:math`]
     whose name matches `calc`'s.
@@ -336,7 +336,7 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
       > Normally we allow unquoted strings anywhere in a calculation, but this
       > helps catch the likely error of a user accidentally writing `round(up,
       > 10px)` without realizing that it needs a third argument.
-  
+
     * Otherwise, set `number` and `step` to the two arguments respectively and
       `strategy` to an unquoted string with value `"nearest"`.
 
@@ -412,7 +412,7 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
       throw an error.
 
 * If `calc`'s name is `"hypot"` and `arguments` are all numbers:
-  
+
   * If those arguments are mutually [compatible], return the result of calling
     `math.hypot()` with those arguments.
 

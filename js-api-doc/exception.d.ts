@@ -12,18 +12,18 @@ export class Exception extends Error {
    * A human-friendly representation of the exception.
    *
    * Because many tools simply print `Error.message` directly, this includes not
-   * only the textual description of what went wrong (the [[sassMessage]]) but
-   * also an indication of where in the Sass stylesheet the error occurred (the
-   * [[span]]) and the Sass stack trace at the point of error (the
-   * [[sassStack]]).
+   * only the textual description of what went wrong (the {@link sassMessage})
+   * but also an indication of where in the Sass stylesheet the error occurred
+   * (the {@link span}) and the Sass stack trace at the point of error (the
+   * {@link sassStack}).
    */
   message: string;
 
   /**
    * A textual description of what went wrong.
    *
-   * Unlike [[message]], this does *not* include representations of [[span]] or
-   * [[sassStack]].
+   * Unlike {@link message}, this does *not* include representations of {@link
+   * span} or {@link sassStack}.
    */
   readonly sassMessage: string;
 
@@ -36,6 +36,6 @@ export class Exception extends Error {
   /** The location the error occurred in the Sass file that triggered it. */
   readonly span: SourceSpan;
 
-  /** Returns the same string as [[message]]. */
+  /** Returns the same string as {@link message}. */
   toString(): string;
 }
