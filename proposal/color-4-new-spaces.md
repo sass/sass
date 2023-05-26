@@ -315,6 +315,24 @@ one or more of its channels out of bounds, like `rgb(300 0 0)`).
 `color.is-legacy()` returns whether the color is a legacy color in the `rgb`,
 `hsl`, or `hwb` color space.
 
+#### `color.to-gamut()`
+
+This function returns a color that is in the given gamut, using the recommended
+[CSS Gamut Mapping Algorithm][css-mapping] to 'map' out-of-gamut colors into
+the desired gamut with as little perceptual change as possible. In many cases
+this can be more reliable for generating fallback values, rather than the
+'channel clipping' approach used by current browsers.
+
+```scss
+$green: oklch(0.8 2 150);
+
+// oklch(0.91 0.14 164)
+$rgb: color.to-gamut($green, "srgb");
+
+// oklch(0.91 0.16 163)
+$p3: color.to-gamut($green, "display-p3");
+```
+
 #### `color.is-powerless()`
 
 This function returns whether a given channel is "powerless" in the given color.
@@ -435,12 +453,14 @@ and mapping in Sass color functions:
 * No color function performs gamut-mapping on out-of-gamut channels, except
   `color.to-gamut()`, which can be used for manual gamut-mapping.
 
-Unfortunately, the legacy `hsl` and `hwb` color spaces are not able to express
-out-of-gamut colors, even with out-of-range channel values, so any conversion
-into those spaces (using `color.to-gamut()` or manipulating colors in those
-spaces) must always require gamut-mapping into the `srgb` gamut. This is
-defined as part of the [CSS Color Level 4][color-4] specification for
-[converting] colors.
+Browsers currently use channel-clipping rather than the proposed
+[css gamut mapping algorithm][css-mapping] to handle colors that cannot be
+shown correctly on a given display. We've decided to provide `color.to-gamut()`
+as a way for authors to opt-into the proposed behavior, aware that browsers
+may eventually choose to provide a different algorithm. If that happens, we
+will consider adding an additional algorithm-selection argument. However, the
+primary goal of this function is not to match CSS behavior, but to provide a
+better mapping than the default channel-clipping.
 
 We are not attempting to support all of [CSS Color Level 5][color-5] at this
 point, since it is not yet implemented in browsers. However, we have used it as
