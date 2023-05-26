@@ -1,4 +1,4 @@
-# Containing URL: Draft 1.0
+# Containing URL: Draft 1.1
 
 *([Issue](https://github.com/sass/sass/issues/3247))*
 
@@ -175,6 +175,8 @@ with:
 * Let `url` be the result of calling `canonicalize` with `string`, `fromImport`,
   and `containingUrl`. If it returns a promise, wait for it to complete and use
   its value instead, or rethrow its error if it rejects.
+
+* If the scheme of `url` is non-canonical for this importer, throw an error.
 
 ```ts
 interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
