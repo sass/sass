@@ -39,7 +39,7 @@ The new import API can't match this behavior.
 
 This is particularly problematic for the widely-used Webpack importer, which
 expands on the concept of directory-specific load contexts to allow users to do
-fine-grained customization of how differnt files will load their dependencies.
+fine-grained customization of how different files will load their dependencies.
 In order to ease migration to the new API for this plugin and its users, and to
 better match external ecosystems' load semantics, a solution is needed.
 
@@ -58,7 +58,7 @@ provided when either:
 - `Importer.canonicalize()` is passed an absolute URL whose scheme the importer
   has declared as non-canonical.
 
-A "non-canonical" scheme is a new concept introduced by this proposals.
+A "non-canonical" scheme is a new concept introduced by this proposal.
 Importers will optionally be able to provide a `nonCanonicalScheme` field which
 will declare one or more URL schemes that they'll never return from
 `canonicalize()`. (If they do, Sass will throw an error.)
