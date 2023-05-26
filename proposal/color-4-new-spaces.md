@@ -1,4 +1,4 @@
-# CSS Color Level 4, New Color Spaces: Draft 1.4
+# CSS Color Level 4, New Color Spaces: Draft 1.5
 
 *([Issue](https://github.com/sass/sass/issues/2831))*
 
@@ -1107,8 +1107,9 @@ normalized channel value otherwise.
   * Otherwise, set `channel` to the result of [percent-converting] `channel`
     with a `min` and `max` defined by the `valid` channel range.
 
-  * If `valid` is a `lightness` channel, set `channel` to the result of
-    clamping the `channel` value between 0 and 100, inclusive.
+  * If `valid` is a `lightness` channel, and `space` is not a [legacy color]
+    space, set `channel` to the result of clamping the `channel` value between
+    0 and 100, inclusive.
 
   * Return `channel`.
 
@@ -1136,34 +1137,6 @@ the color space, or returns a normalized list of valid channels otherwise.
     `space`.
 
   * Append `valid` as the next item in `normal`.
-
-* If `known-space` is the [known color space] named `hsl`:
-
-  * Let `hue`, `saturation`, and `lightness` be the three elements in `normal`.
-
-  * Set `saturation` to the results of clamping the `saturation` value between
-    0 and 100, inclusive.
-
-    > All lightness channels are clamped in the validation process.
-
-  * Set the three elements of `normal` to the values of `hue`, `saturation`,
-    and `lightness` respectively.
-
-* If `known-space` is the [known color space] named `hwb`:
-
-  * Let `hue`, `whiteness`, and `blackness` be the three elements in `normal`.
-
-  * Set `whiteness` and `blackness` to the result of clamping `whiteness` and
-    `blackness` respectively between 0-100 (inclusive).
-
-  * If `whiteness + blackness > 100%`:
-
-    * Set `whiteness` to `whiteness / (whiteness + blackness) * 100%`.
-
-    * Set `blackness` to `blackness / (whiteness + blackness) * 100%`.
-
-  * Set the three elements of `normal` to the values of `hue`, `whiteness`,
-    and `blackness` respectively.
 
 * Let `unitless` be an empty list.
 

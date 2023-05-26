@@ -1,3 +1,7 @@
+## Draft 1.5
+
+* Remove clamping and scaling of `hsl` and `hwb` color channels.
+
 ## Draft 1.4
 
 * All `lightness` channels are now clamped in the `[0,100]` range.
