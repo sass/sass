@@ -1,4 +1,4 @@
-# CSS Color Level 4, New Color Spaces: Draft 1.4
+# CSS Color Level 4, New Color Spaces: Draft 1.5
 
 *([Issue](https://github.com/sass/sass/issues/2831))*
 
@@ -23,6 +23,7 @@ colors outside the sRGB gamut.
     * [`color.is-missing()`](#coloris-missing)
     * [`color.space()`](#colorspace)
     * [`color.is-in-gamut()`, `color.is-legacy()`](#coloris-in-gamut-coloris-legacy)
+    * [`color.to-gamut()`](#colorto-gamut)
     * [`color.is-powerless()`](#coloris-powerless)
     * [`color.same()`](#colorsame)
   * [Existing Sass Color Functions](#existing-sass-color-functions)
@@ -61,7 +62,7 @@ colors outside the sRGB gamut.
   * [`color.is-legacy()`](#coloris-legacy)
   * [`color.is-powerless()`](#coloris-powerless-1)
   * [`color.is-in-gamut()`](#coloris-in-gamut)
-  * [`color.to-gamut()`](#colorto-gamut)
+  * [`color.to-gamut()`](#colorto-gamut-1)
   * [`color.channel()`](#colorchannel-1)
   * [`color.is-missing()`](#coloris-missing-1)
   * [`color.same()`](#colorsame-1)
@@ -315,6 +316,24 @@ one or more of its channels out of bounds, like `rgb(300 0 0)`).
 `color.is-legacy()` returns whether the color is a legacy color in the `rgb`,
 `hsl`, or `hwb` color space.
 
+#### `color.to-gamut()`
+
+This function returns a color that is in the given gamut, using the recommended
+[CSS Gamut Mapping Algorithm][css-mapping] to 'map' out-of-gamut colors into
+the desired gamut with as little perceptual change as possible. In many cases
+this can be more reliable for generating fallback values, rather than the
+'channel clipping' approach used by current browsers.
+
+```scss
+$green: oklch(0.8 2 150);
+
+// oklch(0.91 0.14 164)
+$rgb: color.to-gamut($green, "srgb");
+
+// oklch(0.91 0.16 163)
+$p3: color.to-gamut($green, "display-p3");
+```
+
 #### `color.is-powerless()`
 
 This function returns whether a given channel is "powerless" in the given color.
@@ -435,12 +454,14 @@ and mapping in Sass color functions:
 * No color function performs gamut-mapping on out-of-gamut channels, except
   `color.to-gamut()`, which can be used for manual gamut-mapping.
 
-Unfortunately, the legacy `hsl` and `hwb` color spaces are not able to express
-out-of-gamut colors, even with out-of-range channel values, so any conversion
-into those spaces (using `color.to-gamut()` or manipulating colors in those
-spaces) must always require gamut-mapping into the `srgb` gamut. This is
-defined as part of the [CSS Color Level 4][color-4] specification for
-[converting] colors.
+Browsers currently use channel-clipping rather than the proposed
+[css gamut mapping algorithm][css-mapping] to handle colors that cannot be
+shown correctly on a given display. We've decided to provide `color.to-gamut()`
+as a way for authors to opt-into the proposed behavior, aware that browsers
+may eventually choose to provide a different algorithm. If that happens, we
+will consider adding an additional algorithm-selection argument. However, the
+primary goal of this function is not to match CSS behavior, but to provide a
+better mapping than the default channel-clipping.
 
 We are not attempting to support all of [CSS Color Level 5][color-5] at this
 point, since it is not yet implemented in browsers. However, we have used it as
@@ -1107,8 +1128,9 @@ normalized channel value otherwise.
   * Otherwise, set `channel` to the result of [percent-converting] `channel`
     with a `min` and `max` defined by the `valid` channel range.
 
-  * If `valid` is a `lightness` channel, set `channel` to the result of
-    clamping the `channel` value between 0 and 100, inclusive.
+  * If `valid` is a `lightness` channel, and `space` is not a [legacy color]
+    space, set `channel` to the result of clamping the `channel` value between
+    0 and 100, inclusive.
 
   * Return `channel`.
 
@@ -1136,34 +1158,6 @@ the color space, or returns a normalized list of valid channels otherwise.
     `space`.
 
   * Append `valid` as the next item in `normal`.
-
-* If `known-space` is the [known color space] named `hsl`:
-
-  * Let `hue`, `saturation`, and `lightness` be the three elements in `normal`.
-
-  * Set `saturation` to the results of clamping the `saturation` value between
-    0 and 100, inclusive.
-
-    > All lightness channels are clamped in the validation process.
-
-  * Set the three elements of `normal` to the values of `hue`, `saturation`,
-    and `lightness` respectively.
-
-* If `known-space` is the [known color space] named `hwb`:
-
-  * Let `hue`, `whiteness`, and `blackness` be the three elements in `normal`.
-
-  * Set `whiteness` and `blackness` to the result of clamping `whiteness` and
-    `blackness` respectively between 0-100 (inclusive).
-
-  * If `whiteness + blackness > 100%`:
-
-    * Set `whiteness` to `whiteness / (whiteness + blackness) * 100%`.
-
-    * Set `blackness` to `blackness / (whiteness + blackness) * 100%`.
-
-  * Set the three elements of `normal` to the values of `hue`, `whiteness`,
-    and `blackness` respectively.
 
 * Let `unitless` be an empty list.
 

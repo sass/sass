@@ -1,3 +1,9 @@
+## Draft 1.5
+
+* Remove clamping and scaling of `hsl` and `hwb` color channels.
+
+* Document `color.to-gamut()` in summary and design decisions.
+
 ## Draft 1.4
 
 * All `lightness` channels are now clamped in the `[0,100]` range.
