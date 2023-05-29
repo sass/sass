@@ -1,5 +1,9 @@
 ## Draft 1.2
 
+* Fix behavior of `log` to accept two arguments.
+
+## Draft 1.2
+
 * Fix behavior of `round` to ensure it is backwards-compatible with the existing
   global Sass function.
 

@@ -260,7 +260,7 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
   > otherwise calculations' arguments must match the expected number.
 
 * If `calc`'s name is `"sin"`, `"cos"`, `"tan"`, `"asin"`, `"acos"`, `"atan"`,
-  `"sqrt"`, `"abs"`, `"log"`, or `"round"` and `arguments` contains exactly a
+  `"sqrt"`, `"abs"`, or `"round"` and `arguments` contains exactly a
   single number with [known units], return the result of passing that number to
   the function in [`sass:math`] whose name matches `calc`'s.
 
@@ -270,6 +270,10 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
 * If `calc`'s name is `"exp"` and `arguments` contains exactly a single number
   `number` with [known units], return the result of calling `math.pow(math.$e,
   number)`.
+
+* If `calc` name is `"log"`:
+  * If `arguments` contains exactly a single number `number` without units, return the result of calling `math.log(number)`.
+  * If `arguments` contains exactly two numbers `number` and `base` without units, return the result of calling `math.log(number.value) / math.log(base.value)`.
 
 * If `calc`'s name is `"sign"` and `arguments` contains exactly a single number
   `number` with [known units]:
