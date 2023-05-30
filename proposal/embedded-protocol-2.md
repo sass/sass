@@ -52,7 +52,7 @@ This proposal makes three breaking changes to the embedded Sass protocol:
 * Use optional fields as defined in protocol buffers 3.15.0 instead of treating
   default field values as absent.
 
-* Move `CompileSuccess.loaded_urls` to `CompileResult.loaded_urls` so it's
+* Move `CompileSuccess.loaded_urls` to `CompileResponse.loaded_urls` so it's
   available even when compilation fails.
 
 ### Design Decisions
