@@ -15,7 +15,7 @@ message InboundMessage {
   // which features the compiler supports, or to ensure that it's compatible
   // with the same protocol version the compiler supports.
   message VersionRequest {
-    // This version request's id. Mandatory.
+    // This version request's id.
     uint32 id = 1;
 
     // This message's contents are intentionally empty. It just acts as a signal
@@ -25,9 +25,7 @@ message InboundMessage {
 
   // A request that compiles an entrypoint to CSS.
   message CompileRequest {
-    // This compilation's request id. This is included in messages sent from the
-    // compiler to the host. Mandatory.
-    uint32 id = 1;
+    reserved 1;
 
     // An input stylesheet provided as plain text, rather than loaded from the
     // filesystem.
@@ -48,7 +46,7 @@ message InboundMessage {
       Importer importer = 4;
     }
 
-    // The input stylesheet to parse. Mandatory.
+    // The input stylesheet to parse.
     oneof input {
       // A stylesheet loaded from its contents.
       StringInput string = 2;
@@ -68,7 +66,7 @@ message InboundMessage {
     // load path on disk. This must be a wrapper because `oneof` types can't be
     // `repeated`.
     message Importer {
-      // The possible types of importer. Mandatory.
+      // The possible types of importer.
       oneof importer {
         // A built-in importer that loads Sass files within the given directory
         // on disk.
@@ -139,10 +137,10 @@ message InboundMessage {
   message CanonicalizeResponse {
     uint32 id = 1;
 
-    // The result of canonicalization. Optional. If this is `null`, it indicates
-    // that the importer either did not recognize the URL, or could not find a
-    // stylesheet at the location it referred to.
-    oneof result {
+    // The result of canonicalization. If this is unset, it indicates that the
+    // importer either did not recognize the URL, or could not find a stylesheet
+    // at the location it referred to.
+    optional oneof result {
       // The successfully canonicalized URL.
       //
       // If this is not an absolute URL (including scheme), the compiler must
@@ -164,14 +162,14 @@ message InboundMessage {
 
     // The stylesheet's contents were loaded successfully.
     message ImportSuccess {
-      // The text of the stylesheet. Mandatory.
+      // The text of the stylesheet.
       string contents = 1;
 
-      // The syntax of `contents`. Mandatory.
+      // The syntax of `contents`.
       Syntax syntax = 2;
 
       // An absolute, browser-accessible URL indicating the resolved location of
-      // the imported stylesheet. Optional.
+      // the imported stylesheet.
       //
       // This should be a `file:` URL if one is available, but an `http:` URL is
       // acceptable as well. If no URL is supplied, a `data:` URL is generated
@@ -179,13 +177,13 @@ message InboundMessage {
       //
       // If this is provided and is not an absolute URL (including scheme) the
       // compiler must treat that as an error thrown by the importer.
-      string source_map_url = 3;
+      optional string source_map_url = 3;
     }
 
-    // The result of loading the URL. Optional. If this is `null`, it indicates
-    // that the importer either did not recognize the URL, or could not find a
-    // stylesheet at the location it referred to.
-    oneof result {
+    // The result of loading the URL. If this is unset, it indicates that the
+    // importer either did not recognize the URL, or could not find a stylesheet
+    // at the location it referred to.
+    optional oneof result {
       // The contents of the loaded stylesheet.
       ImportSuccess success = 2;
 
@@ -198,10 +196,10 @@ message InboundMessage {
   message FileImportResponse {
     uint32 id = 1;
 
-    // The result of loading the URL. Optional. A null result indicates that the
+    // The result of loading the URL. An unset result indicates that the
     // importer did not recognize the URL and other importers or load paths
     // should be tried.
-    oneof result {
+    optional oneof result {
       // The absolute `file:` URL to look for the file on the physical
       // filesystem.
       //
@@ -228,7 +226,7 @@ message InboundMessage {
   message FunctionCallResponse {
     uint32 id = 1;
 
-    // The result of calling the function. Mandatory.
+    // The result of calling the function.
     oneof result {
       // The return value of a successful function call.
       Value success = 2;
@@ -238,13 +236,13 @@ message InboundMessage {
     }
 
     // The IDs of all `Value.ArgumentList`s in `FunctionCallRequest.arguments`
-    // whose keywords were accessed. See `Value.ArgumentList` for details.
-    // Mandatory if `result.success` is set. This may not include the special
-    // value `0` and it may not include multiple instances of the same ID.
+    // whose keywords were accessed. See `Value.ArgumentList` for details. This
+    // may not include the special value `0` and it may not include multiple
+    // instances of the same ID.
     repeated uint32 accessed_argument_lists = 4;
   }
 
-  // The wrapped message. Mandatory.
+  // The wrapped message.
   oneof message {
     CompileRequest compile_request = 2;
     CanonicalizeResponse canonicalize_response = 3;
@@ -261,7 +259,7 @@ message InboundMessage {
 message OutboundMessage {
   // A response that contains the version of the embedded compiler.
   message VersionResponse {
-    // This version request's id. Mandatory.
+    // This version request's id.
     uint32 id = 5;
 
     // The version of the embedded protocol, in semver format.
@@ -282,11 +280,12 @@ message OutboundMessage {
 
   // A response that contains the result of a compilation.
   message CompileResponse {
-    // The compilation's request id. Mandatory.
-    uint32 id = 1;
+    reserved 1;
 
     // A message indicating that the Sass file was successfully compiled to CSS.
     message CompileSuccess {
+      reserved 3;
+
       // The compiled CSS.
       string css = 1;
 
@@ -297,14 +296,6 @@ message OutboundMessage {
       // host's (or the host's user's) responsibility to determine how the
       // generated CSS can be reached from the source map.
       string source_map = 2;
-
-      // The canonical URLs of all source files loaded during the compilation.
-      //
-      // The compiler must ensure that each canonical URL appears only once in
-      // this list. This must include the entrypoint file's URL if either
-      // `CompileRequest.input.path` or `CompileRequest.StringInput.url` was
-      // passed.
-      repeated string loaded_urls = 3;
     }
 
     // A message indicating that the Sass file could not be successfully
@@ -313,7 +304,7 @@ message OutboundMessage {
       // A message describing the reason for the failure.
       string message = 1;
 
-      // The span associated with the failure. Mandatory.
+      // The span associated with the failure.
       SourceSpan span = 2;
 
       // The stack trace associated with the failure.
@@ -329,7 +320,7 @@ message OutboundMessage {
       string formatted = 4;
     }
 
-    // The success or failure result of the compilation. Mandatory.
+    // The success or failure result of the compilation.
     oneof result {
       // The result of a successful compilation.
       CompileSuccess success = 2;
@@ -337,20 +328,27 @@ message OutboundMessage {
       // The result of a failed compilation.
       CompileFailure failure = 3;
     }
+
+    // The canonical URLs of all source files loaded during the compilation.
+    //
+    // The compiler must ensure that each canonical URL appears only once in
+    // this list. This must include the entrypoint file's URL if either
+    // `CompileRequest.input.path` or `CompileRequest.StringInput.url` was
+    // passed.
+    repeated string loaded_urls = 4;
   }
 
   // An event indicating that a message should be displayed to the user.
   message LogEvent {
-    // The request id for the compilation that triggered the message. Mandatory.
-    uint32 compilation_id = 1;
+    reserved 1;
 
     LogEventType type = 2;
 
     // The text of the message.
     string message = 3;
 
-    // The span associated with this message. Optional.
-    SourceSpan span = 4;
+    // The span associated with this message.
+    optional SourceSpan span = 4;
 
     // The stack trace associated with this message.
     //
@@ -421,14 +419,13 @@ message OutboundMessage {
   //   URLs, it should respond with a `CanonicalizeResponse.result.error`
   //   indicating that the import is ambiguous.
   message CanonicalizeRequest {
-    uint32 id = 1;
+    reserved 2;
 
-    // The request id for the compilation that triggered the message. Mandatory.
-    uint32 compilation_id = 2;
+    uint32 id = 1;
 
     // The unique ID of the importer being invoked. This must match an importer
     // ID passed to this compilation in `CompileRequest.importers` or
-    // `CompileRequest.input.string.importer`. Mandatory.
+    // `CompileRequest.input.string.importer`.
     uint32 importer_id = 3;
 
     // The URL of the import to be canonicalized. This may be either absolute or
@@ -455,15 +452,13 @@ message OutboundMessage {
 
   // A request for a custom importer to load the contents of a stylesheet.
   message ImportRequest {
-    uint32 id = 1;
+    reserved 2;
 
-    // The request id for the compilation that triggered the message. Mandatory.
-    uint32 compilation_id = 2;
+    uint32 id = 1;
 
     // The unique ID of the importer being invoked. This must match an
     // `Importer.importer_id` passed to this compilation in
     // `CompileRequest.importers` or `CompileRequest.input.string.importer`.
-    // Mandatory.
     uint32 importer_id = 3;
 
     // The canonical URL of the import. This is guaranteed to be a URL returned
@@ -515,15 +510,13 @@ message OutboundMessage {
   //
   // [resolving `url`]: https://github.com/sass/sass/tree/main/spec/modules.md#resolving-a-file-url
   message FileImportRequest {
-    uint32 id = 1;
+    reserved 2;
 
-    // The request id for the compilation that triggered the message. Mandatory.
-    uint32 compilation_id = 2;
+    uint32 id = 1;
 
     // The unique ID of the importer being invoked. This must match an
     // `Importer.file_importer_id` passed to this compilation in
     // `CompileRequest.importers` or `CompileRequest.input.string.importer`.
-    // Mandatory.
     uint32 importer_id = 3;
 
     // The (non-canonicalized) URL of the import.
@@ -542,12 +535,11 @@ message OutboundMessage {
 
   // A request to invoke a custom Sass function and return its result.
   message FunctionCallRequest {
+    reserved 2;
+
     uint32 id = 1;
 
-    // The request id for the compilation that triggered the message. Mandatory.
-    uint32 compilation_id = 2;
-
-    // An identifier that indicates which function to invoke. Mandatory.
+    // An identifier that indicates which function to invoke.
     oneof identifier {
       // The name of the function to invoke.
       //
@@ -564,7 +556,7 @@ message OutboundMessage {
     }
 
     // The arguments passed to the function, in the order they appear in the
-    // function signature passed to `CompileRequest.global_functions`. Mandatory.
+    // function signature passed to `CompileRequest.global_functions`.
     //
     // The compiler must ensure that a valid number of arguments are passed for
     // the given signature, that default argument values are instantiated
@@ -573,7 +565,7 @@ message OutboundMessage {
     repeated Value arguments = 5;
   }
 
-  // The wrapped message. Mandatory.
+  // The wrapped message.
   oneof message {
     ProtocolError error = 1;
     CompileResponse compile_response = 2;
@@ -662,27 +654,26 @@ message SourceSpan {
 
   // A single point in a source file.
   message SourceLocation {
-    // The 0-based offset of this location within the source file. Mandatory.
+    // The 0-based offset of this location within the source file.
     uint32 offset = 1;
 
     // The 0-based line number of this location within the source file.
-    // Mandatory.
     uint32 line = 2;
 
-    // The 0-based column number of this location within its line. Mandatory.
+    // The 0-based column number of this location within its line.
     uint32 column = 3;
   }
 
-  // The location of the first character in this span. Mandatory.
+  // The location of the first character in this span.
   SourceLocation start = 2;
 
-  // The location of the first character after this span. Optional.
+  // The location of the first character after this span.
   //
   // If this is omitted, it indicates that the span is empty and points
   // immediately before `start`. In that case, `text` must be empty.
   //
   // This must not point to a location before `start`.
-  SourceLocation end = 3;
+  optional SourceLocation end = 3;
 
   // The URL of the file to which this span refers.
   //
@@ -704,16 +695,16 @@ message SourceSpan {
 message Value {
   // A SassScript string value.
   message String {
-    // The contents of the string. Mandatory.
+    // The contents of the string.
     string text = 1;
 
-    // Whether the string is quoted or unquoted. Mandatory.
+    // Whether the string is quoted or unquoted.
     bool quoted = 2;
   }
 
   // A SassScript number value.
   message Number {
-    // The number's numeric value. Mandatory.
+    // The number's numeric value.
     double value = 1;
 
     // The number's numerator units.
@@ -737,34 +728,34 @@ message Value {
   // can affect CSS rendering. As such, either endpoint may choose to send any
   // color value as any one of these three messages.
   message RgbColor {
-    // The color's red channel. Mandatory. May not be above 255.
+    // The color's red channel. May not be above 255.
     uint32 red = 1;
 
-    // The color's green channel. Mandatory. May not be above 255.
+    // The color's green channel. May not be above 255.
     uint32 green = 2;
 
-    // The color's blue channel. Mandatory. May not be above 255.
+    // The color's blue channel. May not be above 255.
     uint32 blue = 3;
 
-    // The color's alpha channel. Mandatory. Must be between 0 and 1,
+    // The color's alpha channel. Must be between 0 and 1,
     // inclusive.
     double alpha = 4;
   }
 
   // A SassScript color value, represented as hue, saturation, and lightness channels.
   message HslColor {
-    // The color's hue. Mandatory.
+    // The color's hue.
     double hue = 1;
 
-    // The color's percent saturation. Mandatory. Must be between 0 and 100,
+    // The color's percent saturation. Must be between 0 and 100,
     // inclusive.
     double saturation = 2;
 
-    // The color's percent lightness. Mandatory. Must be between 0 and 100,
+    // The color's percent lightness. Must be between 0 and 100,
     // inclusive.
     double lightness = 3;
 
-    // The color's alpha channel. Mandatory. Must be between 0 and 1,
+    // The color's alpha channel. Must be between 0 and 1,
     // inclusive.
     double alpha = 4;
   }
@@ -772,14 +763,14 @@ message Value {
   // A SassScript color value, represented as hue, whiteness, and blackness
   // channels.
   message HwbColor {
-    // The color's hue. Mandatory.
+    // The color's hue.
     double hue = 1;
 
-    // The color's percent whiteness. Mandatory. Must be between 0 and 100,
+    // The color's percent whiteness. Must be between 0 and 100,
     // inclusive. The sum of `whiteness` and `blackness` must not exceed 100.
     double whiteness = 2;
 
-    // The color's percent blackness. Mandatory. Must be between 0 and 100,
+    // The color's percent blackness. Must be between 0 and 100,
     // inclusive. The sum of `whiteness` and `blackness` must not exceed 100.
     double blackness = 3;
 
