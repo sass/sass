@@ -59,10 +59,10 @@ The process for adding a new feature works as follows:
    [versioning policy]: README.md#versioning-policy
 
 4. The proposal is marked as accepted and moved into [the `accepted/`
-   directory][]. *This doesn't mean that the proposal is immutable*, but it does
+   directory]. *This doesn't mean that the proposal is immutable*, but it does
    mean that no major changes to its semantics are expected. At this point, it's
-   time to write [specs][] for the new feature, in tandem with implementing it
-   in [Dart Sass][] (since it's the reference implementation). Writing the specs
+   time to write [specs] for the new feature, in tandem with implementing it in
+   [Dart Sass] (since it's the reference implementation). Writing the specs
    alongside an implementation helps ensure that the specs are accurate and
    sensible, and that the implementation is correct.
 
@@ -70,17 +70,22 @@ The process for adding a new feature works as follows:
    [specs]: https://github.com/sass/sass-spec
    [Dart Sass]: https://github.com/sass/dart-sass
 
-   The new specs should have an `options.yml` file that marks them as TODO for
-   LibSass, with a reference to its issue for the new feature. For example:
+   If the proposal affects the JS API and/or the embedded protocol, which are
+   stored in this repo, create a separate PR to update those as well so the
+   updated APIs can be used. This should not be included in the PR that marks
+   the proposal as accepted.
+
+   The new specs should have an `options.yml` file that marks them as ignored
+   for LibSass. For example:
 
    ```yaml
    ---
-   :todo:
-   - sass/libsass#2701
+   :ignore_for:
+   - libsass
    ```
 
    Once the specs and the implementation are complete, they're sent as pull
-   requests to [sass-spec][] and [Dart Sass][], respectively. They need to have
+   requests to [sass-spec] and [Dart Sass], respectively. They need to have
    special lines in their pull request messages in order to build properly:
 
    [sass-spec]: https://github.com/sass/sass-spec
@@ -90,8 +95,9 @@ The process for adding a new feature works as follows:
      because the implementation of the new feature hasn't landed yet.
 
    * The Dart Sass pull request's message should link to the sass-spec pull
-     request (for example, `See sass/sass-spec#1293`). This will cause it to run
-     against the specs in that pull request and so test your new feature.
+     request (for example, `See sass/sass-spec#1293`) as well as the sass/sass
+     pull request if one exists. This will cause it to run against the specs in
+     that pull request and so test your new feature.
 
    Once these pull requests land, the feature moves to step 5.
 
@@ -303,13 +309,12 @@ The fast-track process works as follows:
 
    2. A pull request is sent to [sass-spec][] that adds or updates specs for the
       new feature. The new specs should have an `options.yml` file that marks
-      them as TODO for LibSass, with a reference to its issue for the new
-      feature. For example:
+      them as ignored for LibSass. For example:
 
       ```yaml
       ---
-      :todo:
-      - sass/libsass#2701
+      :ignore_for:
+      - libsass
       ```
 
       This pull request message should include `[skip dart-sass]`. This will
