@@ -11,6 +11,8 @@
 * [Summary](#summary)
   * [Design Decisions](#design-decisions)
     * [Length Before Compilation ID](#length-before-compilation-id)
+    * [Cross-Compilation State](#cross-compilation-state)
+    * [Outbound Request IDs](#outbound-request-ids)
 * [Overview](#overview)
   * [Packet Structure](#packet-structure)
 * [RPCs](#rpcs)
