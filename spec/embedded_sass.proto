@@ -46,7 +46,7 @@ message InboundMessage {
       Importer importer = 4;
     }
 
-    // The input stylesheet to parse.
+    // The input stylesheet to parse. Mandatory.
     oneof input {
       // A stylesheet loaded from its contents.
       StringInput string = 2;
@@ -66,7 +66,7 @@ message InboundMessage {
     // load path on disk. This must be a wrapper because `oneof` types can't be
     // `repeated`.
     message Importer {
-      // The possible types of importer.
+      // The possible types of importer. Mandatory.
       oneof importer {
         // A built-in importer that loads Sass files within the given directory
         // on disk.
@@ -139,8 +139,8 @@ message InboundMessage {
 
     // The result of canonicalization. If this is unset, it indicates that the
     // importer either did not recognize the URL, or could not find a stylesheet
-    // at the location it referred to.
-    optional oneof result {
+    // at the location it referred to. Optional.
+    oneof result {
       // The successfully canonicalized URL.
       //
       // If this is not an absolute URL (including scheme), the compiler must
@@ -182,8 +182,8 @@ message InboundMessage {
 
     // The result of loading the URL. If this is unset, it indicates that the
     // importer either did not recognize the URL, or could not find a stylesheet
-    // at the location it referred to.
-    optional oneof result {
+    // at the location it referred to. Optional.
+    oneof result {
       // The contents of the loaded stylesheet.
       ImportSuccess success = 2;
 
@@ -198,8 +198,8 @@ message InboundMessage {
 
     // The result of loading the URL. An unset result indicates that the
     // importer did not recognize the URL and other importers or load paths
-    // should be tried.
-    optional oneof result {
+    // should be tried. Optional.
+    oneof result {
       // The absolute `file:` URL to look for the file on the physical
       // filesystem.
       //
@@ -226,7 +226,7 @@ message InboundMessage {
   message FunctionCallResponse {
     uint32 id = 1;
 
-    // The result of calling the function.
+    // The result of calling the function. Mandatory.
     oneof result {
       // The return value of a successful function call.
       Value success = 2;
@@ -242,7 +242,7 @@ message InboundMessage {
     repeated uint32 accessed_argument_lists = 4;
   }
 
-  // The wrapped message.
+  // The wrapped message. Mandatory.
   oneof message {
     CompileRequest compile_request = 2;
     CanonicalizeResponse canonicalize_response = 3;
@@ -320,7 +320,7 @@ message OutboundMessage {
       string formatted = 4;
     }
 
-    // The success or failure result of the compilation.
+    // The success or failure result of the compilation. Mandatory.
     oneof result {
       // The result of a successful compilation.
       CompileSuccess success = 2;
@@ -539,7 +539,7 @@ message OutboundMessage {
 
     uint32 id = 1;
 
-    // An identifier that indicates which function to invoke.
+    // An identifier that indicates which function to invoke. Mandatory.
     oneof identifier {
       // The name of the function to invoke.
       //
@@ -565,7 +565,7 @@ message OutboundMessage {
     repeated Value arguments = 5;
   }
 
-  // The wrapped message.
+  // The wrapped message. Mandatory.
   oneof message {
     ProtocolError error = 1;
     CompileResponse compile_response = 2;
