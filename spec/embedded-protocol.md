@@ -14,7 +14,11 @@ and [`embedded_sass.proto`] for the compiler endpoint.
 ## Table of Contents
 
 * [Overview](#overview)
+  * [Packet Structure](#packet-structure)
 * [RPCs](#rpcs)
+  * [Type Definitions](#type-definitions)
+  * [ID Requirements](#id-requirements)
+  * [Optional and Mandatory Fields](#optional-and-mandatory-fields)
 * [Error Handling](#error-handling)
 * [Host Language API](#host-language-api)
   * [Immutability](#immutability)
