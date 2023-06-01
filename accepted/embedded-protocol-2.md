@@ -1,8 +1,9 @@
-# Embedded Protocol Version 2
+# Embedded Protocol Version 2: Draft 1.1
 
-*([Issue 1](https://github.com/sass/sass/issues/3579),
-[Issue 2](https://github.com/sass/sass/issues/3575),
-[Issue 3](https://github.com/sass/sass/issues/3577))*
+*([Issue 1](https://github.com/sass/sass/issues/3579), [Issue
+2](https://github.com/sass/sass/issues/3575), [Issue
+3](https://github.com/sass/sass/issues/3577),
+[Changelog](embedded-protocol-2.changes.md))*
 
 ## Table of Contents
 
@@ -10,6 +11,8 @@
 * [Summary](#summary)
   * [Design Decisions](#design-decisions)
     * [Length Before Compilation ID](#length-before-compilation-id)
+    * [Cross-Compilation State](#cross-compilation-state)
+    * [Outbound Request IDs](#outbound-request-ids)
 * [Overview](#overview)
   * [Packet Structure](#packet-structure)
 * [RPCs](#rpcs)
@@ -96,6 +99,52 @@ length of the compilation ID, which is given by the following table:
 | [2097152, 268435456)    | 4               |
 | [268435456, 4294967296) | 5               |
 
+#### Cross-Compilation State
+
+We have a [future goal] to (optionally) share state _across_ compilations, to
+more efficiently compile projects with many small entrypoints where the bulk of
+the complexity is in static shared libraries. If/when we support this, there
+could be two broad implementation strategies for a compiler with worker-based
+parallelism like Dart Sass:
+
+[future goal]: https://github.com/sass/sass/issues/2745
+
+1. Run each compilation in a separate worker and keep shared state in one or
+   more shared workers. This allows for more parallelism between compilations,
+   but requires state (or requests for information about state) to be serialized
+   across worker boundaries, adding a potentially substantial amount of overhead.
+
+2. Run all compilations that share state in a single worker, allowing
+   zero-overhead access to the shared state but requiring those compilations to
+   run serially rather than in parallel.
+
+It's not clear which of these will be more efficient in which circumstances,
+although option 1 is certainly substantially more complex to implement. The
+protocol as listed here—without an explicit `CompilationRequest.id` field—is
+only compatible with option 1, assuming that each compilation ID corresponds to
+a separate worker as intended.
+
+However, this isn't a fatal flaw. It would be a non-breaking change to add
+`CompilationRequest.id` (and `*.compilation_id`) back later on if we decide to
+support option 2. Hosts that were built to target the current version of the
+protocol wouldn't set `CompilationRequest.id`, which means it would default to
+zero, which will work fine since they're already ensuring each
+`CompilationRequest` has a different wire-level compilation ID.
+
+#### Outbound Request IDs
+
+Given that each compilation is expected to run single-threaded in and of itself,
+there's theoretically no more need for fields like `ImportRequest.id`. Each
+compilation ID will only have one request at a time, so we could just declare
+that any response with a given compilation ID is for the single outstanding
+request.
+
+However, the _expectation_ that each compilation be single-threaded isn't a
+_requirement_. One could imagine a multithreaded Sass compiler that actually is
+capable of fielding multiple concurrent requests as it compiles independent
+chunks of a given stylesheet or resolves loads eagerly. We don't want to cut off
+this possibility, so we retain the outbound request IDs.
+
 ## Overview
 
 ### Packet Structure
@@ -176,7 +225,9 @@ Replace the paragraphs about optional and mandatory fields with:
 
 If a field is not optional, the the endpoint that sends that message must
 guarantee that it's set to a meaningful value, and the endpoint that receives it
-must reject the message if it's not set.
+must reject the message if it's not set. Because protocol buffers allow all
+`oneof` fields to be unset, the spec describes those that require values as
+"mandatory".
 
 ## Error Handling
 
@@ -204,10 +255,7 @@ Remove the following fields:
 Mark the following fields as optional, and update each one's specification to
 check if they're unset instead of the default values:
 
-* `CanonicalizeResponse.result`
 * `ImportSuccess.source_map_url`
-* `ImportResponse.result`
-* `FileImportResponse.result`
 * `LogEvent.span`
 * `SourceSpan.end`
 
