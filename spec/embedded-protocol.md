@@ -14,7 +14,11 @@ and [`embedded_sass.proto`] for the compiler endpoint.
 ## Table of Contents
 
 * [Overview](#overview)
+  * [Packet Structure](#packet-structure)
 * [RPCs](#rpcs)
+  * [Type Definitions](#type-definitions)
+  * [ID Requirements](#id-requirements)
+  * [Optional and Mandatory Fields](#optional-and-mandatory-fields)
 * [Error Handling](#error-handling)
 * [Host Language API](#host-language-api)
   * [Immutability](#immutability)
@@ -54,21 +58,38 @@ carrying protocol buffers. However, it's expected that most hosts will invoke
 the compiler as a subprocess and communicate using binary protocol buffers over
 its standard input and output streams.
 
-For streams (like standard input and output) that don't have built-in message
-boundaries, every message must begin with an unsigned [varint] indicating the
-length in bytes of the remaining message. This matches the best practice
-described in [the protocol buffer documentation][]. Because JavaScript can't
-easily represent integers larger than 2^53 - 1, messages may be no more than
-2^53 - 1 bytes long. Because it's so unlikely that this will come up in
-practice, implementations are not required to verify it.
+### Packet Structure
+
+Each message in the embedded protocol is sent as a _packet_ which contains two
+values: an unsigned [varint] up to 32 bits long known as the "compilation ID",
+and a protocol buffer that contains the protobuf message. For streams (like
+standard input and output) that don't have built-in message boundaries, every
+packet must begin with another unsigned varint indicating the length in bytes of
+the remaining message (_including the compilation ID_). This matches the best
+practice described in [the protocol buffer documentation].
+
+Because JavaScript can't easily represent integers larger than 2^53 - 1, the
+length may be no more than 2^53 - 1. Because it's so unlikely that this will
+come up in practice, implementations are not required to verify it.
 
 [varint]: https://developers.google.com/protocol-buffers/docs/encoding#varints
 [the protocol buffer documentation]: https://developers.google.com/protocol-buffers/docs/techniques#streaming
 
-> Note that a number of protocol buffer libraries have built-in utilities for
-> reading and writing varint-delimited streams.
+For a length-delimited stream, each packet has the following structure:
+
+```
+╔══════════╦══════════════════╗
+║ varint   ║ Length           ║
+╠══════════╬══════════════════╣
+║ varint   ║ Compilation ID   ║
+╠══════════╬══════════════════╣
+║ protobuf ║ Protobuf Message ║
+╚══════════╩══════════════════╝
+```
 
 ## RPCs
+
+### Type Definitions
 
 All RPCs are wrapped in an outer message that indicates the RPC's type using [a
 oneof field][]. There are two wrapper messages:
@@ -84,13 +105,20 @@ only send `OutboundMessage`s to the host.
 Each wrapper message contains exactly one RPC. This protocol defines four types
 of RPC:
 
-* *Requests* always include a mandatory `uint32 id` field so that the other
-  endpoint can respond. All request message types end in `Request`.
-* *Responses* include a mandatory `uint32 id` field whose value must be the same
-  as their associated request's `id`. All response message types begin with the
-  corresponding request name and end with `Response`.
+* *Requests* usually include a mandatory `uint32 id` field so that the other
+  endpoint can respond, except for `CompileRequest` which uses the [compilation
+  ID] as its ID. All request message types end in `Request`.
+
+  [compilation ID]: #packet-structure
+
+* *Responses* usually include a mandatory `uint32 id` field whose value must be
+  the same as their associated request's `id`, except for `CompileResponse`
+  which uses the compilation ID as its ID. All response message types begin with
+  the corresponding request name and end with `Response`.
+
 * *Events* may not be responded to and include no `id` field. All event message
   types end with `Event`.
+
 * The `ProtocolError` message, which is sent when one endpoint detects that the
   other is doing something invalid. See [Error Handling](#error-handling) below.
 
@@ -98,21 +126,28 @@ The protocol also defines some messages whose names don't end with `Request`,
 `Response`, or `Event`. These are used as structures shared between different
 RPCs.
 
-Implementations must guarantee that they use a unique `id` for every request,
-although the same `id` may be used for an inbound request and an outbound
-request. They may not use the id `4294967295` (the maximum number representable
-by a `uint32`) because it's reserved for [error handling](#error-handling).
+### ID Requirements
 
-All message-typed fields are documented as either "optional" or "mandatory". If
-a field is mandatory, the endpoint that sends that message must guarantee that
-it's set to a meaningful value, and the endpoint that receives it must reject
-the message if it's not set.
+Each endpoint must guarantee that each request's `id` doesn't match the `id` of
+any other outstanding request with the same [compilation ID] from that endpoint.
+The same `id` may be used for an inbound request and an outbound request, and
+the same `id` may be used for two requests with different compilation IDs. The
+host must similarly guarantee that a `CompileRequest`'s compilation ID doesn't
+match the compilation ID of any other outstanding `CompileRequest`. The compiler
+must ensure that all outbound requests' compilation IDs match that of the
+`CompileRequest` that triggered its associated compilation.
 
-Some scalar-typed fields may also be documented as "mandatory", which means that
-the endpoint that sends the message must guarantee that its value is meaningful.
-However, since the default value may be meaningful in some cases, the endpoint
-that receives the message is not required to reject it based on mandatory
-scalar-typed fields.
+The compilation ID 0 is reserved for `VersionRequest` and `VersionResponse`,
+since they're not specific to any individual compilation.
+
+The compilation ID and normal request `id` `4294967295` is reserved for [error
+handling]. (This is the maximum number representable by a `uint32`.)
+
+### Optional and Mandatory Fields
+
+If a field is not optional, the the endpoint that sends that message must
+guarantee that it's set to a meaningful value, and the endpoint that receives it
+must reject the message if it's not set.
 
 ## Error Handling
 
@@ -121,7 +156,8 @@ a `ProtocolError` message to the host. If the error was detected when processing
 a request, the `ProtocolError` must have its `id` field set to the request's id.
 Otherwise, even if the error was detected while processing a response with an
 id, the `id` field must be set to `4294967295` (the maximum number representable
-by a `uint32`).
+by a `uint32`). The [compilation ID] must match the compilation ID of the
+request or response that triggered the error.
 
 When the host detects that the compiler is violating this protocol, it does not
 need to send a `ProtocolError` message to the compiler. Instead, it should
