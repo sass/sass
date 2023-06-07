@@ -6,6 +6,9 @@ syntax = "proto3";
 
 package sass.embedded_protocol;
 
+option java_package = "com.sass_lang.embedded_protocol";
+option java_multiple_files = true;
+
 // The wrapper type for all messages sent from the host to the compiler. This
 // provides a `oneof` that makes it possible to determine the type of each
 // inbound message.
