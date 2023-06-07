@@ -1,6 +1,6 @@
 # Ordered Comments: Draft 1.0
 
-*([Issue](https://github.com/sass/sass/issues/3504))*
+*([Issue](https://github.com/sass/sass/issues/2848))*
 
 ## Table of Contents
 
