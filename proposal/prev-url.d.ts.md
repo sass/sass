@@ -284,7 +284,7 @@ The compiler must set this if and only if `url` is relative or its scheme is
 [non-canonical][non-canonical-proto] for the importer being invoked, unless the
 current source file has no canonical URL.
 
-[non-canonical-proto]: #non-canonical-scheme
+[non-canonical-proto]: #non_canonical_scheme
 
 ```proto
 optional string containing_url = 6;
