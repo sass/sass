@@ -1,7 +1,7 @@
 # JavaScript Calculation API
 
 *([Issue](https://github.com/sass/sass/issues/818),
-[Changelog](calculation-api.changes.md))*
+[Changelog](../../../accepted/calculation-api.changes.md))*
 
 ## Table of Contents
 
@@ -45,7 +45,7 @@
 
 This proposal simply exposes the [calculation type] to the JavaScript API.
 
-[calculation type]: ../accepted/first-class-calc.md
+[calculation type]: ../../../accepted/first-class-calc.md
 
 ## Summary
 
@@ -133,8 +133,8 @@ Before beginning compilation:
       calculations.
 
 [<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
-[`SassFunction`]: ../spec/js-api/value/function.d.ts.md
-[simplifying]: ../spec/types/calculation.md#simplifying-a-calculation
+[`SassFunction`]: function.d.ts.md
+[simplifying]: ../../types/calculation.md#simplifying-a-calculation
 
 ### `CalculationValue`
 
@@ -165,8 +165,8 @@ export class SassCalculation extends Value {
 
 The [private `internal` field] refers to a Sass [calculation].
 
-[private `internal` field]: ../spec/js-api/value/index.d.ts.md#internal
-[calculation]: ../spec/types/calculation.md
+[private `internal` field]: index.d.ts.md#internal
+[calculation]: ../../types/calculation.md
 
 #### `calc`
 
@@ -265,7 +265,7 @@ type CalculationOperator = '+' | '-' | '*' | '/';
 
 The JS API representation of a Sass [`CalculationOperation`].
 
-[CalculationOperation]: ../spec/types/calculation.md#types
+[CalculationOperation]: ../../types/calculation.md#types
 
 ```ts
 export abstract class CalculationOperation implements ValueObject {
@@ -276,7 +276,7 @@ export abstract class CalculationOperation implements ValueObject {
 A private property like [`Value.internal`] that refers to a Sass
 [`CalculationOperation`].
 
-[`Value.internal`]: ../spec/js-api/value/index.d.ts.md
+[`Value.internal`]: index.d.ts.md
 
 #### Constructor
 
@@ -343,7 +343,7 @@ hashCode(): number;
 
 The JS API representation of a Sass [`CalculationInterpolation`].
 
-[`CalculationInterpolation`]: ../spec/types/calculation.md#types
+[`CalculationInterpolation`]: ../../types/calculation.md#types
 
 ```ts
 export abstract class CalculationInterpolation implements ValueObject {
