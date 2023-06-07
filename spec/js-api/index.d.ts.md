@@ -63,6 +63,7 @@ export {
   ListSeparator,
   SassArgumentList,
   SassBoolean,
+  SassCalculation,
   SassColor,
   SassFunction,
   SassList,

@@ -1,4 +1,4 @@
-# JavaScript Calculation API: Draft 2
+# JavaScript Calculation API
 
 *([Issue](https://github.com/sass/sass/issues/818),
 [Changelog](calculation-api.changes.md))*
@@ -75,17 +75,12 @@ function boundary rather than when a calculation is constructed.
 ```ts
 import {List, ValueObject} from 'immutable';
 
-import {Value, SassNumber, SassString} from '../spec/js-api/value';
+import {Value, SassNumber, SassString} from './index';
 ```
 
 ## Types
 
 ### `Value`
-
-```ts
-declare module '../spec/js-api/value' {
-  interface Value {
-```
 
 #### `assertCalculation`
 
@@ -95,21 +90,7 @@ Returns `this` if it's a [`SassCalculation`] and throws an error otherwise.
 
 > The `name` parameter may be used for error reporting.
 
-```ts
-assertCalculation(name?: string): SassCalculation;
-```
-
-```ts
-  } // Value
-} // module
-```
-
 ### `Options`
-
-```ts
-declare module '../spec/js-api/options' {
-  interface Options<sync extends 'sync' | 'async'> {
-```
 
 #### `functions`
 
@@ -154,15 +135,6 @@ Before beginning compilation:
 [<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
 [`SassFunction`]: ../spec/js-api/value/function.d.ts.md
 [simplifying]: ../spec/types/calculation.md#simplifying-a-calculation
-
-```ts
-functions?: Record<string, CustomFunction<sync>>;
-```
-
-```ts
-  } // Options
-} // module
-```
 
 ### `CalculationValue`
 
@@ -310,7 +282,7 @@ A private property like [`Value.internal`] that refers to a Sass
 
 Creates a Sass CalculationOperation by setting the fields to the arguments of
 the corresponding names, and returns it.
-   
+
 
 ```ts
 constructor(
@@ -406,7 +378,7 @@ get value(): string;
 Whether [`internal`][ci-internal] is equal to `other.internal` in Sass.
 
 ```ts
-equals(other: CalculationOperation): boolean;
+equals(other: CalculationInterpolation): boolean;
 ```
 
 #### `hashCode`
