@@ -1,5 +1,5 @@
-import { List, ValueObject } from 'immutable'
-import { Value, SassNumber, SassString } from './index';
+import {List, ValueObject} from 'immutable';
+import {Value, SassNumber, SassString} from './index';
 
 /** The type of values that can be arguments to a SassCalculation. */
 type CalculationValue =
@@ -18,9 +18,8 @@ type CalculationValue =
  * simplified to.
  *
  * @category Custom Function
-*/
+ */
 export class SassCalculation extends Value {
-
   /**
    * Creates a value that represents `calc(argument)`.
    *
@@ -37,7 +36,7 @@ export class SassCalculation extends Value {
    * @throws `Error` if any of `arguments` are or transitively contain a quoted
    * {@link SassString}
    * @returns A calculation with the name `min` and `arguments` as its arguments.
-  */
+   */
   static min(
     arguments: CalculationValue[] | List<CalculationValue>
   ): SassCalculation;
@@ -48,7 +47,7 @@ export class SassCalculation extends Value {
    * @throws `Error` if any of `arguments` are or transitively contain a quoted
    * {@link SassString}
    * @returns A calculation with the name `max` and `arguments` as its arguments.
-  */
+   */
   static max(
     arguments: CalculationValue[] | List<CalculationValue>
   ): SassCalculation;
@@ -79,17 +78,17 @@ export class SassCalculation extends Value {
 
 /**
  * The set of possible operators in a Sass calculation.
-*/
+ */
 type CalculationOperator = '+' | '-' | '*' | '/';
 
 /**
  * A binary operation that can appear in a {@link SassCalculation}.
-*/
+ */
 export abstract class CalculationOperation implements ValueObject {
   /**
    * Creates a Sass CalculationOperation by setting the fields to the arguments
    * of the corresponding names, and returns it.
-  */
+   */
   constructor(
     operator: CalculationOperator,
     left: CalculationValue,
@@ -110,33 +109,33 @@ export abstract class CalculationOperation implements ValueObject {
 
   /** Returns the same number for any two `CalculationOperation`s that are equal
    * according to `equals`.
-  */
+   */
   hashCode(): number;
 }
 
 /**
  * A string injected into a {@link SassCalculation} using interpolation.
-*/
+ */
 export abstract class CalculationInterpolation implements ValueObject {
   /**
    * Creates a Sass CalculationInterpolation by setting the value field to the
    * value argument and returns it.
-  */
+   */
   constructor(value: string);
 
   /**
    * Return's internal's value field.
-  */
+   */
   get value(): string;
 
   /**
    * Whether internal is equal to `other.internal` in Sass.
-  */
+   */
   equals(other: CalculationInterpolation): boolean;
 
   /**
    * Returns the same number for any two `CalculationInterpolation`s that are
    * equal according to `equals`.
-  */
+   */
   hashCode(): number;
 }
