@@ -17,10 +17,20 @@ import {PromiseOr} from '../spec/js-api/util/promise_or';
       * [Unavailable for Pre-Resolved Loads](#unavailable-for-pre-resolved-loads)
       * [Unavailable for Absolute Loads](#unavailable-for-absolute-loads)
 * [Types](#types)
+  * [`FileImporter`](#fileimporter)
+    * [`findFileUrl`](#findfileurl)
   * [`Importer`](#importer)
     * [`nonCanonicalScheme`](#noncanonicalscheme)
     * [`canonicalize`](#canonicalize)
 * [Embedded Protocol](#embedded-protocol)
+  * [`Importer`](#importer-1)
+    * [`non_canonical_scheme`](#non_canonical_scheme)
+  * [`CanonicalizeRequest`](#canonicalizerequest)
+    * [`containing_url`](#containing_url)
+  * [`CanonicalizeResponse`](#canonicalizeresponse)
+    * [`url`](#url)
+  * [`FileImportRequest`](#fileimportrequest)
+    * [`containing_url`](#containing_url-1)
 
 ## Background
 
@@ -184,6 +194,10 @@ findFileUrl(
 ): PromiseOr<URL | null, sync>;
 ```
 
+```ts
+} // FileImporter
+```
+
 ### `Importer`
 
 Replace the first two bullet points for [invoking an importer with a string]
@@ -239,7 +253,7 @@ nonCanonicalScheme?: string | string[];
 ```
 
 ```ts
-} // module
+} // Importer
 ```
 
 ## Embedded Protocol
