@@ -1,4 +1,4 @@
-# Containing URL: Draft 1.1
+# Containing URL: Draft 2.0
 
 *([Issue](https://github.com/sass/sass/issues/3247))*
 
@@ -20,6 +20,7 @@ import {PromiseOr} from '../spec/js-api/util/promise_or';
   * [`Importer`](#importer)
     * [`nonCanonicalScheme`](#noncanonicalscheme)
     * [`canonicalize`](#canonicalize)
+* [Embedded Protocol](#embedded-protocol)
 
 ## Background
 
@@ -155,12 +156,40 @@ canonical resolutions.
 declare module '../spec/js-api/importer' {
 ```
 
+### `FileImporter`
+
+Replace [the invocation of `findFileUrl`] with:
+
+[the invocation of `findFileUrl`]:../spec/js-api/importer.d.ts.md#fileimporter
+
+* Let `containingUrl` be the canonical URL of the [current source file] if it
+  has one, or undefined otherwise.
+
+  [current source file]: ../spec/spec.md#current-source-file
+
+* Let `url` be the result of calling `findFileUrl` with `string`, `fromImport`,
+  and `containingUrl`. If it returns a promise, wait for it to complete and use
+  its value instead, or rethrow its error if it rejects.
+
+```ts
+interface FileImporter<sync extends 'sync' | 'async' = 'sync' | 'async'> {
+```
+
+#### `findFileUrl`
+
+```ts
+findFileUrl(
+  url: string,
+  options: {fromImport: boolean, containingUrl?: URL}
+): PromiseOr<URL | null, sync>;
+```
+
 ### `Importer`
 
 Replace the first two bullet points for [invoking an importer with a string]
 with:
 
-[invoking an importer with a string]: ../spec/js-api/importer.d.ts.md
+[invoking an importer with a string]: ../spec/js-api/importer.d.ts.md#importer
 
 * Let `fromImport` be `true` if the importer is being run for an `@import` and
   `false` otherwise.
@@ -170,13 +199,14 @@ with:
   the [current source file]. Otherwise, or if the current source file has no
   canonical URL, let `containingUrl` be undefined.
 
-  [current source file]: ../spec/spec.md#current-source-file
-
 * Let `url` be the result of calling `canonicalize` with `string`, `fromImport`,
   and `containingUrl`. If it returns a promise, wait for it to complete and use
   its value instead, or rethrow its error if it rejects.
 
-* If the scheme of `url` is non-canonical for this importer, throw an error.
+* If the scheme of `url` is [non-canonical][non-canonical-js] for this importer,
+  throw an error.
+
+  [non-canonical-js]: #noncanonicalscheme
 
 ```ts
 interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
@@ -210,4 +240,66 @@ nonCanonicalScheme?: string | string[];
 
 ```ts
 } // module
+```
+
+## Embedded Protocol
+
+### `Importer`
+
+#### `non_canonical_scheme`
+
+The set of URL schemes that are considered *non-canonical* for this importer.
+This must be empty unless `importer.importer_id` is set.
+
+If any element of this contains a character other than a lowercase ASCII letter,
+an ASCII numeral, U+002B (`+`), U+002D (`-`), or U+002E (`.`), the compiler must
+treat the compilation as failed.
+
+```proto
+repeated string non_canonical_scheme = 4;
+```
+
+### `CanonicalizeRequest`
+
+#### `containing_url`
+
+The canonical URL of the [current source file] that contained the load to be
+canonicalized.
+
+The compiler must set this if and only if `url` is relative or its scheme is
+[non-canonical][non-canonical-proto] for the importer being invoked, unless the
+current source file has no canonical URL.
+
+[non-canonical-proto]: #non-canonical-scheme
+
+```proto
+optional string containing_url = 6;
+```
+
+### `CanonicalizeResponse`
+
+#### `url`
+
+If this URL's scheme is [non-canonical][non-canonical-proto] for this importer,
+the compiler must treat that as an error thrown by the importer.
+
+### `FileImportRequest`
+
+Replace the sending of `FileImportRequest` with:
+
+* Let `containingUrl` be the canonical URL of the [current source file] if it
+  has one, or undefined otherwise.
+
+* Let `response` be the result of sending a `FileImportRequest` with `string` as
+  its `url`, `fromImport` as `from_import`, and `containingUrl` as
+  `containing_url`.
+
+#### `containing_url`
+
+The canonical URL of the [current source file] that contained the load to be
+canonicalized. The compiler must set this unless the current source file has no
+canonical URL.
+
+```proto
+optional string containing_url = 6;
 ```

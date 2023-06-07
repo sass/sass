@@ -376,7 +376,7 @@ compatible" change because older hosts can simply opt not to use it, even though
 from the perspective of the compiler a new message type would be a breaking
 change.
 
-[the protocol buffer rules for updating a message type]: https://developers.google.com/protocol-buffers/docs/proto#updating
+[the protocol buffer rules for updating a message type]: https://protobuf.dev/programming-guides/proto3/#updating
 
 Hosts are generally expected to be responsible for installing appropriate
 compiler versions as part of their installation process, which should limit the
