@@ -100,6 +100,8 @@ A number has *known units* unless it has unit `%`.
 Replace [the definition of `Potentially Slash-Separated Number`] with the
 following:
 
+[the definition of `Potentially Slash-Separated Number`]: ../spec/types/number.md#potentially-slash-separated-number
+
 A Sass number may be *potentially slash-separated*. If it is, it is associated
 with two additional Sass numbers, the *original numerator* and the *original
 denominator*. A number that is not potentially slash-separated is known as
@@ -119,7 +121,7 @@ following:
 > continues to be evaluated as division when the function goes from being
 > evaluated as a Sass global function to being evaluated as a calc function.
 
-[`Calculation`]: calculation.md#syntax
+[`Calculation`]: ../spec/types/calculation.md#syntax
 
 If both operands are evaluated as numbers, the resulting number is potentially
 slash-separated. The first operand is the original numerator of the potentially
