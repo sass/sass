@@ -17,13 +17,13 @@ export {
   CalculationOperator,
   CalculationInterpolation,
 } from './calculation';
+export type {CalculationValue} from './calculation';
 export {SassColor} from './color';
 export {SassFunction} from './function';
 export {SassList, ListSeparator} from './list';
 export {SassMap} from './map';
 export {SassNumber} from './number';
 export {SassString} from './string';
-export type {CalculationValue} from './calculation';
 
 /**
  * Sass's [`null` value](https://sass-lang.com/documentation/values/null).
