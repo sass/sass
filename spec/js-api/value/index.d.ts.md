@@ -14,7 +14,7 @@ import {SassString} from './string';
 
 export {SassArgumentList} from './argument_list';
 export {SassBoolean, sassTrue, sassFalse} from './boolean';
-export {SassCalculation} from './calculation';
+export {SassCalculation, CalculationOperation, CalculationInterpolation} from './calculation';
 export {SassColor} from './color';
 export {SassFunction} from './function';
 export {SassList, ListSeparator} from './list';

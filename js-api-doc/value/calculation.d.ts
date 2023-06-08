@@ -84,7 +84,7 @@ type CalculationOperator = '+' | '-' | '*' | '/';
 /**
  * A binary operation that can appear in a {@link SassCalculation}.
  */
-export abstract class CalculationOperation implements ValueObject {
+export class CalculationOperation implements ValueObject {
   /**
    * Creates a Sass CalculationOperation by setting the fields to the arguments
    * of the corresponding names, and returns it.
@@ -116,7 +116,7 @@ export abstract class CalculationOperation implements ValueObject {
 /**
  * A string injected into a {@link SassCalculation} using interpolation.
  */
-export abstract class CalculationInterpolation implements ValueObject {
+export class CalculationInterpolation implements ValueObject {
   /**
    * Creates a Sass CalculationInterpolation by setting the value field to the
    * value argument and returns it.

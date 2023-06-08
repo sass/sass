@@ -268,7 +268,7 @@ The JS API representation of a Sass [`CalculationOperation`].
 [CalculationOperation]: ../../types/calculation.md#types
 
 ```ts
-export abstract class CalculationOperation implements ValueObject {
+export class CalculationOperation implements ValueObject {
 ```
 
 #### `internal`
@@ -346,7 +346,7 @@ The JS API representation of a Sass [`CalculationInterpolation`].
 [`CalculationInterpolation`]: ../../types/calculation.md#types
 
 ```ts
-export abstract class CalculationInterpolation implements ValueObject {
+export class CalculationInterpolation implements ValueObject {
 ```
 
 #### `internal`

@@ -23,6 +23,8 @@ export {
 } from './options';
 export {PromiseOr} from './util/promise_or';
 export {
+  CalculationInterpolation,
+  CalculationOperation,
   ListSeparator,
   SassArgumentList,
   SassBoolean,
