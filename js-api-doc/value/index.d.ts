@@ -14,6 +14,7 @@ export {SassBoolean, sassTrue, sassFalse} from './boolean';
 export {
   SassCalculation,
   CalculationOperation,
+  CalculationOperator,
   CalculationInterpolation,
 } from './calculation';
 export {SassColor} from './color';
@@ -22,6 +23,7 @@ export {SassList, ListSeparator} from './list';
 export {SassMap} from './map';
 export {SassNumber} from './number';
 export {SassString} from './string';
+export type {CalculationValue} from './calculation';
 
 /**
  * Sass's [`null` value](https://sass-lang.com/documentation/values/null).

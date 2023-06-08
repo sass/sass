@@ -25,6 +25,7 @@ export {PromiseOr} from './util/promise_or';
 export {
   CalculationInterpolation,
   CalculationOperation,
+  CalculationOperator,
   ListSeparator,
   SassArgumentList,
   SassBoolean,
@@ -40,6 +41,7 @@ export {
   sassNull,
   sassTrue,
 } from './value';
+export type {CalculationValue} from './value';
 
 // Legacy APIs
 export {LegacyException} from './legacy/exception';
