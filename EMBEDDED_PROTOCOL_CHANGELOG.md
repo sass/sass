@@ -1,3 +1,26 @@
+## 2.0.0
+
+* The compilation ID for each `CompileRequest` and the various outbound requests
+  associated with a given compilation is now encoded as part of the wire
+  protocol, rather than being protobuf fields. This makes it easier for embedded
+  compilers to efficiently dispatch requests across multiple threads without
+  reparsing protocol buffers.
+
+  * The `CompileRequest.id`, `CompileResponse.id`, `LogEvent.compilation_id`,
+    `CanonicalizeRequest.compilation_id`, `ImportRequest.compilation_id`,
+    `FileImportRequest.compilation_id`, and `FunctionCallRequest.compilation_id`
+    fields  have been removed.
+
+* The following fields are now explicitly declared as proto3 `optional` fields:
+  `ImportSuccess.source_map_url`, `LogEvent.span`, `SourceSpan.end`. These
+  should no longer be considered unset when they have the default value, but
+  only when they're unset at the protocol level. All non-`oneof` fields are
+  mandatory. (`oneof` fields are still described as "optional" or "mandatory" in
+  the specification text.)
+
+* `CompileSuccess.loaded_urls` has been moved to `CompileResponse.loaded_urls`
+  so it's available even when compilation fails.
+
 ## 1.2.0
 
 * Have the compiler treat several user-generated invalid responses as
