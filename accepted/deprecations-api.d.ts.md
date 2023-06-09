@@ -1,7 +1,57 @@
-# JavaScript Deprecations API: Draft 1.1
+# Deprecations API: Draft 3
 
 *([Issue](https://github.com/sass/sass/issues/3520),
-[Changelog](js-deprecations.changes.md))*
+[Changelog](deprecations-api.changes.md))*
+
+## Table of Contents
+* [Background](#background)
+* [Summary](#summary)
+  * [Design Decisions](#design-decisions)
+    * [Exposing the Full `Deprecation` Interface](#exposing-the-full-deprecation-interface)
+    * [Formally Specifying the Deprecations](#formally-specifying-the-deprecations)
+    * [Warnings for Invalid Deprecations and Precedence of Options](#warnings-for-invalid-deprecations-and-precedence-of-options)
+* [API](#api)
+* [Types](#types)
+  * [`Options`](#options)
+    * [`fatalDeprecations`](#fataldeprecations)
+    * [`silenceDeprecations`](#silencedeprecations)
+    * [`futureDeprecations`](#futuredeprecations)
+  * [`Logger`](#logger)
+    * [`warn`](#warn)
+  * [`Deprecations`](#deprecations)
+    * [`call-string`](#call-string)
+    * [`elseif`](#elseif)
+    * [`moz-document`](#moz-document)
+    * [`relative-canonical`](#relative-canonical)
+    * [`new-global`](#new-global)
+    * [`color-module-compat`](#color-module-compat)
+    * [`slash-div`](#slash-div)
+    * [`bogus-combinators`](#bogus-combinators)
+    * [`strict-unary`](#strict-unary)
+    * [`function-units`](#function-units)
+    * [`duplicate-var-flags`](#duplicate-var-flags)
+    * [`import`](#import)
+    * [`user-authored`](#user-authored)
+  * [`DeprecationOrId`](#deprecationorid)
+  * [`DeprecationStatus`](#deprecationstatus)
+  * [`Deprecation`](#deprecation)
+    * [`id`](#id)
+    * [`description`](#description)
+    * [`deprecatedIn`](#deprecatedin)
+    * [`obsoleteIn`](#obsoletein)
+  * [`Version`](#version)
+    * [Constructor](#constructor)
+    * [`major`](#major)
+    * [`minor`](#minor)
+    * [`patch`](#patch)
+    * [`parse`](#parse)
+* [Top-Level Members](#top-level-members)
+  * [`deprecations`](#deprecations)
+* [Embedded Protocol](#embedded-protocol)
+  * [CompileRequest](#compilerequest)
+    * [`fatal_deprecation`](#fatal_deprecation)
+    * [`silence_deprecation`](#silence_deprecation)
+    * [`future_deprecation`](#future_deprecation)
 
 ## Background
 
@@ -130,13 +180,13 @@ If a deprecation warning of any provided type is encountered during compilation,
 the compiler must error instead.
 
 The compiler should convert any string passed here to a `Deprecation` by
-indexing `deprecations`. If a version is passed here, it should be treated
+indexing `deprecations`. If an invalid deprecation ID is passed here, the
+compiler must emit a warning. If a version is passed here, it should be treated
 equivalently to passing all active deprecations whose `deprecatedIn` version is
 less than or equal to it.
 
-The compiler must error if a future deprecation is included here, unless that
-future deprecation is also passed to `futureDeprecations`. It must emit a
-warning if an obsolete deprecation is included here.
+The compiler must emit a warning if a future deprecation that's not also
+included in `futureDeprecations` or any obsolete deprecation is included here.
 
 If a deprecation is passed both here and to `silenceDeprecations`, a warning
 must be emitted, but making the deprecation fatal must take precedence.
@@ -153,12 +203,12 @@ If a deprecation warning of any provided type is encountered during compilation,
 the compiler must ignore it.
 
 The compiler should convert any string passed here to a `Deprecation` by
-indexing `Deprecations`.
+indexing `Deprecations`. If an invalid deprecation ID is passed here, the
+compiler must emit a warning.
 
-The compiler must error if an obsolete deprecation or
-`deprecations['user-authored']` is included here. It must emit a warning if a
-future deprecation is included here, but silencing it takes precedence over
-`futureDeprecations` enabling it.
+The compiler must emit a warning if any non-active deprecation is included here.
+If a future deprecation is included both here and in `futureDeprecations`, then
+silencing it takes precedence.
 
 ```ts
 silenceDeprecations?: DeprecationOrId[];
@@ -173,7 +223,8 @@ deprecation as if it is active, emitting warnings as necessary (subject to
 `fatalDeprecations` and `silenceDeprecations`).
 
 The compiler should convert any string passed here to a `Deprecation` by
-indexing `Deprecations`.
+indexing `Deprecations`. If an invalid deprecation ID is passed here, the
+compiler must emit a warning.
 
 The compiler must emit a warning if a non-future deprecation is included here.
 
@@ -513,4 +564,60 @@ export const deprecations: Deprecations;
 
 ```ts
 } // module
+```
+
+## Embedded Protocol
+
+### CompileRequest
+
+#### `fatal_deprecation`
+
+A set of deprecation IDs to treat as fatal.
+
+If a deprecation warning of any provided type is encountered during compilation,
+the compiler must respond with a `CompileFailure` instead.
+
+The compiler must emit an event of type `LogEventType.WARNING` if any of the
+following is true:
+* an invalid deprecation ID is passed
+* an obsolete deprecation ID is passed
+* a future deprecation ID is passed that is not also passed to
+  `future_deprecation`
+* a deprecation ID is passed both here and to `silence_deprecation`
+  (making it fatal takes precedence)
+
+```proto
+repeated string fatal_deprecation = 14;
+```
+
+#### `silence_deprecation`
+
+A set of deprecation IDs to ignore.
+
+If a deprecation warning of any provided type is encountered during compilation,
+the compiler must ignore it.
+
+The compiler must emit an event of type `LogEventType.WARNING` if an invalid
+deprecation ID or any non-active deprecation ID is passed here.
+
+If a future deprecation ID is passed both here and to `future_deprecation`, then
+silencing it takes precedence.
+
+```proto
+repeated string silence_deprecation = 15;
+```
+
+#### `future_deprecation`
+
+A set of future deprecations IDs to opt into early.
+
+For each future deprecation ID provided here, the compiler must treat that
+deprecation as if it is active, emitting warnings as necessary (subject to
+`fatal_deprecation` and `silence_deprecation`).
+
+The compiler must emit an event of type `LogEventType.WARNING` if an invalid
+deprecation ID or any non-future deprecation ID is passed here.
+
+```proto
+repeated string future_deprecation = 16;
 ```
