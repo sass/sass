@@ -11,6 +11,7 @@
 * [Definitions](#definitions)
   * [Exact Equality](#exact-equality)
   * [Known Units](#known-units)
+  * [Potentially Slash-Separated Number](#potentially-slash-separated-number)
 * [Syntax](#syntax)
   * [`FunctionExpression`](#functionexpression)
   * [`CalculationExpression`](#calculationexpression)
