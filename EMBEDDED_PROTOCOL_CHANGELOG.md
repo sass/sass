@@ -1,3 +1,12 @@
+## 2.1.0
+
+* Use the Java package `com.sass_lang.embedded_protocol` and generate multiple
+  Java files when generating Java code. This doesn't affect any other languages.
+
+  Note: although this is technically a breaking change for Java users, 2.0.0 is
+  so new that it's being rolled into that breakage rather than releasing 3.0.0
+  immediately.
+
 ## 2.0.0
 
 * The compilation ID for each `CompileRequest` and the various outbound requests
