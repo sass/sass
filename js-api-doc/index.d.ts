@@ -26,6 +26,7 @@ export {
   CalculationInterpolation,
   CalculationOperation,
   CalculationOperator,
+  CalculationValue,
   ListSeparator,
   SassArgumentList,
   SassBoolean,
@@ -41,7 +42,6 @@ export {
   sassNull,
   sassTrue,
 } from './value';
-export type {CalculationValue} from './value';
 
 // Legacy APIs
 export {LegacyException} from './legacy/exception';
