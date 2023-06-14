@@ -1,8 +1,11 @@
 import {List, ValueObject} from 'immutable';
 import {Value, SassNumber, SassString} from './index';
 
-/** The type of values that can be arguments to a SassCalculation. */
-type CalculationValue =
+/**
+ * The type of values that can be arguments to a {@link SassCalculation}.
+ * @category Custom Function
+ * */
+export type CalculationValue =
   | SassNumber
   | SassCalculation
   | SassString
@@ -58,8 +61,10 @@ export class SassCalculation extends Value {
    * @throws `Error` if any of `value`, `min`, or `max` are or transitively
    * contain a quoted {@link SassString}.
    * @throws `Error` if `value` is undefined and `max` is not undefined.
-   * @throws `Error` if `value` or `max` is undefined and neither `min` nor
-     `value` is a {@link SassString} that begins with `var(`
+   * @throws `Error` if `value` or `max` is undefined and `min` is not a
+     {@link SassString} or {@link CalculationInterpolation} that contains
+     comma-separated values that can be interpreted as values for `value` and
+     `max` (for example `clamp(#{"1, 2, 3"})`).
      @returns A calculation with the name `clamp` and `min`, `value`, and `max`
      as it's arguments, excluding any arguments that are undefined.
    */
@@ -69,20 +74,22 @@ export class SassCalculation extends Value {
     max?: CalculationValue
   ): SassCalculation;
 
-  /** Returns internal's `name` field. */
+  /** Returns the calculation's `name` field. */
   get name(): string;
 
-  /** Returns a list of internal's `arguments` */
+  /** Returns a list of the calculation's `arguments` */
   get arguments(): List<CalculationValue>;
 }
 
 /**
  * The set of possible operators in a Sass calculation.
+ * @category Custom Function
  */
-type CalculationOperator = '+' | '-' | '*' | '/';
+export type CalculationOperator = '+' | '-' | '*' | '/';
 
 /**
  * A binary operation that can appear in a {@link SassCalculation}.
+ * @category Custom Function
  */
 export class CalculationOperation implements ValueObject {
   /**
@@ -95,26 +102,23 @@ export class CalculationOperation implements ValueObject {
     right: CalculationValue
   );
 
-  /** Returns internal's `operator` field. */
+  /** Returns the operation's `operator` field. */
   get operator(): CalculationOperator;
 
-  /** Returns internal's `left` field. */
+  /** Returns the operation's `left` field. */
   get left(): CalculationValue;
 
-  /** Returns internal's `right` field. */
+  /** Returns the operation's `right` field. */
   get right(): CalculationValue;
 
-  /** Whether internal is equal to `other.internal` in Sass. */
   equals(other: CalculationOperation): boolean;
 
-  /** Returns the same number for any two `CalculationOperation`s that are equal
-   * according to `equals`.
-   */
   hashCode(): number;
 }
 
 /**
  * A string injected into a {@link SassCalculation} using interpolation.
+ * @category Custom Function
  */
 export class CalculationInterpolation implements ValueObject {
   /**
@@ -124,18 +128,11 @@ export class CalculationInterpolation implements ValueObject {
   constructor(value: string);
 
   /**
-   * Return's internal's value field.
+   * Returns the interpolation's `value` field.
    */
   get value(): string;
 
-  /**
-   * Whether internal is equal to `other.internal` in Sass.
-   */
   equals(other: CalculationInterpolation): boolean;
 
-  /**
-   * Returns the same number for any two `CalculationInterpolation`s that are
-   * equal according to `equals`.
-   */
   hashCode(): number;
 }
