@@ -575,7 +575,7 @@ export const deprecations: Deprecations;
 A set of deprecation IDs to treat as fatal.
 
 If a deprecation warning of any provided type is encountered during compilation,
-the compiler must respond with a `CompileFailure` instead.
+the compiler must respond with a `CompileFailure` instead of a `CompileSuccess`.
 
 The compiler must emit an event of type `LogEventType.WARNING` if any of the
 following is true:
