@@ -93,8 +93,8 @@ export type CalculationOperator = '+' | '-' | '*' | '/';
  */
 export class CalculationOperation implements ValueObject {
   /**
-   * Creates a Sass CalculationOperation by setting the fields to the arguments
-   * of the corresponding names, and returns it.
+   * Creates a Sass CalculationOperation with the given `operator`, `left`, and
+   * `right` values.
    */
   constructor(
     operator: CalculationOperator,
@@ -117,13 +117,14 @@ export class CalculationOperation implements ValueObject {
 }
 
 /**
- * A string injected into a {@link SassCalculation} using interpolation.
+ * A string injected into a {@link SassCalculation} using interpolation. Unlike
+ * unquoted strings, interpolations are always surrounded in parentheses when
+ * they appear in {@link CalculationOperation}s.
  * @category Custom Function
  */
 export class CalculationInterpolation implements ValueObject {
   /**
-   * Creates a Sass CalculationInterpolation by setting the value field to the
-   * value argument and returns it.
+   * Creates a Sass CalculationInterpolation with the given `value`.
    */
   constructor(value: string);
 
