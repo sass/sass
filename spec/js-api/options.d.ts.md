@@ -121,30 +121,44 @@ charset?: boolean;
 
 #### `functions`
 
-When the compiler encounters a global function call with a signature that does
-not match that of a built-in function, but matches a key in this record, it must
-call the associated `CustomFunction` and return its result. If the function
-throws an error or returns anything other than a `Value`, the compiler should
-treat it as the Sass function throwing an error.
+Before beginning compilation:
 
-> As in the rest of Sass, `_`s and `-`s are considered equivalent when
-> determining which function signatures match.
+* For each key/value pair `signature`/`function` in this record:
 
-Before beginning compilation, if any key in this record is not an
-[<ident-token>] followed immediately by an `ArgumentDeclaration`, the compiler
-must throw an error.
+  * If `signature` isn't an [<ident-token>] followed immediately by an
+    `ArgumentDeclaration`, throw an error.
+
+  * Let `name` be `signature`'s <ident-token>.
+
+  * If there's already a global function whose name is underscore-insensitively
+    equal to `name`, continue to the next key/value pair.
+
+  * Otherwise, add a global function whose signature is `signature`. When this
+    function is called:
+
+    * Let `result` be the result of calling the associated `CustomFunction` with
+      the given arguments. If this call throws an error, treat it as a Sass
+      error thrown by the Sass function.
+
+      > As in the rest of Sass, `_`s and `-`s are considered equivalent when
+      > determining which function signatures match.
+
+    * Throw an error if `result` is or transitively contains:
+
+      * An object that's not an instance of the `Value` class.
+
+      * A [`SassFunction`] whose `signature` field isn't a valid Sass function
+        signature that could appear after the `@function` directive in a Sass
+        stylesheet.
+
+    * Return a copy of `result.internal` with all calculations it transitively
+      contains (including the return value itself if it's a calculation)
+      replaced with the result of [simplifying] those calculations.
 
 [<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
+[`SassFunction`]: value/function.d.ts.md
+[simplifying]: https://github.com/sass/sass/tree/main/spec/types/calculation.md#simplifying-a-calculation
 
-If the `CustomFunction` returns an invalid value, or a value that transitively
-contains an invalid value, the compiler must treat that as the Sass function
-throwing an error. The following values are considered invalid:
-
-* An object that's not an instance of the `Value` class.
-
-* A `SassFunction` whose `signature` field isn't a valid Sass function signature
-  that could appear after the `@function` directive in a Sass stylesheet.
-  
 ```ts
 functions?: Record<string, CustomFunction<sync>>;
 ```
