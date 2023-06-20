@@ -169,7 +169,7 @@ functions?: Record<string, CustomFunction<sync>>;
 The type of values that can be arguments to a [`SassCalculation`].
 
 ```ts
-export type CalculationValue =
+type CalculationValue =
   | SassNumber
   | SassCalculation
   | SassString
@@ -247,10 +247,8 @@ Creates a value that represents `calc(min, value, max)` expression.
 
 * If `value` is undefined and `max` is not undefined, throw an error.
 
-* If `value` or `max` is undefined and `min` is not a `SassString` or
-  `CalculationInterpolation` that contains comma-separated values that can be
-  interpreted as values for `value` and `max` (for example `clamp(#{"1, 2,
-  3"})`).
+* If `value` or `max` is undefined and neither `min` nor `value` is a
+  `SassString` that begins with `"var("`, throw an error.
 
 * Return a calculation with name `"clamp"` and `min`, `value`, and `max` as its
   arguments, excluding any arguments that are undefined.
@@ -288,7 +286,7 @@ get arguments(): List<CalculationValue>;
 The set of possible operators in a Sass calculation.
 
 ```ts
-export type CalculationOperator = '+' | '-' | '*' | '/';
+type CalculationOperator = '+' | '-' | '*' | '/';
 ```
 
 ### `CalculationOperation`
@@ -298,7 +296,7 @@ The JS API representation of a Sass [`CalculationOperation`].
 [CalculationOperation]: ../spec/types/calculation.md#types
 
 ```ts
-export class CalculationOperation implements ValueObject {
+export abstract class CalculationOperation implements ValueObject {
 ```
 
 #### `internal`
@@ -312,7 +310,7 @@ A private property like [`Value.internal`] that refers to a Sass
 
 Creates a Sass CalculationOperation by setting the fields to the arguments of
 the corresponding names, and returns it.
-
+   
 
 ```ts
 constructor(
@@ -376,7 +374,7 @@ The JS API representation of a Sass [`CalculationInterpolation`].
 [`CalculationInterpolation`]: ../spec/types/calculation.md#types
 
 ```ts
-export class CalculationInterpolation implements ValueObject {
+export abstract class CalculationInterpolation implements ValueObject {
 ```
 
 #### `internal`

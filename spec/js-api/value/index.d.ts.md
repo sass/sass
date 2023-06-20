@@ -4,7 +4,6 @@
 import {List, ValueObject} from 'immutable';
 
 import {SassBoolean} from './boolean';
-import {SassCalculation} from './calculation';
 import {SassColor} from './color';
 import {SassFunction} from './function';
 import {ListSeparator} from './list';
@@ -14,13 +13,6 @@ import {SassString} from './string';
 
 export {SassArgumentList} from './argument_list';
 export {SassBoolean, sassTrue, sassFalse} from './boolean';
-export {
-  SassCalculation,
-  CalculationValue,
-  CalculationOperator,
-  CalculationOperation,
-  CalculationInterpolation
-} from './calculation';
 export {SassColor} from './color';
 export {SassFunction} from './function';
 export {SassList, ListSeparator} from './list';
@@ -44,7 +36,6 @@ export {SassString} from './string';
     * [`sassIndexToListIndex`](#sassindextolistindex)
     * [`get`](#get)
     * [`assertBoolean`](#assertboolean)
-    * [`assertCalculation`](#assertcalculation)
     * [`assertColor`](#assertcolor)
     * [`assertFunction`](#assertfunction)
     * [`assertMap`](#assertmap)
@@ -183,18 +174,6 @@ Returns `this` if it's a [`SassBoolean`] and throws an error otherwise.
 
 ```ts
 assertBoolean(name?: string): SassBoolean;
-```
-
-#### `assertCalculation`
-
-Returns `this` if it's a [`SassCalculation`] and throws an error otherwise.
-
-[`SassCalculation`]: calculation.d.ts.md
-
-> The `name` parameter may be used for error reporting.
-
-```ts
-assertCalculation(name?: string): SassCalculation;
 ```
 
 #### `assertColor`
