@@ -231,9 +231,9 @@ interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
 The set of URL schemes that are considered *non-canonical* for this importer. If
 this is a single string, treat it as a list containing that string.
 
-Before beginning compilation, throw an error if any element of this contains a
-character other than a lowercase ASCII letter, an ASCII numeral, U+002B (`+`),
-U+002D (`-`), or U+002E (`.`).
+Before beginning compilation, throw an error if any element of this is empty or
+contains a character other than a lowercase ASCII letter, an ASCII numeral,
+U+002B (`+`), U+002D (`-`), or U+002E (`.`).
 
 > Uppercase letters are normalized to lowercase in the `URL` constructor, so for
 > simplicity and efficiency we only allow lowercase here.
