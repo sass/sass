@@ -1,20 +1,14 @@
-# JavaScript Calculation API: Draft 2
+# Calculation API
 
-*([Issue](https://github.com/sass/sass/issues/818),
-[Changelog](calculation-api.changes.md))*
+```ts
+import {List, ValueObject} from 'immutable';
+
+import {Value, SassNumber, SassString} from './index';
+```
 
 ## Table of Contents
 
-* [Background](#background)
-* [Summary](#summary)
-  * [Design Decisions](#design-decisions)
-    * [Simplification](#simplification)
-* [API](#api)
 * [Types](#types)
-  * [`Value`](#value)
-    * [`assertCalculation`](#assertcalculation)
-  * [`Options`](#options)
-    * [`functions`](#functions)
   * [`CalculationValue`](#calculationvalue)
   * [`SassCalculation`](#sasscalculation)
     * [`internal`](#internal)
@@ -39,130 +33,7 @@
     * [`equals`](#equals-1)
     * [`hashCode`](#hashcode-1)
 
-## Background
-
-> This section is non-normative.
-
-This proposal simply exposes the [calculation type] to the JavaScript API.
-
-[calculation type]: ../accepted/first-class-calc.md
-
-## Summary
-
-> This section is non-normative.
-
-### Design Decisions
-
-#### Simplification
-
-We considered eagerly simplifying calculations as they were constructed to
-match the behavior of values in Sass itself. However, this poses a problem
-for API implementations that don't have direct access to compiler logic, such
-as the Node.js embedded host: they would need to implement the simplification
-logic locally, which is relatively complex and opens a broad surface area for
-subtle cross-implementation incompatibilities.
-
-This could potentially be solved by adding an explicit request to the
-embedded protocol, but this would pose its own problems given that JS is
-strict about separating asynchronous calls (like those across process
-boundaries) and synchronous calls (like this API).
-
-Given that, we chose instead to handle simplification only at the custom
-function boundary rather than when a calculation is constructed.
-
-## API
-
-```ts
-import {List, ValueObject} from 'immutable';
-
-import {Value, SassNumber, SassString} from '../spec/js-api/value';
-```
-
 ## Types
-
-### `Value`
-
-```ts
-declare module '../spec/js-api/value' {
-  interface Value {
-```
-
-#### `assertCalculation`
-
-Returns `this` if it's a [`SassCalculation`] and throws an error otherwise.
-
-[`SassCalculation`]: #sasscalculation
-
-> The `name` parameter may be used for error reporting.
-
-```ts
-assertCalculation(name?: string): SassCalculation;
-```
-
-```ts
-  } // Value
-} // module
-```
-
-### `Options`
-
-```ts
-declare module '../spec/js-api/options' {
-  interface Options<sync extends 'sync' | 'async'> {
-```
-
-#### `functions`
-
-Replace this option's specification with:
-
-Before beginning compilation:
-
-* For each key/value pair `signature`/`function` in this record:
-
-  * If `signature` isn't an [<ident-token>] followed immediately by an
-    `ArgumentDeclaration`, throw an error.
-
-  * Let `name` be `signature`'s <ident-token>.
-
-  * If there's already a global function whose name is
-    underscore-insensitively equal to `name`, continue to the next
-    key/value pair.
-
-  * Otherwise, add a global function whose signature is `signature`. When
-    this function is called:
-
-    * Let `result` be the result of calling the associated
-      `CustomFunction` with the given arguments. If this call throws an
-      error, treat it as a Sass error thrown by the Sass function.
-
-      > As in the rest of Sass, `_`s and `-`s are considered equivalent
-      > when determining which function signatures match.
-
-    * Throw an error if `result` is or transitively contains:
-
-      * An object that's not an instance of the `Value` class.
-
-      * A [`SassFunction`] whose `signature` field isn't a valid Sass
-        function signature that could appear after the `@function`
-        directive in a Sass stylesheet.
-
-    * Return a copy of `result.internal` with all calculations it
-      transitively contains (including the return value itself if it's a
-      calculation) replaced with the result of [simplifying] those
-      calculations.
-
-[<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
-[`SassFunction`]: ../spec/js-api/value/function.d.ts.md
-[simplifying]: ../spec/types/calculation.md#simplifying-a-calculation
-
-```ts
-functions?: Record<string, CustomFunction<sync>>;
-```
-
-```ts
-  } // Options
-} // module
-```
 
 ### `CalculationValue`
 
@@ -193,8 +64,8 @@ export class SassCalculation extends Value {
 
 The [private `internal` field] refers to a Sass [calculation].
 
-[private `internal` field]: ../spec/js-api/value/index.d.ts.md#internal
-[calculation]: ../spec/types/calculation.md
+[private `internal` field]: index.d.ts.md#internal
+[calculation]: ../../types/calculation.md
 
 #### `calc`
 
@@ -295,7 +166,7 @@ export type CalculationOperator = '+' | '-' | '*' | '/';
 
 The JS API representation of a Sass [`CalculationOperation`].
 
-[CalculationOperation]: ../spec/types/calculation.md#types
+[CalculationOperation]: ../../types/calculation.md#types
 
 ```ts
 export class CalculationOperation implements ValueObject {
@@ -306,7 +177,7 @@ export class CalculationOperation implements ValueObject {
 A private property like [`Value.internal`] that refers to a Sass
 [`CalculationOperation`].
 
-[`Value.internal`]: ../spec/js-api/value/index.d.ts.md
+[`Value.internal`]: index.d.ts.md
 
 #### Constructor
 
@@ -373,7 +244,7 @@ hashCode(): number;
 
 The JS API representation of a Sass [`CalculationInterpolation`].
 
-[`CalculationInterpolation`]: ../spec/types/calculation.md#types
+[`CalculationInterpolation`]: ../../types/calculation.md#types
 
 ```ts
 export class CalculationInterpolation implements ValueObject {
@@ -408,7 +279,7 @@ get value(): string;
 Whether [`internal`][ci-internal] is equal to `other.internal` in Sass.
 
 ```ts
-equals(other: CalculationOperation): boolean;
+equals(other: CalculationInterpolation): boolean;
 ```
 
 #### `hashCode`
