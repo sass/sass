@@ -1,4 +1,4 @@
-# Calculation Functions: Draft 1.2
+# Calculation Functions: Draft 1.3
 
 *([Issue](https://github.com/sass/sass/issues/3504))*
 
@@ -11,6 +11,7 @@
 * [Definitions](#definitions)
   * [Exact Equality](#exact-equality)
   * [Known Units](#known-units)
+  * [Potentially Slash-Separated Number](#potentially-slash-separated-number)
 * [Syntax](#syntax)
   * [`FunctionExpression`](#functionexpression)
   * [`CalculationExpression`](#calculationexpression)
@@ -94,6 +95,39 @@ A number has *known units* unless it has unit `%`.
 >
 > More complex units involving percentages are allowed because any non-linear
 > function will throw for complex units anyway.
+
+### Potentially Slash-Separated Number
+
+Replace [the definition of `Potentially Slash-Separated Number`] with the
+following:
+
+[the definition of `Potentially Slash-Separated Number`]: ../spec/types/number.md#potentially-slash-separated-number
+
+A Sass number may be *potentially slash-separated*. If it is, it is associated
+with two additional Sass numbers, the *original numerator* and the *original
+denominator*. A number that is not potentially slash-separated is known as
+*slash-free*.
+
+A potentially slash-separated number is created when a `ProductExpression` with
+a `/` operator is evaluated and each operand is *syntactically* one of the
+following:
+
+* a `Number`,
+* a [`Calculation`] **whose name is not `abs`, `max`, `min`, or `round`**, or
+* a `ProductExpression` that can itself create potentially slash-separated
+  numbers.
+
+> We exclude these four calc functions from producing potentially
+> slash-separated numbers to ensure that existing code like `1 / round(1.5)`
+> continues to be evaluated as division when the function goes from being
+> evaluated as a Sass global function to being evaluated as a calc function.
+
+[`Calculation`]: ../spec/types/calculation.md#syntax
+
+If both operands are evaluated as numbers, the resulting number is potentially
+slash-separated. The first operand is the original numerator of the potentially
+slash-separated number returned by the `/` operator, and the second is the
+original denominator.
 
 ## Syntax
 
