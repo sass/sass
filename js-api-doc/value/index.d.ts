@@ -1,6 +1,7 @@
 import {List, ValueObject} from 'immutable';
 
 import {SassBoolean} from './boolean';
+import {SassCalculation} from './calculation';
 import {SassColor} from './color';
 import {SassFunction} from './function';
 import {ListSeparator} from './list';
@@ -10,6 +11,13 @@ import {SassString} from './string';
 
 export {SassArgumentList} from './argument_list';
 export {SassBoolean, sassTrue, sassFalse} from './boolean';
+export {
+  SassCalculation,
+  CalculationValue,
+  CalculationOperator,
+  CalculationOperation,
+  CalculationInterpolation,
+} from './calculation';
 export {SassColor} from './color';
 export {SassFunction} from './function';
 export {SassList, ListSeparator} from './list';
@@ -115,6 +123,14 @@ export abstract class Value implements ValueObject {
    * the `$`) if it came from an argument. Used for error reporting.
    */
   assertBoolean(name?: string): SassBoolean;
+
+  /**
+   * Throws if `this` isn't a {@link SassCalculation}.
+   *
+   * @param name - The name of the function argument `this` came from (without
+   * the `$`) if it came from an argument. Used for error reporting.
+   */
+  assertCalculation(name?: string): SassCalculation;
 
   /**
    * Throws if `this` isn't a {@link SassColor}.
