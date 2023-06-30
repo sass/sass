@@ -62,6 +62,11 @@ export interface FileImporter<
    * This should *only* be used for determining whether or not to load
    * [import-only files](https://sass-lang.com/documentation/at-rules/import#import-only-files).
    *
+   * @param options.containingUrl - The canonical URL of the source file that's
+   * loading `url`, if it has one. Unlike for {@link Importer.canonicalize},
+   * this is always available as long as the containing file has a canonical
+   * URL.
+   *
    * @returns An absolute `file:` URL if this importer recognizes the `url`.
    * This may be only partially resolved: the compiler will automatically look
    * for [partials](https://sass-lang.com/documentation/at-rules/use#partials),
@@ -85,7 +90,7 @@ export interface FileImporter<
    */
   findFileUrl(
     url: string,
-    options: {fromImport: boolean}
+    options: {fromImport: boolean, containingUrl?: URL}
   ): PromiseOr<URL | null, sync>;
 
   /** @hidden */
@@ -226,6 +231,11 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
    * This should *only* be used for determining whether or not to load
    * [import-only files](https://sass-lang.com/documentation/at-rules/import#import-only-files).
    *
+   * @param options.containingUrl - The canonical URL of the source file that's
+   * loading `url`, if it has one. This is only passed when `url` is either
+   * relative or an absolute URL whose scheme is declared as non-canonical by
+   * {@link nonCanonicalScheme}.
+   *
    * @returns An absolute URL if this importer recognizes the `url`, or `null`
    * if it doesn't. If this returns `null`, other importers or {@link
    * Options.loadPaths | load paths} may handle the load.
@@ -242,7 +252,7 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
    */
   canonicalize(
     url: string,
-    options: {fromImport: boolean}
+    options: {fromImport: boolean, containingUrl?: URL}
   ): PromiseOr<URL | null, sync>;
 
   /**
@@ -272,6 +282,28 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
 
   /** @hidden */
   findFileUrl?: never;
+
+  /**
+   * One or more URL schemes that this importer supports, but will never return
+   * from {@link canonicalize}. When an absolute URL with one of these schemes
+   * is passed to {@link canonicalize}, the URL of the stylesheet that contains
+   * it will be available as well.
+   *
+   * This restriction is in place to ensure that canonical URLs are always
+   * resolved the same way regardless of context, and thus that they're truly
+   * canonical.
+   *
+   * These values must be valid lowercase URL schemes.
+   *
+   * @example An plugin for the fictional NetCram bundler might support a
+   * `netcram:` URL scheme. It would declare `nonCanonicalScheme: "netcram"` so
+   * that when a user wrote `@use "netcram:colorful"`, it would be able to load
+   * different versions of the `colorful` library depending where the `@use` was
+   * located. Its `canonicalize()` function would then return a normal `file:`
+   * URL as the canonical URL for these files, representing their locations on
+   * disk.
+   */
+  nonCanonicalScheme?: string | string[];
 }
 
 /**
