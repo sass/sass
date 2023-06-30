@@ -9,7 +9,6 @@ This proposal adds Sass support for a standard package importer, introducing a `
 * [Background](#background)
 * [Summary](#summary)
   * [Design Decisions](#design-decisions)
-* [Syntax](#syntax)
 * [Semantics](#semantics)
 * [Deprecation Process](#deprecation-process)
 
