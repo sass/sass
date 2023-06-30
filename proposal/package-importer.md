@@ -40,7 +40,7 @@ library-defined export within the `bootstrap` dependency. In Node, that would be
 resolved within `node_modules`, using the [node resolution algorithm]. In Dart,
 that would be resolved within `pub-cache`, using [package-config].
 
-[node module algorithm]: https://nodejs.org/api/packages.html
+[node resolution algorithm]: https://nodejs.org/api/packages.html
 [package-config]: https://pub.dev/packages/package_config
 
 There will be tension between the different path resolution algorithms that are
