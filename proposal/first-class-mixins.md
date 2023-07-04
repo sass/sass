@@ -11,6 +11,7 @@ This proposal promotes mixins to first-class values and adds members to the
 * [Summary](#summary)
 * [Types](#types)
   * [Operations](#operations)
+  * [Equality](#equality)
   * [Serialization](#serialization)
 * [Functions](#functions)
   * [`meta.type-of()`](#metatype-of)
@@ -126,7 +127,7 @@ Add the following clause to the [`meta.type-of()`] function and the top-level
 This is a new function in the `sass:meta` module.
 
 ```
-get-mixin($name, $module: null)
+meta.get-mixin($name, $module: null)
 ```
 
 * If `$name` is not a string, throw an error.
