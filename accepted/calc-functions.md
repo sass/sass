@@ -325,18 +325,21 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
 
   > To match CSS's behavior, these computations _don't_ use fuzzy comparisons.
 
-* If `calc`'s name is `"log"`, return the result of passing its arguments to the
-  [`log()` function] in [`sass:math`].
+* If `calc`'s name is `"log"`:
+
+  * If any argument is a number with units, throw an error.
+
+  * Otherwise, if `arguments` contains exactly two numbers, return the result of
+    passing its arguments to the [`log()` function] in [`sass:math`].
 
   [`log()` function]: ../spec/built-in-modules/math.md#log
 
-  > This will throw an error if any arguments have units.
+* If `calc`'s name is `"pow"`:
 
-* If `calc`'s name is `"pow"`, and `arguments` contains exactly two numbers,
-  return the result of passing those numbers to the [`pow()` function] in
-  [`sass:math`].
+  * If any argument is a number with units, throw an error.
 
-  > This will throw an error if either argument has units.
+  * Otherwise, if `arguments` contains exactly two numbers, return the result of
+    passing those numbers to the [`pow()` function] in [`sass:math`].
 
   [`pow()` function]: ../spec/built-in-modules/math.md#pow
 

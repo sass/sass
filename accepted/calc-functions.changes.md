@@ -9,6 +9,9 @@
 * Throw an error if `clamp()` or `hypot()` has known-incompatible arguments even
   if they aren't all numbers.
 
+* Throw an error if any argument to `pow()` or `log()` is a number with units,
+  even if the function can't otherwise be simplified.
+
 * Add non-normative notes clarifying when units are implicitly disallowed by
   passing them on to built-in Sass functions.
 
