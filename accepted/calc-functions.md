@@ -1,4 +1,4 @@
-# Calculation Functions: Draft 1.3
+# Calculation Functions: Draft 1.4
 
 *([Issue](https://github.com/sass/sass/issues/3504))*
 
@@ -294,16 +294,25 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
   > otherwise calculations' arguments must match the expected number.
 
 * If `calc`'s name is `"sin"`, `"cos"`, `"tan"`, `"asin"`, `"acos"`, `"atan"`,
-  `"sqrt"`, `"abs"`, `"log"`, or `"round"` and `arguments` contains exactly a
-  single number with [known units], return the result of passing that number to
-  the function in [`sass:math`] whose name matches `calc`'s.
+  `"sqrt"`, `"log"`, or `"round"` and `arguments` contains exactly a single
+  number, return the result of passing that number to the function in
+  [`sass:math`] whose name matches `calc`'s.
 
-  [known units]: #known-units
   [`sass:math`]: ../spec/built-in-modules/math.md
 
+  > Other than `round()`, all of these functions will throw errors if their
+  > arguments have any units.
+
+* If `calc`'s name is `"abs"` and `arguments` contains exactly a single number
+  with [known units], return the result of passing that number to the function
+  in [`sass:math`] whose name matches `calc`'s.
+
+  [known units]: #known-units
+
 * If `calc`'s name is `"exp"` and `arguments` contains exactly a single number
-  `number` with [known units], return the result of calling `math.pow(math.$e,
-  number)`.
+  `number`, return the result of calling `math.pow(math.$e, number)`.
+
+  > This will throw an error if the argument has units.
 
 * If `calc`'s name is `"sign"` and `arguments` contains exactly a single number
   `number` with [known units]:
@@ -316,14 +325,31 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
 
   > To match CSS's behavior, these computations _don't_ use fuzzy comparisons.
 
-* If `calc`'s name is `"atan2"`, `"pow"`, or `"log"`:
+* If `calc`'s name is `"log"`, return the result of passing its arguments to the
+  [`log()` function] in [`sass:math`].
 
-  * If `calc`'s name isn't `"log"`, `arguments` has only one element, and it's
-    not an unquoted string or a `CalculationInterpolation`, throw an error.
+  [`log()` function]: #log
 
-  * Otherwise, if `arguments` contains exactly two numbers with [known units],
-    return the result of passing that number to the function in [`sass:math`]
-    whose name matches `calc`'s.
+  > This will throw an error if any arguments have units.
+
+* If `calc`'s name is `"pow"`, and `arguments` contains exactly two numbers,
+  return the result of passing those numbers to the [`pow()` function] in
+  [`sass:math`].
+
+  > This will throw an error if either argument has units.
+
+  [`pow()` function]: #pow
+
+* If `calc`'s name is `"atan2"` and `arguments` contains two numbers which both
+  have [known units], return the result of passing those numbers to the
+  [`atan2()` function] in [`sass:math`].
+
+  > This will throw an error if either argument has units.
+  >
+  > `atan2()` passes percentages along to the browser because they may resolve
+  > to negative values, and `atan2(-x, -y) != atan2(x, y)`.
+
+  [`atan2()` function]: #atan2
 
 * If `calc`'s name is `"mod"` or `"rem"`:
 
@@ -332,10 +358,6 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
 
   * Otherwise, if `arguments` contains exactly two numbers `dividend` and
     `modulus`:
-
-    > These numbers need not have known units, since mod and rem are linear
-    > functions so they'll work equivalently for percentages as for the numbers
-    > they represent.
 
     * If `dividend` and `modulus` are [definitely-incompatible], throw an error.
 
@@ -353,7 +375,6 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
       * Otherwise, return `result`.
 
   [definitely-incompatible]: ../spec/types/number.md#possibly-compatible-numbers
-  [compatible]: ../spec/types/number.md#compatible-units
   [exactly equals]: #exact-equality
 
 * If `calc`'s name is `"round"`:
@@ -399,7 +420,7 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
         * If `step`'s value is infinite:
 
           * If `strategy`'s value is `"nearest"` or `"to-zero"`, return `+0` if
-            `number`'s value is positive or `+0` and `-0` otherwise.
+            `number`'s value is positive or `+0`, and `-0` otherwise.
 
           * If `strategy`'s value is `"up"`, return positive infinity if
             `number`'s value is positive, `+0` if `number`'s value is `+0`, and
@@ -445,13 +466,17 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
     * Otherwise, if any two of those arguments are [definitely-incompatible],
       throw an error.
 
-* If `calc`'s name is `"hypot"` and `arguments` are all numbers:
+* If `calc`'s name is `"hypot"` and `arguments` are all numbers with [known
+  units]:
 
   * If those arguments are mutually [compatible], return the result of calling
     `math.hypot()` with those arguments.
 
   * Otherwise, if any two of those arguments are [definitely-incompatible],
     throw an error.
+
+  > `hypot()` has an exemption for percentages because it squares its inputs, so
+  > `hypot(-x, -y) != -hypot(x, y)`.
 
 * If `calc`'s name is `"min"` or `"max"` and `arguments` are all numbers:
 
