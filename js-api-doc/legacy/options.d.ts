@@ -390,9 +390,8 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    * whose values are {@link LegacyFunction}s. Each function should take the
    * same arguments as its signature.
    *
-   * Functions are passed JavaScript representations of [Sass value
-   * types](https://sass-lang.com/documentation/js-api#value-types), and must
-   * return the same.
+   * Functions are passed subclasses of {@link LegacyValue}, and must return the
+   * same.
    *
    * **Heads up!** When writing custom functions, it’s important to ensure that
    * all the arguments are the types you expect. Otherwise, users’ stylesheets
