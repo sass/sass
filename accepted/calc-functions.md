@@ -328,7 +328,7 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
 * If `calc`'s name is `"log"`, return the result of passing its arguments to the
   [`log()` function] in [`sass:math`].
 
-  [`log()` function]: #log
+  [`log()` function]: ../spec/built-in-modules/math.md#log
 
   > This will throw an error if any arguments have units.
 
@@ -338,7 +338,7 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
 
   > This will throw an error if either argument has units.
 
-  [`pow()` function]: #pow
+  [`pow()` function]: ../spec/built-in-modules/math.md#pow
 
 * If `calc`'s name is `"atan2"` and `arguments` contains two numbers which both
   have [known units], return the result of passing those numbers to the
@@ -349,7 +349,7 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
   > `atan2()` passes percentages along to the browser because they may resolve
   > to negative values, and `atan2(-x, -y) != atan2(x, y)`.
 
-  [`atan2()` function]: #atan2
+  [`atan2()` function]: ../spec/built-in-modules/math.md#atan2
 
 * If `calc`'s name is `"mod"` or `"rem"`:
 
