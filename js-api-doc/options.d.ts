@@ -134,8 +134,8 @@ export interface Options<sync extends 'sync' | 'async'> {
    * simplified before being returned.
    *
    * When writing custom functions, it's important to make them as user-friendly
-   * and as close to the standards set by Sass's core functions as possible.
-   * Some good guidelines to follow include:
+   * and as close to the standards set by Sass's core functions as possible. Some
+   * good guidelines to follow include:
    *
    * * Use `Value.assert*` methods, like {@link Value.assertString}, to cast
    *   untyped `Value` objects to more specific types. For values that were
@@ -175,24 +175,24 @@ export interface Options<sync extends 'sync' | 'async'> {
    *
    * @example
    *
-   *```js
-   *sass.compileString(`
-   *h1 {
-   *  font-size: pow(2, 5) * 1px;
-   *}`, {
-   *  functions: {
-   *    // Note: in real code, you should use `math.pow()` from the built-in
-   *    // `sass:math` module.
-   *    'pow($base, $exponent)': function(args) {
-   *      const base = args[0].assertNumber('base').assertNoUnits('base');
-   *      const exponent =
-   *          args[1].assertNumber('exponent').assertNoUnits('exponent');
+   * ```js
+   * sass.compileString(`
+   * h1 {
+   *   font-size: pow(2, 5) * 1px;
+   * }`, {
+   *   functions: {
+   *     // Note: in real code, you should use `math.pow()` from the built-in
+   *     // `sass:math` module.
+   *     'pow($base, $exponent)': function(args) {
+   *       const base = args[0].assertNumber('base').assertNoUnits('base');
+   *       const exponent =
+   *           args[1].assertNumber('exponent').assertNoUnits('exponent');
    *
-   *      return new sass.SassNumber(Math.pow(base.value, exponent.value));
-   *    }
-   *  }
-   *});
-   *```
+   *       return new sass.SassNumber(Math.pow(base.value, exponent.value));
+   *     }
+   *   }
+   * });
+   * ```
    *
    * @category Plugins
    */
