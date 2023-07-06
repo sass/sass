@@ -6,6 +6,9 @@
   allows percentages for them but they aren't linear so they can't be resolved
   in terms of percentages in Sass.
 
+* Throw an error if `clamp()` or `hypot()` has known-incompatible arguments even
+  if they aren't all numbers.
+
 * Add non-normative notes clarifying when units are implicitly disallowed by
   passing them on to built-in Sass functions.
 

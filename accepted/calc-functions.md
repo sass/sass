@@ -458,25 +458,23 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
   * If `arguments` has fewer than three elements, and none of those are unquoted
     strings or `CalculationInterpolation`s, throw an error.
 
-  * Otherwise, if `arguments` are all numbers:
+  * Otherwise, if any two elements of `arguments` are [definitely-incompatible]
+    numbers, throw an error.
 
-    * If those arguments are mutually [compatible], return the result of calling
-      `math.clamp()` with those arguments.
+  * Otherwise, if `arguments` are all mutually [compatible] numbers, return the
+    result of calling `math.clamp()` with those arguments.
 
-    * Otherwise, if any two of those arguments are [definitely-incompatible],
-      throw an error.
+* If `calc`'s name is `"hypot"`:
 
-* If `calc`'s name is `"hypot"` and `arguments` are all numbers with [known
-  units]:
-
-  * If those arguments are mutually [compatible], return the result of calling
-    `math.hypot()` with those arguments.
-
-  * Otherwise, if any two of those arguments are [definitely-incompatible],
+  * If any two elements of `arguments` are [definitely-incompatible] numbers,
     throw an error.
 
-  > `hypot()` has an exemption for percentages because it squares its inputs, so
-  > `hypot(-x, -y) != -hypot(x, y)`.
+  * Otherwise, if all `arguments` are all numbers with [known units] that are
+    mutually [compatible], return the result of calling `math.hypot()` with
+    those arguments.
+
+    > `hypot()` has an exemption for percentages because it squares its inputs,
+    > so `hypot(-x, -y) != -hypot(x, y)`.
 
 * If `calc`'s name is `"min"` or `"max"` and `arguments` are all numbers:
 
