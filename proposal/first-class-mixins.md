@@ -11,7 +11,7 @@ This proposal promotes mixins to first-class values and adds members to the
 * [Summary](#summary)
 * [Types](#types)
   * [Operations](#operations)
-  * [Equality](#equality)
+    * [Equality](#equality)
   * [Serialization](#serialization)
 * [Functions](#functions)
   * [`meta.type-of()`](#metatype-of)
@@ -99,8 +99,6 @@ Two mixins are considered equal if they refer to the exact same mixin as declare
 
 To serialize a `Mixin`:
 
-* If the current evaluation context is plain CSS, throw an error.
-
 * If the value is not being inspected, throw an error.
 
 * Otherwise:
@@ -146,6 +144,9 @@ meta.get-mixin($name, $module: null)
 
   * Return [`use`'s module][]'s mixin named `$name`, or throw an error if no
     such mixin exists.
+
+  [the current source file]: ../spec.md#current-source-file
+  [`use`'s module]: at-rules/use.md#a-use-rules-module
 
 ### `meta.module-mixins()`
 
