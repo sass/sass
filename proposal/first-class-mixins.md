@@ -48,7 +48,7 @@ one would with function values:
 
 This proposal promotes the [mixin value][] to a Sass value type.
 
-[mixin value]: spec/at-rules/mixin.md#mixin
+[mixin value]: /spec/at-rules/mixin.md#mixin
 
 ### Operations
 
@@ -107,7 +107,7 @@ To serialize a `Mixin`:
 Add the following clause to the [`meta.type-of()`] function and the top-level
 `type-of()` function:
 
-[`meta.type-of()`]: spec/built-in-modules/meta.md#type-of
+[`meta.type-of()`]: /spec/built-in-modules/meta.md#type-of
 
 * If `$value` is a mixin, return an unquoted string with value `"mixin"`.
 
@@ -136,8 +136,8 @@ meta.get-mixin($name, $module: null)
   * Return [`use`'s module][]'s mixin named `$name`, or throw an error if no
     such mixin exists.
 
-  [the current source file]: spec/spec.md#current-source-file
-  [`use`'s module]: spec/at-rules/use.md#a-use-rules-module
+  [the current source file]: /spec/spec.md#current-source-file
+  [`use`'s module]: /spec/at-rules/use.md#a-use-rules-module
 
 ### `meta.module-mixins()`
 
