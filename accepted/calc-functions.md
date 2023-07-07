@@ -300,8 +300,8 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
 
   [`sass:math`]: ../spec/built-in-modules/math.md
 
-  > Other than `round()`, all of these functions will throw errors if their
-  > arguments have any units.
+  > The `sass:math` functions will check units here for the functions that
+  > require specific or no units.
 
 * If `calc`'s name is `"abs"` and `arguments` contains exactly a single number
   with [known units], return the result of passing that number to the function
