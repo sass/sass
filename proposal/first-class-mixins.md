@@ -46,36 +46,25 @@ one would with function values:
 
 ## Types
 
-This proposal introduces a new value type known as a "mixin", with the
-following structure:
+This proposal promotes the [mixin value][] to a Sass value type.
 
-```ts
-interface Mixin {
-  /**
-   * The name of this mixin
-   */
-  name: string;
-
-  /**
-   * Whether or not the body of this mixin contains the `@content` rule
-   */
-  hasContent: boolean;
-}
-```
-
-> The internal representation of a mixin may also include function arguments, a body, a span, or other fields, but these properties are not meaningfully exposed to users.
->
-> When a mixin value is created, it captures the current execution environment and a pointer to the mixin object being referenced. This is also not directly exposed to users.
+[mixin value]: at-rules/mixin.md#mixin
 
 ### Operations
 
-The only operation permitted for mixin objects is checking for equality. 
+The only operation permitted for mixin objects is checking for equality. All
+other operations throw an error.
 
 #### Equality
 
-Two mixins are considered equal if they refer to the exact same mixin as declared in the source code.
+Two user-declared mixins are considered equal if they refer to the exact same
+mixin as declared in the source code.
 
-> Even if two mixin objects have the same name and the exact same body, they may not be considered equal. This can be thought of as pointer equality and models what one would expect when comparing two function pointers.
+Builtin mixins -- i.e. those declared by the Sass standard library, and not declared directly in Sass -- are equal to only themselves.
+
+> Even if two mixin objects have the same name and the exact same body, they
+> may not be considered equal. This can be thought of as pointer equality and
+> models what one would expect when comparing two function pointers.
 >
 > As an example, if we declare two mixins:
 > 
@@ -93,7 +82,8 @@ Two mixins are considered equal if they refer to the exact same mixin as declare
 > $b: meta.get-mixin(mixin1);
 > ```
 > 
-> Although every aspect of the two mixins is the same, `$a != $b`, because they refer to separate mixin declarations/objects.
+> Although every aspect of the two mixins is the same, `$a != $b`, because they
+> refer to separate mixin declarations/objects.
 
 ### Serialization
 
@@ -105,7 +95,8 @@ To serialize a `Mixin`:
 
   * Emit `"get-mixin("`.
 
-  * Emit a double quote (`"`), then the `name` of the mixin, then another double quote.
+  * Emit a double quote (`"`), then the `name` of the mixin, then another double
+    quote.
 
   * Emit `")"`.
 
@@ -161,8 +152,8 @@ meta.module-mixins($module)
 * Let `use` be the `@use` rule in [the current source file][] whose namespace is
   equal to `$module`. If no such rule exists, throw an error.
 
-* Return a map whose keys are the quoted string names of mixins in [`use`'s module][] and
-  whose values are the corresponding mixins.
+* Return a map whose keys are the quoted string names of mixins in
+  [`use`'s module][] and whose values are the corresponding mixins.
 
 ### `meta.accepts-content()`
 
@@ -174,7 +165,8 @@ meta.accepts-content($mixin)
 
 * If `$mixin` is not a mixin, throw an error.
 
-* Return a boolean which is true if the body of the mixin has an `@content` rule. This is the same value as `mixin.hasContent`.
+* Return a boolean which is true if the body of the mixin has an `@content`
+  rule.
 
 ## Mixins
 
@@ -184,16 +176,12 @@ meta.accepts-content($mixin)
 meta.apply($mixin, $args...)
 ```
 
-> Mixins must be invoked with `@include`, so `include` is guaranted to exist.
-
 * If `$mixin` is not a mixin, throw an error.
 
-* If `include` has a `ContentBlock`, it should be passed down to `$mixin`.
+* If the current `@include` rule has a `ContentBlock`, it should be passed down
+  to `$mixin`. Mixins must be invoked with `@include`, so `include` is
+  guaranteed to exist.
 
-* Assign $args to `$mixin`'s ArgumentDeclaration in `$mixin`'s scope.
+* Assign `$args` to `$mixin`'s `ArgumentDeclaration` in `$mixin`'s scope.
 
 * Execute each statement in `$mixin`.
-
-* Let `content` be the result of executing `$mixin` with `$args`.
-
-* Treat `content` as though it were the contents of this mixin.
