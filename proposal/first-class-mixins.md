@@ -24,9 +24,17 @@ This proposal promotes mixins to first-class values and adds members to the
 
 > This section is non-normative.
 
-Composability is a very powerful feature typically seen in functional languages
-and scripting languages. Sass partially supports this, but only for one of its
-two kinds of callables.
+Sass today has two callables: the function and the mixin. Functions in Sass are
+a first class SassScript value type; they can be assigned to variables and
+invoked dynamically.
+
+Mixins, however, are not first class values. This is a stumbling block many
+users (sass/sass#626, sass/sass#673, sass/sass#3328, sass/sass#3439, among
+others) of Sass run into.
+
+Promoting mixins to be first class values would resolve a number of commonly
+requested features while also rounding out the language and adding feature
+parity between Sass's two callables.
 
 ## Summary
 
@@ -38,17 +46,17 @@ for both of its kinds of callables.
 Additionally, it provides ways to interact with mixin values similarly to how
 one would with function values:
 
-* `get-function()` → `get-mixin()`
+* `meta.get-function()` => `meta.get-mixin()`
 
-* `module-functions()` → `module-mixins()`
+* `meta.module-functions()` => `meta.module-mixins()`
 
-* `call()` → `apply()`
+* `meta.call()` => `meta.apply()`
 
 ## Types
 
 This proposal promotes the [mixin value][] to a Sass value type.
 
-[mixin value]: /spec/at-rules/mixin.md#mixin
+[mixin value]: ../spec/at-rules/mixin.md#mixin
 
 ### Operations
 
@@ -107,7 +115,7 @@ To serialize a `Mixin`:
 Add the following clause to the [`meta.type-of()`] function and the top-level
 `type-of()` function:
 
-[`meta.type-of()`]: /spec/built-in-modules/meta.md#type-of
+[`meta.type-of()`]: ../spec/built-in-modules/meta.md#type-of
 
 * If `$value` is a mixin, return an unquoted string with value `"mixin"`.
 
@@ -136,8 +144,8 @@ meta.get-mixin($name, $module: null)
   * Return [`use`'s module][]'s mixin named `$name`, or throw an error if no
     such mixin exists.
 
-  [the current source file]: /spec/spec.md#current-source-file
-  [`use`'s module]: /spec/at-rules/use.md#a-use-rules-module
+  [the current source file]: ../spec/spec.md#current-source-file
+  [`use`'s module]: ../spec/at-rules/use.md#a-use-rules-module
 
 ### `meta.module-mixins()`
 
