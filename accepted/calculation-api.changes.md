@@ -3,6 +3,10 @@
 * Narrow and clarify the behavior of `Calculation.clamp()` with
   potentially-multiple arguments.
 
+* Make the argument type of `CalculationOperation.equals()` and
+  `CalculationInterpolation.equals()` `unknown` to match the immutable.js
+  typings.
+
 ## Draft 3
 
 * Make `CalculationOperation` and `CalculationInterpolation` concrete rather

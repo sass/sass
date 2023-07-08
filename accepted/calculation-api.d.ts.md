@@ -348,10 +348,10 @@ get right(): CalculationValue;
 
 #### `equals`
 
-Whether [`internal`][co-internal] is equal to `other.internal` in Sass
+Whether [`internal`][co-internal] is equal to `other.internal` in Sass.
 
 ```ts
-equals(other: CalculationOperation): boolean;
+equals(other: unknown): boolean;
 ```
 
 #### `hashCode`
@@ -406,7 +406,7 @@ get value(): string;
 Whether [`internal`][ci-internal] is equal to `other.internal` in Sass.
 
 ```ts
-equals(other: CalculationOperation): boolean;
+equals(other: unknown): boolean;
 ```
 
 #### `hashCode`
