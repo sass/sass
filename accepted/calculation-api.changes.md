@@ -1,3 +1,8 @@
+## Draft 3.1
+
+* Narrow and clarify the behavior of `Calculation.clamp()` with
+  potentially-multiple arguments.
+
 ## Draft 3
 
 * Make `CalculationOperation` and `CalculationInterpolation` concrete rather

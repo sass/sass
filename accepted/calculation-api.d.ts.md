@@ -1,4 +1,4 @@
-# JavaScript Calculation API: Draft 2
+# JavaScript Calculation API: Draft 3.1
 
 *([Issue](https://github.com/sass/sass/issues/818),
 [Changelog](calculation-api.changes.md))*
@@ -247,10 +247,8 @@ Creates a value that represents `calc(min, value, max)` expression.
 
 * If `value` is undefined and `max` is not undefined, throw an error.
 
-* If `value` or `max` is undefined and `min` is not a `SassString` or
-  `CalculationInterpolation` that contains comma-separated values that can be
-  interpreted as values for `value` and `max` (for example `clamp(#{"1, 2,
-  3"})`).
+* If either `value` or `max` is undefined and neither `min` nor `value` is a
+  `SassString` or `CalculationInterpolation`, throw an error.
 
 * Return a calculation with name `"clamp"` and `min`, `value`, and `max` as its
   arguments, excluding any arguments that are undefined.
