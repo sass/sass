@@ -65,15 +65,20 @@ other operations throw an error.
 
 #### Equality
 
-Two user-declared mixins are considered equal if they refer to the exact same
-mixin as declared in the source code.
+When the Sass interpreter encounters an `@mixin` rule in Sass source code, it
+constructs a mixin object in memory. Additionally, some mixin objects are
+pre-defined by the Sass language and accessible though the builtin modules.
 
-Builtin mixins -- i.e. those declared by the Sass standard library, and not declared directly in Sass -- are equal to only themselves.
+Mixin objects, like function objects, use pointer equality.
 
-> Even if two mixin objects have the same name and the exact same body, they
-> may not be considered equal. This can be thought of as pointer equality and
-> models what one would expect when comparing two function pointers.
->
+If the same file were to be imported multiple times, the Sass interpreter would
+create a new mixin object for each `@mixin` rule each time the file is imported.
+Because a new mixin object has been created, although the name, body, and source
+span of a given mixin from the file would be the same between imports, the
+objects would not be equal because they refer to different objects in memory.
+Mixins pre-defined by the Sass language are instatiated at most once during the
+entire evaluation of a program.
+
 > As an example, if we declare two mixins:
 > 
 > ```scss
