@@ -212,7 +212,7 @@ static calc(argument: CalculationValue): SassCalculation;
 
 Creates a value that represents `min(...arguments)`.
 
-* If `argument` is a quoted `SassString`, throw an error.
+* If `arguments` contains a quoted `SassString`, throw an error.
 
 * Return a calculation with name `"min"` and `arguments` as its arguments.
 
@@ -226,7 +226,7 @@ static min(
 
 Creates a value that represents `max(...arguments)`.
 
-* If `arguments` a quoted `SassString`, throw an error.
+* If `arguments` contains a quoted `SassString`, throw an error.
 
 * Return a calculation with name `"max"` and `arguments` as its arguments.
 
