@@ -7,6 +7,10 @@
   `CalculationInterpolation.equals()` `unknown` to match the immutable.js
   typings.
 
+* Rather than making each `SassCalculation` factory check transitively for
+  quoted strings, make `CalculationOperation`'s constructor check for them so
+  that they're guaranteed not to exist transitively.
+
 ## Draft 3
 
 * Make `CalculationOperation` and `CalculationInterpolation` concrete rather

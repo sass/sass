@@ -200,8 +200,7 @@ The [private `internal` field] refers to a Sass [calculation].
 
 Creates a value that represents `calc(argument)`.
 
-* If `argument` is or transitively contains a quoted `SassString`, throw an
-  error.
+* If `argument` is a quoted `SassString`, throw an error.
 
 * Return a calculation with name `"calc"` and `argument` as its single argument.
 
@@ -213,8 +212,7 @@ static calc(argument: CalculationValue): SassCalculation;
 
 Creates a value that represents `min(...arguments)`.
 
-* If `argument` is or transitively contains a quoted `SassString`, throw an
-  error.
+* If `argument` is a quoted `SassString`, throw an error.
 
 * Return a calculation with name `"min"` and `arguments` as its arguments.
 
@@ -228,7 +226,7 @@ static min(
 
 Creates a value that represents `max(...arguments)`.
 
-* If `arguments` transitively contains a quoted `SassString`, throw an error.
+* If `arguments` a quoted `SassString`, throw an error.
 
 * Return a calculation with name `"max"` and `arguments` as its arguments.
 
@@ -242,8 +240,7 @@ static max(
 
 Creates a value that represents `calc(min, value, max)` expression.
 
-* If `min`, `max`, or `clamp` is or transitively contains a quoted `SassString`,
-  throw an error.
+* If `min`, `max`, or `clamp` is a quoted `SassString`, throw an error.
 
 * If `value` is undefined and `max` is not undefined, throw an error.
 
@@ -308,9 +305,11 @@ A private property like [`Value.internal`] that refers to a Sass
 
 #### Constructor
 
-Creates a Sass CalculationOperation by setting the fields to the arguments of
-the corresponding names, and returns it.
+Creates a Sass `CalculationOperation`:
 
+* Throw an error if `left` or `right` is a quoted `SassString`.
+* Set the fields to the arguments of the corresponding names.
+* Return the resulting `CalculationOperation`.
 
 ```ts
 constructor(
