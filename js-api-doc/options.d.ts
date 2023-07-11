@@ -333,6 +333,16 @@ export interface Options<sync extends 'sync' | 'async'> {
   style?: OutputStyle;
 
   /**
+   * Whether or not to enable the built-in package importer to resolve any url
+   * with the `pkg` scheme.
+   *
+   * @defaultValue `false`
+   * @category Input
+   */
+
+  usePkgImporter?: boolean;
+
+  /**
    * By default, Dart Sass will print only five instances of the same
    * deprecation warning per compilation to avoid deluging users in console
    * noise. If you set `verbose` to `true`, it will instead print every

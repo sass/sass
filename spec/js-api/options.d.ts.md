@@ -30,6 +30,7 @@ import {PromiseOr} from './util/promise_or';
   * [`sourceMap`](#sourcemap)
   * [`sourceMapIncludeSources`](#sourcemapincludesources)
   * [`style`](#style)
+  * [`usePkgImporter`](#usepkgimporter)
   * [`verbose`](#verbose)
 * [`StringOptionsWithoutImporter`](#stringoptionswithoutimporter)
   * [`syntax`](#syntax)
@@ -237,6 +238,18 @@ Implementations may support any subset of `OutputStyle`s, provided that:
 
 ```ts
 style?: OutputStyle;
+```
+
+#### `usePkgImporter`
+
+If true, the compiler will use the built-in [package importer] to resolve any url with the `pkg` scheme.
+
+[package importer]: ../../proposal/package-importer.md
+
+Defaults to false.
+
+```ts
+usePkgImporter?: boolean;
 ```
 
 #### `verbose`

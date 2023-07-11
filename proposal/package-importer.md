@@ -43,12 +43,6 @@ that would be resolved within `pub-cache`, using [package-config].
 [node resolution algorithm]: https://nodejs.org/api/packages.html
 [package-config]: https://pub.dev/packages/package_config
 
-There will be tension between the different path resolution algorithms that are
-used. To address this, a `pkg:` url will only use the environment's resolution
-initially in order to resolve a starting path. After that, it will be handed off
-to the Sass algorithm, which works directly with the filesystem, to resolve
-index files and partials.
-
 To better understand and allow for testing against the recommended algorithm, a
 [Sass pkg: test] repository has been made with a rudimentary implementation of
 the algorithm.
@@ -60,88 +54,127 @@ the algorithm.
 We could use the `~` popularized by Webpack's `load-sass` format, but this has
 been deprecated since 2021. In addition, since this creates a URL that is
 syntactically a relative URL, it does not make it clear to the implementation or
-the reader where to find the file.
+the reader where to find the file. 
 
 While the Dart Sass implementation allows for the use of the `package:` url
-scheme, a similar standard doesn't exist in Node. We could add `node_modules` to
-the load path, but that again suffers from lack of clarity to the implementation
-and the reader.
-
-Some npm packages have adopted a convention of declaring their Sass entrypoints
-using `"style"` or `"sass"` keys in their `package.json`. This is tied to the
-npm context, and would require parsing package.json to find these files.
-Instead, each implementation should use the standard patterns and tooling
-(`require` for Node and `package_config` for Dart) for resolving file paths.
-This allows library authors control over what is public, which follows Sass's
-general design.
-
-This proposal does not add support for a [Node custom user condition]. Node
-currently does not provide a native way to set a condition on a single
-invocation of `require.resolve`, meaning we would need to implement our own
-`package.json` parsing similar to [Rollup] or add a dependency on a community
-solution like [resolve.exports]. However, this proposal will not prevent future
-support.
-
-[Node custom user condition]: https://nodejs.org/api/packages.html#community-conditions-definitions
-[Rollup]: https://github.com/rollup/plugins/blob/master/packages/node-resolve/src/package/resolvePackageExports.js
-[resolve.exports]: https://github.com/lukeed/resolve.exports
-
-A potential source of confusion is in instances where a dependency defines a
-default or main export that is not in the root folder. In these cases, Sass will
-look for index and partial files in the same folder as the default or main
-export, and not in the package root.
+scheme, a similar standard doesn't exist in Node. We choose the `pkg:` url
+scheme as it is clearly communicates to both the user and compiler, and does not
+have known conflicts in the ecosystem.
 
 The `pkg` scheme will not be supported in the browser version of Dart Sass. To
 support a similar functionality, a user would need to ensure that files are
 served, and the loader would need to fetch the URL. In order to follow the same
 algorithm for [resolving a file: URL], we would need to make many fetches. If we
 instead require the browser version to have a fully resolved URL, we negate many
-of this spec's benefits.
+of this spec's benefits. Users may write their own custom importers to fit their
+needs.
 
 [resolving a file: URL]: ../spec/modules.md#resolving-a-file-url
 
+The `pkg` import loader will be exposed through an opt-in option as it adds the
+potential for file system interaction to `compileString` and
+`compileStringAsync`.
+
+#### Node resolution descisions
+
+The current recommendation for resolving packages in node is to add
+`node_modules` to the load paths. We could add `node_modules` to the load path
+by default, but that lacks clarity to the implementation and the reader. In
+addition, a file may have access to multiple `node_module` directories, and
+different files may have access to different `node_module` directories in the
+same compilation.
+
+There are a variety of methods currently in use for specifying a location of the
+default Sass export for npm packages. For the most part, packages contain both
+Javascript and styles, and use the `main` or `module` root keys to define the
+Javascript entry point. Some packages use the `"sass"` key at the root of their
+`package.json`. Others have adopted [conditional exports], which is supported by
+Vite. 
+
+[conditional exports]: https://nodejs.org/api/packages.html#conditional-exports
+
+Because conditional exports is flexible and recommended for modern packages,
+this will be the primary method used within Node. We will support both the
+`"sass"` and the `"style"` conditions, as Sass can also use the CSS exports
+exposed through `"style"`. 
+
 ## Semantics
 
-This proposal defines a new step in the [Loading a Source File] in modules that
-implementations must include.
+This proposal defines a new importer that implementations should make available.
+It will be disabled by default. The loader will handle URLs:
 
-New step for [Loading a Source File], after "if argument is a relative URL"
-step:
-
-- If `argument` is a valid URL with scheme `pkg`:
-  - Let `resolved` be the result of resolving a pkg url
-  - If `resolved` is not null, let `argument` equal `resolved`, and continue.
-    Otherwise, return null.
-
-[Loading a Source File]: ../spec/modules.md#loading-a-source-file
+- with the scheme `pkg`
+- followed by `:`
+- followed by a package name
+- optionally followed by a path, with path segments separated with a forward
+  slash.
 
 ### Resolving a `pkg`: URL
 
-This algorithm takes a URL, `url`, whose `scheme` must be `pkg` and returns
-either another URL of a file or directory on disk, or null. At this point, the
-URL is not guaranteed to resolve to a file or disk.
+The `pkg importer` will provide a method to canonicalize a `pkg:` URL, and
+extend the implementation's existing File Importer.
+### Platform specific semantics
 
-- Let `resolved` be the result of the implementation's dependency resolution
-  algorithm.
-- If resolution fails:
-  - Let `dependencyDefault` be the result of the implementation's dependency
-    resolution algorithm for the dependency name.
-  - Let `urlSubpath` be the path segments of `url` that are not part of the
-    dependency name.
-  - Let `resolved` be `dependencyDefault` appended with `urlSubpath`.
-- If `resolved` is unknown, meaning neither the full path nor the dependency
-  name were resolved, return `null`.
-- If `resolved` is a directory or a file with extension of `scss`, `sass`, or
-  `css`, return it. Otherwise:
-- If `resolved` is a file with a name that is different than the name of `url`,
-  return the file's containing directory.
-- Return null.
+#### Dart
 
-Note: The fifth step, returning the containing directory, is required to support
-instances where a dependency's default export is not a `sass`, `scss` or `css`
-file.
+Given `url` with the format `pkg:.*`:
 
-[Loading a Module]: ../spec/modules.md#loading-a-source-file
+- Let `path` be `url` without the `pkg` scheme
+- Use [package-config] to resolve `path`
+
+[package-config]: https://pub.dev/packages/package_config
+
+#### Node
+
+Given `url` with the format `pkg:.*`:
+
+- Let `fullPath` be `url` without the `pkg` scheme
+- Let `resolved` be the result of using [require.exports] to resolve `fullPath`
+  with the `sass` condition set
+  - If `resolved` has the scheme `file:` and an extension of `sass`, `scss` or
+    `css`, return it.
+- Let `resolved` be the result of using [require.exports] to resolve `fullPath`
+  with the `style` condition set.
+  - If `resolved` has the scheme `file:` and an extension of `css`, return it.
+- Let `packageName` be the package identifier, and `subPath` be the path without
+  the package identifier.
+- If `subPath` is empty, return result of `[resolving pkg root]`.
+- Otherwise, return result of `[resolving pkg subpath]`.
+
+[resolving pkg root]: #resolving-pkg-root
+[resolving pkg subpath]: #resolving-pkg-subpath
+#### Resolving pkg root
+
+- Let `packagePath` be the file path to the package root.
+- Let `sassValue` be the value of `sass` in the `package.json` at the pkg root.
+- If `sassValue` is a relative path with an extension of `sass`, `scss` or
+  `css`, return the `packagePath` appended with `sassValue`.
+- Let `styleValue` be the value of `style` in the `package.json` at the pkg
+  root.
+- If `styleValue` is a relative path with an extension of `css`, return the
+  `packagePath` appended with `styleValue`.
+- Otherwise return the result of [resolving a file url] with `packagePath`.
+
+[resolving a file url]: ../spec/modules.md#resolving-a-file-url
+#### Resolving pkg subpath
+
+- Let `packagePath` be the file path to the package root.
+- Let `fullPath` be `subpath` resolved relative to `packagePath`.
+- Return the result of [resolving a file url] with `fullPath`.
+
+[resolving a file url]: ../spec/modules.md#resolving-a-file-url
+#### Resolution order
+
+This algorithm resolves in the following order:
+
+1. `sass` condition in package.json `exports`
+1. `style` condition in package.json `exports`
+1. If no subpath, then find root export-
+  1. `sass` key at package.json root
+  1. `style` key at package.json root
+  1. `index` file at package root, resolved for file extensions and partials
+1. If there is a subpath, resolve that path relative to the package root, and
+   resolve for file extensions and partials
 
 ## Deprecation Process
 
@@ -155,29 +188,26 @@ version of Sass should remove support.
 
 ### Node
 
-For Bootstrap to support `pkg` imports, they have 2 options. They can add
-`_index.scss` to `dist/js`, as that is the containing folder for their main
-export, and use `@forward` to expose the files.
+For library creators, the recommended method is to add a `sass` conditional
+export key as the first key in `package.json`.
 
-```
-@forward './scss/bootstrap.scss';
-```
-
-Alternatively, they could recommend using `@use 'pkg:bootstrap/scss';`, and add
-an `exports` key to their `package.json`, using node subpath exports. Opting
-into this format requires library authors to be exhaustive. Here, they are
-exposing the default js library, forwarding `./scss` and also exposing
-`./scss/bootstrap.scss` to not break existing imports of `@use
-'bootstrap/scss/bootstrap.scss'`.
-
-```
-"exports": {
-    ".": "./dist/js/bootstrap.js",
-    "./scss": "./scss/bootstrap.scss",
-    "./scss/bootstrap.scss": "./scss/bootstrap.scss"
+```json
+{
+  "exports": {
+    ".": {
+      "sass": "./dist/scss/index.scss",
+      "import": "./dist/js/index.mjs",
+      "require": "./dist/js/index.js"
+    }
+  }
 }
 ```
 
+Then, library consumers can use the pkg syntax to get the default export.
+
+```sass
+@use "pkg:library"
+```
 ### Dart
 
 For Dart libraries to take advantage of this, they can place a file at
@@ -189,3 +219,30 @@ for library consumers. For example, if a library `libraryName` contains
 More examples can be found in the  [Sass pkg: test] example repo.
 
 [Sass pkg: test]: https://github.com/oddbird/sass-pkg-test
+
+## Ecosystem notes
+
+Vite is currently using the Legacy JS API, and has an [open issue] to update to
+the modern API. They also do not expose Sass options to the user, so would need
+to enable the `usePkgImporter` on their behalf or expose some configuration.
+
+[open issue]: https://github.com/vitejs/vite/issues/7116
+
+Webpack's [sass-loader] allows users to opt in to the modern API and exposes
+Sass options to users.
+
+For Rollup, [rollup-plugin-sass] uses the Legacy JS API. They do expose Sass
+options to the user.
+
+[rollup-plugin-sass]: https://github.com/elycruz/rollup-plugin-sass
+
+It may be worth adding a [Community Conditions Definition] to the Node
+Documentation. [WinterCG] has a [Runtime Keys proposal specification] underway
+in standardizing the usage of custom conditions for runtimes, but Sass doesn't
+cleanly fit into that specification.
+
+[Community Conditions Definition]:
+    https://nodejs.org/docs/latest-v20.x/api/packages.html#community-conditions-definitions
+[WinterCG]: https://wintercg.org/
+[Runtime Keys proposal specification]:
+    https://runtime-keys.proposal.wintercg.org/#adding-a-key
