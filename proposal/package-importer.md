@@ -100,8 +100,9 @@ There are a variety of methods currently in use for specifying a location of the
 default Sass export for npm packages. For the most part, packages contain both
 JavaScript and styles, and use the `main` or `module` root keys to define the
 JavaScript entry point. Some packages use the `"sass"` key at the root of their
-`package.json`. Others have adopted [conditional exports], which is supported by
-Vite.
+`package.json`. Other packages have adopted [conditional exports], largely
+driven by Vite, which resolves Sass paths using the `"sass"` and the `"style"`
+custom conditions.
 
 [conditional exports]: https://nodejs.org/api/packages.html#conditional-exports
 
