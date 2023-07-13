@@ -26,8 +26,7 @@ export class SassCalculation extends Value {
   /**
    * Creates a value that represents `calc(argument)`.
    *
-   * @throws `Error` if `argument` is or transitively contains a quoted
-   * {@link SassString}
+   * @throws `Error` if `argument` is a quoted {@link SassString}
    * @returns A calculation with the name `calc` and `argument` as its single
    * argument.
    */
@@ -36,9 +35,9 @@ export class SassCalculation extends Value {
   /**
    * Creates a value that represents `min(arguments...)`.
    *
-   * @throws `Error` if any of `arguments` are or transitively contain a quoted
-   * {@link SassString}
-   * @returns A calculation with the name `min` and `arguments` as its arguments.
+   * @throws `Error` if `arguments` contains a quoted {@link SassString}
+   * @returns A calculation with the name `min` and `arguments` as its
+   * arguments.
    */
   static min(
     arguments: CalculationValue[] | List<CalculationValue>
@@ -47,9 +46,9 @@ export class SassCalculation extends Value {
   /**
    * Creates a value that represents `max(arguments...)`.
    *
-   * @throws `Error` if any of `arguments` are or transitively contain a quoted
-   * {@link SassString}
-   * @returns A calculation with the name `max` and `arguments` as its arguments.
+   * @throws `Error` if `arguments` contains a quoted {@link SassString}
+   * @returns A calculation with the name `max` and `arguments` as its
+   * arguments.
    */
   static max(
     arguments: CalculationValue[] | List<CalculationValue>
@@ -58,13 +57,11 @@ export class SassCalculation extends Value {
   /**
    * Creates a value that represents `clamp(value, min, max)`.
    *
-   * @throws `Error` if any of `value`, `min`, or `max` are or transitively
-   * contain a quoted {@link SassString}.
+   * @throws `Error` if any of `value`, `min`, or `max` are  a quoted
+   * {@link SassString}.
    * @throws `Error` if `value` is undefined and `max` is not undefined.
-   * @throws `Error` if `value` or `max` is undefined and `min` is not a
-     {@link SassString} or {@link CalculationInterpolation} that contains
-     comma-separated values that can be interpreted as values for `value` and
-     `max` (for example `clamp(#{"1, 2, 3"})`).
+   * @throws `Error` if either `value` or `max` is undefined and neither `min`
+     nor `value` is a {@link SassString} or {@link CalculationInterpolation}.
      @returns A calculation with the name `clamp` and `min`, `value`, and `max`
      as it's arguments, excluding any arguments that are undefined.
    */
@@ -95,6 +92,7 @@ export class CalculationOperation implements ValueObject {
   /**
    * Creates a Sass CalculationOperation with the given `operator`, `left`, and
    * `right` values.
+   * @throws `Error` if `left` or `right` are quoted {@link SassString}s.
    */
   constructor(
     operator: CalculationOperator,
@@ -111,7 +109,7 @@ export class CalculationOperation implements ValueObject {
   /** Returns the operation's `right` field. */
   get right(): CalculationValue;
 
-  equals(other: CalculationOperation): boolean;
+  equals(other: unknown): boolean;
 
   hashCode(): number;
 }
@@ -133,7 +131,7 @@ export class CalculationInterpolation implements ValueObject {
    */
   get value(): string;
 
-  equals(other: CalculationInterpolation): boolean;
+  equals(other: unknown): boolean;
 
   hashCode(): number;
 }
