@@ -1,4 +1,4 @@
-# JavaScript Calculation API: Draft 2
+# JavaScript Calculation API: Draft 3.1
 
 *([Issue](https://github.com/sass/sass/issues/818),
 [Changelog](calculation-api.changes.md))*
@@ -200,8 +200,7 @@ The [private `internal` field] refers to a Sass [calculation].
 
 Creates a value that represents `calc(argument)`.
 
-* If `argument` is or transitively contains a quoted `SassString`, throw an
-  error.
+* If `argument` is a quoted `SassString`, throw an error.
 
 * Return a calculation with name `"calc"` and `argument` as its single argument.
 
@@ -213,8 +212,7 @@ static calc(argument: CalculationValue): SassCalculation;
 
 Creates a value that represents `min(...arguments)`.
 
-* If `argument` is or transitively contains a quoted `SassString`, throw an
-  error.
+* If `arguments` contains a quoted `SassString`, throw an error.
 
 * Return a calculation with name `"min"` and `arguments` as its arguments.
 
@@ -228,7 +226,7 @@ static min(
 
 Creates a value that represents `max(...arguments)`.
 
-* If `arguments` transitively contains a quoted `SassString`, throw an error.
+* If `arguments` contains a quoted `SassString`, throw an error.
 
 * Return a calculation with name `"max"` and `arguments` as its arguments.
 
@@ -242,15 +240,12 @@ static max(
 
 Creates a value that represents `calc(min, value, max)` expression.
 
-* If `min`, `max`, or `clamp` is or transitively contains a quoted `SassString`,
-  throw an error.
+* If `min`, `max`, or `clamp` is a quoted `SassString`, throw an error.
 
 * If `value` is undefined and `max` is not undefined, throw an error.
 
-* If `value` or `max` is undefined and `min` is not a `SassString` or
-  `CalculationInterpolation` that contains comma-separated values that can be
-  interpreted as values for `value` and `max` (for example `clamp(#{"1, 2,
-  3"})`).
+* If either `value` or `max` is undefined and neither `min` nor `value` is a
+  `SassString` or `CalculationInterpolation`, throw an error.
 
 * Return a calculation with name `"clamp"` and `min`, `value`, and `max` as its
   arguments, excluding any arguments that are undefined.
@@ -310,9 +305,11 @@ A private property like [`Value.internal`] that refers to a Sass
 
 #### Constructor
 
-Creates a Sass CalculationOperation by setting the fields to the arguments of
-the corresponding names, and returns it.
+Creates a Sass `CalculationOperation`:
 
+* Throw an error if `left` or `right` is a quoted `SassString`.
+* Set the fields to the arguments of the corresponding names.
+* Return the resulting `CalculationOperation`.
 
 ```ts
 constructor(
@@ -350,10 +347,10 @@ get right(): CalculationValue;
 
 #### `equals`
 
-Whether [`internal`][co-internal] is equal to `other.internal` in Sass
+Whether [`internal`][co-internal] is equal to `other.internal` in Sass.
 
 ```ts
-equals(other: CalculationOperation): boolean;
+equals(other: unknown): boolean;
 ```
 
 #### `hashCode`
@@ -408,7 +405,7 @@ get value(): string;
 Whether [`internal`][ci-internal] is equal to `other.internal` in Sass.
 
 ```ts
-equals(other: CalculationOperation): boolean;
+equals(other: unknown): boolean;
 ```
 
 #### `hashCode`
