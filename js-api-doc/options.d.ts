@@ -337,7 +337,6 @@ export interface Options<sync extends 'sync' | 'async'> {
    * @defaultValue `false`
    * @category Input
    */
-
   usePkgImporter?: boolean;
 
   /**

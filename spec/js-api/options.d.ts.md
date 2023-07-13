@@ -145,7 +145,7 @@ throwing an error. The following values are considered invalid:
 
 * A `SassFunction` whose `signature` field isn't a valid Sass function signature
   that could appear after the `@function` directive in a Sass stylesheet.
-  
+
 ```ts
 functions?: Record<string, CustomFunction<sync>>;
 ```
@@ -242,7 +242,8 @@ style?: OutputStyle;
 
 #### `usePkgImporter`
 
-If true, the compiler will use the built-in [package importer] to resolve any url with the `pkg` scheme.
+If true, the compiler will use the built-in [package importer] to resolve any
+url with the `pkg` scheme.
 
 [package importer]: ../../proposal/package-importer.md
 

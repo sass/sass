@@ -11,8 +11,20 @@ format.
 * [Background](#background)
 * [Summary](#summary)
   * [Design Decisions](#design-decisions)
+    * [Node Resolution Decisions](#node-resolution-decisions)
 * [Semantics](#semantics)
+  * [Resolving a `pkg:` URL](#resolving-a-pkg-url)
+  * [Platform-Specific Semantics](#platform-specific-semantics)
+    * [Dart](#dart)
+    * [Node](#node)
+    * [Resolving `pkg` Root](#resolving-pkg-root)
+    * [Resolving `pkg` Subpath](#resolving-pkg-subpath)
+    * [Resolution Order](#resolution-order)
 * [Deprecation Process](#deprecation-process)
+* [Examples](#examples)
+  * [Node](#node-1)
+  * [Dart](#dart-1)
+* [Ecosystem Notes](#ecosystem-notes)
 
 ## Background
 
@@ -35,9 +47,9 @@ implementation to resolve a URL within a dependency. The implementation will
 resolve the dependency URL using the standard resolution for that environment.
 Once resolved, this URL will be loaded in the same way as any other `file:` URL.
 
-For example, `@use 'pkg:bootstrap';` would be able to resolve to the path of a
+For example, `@use "pkg:bootstrap";` would resolve to the path of a
 library-defined export within the `bootstrap` dependency. In Node, that would be
-resolved within `node_modules`, using the [node resolution algorithm]. In Dart,
+resolved within `node_modules`, using the [Node resolution algorithm]. In Dart,
 that would be resolved within `pub-cache`, using [package-config].
 
 [node resolution algorithm]: https://nodejs.org/api/packages.html
@@ -54,12 +66,12 @@ the algorithm.
 We could use the `~` popularized by Webpack's `load-sass` format, but this has
 been deprecated since 2021. In addition, since this creates a URL that is
 syntactically a relative URL, it does not make it clear to the implementation or
-the reader where to find the file. 
+the reader where to find the file.
 
 While the Dart Sass implementation allows for the use of the `package:` url
-scheme, a similar standard doesn't exist in Node. We choose the `pkg:` url
-scheme as it is clearly communicates to both the user and compiler, and does not
-have known conflicts in the ecosystem.
+scheme, a similar standard doesn't exist in Node. We chose the `pkg:` url scheme
+as it clearly communicates to both the user and compiler, and does not have
+known conflicts in the ecosystem.
 
 The `pkg` scheme will not be supported in the browser version of Dart Sass. To
 support a similar functionality, a user would need to ensure that files are
@@ -75,28 +87,28 @@ The `pkg` import loader will be exposed through an opt-in option as it adds the
 potential for file system interaction to `compileString` and
 `compileStringAsync`.
 
-#### Node resolution descisions
+#### Node Resolution Decisions
 
-The current recommendation for resolving packages in node is to add
-`node_modules` to the load paths. We could add `node_modules` to the load path
+The current recommendation for resolving packages in Node is to add
+`node_modules` to the load paths. We could add `node_modules` to the load paths
 by default, but that lacks clarity to the implementation and the reader. In
-addition, a file may have access to multiple `node_module` directories, and
-different files may have access to different `node_module` directories in the
+addition, a file may have access to multiple `node_modules` directories, and
+different files may have access to different `node_modules` directories in the
 same compilation.
 
 There are a variety of methods currently in use for specifying a location of the
 default Sass export for npm packages. For the most part, packages contain both
-Javascript and styles, and use the `main` or `module` root keys to define the
-Javascript entry point. Some packages use the `"sass"` key at the root of their
+JavaScript and styles, and use the `main` or `module` root keys to define the
+JavaScript entry point. Some packages use the `"sass"` key at the root of their
 `package.json`. Others have adopted [conditional exports], which is supported by
-Vite. 
+Vite.
 
 [conditional exports]: https://nodejs.org/api/packages.html#conditional-exports
 
-Because conditional exports is flexible and recommended for modern packages,
-this will be the primary method used within Node. We will support both the
-`"sass"` and the `"style"` conditions, as Sass can also use the CSS exports
-exposed through `"style"`. 
+Because use of conditional exports is flexible and recommended for modern
+packages, this will be the primary method used within Node. We will support both
+the `"sass"` and the `"style"` conditions, as Sass can also use the CSS exports
+exposed through `"style"`.
 
 ## Semantics
 
@@ -109,11 +121,12 @@ It will be disabled by default. The loader will handle URLs:
 - optionally followed by a path, with path segments separated with a forward
   slash.
 
-### Resolving a `pkg`: URL
+### Resolving a `pkg:` URL
 
 The `pkg importer` will provide a method to canonicalize a `pkg:` URL, and
 extend the implementation's existing File Importer.
-### Platform specific semantics
+
+### Platform-Specific Semantics
 
 #### Dart
 
@@ -129,21 +142,23 @@ Given `url` with the format `pkg:.*`:
 Given `url` with the format `pkg:.*`:
 
 - Let `fullPath` be `url` without the `pkg` scheme
-- Let `resolved` be the result of using [require.exports] to resolve `fullPath`
+- Let `resolved` be the result of using [resolve.exports] to resolve `fullPath`
   with the `sass` condition set
   - If `resolved` has the scheme `file:` and an extension of `sass`, `scss` or
     `css`, return it.
-- Let `resolved` be the result of using [require.exports] to resolve `fullPath`
+- Let `resolved` be the result of using [resolve.exports] to resolve `fullPath`
   with the `style` condition set.
   - If `resolved` has the scheme `file:` and an extension of `css`, return it.
 - Let `packageName` be the package identifier, and `subPath` be the path without
   the package identifier.
-- If `subPath` is empty, return result of `[resolving pkg root]`.
-- Otherwise, return result of `[resolving pkg subpath]`.
+- If `subPath` is empty, return result of [resolving `pkg` root].
+- Otherwise, return result of [resolving `pkg` subpath].
 
+[resolve.exports]: https://github.com/lukeed/resolve.exports
 [resolving pkg root]: #resolving-pkg-root
 [resolving pkg subpath]: #resolving-pkg-subpath
-#### Resolving pkg root
+
+#### Resolving `pkg` Root
 
 - Let `packagePath` be the file path to the package root.
 - Let `sassValue` be the value of `sass` in the `package.json` at the pkg root.
@@ -156,20 +171,20 @@ Given `url` with the format `pkg:.*`:
 - Otherwise return the result of [resolving a file url] with `packagePath`.
 
 [resolving a file url]: ../spec/modules.md#resolving-a-file-url
-#### Resolving pkg subpath
+
+#### Resolving `pkg` Subpath
 
 - Let `packagePath` be the file path to the package root.
 - Let `fullPath` be `subpath` resolved relative to `packagePath`.
 - Return the result of [resolving a file url] with `fullPath`.
 
-[resolving a file url]: ../spec/modules.md#resolving-a-file-url
-#### Resolution order
+#### Resolution Order
 
 This algorithm resolves in the following order:
 
 1. `sass` condition in package.json `exports`
 1. `style` condition in package.json `exports`
-1. If no subpath, then find root export-
+1. If no subpath, then find root export:
   1. `sass` key at package.json root
   1. `style` key at package.json root
   1. `index` file at package root, resolved for file extensions and partials
@@ -205,22 +220,21 @@ export key as the first key in `package.json`.
 
 Then, library consumers can use the pkg syntax to get the default export.
 
-```sass
-@use "pkg:library"
+```scss
+@use "pkg:library";
 ```
+
 ### Dart
 
 For Dart libraries to take advantage of this, they can place a file at
 `lib/_index.scss`. Other files within the `lib` folder would also be available
 for library consumers. For example, if a library `libraryName` contains
 `lib/themes/dark/_index.scss`, a consumer could write `@use
-'pkg:libraryName/themes/dark'`.
+"pkg:libraryName/themes/dark";`.
 
-More examples can be found in the  [Sass pkg: test] example repo.
+More examples can be found in the [Sass pkg: test] example repo.
 
-[Sass pkg: test]: https://github.com/oddbird/sass-pkg-test
-
-## Ecosystem notes
+## Ecosystem Notes
 
 Vite is currently using the Legacy JS API, and has an [open issue] to update to
 the modern API. They also do not expose Sass options to the user, so would need
@@ -241,8 +255,6 @@ Documentation. [WinterCG] has a [Runtime Keys proposal specification] underway
 in standardizing the usage of custom conditions for runtimes, but Sass doesn't
 cleanly fit into that specification.
 
-[Community Conditions Definition]:
-    https://nodejs.org/docs/latest-v20.x/api/packages.html#community-conditions-definitions
+[Community Conditions Definition]: https://nodejs.org/docs/latest-v20.x/api/packages.html#community-conditions-definitions
 [WinterCG]: https://wintercg.org/
-[Runtime Keys proposal specification]:
-    https://runtime-keys.proposal.wintercg.org/#adding-a-key
+[Runtime Keys proposal specification]: https://runtime-keys.proposal.wintercg.org/#adding-a-key
