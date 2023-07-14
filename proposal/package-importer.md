@@ -55,6 +55,54 @@ that would be resolved within `pub-cache`, using [package-config].
 [node resolution algorithm]: https://nodejs.org/api/packages.html
 [package-config]: https://pub.dev/packages/package_config
 
+### Resolution Order
+
+This algorithm resolves in the following order:
+
+1. `sass` condition in package.json `exports`
+2. `style` condition in package.json `exports`
+3. If no subpath, then find root export:
+  1. `sass` key at package.json root
+  2. `style` key at package.json root
+  3. `index` file at package root, resolved for file extensions and partials
+4. If there is a subpath, resolve that path relative to the package root, and
+   resolve for file extensions and partials
+
+### Examples
+
+#### Node
+
+For library creators, the recommended method is to add a `sass` conditional
+export key as the first key in `package.json`.
+
+```json
+{
+  "exports": {
+    ".": {
+      "sass": "./dist/scss/index.scss",
+      "import": "./dist/js/index.mjs",
+      "require": "./dist/js/index.js"
+    }
+  }
+}
+```
+
+Then, library consumers can use the pkg syntax to get the default export.
+
+```scss
+@use "pkg:library";
+```
+
+#### Dart
+
+For Dart libraries to take advantage of this, they can place a file at
+`lib/_index.scss`. Other files within the `lib` folder would also be available
+for library consumers. For example, if a library `libraryName` contains
+`lib/themes/dark/_index.scss`, a consumer could write `@use
+"pkg:libraryName/themes/dark";`.
+
+More examples can be found in the [Sass pkg: test] example repo.
+
 To better understand and allow for testing against the recommended algorithm, a
 [Sass pkg: test] repository has been made with a rudimentary implementation of
 the algorithm.
@@ -63,6 +111,7 @@ the algorithm.
 
 ### Design Decisions
 
+#### Using a `pkg` url scheme
 We could use the `~` popularized by Webpack's `load-sass` format, but this has
 been deprecated since 2021. In addition, since this creates a URL that is
 syntactically a relative URL, it does not make it clear to the implementation or
@@ -73,19 +122,25 @@ scheme, a similar standard doesn't exist in Node. We chose the `pkg:` url scheme
 as it clearly communicates to both the user and compiler, and does not have
 known conflicts in the ecosystem.
 
-The `pkg` scheme will not be supported in the browser version of Dart Sass. To
-support a similar functionality, a user would need to ensure that files are
-served, and the loader would need to fetch the URL. In order to follow the same
-algorithm for [resolving a file: URL], we would need to make many fetches. If we
-instead require the browser version to have a fully resolved URL, we negate many
-of this spec's benefits. Users may write their own custom importers to fit their
-needs.
+#### No built-in `pkg` resolver for browsers
+
+Dart Sass will not provide a built-in resolver for browsers to use the `pkg`
+scheme. To support a similar functionality, a user would need to ensure that
+files are served, and the loader would need to fetch the URL. In order to follow
+the same algorithm for [resolving a file: URL], we would need to make many
+fetches. If we instead require the browser version to have a fully resolved URL,
+we negate many of this spec's benefits. Users may write their own custom
+importers to fit their needs.
 
 [resolving a file: URL]: ../spec/modules.md#resolving-a-file-url
 
-The `pkg` import loader will be exposed through an opt-in option as it adds the
+#### Available as an opt-in setting
+
+The `pkg` import loader will be exposed through an opt-in setting as it adds the
 potential for file system interaction to `compileString` and
-`compileStringAsync`.
+`compileStringAsync`. Specifically, we want people who invoke Sass compilation
+functions to have control over what files get accessed, and there's even a risk
+of leaking file contents in error messages.
 
 #### Node Resolution Decisions
 
@@ -101,15 +156,18 @@ default Sass export for npm packages. For the most part, packages contain both
 JavaScript and styles, and use the `main` or `module` root keys to define the
 JavaScript entry point. Some packages use the `"sass"` key at the root of their
 `package.json`. Other packages have adopted [conditional exports], largely
-driven by Vite, which resolves Sass paths using the `"sass"` and the `"style"`
+driven by [Vite], which resolves Sass paths using the `"sass"` and the `"style"`
 custom conditions.
 
 [conditional exports]: https://nodejs.org/api/packages.html#conditional-exports
+[Vite]: https://github.com/vitejs/vite/pull/7817
 
 Because use of conditional exports is flexible and recommended for modern
 packages, this will be the primary method used within Node. We will support both
 the `"sass"` and the `"style"` conditions, as Sass can also use the CSS exports
-exposed through `"style"`.
+exposed through `"style"`. While in practice, `"style"` tends to be used solely
+for `css` files, we will support `scss`, `sass` and `css` files for either
+`"sass"` or `"style"`.
 
 ## Semantics
 
@@ -117,7 +175,6 @@ This proposal defines a new importer that implementations should make available.
 It will be disabled by default. The loader will handle URLs:
 
 - with the scheme `pkg`
-- followed by `:`
 - followed by a package name
 - optionally followed by a path, with path segments separated with a forward
   slash.
@@ -133,7 +190,7 @@ extend the implementation's existing File Importer.
 
 Given `url` with the format `pkg:.*`:
 
-- Let `path` be `url` without the `pkg` scheme
+- Let `path` be `url`'s path
 - Use [package-config] to resolve `path`
 
 [package-config]: https://pub.dev/packages/package_config
@@ -142,14 +199,15 @@ Given `url` with the format `pkg:.*`:
 
 Given `url` with the format `pkg:.*`:
 
-- Let `fullPath` be `url` without the `pkg` scheme
+- Let `fullPath` be `url`'s path
 - Let `resolved` be the result of using [resolve.exports] to resolve `fullPath`
   with the `sass` condition set
   - If `resolved` has the scheme `file:` and an extension of `sass`, `scss` or
     `css`, return it.
 - Let `resolved` be the result of using [resolve.exports] to resolve `fullPath`
   with the `style` condition set.
-  - If `resolved` has the scheme `file:` and an extension of `css`, return it.
+  - If `resolved` has the scheme `file:` and an extension of `sass`, `scss` or
+    `css`, return it.
 - Let `packageName` be the package identifier, and `subPath` be the path without
   the package identifier.
 - If `subPath` is empty, return result of [resolving `pkg` root].
@@ -179,19 +237,6 @@ Given `url` with the format `pkg:.*`:
 - Let `fullPath` be `subpath` resolved relative to `packagePath`.
 - Return the result of [resolving a file url] with `fullPath`.
 
-#### Resolution Order
-
-This algorithm resolves in the following order:
-
-1. `sass` condition in package.json `exports`
-1. `style` condition in package.json `exports`
-1. If no subpath, then find root export:
-  1. `sass` key at package.json root
-  1. `style` key at package.json root
-  1. `index` file at package root, resolved for file extensions and partials
-1. If there is a subpath, resolve that path relative to the package root, and
-   resolve for file extensions and partials
-
 ## Deprecation Process
 
 The `package` url scheme supported in Dart is not part of the Sass spec, but is
@@ -199,41 +244,6 @@ supported by the `dart-sass` implementation when running in Dart. This should be
 deprecated in favor of moving authors to the new `pkg` url scheme. Usage of the
 `package` syntax will result in a deprecation message, and a future major
 version of Sass should remove support.
-
-## Examples
-
-### Node
-
-For library creators, the recommended method is to add a `sass` conditional
-export key as the first key in `package.json`.
-
-```json
-{
-  "exports": {
-    ".": {
-      "sass": "./dist/scss/index.scss",
-      "import": "./dist/js/index.mjs",
-      "require": "./dist/js/index.js"
-    }
-  }
-}
-```
-
-Then, library consumers can use the pkg syntax to get the default export.
-
-```scss
-@use "pkg:library";
-```
-
-### Dart
-
-For Dart libraries to take advantage of this, they can place a file at
-`lib/_index.scss`. Other files within the `lib` folder would also be available
-for library consumers. For example, if a library `libraryName` contains
-`lib/themes/dark/_index.scss`, a consumer could write `@use
-"pkg:libraryName/themes/dark";`.
-
-More examples can be found in the [Sass pkg: test] example repo.
 
 ## Ecosystem Notes
 
@@ -256,6 +266,8 @@ Documentation. [WinterCG] has a [Runtime Keys proposal specification] underway
 in standardizing the usage of custom conditions for runtimes, but Sass doesn't
 cleanly fit into that specification.
 
-[Community Conditions Definition]: https://nodejs.org/docs/latest-v20.x/api/packages.html#community-conditions-definitions
+[Community Conditions Definition]:
+    https://nodejs.org/docs/latest-v20.x/api/packages.html#community-conditions-definitions
 [WinterCG]: https://wintercg.org/
-[Runtime Keys proposal specification]: https://runtime-keys.proposal.wintercg.org/#adding-a-key
+[Runtime Keys proposal specification]:
+    https://runtime-keys.proposal.wintercg.org/#adding-a-key
