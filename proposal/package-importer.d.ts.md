@@ -6,25 +6,31 @@ This proposal adds Sass support for a standard package importer, introducing a
 `pkg` URL scheme to indicate Sass package imports in an implementation-agnostic
 format.
 
-## Table of contents
+## Table of Contents
 
 * [Background](#background)
 * [Summary](#summary)
+  * [Resolution Order](#resolution-order)
+  * [Examples](#examples)
+    * [Node](#node)
+    * [Dart](#dart)
   * [Design Decisions](#design-decisions)
+    * [Using a `pkg` url scheme](#using-a-pkg-url-scheme)
+    * [No built-in `pkg` resolver for browsers](#no-built-in-pkg-resolver-for-browsers)
+    * [Available as an opt-in setting](#available-as-an-opt-in-setting)
     * [Node Resolution Decisions](#node-resolution-decisions)
+* [Types](#types)
+    * [`usePkgImporter`](#usepkgimporter)
 * [Semantics](#semantics)
   * [Resolving a `pkg:` URL](#resolving-a-pkg-url)
   * [Platform-Specific Semantics](#platform-specific-semantics)
-    * [Dart](#dart)
-    * [Node](#node)
+    * [Dart](#dart-1)
+    * [Node](#node-1)
     * [Resolving `pkg` Root](#resolving-pkg-root)
     * [Resolving `pkg` Subpath](#resolving-pkg-subpath)
-    * [Resolution Order](#resolution-order)
 * [Deprecation Process](#deprecation-process)
-* [Examples](#examples)
-  * [Node](#node-1)
-  * [Dart](#dart-1)
 * [Ecosystem Notes](#ecosystem-notes)
+
 
 ## Background
 
@@ -183,7 +189,7 @@ declare module '../spec/js-api' {
   interface Options<sync extends 'sync' | 'async'> {
     /**
      * Whether or not to enable the built-in package importer to resolve any url
-     * with the `pkg` scheme. This importer follows Node.js resolution logic 
+     * with the `pkg` scheme. This importer follows Node.js resolution logic.
      *
      * @defaultValue `false`
      * @category Input
