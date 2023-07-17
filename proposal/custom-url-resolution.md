@@ -10,7 +10,6 @@ _[(Issue)](https://github.com/sass/sass/issues/2535)_
 - [Function](#function)
   - [Steps](#steps)
   - [JavaScript API](#javascript-api)
-  - [Using Variables](#using-variables)
 - [Presets](#presets)
   - [The inline Preset](#the-inline-preset)
     - [Inline Preset Usage](#inline-preset-usage)
@@ -91,12 +90,11 @@ Asynchronous example:
 ```TypeScript
 let sassOptions = {
   // Rewrite urls asynchronously
-  rewriteUrl: async (urlReference: { file: string, url: string }, done: (error: Error | null, url: string | null) => void): void => {
+  rewriteUrl: async (urlReference: { file: string, url: string }): Promise<string> => {
     if (urlReference.file) {
       content = await fs.readFile(path.join(path.dirname(file), url));
     }
-
-    done(null, content ? `data:${base64(content)))}` : url);
+    return content ? `data:${base64(content)))}` : url;
   }
 }
 ```
@@ -112,24 +110,9 @@ let sassOptions = {
     if (!urlReference.file) {
       return url;
     }
-
     return path.relative(outDir, path.join(path.dirname(file), url));
   }
 }
-```
-
-### Using Variables
-
-Variables can be used in a sass-url reference, in this case it should get remapped based on the value that gets created after the variables have been applied to ensure we are able to remap the entire url correctly.
-
-Examples with variables:
-
-```Scss
-sass-url("#{$asset-path}/image.png");
-```
-
-```Scss
-sass-url("./folder/#{$some-var}");
 ```
 
 ## Presets
@@ -150,7 +133,7 @@ To use this preset you can pass an instance of this preset in the urlRewrite opt
 import * as sass from 'sass';
 
 const options = {
-  rewriteUrl: sass.url.inline()
+  rewriteUrl: sass.url.inline
 }
 ```
 
