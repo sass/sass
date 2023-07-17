@@ -169,6 +169,31 @@ exposed through `"style"`. While in practice, `"style"` tends to be used solely
 for `css` files, we will support `scss`, `sass` and `css` files for either
 `"sass"` or `"style"`.
 
+## Types
+
+#### `usePkgImporter`
+
+If true, the compiler will use the built-in package importer to resolve any
+url with the `pkg` scheme. This importer follows Node.js logic to locate Sass files. 
+
+Defaults to false.
+
+```ts
+declare module '../spec/js-api' {
+  interface Options<sync extends 'sync' | 'async'> {
+    /**
+     * Whether or not to enable the built-in package importer to resolve any url
+     * with the `pkg` scheme. This importer follows Node.js resolution logic 
+     *
+     * @defaultValue `false`
+     * @category Input
+     */
+    usePkgImporter?: boolean;
+  }
+}
+```
+
+
 ## Semantics
 
 This proposal defines a new importer that implementations should make available.
