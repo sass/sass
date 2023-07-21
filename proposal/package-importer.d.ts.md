@@ -24,9 +24,10 @@ Importer.
   * [Node Specific Semantics](#node-specific-semantics)
 * [Procedures](#procedures)
   * [Resolving a `pkg` URL](#resolving-a-pkg-url)
-  * [Resolving `pkg` root values](#resolving-pkg-root-values)
+  * [Resolving package root values](#resolving-package-root-values)
   * [Resolving a package name](#resolving-a-package-name)
   * [Resolving the root directory for a package](#resolving-the-root-directory-for-a-package)
+  * [Resolving package exports](#resolving-package-exports)
 * [Ecosystem Notes](#ecosystem-notes)
 
 ## Background
@@ -237,15 +238,6 @@ URL named `base`. When the Node package importer is invoked with a string named
 > or extensions, except where specified. When using the `pkg:` url scheme,
 > authors need to explicitly use the fully resolved filename.
 
-[previous url]: ../accepted/prev-url.d.ts.md
-[resolve.exports]: https://github.com/lukeed/resolve.exports
-[resolving `pkg` root values]: #resolving-pkg-root-values
-[resolving a package name]: #resolving-a-package-name
-[parsing a url]: https://url.spec.whatwg.org/#concept-url-parser
-[resolving the root directory for a package]:
-    #resolving-the-root-directory-for-a-package
-[resolving a file url]: ../spec/modules.md#resolving-a-file-url
-
 ## Procedures
 
 ### Resolving a `pkg` URL
@@ -260,21 +252,31 @@ This algorithm takes a URL with scheme `pkg`, and an optional URL `previousURL`.
 - Let `packageManifest` be the result of loading the `package.json` at
   `packageRoot`.
 - If `packageManifest` is not set, throw an error.
-- Let `resolved` be the result of using [resolve.exports] to resolve `fullPath`
+- Let `resolved` be the result of [Resolving package exports] to resolve `fullPath`
   with the `sass` condition set, using `packageManifest`.
   - If `resolved` has the scheme `file:` and an extension of `sass`, `scss` or
     `css`, return it.
   - Otherwise, if `resolved` is not null, throw an error.
-- Let `resolved` be the result of using [resolve.exports] to resolve `fullPath`
+- Let `resolved` be the result of [Resolving package exports] to resolve `fullPath`
   with the `style` condition set, using `packageManifest`.
   - If `resolved` has the scheme `file:` and an extension of `sass`, `scss` or
     `css`, return it.
   - Otherwise, if `resolved` is not null, throw an error.
-- If `subPath` is empty, return result of [resolving `pkg` root values].
+- If `subPath` is empty, return result of [resolving package root values].
 - Let `resolved` be `subPath` resolved relative to `packageRoot`.
 - Return the result of [resolving a file url] with `resolved`.
 
-### Resolving `pkg` root values
+
+[previous url]: ../accepted/prev-url.d.ts.md
+[Resolving package exports]: #resolving-package-exports
+[resolving package root values]: #resolving-package-root-values
+[resolving a package name]: #resolving-a-package-name
+[parsing a url]: https://url.spec.whatwg.org/#concept-url-parser
+[resolving the root directory for a package]:
+    #resolving-the-root-directory-for-a-package
+[resolving a file url]: ../spec/modules.md#resolving-a-file-url
+
+### Resolving package root values
 
 This algorithm takes a string `packagePath` which is the root directory for a
 package and `packageManifest`, which is the contents of the `package.json` file,
@@ -328,6 +330,21 @@ absolute URL to the root directory for the most proximate installed
 
 [loading from node_modules folders]:
     https://nodejs.org/api/modules.html#loading-from-node_modules-folders
+
+### Resolving package exports
+
+This algorithm takes a string `condition`, a package.json value
+`packageManifest`, and a pkg URL `url`. It returns a file URL or null.
+
+This algorithm should follow the Node resolution algorithm, as defined in the
+Node documentation under [Node Modules] and [Conditional Exports]. Where
+possible in Node.js, it can use [resolve.exports] which exposes the Node
+resolution algorithm, allowing for per-path custom conditions, and without
+needing filesystem access.
+
+[resolve.exports]: https://github.com/lukeed/resolve.exports
+[Conditional Exports]: https://nodejs.org/api/packages.html#conditional-exports
+[Node Modules]: https://nodejs.org/api/modules.html#all-together
 
 ## Ecosystem Notes
 
