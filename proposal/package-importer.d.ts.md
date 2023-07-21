@@ -14,8 +14,7 @@ format.
     * [Node](#node)
   * [Design Decisions](#design-decisions)
     * [Using a `pkg` url scheme](#using-a-pkg-url-scheme)
-    * [No built-in `pkg` resolver for
-      browsers](#no-built-in-pkg-resolver-for-browsers)
+    * [No built-in `pkg` resolver for browsers](#no-built-in-pkg-resolver-for-browsers)
     * [Available as an opt-in setting](#available-as-an-opt-in-setting)
     * [Node Resolution Decisions](#node-resolution-decisions)
 * [Types](#types)
@@ -26,8 +25,7 @@ format.
     * [Resolving `pkg` root values](#resolving-pkg-root-values)
     * [Resolving `pkg` Subpath](#resolving-pkg-subpath)
     * [Resolving a package name](#resolving-a-package-name)
-    * [Resolving the root directory for a
-      package](#resolving-the-root-directory-for-a-package)
+    * [Resolving the root directory for a package](#resolving-the-root-directory-for-a-package)
 * [Ecosystem Notes](#ecosystem-notes)
 
 ## Background

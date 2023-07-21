@@ -129,9 +129,9 @@ export interface Options<sync extends 'sync' | 'async'> {
    * rule`](https://sass-lang.com/documentation/at-rules/function) and whose
    * values are {@link CustomFunction}s.
    *
-   * Functions are passed subclasses of {@link Value}, and must return the same.
-   * If the return value includes {@link SassCalculation}s they will be
-   * simplified before being returned.
+   * Functions are passed JavaScript representations of [Sass value
+   * types](https://sass-lang.com/documentation/js-api#value-types), and must
+   * return the same.
    *
    * When writing custom functions, it's important to make them as user-friendly
    * and as close to the standards set by Sass's core functions as possible. Some
@@ -331,15 +331,6 @@ export interface Options<sync extends 'sync' | 'async'> {
    * @category Output
    */
   style?: OutputStyle;
-
-  /**
-   * Whether or not to enable the built-in package importer to resolve any url
-   * with the `pkg` scheme.
-   *
-   * @defaultValue `false`
-   * @category Input
-   */
-  usePkgImporter?: boolean;
 
   /**
    * By default, Dart Sass will print only five instances of the same
