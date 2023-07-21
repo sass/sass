@@ -14,7 +14,8 @@ format.
     * [Node](#node)
   * [Design Decisions](#design-decisions)
     * [Using a `pkg` url scheme](#using-a-pkg-url-scheme)
-    * [No built-in `pkg` resolver for browsers](#no-built-in-pkg-resolver-for-browsers)
+    * [No built-in `pkg` resolver for
+      browsers](#no-built-in-pkg-resolver-for-browsers)
     * [Available as an opt-in setting](#available-as-an-opt-in-setting)
     * [Node Resolution Decisions](#node-resolution-decisions)
 * [Types](#types)
@@ -25,7 +26,8 @@ format.
     * [Resolving `pkg` root values](#resolving-pkg-root-values)
     * [Resolving `pkg` Subpath](#resolving-pkg-subpath)
     * [Resolving a package name](#resolving-a-package-name)
-    * [Resolving the root directory for a package](#resolving-the-root-directory-for-a-package)
+    * [Resolving the root directory for a
+      package](#resolving-the-root-directory-for-a-package)
 * [Ecosystem Notes](#ecosystem-notes)
 
 ## Background
@@ -150,12 +152,18 @@ There are a variety of methods currently in use for specifying a location of the
 default Sass export for npm packages. For the most part, packages contain both
 JavaScript and styles, and use the `main` or `module` root keys to define the
 JavaScript entry point. Some packages use the `"sass"` key at the root of their
-`package.json`. Other packages have adopted [conditional exports], largely
-driven by [Vite], which resolves Sass paths using the `"sass"` and the `"style"`
-custom conditions.
+`package.json`.
+
+Other packages have adopted [conditional exports], driven by build tools like
+[Vite], [Parcel] and [Sass Loader for Webpack] which all resolve Sass paths
+using the `"sass"` and the `"style"` custom conditions.
 
 [conditional exports]: https://nodejs.org/api/packages.html#conditional-exports
-[vite]: https://github.com/vitejs/vite/pull/7817
+[Vite]: https://github.com/vitejs/vite/pull/7817
+[Parcel]:
+    https://github.com/parcel-bundler/parcel/blob/2d2400ded4615375ee6bd53ef77b4857ad1591dd/packages/transformers/sass/src/SassTransformer.js#L163
+[Sass Loader for Webpack]:
+    https://github.com/webpack-contrib/sass-loader/blob/02df41203adfda96959e56abb43bd35a89ec11ba/src/utils.js#L514
 
 Because use of conditional exports is flexible and recommended for modern
 packages, this will be the primary method used for the Node package resolver. We
@@ -192,7 +200,9 @@ declare module '../spec/js-api' {
 
 ### Package Importers
 
-This proposal defines the requirements for Package Importers written by users or provided by implementations. It is a type of [Filesystem Importer] and will handle non-canonical URLs:
+This proposal defines the requirements for Package Importers written by users or
+provided by implementations. It is a type of [Filesystem Importer] and will
+handle non-canonical URLs:
 
 - with the scheme `pkg`
 - followed by a package name
@@ -207,15 +217,19 @@ supports scoped package names, which start with `@` followed by 2 path segments.
 
 ### Node Specific Semantics
 
-The Node package importer is an [importer] with an associated absolute `pkg:` URL named `base`. When the Node package importer is invoked with a string named `string` and a [previous url] `previousUrl`:
+The Node package importer is an [importer] with an associated absolute `pkg:`
+URL named `base`. When the Node package importer is invoked with a string named
+`string` and a [previous url] `previousUrl`:
 
 - Let `url` be the result of [parsing `string` as a URL][parsing a url] with
   `base` as the base URL. If this returns a failure, throw that failure.
 - Let `fullPath` be `url`'s path.
 - Let `packageName` be the result of [resolving a package name], and `subPath`
   be the path without the `packageName`.
-- Let `packageRoot` be the result of [resolving the root directory for a package].
-- Let `packageManifest` be the result of loading the `package.json` at `packageRoot`.
+- Let `packageRoot` be the result of [resolving the root directory for a
+  package].
+- Let `packageManifest` be the result of loading the `package.json` at
+  `packageRoot`.
 - If `packageManifest` is not set, throw an error.
 - Let `resolved` be the result of using [resolve.exports] to resolve `fullPath`
   with the `sass` condition set, using `packageManifest`.
@@ -241,11 +255,14 @@ The Node package importer is an [importer] with an associated absolute `pkg:` UR
 [resolving pkg subpath]: #resolving-pkg-subpath
 [resolving a package name]: #resolving-a-package-name
 [parsing a url]: https://url.spec.whatwg.org/#concept-url-parser
-[resolving the root directory for a package]: #resolving-the-root-directory-for-a-package
+[resolving the root directory for a package]:
+    #resolving-the-root-directory-for-a-package
 
 #### Resolving `pkg` root values
 
-This algorithm takes a string `packagePath` which is the root directory for a package and `packageManifest`, which is the contents of the `package.json` file, and returns a file URL.
+This algorithm takes a string `packagePath` which is the root directory for a
+package and `packageManifest`, which is the contents of the `package.json` file,
+and returns a file URL.
 
 - Let `packagePath` be the result of [Resolving the root directory for a
   package].
@@ -258,7 +275,8 @@ This algorithm takes a string `packagePath` which is the root directory for a pa
   `packagePath` appended with `styleValue`.
 - Otherwise return the result of [resolving a file url] with `packagePath`.
 
-[resolving the root directory for a package]: #resolving-the-root-directory-for-a-package
+[resolving the root directory for a package]:
+    #resolving-the-root-directory-for-a-package
 [resolving a file url]: ../spec/modules.md#resolving-a-file-url
 
 #### Resolving `pkg` Subpath
@@ -294,16 +312,15 @@ absolute URL to the root directory for the most proximate installed
   `packageName`.
 - While `rootDirectory` is undefined:
   - Remove the final path segment from `previousUrl`
-  - If `node_modules` is the new final path segment of `previousUrl`,
-    continue.
+  - If `node_modules` is the new final path segment of `previousUrl`, continue.
   - Let `potentialPath` be `previousUrl` appended with `node_modules/` and
     `packageName`.
   - If `potentialPath` is a directory, let `rootDirectory` be `potentialPath`.
-  - Otherwise, if `previousUrl` is the root of the file system, throw an
-    error.
+  - Otherwise, if `previousUrl` is the root of the file system, throw an error.
 - Return `rootDirectory`.
 
-[loading from node_modules folders]: https://nodejs.org/api/modules.html#loading-from-node_modules-folders
+[loading from node_modules folders]:
+    https://nodejs.org/api/modules.html#loading-from-node_modules-folders
 
 ## Ecosystem Notes
 
@@ -326,6 +343,8 @@ Documentation. [WinterCG] has a [Runtime Keys proposal specification] underway
 in standardizing the usage of custom conditions for runtimes, but Sass doesn't
 cleanly fit into that specification.
 
-[community conditions definition]: https://nodejs.org/docs/latest-v20.x/api/packages.html#community-conditions-definitions
+[community conditions definition]:
+    https://nodejs.org/docs/latest-v20.x/api/packages.html#community-conditions-definitions
 [wintercg]: https://wintercg.org/
-[runtime keys proposal specification]: https://runtime-keys.proposal.wintercg.org/#adding-a-key
+[runtime keys proposal specification]:
+    https://runtime-keys.proposal.wintercg.org/#adding-a-key
