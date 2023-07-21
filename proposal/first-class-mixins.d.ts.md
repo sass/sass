@@ -11,7 +11,8 @@
 * [Types](#types)
   * [`SassMixin`](#sassmixin)
     * [`assertMixin`](#assertmixin)
-    * [`constructor`](#constructor)
+    * [`internal`](#internal)
+    * [Constructor](#constructor)
 
 ## Background
 
@@ -19,7 +20,7 @@
 
 This proposal exposes the [mixin type] to the JavaScript API.
 
-[mixin type]: ../proposal/first-class-mixin.md
+[mixin type]: ../proposal/first-class-mixins.md
 
 ## Summary
 
@@ -68,7 +69,7 @@ assertMixin(name?: string): SassMixin;
 
 The [private `internal` field] refers to a Sass mixin.
 
-[private `internal` field]: index.d.ts.md#internal
+[private `internal` field]: ../spec/js-api/value/index.d.ts.md#internal
 
 #### Constructor
 

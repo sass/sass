@@ -33,6 +33,7 @@ and [`embedded_sass.proto`] for the compiler endpoint.
   * [Null](#null)
   * [Calculations](#calculations)
   * [Functions](#functions)
+  * [Mixins](#mixins)
 * [Versioning](#versioning)
 
 ## Overview
