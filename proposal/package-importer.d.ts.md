@@ -22,9 +22,10 @@ Importer.
 * [Semantics](#semantics)
   * [Package Importers](#package-importers)
   * [Node Specific Semantics](#node-specific-semantics)
-    * [Resolving `pkg` root values](#resolving-pkg-root-values)
-    * [Resolving a package name](#resolving-a-package-name)
-    * [Resolving the root directory for a package](#resolving-the-root-directory-for-a-package)
+* [Procedures](#procedures)
+  * [Resolving `pkg` root values](#resolving-pkg-root-values)
+  * [Resolving a package name](#resolving-a-package-name)
+  * [Resolving the root directory for a package](#resolving-the-root-directory-for-a-package)
 * [Ecosystem Notes](#ecosystem-notes)
 
 ## Background
@@ -216,6 +217,7 @@ URL named `base`. When the Node package importer is invoked with a string named
 
 - Let `url` be the result of [parsing `string` as a URL][parsing a url] with
   `base` as the base URL. If this returns a failure, throw that failure.
+- If `url`'s scheme is not `pkg`, return null.
 - Let `fullPath` be `url`'s path.
 - Let `packageName` be the result of [resolving a package name], and `subPath`
   be the path without the `packageName`.
@@ -249,8 +251,11 @@ URL named `base`. When the Node package importer is invoked with a string named
 [parsing a url]: https://url.spec.whatwg.org/#concept-url-parser
 [resolving the root directory for a package]:
     #resolving-the-root-directory-for-a-package
+[resolving a file url]: ../spec/modules.md#resolving-a-file-url
 
-#### Resolving `pkg` root values
+## Procedures
+
+### Resolving `pkg` root values
 
 This algorithm takes a string `packagePath` which is the root directory for a
 package and `packageManifest`, which is the contents of the `package.json` file,
@@ -268,7 +273,7 @@ and returns a file URL.
     #resolving-the-root-directory-for-a-package
 [resolving a file url]: ../spec/modules.md#resolving-a-file-url
 
-#### Resolving a package name
+### Resolving a package name
 
 This algorithm takes a string, `url`, and returns the portion that identifies
 the node package.
@@ -279,7 +284,7 @@ the node package.
 
 [url path segments]: https://url.spec.whatwg.org/#url-path-segment
 
-#### Resolving the root directory for a package
+### Resolving the root directory for a package
 
 This algorithm takes a string, `packageName`, an absolute URL
 `currentDirectory`, and an optional absolute URL `previousUrl`, and returns an
