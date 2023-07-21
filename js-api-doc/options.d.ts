@@ -130,6 +130,8 @@ export interface Options<sync extends 'sync' | 'async'> {
    * values are {@link CustomFunction}s.
    *
    * Functions are passed subclasses of {@link Value}, and must return the same.
+   * If the return value includes {@link SassCalculation}s they will be
+   * simplified before being returned.
    *
    * When writing custom functions, it's important to make them as user-friendly
    * and as close to the standards set by Sass's core functions as possible. Some
