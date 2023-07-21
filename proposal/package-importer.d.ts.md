@@ -12,7 +12,6 @@ format.
 * [Summary](#summary)
   * [Examples](#examples)
     * [Node](#node)
-    * [Dart](#dart)
   * [Design Decisions](#design-decisions)
     * [Using a `pkg` url scheme](#using-a-pkg-url-scheme)
     * [No built-in `pkg` resolver for browsers](#no-built-in-pkg-resolver-for-browsers)
@@ -21,14 +20,12 @@ format.
 * [Types](#types)
     * [`usePkgImporter`](#usepkgimporter)
 * [Semantics](#semantics)
-  * [Platform-Specific Semantics](#platform-specific-semantics)
-    * [Dart](#dart-1)
-    * [Node package importer](#node-package-importer)
+  * [Package Importers](#package-importers)
+  * [Node Specific Semantics](#node-specific-semantics)
     * [Resolving `pkg` root values](#resolving-pkg-root-values)
     * [Resolving `pkg` Subpath](#resolving-pkg-subpath)
     * [Resolving a package name](#resolving-a-package-name)
     * [Resolving the root directory for a package](#resolving-the-root-directory-for-a-package)
-* [Deprecation Process](#deprecation-process)
 * [Ecosystem Notes](#ecosystem-notes)
 
 ## Background
@@ -105,13 +102,6 @@ To better understand and allow for testing against the recommended algorithm, a
 the algorithm.
 
 [sass pkg: test]: https://github.com/oddbird/sass-pkg-test
-
-#### Dart
-
-For Dart libraries to take advantage of this, they can place a file at
-`lib/_index.scss`. Other files within the `lib` folder would also be available
-for library consumers. For example, if a library `libraryName` contains
-`lib/themes/dark/_index.scss`, a consumer could write `@use "pkg:libraryName/themes/dark";`.
 
 ### Design Decisions
 
@@ -200,6 +190,8 @@ declare module '../spec/js-api' {
 
 ## Semantics
 
+### Package Importers
+
 This proposal defines the requirements for Package Importers written by users or provided by implementations. It is a type of [Filesystem Importer] and will handle non-canonical URLs:
 
 - with the scheme `pkg`
@@ -213,18 +205,7 @@ supports scoped package names, which start with `@` followed by 2 path segments.
 
 [filesystem importer]: ../spec/modules.md#filesystem-importer
 
-### Platform-Specific Semantics
-
-#### Dart
-
-Given `url` with the format `pkg:.*`:
-
-- Let `path` be `url`'s path
-- Use [package-config] to resolve `path`
-
-[package-config]: https://pub.dev/packages/package_config
-
-#### Node package importer
+### Node Specific Semantics
 
 The Node package importer is an [importer] with an associated absolute `pkg:` URL named `base`. When the Node package importer is invoked with a string named `string` and a [previous url] `previousUrl`:
 
@@ -323,14 +304,6 @@ absolute URL to the root directory for the most proximate installed
 - Return `rootDirectory`.
 
 [loading from node_modules folders]: https://nodejs.org/api/modules.html#loading-from-node_modules-folders
-
-## Deprecation Process
-
-The `package` url scheme supported in Dart is not part of the Sass spec, but is
-supported by the `dart-sass` implementation when running in Dart. This should be
-deprecated in favor of moving authors to the new `pkg` url scheme. Usage of the
-`package` syntax will result in a deprecation message, and a future major
-version of Sass should remove support.
 
 ## Ecosystem Notes
 
