@@ -2,16 +2,16 @@
 
 _([Issue](https://github.com/sass/sass/issues/2739))_
 
-This proposal adds Sass support for a standard package importer, introducing a
+This proposal introduces the semantics for a Package Importer and defines the
 `pkg` URL scheme to indicate Sass package imports in an implementation-agnostic
-format.
+format. It also defines the semantics for a new built-in Node.js Package
+Importer.
 
 ## Table of Contents
 
 * [Background](#background)
 * [Summary](#summary)
-  * [Examples](#examples)
-    * [Node](#node)
+  * [Node built-in importer](#node-built-in-importer)
   * [Design Decisions](#design-decisions)
     * [Using a `pkg` url scheme](#using-a-pkg-url-scheme)
     * [No built-in `pkg` resolver for browsers](#no-built-in-pkg-resolver-for-browsers)
@@ -23,7 +23,6 @@ format.
   * [Package Importers](#package-importers)
   * [Node Specific Semantics](#node-specific-semantics)
     * [Resolving `pkg` root values](#resolving-pkg-root-values)
-    * [Resolving `pkg` Subpath](#resolving-pkg-subpath)
     * [Resolving a package name](#resolving-a-package-name)
     * [Resolving the root directory for a package](#resolving-the-root-directory-for-a-package)
 * [Ecosystem Notes](#ecosystem-notes)
@@ -53,15 +52,11 @@ This proposal also defines a built-in Node.js importer.
 
 For example, `@use "pkg:bootstrap";` would resolve to the path of a
 library-defined export within the `bootstrap` dependency. In Node, that would be
-resolved within `node_modules`, using the [Node resolution algorithm]. In Dart,
-that would be resolved within `pub-cache`, using [package-config].
+resolved within `node_modules`, using the [Node resolution algorithm].
 
 [node resolution algorithm]: https://nodejs.org/api/packages.html
-[package-config]: https://pub.dev/packages/package_config
 
-### Examples
-
-#### Node
+### Node built-in importer
 
 The built-in Node importer resolves in the following order:
 
@@ -239,18 +234,17 @@ URL named `base`. When the Node package importer is invoked with a string named
   - If `resolved` has the scheme `file:` and an extension of `sass`, `scss` or
     `css`, return it.
   - Otherwise, if `resolved` is not null, throw an error.
-
-- If `subPath` is empty, return result of [resolving `pkg` root].
-- Otherwise, return result of [resolving `pkg` subpath].
+- If `subPath` is empty, return result of [resolving `pkg` root values].
+- Let `resolved` be `subPath` resolved relative to `packageRoot`.
+- Return the result of [resolving a file url] with `resolved`.
 
 > Note that this algorithm does not automatically resolve index files, partials
-> or extensions. When using the `pkg:` url scheme, authors need to explicitly
-> use the fully resolved filename.
+> or extensions, except where specified. When using the `pkg:` url scheme,
+> authors need to explicitly use the fully resolved filename.
 
 [previous url]: ../accepted/prev-url.d.ts.md
 [resolve.exports]: https://github.com/lukeed/resolve.exports
-[resolving pkg root values]: #resolving-pkg-root-values
-[resolving pkg subpath]: #resolving-pkg-subpath
+[resolving `pkg` root values]: #resolving-pkg-root-values
 [resolving a package name]: #resolving-a-package-name
 [parsing a url]: https://url.spec.whatwg.org/#concept-url-parser
 [resolving the root directory for a package]:
@@ -262,13 +256,10 @@ This algorithm takes a string `packagePath` which is the root directory for a
 package and `packageManifest`, which is the contents of the `package.json` file,
 and returns a file URL.
 
-- Let `packagePath` be the result of [Resolving the root directory for a
-  package].
-- Let `sassValue` be the value of `sass` in the `package.json` at the pkg root.
+- Let `sassValue` be the value of `sass` in `packageManifest`.
 - If `sassValue` is a relative path with an extension of `sass`, `scss` or
   `css`, return the `packagePath` appended with `sassValue`.
-- Let `styleValue` be the value of `style` in the `package.json` at the pkg
-  root.
+- Let `styleValue` be the value of `style` in `packageManifest`.
 - If `styleValue` is a relative path with an extension of `css`, return the
   `packagePath` appended with `styleValue`.
 - Otherwise return the result of [resolving a file url] with `packagePath`.
@@ -276,12 +267,6 @@ and returns a file URL.
 [resolving the root directory for a package]:
     #resolving-the-root-directory-for-a-package
 [resolving a file url]: ../spec/modules.md#resolving-a-file-url
-
-#### Resolving `pkg` Subpath
-
-- Let `packagePath` be the file path to the package root.
-- Let `fullPath` be `subpath` resolved relative to `packagePath`.
-- Return the result of [resolving a file url] with `fullPath`.
 
 #### Resolving a package name
 
