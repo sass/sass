@@ -178,7 +178,7 @@ with the `pkg` scheme. This importer follows Node.js logic to locate Sass files.
 Defaults to false.
 
 ```ts
-declare module '../spec/js-api' {
+declare module '../spec/js-api/options' {
   interface Options<sync extends 'sync' | 'async'> {
     /**
      * Whether or not to enable the built-in package importer to resolve any url
@@ -313,7 +313,7 @@ absolute URL to the root directory for the most proximate installed
 `packageName`.
 
 > We need to replicate Node's behavior, as defined in [Loading from node_modules
-> > folders], of walking up the directory chain to find packages from
+> folders], of walking up the directory chain to find packages from
 > `previousUrl`, so that packages can use the correct version of the packages
 > that they depend on.
 
@@ -348,6 +348,12 @@ needing filesystem access.
 
 ## Ecosystem Notes
 
+The new `usePkgImporter` option will not be available in the [Legacy JS API].
+Third-party applications that don't support the modern API will be unable to use
+the built-in package importer. Some notable examples follow.
+
+[Legacy JS API]: https://sass-lang.com/documentation/js-api/#md:legacy-api
+
 Vite is currently using the Legacy JS API, and has an [open issue] to update to
 the modern API. They also do not expose Sass options to the user, so would need
 to enable the `usePkgImporter` on their behalf or expose some configuration.
@@ -356,6 +362,8 @@ to enable the `usePkgImporter` on their behalf or expose some configuration.
 
 Webpack's [sass-loader] allows users to opt in to the modern API and exposes
 Sass options to users.
+
+[sass-loader]: https://webpack.js.org/loaders/sass-loader/
 
 For Rollup, [rollup-plugin-sass] uses the Legacy JS API. They do expose Sass
 options to the user.
