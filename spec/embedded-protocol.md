@@ -360,6 +360,13 @@ functions' signatures.
 Two first-class functions are equal if they have the same ID and they're either
 both `CompilerFunction`s or both `HostFunction`s.
 
+### Mixins
+
+The protocol allows first-class mixins defined in the compiler to be passed
+to the host and vice-versa as `Value.CompilerMixin`s.
+
+Two first-class mixins are equal if they have the same ID.
+
 ## Versioning
 
 This protocol is versioned according to [semver 2.0.0]. The current version is

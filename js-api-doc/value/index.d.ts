@@ -3,7 +3,6 @@ import {List, ValueObject} from 'immutable';
 import {SassBoolean} from './boolean';
 import {SassColor} from './color';
 import {SassFunction} from './function';
-import {SassMixin} from './mixin';
 import {ListSeparator} from './list';
 import {SassMap} from './map';
 import {SassNumber} from './number';
@@ -13,7 +12,6 @@ export {SassArgumentList} from './argument_list';
 export {SassBoolean, sassTrue, sassFalse} from './boolean';
 export {SassColor} from './color';
 export {SassFunction} from './function';
-export {SassMixin} from './mixin';
 export {SassList, ListSeparator} from './list';
 export {SassMap} from './map';
 export {SassNumber} from './number';
@@ -133,14 +131,6 @@ export abstract class Value implements ValueObject {
    * the `$`) if it came from an argument. Used for error reporting.
    */
   assertFunction(name?: string): SassFunction;
-
-  /**
-   * Throws if `this` isn't a {@link SassMixin}.
-   *
-   * @param name - The name of the mixin argument `this` came from (without
-   * the `$`) if it came from an argument. Used for error reporting.
-   */
-  assertMixin(name?: string): SassMixin;
 
   /**
    * Throws if `this` isn't a {@link SassMap}.
