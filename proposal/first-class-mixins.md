@@ -68,6 +68,8 @@ other operations throw an error.
 When the Sass interpreter encounters an `@mixin` rule in Sass source code, it
 constructs a mixin object in memory. Additionally, some mixin objects are
 pre-defined by the Sass language and accessible though the builtin modules.
+Pre-defined mixins are declared at most once during the execution of an entire
+program.
 
 Mixin objects, like function objects, use pointer equality.
 
