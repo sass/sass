@@ -23,6 +23,7 @@ Importer.
   * [Package Importers](#package-importers)
   * [Node Specific Semantics](#node-specific-semantics)
 * [Procedures](#procedures)
+  * [Resolving a `pkg` URL](#resolving-a-pkg-url)
   * [Resolving `pkg` root values](#resolving-pkg-root-values)
   * [Resolving a package name](#resolving-a-package-name)
   * [Resolving the root directory for a package](#resolving-the-root-directory-for-a-package)
@@ -218,6 +219,39 @@ URL named `base`. When the Node package importer is invoked with a string named
 - Let `url` be the result of [parsing `string` as a URL][parsing a url] with
   `base` as the base URL. If this returns a failure, throw that failure.
 - If `url`'s scheme is not `pkg`, return null.
+- Let `resolved` be the result of [resolving a `pkg` URL] with `url` and `previousURL`
+- If `resolved` is null, return null.
+- Let `text` be the contents of the file at `resolved`.
+- Let `syntax` be:
+  - "scss" if `url` ends in `.scss`.
+  - "indented" if `url` ends in `.sass`.
+  - "css" if `url` ends in `.css`.
+  > The algorithm for [resolving a `file:` URL](../spec/modules.md#resolving-a-file-url)
+  > guarantees that `url` will have one of these extensions.
+- Return `text`, `syntax`, and `resolved`.
+
+[parsing a URL]: https://url.spec.whatwg.org/#concept-url-parser
+[resolving a `pkg` URL]: #resolving-a-pkg-url
+
+> Note that this algorithm does not automatically resolve index files, partials
+> or extensions, except where specified. When using the `pkg:` url scheme,
+> authors need to explicitly use the fully resolved filename.
+
+[previous url]: ../accepted/prev-url.d.ts.md
+[resolve.exports]: https://github.com/lukeed/resolve.exports
+[resolving `pkg` root values]: #resolving-pkg-root-values
+[resolving a package name]: #resolving-a-package-name
+[parsing a url]: https://url.spec.whatwg.org/#concept-url-parser
+[resolving the root directory for a package]:
+    #resolving-the-root-directory-for-a-package
+[resolving a file url]: ../spec/modules.md#resolving-a-file-url
+
+## Procedures
+
+### Resolving a `pkg` URL
+
+This algorithm takes a URL with scheme `pkg`, and an optional URL `previousURL`. It returns a canonical file path or null.
+
 - Let `fullPath` be `url`'s path.
 - Let `packageName` be the result of [resolving a package name], and `subPath`
   be the path without the `packageName`.
@@ -239,21 +273,6 @@ URL named `base`. When the Node package importer is invoked with a string named
 - If `subPath` is empty, return result of [resolving `pkg` root values].
 - Let `resolved` be `subPath` resolved relative to `packageRoot`.
 - Return the result of [resolving a file url] with `resolved`.
-
-> Note that this algorithm does not automatically resolve index files, partials
-> or extensions, except where specified. When using the `pkg:` url scheme,
-> authors need to explicitly use the fully resolved filename.
-
-[previous url]: ../accepted/prev-url.d.ts.md
-[resolve.exports]: https://github.com/lukeed/resolve.exports
-[resolving `pkg` root values]: #resolving-pkg-root-values
-[resolving a package name]: #resolving-a-package-name
-[parsing a url]: https://url.spec.whatwg.org/#concept-url-parser
-[resolving the root directory for a package]:
-    #resolving-the-root-directory-for-a-package
-[resolving a file url]: ../spec/modules.md#resolving-a-file-url
-
-## Procedures
 
 ### Resolving `pkg` root values
 
