@@ -170,6 +170,10 @@ tends to be used solely for `css` files, we will support `scss`, `sass` and
 
 ## Types
 
+```ts
+import '../spec/js-api';
+```
+
 #### `usePkgImporter`
 
 If true, the compiler will use the built-in package importer to resolve any url
