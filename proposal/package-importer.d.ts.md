@@ -4,7 +4,7 @@ _([Issue](https://github.com/sass/sass/issues/2739))_
 
 This proposal introduces the semantics for a Package Importer and defines the
 `pkg` URL scheme to indicate Sass package imports in an implementation-agnostic
-format. It also defines the semantics for a new built-in Node.js Package
+format. It also defines the semantics for a new built-in Node Package
 Importer.
 
 ## Table of Contents
@@ -51,7 +51,7 @@ implementation to resolve a URL within a dependency. The implementation will
 resolve the dependency URL using the standard resolution for that environment.
 Once resolved, this URL will be loaded in the same way as any other `file:` URL.
 
-This proposal also defines a built-in Node.js importer.
+This proposal also defines a built-in Node importer.
 
 For example, `@use "pkg:bootstrap";` would resolve to the path of a
 library-defined export within the `bootstrap` dependency. In Node, that would be
@@ -87,7 +87,7 @@ export key as the first key in `package.json`.
 }
 ```
 
-Then, library consumers can use the pkg syntax to get the default export.
+Then, library consumers can use the `pkg` syntax to get the default export.
 
 ```scss
 @use 'pkg:library';
@@ -162,7 +162,7 @@ using the `"sass"` and the `"style"` custom conditions.
     https://github.com/webpack-contrib/sass-loader/blob/02df41203adfda96959e56abb43bd35a89ec11ba/src/utils.js#L514
 
 Because use of conditional exports is flexible and recommended for modern
-packages, this will be the primary method used for the Node package resolver. We
+packages, this will be the primary method used for the Node package importer. We
 will support both the `"sass"` and the `"style"` conditions, as Sass can also
 use the CSS exports exposed through `"style"`. While in practice, `"style"`
 tends to be used solely for `css` files, we will support `scss`, `sass` and
@@ -177,7 +177,7 @@ import '../spec/js-api';
 #### `usePkgImporter`
 
 If true, the compiler will use the built-in package importer to resolve any url
-with the `pkg` scheme. This importer follows Node.js logic to locate Sass files.
+with the `pkg` scheme. This importer follows Node logic to locate Sass files.
 
 Defaults to false.
 
@@ -210,7 +210,7 @@ handle non-canonical URLs:
   slash.
 
 The package name will often be the first path segment, but the importer should
-take into account any conventions in the environment. For instance, Node.js
+take into account any conventions in the environment. For instance, Node
 supports scoped package names, which start with `@` followed by 2 path segments.
 
 [filesystem importer]: ../spec/modules.md#filesystem-importer
@@ -301,7 +301,7 @@ and returns a file URL.
 ### Resolving a package name
 
 This algorithm takes a string, `url`, and returns the portion that identifies
-the node package.
+the Node package.
 
 - If `url` starts with `@`, it is a scoped package. Return the first 2 [url path
   segments], including the separating `/`
@@ -338,11 +338,11 @@ absolute URL to the root directory for the most proximate installed
 ### Resolving package exports
 
 This algorithm takes a string `condition`, a package.json value
-`packageManifest`, and a pkg URL `url`. It returns a file URL or null.
+`packageManifest`, and a `pkg` URL `url`. It returns a file URL or null.
 
 This algorithm should follow the Node resolution algorithm, as defined in the
 Node documentation under [Node Modules] and [Conditional Exports]. Where
-possible in Node.js, it can use [resolve.exports] which exposes the Node
+possible in Node, it can use [resolve.exports] which exposes the Node
 resolution algorithm, allowing for per-path custom conditions, and without
 needing filesystem access.
 
