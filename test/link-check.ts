@@ -71,7 +71,7 @@ function verifyLinkCheckResults(
             colors.yellow(`Server error on target: ${result.link}`)
           );
         } else {
-          flagDeadLink(result.link);
+          flagDeadLink(`${result.link} ${result.status} ${result.err}`);
         }
         break;
 
