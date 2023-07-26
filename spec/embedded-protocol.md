@@ -33,7 +33,6 @@ and [`embedded_sass.proto`] for the compiler endpoint.
   * [Null](#null)
   * [Calculations](#calculations)
   * [Functions](#functions)
-  * [Mixins](#mixins)
 * [Versioning](#versioning)
 
 ## Overview
@@ -360,13 +359,6 @@ functions' signatures.
 
 Two first-class functions are equal if they have the same ID and they're either
 both `CompilerFunction`s or both `HostFunction`s.
-
-### Mixins
-
-The protocol allows first-class mixins defined in the compiler to be passed
-to the host and vice-versa as `Value.CompilerMixin`s.
-
-Two first-class mixins are equal if they have the same ID.
 
 ## Versioning
 

@@ -20,6 +20,16 @@ This proposal promotes mixins to first-class values and adds members to the
   * [`meta.accepts-content()`](#metaaccepts-content)
 * [Mixins](#mixins)
   * [`meta.apply()`](#metaapply)
+* [JavaScript API](#javascript-api)
+  * [Design Decisions](#design-decisions)
+  * [API](#api)
+* [Types](#types-1)
+  * [`SassMixin`](#sassmixin)
+    * [`assertMixin`](#assertmixin)
+    * [`internal`](#internal)
+    * [Constructor](#constructor)
+* [Embedded Protocol](#embedded-protocol)
+
 ## Background
 
 > This section is non-normative.
@@ -68,8 +78,6 @@ other operations throw an error.
 When the Sass interpreter encounters an `@mixin` rule in Sass source code, it
 constructs a mixin object in memory. Additionally, some mixin objects are
 pre-defined by the Sass language and accessible though the builtin modules.
-Pre-defined mixins are declared at most once during the execution of an entire
-program.
 
 Mixin objects, like function objects, use pointer equality.
 
@@ -194,11 +202,91 @@ meta.apply($mixin, $args...)
 * If `$mixin` is not a mixin, throw an error.
 
 * If the current `@include` rule has a `ContentBlock`, it should be passed down
-  to `$mixin`. Mixins must be invoked with `@include`, so `include` is
-  guaranteed to exist.
+  to `$mixin`. Mixins must be invoked with `@include`, so the current include
+  rule is guaranteed to exist.
 
-* Create an `ArgumentInvocation` from `(...$args)`
-
-* Execute the `ArgumentInvocation` `(...$args)` with `$mixin`'s `ArgumentDeclaration` in `$mixin`'s scope
+* Execute the `ArgumentInvocation` `(...$args)` with `$mixin`'s
+  `ArgumentDeclaration` in `$mixin`'s scope.
 
 * Execute each statement in `$mixin`.
+
+## JavaScript API
+
+### Design Decisions
+
+Mixins differ from functions in that the result of their execution is a Sass AST
+node, and not a SassScript value. Sass today does not expose ways to create or
+manipulate AST nodes through the JavaScript API, nor does it intend to do so in
+the future.
+
+For this reason, it is not meaningful -- or even possible -- to construct or 
+execute a mixin through the JavaScript API. A mixin object shall be opaque, and
+the only operation available shall be to return the object as-is.
+
+### API
+
+```ts
+import {Value} from '../spec/js-api/value';
+```
+
+## Types
+
+### `SassMixin`
+
+The JS API representation of a Sass mixin.
+
+```ts
+export class SassMixin extends Value {
+```
+
+#### `assertMixin`
+
+Returns `this` if it's a [`SassMixin`] and throws an error otherwise.
+
+[`SassMixin`]: #sassmixin
+
+> The `name` parameter may be used for error reporting.
+
+```ts
+assertMixin(name?: string): SassMixin;
+```
+
+#### `internal`
+
+The [private `internal` field] refers to a Sass mixin.
+
+[private `internal` field]: ../spec/js-api/value/index.d.ts.md#internal
+
+#### Constructor
+
+Throws an error.
+
+```ts
+constructor();
+```
+
+```ts
+} // SassMixin
+```
+
+## Embedded Protocol
+
+This document proposes adding a new value:
+
+```proto
+// A first-class mixin defined in the compiler. New `CompilerMixin`s may
+// only be created by the compiler, but the host may pass `CompilerMixin`s
+// back to the compiler as long as their IDs match IDs of mixins received
+// by the host during that same compilation.
+message CompilerMixin {
+  // A unique ID for this mixin. The compiler is responsible for generating
+  // this ID and ensuring it's unique across all mixins passed to the host
+  // for this compilation. Mandatory.
+  uint32 id = 1;
+}
+```
+
+The protocol allows first-class mixins defined in the compiler to be passed
+to the host and vice-versa as `Value.CompilerMixin`s.
+
+Two first-class mixins are equal if they have the same ID.
