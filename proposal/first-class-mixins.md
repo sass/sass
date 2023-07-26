@@ -23,11 +23,11 @@ This proposal promotes mixins to first-class values and adds members to the
 * [JavaScript API](#javascript-api)
   * [Design Decisions](#design-decisions)
   * [API](#api)
-* [Types](#types-1)
-  * [`SassMixin`](#sassmixin)
-    * [`assertMixin`](#assertmixin)
-    * [`internal`](#internal)
-    * [Constructor](#constructor)
+  * [Types](#types-1)
+    * [`SassMixin`](#sassmixin)
+      * [`assertMixin`](#assertmixin)
+      * [`internal`](#internal)
+      * [Constructor](#constructor)
 * [Embedded Protocol](#embedded-protocol)
 
 ## Background
@@ -229,9 +229,9 @@ the only operation available shall be to return the object as-is.
 import {Value} from '../spec/js-api/value';
 ```
 
-## Types
+### Types
 
-### `SassMixin`
+#### `SassMixin`
 
 The JS API representation of a Sass mixin.
 
@@ -239,7 +239,7 @@ The JS API representation of a Sass mixin.
 export class SassMixin extends Value {
 ```
 
-#### `assertMixin`
+##### `assertMixin`
 
 Returns `this` if it's a [`SassMixin`] and throws an error otherwise.
 
@@ -251,13 +251,13 @@ Returns `this` if it's a [`SassMixin`] and throws an error otherwise.
 assertMixin(name?: string): SassMixin;
 ```
 
-#### `internal`
+##### `internal`
 
 The [private `internal` field] refers to a Sass mixin.
 
 [private `internal` field]: ../spec/js-api/value/index.d.ts.md#internal
 
-#### Constructor
+##### Constructor
 
 Throws an error.
 
