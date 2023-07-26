@@ -12,7 +12,7 @@ proposal].
 ## API
 
 ```ts
-import {SassColor} from '../spec/js-api/value';
+import { Value } from '../spec/js-api/value';
 ```
 
 ## Types
@@ -44,7 +44,7 @@ type ColorSpaceRGB =
     'a98-rgb' |
     'prophoto-rgb';
 
-type ChannelNamesRGB = 'red' | 'green' | 'yellow';
+type ChannelNamesRGB = 'red' | 'green' | 'blue';
 
 type ColorSpaceHWB = 'hwb';
 
@@ -81,66 +81,103 @@ type ChannelNames =
     ChannelNamesLCH |
     ChannelNamesLAB;
 
+type ChannelValues = string | number;
+type ChannelValuesOrNull = string | number | null;
+
 ```
 ### New Color Functions
 
-#### `space`
-
-Returns the value of the result of [`space(internal)`].
-
-[`space(internal)`]: ../../color-4-new-spaces.md#colorspace-1
-
 ```ts
-get space(): string;
+export class SassColor extends Value{
 ```
 
-#### `toSpace`
+#### `space`
 
-Returns the value of the result of [`to-space(internal, $space)`].
-
-[`to-space(internal)`]: ../../color-4-new-spaces.md#colorto-space
+Returns the name of the color's space.
 
 ```ts
-toSpace(space: KnownColorSpace): string;
+get space(): KnownColorSpace;
+```
+
+#### `channels`
+
+Returns an array of channel values, with missing channels converted to `0`.
+
+```ts
+get channels(): ChannelValues;
+```
+#### `channelsOrNull`
+
+Returns an array of channel values, with missing channels converted to `null`.
+
+```ts
+get channels(): ChannelValuesOrNull;
 ```
 
 #### `isLegacy`
 
-Returns the value of the result of [`is-legacy(internal)`].
-
-[`is-legacy(internal)`]: ../../color-4-new-spaces.md#coloris-legacy
+Returns whether `color` is in a legacy color space (`rgb`, `hsl`, or `hwb`).
 
 ```ts
 get isLegacy(): boolean;
 ```
 
-#### `isPowerless`
+#### `isInGamut`
 
-Returns the value of the result of [`is-powerless()]. `space` defaults to the
-value of `space`. Throws an error if
-`channel` is not a channel in `space`.
-
-[`is-powerless(internal)`]: ../../color-4-new-spaces.md#coloris-powerless
+Returns whether `color` is in-gamut for its color space (as opposed to having
+one or more of its channels out of bounds, like `rgb(300 0 0)`).
 
 ```ts
-isPowerless(options: {channel: ChannelNames, space?: KnownColorSpace})
+get isInGamut():boolean;
+```
+
+#### `isChannelMissing`
+
+Returns whether the given `channel` of `color` is missing. Missing channels can
+be explicitly specified using the special value `none` and can appear
+automatically when [toSpace()] returns a color with a powerless channel. 
+
+
+```ts
+isChannelMissing(options: {channel: ChannelNames}): boolean;
+```
+
+[toSpace()]: #toSpace
+
+#### `isChannelPowerless`
+
+Returns whether the given `channel` of `color` is powerless in `space`,
+defaulting to its own color space. A channel is "powerless" if its value doesn't
+affect the way the color is displayed, such as hue for a color with 0 chroma.
+Throws an error if `channel` is not a channel in `space`.
+
+```ts
+isChannelPowerless(options: {channel: ChannelNames, space?: KnownColorSpace}): boolean;
 ```
 
 #### `channel`
 
-Returns the result of [`channel()`]. By default, it
-only supports channels that are available in the color's own space, but you can
-pass the `$space` parameter to return the value of the channel after converting
-to the given space.
+Returns the value of the given `channel` in `color`, after converting it to
+`space` if necessary. It should be used instead of the old channel-specific
+functions such as `color.red()` and `color.hue()`.
+
 
 ```ts
-channel(options: {channel: ChannelNames, space?: KnownColorSpace})
+channel(options: {channel: ChannelNames, space?: KnownColorSpace}): ChannelValueOrNull;
+```
+
+#### `toSpace`
+
+Returns the result of converting `color` to `space`. 
+
+```ts
+toSpace(space: KnownColorSpace): SassColor;
 ```
 
 ## New Constructors
 
-If space is set, create in that space. Throw errors if not valid. Otherwise
-use the legacy algorithm.
+If `space` is set, create a new SassColor in that space. Throws errors if
+channels are not valid. Otherwise use the legacy algorithm.
 
 ```ts
 constructor(options: {
@@ -148,21 +185,21 @@ constructor(options: {
   green: number;
   blue: number;
   alpha?: number;
-}, space: ColorSpaceRGB);
+}, space?: ColorSpaceRGB);
 
 constructor(options: {
   hue: number;
   whiteness: number;
   blackness: number;
   alpha?: number;
-}, space: ColorSpaceHWB);
+}, space?: ColorSpaceHWB);
 
 constructor(options: {
   hue: number;
   saturation: number;
   lightness: number;
   alpha?: number;
-}, space: ColorSpaceHSL);
+}, space?: ColorSpaceHSL);
 
 constructor(options: {
   x: number;
@@ -184,4 +221,6 @@ constructor(options: {
   b: number;
   alpha?: number;
 }, space: ColorSpaceLAB);
+
+}
 ```
