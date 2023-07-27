@@ -1,4 +1,4 @@
-# CSS Color Level 4, New Color Spaces: Draft 1.5
+# CSS Color Level 4, New Color Spaces: Draft 1.6
 
 *([Issue](https://github.com/sass/sass/issues/2831))*
 
@@ -553,9 +553,10 @@ channel names match unquoted strings, ignoring case. They are always emitted as
 unquoted lowercase strings by inspection functions.
 
 Values outside a _bounded gamut_ range (including infinity or negative infinity)
-are valid, and remain un-clamped, but are considered _out of gamut_ for the
-given color space. If the channel is bounded, or has a percentage mapping, then
-the channel is considered _scalable_.
+are valid but are considered _out of gamut_ for the given color space. They
+remain un-clamped unless the gamut is specifically marked as "clamped". If the
+channel is bounded, or has a percentage mapping, then the channel is considered
+_scalable_.
 
 Some color spaces use a _polar angle_ value for the `hue` channel. Polar-angle
 hues represent an angle position around a given hue wheel, using a CSS `<angle>`
@@ -584,8 +585,11 @@ The known color spaces and their channels are:
 * `hsl` (RGB, legacy):
   * `hue`:
     * degrees: polar angle
-  * `saturation`, `lightness`:
+  * `saturation`:
     * gamut: bounded
+    * percentage: `[0%,100%]`
+  * `lightness`:
+    * gamut: bounded, clamped
     * percentage: `[0%,100%]`
 
 * `srgb`, `srgb-linear`, `display-p3`, `a98-rgb`, `prophoto-rgb`,
@@ -605,7 +609,7 @@ The known color spaces and their channels are:
 
 * `lab`:
   * `lightness`:
-    * gamut: un-bounded
+    * gamut: un-bounded, clamped
     * number: `[0,100]`
 
       > Percentages `[0%,100%]` map to the `[0,100]` range.
@@ -618,7 +622,7 @@ The known color spaces and their channels are:
 
 * `lch`:
   * `lightness`:
-    * gamut: un-bounded
+    * gamut: un-bounded, clamped
     * number: `[0,100]`
 
       > Percentages `[0%,100%]` map to the `[0,100]` range.
@@ -634,7 +638,7 @@ The known color spaces and their channels are:
 
 * `oklab`:
   * `lightness`:
-    * gamut: un-bounded
+    * gamut: un-bounded, clamped
     * number: `[0,1]`
 
       > Percentages `[0%,100%]` map to the `[0,1]` range.
@@ -647,7 +651,7 @@ The known color spaces and their channels are:
 
 * `oklch`:
   * `lightness`:
-    * gamut: un-bounded
+    * gamut: un-bounded, clamped
     * number: `[0,1]`
 
       > Percentages `[0%,100%]` map to the `[0,1]` range.
