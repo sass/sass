@@ -1,4 +1,4 @@
-# Calculation Functions: Draft 1.4
+# Calculation Functions: Draft 1.5
 
 *([Issue](https://github.com/sass/sass/issues/3504))*
 
@@ -373,7 +373,7 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
 
         * If `modulus` is infinite, return `dividend`.
         * If `result` [exactly equals] 0, return `-result`.
-        * Otherwise, return `result - dividend`.
+        * Otherwise, return `result - modulus`.
 
       * Otherwise, return `result`.
 
