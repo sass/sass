@@ -1,4 +1,4 @@
-# CSS Color Level 4, New Color Spaces: Draft 1.6
+# CSS Color Level 4, New Color Spaces: Draft 1.7
 
 *([Issue](https://github.com/sass/sass/issues/2831))*
 
@@ -1280,13 +1280,19 @@ input colors.
 
 * For each `color` in `color1` and `color2`:
 
-  * If any `component` of `color` is `none`, set that `component` to the value
-    of the corresponding component in the other color.
+  * If any non-`alpha` `component` of `color` is `none`, set that `component` to
+    the value of the corresponding component in the other color.
 
     > If both values are `none`, the interpolation result for that component
     > will also be `none`.
 
   * Set `color` to the result of [premultiplying] `color`.
+
+  * If `color`'s `alpha` component is `none`, set it to the value of the `alpha`
+    component in the other color.
+
+    > This is resolved after premultiplying, because premultiplying has special
+    > handling for a missing `alpha` component.
 
 * Let `mix` be a new color in the color space `space`, with `none` for all
   channel and alpha values.
