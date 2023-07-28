@@ -62,9 +62,22 @@ one would with function values:
 
 * `meta.call()` => `meta.apply()`
 
+
+### JavaScript API Design Decisions
+
+Mixins differ from functions in that the result of their execution is a Sass AST
+node, and not a SassScript value. Sass today does not expose ways to create or
+manipulate AST nodes through the JavaScript API, nor does it intend to do so in
+the future.
+
+For this reason, it is not meaningful -- or even possible -- to construct or
+execute a mixin through the JavaScript API. A mixin object shall be opaque, and
+the only operation available shall be to return the object as-is.
+
+
 ## Types
 
-This proposal promotes the [mixin value][] to a Sass value type.
+This proposal promotes the [mixin value] to a Sass value type.
 
 [mixin value]: ../spec/at-rules/mixin.md#mixin
 
@@ -90,21 +103,21 @@ Mixins pre-defined by the Sass language are instatiated at most once during the
 entire evaluation of a program.
 
 > As an example, if we declare two mixins:
-> 
+>
 > ```scss
 > @mixin mixin1 {
 >   color: red;
 > }
-> 
+>
 > $a: meta.get-mixin(mixin1);
-> 
+>
 > @mixin mixin1 {
 >   color: red;
 > }
-> 
+>
 > $b: meta.get-mixin(mixin1);
 > ```
-> 
+>
 > Although every aspect of the two mixins is the same, `$a != $b`, because they
 > refer to separate mixin declarations/objects.
 
@@ -150,7 +163,7 @@ meta.get-mixin($name, $module: null)
     null, throw an error.
 
 * Otherwise:
-  
+
   * If `$module` is not a string, throw an error.
 
   * Let `use` be the `@use` rule in [the current source file][] whose
@@ -188,8 +201,7 @@ meta.accepts-content($mixin)
 
 * If `$mixin` is not a mixin, throw an error.
 
-* Return a boolean which is true if the body of the mixin has an `@content`
-  rule.
+* Return a boolean which is true if the body of `$mixin` has an `@content` rule.
 
 ## Mixins
 
@@ -201,29 +213,19 @@ meta.apply($mixin, $args...)
 
 * If `$mixin` is not a mixin, throw an error.
 
-* If the current `@include` rule has a `ContentBlock`, it should be passed down
-  to `$mixin`. Mixins must be invoked with `@include`, so the current include
-  rule is guaranteed to exist.
+* If the current `@include` rule has a `ContentBlock` and `$mixin`'s body does not
+  contain an `@content` rule, throw an error.
 
 * Execute the `ArgumentInvocation` `(...$args)` with `$mixin`'s
-  `ArgumentDeclaration` in `$mixin`'s scope.
+  `ArgumentDeclaration` in `$mixin`'s scope. Treat the `@include` rule that
+  invoked `meta.apply` as the `@include` rule that invoked `$mixin`.
+
+> This ensures that any `@content` rules in `$mixin` will use `meta.apply()`'s
+> `ContentBlock`.
 
 * Execute each statement in `$mixin`.
 
 ## JavaScript API
-
-### Design Decisions
-
-Mixins differ from functions in that the result of their execution is a Sass AST
-node, and not a SassScript value. Sass today does not expose ways to create or
-manipulate AST nodes through the JavaScript API, nor does it intend to do so in
-the future.
-
-For this reason, it is not meaningful -- or even possible -- to construct or 
-execute a mixin through the JavaScript API. A mixin object shall be opaque, and
-the only operation available shall be to return the object as-is.
-
-### API
 
 ```ts
 import {Value} from '../spec/js-api/value';
