@@ -1,3 +1,8 @@
+## Draft 1.5
+
+* Fix the definition of `rem()` to use `result - modulus` rather than `result -
+  dividend` in the case where the argument signs differ.
+
 ## Draft 1.4
 
 * Don't exempt percentages from most functions' simplification logic, since
