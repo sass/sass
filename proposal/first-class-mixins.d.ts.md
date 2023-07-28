@@ -9,6 +9,7 @@ This proposal promotes mixins to first-class values and adds members to the
 
 * [Background](#background)
 * [Summary](#summary)
+  * [JavaScript API Design Decisions](#javascript-api-design-decisions)
 * [Types](#types)
   * [Operations](#operations)
     * [Equality](#equality)
@@ -21,8 +22,6 @@ This proposal promotes mixins to first-class values and adds members to the
 * [Mixins](#mixins)
   * [`meta.apply()`](#metaapply)
 * [JavaScript API](#javascript-api)
-  * [Design Decisions](#design-decisions)
-  * [API](#api)
   * [Types](#types-1)
     * [`SassMixin`](#sassmixin)
       * [`assertMixin`](#assertmixin)
