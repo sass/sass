@@ -224,6 +224,15 @@ Returns a new SassColor as the result of changing some of [`internal`]'s channel
 channels in that space may be changed. Throws an error if any `channel` is not
 present in `space`.
 
+* If `space` is not defined, let `space` be the value of [`space(internal)`].
+
+* Let `arguments` be the key value pairs in `channels` as keyword arguments.
+
+* Return the value of the result of [`change(internal, ...arguments)`].
+
+[`space(internal)`]: #space
+
+[`change(internal, ...arguments)`]: ./color-4-new-spaces.md#colorchange
 
 ```ts
 changeChannels(
