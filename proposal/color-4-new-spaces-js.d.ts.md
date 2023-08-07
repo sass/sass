@@ -27,8 +27,8 @@ proposal].
   * [`interpolate()`](#interpolate)
   * [New Constructors](#new-constructors)
     * [RGB Channel Constructor](#rgb-channel-constructor)
-    * [HWB Channel Constructor](#hwb-channel-constructor)
     * [HSL Channel Constructor](#hsl-channel-constructor)
+    * [HWB Channel Constructor](#hwb-channel-constructor)
     * [XYZ Channel Constructor](#xyz-channel-constructor)
     * [LCH Channel Constructor](#lch-channel-constructor)
     * [LAB Channel Constructor](#lab-channel-constructor)
@@ -108,7 +108,7 @@ type HueInterpolationMethod =
   | 'decreasing'
   | 'increasing';
 
-type ChannelValues = string | number | null;
+type ChannelValue = string | number | null;
 ```
 
 ### New Color Functions
@@ -138,7 +138,7 @@ get channels(): string | number;
 Returns an array of channel values for [`internal`], with missing channels converted to `null`.
 
 ```ts
-get channelsOrNull(): ChannelValues;
+get channelsOrNull(): ChannelValue;
 ```
 
 #### `isLegacy`
@@ -169,7 +169,7 @@ functions such as `color.red()` and `color.hue()`.
 channel(options: {
   channel: ChannelName;
   space?: KnownColorSpace;
-}): ChannelValues;
+}): ChannelValue;
 ```
 
 #### `isChannelMissing`
@@ -183,7 +183,7 @@ automatically when [toSpace()] returns a color with a powerless channel.
 isChannelMissing(options: {channel: ChannelName}): boolean;
 ```
 
-[toSpace()]: #toSpace
+[toSpace()]: #tospace
 
 #### `isChannelPowerless`
 
@@ -228,42 +228,42 @@ present in `space`.
 ```ts
 changeChannels(
   channels: {
-    [key in ChannelNameRGB]?: ChannelValues;
+    [key in ChannelNameRGB]?: ChannelValue;
   },
   space?: ColorSpaceRGB
 ): SassColor;
 
 changeChannels(
   channels: {
-    [key in ChannelNameHWB]?: ChannelValues;
+    [key in ChannelNameHWB]?: ChannelValue;
   },
   space?: ColorSpaceHWB
 ): SassColor;
 
 changeChannels(
   channels: {
-    [key in ChannelNameHSL]?: ChannelValues;
+    [key in ChannelNameHSL]?: ChannelValue;
   },
   space?: ColorSpaceHSL
 ): SassColor;
 
 changeChannels(
   channels: {
-    [key in ChannelNameXYZ]?: ChannelValues;
+    [key in ChannelNameXYZ]?: ChannelValue;
   },
   space?: ColorSpaceXYZ
 ): SassColor;
 
 changeChannels(
   channels: {
-    [key in ChannelNameLCH]?: ChannelValues;
+    [key in ChannelNameLCH]?: ChannelValue;
   },
   space?: ColorSpaceLCH
 ): SassColor;
 
 changeChannels(
   channels: {
-    [key in ChannelNameLAB]?: ChannelValues;
+    [key in ChannelNameLAB]?: ChannelValue;
   },
   space?: ColorSpaceLAB
 ): SassColor;
@@ -296,9 +296,79 @@ interpolate(options: {
   method?: HueInterpolationMethod;
 }): SassColor;
 ```
+
 [`internal`]: ../spec/js-api/value/color.d.ts.md#internal
 
 ### New Constructors
+
+Because the value of each channel may be a string, number, or `null`, this
+algorithm checks if an option with a key exists, instead of checking if it is set.
+
+* If `options.space` is not set, follow the legacy procedure for [construction].
+
+* Let `space` be a string with the value of `options.space`.
+
+* If `options.red` exists:
+
+  * Let `channel1` be the value of `options.red`.
+
+  * Let `channel2` be the value of `options.green`.
+  
+  * Let `channel3` be the value of `options.blue`.
+
+* If `options.saturation` exists:
+
+  * Let `channel1` be the value of `options.hue`.
+
+  * Let `channel2` be the value of `options.saturation`.
+
+  * Let `channel3` be the value of `options.lightness`.
+
+* If `options.whiteness` exists:
+
+  * Let `channel1` be the value of `options.hue`.
+
+  * Let `channel2` be the value of `options.whiteness`.
+
+  * Let `channel3` be the value of `options.blackness`.
+
+* If `options.x` exists:
+
+  * Let `channel1` be the value of `options.x`.
+
+  * Let `channel2` be the value of `options.y`.
+
+  * Let `channel3` be the value of `options.z`.
+
+* If `options.chroma` exists:
+
+  * Let `channel1` be the value of `options.lightness`.
+
+  * Let `channel2` be the value of `options.chroma`.
+
+  * Let `channel3` be the value of `options.hue`.
+
+* If `options.a` exists:
+
+  * Let `channel1` be the value of `options.lightness`.
+
+  * Let `channel2` be the value of `options.a`.
+
+  * Let `channel3` be the value of `options.b`.
+
+* If `options.alpha` is set:
+
+  * Let `alpha` be a Sass number with a value of `options.alpha`
+
+  * Set [`internal`] to the result of [`color(channel1 channel2 channel3 / alpha )`]
+
+* Otherwise, set [`internal`] to the result of [`color(channel1
+  channel2 channel3 )`]
+
+[`color(channel1 channel2 channel3 / alpha )`]: ./color-4-new-spaces.md#color-1
+[`color(channel1 channel2 channel3 )`]: ./color-4-new-spaces.md#color-1
+
+[construction]: ../spec/js-api/value/color.d.ts.md#constructor
 
 #### RGB Channel Constructor
 
@@ -319,23 +389,6 @@ constructor(
 );
 ```
 
-#### HWB Channel Constructor
-
-Create a new SassColor in the `hwb` color space. `space` is optional to not
-break the legacy constuctor, but allowed for constructor consistency.
-
-```ts
-constructor(
-  options: {
-    hue: ChannelValue;
-    whiteness: ChannelValue;
-    blackness: ChannelValue;
-    alpha?: number;
-  },
-  space?: ColorSpaceHWB
-);
-```
-
 #### HSL Channel Constructor
 
 Create a new SassColor in the `hsl` color space. `space` is optional to not
@@ -350,6 +403,23 @@ constructor(
     alpha?: number;
   },
   space?: ColorSpaceHSL
+);
+```
+
+#### HWB Channel Constructor
+
+Create a new SassColor in the `hwb` color space. `space` is optional to not
+break the legacy constuctor, but allowed for constructor consistency.
+
+```ts
+constructor(
+  options: {
+    hue: ChannelValue;
+    whiteness: ChannelValue;
+    blackness: ChannelValue;
+    alpha?: number;
+  },
+  space?: ColorSpaceHWB
 );
 ```
 
