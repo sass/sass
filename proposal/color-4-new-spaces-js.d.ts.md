@@ -435,7 +435,7 @@ constructor(
 #### XYZ Channel Constructor
 
 Create a new SassColor in a color space with XYZ channels- `xyz`, `xyz-d50`, and
-`xyz-d65'. `space` is required as there is no legacy space to default to.
+`xyz-d65`. `space` is required as there is no legacy space to default to.
 
 ```ts
 constructor(
