@@ -46,8 +46,8 @@ import {Value} from '../spec/js-api/value';
 ## Types
 
 ### Color Space Definitions
-```ts
 
+```ts
 type ColorSpaceRGB =
   | 'rgb'
   | 'srgb'
@@ -127,7 +127,8 @@ get space(): KnownColorSpace;
 
 #### `channels`
 
-Returns an array of channel values for [`internal`], with missing channels converted to `0`.
+Returns an array of channel values for [`internal`], with missing channels
+converted to `0`.
 
 ```ts
 get channels(): string | number;
@@ -135,7 +136,8 @@ get channels(): string | number;
 
 #### `channelsOrNull`
 
-Returns an array of channel values for [`internal`], with missing channels converted to `null`.
+Returns an array of channel values for [`internal`], with missing channels
+converted to `null`.
 
 ```ts
 get channelsOrNull(): ChannelValue;
@@ -143,7 +145,8 @@ get channelsOrNull(): ChannelValue;
 
 #### `isLegacy`
 
-Returns whether [`internal`] is in a legacy color space (`rgb`, `hsl`, or `hwb`).
+Returns whether [`internal`] is in a legacy color space (`rgb`, `hsl`, or
+`hwb`).
 
 ```ts
 get isLegacy(): boolean;
@@ -151,8 +154,8 @@ get isLegacy(): boolean;
 
 #### `isInGamut`
 
-Returns whether [`internal`] is in-gamut for its color space (as opposed to having
-one or more of its channels out of bounds, like `rgb(300 0 0)`).
+Returns whether [`internal`] is in-gamut for its color space (as opposed to
+having one or more of its channels out of bounds, like `rgb(300 0 0)`).
 
 ```ts
 get isInGamut(): boolean;
@@ -164,8 +167,7 @@ Returns the value of the given `channel` in [`internal`], after converting it to
 `space` if necessary. It should be used instead of the old channel-specific
 functions such as `color.red()` and `color.hue()`.
 
-
-```tsChannelValue
+```ts
 channel(options: {
   channel: ChannelName;
   space?: KnownColorSpace;
@@ -174,10 +176,9 @@ channel(options: {
 
 #### `isChannelMissing`
 
-Returns whether the given `channel` of [`internal`] is missing. Missing channels can
-be explicitly specified using the special value `none` and can appear
-automatically when [toSpace()] returns a color with a powerless channel. 
-
+Returns whether the given `channel` of [`internal`] is missing. Missing channels
+can be explicitly specified using the special value `none` and can appear
+automatically when [toSpace()] returns a color with a powerless channel.
 
 ```ts
 isChannelMissing(options: {channel: ChannelName}): boolean;
@@ -201,7 +202,7 @@ isChannelPowerless(options: {
 
 #### `toSpace`
 
-Returns the result of converting [`internal`] to `space` as a new SassColor. 
+Returns the result of converting [`internal`] to `space` as a new SassColor.
 
 ```ts
 toSpace(space: KnownColorSpace): SassColor;
@@ -209,8 +210,8 @@ toSpace(space: KnownColorSpace): SassColor;
 
 #### `toGamut`
 
-Returns [`internal`] constrained to its space's gamut as a new SassColor. This is
-generally not recommended since even older browsers will display out-of-gamut
+Returns [`internal`] constrained to its space's gamut as a new SassColor. This
+is generally not recommended since even older browsers will display out-of-gamut
 colors as best they can, but it may be necessary in some cases.
 
 ```ts
@@ -219,10 +220,10 @@ toGamut(): SassColor;
 
 #### `changeChannels`
 
-Returns a new SassColor as the result of changing some of [`internal`]'s channels. The
-`space` value defaults to the `space` of [`internal`], and any combination of
-channels in that space may be changed. Throws an error if any `channel` is not
-present in `space`.
+Returns a new SassColor as the result of changing some of [`internal`]'s
+channels. The `space` value defaults to the `space` of [`internal`], and any
+combination of channels in that space may be changed. Throws an error if any
+`channel` is not present in `space`.
 
 * If `space` is not defined, let `space` be the value of [`space(internal)`].
 
@@ -280,24 +281,25 @@ changeChannels(
 
 ### `interpolate()`
 
-Returns a new SassColor with the result of mixing [`internal`] with `color2`. 
+Returns a new SassColor with the result of mixing [`internal`] with `color2`.
 
 It accepts an optional float `weight`, which defaults to 0.5. Lower values will
-appear closer to [`internal`] and higher values will appear closer to `color2`. 
+appear closer to [`internal`] and higher values will appear closer to `color2`.
 
 If `space` is set, interpolation will happen in that space. Otherwise it will
 happen in the color space for [`internal`].
 
-If `space` (or the color space of [`internal`] if no `space` argument is provided) is a PolarColorSpace (a color space with a polar angle `hue`
-channel), a `method` may be provided, which defaults to `shorter`. 
+If `space` (or the color space of [`internal`] if no `space` argument is
+provided) is a PolarColorSpace (a color space with a polar angle `hue` channel),
+a `method` may be provided, which defaults to `shorter`.
 
 ```ts
-
 interpolate(options: {
   color2: SassColor;
   weight?: number;
   space?: RectangularColorSpace;
 }): SassColor;
+
 interpolate(options: {
   color2: SassColor;
   weight?: number;
@@ -311,7 +313,8 @@ interpolate(options: {
 ### New Constructors
 
 Because the value of each channel may be a string, number, or `null`, this
-algorithm checks if an option with a key exists, instead of checking if it is set.
+algorithm checks if an option with a key exists, instead of checking if it is
+set.
 
 * If `options.space` is not set, follow the legacy procedure for [construction].
 
@@ -322,7 +325,7 @@ algorithm checks if an option with a key exists, instead of checking if it is se
   * Let `channel1` be the value of `options.red`.
 
   * Let `channel2` be the value of `options.green`.
-  
+
   * Let `channel3` be the value of `options.blue`.
 
 * If `options.saturation` exists:
@@ -369,10 +372,11 @@ algorithm checks if an option with a key exists, instead of checking if it is se
 
   * Let `alpha` be a Sass number with a value of `options.alpha`
 
-  * Set [`internal`] to the result of [`color(channel1 channel2 channel3 / alpha )`]
+  * Set [`internal`] to the result of
+    [`color(channel1 channel2 channel3 / alpha)`]
 
-* Otherwise, set [`internal`] to the result of [`color(channel1
-  channel2 channel3 )`]
+* Otherwise, set [`internal`] to the result of
+  [`color(channel1 channel2 channel3 )`]
 
 [`color(channel1 channel2 channel3 / alpha )`]: ./color-4-new-spaces.md#color-1
 [`color(channel1 channel2 channel3 )`]: ./color-4-new-spaces.md#color-1
@@ -381,7 +385,7 @@ algorithm checks if an option with a key exists, instead of checking if it is se
 
 #### RGB Channel Constructor
 
-Create a new SassColor in a color space with RGB channels- `rgb`, `srgb`,
+Create a new SassColor in a color space with RGB channels -- `rgb`, `srgb`,
 `srgb-linear`, `display-p3`, `a98-rgb`, and `prophoto-rgb`. If `space` is set,
 it will create a new SassColor in that space, and it will default to the legacy
 `rgb` space.
@@ -401,7 +405,7 @@ constructor(
 #### HSL Channel Constructor
 
 Create a new SassColor in the `hsl` color space. `space` is optional to not
-break the legacy constuctor, but allowed for constructor consistency.
+break the legacy constructor, but allowed for constructor consistency.
 
 ```ts
 constructor(
@@ -418,7 +422,7 @@ constructor(
 #### HWB Channel Constructor
 
 Create a new SassColor in the `hwb` color space. `space` is optional to not
-break the legacy constuctor, but allowed for constructor consistency.
+break the legacy constructor, but allowed for constructor consistency.
 
 ```ts
 constructor(
@@ -434,8 +438,8 @@ constructor(
 
 #### XYZ Channel Constructor
 
-Create a new SassColor in a color space with XYZ channels- `xyz`, `xyz-d50`, and
-`xyz-d65`. `space` is required as there is no legacy space to default to.
+Create a new SassColor in a color space with XYZ channels -- `xyz`, `xyz-d50`,
+and `xyz-d65`. `space` is required as there is no legacy space to default to.
 
 ```ts
 constructor(
@@ -451,7 +455,7 @@ constructor(
 
 #### LCH Channel Constructor
 
-Create a new SassColor in a color space with LCH channels- `lch` and `oklch`.
+Create a new SassColor in a color space with LCH channels -- `lch` and `oklch`.
 `space` is required as there is no legacy space to default to.
 
 ```ts
@@ -468,7 +472,7 @@ constructor(
 
 #### LAB Channel Constructor
 
-Create a new SassColor in a color space with LAB channels- `lab` and `oklab`.
+Create a new SassColor in a color space with LAB channels -- `lab` and `oklab`.
 `space` is required as there is no legacy space to default to.
 
 ```ts
@@ -490,7 +494,7 @@ constructor(
 ### Deprecations
 
 A number of SassColor getters only make sense for legacy colors, and so are
-being deprecated for `channel`. 
+being deprecated for `channel`.
 
 * `red`
 * `green`
@@ -509,7 +513,6 @@ In addition, `change` is deprecated in favor of `changeChannels`.
 ### SassColor
 
 ```proto
-
 message SassColor {
   // The name of a known color space.
   string space = 1;
@@ -524,11 +527,9 @@ message SassColor {
   double Channel3 = 4;
 
   // The color's alpha channel. Mandatory. Must be between 0 and 1,
-  // inclusive. 
+  // inclusive.
   double alpha = 5;
-  
 }
-
 ```
 
 ### Deprecations
