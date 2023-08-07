@@ -52,35 +52,35 @@ type ColorSpaceRGB =
   | 'a98-rgb'
   | 'prophoto-rgb';
 
-type ChannelNamesRGB = 'red' | 'green' | 'blue';
+type ChannelNameRGB = 'red' | 'green' | 'blue';
 
 type ColorSpaceHWB = 'hwb';
 
-type ChannelNamesHWB = 'hue' | 'whiteness' | 'blackness';
+type ChannelNameHWB = 'hue' | 'whiteness' | 'blackness';
 
 type ColorSpaceHSL = 'hsl';
 
-type ChannelNamesHSL = 'hue' | 'saturation' | 'lightness';
+type ChannelNameHSL = 'hue' | 'saturation' | 'lightness';
 
 type ColorSpaceXYZ = 'xyz' | 'xyz-d50' | 'xyz-d65';
 
-type ChannelNamesXYZ = 'x' | 'y' | 'z';
+type ChannelNameXYZ = 'x' | 'y' | 'z';
 
 type ColorSpaceLCH = 'lch' | 'oklch';
 
-type ChannelNamesLCH = 'lightness' | 'chroma' | 'hue';
+type ChannelNameLCH = 'lightness' | 'chroma' | 'hue';
 
 type ColorSpaceLAB = 'lab' | 'oklab';
 
-type ChannelNamesLAB = 'lightness' | 'a' | 'b';
+type ChannelNameLAB = 'lightness' | 'a' | 'b';
 
-type ChannelNames =
-  | ChannelNamesRGB
-  | ChannelNamesHWB
-  | ChannelNamesHSL
-  | ChannelNamesXYZ
-  | ChannelNamesLCH
-  | ChannelNamesLAB;
+type ChannelName =
+  | ChannelNameRGB
+  | ChannelNameHWB
+  | ChannelNameHSL
+  | ChannelNameXYZ
+  | ChannelNameLCH
+  | ChannelNameLAB;
 
 type KnownColorSpace =
   | ColorSpaceRGB
@@ -104,8 +104,7 @@ type HueInterpolationMethod =
   | 'decreasing'
   | 'increasing';
 
-type ChannelValues = string | number;
-type ChannelValuesOrNull = string | number | null;
+type ChannelValues = string | number | null;
 ```
 
 ### New Color Functions
@@ -116,7 +115,7 @@ export class SassColor extends Value {
 
 #### `space`
 
-Returns the name of the color's space.
+Returns the name of `this`'s space.
 
 ```ts
 get space(): KnownColorSpace;
@@ -124,23 +123,23 @@ get space(): KnownColorSpace;
 
 #### `channels`
 
-Returns an array of channel values, with missing channels converted to `0`.
+Returns an array of channel values for `this`, with missing channels converted to `0`.
 
 ```ts
-get channels(): ChannelValues;
+get channels(): string | number;
 ```
 
 #### `channelsOrNull`
 
-Returns an array of channel values, with missing channels converted to `null`.
+Returns an array of channel values for `this`, with missing channels converted to `null`.
 
 ```ts
-get channelsOrNull(): ChannelValuesOrNull;
+get channelsOrNull(): ChannelValues;
 ```
 
 #### `isLegacy`
 
-Returns whether `color` is in a legacy color space (`rgb`, `hsl`, or `hwb`).
+Returns whether `this` is in a legacy color space (`rgb`, `hsl`, or `hwb`).
 
 ```ts
 get isLegacy(): boolean;
@@ -148,7 +147,7 @@ get isLegacy(): boolean;
 
 #### `isInGamut`
 
-Returns whether `color` is in-gamut for its color space (as opposed to having
+Returns whether `this` is in-gamut for its color space (as opposed to having
 one or more of its channels out of bounds, like `rgb(300 0 0)`).
 
 ```ts
@@ -157,48 +156,48 @@ get isInGamut(): boolean;
 
 #### `channel`
 
-Returns the value of the given `channel` in `color`, after converting it to
+Returns the value of the given `channel` in `this`, after converting it to
 `space` if necessary. It should be used instead of the old channel-specific
 functions such as `color.red()` and `color.hue()`.
 
 
-```ts
+```tsChannelValue
 channel(options: {
-  channel: ChannelNames;
+  channel: ChannelName;
   space?: KnownColorSpace;
-}): ChannelValuesOrNull;
+}): ChannelValues;
 ```
 
 #### `isChannelMissing`
 
-Returns whether the given `channel` of `color` is missing. Missing channels can
+Returns whether the given `channel` of `this` is missing. Missing channels can
 be explicitly specified using the special value `none` and can appear
 automatically when [toSpace()] returns a color with a powerless channel. 
 
 
 ```ts
-isChannelMissing(options: {channel: ChannelNames}): boolean;
+isChannelMissing(options: {channel: ChannelName}): boolean;
 ```
 
 [toSpace()]: #toSpace
 
 #### `isChannelPowerless`
 
-Returns whether the given `channel` of `color` is powerless in `space`,
+Returns whether the given `channel` of `this` is powerless in `space`,
 defaulting to its own color space. A channel is "powerless" if its value doesn't
 affect the way the color is displayed, such as hue for a color with 0 chroma.
 Throws an error if `channel` is not a channel in `space`.
 
 ```ts
 isChannelPowerless(options: {
-  channel: ChannelNames;
+  channel: ChannelName;
   space?: KnownColorSpace;
 }): boolean;
 ```
 
 #### `toSpace`
 
-Returns the result of converting `color` to `space` as a new SassColor. 
+Returns the result of converting `this` to `space` as a new SassColor. 
 
 ```ts
 toSpace(space: KnownColorSpace): SassColor;
@@ -206,7 +205,7 @@ toSpace(space: KnownColorSpace): SassColor;
 
 #### `toGamut`
 
-Returns `color` constrained to its space's gamut as a new SassColor. This is
+Returns `this` constrained to its space's gamut as a new SassColor. This is
 generally not recommended since even older browsers will display out-of-gamut
 colors as best they can, but it may be necessary in some cases.
 
@@ -216,8 +215,8 @@ toGamut(): SassColor;
 
 #### `changeChannels`
 
-Returns a new SassColor as the result of changing some of color's channels. The
-`space` value defaults to the `space` of `color`, and any combination of
+Returns a new SassColor as the result of changing some of `this`'s channels. The
+`space` value defaults to the `space` of `this`, and any combination of
 channels in that space may be changed. Throws an error if any `channel` is not
 present in `space`.
 
@@ -225,42 +224,42 @@ present in `space`.
 ```ts
 changeChannels(
   channels: {
-    [key in ChannelNamesRGB]?: ChannelValuesOrNull;
+    [key in ChannelNameRGB]?: ChannelValues;
   },
   space?: ColorSpaceRGB
 ): SassColor;
 
 changeChannels(
   channels: {
-    [key in ChannelNamesHWB]?: ChannelValuesOrNull;
+    [key in ChannelNameHWB]?: ChannelValues;
   },
   space?: ColorSpaceHWB
 ): SassColor;
 
 changeChannels(
   channels: {
-    [key in ChannelNamesHSL]?: ChannelValuesOrNull;
+    [key in ChannelNameHSL]?: ChannelValues;
   },
   space?: ColorSpaceHSL
 ): SassColor;
 
 changeChannels(
   channels: {
-    [key in ChannelNamesXYZ]?: ChannelValuesOrNull;
+    [key in ChannelNameXYZ]?: ChannelValues;
   },
   space?: ColorSpaceXYZ
 ): SassColor;
 
 changeChannels(
   channels: {
-    [key in ChannelNamesLCH]?: ChannelValuesOrNull;
+    [key in ChannelNameLCH]?: ChannelValues;
   },
   space?: ColorSpaceLCH
 ): SassColor;
 
 changeChannels(
   channels: {
-    [key in ChannelNamesLAB]?: ChannelValuesOrNull;
+    [key in ChannelNameLAB]?: ChannelValues;
   },
   space?: ColorSpaceLAB
 ): SassColor;
@@ -307,9 +306,9 @@ it will create a new SassColor in that space, and it will default to the legacy
 ```ts
 constructor(
   options: {
-    red: number;
-    green: number;
-    blue: number;
+    red: ChannelValue;
+    green: ChannelValue;
+    blue: ChannelValue;
     alpha?: number;
   },
   space?: ColorSpaceRGB
@@ -324,9 +323,9 @@ break the legacy constuctor, but allowed for constructor consistency.
 ```ts
 constructor(
   options: {
-    hue: number;
-    whiteness: number;
-    blackness: number;
+    hue: ChannelValue;
+    whiteness: ChannelValue;
+    blackness: ChannelValue;
     alpha?: number;
   },
   space?: ColorSpaceHWB
@@ -341,9 +340,9 @@ break the legacy constuctor, but allowed for constructor consistency.
 ```ts
 constructor(
   options: {
-    hue: number;
-    saturation: number;
-    lightness: number;
+    hue: ChannelValue;
+    saturation: ChannelValue;
+    lightness: ChannelValue;
     alpha?: number;
   },
   space?: ColorSpaceHSL
@@ -358,9 +357,9 @@ Create a new SassColor in a color space with XYZ channels- `xyz`, `xyz-d50`, and
 ```ts
 constructor(
   options: {
-    x: number;
-    y: number;
-    z: number;
+    x: ChannelValue;
+    y: ChannelValue;
+    z: ChannelValue;
     alpha?: number;
   },
   space: ColorSpaceXYZ
@@ -375,9 +374,9 @@ Create a new SassColor in a color space with LCH channels- `lch` and `oklch`.
 ```ts
 constructor(
   options: {
-    lightness: number;
-    chroma: number;
-    hue: number;
+    lightness: ChannelValue;
+    chroma: ChannelValue;
+    hue: ChannelValue;
     alpha?: number;
   },
   space: ColorSpaceLCH
@@ -392,9 +391,9 @@ Create a new SassColor in a color space with LAB channels- `lab` and `oklab`.
 ```ts
 constructor(
   options: {
-    lightness: number;
-    a: number;
-    b: number;
+    lightness: ChannelValue;
+    a: ChannelValue;
+    b: ChannelValue;
     alpha?: number;
   },
   space: ColorSpaceLAB
