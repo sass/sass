@@ -129,9 +129,9 @@ export interface Options<sync extends 'sync' | 'async'> {
    * rule`](https://sass-lang.com/documentation/at-rules/function) and whose
    * values are {@link CustomFunction}s.
    *
-   * Functions are passed JavaScript representations of [Sass value
-   * types](https://sass-lang.com/documentation/js-api#value-types), and must
-   * return the same.
+   * Functions are passed subclasses of {@link Value}, and must return the same.
+   * If the return value includes {@link SassCalculation}s they will be
+   * simplified before being returned.
    *
    * When writing custom functions, it's important to make them as user-friendly
    * and as close to the standards set by Sass's core functions as possible. Some
