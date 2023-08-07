@@ -32,6 +32,8 @@ proposal].
     * [XYZ Channel Constructor](#xyz-channel-constructor)
     * [LCH Channel Constructor](#lch-channel-constructor)
     * [LAB Channel Constructor](#lab-channel-constructor)
+* [Embedded Protocol](#embedded-protocol)
+  * [SassColor](#sasscolor)
 
 ## API
 
@@ -402,4 +404,31 @@ constructor(
 
 ```ts
 }
+```
+
+## Embedded Protocol
+
+### SassColor
+
+```proto
+
+message SassColor {
+  // The name of a known color space.
+  string space = 1;
+
+  // The value of the first channel associated with `space`.
+  double Channel1 = 2;
+
+  // The value of the second channel associated with `space`.
+  double Channel2 = 3;
+
+  // The value of the third channel associated with `space`.
+  double Channel3 = 4;
+
+  // The color's alpha channel. Mandatory. Must be between 0 and 1,
+  // inclusive. 
+  double alpha = 5;
+  
+}
+
 ```
