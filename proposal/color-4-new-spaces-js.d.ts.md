@@ -32,8 +32,10 @@ proposal].
     * [XYZ Channel Constructor](#xyz-channel-constructor)
     * [LCH Channel Constructor](#lch-channel-constructor)
     * [LAB Channel Constructor](#lab-channel-constructor)
+  * [Deprecations](#deprecations)
 * [Embedded Protocol](#embedded-protocol)
   * [SassColor](#sasscolor)
+  * [Deprecations](#deprecations-1)
 
 ## API
 
@@ -406,6 +408,23 @@ constructor(
 }
 ```
 
+### Deprecations
+
+A number of SassColor getters only make sense for legacy colors, and so are
+being deprecated for `channel`. 
+
+* `red`
+* `green`
+* `blue`
+* `hue`
+* `saturation`
+* `lightness`
+* `whiteness`
+* `blackness`
+* `alpha`
+
+In addition, `change` is deprecated in favor of `changeChannels`.
+
 ## Embedded Protocol
 
 ### SassColor
@@ -432,3 +451,8 @@ message SassColor {
 }
 
 ```
+
+### Deprecations
+
+The `RgbColor`, `HslColor` and `HwbColor` SassScript values will be marked as
+deprecated in the Embedded Protocol.
