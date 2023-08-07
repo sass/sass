@@ -119,7 +119,7 @@ export class SassColor extends Value {
 
 #### `space`
 
-Returns the name of `this`'s space.
+Returns the name of [`internal`]'s space.
 
 ```ts
 get space(): KnownColorSpace;
@@ -127,7 +127,7 @@ get space(): KnownColorSpace;
 
 #### `channels`
 
-Returns an array of channel values for `this`, with missing channels converted to `0`.
+Returns an array of channel values for [`internal`], with missing channels converted to `0`.
 
 ```ts
 get channels(): string | number;
@@ -135,7 +135,7 @@ get channels(): string | number;
 
 #### `channelsOrNull`
 
-Returns an array of channel values for `this`, with missing channels converted to `null`.
+Returns an array of channel values for [`internal`], with missing channels converted to `null`.
 
 ```ts
 get channelsOrNull(): ChannelValues;
@@ -143,7 +143,7 @@ get channelsOrNull(): ChannelValues;
 
 #### `isLegacy`
 
-Returns whether `this` is in a legacy color space (`rgb`, `hsl`, or `hwb`).
+Returns whether [`internal`] is in a legacy color space (`rgb`, `hsl`, or `hwb`).
 
 ```ts
 get isLegacy(): boolean;
@@ -151,7 +151,7 @@ get isLegacy(): boolean;
 
 #### `isInGamut`
 
-Returns whether `this` is in-gamut for its color space (as opposed to having
+Returns whether [`internal`] is in-gamut for its color space (as opposed to having
 one or more of its channels out of bounds, like `rgb(300 0 0)`).
 
 ```ts
@@ -160,7 +160,7 @@ get isInGamut(): boolean;
 
 #### `channel`
 
-Returns the value of the given `channel` in `this`, after converting it to
+Returns the value of the given `channel` in [`internal`], after converting it to
 `space` if necessary. It should be used instead of the old channel-specific
 functions such as `color.red()` and `color.hue()`.
 
@@ -174,7 +174,7 @@ channel(options: {
 
 #### `isChannelMissing`
 
-Returns whether the given `channel` of `this` is missing. Missing channels can
+Returns whether the given `channel` of [`internal`] is missing. Missing channels can
 be explicitly specified using the special value `none` and can appear
 automatically when [toSpace()] returns a color with a powerless channel. 
 
@@ -187,7 +187,7 @@ isChannelMissing(options: {channel: ChannelName}): boolean;
 
 #### `isChannelPowerless`
 
-Returns whether the given `channel` of `this` is powerless in `space`,
+Returns whether the given `channel` of [`internal`] is powerless in `space`,
 defaulting to its own color space. A channel is "powerless" if its value doesn't
 affect the way the color is displayed, such as hue for a color with 0 chroma.
 Throws an error if `channel` is not a channel in `space`.
@@ -201,7 +201,7 @@ isChannelPowerless(options: {
 
 #### `toSpace`
 
-Returns the result of converting `this` to `space` as a new SassColor. 
+Returns the result of converting [`internal`] to `space` as a new SassColor. 
 
 ```ts
 toSpace(space: KnownColorSpace): SassColor;
@@ -209,7 +209,7 @@ toSpace(space: KnownColorSpace): SassColor;
 
 #### `toGamut`
 
-Returns `this` constrained to its space's gamut as a new SassColor. This is
+Returns [`internal`] constrained to its space's gamut as a new SassColor. This is
 generally not recommended since even older browsers will display out-of-gamut
 colors as best they can, but it may be necessary in some cases.
 
@@ -219,8 +219,8 @@ toGamut(): SassColor;
 
 #### `changeChannels`
 
-Returns a new SassColor as the result of changing some of `this`'s channels. The
-`space` value defaults to the `space` of `this`, and any combination of
+Returns a new SassColor as the result of changing some of [`internal`]'s channels. The
+`space` value defaults to the `space` of [`internal`], and any combination of
 channels in that space may be changed. Throws an error if any `channel` is not
 present in `space`.
 
@@ -271,15 +271,15 @@ changeChannels(
 
 ### `interpolate()`
 
-Returns a new SassColor with the result of mixing `this` with `color2`. 
+Returns a new SassColor with the result of mixing [`internal`] with `color2`. 
 
 It accepts an optional float `weight`, which defaults to 0.5. Lower values will
-appear closer to `this` and higher values will appear closer to `color2`. 
+appear closer to [`internal`] and higher values will appear closer to `color2`. 
 
 If `space` is set, interpolation will happen in that space. Otherwise it will
-happen in the color space for `this`.
+happen in the color space for [`internal`].
 
-If `space` (or the color space of `this` if no `space` argument is provided) is a PolarColorSpace (a color space with a polar angle `hue`
+If `space` (or the color space of [`internal`] if no `space` argument is provided) is a PolarColorSpace (a color space with a polar angle `hue`
 channel), a `method` may be provided, which defaults to `shorter`. 
 
 ```ts
@@ -296,7 +296,7 @@ interpolate(options: {
   method?: HueInterpolationMethod;
 }): SassColor;
 ```
-
+[`internal`]: ../spec/js-api/value/color.d.ts.md#internal
 
 ### New Constructors
 
