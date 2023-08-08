@@ -3,7 +3,7 @@
 _([Issue](https://github.com/sass/sass/issues/2739))_
 
 This proposal introduces the semantics for a Package Importer and defines the
-`pkg` URL scheme to indicate Sass package imports in an implementation-agnostic
+`pkg:` URL scheme to indicate Sass package imports in an implementation-agnostic
 format. It also defines the semantics for a new built-in Node Package
 Importer.
 
@@ -13,17 +13,17 @@ Importer.
 * [Summary](#summary)
   * [Node built-in importer](#node-built-in-importer)
   * [Design Decisions](#design-decisions)
-    * [Using a `pkg` url scheme](#using-a-pkg-url-scheme)
-    * [No built-in `pkg` resolver for browsers](#no-built-in-pkg-resolver-for-browsers)
+    * [Using a `pkg:` URL scheme](#using-a-pkg-url-scheme)
+    * [No built-in `pkg:` resolver for browsers](#no-built-in-pkg-resolver-for-browsers)
     * [Available as an opt-in setting](#available-as-an-opt-in-setting)
     * [Node Resolution Decisions](#node-resolution-decisions)
 * [Types](#types)
-    * [`usePkgImporter`](#usepkgimporter)
+    * [`useNodePkgImporter`](#usenodepkgimporter)
 * [Semantics](#semantics)
   * [Package Importers](#package-importers)
-  * [Node Specific Semantics](#node-specific-semantics)
+  * [Node Package Importer](#node-package-importer)
 * [Procedures](#procedures)
-  * [Resolving a `pkg` URL](#resolving-a-pkg-url)
+  * [Node Algorithm for Resolving a `pkg:` URL](#node-algorithm-for-resolving-a-pkg-url)
   * [Resolving package root values](#resolving-package-root-values)
   * [Resolving a package name](#resolving-a-package-name)
   * [Resolving the root directory for a package](#resolving-the-root-directory-for-a-package)
@@ -46,7 +46,7 @@ that is tied to a specific domain and make it difficult to rely on dependencies.
 Sass users often need to use styles from a dependency to customize an existing
 theme or access styling utilities.
 
-This proposal defines a `pkg` URL scheme for usage with `@use` that directs an
+This proposal defines a `pkg:` URL scheme for usage with `@use` that directs an
 implementation to resolve a URL within a dependency. The implementation will
 resolve the dependency URL using the standard resolution for that environment.
 Once resolved, this URL will be loaded in the same way as any other `file:` URL.
@@ -66,9 +66,9 @@ The built-in Node importer resolves in the following order:
 1. `sass` condition in package.json `exports`
 2. `style` condition in package.json `exports`
 3. If no subpath, then find root export:
-4. `sass` key at package.json root
-5. `style` key at package.json root
-6. `index` file at package root, resolved for file extensions and partials
+  1. `sass` key at package.json root
+  2. `style` key at package.json root
+  3. `index` file at package root, resolved for file extensions and partials
 7. If there is a subpath, resolve that path relative to the package root, and
    resolve for file extensions and partials
 
@@ -87,13 +87,11 @@ export key as the first key in `package.json`.
 }
 ```
 
-Then, library consumers can use the `pkg` syntax to get the default export.
+Then, library consumers can use the `pkg:` syntax to get the default export.
 
 ```scss
 @use 'pkg:library';
 ```
-
-More examples can be found in the [Sass pkg: test] example repo.
 
 To better understand and allow for testing against the recommended algorithm, a
 [Sass pkg: test] repository has been made with a rudimentary implementation of
@@ -103,21 +101,22 @@ the algorithm.
 
 ### Design Decisions
 
-#### Using a `pkg` url scheme
+#### Using a `pkg:` URL scheme
 
 We could use the `~` popularized by Webpack's `load-sass` format, but this has
 been deprecated since 2021. In addition, since this creates a URL that is
 syntactically a relative URL, it does not make it clear to the implementation or
 the reader where to find the file.
 
-While the Dart Sass implementation allows for the use of the `package:` url
-scheme, a similar standard doesn't exist in Node. We chose the `pkg:` url scheme
-as it clearly communicates to both the user and compiler, and does not have
-known conflicts in the ecosystem.
+While the Dart Sass implementation allows for the use of the `package:` URL
+scheme, a similar standard doesn't exist in Node. We chose the `pkg:` URL scheme
+as it clearly communicates to both the user and compiler that the specified files
+are from a dependency. The `pkg:` URL scheme also does not have known conflicts
+in the ecosystem.
 
-#### No built-in `pkg` resolver for browsers
+#### No built-in `pkg:` resolver for browsers
 
-Dart Sass will not provide a built-in resolver for browsers to use the `pkg`
+Dart Sass will not provide a built-in resolver for browsers to use the `pkg:`
 scheme. To support a similar functionality, a user would need to ensure that
 files are served, and the loader would need to fetch the URL. In order to follow
 the same algorithm for [resolving a file: URL], we would need to make many
@@ -129,7 +128,7 @@ importers to fit their needs.
 
 #### Available as an opt-in setting
 
-The `pkg` import loader will be exposed through an opt-in setting as it adds the
+The `pkg:` import loader will be exposed through an opt-in setting as it adds the
 potential for file system interaction to `compileString` and
 `compileStringAsync`. Specifically, we want people who invoke Sass compilation
 functions to have control over what files get accessed, and there's even a risk
@@ -156,10 +155,8 @@ using the `"sass"` and the `"style"` custom conditions.
 
 [conditional exports]: https://nodejs.org/api/packages.html#conditional-exports
 [Vite]: https://github.com/vitejs/vite/pull/7817
-[Parcel]:
-    https://github.com/parcel-bundler/parcel/blob/2d2400ded4615375ee6bd53ef77b4857ad1591dd/packages/transformers/sass/src/SassTransformer.js#L163
-[Sass Loader for Webpack]:
-    https://github.com/webpack-contrib/sass-loader/blob/02df41203adfda96959e56abb43bd35a89ec11ba/src/utils.js#L514
+[Parcel]: https://github.com/parcel-bundler/parcel/blob/2d2400ded4615375ee6bd53ef77b4857ad1591dd/packages/transformers/sass/src/SassTransformer.js#L163
+[Sass Loader for Webpack]: https://github.com/webpack-contrib/sass-loader/blob/02df41203adfda96959e56abb43bd35a89ec11ba/src/utils.js#L514
 
 Because use of conditional exports is flexible and recommended for modern
 packages, this will be the primary method used for the Node package importer. We
@@ -174,10 +171,10 @@ tends to be used solely for `css` files, we will support `scss`, `sass` and
 import '../spec/js-api';
 ```
 
-#### `usePkgImporter`
+#### `useNodePkgImporter`
 
-If true, the compiler will use the built-in package importer to resolve any url
-with the `pkg` scheme. This importer follows Node logic to locate Sass files.
+If true, the compiler will use the built-in Node package importer to resolve any URL
+with the `pkg:` scheme. This importer follows Node logic to locate Sass files.
 
 Defaults to false.
 
@@ -185,13 +182,13 @@ Defaults to false.
 declare module '../spec/js-api/options' {
   interface Options<sync extends 'sync' | 'async'> {
     /**
-     * Whether or not to enable the built-in package importer to resolve any url
-     * with the `pkg` scheme. This importer follows Node.js resolution logic.
+     * Whether or not to enable the built-in package importer to resolve any URL
+     * with the `pkg:` scheme. This importer follows Node.js resolution logic.
      *
      * @defaultValue `false`
      * @category Input
      */
-    usePkgImporter?: boolean;
+    useNodePkgImporter?: boolean;
   }
 }
 ```
@@ -201,11 +198,11 @@ declare module '../spec/js-api/options' {
 ### Package Importers
 
 This proposal defines the requirements for Package Importers written by users or
-provided by implementations. It is a type of [Filesystem Importer] and will
-handle non-canonical URLs:
+provided by implementations. It is a type of [Importer] and will handle
+non-canonical URLs:
 
 - with the scheme `pkg`
-- followed by a package name
+- whose path begins with a package name
 - optionally followed by a path, with path segments separated with a forward
   slash.
 
@@ -213,101 +210,110 @@ The package name will often be the first path segment, but the importer should
 take into account any conventions in the environment. For instance, Node
 supports scoped package names, which start with `@` followed by 2 path segments.
 
-[filesystem importer]: ../spec/modules.md#filesystem-importer
+Package Importers will reject the following patterns:
 
-### Node Specific Semantics
+- A URL whose path begins with `/`.
+- A URL with non-empty/null username, password, host, port, query, or fragment.
+
+
+[importer]: ../spec/modules.md#importer
+
+### Node Package Importer
 
 The Node package importer is an [importer] with an associated absolute `pkg:`
 URL named `base`. When the Node package importer is invoked with a string named
-`string` and a [previous url] `previousUrl`:
+`string` and a [previous URL] `previousUrl`:
 
-- Let `url` be the result of [parsing `string` as a URL][parsing a url] with
+- Let `url` be the result of [parsing `string` as a URL][parsing a URL] with
   `base` as the base URL. If this returns a failure, throw that failure.
-- If `url`'s scheme is not `pkg`, return null.
-- Let `resolved` be the result of [resolving a `pkg` URL] with `url` and `previousURL`
+- If `url`'s scheme is not `pkg:`, return null.
+- Let `resolved` be the result of [resolving a `pkg:` URL] with `url` and `previousURL`.
 - If `resolved` is null, return null.
 - Let `text` be the contents of the file at `resolved`.
 - Let `syntax` be:
-  - "scss" if `url` ends in `.scss`.
-  - "indented" if `url` ends in `.sass`.
-  - "css" if `url` ends in `.css`.
+  - "scss" if `resolved` ends in `.scss`.
+  - "indented" if `resolved` ends in `.sass`.
+  - "css" if `resolved` ends in `.css`.
   > The algorithm for [resolving a `file:` URL](../spec/modules.md#resolving-a-file-url)
-  > guarantees that `url` will have one of these extensions.
+  > guarantees that `resolved` will have one of these extensions.
 - Return `text`, `syntax`, and `resolved`.
 
 [parsing a URL]: https://url.spec.whatwg.org/#concept-url-parser
-[resolving a `pkg` URL]: #resolving-a-pkg-url
+[resolving a `pkg:` URL]: #node-algorithm-for-resolving-a-pkg-url
 
 > Note that this algorithm does not automatically resolve index files, partials
-> or extensions, except where specified. When using the `pkg:` url scheme,
+> or extensions, except where specified. When using the `pkg:` URL scheme,
 > authors need to explicitly use the fully resolved filename.
 
 ## Procedures
 
-### Resolving a `pkg` URL
+### Node Algorithm for Resolving a `pkg:` URL
 
-This algorithm takes a URL with scheme `pkg`, and an optional URL `previousURL`. It returns a canonical file path or null.
+This algorithm takes a URL with scheme `pkg:`, and an optional URL `previousURL`.
+It returns a canonical file path or null.
 
 - Let `fullPath` be `url`'s path.
-- Let `packageName` be the result of [resolving a package name], and `subPath`
-  be the path without the `packageName`.
+- Let `packageName` be the result of [resolving a package name] with `fullPath`,
+  and `subPath` be the path without the `packageName`.
 - Let `packageRoot` be the result of [resolving the root directory for a
-  package].
-- Let `packageManifest` be the result of loading the `package.json` at
-  `packageRoot`.
-- If `packageManifest` is not set, throw an error.
-- Let `resolved` be the result of [Resolving package exports] to resolve `fullPath`
-  with the `sass` condition set, using `packageManifest`.
+  package] with `packageName`, .
+- If a `package.json` file does not at `packageRoot`, throw an error.
+- Let `packageManifest` be the result of parsing the `package.json` file at
+  `packageRoot` as [JSON].
+- Let `resolved` be the result of [resolving package exports] with `sass` as the
+  condition, `packageManifest` and `fullPath` as the `url`.
   - If `resolved` has the scheme `file:` and an extension of `sass`, `scss` or
     `css`, return it.
   - Otherwise, if `resolved` is not null, throw an error.
-- Let `resolved` be the result of [Resolving package exports] to resolve `fullPath`
-  with the `style` condition set, using `packageManifest`.
+- Let `resolved` be the result of [resolving package exports] with `style` as
+  the condition, `packageManifest` and `fullPath` as the `url`.
   - If `resolved` has the scheme `file:` and an extension of `sass`, `scss` or
     `css`, return it.
   - Otherwise, if `resolved` is not null, throw an error.
-- If `subPath` is empty, return result of [resolving package root values].
+- If `subPath` is empty, return the result of [resolving package root values].
 - Let `resolved` be `subPath` resolved relative to `packageRoot`.
-- Return the result of [resolving a file url] with `resolved`.
+- Return the result of [resolving a `file:` URL] with `resolved`.
 
 
-[previous url]: ../accepted/prev-url.d.ts.md
+[previous URL]: ../accepted/prev-url.d.ts.md
 [Resolving package exports]: #resolving-package-exports
 [resolving package root values]: #resolving-package-root-values
 [resolving a package name]: #resolving-a-package-name
-[parsing a url]: https://url.spec.whatwg.org/#concept-url-parser
+[JSON]: https://datatracker.ietf.org/doc/html/rfc8259
+[parsing a URL]: https://url.spec.whatwg.org/#concept-url-parser
 [resolving the root directory for a package]:
     #resolving-the-root-directory-for-a-package
-[resolving a file url]: ../spec/modules.md#resolving-a-file-url
+[resolving a `file:` URL]: ../spec/modules.md#resolving-a-file-url
 
 ### Resolving package root values
 
-This algorithm takes a string `packagePath` which is the root directory for a
-package and `packageManifest`, which is the contents of the `package.json` file,
-and returns a file URL.
+This algorithm takes a string `packagePath`, which is the root directory for a
+package, and `packageManifest`, which is the contents of that package's
+`package.json` file, and returns a file URL.
 
 - Let `sassValue` be the value of `sass` in `packageManifest`.
 - If `sassValue` is a relative path with an extension of `sass`, `scss` or
-  `css`, return the `packagePath` appended with `sassValue`.
+  `css`:
+  - If `sassValue` starts with `./`, remove that substring.
+  - Return `${packagePath}/${sassValue}`.
 - Let `styleValue` be the value of `style` in `packageManifest`.
 - If `styleValue` is a relative path with an extension of `css`, return the
   `packagePath` appended with `styleValue`.
-- Otherwise return the result of [resolving a file url] with `packagePath`.
+- Otherwise return the result of [resolving a `file:` URL] with `packagePath`.
 
-[resolving the root directory for a package]:
-    #resolving-the-root-directory-for-a-package
-[resolving a file url]: ../spec/modules.md#resolving-a-file-url
+[resolving the root directory for a package]: #resolving-the-root-directory-for-a-package
+[resolving a `file:` URL]: ../spec/modules.md#resolving-a-file-url
 
 ### Resolving a package name
 
-This algorithm takes a string, `url`, and returns the portion that identifies
+This algorithm takes a string, `path`, and returns the portion that identifies
 the Node package.
 
-- If `url` starts with `@`, it is a scoped package. Return the first 2 [url path
-  segments], including the separating `/`
-- Otherwise, return the first url path segment.
+- If `path` starts with `@`, it is a scoped package. Return the first 2 [URL path
+  segments], including the separating `/`.
+- Otherwise, return the first URL path segment.
 
-[url path segments]: https://url.spec.whatwg.org/#url-path-segment
+[URL path segments]: https://url.spec.whatwg.org/#url-path-segment
 
 ### Resolving the root directory for a package
 
@@ -325,12 +331,12 @@ absolute URL to the root directory for the most proximate installed
   `packageName`.
 - While `rootDirectory` is undefined:
   - Remove the final path segment from `previousUrl`
-  - If `node_modules` is the new final path segment of `previousUrl`, continue.
-  - Let `potentialPath` be `previousUrl` appended with `node_modules/` and
-    `packageName`.
-  - If `potentialPath` is a directory, let `rootDirectory` be `potentialPath`.
-  - Otherwise, if `previousUrl` is the root of the file system, throw an error.
-- Return `rootDirectory`.
+  - If the new final path segment of `previousUrl` isn't `node_modules`:
+    - Let `potentialPath` be `previousUrl` appended with `node_modules/` and
+      `packageName`.
+    - If `potentialPath` is a directory, return `potentialPath`.
+    - Otherwise, if `previousUrl` is the root of the file system, throw an
+      error.
 
 [loading from node_modules folders]:
     https://nodejs.org/api/modules.html#loading-from-node_modules-folders
@@ -338,13 +344,14 @@ absolute URL to the root directory for the most proximate installed
 ### Resolving package exports
 
 This algorithm takes a string `condition`, a package.json value
-`packageManifest`, and a `pkg` URL `url`. It returns a file URL or null.
+`packageManifest`, and a `pkg:` URL `url`. It returns a file URL or null.
 
 This algorithm should follow the Node resolution algorithm, as defined in the
-Node documentation under [Node Modules] and [Conditional Exports]. Where
-possible in Node, it can use [resolve.exports] which exposes the Node
-resolution algorithm, allowing for per-path custom conditions, and without
-needing filesystem access.
+Node documentation under [Node Modules] and [Conditional Exports]. 
+
+> Where possible in Node, it can use [resolve.exports] which exposes the Node
+> resolution algorithm, allowing for per-path custom conditions, and without
+> needing filesystem access.
 
 [resolve.exports]: https://github.com/lukeed/resolve.exports
 [Conditional Exports]: https://nodejs.org/api/packages.html#conditional-exports
@@ -379,8 +386,6 @@ Documentation. [WinterCG] has a [Runtime Keys proposal specification] underway
 in standardizing the usage of custom conditions for runtimes, but Sass doesn't
 cleanly fit into that specification.
 
-[community conditions definition]:
-    https://nodejs.org/docs/latest-v20.x/api/packages.html#community-conditions-definitions
+[community conditions definition]: https://nodejs.org/docs/latest-v20.x/api/packages.html#community-conditions-definitions
 [wintercg]: https://wintercg.org/
-[runtime keys proposal specification]:
-    https://runtime-keys.proposal.wintercg.org/#adding-a-key
+[runtime keys proposal specification]:  https://runtime-keys.proposal.wintercg.org/#adding-a-key
