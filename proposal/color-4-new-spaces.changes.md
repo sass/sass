@@ -1,3 +1,8 @@
+## Draft 1.6
+
+* Clarify in the known color space definitions that lightness channels are
+  clamped.
+
 ## Draft 1.5
 
 * Remove clamping and scaling of `hsl` and `hwb` color channels.
