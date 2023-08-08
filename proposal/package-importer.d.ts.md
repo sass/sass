@@ -258,7 +258,7 @@ It returns a canonical file path or null.
 - Let `packageName` be the result of [resolving a package name] with `fullPath`,
   and `subPath` be the path without the `packageName`.
 - Let `packageRoot` be the result of [resolving the root directory for a
-  package] with `packageName`, .
+  package] with `packageName` and `previousURL`.
 - If a `package.json` file does not exist at `packageRoot`, throw an error.
 - Let `packageManifest` be the result of parsing the `package.json` file at
   `packageRoot` as [JSON].
@@ -298,10 +298,9 @@ the Node package.
 
 ### Resolving the root directory for a package
 
-This algorithm takes a string, `packageName`, an absolute URL
-`currentDirectory`, and an optional absolute URL `previousUrl`, and returns an
-absolute URL to the root directory for the most proximate installed
-`packageName`.
+This algorithm takes a string, `packageName`, and an optional absolute URL
+`previousUrl`, and returns an absolute URL to the root directory for the most
+proximate installed `packageName`.
 
 > We need to replicate Node's behavior, as defined in [Loading from node_modules
 > folders], of walking up the directory chain to find packages from
