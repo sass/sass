@@ -348,16 +348,17 @@ package, and `packageManifest`, which is the contents of that package's
 - If `sassValue` is a relative path with an extension of `sass`, `scss` or
   `css`:
   - If `sassValue` starts with `./`, remove that substring.
-  - Return `${packagePath}/${sassValue}`.
+  - Return the `file:` URL for `${packagePath}/${sassValue}`.
 - Let `styleValue` be the value of `style` in `packageManifest`.
 - If `styleValue` is a relative path with an extension of `sass`, `scss` or
   `css`:
   - If `styleValue` starts with `./`, remove that substring.
-  - Return `${packagePath}/${styleValue}`.
-- Otherwise return the result of [resolving a `file:` URL] with `packagePath`.
+  - Return the `file:` URL for `${packagePath}/${styleValue}`.
+- Otherwise return the result of [resolving a `file:` URL for extensions] with
+  `packagePath + "/index"`.
 
 [resolving the root directory for a package]: #resolving-the-root-directory-for-a-package
-[resolving a `file:` URL]: ../spec/modules.md#resolving-a-file-url
+[resolving a `file:` URL for extensions]: ../spec/modules.md#resolving-a-file-url-for-extensions
 
 
 [URL path segments]: https://url.spec.whatwg.org/#url-path-segment
