@@ -297,8 +297,10 @@ package, and `packageManifest`, which is the contents of that package's
   - If `sassValue` starts with `./`, remove that substring.
   - Return `${packagePath}/${sassValue}`.
 - Let `styleValue` be the value of `style` in `packageManifest`.
-- If `styleValue` is a relative path with an extension of `css`, return the
-  `packagePath` appended with `styleValue`.
+- If `styleValue` is a relative path with an extension of `sass`, `scss` or
+  `css`:
+  - If `styleValue` starts with `./`, remove that substring.
+  - Return `${packagePath}/${styleValue}`.
 - Otherwise return the result of [resolving a `file:` URL] with `packagePath`.
 
 [resolving the root directory for a package]: #resolving-the-root-directory-for-a-package
@@ -359,7 +361,7 @@ Node documentation under [Node Modules] and [Conditional Exports].
 
 ## Ecosystem Notes
 
-The new `usePkgImporter` option will not be available in the [Legacy JS API].
+The new `useNodePkgImporter` option will not be available in the [Legacy JS API].
 Third-party applications that don't support the modern API will be unable to use
 the built-in package importer. Some notable examples follow.
 
@@ -367,7 +369,7 @@ the built-in package importer. Some notable examples follow.
 
 Vite is currently using the Legacy JS API, and has an [open issue] to update to
 the modern API. They also do not expose Sass options to the user, so would need
-to enable the `usePkgImporter` on their behalf or expose some configuration.
+to enable the `useNodePkgImporter` on their behalf or expose some configuration.
 
 [open issue]: https://github.com/vitejs/vite/issues/7116
 
