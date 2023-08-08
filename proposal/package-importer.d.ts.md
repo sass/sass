@@ -69,7 +69,7 @@ The built-in Node importer resolves in the following order:
   1. `sass` key at package.json root
   2. `style` key at package.json root
   3. `index` file at package root, resolved for file extensions and partials
-7. If there is a subpath, resolve that path relative to the package root, and
+4. If there is a subpath, resolve that path relative to the package root, and
    resolve for file extensions and partials
 
 For library creators, the recommended method is to add a `sass` conditional
@@ -198,7 +198,8 @@ declare module '../spec/js-api/options' {
 ### Package Importers
 
 This proposal defines the requirements for Package Importers written by users or
-provided by implementations. It is a type of [Importer] and will handle
+provided by implementations. It is a type of [Importer] and, in addition to the
+standard requirements for importers, it must handle only the following
 non-canonical URLs:
 
 - with the scheme `pkg`
@@ -221,11 +222,11 @@ Package Importers will reject the following patterns:
 ### Node Package Importer
 
 The Node package importer is an [importer] with an associated absolute `pkg:`
-URL named `base`. When the Node package importer is invoked with a string named
-`string` and a [previous URL] `previousUrl`:
+URL. When the Node package importer is invoked with a string named `string` and
+a [previous URL] `previousUrl`:
 
-- Let `url` be the result of [parsing `string` as a URL][parsing a URL] with
-  `base` as the base URL. If this returns a failure, throw that failure.
+- Let `url` be the result of [parsing `string` as a URL][parsing a URL]. If this
+  returns a failure, throw that failure.
 - If `url`'s scheme is not `pkg:`, return null.
 - Let `resolved` be the result of [resolving a `pkg:` URL] with `url` and `previousURL`.
 - If `resolved` is null, return null.
@@ -242,8 +243,9 @@ URL named `base`. When the Node package importer is invoked with a string named
 [resolving a `pkg:` URL]: #node-algorithm-for-resolving-a-pkg-url
 
 > Note that this algorithm does not automatically resolve index files, partials
-> or extensions, except where specified. When using the `pkg:` URL scheme,
-> authors need to explicitly use the fully resolved filename.
+> or extensions when resolving paths defined in the package.json `exports`
+> section. When using conditional exports, package authors need to explicitly
+> expose all paths that should resolve to a Sass file.
 
 ## Procedures
 
