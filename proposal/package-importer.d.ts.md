@@ -24,10 +24,10 @@ Importer.
   * [Node Package Importer](#node-package-importer)
 * [Procedures](#procedures)
   * [Node Algorithm for Resolving a `pkg:` URL](#node-algorithm-for-resolving-a-pkg-url)
-  * [Resolving package root values](#resolving-package-root-values)
   * [Resolving a package name](#resolving-a-package-name)
   * [Resolving the root directory for a package](#resolving-the-root-directory-for-a-package)
   * [Resolving package exports](#resolving-package-exports)
+  * [Resolving package root values](#resolving-package-root-values)
 * [Ecosystem Notes](#ecosystem-notes)
 
 ## Background
@@ -259,7 +259,7 @@ It returns a canonical file path or null.
   and `subPath` be the path without the `packageName`.
 - Let `packageRoot` be the result of [resolving the root directory for a
   package] with `packageName`, .
-- If a `package.json` file does not at `packageRoot`, throw an error.
+- If a `package.json` file does not exist at `packageRoot`, throw an error.
 - Let `packageManifest` be the result of parsing the `package.json` file at
   `packageRoot` as [JSON].
 - Let `resolved` be the result of [resolving package exports] with `sass` as the
@@ -287,27 +287,6 @@ It returns a canonical file path or null.
     #resolving-the-root-directory-for-a-package
 [resolving a `file:` URL]: ../spec/modules.md#resolving-a-file-url
 
-### Resolving package root values
-
-This algorithm takes a string `packagePath`, which is the root directory for a
-package, and `packageManifest`, which is the contents of that package's
-`package.json` file, and returns a file URL.
-
-- Let `sassValue` be the value of `sass` in `packageManifest`.
-- If `sassValue` is a relative path with an extension of `sass`, `scss` or
-  `css`:
-  - If `sassValue` starts with `./`, remove that substring.
-  - Return `${packagePath}/${sassValue}`.
-- Let `styleValue` be the value of `style` in `packageManifest`.
-- If `styleValue` is a relative path with an extension of `sass`, `scss` or
-  `css`:
-  - If `styleValue` starts with `./`, remove that substring.
-  - Return `${packagePath}/${styleValue}`.
-- Otherwise return the result of [resolving a `file:` URL] with `packagePath`.
-
-[resolving the root directory for a package]: #resolving-the-root-directory-for-a-package
-[resolving a `file:` URL]: ../spec/modules.md#resolving-a-file-url
-
 ### Resolving a package name
 
 This algorithm takes a string, `path`, and returns the portion that identifies
@@ -316,8 +295,6 @@ the Node package.
 - If `path` starts with `@`, it is a scoped package. Return the first 2 [URL path
   segments], including the separating `/`.
 - Otherwise, return the first URL path segment.
-
-[URL path segments]: https://url.spec.whatwg.org/#url-path-segment
 
 ### Resolving the root directory for a package
 
@@ -360,6 +337,31 @@ Node documentation under [Node Modules] and [Conditional Exports].
 [resolve.exports]: https://github.com/lukeed/resolve.exports
 [Conditional Exports]: https://nodejs.org/api/packages.html#conditional-exports
 [Node Modules]: https://nodejs.org/api/modules.html#all-together
+
+### Resolving package root values
+
+This algorithm takes a string `packagePath`, which is the root directory for a
+package, and `packageManifest`, which is the contents of that package's
+`package.json` file, and returns a file URL.
+
+- Let `sassValue` be the value of `sass` in `packageManifest`.
+- If `sassValue` is a relative path with an extension of `sass`, `scss` or
+  `css`:
+  - If `sassValue` starts with `./`, remove that substring.
+  - Return `${packagePath}/${sassValue}`.
+- Let `styleValue` be the value of `style` in `packageManifest`.
+- If `styleValue` is a relative path with an extension of `sass`, `scss` or
+  `css`:
+  - If `styleValue` starts with `./`, remove that substring.
+  - Return `${packagePath}/${styleValue}`.
+- Otherwise return the result of [resolving a `file:` URL] with `packagePath`.
+
+[resolving the root directory for a package]: #resolving-the-root-directory-for-a-package
+[resolving a `file:` URL]: ../spec/modules.md#resolving-a-file-url
+
+
+[URL path segments]: https://url.spec.whatwg.org/#url-path-segment
+
 
 ## Ecosystem Notes
 
