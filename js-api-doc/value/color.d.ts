@@ -17,7 +17,7 @@ export class SassColor extends Value {
    * future versions of Dart Sass. See [breaking changes] for details.
    *
    * [missing component]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
-   * [breaking changes]: /documentatoin/breaking-changes/null-alpha
+   * [breaking changes]: /documentation/breaking-changes/null-alpha
    *
    * @throws `Error` if `red`, `green`, and `blue` aren't between `0` and
    * `255`, or if `alpha` isn't between `0` and `1`.
@@ -37,7 +37,7 @@ export class SassColor extends Value {
    * future versions of Dart Sass. See [breaking changes] for details.
    *
    * [missing component]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
-   * [breaking changes]: /documentatoin/breaking-changes/null-alpha
+   * [breaking changes]: /documentation/breaking-changes/null-alpha
    *
    * @throws `Error` if `saturation` or `lightness` aren't between `0` and
    * `100`, or if `alpha` isn't between `0` and `1`.
@@ -57,7 +57,7 @@ export class SassColor extends Value {
    * future versions of Dart Sass. See [breaking changes] for details.
    *
    * [missing component]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
-   * [breaking changes]: /documentatoin/breaking-changes/null-alpha
+   * [breaking changes]: /documentation/breaking-changes/null-alpha
    *
    * @throws `Error` if `whiteness` or `blackness` aren't between `0` and `100`,
    * or if `alpha` isn't between `0` and `1`.
