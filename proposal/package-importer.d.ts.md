@@ -263,12 +263,12 @@ It returns a canonical file path or null.
 - Let `packageManifest` be the result of parsing the `package.json` file at
   `packageRoot` as [JSON].
 - Let `resolved` be the result of [resolving package exports] with `sass` as the
-  condition, `packageManifest` and `fullPath` as the `url`.
+  condition, `packageRoot`, `subpath`, and `packageManifest`.
   - If `resolved` has the scheme `file:` and an extension of `sass`, `scss` or
     `css`, return it.
   - Otherwise, if `resolved` is not null, throw an error.
-- Let `resolved` be the result of [resolving package exports] with `style` as
-  the condition, `packageManifest` and `fullPath` as the `url`.
+- Let `resolved` be the result of [resolving package exports] with `style` as the
+  condition, `packageRoot`, `subpath`, and `packageManifest`.
   - If `resolved` has the scheme `file:` and an extension of `sass`, `scss` or
     `css`, return it.
   - Otherwise, if `resolved` is not null, throw an error.
@@ -324,18 +324,20 @@ proximate installed `packageName`.
 ### Resolving package exports
 
 This algorithm takes a string `condition`, a package.json value
-`packageManifest`, and a `pkg:` URL `url`. It returns a file URL or null.
+`packageManifest`, a directory URL `packageRoot` and a relative URL path
+`subpath`. It returns a file URL or null.
 
-This algorithm should follow the Node resolution algorithm, as defined in the
-Node documentation under [Node Modules] and [Conditional Exports]. 
+- Let `exports` be the value of `packageManifest.exports`.
+- If `exports` is undefined, return null.
+- Return the result of `PACKAGE_EXPORTS_RESOLVE(packageRoot, subpath, exports,
+  [condition])` as defined in the [Node resolution algorithm specification].
 
 > Where possible in Node, it can use [resolve.exports] which exposes the Node
 > resolution algorithm, allowing for per-path custom conditions, and without
 > needing filesystem access.
 
+[Node resolution algorithm specification]: https://nodejs.org/api/esm.html#resolution-algorithm-specification
 [resolve.exports]: https://github.com/lukeed/resolve.exports
-[Conditional Exports]: https://nodejs.org/api/packages.html#conditional-exports
-[Node Modules]: https://nodejs.org/api/modules.html#all-together
 
 ### Resolving package root values
 
