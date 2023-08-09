@@ -223,7 +223,7 @@ Package Importers will reject the following patterns:
 
 The Node package importer is an [importer] with an associated absolute `pkg:`
 URL. When the Node package importer is invoked with a string named `string` and
-a [previous URL] `previousUrl`:
+a [previous URL] `previousURL`:
 
 - Let `url` be the result of [parsing `string` as a URL][parsing a URL]. If this
   returns a failure, throw that failure.
@@ -299,27 +299,15 @@ the Node package.
 ### Resolving the root directory for a package
 
 This algorithm takes a string, `packageName`, and an optional absolute URL
-`previousUrl`, and returns an absolute URL to the root directory for the most
+`previousURL`, and returns an absolute URL to the root directory for the most
 proximate installed `packageName`.
 
-> We need to replicate Node's behavior, as defined in [Loading from node_modules
-> folders], of walking up the directory chain to find packages from
-> `previousUrl`, so that packages can use the correct version of the packages
-> that they depend on.
+- Let `parentURL` be the value of `previousURL` if it is defined, otherwise the
+  URL to the current directory.
+- Return the result of `PACKAGE_RESOLVE(packageName, parentURL)` as defined in
+  the [Node resolution algorithm specification].
 
-- If `previousUrl` is null, return the result of `require.resolve` with the
-  `packageName`.
-- While `rootDirectory` is undefined:
-  - Remove the final path segment from `previousUrl`
-  - If the new final path segment of `previousUrl` isn't `node_modules`:
-    - Let `potentialPath` be `previousUrl` appended with `node_modules/` and
-      `packageName`.
-    - If `potentialPath` is a directory, return `potentialPath`.
-    - Otherwise, if `previousUrl` is the root of the file system, throw an
-      error.
-
-[loading from node_modules folders]:
-    https://nodejs.org/api/modules.html#loading-from-node_modules-folders
+[Node resolution algorithm specification]: https://nodejs.org/api/esm.html#resolution-algorithm-specification
 
 ### Resolving package exports
 
