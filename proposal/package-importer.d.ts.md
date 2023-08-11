@@ -251,8 +251,8 @@ a [previous URL] `previousURL`:
 
 ### Node Algorithm for Resolving a `pkg:` URL
 
-This algorithm takes a URL with scheme `pkg:`, and an optional URL `previousURL`.
-It returns a canonical file path or null.
+This algorithm takes a URL with scheme `pkg:` named `url`, and an optional URL
+`previousURL`. It returns a canonical file path or null.
 
 - Let `fullPath` be `url`'s path.
 - Let `packageName` be the result of [resolving a package name] with `fullPath`,
