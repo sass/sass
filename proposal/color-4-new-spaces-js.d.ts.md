@@ -320,53 +320,55 @@ set.
 
 * Let `space` be a string with the value of `options.space`.
 
-* If `options.red` exists:
+* To calulate the channels:
 
-  * Let `channel1` be the value of `options.red`.
+  * If `options.red` exists:
 
-  * Let `channel2` be the value of `options.green`.
+    * Let `channel1` be the value of `options.red`.
 
-  * Let `channel3` be the value of `options.blue`.
+    * Let `channel2` be the value of `options.green`.
 
-* If `options.saturation` exists:
+    * Let `channel3` be the value of `options.blue`.
 
-  * Let `channel1` be the value of `options.hue`.
+  * If `options.saturation` exists:
 
-  * Let `channel2` be the value of `options.saturation`.
+    * Let `channel1` be the value of `options.hue`.
 
-  * Let `channel3` be the value of `options.lightness`.
+    * Let `channel2` be the value of `options.saturation`.
 
-* If `options.whiteness` exists:
+    * Let `channel3` be the value of `options.lightness`.
 
-  * Let `channel1` be the value of `options.hue`.
+  * If `options.whiteness` exists:
 
-  * Let `channel2` be the value of `options.whiteness`.
+    * Let `channel1` be the value of `options.hue`.
 
-  * Let `channel3` be the value of `options.blackness`.
+    * Let `channel2` be the value of `options.whiteness`.
 
-* If `options.x` exists:
+    * Let `channel3` be the value of `options.blackness`.
 
-  * Let `channel1` be the value of `options.x`.
+  * If `options.x` exists:
 
-  * Let `channel2` be the value of `options.y`.
+    * Let `channel1` be the value of `options.x`.
 
-  * Let `channel3` be the value of `options.z`.
+    * Let `channel2` be the value of `options.y`.
 
-* If `options.chroma` exists:
+    * Let `channel3` be the value of `options.z`.
 
-  * Let `channel1` be the value of `options.lightness`.
+  * If `options.chroma` exists:
 
-  * Let `channel2` be the value of `options.chroma`.
+    * Let `channel1` be the value of `options.lightness`.
 
-  * Let `channel3` be the value of `options.hue`.
+    * Let `channel2` be the value of `options.chroma`.
 
-* If `options.a` exists:
+    * Let `channel3` be the value of `options.hue`.
 
-  * Let `channel1` be the value of `options.lightness`.
+  * If `options.a` exists:
 
-  * Let `channel2` be the value of `options.a`.
+    * Let `channel1` be the value of `options.lightness`.
 
-  * Let `channel3` be the value of `options.b`.
+    * Let `channel2` be the value of `options.a`.
+
+    * Let `channel3` be the value of `options.b`.
 
 * If `options.alpha` is set:
 
@@ -378,7 +380,7 @@ set.
 * Otherwise, set [`internal`] to the result of
   [`color(channel1 channel2 channel3 )`]
 
-[`color(channel1 channel2 channel3 / alpha )`]: ./color-4-new-spaces.md#color-1
+[`color(channel1 channel2 channel3 / alpha)`]: ./color-4-new-spaces.md#color-1
 [`color(channel1 channel2 channel3 )`]: ./color-4-new-spaces.md#color-1
 
 [construction]: ../spec/js-api/value/color.d.ts.md#constructor
