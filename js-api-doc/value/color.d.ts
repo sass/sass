@@ -12,6 +12,13 @@ export class SassColor extends Value {
   /**
    * Creates an RGB color.
    *
+   * **Only** `undefined` should be passed to indicate a missing `alpha`. If
+   * `null` is passed instead, it will be treated as a [missing component] in
+   * future versions of Dart Sass. See [breaking changes] for details.
+   *
+   * [missing component]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
+   * [breaking changes]: /documentation/breaking-changes/null-alpha
+   *
    * @throws `Error` if `red`, `green`, and `blue` aren't between `0` and
    * `255`, or if `alpha` isn't between `0` and `1`.
    */
@@ -25,6 +32,13 @@ export class SassColor extends Value {
   /**
    * Creates an HSL color.
    *
+   * **Only** `undefined` should be passed to indicate a missing `alpha`. If
+   * `null` is passed instead, it will be treated as a [missing component] in
+   * future versions of Dart Sass. See [breaking changes] for details.
+   *
+   * [missing component]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
+   * [breaking changes]: /documentation/breaking-changes/null-alpha
+   *
    * @throws `Error` if `saturation` or `lightness` aren't between `0` and
    * `100`, or if `alpha` isn't between `0` and `1`.
    */
@@ -37,6 +51,13 @@ export class SassColor extends Value {
 
   /**
    * Creates an HWB color.
+   *
+   * **Only** `undefined` should be passed to indicate a missing `alpha`. If
+   * `null` is passed instead, it will be treated as a [missing component] in
+   * future versions of Dart Sass. See [breaking changes] for details.
+   *
+   * [missing component]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
+   * [breaking changes]: /documentation/breaking-changes/null-alpha
    *
    * @throws `Error` if `whiteness` or `blackness` aren't between `0` and `100`,
    * or if `alpha` isn't between `0` and `1`.
