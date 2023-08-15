@@ -63,12 +63,18 @@ resolved within `node_modules`, using the [Node resolution algorithm].
 
 The built-in Node importer resolves in the following order:
 
-1. `sass` condition in package.json `exports`
-2. `style` condition in package.json `exports`
+1. `sass` condition in package.json `exports`.
+
+2. `style` condition in package.json `exports`.
+
 3. If no subpath, then find root export:
-  1. `sass` key at package.json root
-  2. `style` key at package.json root
-  3. `index` file at package root, resolved for file extensions and partials
+
+  1. `sass` key at package.json root.
+
+  2. `style` key at package.json root.
+
+  3. `index` file at package root, resolved for file extensions and partials.
+
 4. If there is a subpath, resolve that path relative to the package root, and
    resolve for file extensions and partials
 
@@ -202,9 +208,9 @@ provided by implementations. It is a type of [Importer] and, in addition to the
 standard requirements for importers, it must handle only the following
 non-canonical URLs:
 
-- with the scheme `pkg`
-- whose path begins with a package name
-- optionally followed by a path, with path segments separated with a forward
+* with the scheme `pkg`
+* whose path begins with a package name
+* optionally followed by a path, with path segments separated with a forward
   slash.
 
 The package name will often be the first path segment, but the importer should
@@ -213,8 +219,8 @@ supports scoped package names, which start with `@` followed by 2 path segments.
 
 Package Importers will reject the following patterns:
 
-- A URL whose path begins with `/`.
-- A URL with non-empty/null username, password, host, port, query, or fragment.
+* A URL whose path begins with `/`.
+* A URL with non-empty/null username, password, host, port, query, or fragment.
 
 
 [importer]: ../spec/modules.md#importer
@@ -225,19 +231,30 @@ The Node package importer is an [importer] with an associated absolute `pkg:`
 URL. When the Node package importer is invoked with a string named `string` and
 a [previous URL] `previousURL`:
 
-- Let `url` be the result of [parsing `string` as a URL][parsing a URL]. If this
+* Let `url` be the result of [parsing `string` as a URL][parsing a URL]. If this
   returns a failure, throw that failure.
-- If `url`'s scheme is not `pkg:`, return null.
-- Let `resolved` be the result of [resolving a `pkg:` URL] with `url` and `previousURL`.
-- If `resolved` is null, return null.
-- Let `text` be the contents of the file at `resolved`.
-- Let `syntax` be:
-  - "scss" if `resolved` ends in `.scss`.
-  - "indented" if `resolved` ends in `.sass`.
-  - "css" if `resolved` ends in `.css`.
+
+* If `url`'s scheme is not `pkg:`, return null.
+
+* Let `resolved` be the result of [resolving a `pkg:` URL] with `url` and
+  `previousURL`.
+
+* If `resolved` is null, return null.
+
+* Let `text` be the contents of the file at `resolved`.
+
+* Let `syntax` be:
+
+  * "scss" if `resolved` ends in `.scss`.
+
+  * "indented" if `resolved` ends in `.sass`.
+
+  * "css" if `resolved` ends in `.css`.
+
   > The algorithm for [resolving a `file:` URL](../spec/modules.md#resolving-a-file-url)
   > guarantees that `resolved` will have one of these extensions.
-- Return `text`, `syntax`, and `resolved`.
+
+* Return `text`, `syntax`, and `resolved`.
 
 [parsing a URL]: https://url.spec.whatwg.org/#concept-url-parser
 [resolving a `pkg:` URL]: #node-algorithm-for-resolving-a-pkg-url
@@ -254,27 +271,40 @@ a [previous URL] `previousURL`:
 This algorithm takes a URL with scheme `pkg:` named `url`, and an optional URL
 `previousURL`. It returns a canonical file path or null.
 
-- Let `fullPath` be `url`'s path.
-- Let `packageName` be the result of [resolving a package name] with `fullPath`,
+* Let `fullPath` be `url`'s path.
+
+* Let `packageName` be the result of [resolving a package name] with `fullPath`,
   and `subPath` be the path without the `packageName`.
-- Let `packageRoot` be the result of [resolving the root directory for a
+
+* Let `packageRoot` be the result of [resolving the root directory for a
   package] with `packageName` and `previousURL`.
-- If a `package.json` file does not exist at `packageRoot`, throw an error.
-- Let `packageManifest` be the result of parsing the `package.json` file at
+
+* If a `package.json` file does not exist at `packageRoot`, throw an error.
+
+* Let `packageManifest` be the result of parsing the `package.json` file at
   `packageRoot` as [JSON].
-- Let `resolved` be the result of [resolving package exports] with `sass` as the
+
+* Let `resolved` be the result of [resolving package exports] with `sass` as the
   condition, `packageRoot`, `subpath`, and `packageManifest`.
-  - If `resolved` has the scheme `file:` and an extension of `sass`, `scss` or
+
+  * If `resolved` has the scheme `file:` and an extension of `sass`, `scss` or
     `css`, return it.
-  - Otherwise, if `resolved` is not null, throw an error.
-- Let `resolved` be the result of [resolving package exports] with `style` as the
+
+  * Otherwise, if `resolved` is not null, throw an error.
+
+* Let `resolved` be the result of [resolving package exports] with `style` as the
   condition, `packageRoot`, `subpath`, and `packageManifest`.
-  - If `resolved` has the scheme `file:` and an extension of `sass`, `scss` or
+
+  * If `resolved` has the scheme `file:` and an extension of `sass`, `scss` or
     `css`, return it.
-  - Otherwise, if `resolved` is not null, throw an error.
-- If `subPath` is empty, return the result of [resolving package root values].
-- Let `resolved` be `subPath` resolved relative to `packageRoot`.
-- Return the result of [resolving a `file:` URL] with `resolved`.
+
+  * Otherwise, if `resolved` is not null, throw an error.
+
+* If `subPath` is empty, return the result of [resolving package root values].
+
+* Let `resolved` be `subPath` resolved relative to `packageRoot`.
+
+* Return the result of [resolving a `file:` URL] with `resolved`.
 
 
 [previous URL]: ../accepted/prev-url.d.ts.md
@@ -283,8 +313,7 @@ This algorithm takes a URL with scheme `pkg:` named `url`, and an optional URL
 [resolving a package name]: #resolving-a-package-name
 [JSON]: https://datatracker.ietf.org/doc/html/rfc8259
 [parsing a URL]: https://url.spec.whatwg.org/#concept-url-parser
-[resolving the root directory for a package]:
-    #resolving-the-root-directory-for-a-package
+[resolving the root directory for a package]: #resolving-the-root-directory-for-a-package
 [resolving a `file:` URL]: ../spec/modules.md#resolving-a-file-url
 
 ### Resolving a package name
@@ -292,9 +321,10 @@ This algorithm takes a URL with scheme `pkg:` named `url`, and an optional URL
 This algorithm takes a string, `path`, and returns the portion that identifies
 the Node package.
 
-- If `path` starts with `@`, it is a scoped package. Return the first 2 [URL path
+* If `path` starts with `@`, it is a scoped package. Return the first 2 [URL path
   segments], including the separating `/`.
-- Otherwise, return the first URL path segment.
+
+* Otherwise, return the first URL path segment.
 
 ### Resolving the root directory for a package
 
@@ -302,9 +332,10 @@ This algorithm takes a string, `packageName`, and an optional absolute URL
 `previousURL`, and returns an absolute URL to the root directory for the most
 proximate installed `packageName`.
 
-- Let `parentURL` be the value of `previousURL` if it is defined, otherwise the
+* Let `parentURL` be the value of `previousURL` if it is defined, otherwise the
   URL to the current directory.
-- Return the result of `PACKAGE_RESOLVE(packageName, parentURL)` as defined in
+
+* Return the result of `PACKAGE_RESOLVE(packageName, parentURL)` as defined in
   the [Node resolution algorithm specification].
 
 [Node resolution algorithm specification]: https://nodejs.org/api/esm.html#resolution-algorithm-specification
@@ -315,9 +346,11 @@ This algorithm takes a string `condition`, a package.json value
 `packageManifest`, a directory URL `packageRoot` and a relative URL path
 `subpath`. It returns a file URL or null.
 
-- Let `exports` be the value of `packageManifest.exports`.
-- If `exports` is undefined, return null.
-- Return the result of `PACKAGE_EXPORTS_RESOLVE(packageRoot, subpath, exports,
+* Let `exports` be the value of `packageManifest.exports`.
+
+* If `exports` is undefined, return null.
+
+* Return the result of `PACKAGE_EXPORTS_RESOLVE(packageRoot, subpath, exports,
   [condition])` as defined in the [Node resolution algorithm specification].
 
 > Where possible in Node, it can use [resolve.exports] which exposes the Node
@@ -333,17 +366,25 @@ This algorithm takes a string `packagePath`, which is the root directory for a
 package, and `packageManifest`, which is the contents of that package's
 `package.json` file, and returns a file URL.
 
-- Let `sassValue` be the value of `sass` in `packageManifest`.
-- If `sassValue` is a relative path with an extension of `sass`, `scss` or
+* Let `sassValue` be the value of `sass` in `packageManifest`.
+
+* If `sassValue` is a relative path with an extension of `sass`, `scss` or
   `css`:
-  - If `sassValue` starts with `./`, remove that substring.
-  - Return the `file:` URL for `${packagePath}/${sassValue}`.
-- Let `styleValue` be the value of `style` in `packageManifest`.
-- If `styleValue` is a relative path with an extension of `sass`, `scss` or
+
+  * If `sassValue` starts with `./`, remove that substring.
+
+  * Return the `file:` URL for `${packagePath}/${sassValue}`.
+
+* Let `styleValue` be the value of `style` in `packageManifest`.
+
+* If `styleValue` is a relative path with an extension of `sass`, `scss` or
   `css`:
-  - If `styleValue` starts with `./`, remove that substring.
-  - Return the `file:` URL for `${packagePath}/${styleValue}`.
-- Otherwise return the result of [resolving a `file:` URL for extensions] with
+
+  * If `styleValue` starts with `./`, remove that substring.
+
+  * Return the `file:` URL for `${packagePath}/${styleValue}`.
+
+* Otherwise return the result of [resolving a `file:` URL for extensions] with
   `packagePath + "/index"`.
 
 [resolving the root directory for a package]: #resolving-the-root-directory-for-a-package
