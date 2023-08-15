@@ -68,7 +68,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: arduino/setup-protoc@v1
+      - uses: arduino/setup-protoc@v2
         with: { version: "3.x", repo-token: "${{ github.token }}" }
       - name: Generate protobuf code
         run: protoc --js_out=/tmp spec/embedded_sass.proto
