@@ -23,7 +23,11 @@
   * [Simplifying a Calculation](#simplifying-a-calculation)
 * [Semantics](#semantics)
   * [Calculation Expressions](#calculation-expressions)
+  * [`@function`](#function)
 * [Deprecation Process](#deprecation-process)
+  * [Phase 1](#phase-1)
+  * [Phase 2](#phase-2)
+  * [Phase 3](#phase-3)
 
 ## Background
 
