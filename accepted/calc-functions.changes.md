@@ -1,3 +1,7 @@
+## Draft 2.1
+
+* Allow custom functions named like vendor-prefixed new CSS functions.
+
 ## Draft 2.0
 
 * Explicitly forbid user-defined functions with the same names as CSS math

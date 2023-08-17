@@ -1,4 +1,4 @@
-# Calculation Functions: Draft 2.0
+# Calculation Functions: Draft 2.1
 
 *([Issue](https://github.com/sass/sass/issues/3504), [Changelog](calc-functions.changes.md))*
 
@@ -533,7 +533,12 @@ To evaluate a `UnaryCalcExpression`, `BinaryCalcExpression`, `HypotExpression`,
 
 Add `"round"`, `"mod"`, `"rem"`, `"sin"`, `"cos"`, `"tan"`, `"asin"`, `"acos"`,
 `"atan"`, `atan2""`, `"pow"`, `"sqrt"`, `"hypot"`, `"log"`, `"exp"`, `"abs"`,
-and `"sign"` to the set of prohibited function names.
+and `"sign"` to the set of prohibited function names. Do _not_ prohibit
+vendor-prefixed versions of these names.
+
+> No browser has ever supported a vendor-prefixed version of these names, and
+> prohibiting that also prohibits reasonable-looking cases like `@function
+> -to-rem()`.
 
 ## Deprecation Process
 
