@@ -1,6 +1,6 @@
-# Calculation Functions: Draft 1.5
+# Calculation Functions: Draft 2.0
 
-*([Issue](https://github.com/sass/sass/issues/3504))*
+*([Issue](https://github.com/sass/sass/issues/3504), [Changelog](calc-functions.changes.md))*
 
 ## Table of Contents
 
@@ -56,6 +56,13 @@ This poses a small compatibility problem: in Sass, `abs(10%)` will always return
 equivalent of `-10%` since percentages are resolved before calculations. To
 handle this, we'll deprecate the global `abs()` function with a percentage and
 recommend users explicitly write `math.abs()` or `abs(#{})` instead.
+
+In addition, any existing user-defined Sass functions whose names overlap with
+the new CSS functions will now be parsed as CSS functions. As such, these Sass
+function names will be deprecated and eventually prohibited. To mitigate the
+pain of this transition, until the next breaking release Sass will allow these
+names to fall back to Sass function calls if they can't be parsed as CSS
+calculations.
 
 ### Design Decisions
 
@@ -518,11 +525,70 @@ To evaluate a `UnaryCalcExpression`, `BinaryCalcExpression`, `HypotExpression`,
 
 * Return the result of [simplifying] `calc`.
 
+### `@function`
+
+Add `"round"`, `"mod"`, `"rem"`, `"sin"`, `"cos"`, `"tan"`, `"asin"`, `"acos"`,
+`"atan"`, `atan2""`, `"pow"`, `"sqrt"`, `"hypot"`, `"log"`, `"exp"`, `"abs"`,
+and `"sign"` to the set of prohibited function names.
+
 ## Deprecation Process
 
-Before this specification is applied in full force, it will be applied with the
-following modification:
+This proposal causes two categories of breaking change:
 
-* When simplifying a calculation named `"abs"` whose sole argument is a number
+1. User-defined custom functions whose names overlap with the new CSS
+   calculation functions will now be parsed as CSS calculations instead of Sass
+   functions.
+
+2. If a number with unit `%` is passed to the global `abs()` function, it will
+   be emitted as a plain CSS `abs()` rather than returning the absolute value of
+   the percentage itself.
+
+To manage these breaking changes, this change will be rolled out in three
+phases.
+
+### Phase 1
+
+> This phase adds no breaking changes. Its purpose is to notify users of the
+> upcoming changes to behavior and give them a chance to move towards passing
+> future-proof units.
+
+Phase 1 implements none of the changes described above. Instead, it applies the
+following changes:
+
+* If the global `abs()` function is called with a number with unit `%`, emit a
+  deprecation warning named `abs-percent`.
+
+* If a `@function` rule is executed with the name `"round"`, `"mod"`, `"rem"`,
+  `"sin"`, `"cos"`, `"tan"`, `"asin"`, `"acos"`, `"atan"`, `atan2""`, `"pow"`,
+  `"sqrt"`, `"hypot"`, `"log"`, `"exp"`, `"abs"`, and `"sign"`, emit a
+  deprecation warning named `math-fn-name`.
+
+### Phase 2
+
+> This phase only breaks the behavior of user-defined functions that are
+> ambiguous at parse-time with CSS calculations. Other functions whose names
+> overlap, such as a single-argument `rem()`, continue functioning with a
+> deprecation warning.
+
+Phase 2 implements all the changes described above, with the following
+exceptions:
+
+1. When simplifying a calculation named `"abs"` whose sole argument is a number
   _without_ [known units], return the result of calling `math.abs()` with that
   number and emit a deprecation warning named `abs-percent`.
+
+2. No new `@function` names are forbidden.
+
+3. The [`FunctionCall`] production *may* start with `sin(`, `cos(`, `tan(`,
+   `asin(`, `acos(`, `atan(`, `sqrt(`, `exp(`, `sign(`, `mod(`, `rem(`,
+   `atan2(`, `pow(`, `log(`, and `hypot(`. `CalculationExpression` takes
+   precedence over `FunctionCall` if either could be consumed.
+
+   [`FunctionCall`]: #functionexpression
+
+### Phase 3
+
+Phase 3 implements the full changes described above.
+
+> It's recommended that implementations increment their major version numbers
+> with the release of phase 3.
