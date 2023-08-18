@@ -29,6 +29,7 @@ Importer.
   * [Resolving the root directory for a package](#resolving-the-root-directory-for-a-package)
   * [Resolving package exports](#resolving-package-exports)
   * [Resolving package root values](#resolving-package-root-values)
+  * [Export Load Paths](#export-load-paths)
 * [Ecosystem Notes](#ecosystem-notes)
 
 ## Background
@@ -177,6 +178,22 @@ use the CSS exports exposed through `"style"`. While in practice, `"style"`
 tends to be used solely for `css` files, we will support `scss`, `sass` and
 `css` files for either `"sass"` or `"style"`.
 
+While conditional exports allows package authors to define specific aliases to internal
+files, we will still use the Sass conventions for resolving file paths with
+partials, extensions and indices to discover the intended export alias. However,
+we will not apply that logic to the destination, and will expect library authors
+to map the export to the correct place. In other words, given a `package.json`
+with `exports` as below, The Node package importer will resolve a
+`@use "pkg:pkgName/variables";` to the destination of the `_variables.scss` export.
+
+```json
+{
+  "_variables.scss": {
+    "sass": "./src/sass/_variables.scss"
+  }
+}
+```
+
 ## Types
 
 ```ts
@@ -277,10 +294,6 @@ a [previous URL] `previousURL`:
 [parsing a URL]: https://url.spec.whatwg.org/#concept-url-parser
 [resolving a `pkg:` URL]: #node-algorithm-for-resolving-a-pkg-url
 
-> Note that this algorithm does not automatically resolve index files, partials
-> or extensions when resolving paths defined in the package.json `exports`
-> section. When using conditional exports, package authors need to explicitly
-> expose all paths that should resolve to a Sass file.
 
 ## Procedures
 
@@ -368,13 +381,39 @@ This algorithm takes a string `condition`, a package.json value
 
 * If `exports` is undefined, return null.
 
-* Return the result of `PACKAGE_EXPORTS_RESOLVE(packageRoot, subpath, exports,
-  [condition])` as defined in the [Node resolution algorithm specification].
+* Let `subpathVariants` be the result of [Export load paths] with `subpath`.
+
+* Let `resolvedPaths` be a list of the results of calling
+  `PACKAGE_EXPORTS_RESOLVE(packageRoot, subpathVariant, exports, [condition])`
+  as defined in the [Node resolution algorithm specification, with each
+  `subpathVariants` as `subpathVariant`.
+
+* If `resolvedPaths` contains more than one resolved URL, throw an error.
+
+* If `resolvedPaths` contains exactly one resolved URL, return it.
+
+* If `subpath` has an extension, return null.
+
+* Let `subPathIndex` be `subpath` + `"/index"`.
+
+* Let `subpathIndexVariants` be the result of [Export load paths] with `subpathIndex`.
+
+* Let `resolvedIndexPaths` be a list of the results of calling
+  `PACKAGE_EXPORTS_RESOLVE(packageRoot, subpathVariant, exports, [condition])`
+  as defined in the [Node resolution algorithm specification, with each
+  `subpathIndexVariants` as `subpathVariant`.
+
+* If `resolvedIndexPaths` contains more than one resolved URL, throw an error.
+
+* If `resolvedIndexPaths` contains exactly one resolved URL, return it.
+
+* Return null.
 
 > Where possible in Node, it can use [resolve.exports] which exposes the Node
 > resolution algorithm, allowing for per-path custom conditions, and without
 > needing filesystem access.
 
+[Export load paths]: #export-load-paths
 [Node resolution algorithm specification]: https://nodejs.org/api/esm.html#resolution-algorithm-specification
 [resolve.exports]: https://github.com/lukeed/resolve.exports
 
@@ -411,6 +450,27 @@ package, and `packageManifest`, which is the contents of that package's
 
 [URL path segments]: https://url.spec.whatwg.org/#url-path-segment
 
+
+### Export Load Paths
+
+This algorithm takes a relative URL path `subpath` and returns a list of
+potential subpaths, resolving for partials and file extensions.
+
+* Let `paths` be a list.
+
+* If `subpath` ends in `.scss`, `.sass`, or `.css`:
+
+  * Add `subpath` to `paths`.
+
+* Otherwise, add `subpath` + `.scss`, `subpath` + `.sass`, and `subpath` +
+  `.css` to `paths`.
+
+* If `subpath`'s [basename]' does not start with `_`, for each `item` in
+  `paths`, prepend `"_"` to the basename, and add to `paths`.
+
+* Return `paths`.
+
+[basename]: ../spec/modules.md#basename
 
 ## Ecosystem Notes
 
