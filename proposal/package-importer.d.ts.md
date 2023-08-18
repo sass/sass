@@ -18,7 +18,7 @@ Importer.
     * [Available as an opt-in setting](#available-as-an-opt-in-setting)
     * [Node Resolution Decisions](#node-resolution-decisions)
 * [Types](#types)
-    * [`useNodePkgImporter`](#usenodepkgimporter)
+    * [`pkgImporter`](#pkgimporter)
 * [Semantics](#semantics)
   * [Package Importers](#package-importers)
   * [Node Package Importer](#node-package-importer)
@@ -177,24 +177,25 @@ tends to be used solely for `css` files, we will support `scss`, `sass` and
 import '../spec/js-api';
 ```
 
-#### `useNodePkgImporter`
+#### `pkgImporter`
 
-If true, the compiler will use the built-in Node package importer to resolve any URL
-with the `pkg:` scheme. This importer follows Node logic to locate Sass files.
+If set, the compiler will use the specified built-in package importer to resolve
+any URL with the `pkg:` scheme. Currently, the only available package importer
+is `node`, which follows Node resolution logic to locate Sass files.
 
-Defaults to false.
+Defaults to undefined.
 
 ```ts
 declare module '../spec/js-api/options' {
   interface Options<sync extends 'sync' | 'async'> {
     /**
-     * Whether or not to enable the built-in package importer to resolve any URL
-     * with the `pkg:` scheme. This importer follows Node.js resolution logic.
+     * Specifies which, if any, built-in package importer to resolve any URL
+     * with the `pkg:` scheme. The `node` importer follows Node resolution logic.
      *
-     * @defaultValue `false`
+     * @defaultValue `undefined`
      * @category Input
      */
-    useNodePkgImporter?: boolean;
+    pkgImporter?: 'node';
   }
 }
 ```
@@ -396,7 +397,7 @@ package, and `packageManifest`, which is the contents of that package's
 
 ## Ecosystem Notes
 
-The new `useNodePkgImporter` option will not be available in the [Legacy JS API].
+The new `pkgImporter` option will not be available in the [Legacy JS API].
 Third-party applications that don't support the modern API will be unable to use
 the built-in package importer. Some notable examples follow.
 
@@ -404,7 +405,7 @@ the built-in package importer. Some notable examples follow.
 
 Vite is currently using the Legacy JS API, and has an [open issue] to update to
 the modern API. They also do not expose Sass options to the user, so would need
-to enable the `useNodePkgImporter` on their behalf or expose some configuration.
+to enable the `pkgImporter` on their behalf or expose some configuration.
 
 [open issue]: https://github.com/vitejs/vite/issues/7116
 
