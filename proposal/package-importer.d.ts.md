@@ -465,7 +465,7 @@ potential subpaths, resolving for partials and file extensions.
 * Otherwise, add `subpath` + `.scss`, `subpath` + `.sass`, and `subpath` +
   `.css` to `paths`.
 
-* If `subpath`'s [basename]' does not start with `_`, for each `item` in
+* If `subpath`'s [basename] does not start with `_`, for each `item` in
   `paths`, prepend `"_"` to the basename, and add to `paths`.
 
 * Return `paths`.
