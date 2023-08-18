@@ -16,6 +16,7 @@ Importer.
     * [Using a `pkg:` URL scheme](#using-a-pkg-url-scheme)
     * [No built-in `pkg:` resolver for browsers](#no-built-in-pkg-resolver-for-browsers)
     * [Available as an opt-in setting](#available-as-an-opt-in-setting)
+    * [Available in legacy API](#available-in-legacy-api)
     * [Node Resolution Decisions](#node-resolution-decisions)
 * [Types](#types)
     * [`pkgImporter`](#pkgimporter)
@@ -140,6 +141,11 @@ potential for file system interaction to `compileString` and
 functions to have control over what files get accessed, and there's even a risk
 of leaking file contents in error messages.
 
+#### Available in legacy API
+
+The built-in Node Package Importer will be added to the legacy API in order to
+reduce the barrier to adoption.
+
 #### Node Resolution Decisions
 
 The current recommendation for resolving packages in Node is to add
@@ -197,6 +203,17 @@ declare module '../spec/js-api/options' {
      */
     pkgImporter?: 'node';
   }
+}
+
+export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
+  /**
+   * Specifies which, if any, built-in package importer to resolve any URL
+   * with the `pkg:` scheme. The `node` importer follows Node resolution logic.
+   *
+   * @defaultValue `undefined`
+   * @category Input
+   */
+  pkgImporter?: 'node';
 }
 ```
 
@@ -396,28 +413,6 @@ package, and `packageManifest`, which is the contents of that package's
 
 
 ## Ecosystem Notes
-
-The new `pkgImporter` option will not be available in the [Legacy JS API].
-Third-party applications that don't support the modern API will be unable to use
-the built-in package importer. Some notable examples follow.
-
-[Legacy JS API]: https://sass-lang.com/documentation/js-api/#md:legacy-api
-
-Vite is currently using the Legacy JS API, and has an [open issue] to update to
-the modern API. They also do not expose Sass options to the user, so would need
-to enable the `pkgImporter` on their behalf or expose some configuration.
-
-[open issue]: https://github.com/vitejs/vite/issues/7116
-
-Webpack's [sass-loader] allows users to opt in to the modern API and exposes
-Sass options to users.
-
-[sass-loader]: https://webpack.js.org/loaders/sass-loader/
-
-For Rollup, [rollup-plugin-sass] uses the Legacy JS API. They do expose Sass
-options to the user.
-
-[rollup-plugin-sass]: https://github.com/elycruz/rollup-plugin-sass
 
 It may be worth adding a [Community Conditions Definition] to the Node
 Documentation. [WinterCG] has a [Runtime Keys proposal specification] underway
