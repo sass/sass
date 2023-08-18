@@ -1,3 +1,15 @@
+## Draft 2.1
+
+* Allow custom functions named like vendor-prefixed new CSS functions.
+
+## Draft 2.0
+
+* Explicitly forbid user-defined functions with the same names as CSS math
+  functions.
+
+* Add a deprecation process for gradually phasing out user-defined functions
+  with name conflicts.
+
 ## Draft 1.5
 
 * Fix the definition of `rem()` to use `result - modulus` rather than `result -
