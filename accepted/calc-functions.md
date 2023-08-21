@@ -531,7 +531,7 @@ global function:
 Remove all prior [semantics for Calculations]. The following semantics apply
 only when evaluating expressions [as calculation values].
 
-[semantics for Calculations]: ../spec/calculation.md#semantics
+[semantics for Calculations]: ../spec/types/calculation.md#semantics
 [as calculation values]: #evaluating-an-expression-as-a-calculation-value
 
 #### `FunctionExpression` and `Variable`
