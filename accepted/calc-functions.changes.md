@@ -9,6 +9,10 @@
 * Drop support for interpolation in calculations outside of identifier position
   and add a deprecation process for this.
 
+## Draft 2.1
+
+* Allow custom functions named like vendor-prefixed new CSS functions.
+
 ## Draft 2.0
 
 * Explicitly forbid user-defined functions with the same names as CSS math
