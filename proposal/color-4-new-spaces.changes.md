@@ -1,3 +1,7 @@
+## Draft 1.7
+
+* Resolve missing `alpha` channels _after_ premultiplying colors.
+
 ## Draft 1.6
 
 * Clarify in the known color space definitions that lightness channels are
