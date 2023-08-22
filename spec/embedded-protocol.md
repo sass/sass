@@ -5,7 +5,7 @@ a Sass implementation and a host environment. It allows the host environment to
 invoke the Sass compiler on source files, and to define custom functions and
 importers in the host language.
 
-Sass implementations are _not_ required to support the embedded protocol.
+Sass implementations are *not* required to support the embedded protocol.
 However, if they do, they must adhere to the specification given in this file
 and [`embedded_sass.proto`] for the compiler endpoint.
 
@@ -60,12 +60,12 @@ its standard input and output streams.
 
 ### Packet Structure
 
-Each message in the embedded protocol is sent as a _packet_ which contains two
+Each message in the embedded protocol is sent as a *packet* which contains two
 values: an unsigned [varint] up to 32 bits long known as the "compilation ID",
 and a protocol buffer that contains the protobuf message. For streams (like
 standard input and output) that don't have built-in message boundaries, every
 packet must begin with another unsigned varint indicating the length in bytes of
-the remaining message (_including the compilation ID_). This matches the best
+the remaining message (*including the compilation ID*). This matches the best
 practice described in [the protocol buffer documentation].
 
 Because JavaScript can't easily represent integers larger than 2^53 - 1, the
@@ -319,7 +319,7 @@ tell if a value is "truthy" (one of those values) or "falsey" (`false` or
 `null`). It should encourage users to check this rather than directly testing
 for `true` or `false`.
 
-Two booleans are equal if they're both `true` or both` false`.
+Two booleans are equal if they're both `true` or both `false`.
 
 ### Null
 

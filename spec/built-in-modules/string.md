@@ -18,7 +18,6 @@ This built-in module is available from the URL `sass:string`.
 
 ## Functions
 
-
 ### `index()`
 
 ```
@@ -73,12 +72,12 @@ split($string, $separator, $limit: null)
 
 * If `$limit` is less than 1, throw an error.
 
-* If `$string` is an empty string, return a list with `$string` as the only 
+* If `$string` is an empty string, return a list with `$string` as the only
   item.
 
 * Let `split-list` be an empty list.
 
-* If `$limit` is `null`, set `$limit` to the value of calling 
+* If `$limit` is `null`, set `$limit` to the value of calling
   `string.length($string)`.
 
 * Let `split-counter` equal 0.
@@ -89,7 +88,7 @@ split($string, $separator, $limit: null)
 
     * Append `$string` to `split-list`.
 
-    * Set `$string` to an empty string. 
+    * Set `$string` to an empty string.
 
   * Otherwise:
 
@@ -105,10 +104,10 @@ split($string, $separator, $limit: null)
 
     * Otherwise:
 
-      * Let `index` be the result of calling 
+      * Let `index` be the result of calling
         `string.index($string, $separator)`.
 
-      * If `index` is `null`, append `$string` to `split-list` and set `$string` 
+      * If `index` is `null`, append `$string` to `split-list` and set `$string`
         to an empty string.
 
       * Otherwise:
@@ -117,12 +116,12 @@ split($string, $separator, $limit: null)
           `string.slice($string, 1, index - 1)`.
 
         * Append `current-substring` to `split-list`.
-    
-        * Set `$string` to 
+
+        * Set `$string` to
           `string.slice($string, index + string.length($separator))`.
 
         * Increase `split-counter` by 1.
-      
+
 * Return `split-list` as a bracketed, comma-separated list.
 
 ### `to-lower-case()`
@@ -156,4 +155,3 @@ unquote($string)
 ```
 
 This function is also available as a global function named `unquote()`.
-

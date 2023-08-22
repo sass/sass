@@ -141,16 +141,16 @@ get separator(): ListSeparator;
 Converts the Sass index `sassIndex` to a JS index into the array returned by
 `asList`:
 
-- If `sassIndex` is not a unitless Sass number, throw an error.
+* If `sassIndex` is not a unitless Sass number, throw an error.
 
-- Let `value` be the value of `sassIndex`. Let `index` be the result of
+* Let `value` be the value of `sassIndex`. Let `index` be the result of
   `fuzzyAsInt(value)`. If `index === null`, throw an error.
 
-- If `index === 0`, or the absolute value of `index` is greater than
+* If `index === 0`, or the absolute value of `index` is greater than
   `asList.length`, throw an error.
 
-- If `index > 0`, return `index - 1`.
-- Otherwise, if `index < 0`, return `asList.length + index`.
+* If `index > 0`, return `index - 1`.
+* Otherwise, if `index < 0`, return `asList.length + index`.
 
   > Sass indices start counting at 1, and may be negative in order to index from
   > the end of the list.
@@ -285,7 +285,7 @@ Returns the same number for any two `Value`s that are equal according to
 
 [`equals`]: #equals
 
-> This is _not_ required to be different for different values, although having
+> This is *not* required to be different for different values, although having
 > overlap between common values is likely to cause performance issues.
 
 ```ts

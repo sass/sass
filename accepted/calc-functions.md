@@ -73,7 +73,7 @@ calculations.
 #### Changing Mod Infinity Behavior
 
 This proposal changes the behavior of the `%` operation when the right-hand side
-is infinite _and_ has a different sign than the left-hand side. Sass used to
+is infinite *and* has a different sign than the left-hand side. Sass used to
 return the right-hand side in accordance with the floating point specification,
 but it now returns NaN to match CSS's `mod()` function.
 
@@ -334,7 +334,7 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
 
     > In this case, `number` is either `+0`, `-0`, or NaN.
 
-  > To match CSS's behavior, these computations _don't_ use fuzzy comparisons.
+  > To match CSS's behavior, these computations *don't* use fuzzy comparisons.
 
 * If `calc`'s name is `"log"`:
 
@@ -533,7 +533,7 @@ To evaluate a `UnaryCalcExpression`, `BinaryCalcExpression`, `HypotExpression`,
 
 Add `"round"`, `"mod"`, `"rem"`, `"sin"`, `"cos"`, `"tan"`, `"asin"`, `"acos"`,
 `"atan"`, `atan2""`, `"pow"`, `"sqrt"`, `"hypot"`, `"log"`, `"exp"`, `"abs"`,
-and `"sign"` to the set of prohibited function names. Do _not_ prohibit
+and `"sign"` to the set of prohibited function names. Do *not* prohibit
 vendor-prefixed versions of these names.
 
 > No browser has ever supported a vendor-prefixed version of these names, and
@@ -583,7 +583,7 @@ Phase 2 implements all the changes described above, with the following
 exceptions:
 
 1. When simplifying a calculation named `"abs"` whose sole argument is a number
-  _without_ [known units], return the result of calling `math.abs()` with that
+  *without* [known units], return the result of calling `math.abs()` with that
   number and emit a deprecation warning named `abs-percent`.
 
 2. No new `@function` names are forbidden.

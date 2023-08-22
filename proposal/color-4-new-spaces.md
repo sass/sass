@@ -530,7 +530,7 @@ Legacy colors that have [missing] components are
 
 ### Color Equality
 
-For determining _equality_ between two colors:
+For determining *equality* between two colors:
 
 * If both colors are [legacy colors](#legacy-color):
 
@@ -552,13 +552,13 @@ Each channel has a name, and an associated unit where allowed. Space and
 channel names match unquoted strings, ignoring case. They are always emitted as
 unquoted lowercase strings by inspection functions.
 
-Values outside a _bounded gamut_ range (including infinity or negative infinity)
-are valid but are considered _out of gamut_ for the given color space. They
+Values outside a *bounded gamut* range (including infinity or negative infinity)
+are valid but are considered *out of gamut* for the given color space. They
 remain un-clamped unless the gamut is specifically marked as "clamped". If the
 channel is bounded, or has a percentage mapping, then the channel is considered
-_scalable_.
+*scalable*.
 
-Some color spaces use a _polar angle_ value for the `hue` channel. Polar-angle
+Some color spaces use a *polar angle* value for the `hue` channel. Polar-angle
 hues represent an angle position around a given hue wheel, using a CSS `<angle>`
 dimension or number (interpreted as a `deg` value), and are serialized with
 `deg` units.
@@ -669,7 +669,7 @@ The known color spaces and their channels are:
 
 > 'Predefined color spaces' can be described using the `color()` function.
 
-The _predefined RGB spaces_ are:
+The *predefined RGB spaces* are:
 
 * `srgb`
 * `srgb-linear`
@@ -678,7 +678,7 @@ The _predefined RGB spaces_ are:
 * `prophoto-rgb`
 * `rec2020`
 
-The _predefined XYZ spaces_ are:
+The *predefined XYZ spaces* are:
 
 * `xyz`
 * `xyz-d50`
@@ -693,7 +693,7 @@ value of that same component in the other color. In all other cases, the
 missing value is treated as `0`.
 
 For the sake of [interpolating] between colors with missing components, the
-following _analogous components_ are defined by [CSS Color Level 4][color-4]:
+following *analogous components* are defined by [CSS Color Level 4][color-4]:
 
 | Category      | Components          |
 | ------------- | ------------------- |
@@ -737,7 +737,7 @@ in certain circumstances.
 
 ### Color Interpolation Method
 
-A _color interpolation method_ is a space-separated list of unquoted strings,
+A *color interpolation method* is a space-separated list of unquoted strings,
 parsed according to the following syntax definition:
 
 <x><pre>
@@ -751,9 +751,9 @@ parsed according to the following syntax definition:
 &#32;                            ) 'hue'
 </pre></x>
 
-A valid _PolarColorSpace_ is the name of a [known color space] with a polar
-angle hue channel. A _RectangularColorSpace_ is the name of any other
-[known color space], without a polar-angle hue. The _interpolation color space_
+A valid *PolarColorSpace* is the name of a [known color space] with a polar
+angle hue channel. A *RectangularColorSpace* is the name of any other
+[known color space], without a polar-angle hue. The *interpolation color space*
 is the result of [looking up a known color space] named by either the
 `PolarColorSpace` or `RectangularColorSpace` productions.
 
@@ -950,131 +950,131 @@ three values: a color space, a list of channel values, and an alpha value.
 
 The procedure is:
 
-  * If `input` is a [special variable string], return an unquoted string with
+* If `input` is a [special variable string], return an unquoted string with
     the value of `input`.
 
-  * If `input` is a bracketed list, or a list with a separator other than
+* If `input` is a bracketed list, or a list with a separator other than
     'slash' or 'space', throw an error.
 
-  * If `input` is a slash-separated list:
+* If `input` is a slash-separated list:
 
-    * If `input` doesn't have exactly two elements, throw an error.
+  * If `input` doesn't have exactly two elements, throw an error.
 
-    * Otherwise, let `components` be the first element and `alpha` the second
+  * Otherwise, let `components` be the first element and `alpha` the second
       element of `input`.
 
-  * Otherwise:
+* Otherwise:
 
-    * Let `components` be an unbracketed space separated list of all except the
+  * Let `components` be an unbracketed space separated list of all except the
       last element of `input`.
 
-    * If the last element of `input` is an unquoted string that contains `/`:
+  * If the last element of `input` is an unquoted string that contains `/`:
 
-      * Let `split-last` be the result calling `string.split()` with the last
+    * Let `split-last` be the result calling `string.split()` with the last
         element of `input` as the string to split, and `/` as the separator.
 
-      * If `split-last` has two items, and one or both items are an unquoted
+    * If `split-last` has two items, and one or both items are an unquoted
         string that's case-insensitively equal to 'none':
 
         > Special handling for `none/none`, `none/<number>`, and `<number>/none`.
 
-        * If either item in `split-last` can be coerced to a number, replace
+      * If either item in `split-last` can be coerced to a number, replace
           the current value of the item with the resulting number value.
 
-        * If any item in `split-last` is not a number or an unquoted string
+      * If any item in `split-last` is not a number or an unquoted string
           that's case-insensitively equal to 'none', return an unquoted string
           with the value of `input`.
 
-        * Otherwise, let `alpha` be the second element in `split-last`, and
+      * Otherwise, let `alpha` be the second element in `split-last`, and
           append the first element of `split-last` to `components`.
 
-      * Otherwise, return an unquoted string with the value of `input`.
+    * Otherwise, return an unquoted string with the value of `input`.
 
       > This solves for a legacy handling of `/` in Sass that would produce an
       > unquoted string when the alpha value is a CSS function such as `var()`
       > or when either value is `none`.
 
-    * Otherwise, if the last element of `input` has preserved its status as two
+  * Otherwise, if the last element of `input` has preserved its status as two
       slash-separated numbers:
 
-      * Let `alpha` be the number after the slash, and append the number before
+    * Let `alpha` be the number after the slash, and append the number before
         the slash to `components`.
 
-    * Otherwise, append the last element of `input` to `components`.
+  * Otherwise, append the last element of `input` to `components`.
 
-  * If `components` is an empty list, throw an error.
+* If `components` is an empty list, throw an error.
 
-  * If `components` is a [special variable string]:
+* If `components` is a [special variable string]:
 
-    * Let `channels` be the value of `components`.
+  * Let `channels` be the value of `components`.
 
-  * Otherwise:
+* Otherwise:
 
-    * If `components` is not an unbracketed space-separated list, throw an error.
+  * If `components` is not an unbracketed space-separated list, throw an error.
 
-    * If `space` is null:
+  * If `space` is null:
 
-      * Let `input-space` be the first element in `components`.
+    * Let `input-space` be the first element in `components`.
 
-      * If `input-space` is a [special variable string], return an unquoted
+    * If `input-space` is a [special variable string], return an unquoted
         string with the value of `input`.
 
-      * Set `space` be the result of [looking up a known color space] with the
+    * Set `space` be the result of [looking up a known color space] with the
         name `input-space`.
 
-      * If `space` is not a [predefined color space], throw an error.
+    * If `space` is not a [predefined color space], throw an error.
 
         > Only predefined spaces can be passed in as color syntax components.
         > All other known color spaces use explicit functions.
 
-      * Let `channels` be an unbracketed space-separated list with the
+    * Let `channels` be an unbracketed space-separated list with the
         remaining elements from `components`.
 
-    * Otherwise, let `channels` be the value of `components`.
+  * Otherwise, let `channels` be the value of `components`.
 
-    * Let `expected` be the number of channels in `space`.
+  * Let `expected` be the number of channels in `space`.
 
-    * If any element of `channels` is not either a number, a special variable
+  * If any element of `channels` is not either a number, a special variable
       string, a [special number], or an unquoted string that's
       case-insensitively equal to 'none', throw an error.
 
-  * If `alpha` is null, let `alpha` be `1`.
+* If `alpha` is null, let `alpha` be `1`.
 
-  * Otherwise, If `alpha` is not a [special number]:
+* Otherwise, If `alpha` is not a [special number]:
 
-    * If `alpha` is a number, set `alpha` to the result of
+  * If `alpha` is a number, set `alpha` to the result of
       [percent-converting] `alpha` with a max of 1, and then clamping the value
       between 0 and 1, inclusive.
 
-    * Otherwise, throw an error.
+  * Otherwise, throw an error.
 
-  * If `channels` is a [special variable string], or if `alpha` is a [special
+* If `channels` is a [special variable string], or if `alpha` is a [special
     number], return an unquoted string with the value of `input`.
 
-  * If any element of `channels` is a [special number]:
+* If any element of `channels` is a [special number]:
 
-    * If `space` is a [legacy color] space:
+  * If `space` is a [legacy color] space:
 
-      * Let `comma-list` be the result of calling
+    * Let `comma-list` be the result of calling
         `list.append(channels, alpha, 'comma')`.
 
-      * Return an unquoted string with the value of `comma-list`.
+    * Return an unquoted string with the value of `comma-list`.
 
-    * Otherwise, return an unquoted string with the value of `input`.
+  * Otherwise, return an unquoted string with the value of `input`.
 
     > Doing this late in the process allows us to throw any obvious syntax
     > errors, even for colors that can't be fully resolved during compilation.
 
-  * If the length of `channels` is not equal to `expected`, throw an error.
+* If the length of `channels` is not equal to `expected`, throw an error.
 
     > Once special values have been handled, any colors remaining should have
     > exactly the expected number of channels.
 
-  * Set `channels` to the result of [normalizing] `channels` in `space`.
+* Set `channels` to the result of [normalizing] `channels` in `space`.
 
-  * Let `space-name` be a lowercase unquoted string of the `space` name.
+* Let `space-name` be a lowercase unquoted string of the `space` name.
 
-  * Return `space-name`, `channels` channels, and `alpha` alpha value.
+* Return `space-name`, `channels` channels, and `alpha` alpha value.
 
 [special variable string]: ../spec/functions.md#special-variable-string
 [special number]: ../spec/functions.md#special-number
@@ -1265,14 +1265,14 @@ input colors.
 
 * If `weight == 1`, return `color1`.
 
-* Let `space` be the _interpolation color space_ specified by the `method`
+* Let `space` be the *interpolation color space* specified by the `method`
   [color interpolation method].
 
   > Only known color spaces are allowed as part of a color interpolation method.
 
 * If `space` is a [PolarColorSpace][color-method]:
 
-    * Let `hue-arc` be the `HueInterpolationMethod` specified in `method`, or
+  * Let `hue-arc` be the `HueInterpolationMethod` specified in `method`, or
       `shorter` if no hue interpolation is specified.
 
 * Set `color1` and `color2` respectively to the results of [converting] `color1`
@@ -1683,10 +1683,10 @@ This function is also available as a global function named `change-color()`.
 
 * If the keyword argument `$space` is specified in `$args`:
 
-    * Let `known-space` be the result [looking up a known color space] named
+  * Let `known-space` be the result [looking up a known color space] named
       `$space`.
 
-    * If `space != origin-space`, set `color` to the result of calling
+  * If `space != origin-space`, set `color` to the result of calling
       `color.to-space(color, space)`.
 
 * Otherwise, let `known-space` be `origin-space`.
@@ -1695,7 +1695,7 @@ This function is also available as a global function named `change-color()`.
 
 * If the keyword argument `$alpha` is specified in `$args`:
 
-    * Set `alpha` to the result of [percent-converting] `$alpha`, and clamping
+  * Set `alpha` to the result of [percent-converting] `$alpha`, and clamping
       it between 0 and 1 (inclusive).
 
 * Let `channel-args` be the remaining keyword arguments in `$args`, not
@@ -1760,10 +1760,10 @@ This function is also available as a global function named `adjust-color()`.
 
 * If the keyword argument `$space` is specified in `$args`:
 
-    * Let `known-space` be the result [looking up a known color space] named
+  * Let `known-space` be the result [looking up a known color space] named
       `$space`.
 
-    * If `space != origin-space`, set `color` to the result of calling
+  * If `space != origin-space`, set `color` to the result of calling
       `color.to-space(color, space)`.
 
 * Otherwise, let `known-space` be `origin-space`.
@@ -1772,7 +1772,7 @@ This function is also available as a global function named `adjust-color()`.
 
 * If the keyword argument `$alpha` is specified in `$args`:
 
-    * If `alpha == none`, throw an error.
+  * If `alpha == none`, throw an error.
 
       > This is not the ideal solution for handling `none`, but we want to
       > match CSS relative color syntax if possible. Throwing an error for now
@@ -1861,10 +1861,10 @@ This function is also available as a global function named `scale-color()`.
 
 * If the keyword argument `$space` is specified in `$args`:
 
-    * Let `space` be the result of [looking up a known color space] named
+  * Let `space` be the result of [looking up a known color space] named
       `$space`.
 
-    * Let `color` be the result of [converting] `$color` to `space`.
+  * Let `color` be the result of [converting] `$color` to `space`.
 
 * Otherwise:
 
@@ -1876,13 +1876,13 @@ This function is also available as a global function named `scale-color()`.
 
 * If the keyword argument `$alpha` is specified in `$args`:
 
-    * If `alpha == none`, throw an error.
+  * If `alpha == none`, throw an error.
 
       > This is not the ideal solution for handling `none`, but we want to
       > match CSS relative color syntax if possible. Throwing an error for now
       > means we can adjust to match the CSS behavior once it is defined.
 
-    * Set `alpha` to the result of [scaling] `alpha` by `$alpha` with `max` 1.
+  * Set `alpha` to the result of [scaling] `alpha` by `$alpha` with `max` 1.
 
 * Let `channel-args` be the remaining keyword arguments in `$args`, not
   including `$space` or `$alpha` arguments.
@@ -2003,8 +2003,8 @@ This function is also available as a global function named `invert()`.
 
 * If `$weight == 0%`, return the value of `$color`.
 
-* If `space` is not a valid [color interpolation method] _interpolation color
-  space_, and `$weight != 100%`, throw an error.
+* If `space` is not a valid [color interpolation method] *interpolation color
+  space*, and `$weight != 100%`, throw an error.
 
 * Let `color` be the result of [converting] `$color` into `space`.
 
@@ -2098,7 +2098,6 @@ ie-hex-str($color)
 * Append `hex-alpha` as the next item in `hex-list`.
 
 * Return the result of concatenating `hex-list` into a string.
-
 
 ## New Global Functions
 

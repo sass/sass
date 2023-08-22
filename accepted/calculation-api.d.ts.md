@@ -290,8 +290,6 @@ export type CalculationOperator = '+' | '-' | '*' | '/';
 
 The JS API representation of a Sass [`CalculationOperation`].
 
-[CalculationOperation]: ../spec/types/calculation.md#types
-
 ```ts
 export class CalculationOperation implements ValueObject {
 ```

@@ -18,7 +18,7 @@
 ## Draft 1.4
 
 * Don't exempt percentages from most functions' simplification logic, since
-  those functions don't allow _any_ units in CSS, including percents. Now only
+  those functions don't allow *any* units in CSS, including percents. Now only
   `abs()`, `sign()`, `atan2()`, and `hypot()` check for known units because CSS
   allows percentages for them but they aren't linear so they can't be resolved
   in terms of percentages in Sass.

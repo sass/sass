@@ -18,7 +18,7 @@ extend(a.foo, a, b) = a.foo, b.foo
 extend(c, a, b) = c
 ```
 
-### Specificity of the Base Selector
+## Specificity of the Base Selector
 
 Note that so far, it's always the case that `extend(S, A, B)[0] = S`. However,
 consider `extend(a.foo, .foo, a)`. One interpretation of this would give the
@@ -62,12 +62,12 @@ This new selector has higher specificity than the original. As such, we must
 allow the generated selector to have higher specificity than the original in
 some cases.
 
-#### First Law of Extend: `spec(extend(S, A, B)[0]) >= spec(S)`
+### First Law of Extend: `spec(extend(S, A, B)[0]) >= spec(S)`
 
 This is not always the behavior in Sass, either in master or in stable; this is
 clearly a bug that should be fixed.
 
-### Specificity of Generated Selectors
+## Specificity of Generated Selectors
 
 Now that we've established what `spec(extend(S, A, B)[0])` should look like,
 it's time to think about what `spec(extend(S, A, B)[1])` should look like as
@@ -97,9 +97,9 @@ There is one guarantee we can make, though:
 `spec(extend(S, A, B)[1]) >= spec(B)`, since everything in `S` is either merged
 with or added to `B`.
 
-#### Second Law of Extend: `spec(extend(S, A, B)[1]) >= spec(B)`
+### Second Law of Extend: `spec(extend(S, A, B)[1]) >= spec(B)`
 
-### Implications for Optimization
+## Implications for Optimization
 
 The ultimate goal of this discussion is, of course, that we want to be able to
 perform certain optimizations on the generated selectors in order to reduce
@@ -120,7 +120,7 @@ However, many of the optimizations added in [8f4869e][] do still work. For
 example, `extend(.bar a, a, a.foo) = .bar a` works because
 `spec(.bar a) = spec(a.foo)`.
 
-### Conclusion
+## Conclusion
 
 As long as we make the `@extend` optimizer specificity-aware, we can retain a
 number of useful optimizations while still providing the same guarantees that

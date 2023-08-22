@@ -172,7 +172,7 @@ accepted.
 
   <x><pre>
   **MinMaxExpression** ::= CssMinMax | FunctionExpression
-  **CssMinMax**        ::= ('min(' | 'max(') CalcValue (',' CalcValue)* ')'
+  **CssMinMax**        ::= ('min(' | 'max(') CalcValue (',' CalcValue)\* ')'
   **CalcValue**        ::= CalcValue (('+' | '-' | '*' | '/') CalcValue)+
   &#32;                  | '(' CalcValue ')'
   &#32;                  | ('calc(' | 'env(' | 'var(') InterpolatedDeclarationValue ')'
