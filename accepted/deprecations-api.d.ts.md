@@ -4,6 +4,7 @@
 [Changelog](deprecations-api.changes.md))*
 
 ## Table of Contents
+
 * [Background](#background)
 * [Summary](#summary)
   * [Design Decisions](#design-decisions)
@@ -110,7 +111,7 @@ that applies only to itself, it may still do so.
 Additionally, while a deprecation's status is part of the specification, we
 chose to leave the `deprecatedIn` and `obsoleteIn` versions of each
 deprecation out of the specification. As the two current implementers of this
-API are both based on Dart Sass, these versions are _currently_ consistent
+API are both based on Dart Sass, these versions are *currently* consistent
 across implementations in practice, potential future implementers should not
 need to be tied to Dart Sass's versioning.
 
@@ -579,6 +580,7 @@ the compiler must respond with a `CompileFailure` instead of a `CompileSuccess`.
 
 The compiler must emit an event of type `LogEventType.WARNING` if any of the
 following is true:
+
 * an invalid deprecation ID is passed
 * an obsolete deprecation ID is passed
 * a future deprecation ID is passed that is not also passed to

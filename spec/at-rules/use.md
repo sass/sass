@@ -21,8 +21,6 @@ the current stylesheet, and includes its CSS in the compilation output.
 A `@use` rule's *module* is a [module][] associated with a `@use` rule. This
 module is only associated once the rule has been [executed](#semantics).
 
-[module]: ../modules.md#module
-
 ## Syntax
 
 The grammar for the `@use` rule is as follows:
@@ -138,4 +136,3 @@ To execute a `@use` rule `rule`:
   * If `variable` wasn't declared with a `!default` flag, throw an error.
 
 * Set [`rule`'s module](#a-use-rules-module) to `module`.
-

@@ -7,7 +7,7 @@
   * [Special Variable String](#special-variable-string)
 * [Syntax](#syntax)
 * [Semantics](#semantics)
-  * [`EmptyFallbackVar`:](#emptyfallbackvar)
+  * [`EmptyFallbackVar`](#emptyfallbackvar)
   * [`FunctionCall`](#functioncall)
 * [Global Functions](#global-functions)
   * [`adjust-hue()`](#adjust-hue)
@@ -76,14 +76,12 @@ matching is case-insensitive.
 **FunctionCall** ::= [NamespacedIdentifier][] ArgumentInvocation
 </pre></x>
 
-[NamespacedIdentifier]: modules.md#syntax
-
 No whitespace is allowed between the `NamespacedIdentifier` and the
 `ArgumentInvocation` in `FunctionCall`.
 
 ## Semantics
 
-### `EmptyFallbackVar`:
+### `EmptyFallbackVar`
 
 To evaluate an `EmptyFallbackVar` `call`:
 
@@ -435,8 +433,6 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
 
   * Call `hsl()` with `hue`, `saturation`, `lightness`, and `alpha` (if it's
     defined) as arguments and return the result.
-
-  [special variable string]: #special-variable-string
 
 ### `if()`
 

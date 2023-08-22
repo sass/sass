@@ -3,7 +3,7 @@
 * Throw an error when serializing a degenerate number with complex units in a
   calculation.
 
-* Clarify that we're checking for degenerate _values_ in "Converting a Number to
+* Clarify that we're checking for degenerate *values* in "Converting a Number to
   a Calculation".
 
 * Use `UnquotedString`s to represent unknown calculation constants rather than

@@ -68,16 +68,16 @@ silence real errors without providing any actual value.
 
 [Converting a Number to a Calculation]: #converting-a-number-to-a-calculation
 
-Whether and how we want to support this once browsers _can_ parse it is a
+Whether and how we want to support this once browsers *can* parse it is a
 question for another time.
 
 ## Definitions
 
 ### Degenerate Number
 
-The doubles `Infinity`, `-Infinity`, and `NaN` are _degenerate_.
+The doubles `Infinity`, `-Infinity`, and `NaN` are *degenerate*.
 
-A number is _degenerate_ if its value is degenerate.
+A number is *degenerate* if its value is degenerate.
 
 ## Syntax
 

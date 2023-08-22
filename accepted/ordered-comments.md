@@ -97,9 +97,9 @@ a {
 ```
 
 Linked order makes sense when using comments to annotate information about
-dependencies, but it's counterproductive when a user wants to annotate the _end_
+dependencies, but it's counterproductive when a user wants to annotate the *end*
 of a module, since that comment would be considered linked to the next module
-load. Traversal order handles that case better _and_ matches the old `@import`
+load. Traversal order handles that case better *and* matches the old `@import`
 behavior, so we chose to use it instead.
 
 ## Procedures

@@ -265,12 +265,12 @@ This algorithm takes a `CalculationValue` `value` and returns a
 
 * If `value` is a calculation:
 
-    * Let `result` be the result of [simplifying] `value`.
+  * Let `result` be the result of [simplifying] `value`.
 
-    * If `result` is a calculation whose name is `"calc"`, return `result`'s
-      single argument.
+  * If `result` is a calculation whose name is `"calc"`, return `result`'s
+    single argument.
 
-    * Otherwise, return `result`.
+  * Otherwise, return `result`.
 
   [simplifying]: #simplifying-a-calculation
 
