@@ -3,7 +3,7 @@
 *([Issue](https://github.com/sass/sass/issues/2834))*
 
 This proposal adds a new `hwb()` color format to the `sass:color` module, along
-with inspection and adjustment options for _whiteness_ and _blackness_.
+with inspection and adjustment options for *whiteness* and *blackness*.
 
 ## Table of Contents
 
@@ -42,12 +42,12 @@ module to avoid conflicts with the CSS syntax, and will be converted to more
 common color-name, hex, or `rgba()` syntax for output -- following the same
 logic as our current color functions.
 
-- New `color.hwb()` function describes colors in the sRGB colorspace using
+* New `color.hwb()` function describes colors in the sRGB colorspace using
   `$hue` (defined identically to the `hsl()` "hue" value), along with
   `$whiteness`, `$blackness`, and optional `$alpha` transparency.
-- New `color.whiteness()` and `color.blackness()` functions return the respective
+* New `color.whiteness()` and `color.blackness()` functions return the respective
   values of `w` or `b` for a given color.
-- Existing `color.adjust()`, `color.scale()`, and `color.change()` functions will
+* Existing `color.adjust()`, `color.scale()`, and `color.change()` functions will
   accept additional `$whiteness` and `$blackness` parameters before the final
   `$alpha` parameter.
 
@@ -136,7 +136,6 @@ All new functions are part of the `sass:color` built-in module.
 
   [percent-converting]: ../spec/built-in-modules/color.md#percent-converting-a-number
   [to RGB]: https://www.w3.org/TR/css-color-4/#hwb-to-rgb
-
 
 * ```
   hwb($channels)

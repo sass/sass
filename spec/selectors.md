@@ -28,7 +28,7 @@ combinator*) as well as a sequence of [complex selector components]. The
 component sequence may be empty only for complex selectors with leading
 combinators.
 
-[visible combinator]: #visible-combinator 
+[visible combinator]: #visible-combinator
 [complex selector components]: #complex-selector-component
 
 ### Complex Selector Component

@@ -74,7 +74,7 @@ recommend users explicitly write `math.abs()` or `abs(#{})` instead.
 
 This proposal substantially changes the way calculations are parsed, merging the
 syntax with the standard Sass expression syntax. Now the only difference between
-a calculation and a normal Sass function is how it's _evaluated_. This has the
+a calculation and a normal Sass function is how it's *evaluated*. This has the
 notable benefit of allowing calculations to coexist with user-defined Sass
 functions of the same name, preserving backwards-compatibility.
 
@@ -94,7 +94,7 @@ relatively easy to continue supporting in a deprecated state in the short term.
 #### Changing Mod Infinity Behavior
 
 This proposal changes the behavior of the `%` operation when the right-hand side
-is infinite _and_ has a different sign than the left-hand side. Sass used to
+is infinite *and* has a different sign than the left-hand side. Sass used to
 return the right-hand side in accordance with the floating point specification,
 but it now returns NaN to match CSS's `mod()` function.
 
@@ -118,7 +118,6 @@ An expression is "calculation-safe" if it is one of:
 * An `InterpolatedIdentifier`.
 
 [`FunctionExpression`]: ../spec/functions.md#syntax
-[`<ident-token>`]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
 
 > Because calculations have special syntax in CSS, only a subset of SassScript
 > expressions are valid (and these are interpreted differently than elsewhere).
@@ -183,7 +182,7 @@ original denominator.
 ## Syntax
 
 > Calculations are no longer parsed differently than other Sass productions.
-> Instead, they're _evaluated_ differently at runtime. This allows them to
+> Instead, they're *evaluated* differently at runtime. This allows them to
 > coexist with user-defined Sass functions even when their names overlap.
 
 ### `FunctionExpression`
@@ -331,7 +330,7 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
 
     > In this case, `number` is either `+0`, `-0`, or NaN.
 
-  > To match CSS's behavior, these computations _don't_ use fuzzy comparisons.
+  > To match CSS's behavior, these computations *don't* use fuzzy comparisons.
 
 * If `calc`'s name is `"log"`:
 
@@ -628,7 +627,7 @@ until the next major version release.
 > absolute value of the percentage itself.
 
 During the deprecation period, when simplifying a calculation named `"abs"`
-whose sole argument is a number _without_ [known units], return the result of
+whose sole argument is a number *without* [known units], return the result of
 calling `math.abs()` with that number and emit a deprecation warning named
 `abs-percent`.
 

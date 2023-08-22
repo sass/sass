@@ -51,9 +51,9 @@ as defined by [IEEE 754 2019], §3.2-3.3.
 
 ### Degenerate Number
 
-The doubles `Infinity`, `-Infinity`, and `NaN` are _degenerate_.
+The doubles `Infinity`, `-Infinity`, and `NaN` are *degenerate*.
 
-A number is _degenerate_ if its value is degenerate.
+A number is *degenerate* if its value is degenerate.
 
 ### Conversion Factors
 
@@ -131,8 +131,6 @@ possible-compatibility.
 > Units]. Note that all unknown units are possibly-compatible with all other
 > units; this preserves forwards-compatibility with new units that are
 > introduced in browsers over time.
-
-[CSS Values and Units]: https://www.w3.org/TR/css-values-3/
 
 | Type           | Units                                                                                        |
 | -------------- | -------------------------------------------------------------------------------------------- |
@@ -246,8 +244,6 @@ The value type known as a *number* has three components:
 * A [double] called its "value".
 * A list of strings called *numerator units*.
 * A list of strings called *denominator units*.
-
-[double]: #doubles
 
 Several shorthands exist when referring to numbers:
 

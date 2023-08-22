@@ -1,3 +1,7 @@
+## Draft 1.7
+
+* Resolve missing `alpha` channels *after* premultiplying colors.
+
 ## Draft 1.6
 
 * Clarify in the known color space definitions that lightness channels are
@@ -84,7 +88,7 @@
   function syntax is already explicit about which parameter is where.
 
 * `color.invert()` throws an error when `$weight` would require mixing in an
-  invalid `color.mix()` _interpolation color space_.
+  invalid `color.mix()` *interpolation color space*.
 
 * Allow scaling channels with a non-0 minimum value, such as the `a` and `b`
   channels in `lab()`/`oklab()`.

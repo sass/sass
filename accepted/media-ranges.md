@@ -69,7 +69,6 @@ intended to replace the existing syntax.
 &#32;                 | '(' Expression² <mf-gt> Expression² <mf-gt> Expression² ')'
 </pre></x>
 
-
 1: This `InterpolatedIdentifier` may not be the identifier `"and"`.
 
 2: These `Expression`s may not contain binary operator expressions with the

@@ -380,8 +380,6 @@ case-insensitively.
 
 †: These productions are invalid in plain CSS syntax.
 
-[`<function-token>`]: https://drafts.csswg.org/css-syntax-3/#ref-for-typedef-function-token%E2%91%A0
-
 > The `CalcArgument` production provides backwards-compatibility with the
 > historical use of interpolation to inject SassScript values into `calc()`
 > expressions. Because interpolation could inject any part of a `calc()`
@@ -544,12 +542,12 @@ This algorithm takes a `CalculationValue` `value` and returns a
 
 * If `value` is a calculation:
 
-    * Let `result` be the result of [simplifying] `value`.
+  * Let `result` be the result of [simplifying] `value`.
 
-    * If `result` is a calculation whose name is `"calc"`, return `result`'s
+  * If `result` is a calculation whose name is `"calc"`, return `result`'s
       single argument.
 
-    * Otherwise, return `result`.
+  * Otherwise, return `result`.
 
   [simplifying]: #simplifying-a-calculation
 
