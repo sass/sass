@@ -248,8 +248,10 @@ Let `n1` and `n2` be two numbers. To determine `n1 % n2`:
 This algorithm takes a [`FunctionCall`] `call` whose name is a plain identifier
 and returns a number or a calculation.
 
-* If `call`'s `ArgumentInvocation` contains one or more `KeywordArg`s or one or
-  more `RestArg`s, throw an error.
+[`FunctionCall`]: ../spec/functions.md#functioncall
+
+* If `call`'s `ArgumentInvocation` contains one or more `KeywordArgument`s or
+  one or more `RestArgument`s, throw an error.
 
 * Let `calc` be a calculation whose name is the lower-case value of `call`'s
   name and whose arguments are the result of evaluating each `Expression` in
@@ -384,6 +386,7 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
 
       * Otherwise, return `result`.
 
+  [compatible]: ../spec/types/number.md#compatible-units
   [definitely-incompatible]: ../spec/types/number.md#possibly-compatible-numbers
   [exactly equals]: #exact-equality
 
@@ -519,6 +522,7 @@ global function:
   [calculation-safe], return the result of evaluating `call` [as a calculation].
 
   [calculation-safe]: #calculation-safe-expression
+  [as a calculation]: #evaluating-a-functioncall-as-a-calculation
 
 * If `function` is null and `name` is case-insensitively equal to `"calc"`,
   `"clamp"`, `"hypot"`, `"sin"`, `"cos"`, `"tan"`, `"asin"`, `"acos"`, `"atan"`,
