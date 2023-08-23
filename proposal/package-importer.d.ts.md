@@ -253,8 +253,8 @@ Package Importers will reject the following patterns:
 
 The Node Package Importer is the built-in implementation of a [Package Importer]
 using the standards and conventions of the Node ecosystem. When the Node Package
-Importer is invoked with a string named `string` and a [previous URL]
-`previousURL`:
+Importer is invoked with a string named `string` and a `baseURL` which is either
+the [previous URL] or the `file:` URL to the entry point:
 
 * If `string` is a relative URL, return null.
 
@@ -264,7 +264,7 @@ Importer is invoked with a string named `string` and a [previous URL]
 * If `url`'s scheme is not `pkg:`, return null.
 
 * Let `resolved` be the result of [resolving a `pkg:` URL as Node] with `url` and
-  `previousURL`.
+  `baseURL`.
 
 * If `resolved` is null, return null.
 
@@ -292,7 +292,7 @@ Importer is invoked with a string named `string` and a [previous URL]
 ### Node Algorithm for Resolving a `pkg:` URL
 
 This algorithm takes a URL with scheme `pkg:` named `url`, and an optional URL
-`previousURL`. It returns a canonical `file:` URL or null.
+`baseURL`. It returns a canonical `file:` URL or null.
 
 * Let `fullPath` be `url`'s path.
 
@@ -300,7 +300,7 @@ This algorithm takes a URL with scheme `pkg:` named `url`, and an optional URL
   and `subpath` be the path without the `packageName`.
 
 * Let `packageRoot` be the result of [resolving the root directory for a
-  package] with `packageName` and `previousURL`.
+  package] with `packageName` and `baseURL`.
 
 * If a `package.json` file does not exist at `packageRoot`, throw an error.
 
@@ -349,14 +349,11 @@ the Node package.
 
 ### Resolving the root directory for a package
 
-This algorithm takes a string, `packageName`, and an optional absolute URL
-`previousURL`, and returns an absolute URL to the root directory for the most
-proximate installed `packageName`.
+This algorithm takes a string, `packageName`, and an absolute URL `baseURL`, and
+returns an absolute URL to the root directory for the most proximate installed
+`packageName`.
 
-* Let `parentURL` be the value of `previousURL` if it is defined, otherwise the
-  URL to the current directory.
-
-* Return the result of `PACKAGE_RESOLVE(packageName, parentURL)` as defined in
+* Return the result of `PACKAGE_RESOLVE(packageName, baseURL)` as defined in
   the [Node resolution algorithm specification].
 
 [Node resolution algorithm specification]: https://nodejs.org/api/esm.html#resolution-algorithm-specification
