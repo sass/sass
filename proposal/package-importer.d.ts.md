@@ -56,7 +56,7 @@ Once resolved, this URL will be loaded in the same way as any other `file:` URL.
 This proposal also defines a built-in Node importer.
 
 For example, `@use "pkg:bootstrap";` would resolve to the path of a
-library-defined export within the `bootstrap` dependency. In Node, that would be
+library-defined export within the `bootstrap` dependency. In Node, that could be
 resolved within `node_modules`, using the [Node resolution algorithm].
 
 [node resolution algorithm]: https://nodejs.org/api/packages.html
@@ -298,7 +298,7 @@ a [previous URL] `previousURL`:
 ### Node Algorithm for Resolving a `pkg:` URL
 
 This algorithm takes a URL with scheme `pkg:` named `url`, and an optional URL
-`previousURL`. It returns a canonical file path or null.
+`previousURL`. It returns a canonical `file:` URL or null.
 
 * Let `fullPath` be `url`'s path.
 
