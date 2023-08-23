@@ -139,7 +139,6 @@ created, if the type is not specified, it is considered *explicit*.
 This proposal modifies the fourth bullet of the [Loading Modules][] procedure
 within the [module system spec][] to read as follows:
 
-
 * If `file` has already been [executed][]:
 
   * If `config` is **explicit and** not empty, throw an error.

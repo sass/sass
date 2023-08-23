@@ -660,8 +660,6 @@ Replace this function's procedure with:
 * Let `double` be the value of [converting `$number` to `rad`] allowing
   unitless.
 
-  [converting `$number` to `rad`]: #converting-a-number-to-units
-
 * Return a unitless number whose value is the result of `sin(double)` as defined
   by [IEEE 754 2019], §9.2.
 
@@ -671,8 +669,6 @@ Replace this function's procedure with:
 
 * Let `double` be the value of [converting `$number` to `rad`] allowing
   unitless.
-
-  [converting `$number` to `rad`]: #converting-a-number-to-units
 
 * Return a unitless number whose value is the result of `tan(double)` as defined
   by [IEEE 754 2019], §9.2.

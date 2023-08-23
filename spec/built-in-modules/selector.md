@@ -55,7 +55,7 @@ representation of a CSS selector.
 
       * Append a comma to `text` unless `complex` is the last element of
         `selector`.
-      
+
 * Otherwise, if `selector` is not a string, throw an error.
 
 * Otherwise, set `text` to the contents of `selector`.
@@ -134,8 +134,6 @@ This function is also available as a global function named `selector-replace()`.
   selector from] `$selector`, `$original`, and `$replacement`, respectively.
 
 * If any of `selector`, `original`, or `replacement` is [bogus], throw an error.
-
-  [bogus]: ../selectors.md#bogus-selector
 
 * > Additional semantics have not yet been explicitly written.
 

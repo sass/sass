@@ -14,13 +14,13 @@ still supported for backwards-compatibility.
 ## Syntax
 
 <x><pre>
-**ImportRule**            ::= '@import' (ImportArgumentNoMedia ',')* ImportArgument
+**ImportRule**            ::= '@import' (ImportArgumentNoMedia ',')\* ImportArgument
 **ImportArgumentNoMedia** ::= ImportUrl ImportModifierNoMedia*
 **ImportArgument**        ::= ImportUrl ImportModifier
-**ImportModifierNoMedia** ::= InterpolatedIdentifier* (ImportFunction | ImportSupports)
-**ImportModifier**        ::= ImportModifierNoMedia* InterpolatedIdentifier* ImportMedia?
-**ImportMedia**           ::= [MediaFeatureInParens] (',' [MediaQueryList])*
-&#32;                       | InterpolatedIdentifier (',' [MediaQueryList])*
+**ImportModifierNoMedia** ::= InterpolatedIdentifier\* (ImportFunction | ImportSupports)
+**ImportModifier**        ::= ImportModifierNoMedia\* InterpolatedIdentifier\* ImportMedia?
+**ImportMedia**           ::= [MediaFeatureInParens] (',' [MediaQueryList])\*
+&#32;                       | InterpolatedIdentifier (',' [MediaQueryList])\*
 **ImportSupports**        ::= 'supports(' SupportsDeclaration ')'
 **ImportFunction**        ::= [InterpolatedIdentifier]¹ '(' InterpolatedDeclarationValue? ')'
 **ImportUrl**             ::= QuotedString | [InterpolatedUrl][]
@@ -137,10 +137,10 @@ To execute an `@import` rule `rule`:
 
   * Add `imported`'s [extensions][] to the current module.
 
-   * If the `@import` rule is nested within at-rules and/or style rules, add each
+  * If the `@import` rule is nested within at-rules and/or style rules, add each
      member in `imported` to the local [scope][].
 
-   * Otherwise, add each member in `imported` to the current import context and
+  * Otherwise, add each member in `imported` to the current import context and
      the current module.
 
     > Members defined directly in `imported` will have already been added to

@@ -16,7 +16,11 @@ jobs:
     - uses: actions/setup-node@v3
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
-    - run: npm run tangle && npx gts lint && npx tsc --noEmit
+    - run: >
+        npm run tangle &&
+          npx gts lint &&
+          npx tsc --noEmit &&
+          npx markdownlint-cli2
 
   toc:
     name: Tables of contents
@@ -134,7 +138,7 @@ jobs:
 
     - name: Find changed files in js-api-doc
       id: changed-files
-      uses: tj-actions/changed-files@85c8b8252fc9893e00b3633a16670e53040e6d71
+      uses: tj-actions/changed-files@a0585ff9904b77d046192a7846e59783d6ea287b
       with: {files: js-api-doc}
 
     - name: Deploy

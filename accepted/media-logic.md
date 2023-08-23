@@ -61,8 +61,8 @@ all identifiers matched case-insensitively):
 
 <x><pre>
 **MediaQuery**     ::= MediaNot
-&#32;                | MediaInParens (MediaAnd* | MediaOr*)
-&#32;                | MediaType ('and' MediaNot | MediaAnd*)
+&#32;                | MediaInParens (MediaAnd\* | MediaOr\*)
+&#32;                | MediaType ('and' MediaNot | MediaAnd\*)
 **MediaType**      ::= [InterpolatedIdentifier] [InterpolatedIdentifier]¹?
 **MediaNot**²      ::= 'not' MediaOrInterp
 **MediaAnd**²      ::= 'and' MediaOrInterp
@@ -73,7 +73,7 @@ all identifiers matched case-insensitively):
 &#32;                | '(' Expression³ [\<mf-lt>] Expression³ [\<mf-lt>] Expression³ ')'
 &#32;                | '(' Expression³ [\<mf-gt>] Expression³ [\<mf-gt>] Expression³ ')'
 &#32;                | '(' MediaNot ')'
-&#32;                | '(' MediaInParens (MediaAnd* | MediaOr*) ')'
+&#32;                | '(' MediaInParens (MediaAnd\* | MediaOr\*) ')'
 </pre></x>
 
 [InterpolatedIdentifier]: ../spec/syntax.md#interpolatedidentifier

@@ -106,7 +106,6 @@ No whitespace is allowed between components of an `InterpolatedUnquotedUrlConten
 
 [\<declaration-value>]: https://www.w3.org/TR/css-syntax-3/#typedef-declaration-value
 [\<an+b>]: https://www.w3.org/TR/css-syntax-3/#the-anb-type
-[\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
 
 1: The string `of` is matched case-insensitively. In addition, it must be parsed
    as an identifier.
@@ -295,7 +294,6 @@ This algorithm consumes input from a stream of [code points][] and returns a
 sequence of strings and/or expressions. It follows the grammar for an
 [`InterpolatedIdentifier`][].
 
-[code points]: https://infra.spec.whatwg.org/#code-point
 [`InterpolatedIdentifier`]: #interpolatedidentifier
 
 * Let `components` be an empty list of strings and/or expressions.

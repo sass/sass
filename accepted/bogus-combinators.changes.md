@@ -4,7 +4,7 @@
 
   * Clarify the definition of bogus selectors.
 
-  * Only omit style rules if _all_ of their complex selectors are bogus.
+  * Only omit style rules if *all* of their complex selectors are bogus.
 
   * Expand the set of selectors that are treated by the extend algorithm as
     matching nothing to include bogus pseudo selectors, since these can never be

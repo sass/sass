@@ -37,7 +37,7 @@ identifiers are matched case-insensitively:
 &#32;                | '(' Expression³ [\<mf-lt>] Expression³ [\<mf-lt>] Expression³ ')'
 &#32;                | '(' Expression³ [\<mf-gt>] Expression³ [\<mf-gt>] Expression³ ')'
 &#32;                | '(' MediaNot ')'
-&#32;                | '(' MediaInParens (MediaAnd* | MediaOr*) ')'
+&#32;                | '(' MediaInParens (MediaAnd\*| MediaOr\*) ')'
 </pre></x>
 
 [InterpolatedIdentifier]: ../syntax.md#interpolatedidentifier
