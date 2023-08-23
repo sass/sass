@@ -50,8 +50,9 @@ theme or access styling utilities.
 
 This proposal defines a `pkg:` URL scheme for usage with `@use` that directs an
 implementation to resolve a URL within a dependency. The implementation will
-resolve the dependency URL using the standard resolution for that environment.
-Once resolved, this URL will be loaded in the same way as any other `file:` URL.
+resolve the dependency URL using the resolution standards and conventions for
+that environment. Once resolved, this URL will be loaded in the same way as any
+other `file:` URL.
 
 This proposal also defines a built-in Node importer.
 
@@ -69,7 +70,7 @@ The built-in Node importer resolves in the following order:
 
 2. `style` condition in package.json `exports`.
 
-3. If no subpath, then find root export:
+3. If there is not a subpath, then find the root export:
 
    1. `sass` key at package.json root.
 
@@ -78,10 +79,11 @@ The built-in Node importer resolves in the following order:
    3. `index` file at package root, resolved for file extensions and partials.
 
 4. If there is a subpath, resolve that path relative to the package root, and
-   resolve for file extensions and partials
+   resolve for file extensions and partials.
 
 For library creators, the recommended method is to add a `sass` conditional
-export key as the first key in `package.json`.
+export to `package.json`, with the `sass` key being the first listed condition
+for the exported file path.
 
 ```json
 {
@@ -137,7 +139,7 @@ importers to fit their needs.
 #### Available as an opt-in setting
 
 The `pkg:` import loader will be exposed through an opt-in setting as it adds the
-potential for file system interaction to `compileString` and
+potential for unexpected file system interaction to `compileString` and
 `compileStringAsync`. Specifically, we want people who invoke Sass compilation
 functions to have control over what files get accessed, and there's even a risk
 of leaking file contents in error messages.
@@ -145,7 +147,8 @@ of leaking file contents in error messages.
 #### Available in legacy API
 
 The built-in Node Package Importer will be added to the legacy API in order to
-reduce the barrier to adoption.
+reduce the barrier to adoption. While the legacy API is deprecated, we
+anticipate the implementation to be straightforward.
 
 #### Node Resolution Decisions
 
@@ -188,8 +191,10 @@ with `exports` as below, The Node package importer will resolve a
 
 ```json
 {
-  "_variables.scss": {
-    "sass": "./src/sass/_variables.scss"
+  "exports": {
+    "_variables.scss": {
+      "sass": "./src/sass/_variables.scss"
+    }
   }
 }
 ```
@@ -211,25 +216,11 @@ Defaults to undefined.
 ```ts
 declare module '../spec/js-api/options' {
   interface Options<sync extends 'sync' | 'async'> {
-    /**
-     * Specifies which, if any, built-in package importer to resolve any URL
-     * with the `pkg:` scheme. The `node` importer follows Node resolution logic.
-     *
-     * @defaultValue `undefined`
-     * @category Input
-     */
     pkgImporter?: 'node';
   }
 }
 
 export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
-  /**
-   * Specifies which, if any, built-in package importer to resolve any URL
-   * with the `pkg:` scheme. The `node` importer follows Node resolution logic.
-   *
-   * @defaultValue `undefined`
-   * @category Input
-   */
   pkgImporter?: 'node';
 }
 ```
@@ -240,11 +231,10 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
 
 This proposal defines the requirements for Package Importers written by users or
 provided by implementations. It is a type of [Importer] and, in addition to the
-standard requirements for importers, it must handle only the following
-non-canonical URLs:
+standard requirements for importers, it must handle only non-canonical URLs that:
 
-* with the scheme `pkg`
-* whose path begins with a package name
+* have the scheme `pkg`, and
+* whose path begins with a package name, and
 * optionally followed by a path, with path segments separated with a forward
   slash.
 
@@ -261,16 +251,19 @@ Package Importers will reject the following patterns:
 
 ### Node Package Importer
 
-The Node package importer is an [importer] with an associated absolute `pkg:`
-URL. When the Node package importer is invoked with a string named `string` and
-a [previous URL] `previousURL`:
+The Node Package Importer is the built-in implementation of a [Package Importer]
+using the standards and conventions of the Node ecosystem. When the Node Package
+Importer is invoked with a string named `string` and a [previous URL]
+`previousURL`:
+
+* If `string` is a relative URL, return null.
 
 * Let `url` be the result of [parsing `string` as a URL][parsing a URL]. If this
   returns a failure, throw that failure.
 
 * If `url`'s scheme is not `pkg:`, return null.
 
-* Let `resolved` be the result of [resolving a `pkg:` URL] with `url` and
+* Let `resolved` be the result of [resolving a `pkg:` URL as Node] with `url` and
   `previousURL`.
 
 * If `resolved` is null, return null.
@@ -285,13 +278,14 @@ a [previous URL] `previousURL`:
 
   * "css" if `resolved` ends in `.css`.
 
-  > The algorithm for [resolving a `file:` URL](../spec/modules.md#resolving-a-file-url)
-  > guarantees that `resolved` will have one of these extensions.
+  > The algorithm for [resolving a `pkg:` URL as Node] guarantees that
+  > `resolved` will have one of these extensions.
 
 * Return `text`, `syntax`, and `resolved`.
 
+[Package Importer]: #package-importers
 [parsing a URL]: https://url.spec.whatwg.org/#concept-url-parser
-[resolving a `pkg:` URL]: #node-algorithm-for-resolving-a-pkg-url
+[resolving a `pkg:` URL as Node]: #node-algorithm-for-resolving-a-pkg-url
 
 ## Procedures
 
@@ -303,7 +297,7 @@ This algorithm takes a URL with scheme `pkg:` named `url`, and an optional URL
 * Let `fullPath` be `url`'s path.
 
 * Let `packageName` be the result of [resolving a package name] with `fullPath`,
-  and `subPath` be the path without the `packageName`.
+  and `subpath` be the path without the `packageName`.
 
 * Let `packageRoot` be the result of [resolving the root directory for a
   package] with `packageName` and `previousURL`.
@@ -329,9 +323,9 @@ This algorithm takes a URL with scheme `pkg:` named `url`, and an optional URL
 
   * Otherwise, if `resolved` is not null, throw an error.
 
-* If `subPath` is empty, return the result of [resolving package root values].
+* If `subpath` is empty, return the result of [resolving package root values].
 
-* Let `resolved` be `subPath` resolved relative to `packageRoot`.
+* Let `resolved` be `subpath` resolved relative to `packageRoot`.
 
 * Return the result of [resolving a `file:` URL] with `resolved`.
 
@@ -390,7 +384,7 @@ This algorithm takes a string `condition`, a package.json value
 
 * If `subpath` has an extension, return null.
 
-* Let `subPathIndex` be `subpath` + `"/index"`.
+* Let `subpathIndex` be `subpath` + `"/index"`.
 
 * Let `subpathIndexVariants` be the result of [Export load paths] with `subpathIndex`.
 
@@ -405,9 +399,9 @@ This algorithm takes a string `condition`, a package.json value
 
 * Return null.
 
-> Where possible in Node, it can use [resolve.exports] which exposes the Node
-> resolution algorithm, allowing for per-path custom conditions, and without
-> needing filesystem access.
+> Where possible in Node, implementations can use [resolve.exports] which
+> exposes the Node resolution algorithm, allowing for per-path custom
+> conditions, and without needing filesystem access.
 
 [Export load paths]: #export-load-paths
 [resolve.exports]: https://github.com/lukeed/resolve.exports
@@ -423,18 +417,14 @@ package, and `packageManifest`, which is the contents of that package's
 * If `sassValue` is a relative path with an extension of `sass`, `scss` or
   `css`:
 
-  * If `sassValue` starts with `./`, remove that substring.
-
-  * Return the `file:` URL for `${packagePath}/${sassValue}`.
+  * Return the canonicalized `file:` URL for `${packagePath}/${sassValue}`.
 
 * Let `styleValue` be the value of `style` in `packageManifest`.
 
 * If `styleValue` is a relative path with an extension of `sass`, `scss` or
   `css`:
 
-  * If `styleValue` starts with `./`, remove that substring.
-
-  * Return the `file:` URL for `${packagePath}/${styleValue}`.
+  * Return the canonicalized `file:` URL for `${packagePath}/${styleValue}`.
 
 * Otherwise return the result of [resolving a `file:` URL for extensions] with
   `packagePath + "/index"`.
