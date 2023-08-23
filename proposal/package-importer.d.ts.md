@@ -1,6 +1,6 @@
 # Package Importer
 
-_([Issue](https://github.com/sass/sass/issues/2739))_
+*([Issue](https://github.com/sass/sass/issues/2739))*
 
 This proposal introduces the semantics for a Package Importer and defines the
 `pkg:` URL scheme to indicate Sass package imports in an implementation-agnostic
@@ -19,7 +19,7 @@ Importer.
     * [Available in legacy API](#available-in-legacy-api)
     * [Node Resolution Decisions](#node-resolution-decisions)
 * [Types](#types)
-    * [`pkgImporter`](#pkgimporter)
+  * [`pkgImporter`](#pkgimporter)
 * [Semantics](#semantics)
   * [Package Importers](#package-importers)
   * [Node Package Importer](#node-package-importer)
@@ -71,11 +71,11 @@ The built-in Node importer resolves in the following order:
 
 3. If no subpath, then find root export:
 
-  1. `sass` key at package.json root.
+   1. `sass` key at package.json root.
 
-  2. `style` key at package.json root.
+   2. `style` key at package.json root.
 
-  3. `index` file at package root, resolved for file extensions and partials.
+   3. `index` file at package root, resolved for file extensions and partials.
 
 4. If there is a subpath, resolve that path relative to the package root, and
    resolve for file extensions and partials
@@ -200,7 +200,7 @@ with `exports` as below, The Node package importer will resolve a
 import '../spec/js-api';
 ```
 
-#### `pkgImporter`
+### `pkgImporter`
 
 If set, the compiler will use the specified built-in package importer to resolve
 any URL with the `pkg:` scheme. Currently, the only available package importer
@@ -257,7 +257,6 @@ Package Importers will reject the following patterns:
 * A URL whose path begins with `/`.
 * A URL with non-empty/null username, password, host, port, query, or fragment.
 
-
 [importer]: ../spec/modules.md#importer
 
 ### Node Package Importer
@@ -293,7 +292,6 @@ a [previous URL] `previousURL`:
 
 [parsing a URL]: https://url.spec.whatwg.org/#concept-url-parser
 [resolving a `pkg:` URL]: #node-algorithm-for-resolving-a-pkg-url
-
 
 ## Procedures
 
@@ -337,13 +335,11 @@ This algorithm takes a URL with scheme `pkg:` named `url`, and an optional URL
 
 * Return the result of [resolving a `file:` URL] with `resolved`.
 
-
 [previous URL]: ../accepted/prev-url.d.ts.md
 [Resolving package exports]: #resolving-package-exports
 [resolving package root values]: #resolving-package-root-values
 [resolving a package name]: #resolving-a-package-name
 [JSON]: https://datatracker.ietf.org/doc/html/rfc8259
-[parsing a URL]: https://url.spec.whatwg.org/#concept-url-parser
 [resolving the root directory for a package]: #resolving-the-root-directory-for-a-package
 [resolving a `file:` URL]: ../spec/modules.md#resolving-a-file-url
 
@@ -385,7 +381,7 @@ This algorithm takes a string `condition`, a package.json value
 
 * Let `resolvedPaths` be a list of the results of calling
   `PACKAGE_EXPORTS_RESOLVE(packageRoot, subpathVariant, exports, [condition])`
-  as defined in the [Node resolution algorithm specification, with each
+  as defined in the [Node resolution algorithm specification], with each
   `subpathVariants` as `subpathVariant`.
 
 * If `resolvedPaths` contains more than one resolved URL, throw an error.
@@ -400,7 +396,7 @@ This algorithm takes a string `condition`, a package.json value
 
 * Let `resolvedIndexPaths` be a list of the results of calling
   `PACKAGE_EXPORTS_RESOLVE(packageRoot, subpathVariant, exports, [condition])`
-  as defined in the [Node resolution algorithm specification, with each
+  as defined in the [Node resolution algorithm specification], with each
   `subpathIndexVariants` as `subpathVariant`.
 
 * If `resolvedIndexPaths` contains more than one resolved URL, throw an error.
@@ -414,7 +410,6 @@ This algorithm takes a string `condition`, a package.json value
 > needing filesystem access.
 
 [Export load paths]: #export-load-paths
-[Node resolution algorithm specification]: https://nodejs.org/api/esm.html#resolution-algorithm-specification
 [resolve.exports]: https://github.com/lukeed/resolve.exports
 
 ### Resolving package root values
@@ -444,12 +439,9 @@ package, and `packageManifest`, which is the contents of that package's
 * Otherwise return the result of [resolving a `file:` URL for extensions] with
   `packagePath + "/index"`.
 
-[resolving the root directory for a package]: #resolving-the-root-directory-for-a-package
 [resolving a `file:` URL for extensions]: ../spec/modules.md#resolving-a-file-url-for-extensions
 
-
 [URL path segments]: https://url.spec.whatwg.org/#url-path-segment
-
 
 ### Export Load Paths
 
