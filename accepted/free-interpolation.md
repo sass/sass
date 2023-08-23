@@ -46,23 +46,23 @@ I propose that, as today, `#{}` be allowed either within strings (quoted or
 unquoted) or on its own. However, its effect will be limited to the strings that
 contain it or to its own value. Specifically:
 
-- When parsing or evaluating a quoted string, treat interpolation the same way
+* When parsing or evaluating a quoted string, treat interpolation the same way
   it's treated today.
-- When parsing an identifier, treat interpolation as though it's an alphabetic
+* When parsing an identifier, treat interpolation as though it's an alphabetic
   character. When evaluating an interpolated unquoted string, concatenate the
   literal identifier characters with the values of the interpolated segments.
-- Otherwise, parse an interpolation as an individual expression. When evaluating
+* Otherwise, parse an interpolation as an individual expression. When evaluating
   it, return its value as an unquoted string.
 
 Here are some examples (I'm including quotes for unquoted strings in the output
 to clarify their extents):
 
-- `"a #{b} c"` would continue to produce `"a b c"`.
-- `a#{b}c` would continue to produce `"abc"`.
-- `a #{b}c` currently produces `"a bc"` but would produce `"a" "bc"`.
-- `a#{b} c` currently produces `"ab c"` but would produce `"ab" "c"`.
-- `a b#{c}d e` currently produces `"a bcd e"` but would produce `"a" "bcd" "e"`.
-- `a #{b} c` currently produces `"a b c"` but would produce `"a" "b" "c"`.
+* `"a #{b} c"` would continue to produce `"a b c"`.
+* `a#{b}c` would continue to produce `"abc"`.
+* `a #{b}c` currently produces `"a bc"` but would produce `"a" "bc"`.
+* `a#{b} c` currently produces `"ab c"` but would produce `"ab" "c"`.
+* `a b#{c}d e` currently produces `"a bcd e"` but would produce `"a" "bcd" "e"`.
+* `a #{b} c` currently produces `"a b c"` but would produce `"a" "b" "c"`.
 
 ## Design decisions
 
@@ -77,24 +77,24 @@ various situations.
 
 ### Interpolation in unquoted strings
 
-It was tempting to restrict interpolation for use _only_ in quoted strings.
+It was tempting to restrict interpolation for use *only* in quoted strings.
 Interpolation in unquoted strings can be mimicked using `+`, and allowing it in
 unquoted strings could produce the incorrect impression that interpolation is
 performed before any other SassScript resolution. However, we decided to allow
 this for several reasons:
 
-- Backwards compatibility, as described above.
-- Similarity with quoted strings. It's not always obvious that unquoted strings
+* Backwards compatibility, as described above.
+* Similarity with quoted strings. It's not always obvious that unquoted strings
   and quoted strings are the same sorts of value under the hood, but sharing
   capabilities helps reinforce that idea.
-- Similarity with other identifiers. Interpolation can be used in almost all
+* Similarity with other identifiers. Interpolation can be used in almost all
   most non-SassScript contexts where identifiers appear, most notably property
   names, so it's natural that users would think that all Sass identifiers can be
   interpolated.
-- Vendor prefixes. It would be very difficult to dynamically choose vendor
+* Vendor prefixes. It would be very difficult to dynamically choose vendor
   prefixes for function names or other values, since `-` on its own is not an
   identifier.
-- Aesthetics. Although `font-stretch: $amount + -condensed` is legal, it's less
+* Aesthetics. Although `font-stretch: $amount + -condensed` is legal, it's less
   clear and less pleasant than `font-stretch: #{$amount}-condensed`.
 
 ### Interpolation outside of strings
@@ -128,13 +128,13 @@ rules, and E the value of the same expression under the new rules. Let S2 be the
 conversion of E to CSS. For example, suppose the expression in question is
 `a #{b} + c`. S1 is `"a b + c"`, E is `"a" "bc"`, and S2 is `"a bc"`.
 
-- If S1 and S2 aren't semantically identical when interpreted as CSS, issue a
+* If S1 and S2 aren't semantically identical when interpreted as CSS, issue a
   warning. This means that `#{a} + b` would emit a warning since S1 is `"a + b"`
   but S2 is `"ab"`. However, `#{a} b c` would not emit a warning, since S1 and
-  S2 are both `"a b c"`. Note that an expressions like `#{a} / b` _should not_
+  S2 are both `"a b c"`. Note that an expressions like `#{a} / b` *should not*
   emit a warning here, since we know that it will produce `a/b` under the new
   semantics.
-- Otherwise, if E is not a string, set an "interpolated" flag on S1. If any
+* Otherwise, if E is not a string, set an "interpolated" flag on S1. If any
   operation is performed on S1 that wouldn't first convert it to a string, emit
   a warning.
 
@@ -146,14 +146,14 @@ problem in the second case, which we'll get to below.
 
 In service of determining how to go about deprecating the current semantics of
 SassScript interpolation, I want to precisely define them. For our purposes, we
-only care about _free interpolation_—that is, interpolation outside the context
+only care about *free interpolation*—that is, interpolation outside the context
 of a string or a special function (e.g. `calc()`) that's parsed like a string.
 
 The grammar for interpolation is straightforward. Note that the representation
 below elides much of the unrelated complexity of the SassScript grammar. The
 `Operation` and `UnaryOperation` productions should be understood to encompass
 all binary and unary operations supported by SassScript, except for `,` which is
-handled by the `CommaList` production. Note that this _includes_ the implicit
+handled by the `CommaList` production. Note that this *includes* the implicit
 adjacency operator that normally creates space-separated lists. `Value` should
 be understood to encompass literals, parenthesized expressions, maps, and
 function calls.
@@ -192,8 +192,8 @@ If there was any whitespace in the source text between the operator and the
 | `-#{1}` | ``` `-#{1}` ``` | `-1` |
 | `- #{1}` | ``` `- #{1}` ``` | `- 1` |
 
-For an `Operation` production, all _adjacent_ `UnaryOperation` sub-expressions
-that are _not_ `Interpolation`s are parsed as normal, and interpolated into the
+For an `Operation` production, all *adjacent* `UnaryOperation` sub-expressions
+that are *not* `Interpolation`s are parsed as normal, and interpolated into the
 ESI alongside the `Interpolation` subexpressions, separated by the operation in
 question. As with a `UnaryOperation`, a space will be included before or after
 the `Interpolation`s depending on whether whitespace appeared in the
@@ -212,7 +212,7 @@ have a space operator.
 | `a#{b}c` | ``` `#{a}#{b}#{c}` ``` | `abc` |
 
 Finally, `CommaList` productions behave almost the same as `Operation`s. The
-only difference is that if _only_ the first `Operation` sub-expression is an
+only difference is that if *only* the first `Operation` sub-expression is an
 `Interpolation`, the rest of the list isn't included in the interpolation.
 
 | SassScript | ESI | CSS |
@@ -228,8 +228,8 @@ Now that we (hopefully) have a clear idea of how free interpolation works right
 now, we can start figuring out the surface area that needs deprecation warnings
 when moving to the new semantics.
 
-Ideally, we want to warn only when the new semantics will produce _semantically
-different_ CSS output. In practice determining this exactly isn't always
+Ideally, we want to warn only when the new semantics will produce *semantically
+different* CSS output. In practice determining this exactly isn't always
 feasible, since free interpolation produces values that can be used in many
 heterogeneous ways, so instead we'll warn if the values they produce are ever
 used in a way that will change behavior under the new semantics.
@@ -268,7 +268,7 @@ different meanings. This includes any operators that don't insert their own
 textual representation when operating on a string.
 
 The following operators and their inverses should produce warnings immediately.
-Note that _any expression_ containing free interpolation whose new ESI contains
+Note that *any expression* containing free interpolation whose new ESI contains
 these operators should have an immediate warning, even if they also include
 other operators.
 
@@ -328,7 +328,7 @@ the first and fourth should not, as their stringifications remain the same.
 There is one case where the new behavior differs from the old. It comes up when
 a dynamic value is included in an interpolated string without an explicit
 `#{}`—that is, for every location that doesn't have a `#{}` in the SassScript
-but does in the ESI. _If that value is a quoted string_, it will retain its
+but does in the ESI. *If that value is a quoted string*, it will retain its
 quotes, where if it were explicitly interpolated it would lose them. For
 example:
 
@@ -375,30 +375,30 @@ as a list. When passing an interpolation value produced via a list operator to
 such a function, the implementation should emit a deprecation warning. Of the
 canonical Sass functions, this includes:
 
-- `unquote()`
-- `quote()`
-- `str-length()`
-- The first or second argument of `str-insert()`
-- `str-index()`
-- The first argument of `str-slice()`
-- `to-upper-case()`
-- `to-lower-case()`
-- `length()`
-- The first argument of `nth()`
-- The first argument of `set-nth()`
-- `join()`
-- The first or last argument of `append()`
-- `zip()`
-- The first argument of `index()`
-- `list-separator()`
-- `feature-exists()`
-- `variable-exists()`
-- `global-variable-exists()`
-- `function-exists()`
-- `mixin-exists()`
-- `inspect()`
-- `type-of()`
-- The first argument of `call()`
+* `unquote()`
+* `quote()`
+* `str-length()`
+* The first or second argument of `str-insert()`
+* `str-index()`
+* The first argument of `str-slice()`
+* `to-upper-case()`
+* `to-lower-case()`
+* `length()`
+* The first argument of `nth()`
+* The first argument of `set-nth()`
+* `join()`
+* The first or last argument of `append()`
+* `zip()`
+* The first argument of `index()`
+* `list-separator()`
+* `feature-exists()`
+* `variable-exists()`
+* `global-variable-exists()`
+* `function-exists()`
+* `mixin-exists()`
+* `inspect()`
+* `type-of()`
+* The first argument of `call()`
 
 It's up to each implementation to determine whether to emit warnings for which
 user-defined functions.

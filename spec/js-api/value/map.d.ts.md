@@ -33,7 +33,6 @@ The [private `internal` field] refers to a Sass map.
 
 [private `internal` field]: index.d.ts.md#internal
 
-
 #### Constructor
 
 Creates a Sass map:

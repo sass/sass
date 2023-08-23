@@ -443,7 +443,6 @@ This function is also available as a global function named `hue()`.
   [percent-converting]: #percent-converting-a-number
   [to RGB]: https://www.w3.org/TR/css-color-4/#hwb-to-rgb
 
-
 * ```
   hwb($channels)
   ```

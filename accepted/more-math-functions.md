@@ -5,6 +5,7 @@
 This proposal adds the following members to the built-in `sass:math` module.
 
 ## Table of Contents
+
 * [Background](#background)
 * [Summary](#summary)
 * [Semantics](#semantics)

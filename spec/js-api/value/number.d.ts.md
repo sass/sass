@@ -291,7 +291,7 @@ by `newNumerators` and `newDenominators`:
 * If `newNumerators` and `newDenominators` are both empty, return the result of
   `new SassNumber(this.value)`.
 
-* If `internal` is unitless, return the result of:
+* If `internal` is [unitless], return the result of:
 
   [unitless]: ../../types/number.md#
 

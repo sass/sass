@@ -33,7 +33,6 @@ However, a numeric integer can include units (e.g. `5px` or `8em`) and the
 current behavior [drops the units][issue], which is unexpected for most users.
 For example: `math.random(42px) => 28` (there is no `px`).
 
-[random]: https://sass-lang.com/documentation/modules/math#random
 [issue]: https://github.com/sass/sass/issues/1890
 
 ## Summary
@@ -83,9 +82,10 @@ defaults to `null`.
     [units] as `$limit`.
 
     > Examples:
-    > - `math.random(123) => 87`
-    > - `math.random(123px) => 43px`
-    > - `math.random(500%) => 238%`
+    >
+    > * `math.random(123) => 87`
+    > * `math.random(123px) => 43px`
+    > * `math.random(500%) => 238%`
 
 * Otherwise throw an error.
 

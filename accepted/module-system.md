@@ -777,7 +777,7 @@ controlled as explicitly as members can.
 > ```
 >
 > isn't identical (from a downstream user's perspective) to
-> 
+>
 > ```scss
 > .foo, .bar { /* ... */ }
 > ```
@@ -853,7 +853,6 @@ CSS for *all* modules transitively used or forwarded by `starting-module`.
         * Add a copy of `extension` with its extender replaced by `complex` to
           `new-extensions[domestic]`.
 
-  [the first law of extend]: ../spec/at-rules/extend.md#specificity
   [the specificity laws of extend]: ../spec/at-rules/extend.md#specificity
 
 * Let `css` be an empty CSS tree.
@@ -867,7 +866,7 @@ CSS for *all* modules transitively used or forwarded by `starting-module`.
 
     > Because this traverses modules depth-first, it emits CSS in reverse
     > topological order.
-    
+
   * Let `initial-imports` be the longest initial subsequence of top-level
     statements in `domestic`'s CSS that contains only comments and `@import`
     rules *and* that ends with an `@import` rule.
@@ -888,7 +887,6 @@ CSS for *all* modules transitively used or forwarded by `starting-module`.
 
 * Return `css`.
 
-[queue]: https://en.wikipedia.org/wiki/Queue_(abstract_data_type)
 [topological]: https://en.wikipedia.org/wiki/Topological_sorting
 
 ### Resolving a `file:` URL
@@ -1096,7 +1094,7 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
 
   * Remove any [complex selectors][] containing a placeholder selector that
     begins with `-` or `_` from `css`.
-    
+
   * Remove any style rules that now have no selector from `css`.
 
   * Append `css` to `module`'s CSS.

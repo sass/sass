@@ -1,0 +1,27 @@
+globs: ["**.md"]
+ignores: ["node_modules/**"]
+config:
+  # BNF syntax examples can go over length, and there's no way to exempt them
+  # specifically.
+  line-length: false
+
+  # We use inline HTML to format BNF syntax definitions.
+  no-inline-html: false
+
+  # We use untagged code blocks for function definitions.
+  fenced-code-language: false
+
+  emphasis-style:
+    style: asterisk
+
+  # We often have to have duplicate subheadings for different parents.
+  no-duplicate-heading: false
+
+  # We use multiple sequential blockquotes to indicate unrelated non-normative
+  # notes.
+  no-blanks-blockquote: false
+
+  # We use spaces in code formatting because spaces are relevant in Sass.
+  no-space-in-code: false
+
+  first-line-heading: false
