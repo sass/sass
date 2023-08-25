@@ -72,10 +72,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: arduino/setup-protoc@v1
-        with: { version: "3.x", repo-token: "${{ github.token }}" }
+      - uses: bufbuild/buf-setup-action@v1.26.1
+        with: {github_token: "${{ github.token }}"}
       - name: Generate protobuf code
-        run: protoc --js_out=/tmp spec/embedded_sass.proto
+        run: buf generate --output=/tmp --path=spec/embedded_sass.proto
 
   embedded_protocol_versions:
     name: "Validate Embedded Protocol versions"
