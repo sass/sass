@@ -1,3 +1,14 @@
+## Draft 3.0
+
+* Refactor the way calculations are parsed to allow them to coexist with
+  user-defined Sass functions of the same names.
+
+* No longer forbid user-defined functions with the same names as CSS math
+  functions and remove the associated deprecation process.
+
+* Drop support for interpolation in calculations outside of identifier position
+  and add a deprecation process for this.
+
 ## Draft 2.1
 
 * Allow custom functions named like vendor-prefixed new CSS functions.

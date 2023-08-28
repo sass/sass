@@ -1,4 +1,4 @@
-# Calculation Functions: Draft 2.1
+# Calculation Functions: Draft 3.0
 
 *([Issue](https://github.com/sass/sass/issues/3504), [Changelog](calc-functions.changes.md))*
 
@@ -7,27 +7,34 @@
 * [Background](#background)
 * [Summary](#summary)
   * [Design Decisions](#design-decisions)
+    * [Merged Syntax](#merged-syntax)
     * [Changing Mod Infinity Behavior](#changing-mod-infinity-behavior)
 * [Definitions](#definitions)
+  * [Calculation-Safe Expression](#calculation-safe-expression)
   * [Exact Equality](#exact-equality)
   * [Known Units](#known-units)
   * [Potentially Slash-Separated Number](#potentially-slash-separated-number)
 * [Syntax](#syntax)
   * [`FunctionExpression`](#functionexpression)
+  * [`CssMinMax`](#cssminmax)
   * [`CalculationExpression`](#calculationexpression)
-  * [`CssRound`](#cssround)
-  * [`CssAbs`](#cssabs)
 * [Operations](#operations)
   * [Modulo](#modulo)
 * [Procedures](#procedures)
+  * [Evaluating a `FunctionCall` as a Calculation](#evaluating-a-functioncall-as-a-calculation)
+  * [Evaluating an Expression as a Calculation Value](#evaluating-an-expression-as-a-calculation-value)
   * [Simplifying a Calculation](#simplifying-a-calculation)
 * [Semantics](#semantics)
-  * [Calculation Expressions](#calculation-expressions)
-  * [`@function`](#function)
+  * [`FunctionCall`](#functioncall)
+  * [Calculations](#calculations)
+    * [`FunctionExpression` and `Variable`](#functionexpression-and-variable)
+    * [`SumExpression` and `ProductExpression`](#sumexpression-and-productexpression)
+    * [`ParenthesizedExpression`](#parenthesizedexpression)
+    * [`InterpolatedIdentifier`](#interpolatedidentifier)
 * [Deprecation Process](#deprecation-process)
-  * [Phase 1](#phase-1)
-  * [Phase 2](#phase-2)
-  * [Phase 3](#phase-3)
+  * [`abs-percent`](#abs-percent)
+  * [`calc-interp`](#calc-interp)
+    * [`SpaceListExpression`](#spacelistexpression)
 
 ## Background
 
@@ -61,14 +68,28 @@ equivalent of `-10%` since percentages are resolved before calculations. To
 handle this, we'll deprecate the global `abs()` function with a percentage and
 recommend users explicitly write `math.abs()` or `abs(#{})` instead.
 
-In addition, any existing user-defined Sass functions whose names overlap with
-the new CSS functions will now be parsed as CSS functions. As such, these Sass
-function names will be deprecated and eventually prohibited. To mitigate the
-pain of this transition, until the next breaking release Sass will allow these
-names to fall back to Sass function calls if they can't be parsed as CSS
-calculations.
-
 ### Design Decisions
+
+#### Merged Syntax
+
+This proposal substantially changes the way calculations are parsed, merging the
+syntax with the standard Sass expression syntax. Now the only difference between
+a calculation and a normal Sass function is how it's *evaluated*. This has the
+notable benefit of allowing calculations to coexist with user-defined Sass
+functions of the same name, preserving backwards-compatibility.
+
+Because this overlap is always going to be somewhat confusing for readers, we
+considered simply disallowing Sass functions whose names matched CSS
+calculations after a suitable deprecation period. However, in addition to the
+intrinsic value of avoiding breaking changes, the function name `rem()` in
+particular is widely used in Sass libraries as a means of converting pixel
+widths to relative ems, so this is a fairly substantial breaking change in
+practice.
+
+This does also require its own breaking change to the way interpolation is
+handled in calculations—`calc(#{"1px +"} 1%)` was formerly valid but is no
+longer. However, this is likely to break many fewer users in practice, and is
+relatively easy to continue supporting in a deprecated state in the short term.
 
 #### Changing Mod Infinity Behavior
 
@@ -82,6 +103,24 @@ that it will break anyone in practice, so we're not going to do a deprecation
 process for it.
 
 ## Definitions
+
+### Calculation-Safe Expression
+
+An expression is "calculation-safe" if it is one of:
+
+* A [`FunctionExpression`].
+* A `ParenthesizedExpression` whose contents is calculation-safe.
+* A `SumExpression` whose operands are calculation-safe.
+* A `ProductExpression` whose operator is `*` or `/` and whose operands are
+  calculation-safe.
+* A `Number`.
+* A `Variable`.
+* An `InterpolatedIdentifier`.
+
+[`FunctionExpression`]: ../spec/functions.md#syntax
+
+> Because calculations have special syntax in CSS, only a subset of SassScript
+> expressions are valid (and these are interpreted differently than elsewhere).
 
 ### Exact Equality
 
@@ -142,96 +181,24 @@ original denominator.
 
 ## Syntax
 
+> Calculations are no longer parsed differently than other Sass productions.
+> Instead, they're *evaluated* differently at runtime. This allows them to
+> coexist with user-defined Sass functions even when their names overlap.
+
 ### `FunctionExpression`
 
-Replace [the definition of `FunctionExpression`] with the following:
+Remove `CssMinMax` and `CalculationExpression` from [the definition of
+`FunctionExpression`].
 
 [the definition of `FunctionExpression`]: ../spec/functions.md#syntax
 
-<x><pre>
-**FunctionExpression**¹ ::= [CssMinMax]
-&#32;                     | [CssRound]
-&#32;                     | [CssAbs]
-&#32;                     | [SpecialFunctionExpression]
-&#32;                     | [CalculationExpression]
-&#32;                     | EmptyFallbackVar
-&#32;                     | FunctionCall
-**EmptyFallbackVar**    ::= 'var('² Expression ',' ')'
-**FunctionCall**³       ::= [NamespacedIdentifier] ArgumentInvocation
-</pre></x>
+### `CssMinMax`
 
-[CssMinMax]: ../spec/types/calculation.md#cssminmax
-[CssRound]: #cssround
-[CssAbs]: #cssabs
-[SpecialFunctionExpression]: ../spec/syntax.md#specialfunctionexpression
-[CalculationExpression]: ../spec/types/calculation.md#calculationexpression
-[NamespacedIdentifier]: ../spec/modules.md#syntax
-
-1: `CssMinMax`, `CssRound`, `CssAbs`, and `EmptyFallbackVar` all take precedence
-   over `FunctionCall` if either could be consumed.
-
-2: `'var('` is matched case-insensitively.
-
-3: `FunctionCall` may not have any whitespace between the `NamespacedIdentifier`
-   and the `ArgumentInvocation`. It may not start with [`SpecialFunctionName`],
-   [`UnaryCalcName`], [`BinaryCalcName`], `'hypot('`, or `'clamp('`
-   (case-insensitively).
-
-[`SpecialFunctionName`]: ../spec/syntax.md#specialfunctionexpression
-[`UnaryCalcName`]: #calculationexpression
-[`BinaryCalcName`]: #calculationexpression
+Remove the `CssMinMax` production.
 
 ### `CalculationExpression`
 
-Replace [the definition of `CalculationExpression`] with:
-
-[the definition of `CalculationExpression`]: ../spec/types/calculation.md#calculationexpression
-
-<x><pre>
-**CalculationExpression** ::= UnaryCalcExpression
-&#32;                       | BinaryCalcExpression
-&#32;                       | ClampExpression
-&#32;                       | HypotExpression
-**UnaryCalcExpression**   ::= UnaryCalcName CalcArgument ')'
-**BinaryCalcExpression**  ::= BinaryCalcName CalcArgument (',' CalcArgument)? ')'
-**HypotExpression**       ::= 'hypot('¹ CalcArgument (',' CalcArgument)\* ')'
-**UnaryCalcName**¹        ::= 'calc(' | 'sin(' | 'cos(' | 'tan(' | 'asin('
-&#32;                       | 'acos(' | 'atan(' | 'sqrt(' | 'exp(' | 'sign('
-**BinaryCalcName**¹       ::= 'mod(' | 'rem(' | 'atan2(' | 'pow(' | 'log('
-</pre></x>
-
-1: The strings `hypot(`, `clamp(`, and `var(` are matched case-insensitively, as
-are the productions `UnaryCalcName` and `BinaryCalcName`.
-
-Remove the existing definition of `CalcExpression`.
-
-> Note: we aren't adding `| CssRound | CssAbs` to the definition of `CalcValue`
-> because existing Sass releases already allow the global `round()` and `abs()`
-> functions in calculations.
-
-### `CssRound`
-
-Add the following production:
-
-<x><pre>
-**CssRound** ::= 'round('¹ CalcArgument (',' CalcArgument){2} ')'
-</pre></x>
-
-1: The string `round(` is matched case-insensitively.
-
-> Although the three-argument `round()` function only allows a few values in its
-> first argument, for simplicity those are checked at evaluation time rather
-> than parse time.
-
-### `CssAbs`
-
-Add the following production:
-
-<x><pre>
-**CssAbs** ::= 'abs('¹ CalcArgument ')'
-</pre></x>
-
-1: The string `abs(` is matched case-insensitively.
+Remove the `CalculationExpression` production.
 
 ## Operations
 
@@ -275,6 +242,37 @@ Let `n1` and `n2` be two numbers. To determine `n1 % n2`:
 * Otherwise, return `remainder`.
 
 ## Procedures
+
+### Evaluating a `FunctionCall` as a Calculation
+
+This algorithm takes a [`FunctionCall`] `call` whose name is a plain identifier
+and returns a number or a calculation.
+
+[`FunctionCall`]: ../spec/functions.md#functioncall
+
+* If `call`'s `ArgumentInvocation` contains one or more `KeywordArgument`s or
+  one or more `RestArgument`s, throw an error.
+
+* Let `calc` be a calculation whose name is the lower-case value of `call`'s
+  name and whose arguments are the result of evaluating each `Expression` in
+  `call`'s `ArgumentInvocation` [as a calculation value].
+
+  [as a calculation value]: #evaluating-an-expression-as-a-calculation-value
+
+* Return the result of [simplifying] `calc`.
+
+### Evaluating an Expression as a Calculation Value
+
+This algorithm takes an expression `expression` and returns a
+`CalculationValue`.
+
+* If `expression` isn't [calculation-safe], throw an error.
+
+* Otherwise, evaluate `expression` using the semantics defined in the
+  [Calculations] specification if there are any, or the standard semantics
+  otherwise.
+
+  [Calculations]: #calculations
 
 ### Simplifying a Calculation
 
@@ -388,6 +386,7 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
 
       * Otherwise, return `result`.
 
+  [compatible]: ../spec/types/number.md#compatible-units
   [definitely-incompatible]: ../spec/types/number.md#possibly-compatible-numbers
   [exactly equals]: #exact-equality
 
@@ -511,93 +510,153 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
 
 ## Semantics
 
-### Calculation Expressions
+### `FunctionCall`
 
-Replace the semantics for `CalcExpression`, `ClampExpression`, and `CssMinMax`
-with the following:
+Add the following to [the semantics for `FunctionCall`] before checking for a
+global function:
 
-To evaluate a `UnaryCalcExpression`, `BinaryCalcExpression`, `HypotExpression`,
-`CssMinMax`, `CssRound`, or `CssAbs`:
+[the semantics for `FunctionCall`]: ../spec/functions.md#functioncall
 
-* Let `name` be the lower-case value of the expression's first token without the
-  trailing parenthesis.
+* If `function` is null; `name` is case-insensitively equal to `"min"`, `"max"`,
+  `"round"`, or `"abs"`; and all arguments in `call`'s `ArgumentInvocation` are
+  [calculation-safe], return the result of evaluating `call` [as a calculation].
 
-* Let `calc` be a calculation whose name is `name` and whose arguments are the
-  results of [evaluating the expression's `CalcArgument`s].
+  [calculation-safe]: #calculation-safe-expression
+  [as a calculation]: #evaluating-a-functioncall-as-a-calculation
 
-  [evaluating the expression's `CalcArgument`s]: ../spec/types/calculation.md#calcargument
+* If `function` is null and `name` is case-insensitively equal to `"calc"`,
+  `"clamp"`, `"hypot"`, `"sin"`, `"cos"`, `"tan"`, `"asin"`, `"acos"`, `"atan"`,
+  `"sqrt"`, `"exp"`, `"sign"`, `"mod"`, `"rem"`, `"atan2"`, `"pow"`, or `"log"`,
+  return the result of evaluating `call` as a calculation.
 
-* Return the result of [simplifying] `calc`.
+### Calculations
 
-### `@function`
+Remove all prior [semantics for Calculations]. The following semantics apply
+only when evaluating expressions [as calculation values].
 
-Add `"round"`, `"mod"`, `"rem"`, `"sin"`, `"cos"`, `"tan"`, `"asin"`, `"acos"`,
-`"atan"`, `atan2""`, `"pow"`, `"sqrt"`, `"hypot"`, `"log"`, `"exp"`, `"abs"`,
-and `"sign"` to the set of prohibited function names. Do *not* prohibit
-vendor-prefixed versions of these names.
+[semantics for Calculations]: ../spec/types/calculation.md#semantics
+[as calculation values]: #evaluating-an-expression-as-a-calculation-value
 
-> No browser has ever supported a vendor-prefixed version of these names, and
-> prohibiting that also prohibits reasonable-looking cases like `@function
-> -to-rem()`.
+#### `FunctionExpression` and `Variable`
+
+To evaluate a `FunctionExpression` or a `Variable` as a calculation value,
+evaluate it using the standard semantics. If the result is a number, an unquoted
+string, or a calculation, return it. Otherwise, throw an error.
+
+> Allowing variables to return unquoted strings here supports referential
+> transparency, so that `$var: fn(); calc($var)` works the same as `calc(fn())`.
+
+#### `SumExpression` and `ProductExpression`
+
+To evaluate a `SumExpresssion` or a `ProductExpression` as a calculation value:
+
+* Let `left` be the result of evaluating the first operand as a calculation
+  value.
+
+* For each remaining "+" or "-" token `operator` and operand `operand`:
+
+  * Let `right` be the result of evaluating `operand` as a calculation value.
+
+  * Set `left` to a `CalcOperation` with `operator`, `left`, and `right`.
+
+* Return `left`.
+
+#### `ParenthesizedExpression`
+
+> If a `var()` is written directly within parentheses, it's necessary to
+> preserve those parentheses. CSS resolves `var()` by literally replacing the
+> function with the value of the variable and *then* parsing the surrounding
+> context.
+>
+> For example, if `--ratio: 2/3`, `calc(1 / (var(--ratio)))` is parsed as
+> `calc(1 / (2/3)) = calc(3/2)` but `calc(1 / var(--ratio))` is parsed as
+> `calc(1 / 2/3) = calc(1/6)`.
+
+To evaluate a `ParenthesizedExpression` with contents `expression` as a
+calculation value:
+
+* If `expression` is a `FunctionCall` whose name is case-insensitively equal
+  to `"var"` or an `EmptyFallbackVar`:
+
+  * Let `result` be the result of evaluating `expression`.
+
+  * If `result` is a number or a calculation, return it.
+
+    > This could happen if the user defines a `var` function in Sass.
+
+  * If `result` is not an unquoted string, throw an error.
+
+  * Return `"(" + result + ")"` as an unquoted string.
+
+* Otherwise, return the result of evaluating `expression` as a calculation
+  value.
+
+#### `InterpolatedIdentifier`
+
+To evaluate an `InterpolatedIdentifier` `ident` as a calculation value:
+
+* If `ident` is case-insensitively equal to `pi`, return 3.141592653589793.
+
+  > This is the closest double approximation of the mathematical constant π.
+
+* If `ident` is case-insensitively equal to `e`, return 2.718281828459045.
+
+  > This is the closest double approximation of the mathematical constant e.
+
+* If `ident` is case-insensitively equal to `infinity`, return the double
+  `Infinity`.
+
+* If `ident` is case-insensitively equal to `-infinity`, return the double
+  `-Infinity`.
+
+* If `ident` is case-insensitively equal to `nan`, return the double `NaN`.
+
+* If `ident` contains only a single `Interpolation`, return a
+  `CalculationInterpolation` whose value is the result of evaluating it.
+
+* Otherwise, return the result of evaluating `ident` using standard semantics.
+
+  > This will be an `UnquotedString`.
 
 ## Deprecation Process
 
-This proposal causes two categories of breaking change:
+This proposal causes two breaking changes, each of which will be mitigated by
+supporting something very close to the old behavior with a deprecation warning
+until the next major version release.
 
-1. User-defined custom functions whose names overlap with the new CSS
-   calculation functions will now be parsed as CSS calculations instead of Sass
-   functions.
+### `abs-percent`
 
-2. If a number with unit `%` is passed to the global `abs()` function, it will
-   be emitted as a plain CSS `abs()` rather than returning the absolute value of
-   the percentage itself.
+> Under this proposal, if a number with unit `%` is passed to the global `abs()`
+> function, it will be emitted as a plain CSS `abs()` rather than returning the
+> absolute value of the percentage itself.
 
-To manage these breaking changes, this change will be rolled out in three
-phases.
+During the deprecation period, when simplifying a calculation named `"abs"`
+whose sole argument is a number *without* [known units], return the result of
+calling `math.abs()` with that number and emit a deprecation warning named
+`abs-percent`.
 
-### Phase 1
+### `calc-interp`
 
-> This phase adds no breaking changes. Its purpose is to notify users of the
-> upcoming changes to behavior and give them a chance to move towards passing
-> future-proof units.
+> Under this proposal, interpolation in calculations is only allowed wherever an
+> identifier would be allowed otherwise. Previously, any interpolation would
+> cause the entire expression (out to the nearest parentheses) to be parsed as
+> an unquoted string.
 
-Phase 1 implements none of the changes described above. Instead, it applies the
-following changes:
+During the deprecation period, add "A `SpaceListExpression` that directly
+contains at least one `InterpolatedIdentifier`" to the list of [calculation-safe
+expressions]. In addition, add the following to the [calculation semantics]:
 
-* If the global `abs()` function is called with a number with unit `%`, emit a
-  deprecation warning named `abs-percent`.
+[calculation-safe expressions]: #calculation-safe-expression
+[calculation semantics]: #calculations
 
-* If a `@function` rule is executed with the name `"round"`, `"mod"`, `"rem"`,
-  `"sin"`, `"cos"`, `"tan"`, `"asin"`, `"acos"`, `"atan"`, `atan2""`, `"pow"`,
-  `"sqrt"`, `"hypot"`, `"log"`, `"exp"`, `"abs"`, and `"sign"`, emit a
-  deprecation warning named `math-fn-name`.
+#### `SpaceListExpression`
 
-### Phase 2
+To evaluate a `SpaceListExpression` as a calculation value:
 
-> This phase only breaks the behavior of user-defined functions that are
-> ambiguous at parse-time with CSS calculations. Other functions whose names
-> overlap, such as a single-argument `rem()`, continue functioning with a
-> deprecation warning.
+* Print a deprecation warning named `calc-interp`.
 
-Phase 2 implements all the changes described above, with the following
-exceptions:
+* Let `interp` be the result of reparsing the source text covered by the
+  expression as an `InterpolatedDeclarationValue`.
 
-1. When simplifying a calculation named `"abs"` whose sole argument is a number
-  *without* [known units], return the result of calling `math.abs()` with that
-  number and emit a deprecation warning named `abs-percent`.
-
-2. No new `@function` names are forbidden.
-
-3. The [`FunctionCall`] production *may* start with `sin(`, `cos(`, `tan(`,
-   `asin(`, `acos(`, `atan(`, `sqrt(`, `exp(`, `sign(`, `mod(`, `rem(`,
-   `atan2(`, `pow(`, `log(`, and `hypot(`. `CalculationExpression` takes
-   precedence over `FunctionCall` if either could be consumed.
-
-   [`FunctionCall`]: #functionexpression
-
-### Phase 3
-
-Phase 3 implements the full changes described above.
-
-> It's recommended that implementations increment their major version numbers
-> with the release of phase 3.
+* Return a `CalculationInterpolation` whose value is the result of evaluating
+  `interp`.
