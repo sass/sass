@@ -4,7 +4,7 @@ cli:
 api:
   # or whatever you want to point this at
   # you can use ngrok to point it at something running locally
-  address: api.dev.trunk-staging.io:8443
+  address: api.trunk-staging.io:8443
 plugins:
   sources:
     - id: trunk
