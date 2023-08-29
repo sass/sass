@@ -48,7 +48,7 @@ import {Value} from '../spec/js-api/value';
 ### Color Space Definitions
 
 ```ts
-type ColorSpaceRGB =
+export type ColorSpaceRGB =
   | 'rgb'
   | 'srgb'
   | 'srgb-linear'
@@ -56,29 +56,29 @@ type ColorSpaceRGB =
   | 'a98-rgb'
   | 'prophoto-rgb';
 
-type ChannelNameRGB = 'red' | 'green' | 'blue';
+export type ChannelNameRGB = 'red' | 'green' | 'blue';
 
-type ColorSpaceHWB = 'hwb';
+export type ColorSpaceHWB = 'hwb';
 
-type ChannelNameHWB = 'hue' | 'whiteness' | 'blackness';
+export type ChannelNameHWB = 'hue' | 'whiteness' | 'blackness';
 
-type ColorSpaceHSL = 'hsl';
+export type ColorSpaceHSL = 'hsl';
 
-type ChannelNameHSL = 'hue' | 'saturation' | 'lightness';
+export type ChannelNameHSL = 'hue' | 'saturation' | 'lightness';
 
-type ColorSpaceXYZ = 'xyz' | 'xyz-d50' | 'xyz-d65';
+export type ColorSpaceXYZ = 'xyz' | 'xyz-d50' | 'xyz-d65';
 
-type ChannelNameXYZ = 'x' | 'y' | 'z';
+export type ChannelNameXYZ = 'x' | 'y' | 'z';
 
-type ColorSpaceLCH = 'lch' | 'oklch';
+export type ColorSpaceLCH = 'lch' | 'oklch';
 
-type ChannelNameLCH = 'lightness' | 'chroma' | 'hue';
+export type ChannelNameLCH = 'lightness' | 'chroma' | 'hue';
 
-type ColorSpaceLAB = 'lab' | 'oklab';
+export type ColorSpaceLAB = 'lab' | 'oklab';
 
-type ChannelNameLAB = 'lightness' | 'a' | 'b';
+export type ChannelNameLAB = 'lightness' | 'a' | 'b';
 
-type ChannelName =
+export type ChannelName =
   | ChannelNameRGB
   | ChannelNameHWB
   | ChannelNameHSL
@@ -86,7 +86,7 @@ type ChannelName =
   | ChannelNameLCH
   | ChannelNameLAB;
 
-type KnownColorSpace =
+export type KnownColorSpace =
   | ColorSpaceRGB
   | ColorSpaceHWB
   | ColorSpaceHSL
@@ -94,21 +94,20 @@ type KnownColorSpace =
   | ColorSpaceLCH
   | ColorSpaceLAB;
 
-type PolarColorSpace =
+export type PolarColorSpace =
   | ColorSpaceHWB
   | ColorSpaceHSL
-  | ColorSpaceLCH
-  | ColorSpaceLAB;
+  | ColorSpaceLCH;
 
-type RectangularColorSpace = Omit<KnownColorSpace, PolarColorSpace>;
+export type RectangularColorSpace = Omit<KnownColorSpace, PolarColorSpace>;
 
-type HueInterpolationMethod =
+export type HueInterpolationMethod =
   | 'shorter'
   | 'longer'
   | 'decreasing'
   | 'increasing';
 
-type ChannelValue = string | number | null;
+export type ChannelValue = string | number | null;
 ```
 
 ### New Color Functions
