@@ -26,12 +26,12 @@ proposal].
     * [`changeChannels`](#changechannels)
   * [`interpolate()`](#interpolate)
   * [New Constructors](#new-constructors)
-    * [RGB Channel Constructor](#rgb-channel-constructor)
     * [HSL Channel Constructor](#hsl-channel-constructor)
     * [HWB Channel Constructor](#hwb-channel-constructor)
-    * [XYZ Channel Constructor](#xyz-channel-constructor)
-    * [LCH Channel Constructor](#lch-channel-constructor)
     * [LAB Channel Constructor](#lab-channel-constructor)
+    * [LCH Channel Constructor](#lch-channel-constructor)
+    * [RGB Channel Constructor](#rgb-channel-constructor)
+    * [XYZ Channel Constructor](#xyz-channel-constructor)
   * [Deprecations](#deprecations)
 * [Embedded Protocol](#embedded-protocol)
   * [SassColor](#sasscolor)
@@ -48,61 +48,62 @@ import {Value} from '../spec/js-api/value';
 ### Color Space Definitions
 
 ```ts
-export type ColorSpaceRGB =
-  | 'rgb'
-  | 'srgb'
-  | 'srgb-linear'
-  | 'display-p3'
-  | 'a98-rgb'
-  | 'prophoto-rgb';
-
-export type ChannelNameRGB = 'red' | 'green' | 'blue';
-
-export type ColorSpaceHWB = 'hwb';
-
-export type ChannelNameHWB = 'hue' | 'whiteness' | 'blackness';
 
 export type ColorSpaceHSL = 'hsl';
 
 export type ChannelNameHSL = 'hue' | 'saturation' | 'lightness';
 
-export type ColorSpaceXYZ = 'xyz' | 'xyz-d50' | 'xyz-d65';
+export type ColorSpaceHWB = 'hwb';
 
-export type ChannelNameXYZ = 'x' | 'y' | 'z';
-
-export type ColorSpaceLCH = 'lch' | 'oklch';
-
-export type ChannelNameLCH = 'lightness' | 'chroma' | 'hue';
+export type ChannelNameHWB = 'hue' | 'whiteness' | 'blackness';
 
 export type ColorSpaceLAB = 'lab' | 'oklab';
 
 export type ChannelNameLAB = 'lightness' | 'a' | 'b';
 
+export type ColorSpaceLCH = 'lch' | 'oklch';
+
+export type ChannelNameLCH = 'lightness' | 'chroma' | 'hue';
+
+export type ColorSpaceRGB =
+  | 'a98-rgb'
+  | 'display-p3'
+  | 'prophoto-rgb'
+  | 'rgb'
+  | 'srgb'
+  | 'srgb-linear';
+
+export type ChannelNameRGB = 'red' | 'green' | 'blue';
+
+export type ColorSpaceXYZ = 'xyz' | 'xyz-d50' | 'xyz-d65';
+
+export type ChannelNameXYZ = 'x' | 'y' | 'z';
+
 export type ChannelName =
-  | ChannelNameRGB
-  | ChannelNameHWB
   | ChannelNameHSL
-  | ChannelNameXYZ
+  | ChannelNameHWB
+  | ChannelNameLAB
   | ChannelNameLCH
-  | ChannelNameLAB;
+  | ChannelNameRGB
+  | ChannelNameXYZ;
 
 export type KnownColorSpace =
-  | ColorSpaceRGB
-  | ColorSpaceHWB
   | ColorSpaceHSL
-  | ColorSpaceXYZ
+  | ColorSpaceHWB
+  | ColorSpaceLAB
   | ColorSpaceLCH
-  | ColorSpaceLAB;
+  | ColorSpaceRGB
+  | ColorSpaceXYZ;
 
-export type PolarColorSpace = ColorSpaceHWB | ColorSpaceHSL | ColorSpaceLCH;
+export type PolarColorSpace = ColorSpaceHSL | ColorSpaceHWB | ColorSpaceLCH;
 
 export type RectangularColorSpace = Omit<KnownColorSpace, PolarColorSpace>;
 
 export type HueInterpolationMethod =
-  | 'shorter'
-  | 'longer'
   | 'decreasing'
-  | 'increasing';
+  | 'increasing'
+  | 'longer'
+  | 'shorter';
 
 export type ChannelValue = string | number | null;
 ```
@@ -438,23 +439,6 @@ key's value is truthy.
 
 [construction]: ../spec/js-api/value/color.d.ts.md#constructor
 
-#### RGB Channel Constructor
-
-Create a new SassColor in a color space with RGB channels -- `rgb`, `srgb`,
-`srgb-linear`, `display-p3`, `a98-rgb`, and `prophoto-rgb`. If `space` is set,
-it will create a new SassColor in that space, and it will default to the legacy
-`rgb` space.
-
-```ts
-constructor(options: {
-  red: ChannelValue;
-  green: ChannelValue;
-  blue: ChannelValue;
-  alpha?: number;
-  space?: ColorSpaceRGB;
-});
-```
-
 #### HSL Channel Constructor
 
 Create a new SassColor in the `hsl` color space. `space` is optional to not
@@ -485,18 +469,18 @@ constructor(options: {
 });
 ```
 
-#### XYZ Channel Constructor
+#### LAB Channel Constructor
 
-Create a new SassColor in a color space with XYZ channels -- `xyz`, `xyz-d50`,
-and `xyz-d65`. `space` is required as there is no legacy space to default to.
+Create a new SassColor in a color space with LAB channels -- `lab` and `oklab`.
+`space` is required as there is no legacy space to default to.
 
 ```ts
 constructor(options: {
-  x: ChannelValue;
-  y: ChannelValue;
-  z: ChannelValue;
+  lightness: ChannelValue;
+  a: ChannelValue;
+  b: ChannelValue;
   alpha?: number;
-  space: ColorSpaceXYZ;
+  space: ColorSpaceLAB;
 });
 ```
 
@@ -515,18 +499,35 @@ constructor(options: {
 });
 ```
 
-#### LAB Channel Constructor
+#### RGB Channel Constructor
 
-Create a new SassColor in a color space with LAB channels -- `lab` and `oklab`.
-`space` is required as there is no legacy space to default to.
+Create a new SassColor in a color space with RGB channels -- `rgb`, `srgb`,
+`srgb-linear`, `display-p3`, `a98-rgb`, and `prophoto-rgb`. If `space` is set,
+it will create a new SassColor in that space, and it will default to the legacy
+`rgb` space.
 
 ```ts
 constructor(options: {
-  lightness: ChannelValue;
-  a: ChannelValue;
-  b: ChannelValue;
+  red: ChannelValue;
+  green: ChannelValue;
+  blue: ChannelValue;
   alpha?: number;
-  space: ColorSpaceLAB;
+  space?: ColorSpaceRGB;
+});
+```
+
+#### XYZ Channel Constructor
+
+Create a new SassColor in a color space with XYZ channels -- `xyz`, `xyz-d50`,
+and `xyz-d65`. `space` is required as there is no legacy space to default to.
+
+```ts
+constructor(options: {
+  x: ChannelValue;
+  y: ChannelValue;
+  z: ChannelValue;
+  alpha?: number;
+  space: ColorSpaceXYZ;
 });
 ```
 
