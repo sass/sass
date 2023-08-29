@@ -35,7 +35,7 @@ proposal].
   * [Deprecations](#deprecations)
 * [Embedded Protocol](#embedded-protocol)
   * [SassColor](#sasscolor)
-  * [Deprecations](#deprecations-1)
+  * [Removed SassScript values](#removed-sassscript-values)
 
 ## API
 
@@ -94,10 +94,7 @@ export type KnownColorSpace =
   | ColorSpaceLCH
   | ColorSpaceLAB;
 
-export type PolarColorSpace =
-  | ColorSpaceHWB
-  | ColorSpaceHSL
-  | ColorSpaceLCH;
+export type PolarColorSpace = ColorSpaceHWB | ColorSpaceHSL | ColorSpaceLCH;
 
 export type RectangularColorSpace = Omit<KnownColorSpace, PolarColorSpace>;
 
@@ -130,7 +127,7 @@ Returns an array of channel values for [`internal`], with missing channels
 converted to `0`.
 
 ```ts
-get channels(): string | number;
+get channels(): number[];
 ```
 
 #### `channelsOrNull`
@@ -144,27 +141,30 @@ get channelsOrNull(): ChannelValue;
 
 #### `isLegacy`
 
-Returns whether [`internal`] is in a legacy color space (`rgb`, `hsl`, or
+Returns whether [`internal`] is in a [legacy color space] (`rgb`, `hsl`, or
 `hwb`).
 
 ```ts
 get isLegacy(): boolean;
 ```
 
+[legacy color space]: ./color-4-new-spaces.md#legacy-color
+
 #### `isInGamut`
 
-Returns whether [`internal`] is in-gamut for its color space (as opposed to
+Returns whether [`internal`] is [in-gamut] for its color space (as opposed to
 having one or more of its channels out of bounds, like `rgb(300 0 0)`).
 
 ```ts
 get isInGamut(): boolean;
 ```
 
+[in-gamut]: ./color-4-new-spaces.md#coloris-in-gamut
+
 #### `channel`
 
-Returns the value of the given `channel` in [`internal`], after converting it to
-`space` if necessary. It should be used instead of the old channel-specific
-functions such as `color.red()` and `color.hue()`.
+Returns the value of the given `channel` in [`internal`], after [converting] it to
+`space`.
 
 ```ts
 channel(options: {
@@ -172,6 +172,8 @@ channel(options: {
   space?: KnownColorSpace;
 }): ChannelValue;
 ```
+
+[converting]: ./color-4-new-spaces.md#converting-a-color
 
 #### `isChannelMissing`
 
@@ -224,15 +226,15 @@ channels. The `space` value defaults to the `space` of [`internal`], and any
 combination of channels in that space may be changed. Throws an error if any
 `channel` is not present in `space`.
 
-* If `space` is not defined, let `space` be the value of [`space(internal)`].
+* If `space` is not defined, let `space` be the value of [`color.space(internal)`].
 
 * Let `arguments` be the key value pairs in `channels` as keyword arguments.
 
-* Return the value of the result of [`change(internal, ...arguments)`].
+* Return the value of the result of [`color.change(internal, ...arguments)`].
 
-[`space(internal)`]: #space
+[`color.space(internal)`]: #space
 
-[`change(internal, ...arguments)`]: ./color-4-new-spaces.md#colorchange
+[`color.change(internal, ...arguments)`]: ./color-4-new-spaces.md#colorchange
 
 ```ts
 changeChannels(
@@ -312,8 +314,8 @@ interpolate(options: {
 ### New Constructors
 
 Because the value of each channel may be a string, number, or `null`, this
-algorithm checks if an option with a key exists, instead of checking if it is
-set.
+algorithm checks if an option with a key exists, and not evaluating whether the
+key's value is truthy.
 
 * If `options.space` is not set, follow the legacy procedure for [construction].
 
@@ -511,6 +513,9 @@ In addition, `change` is deprecated in favor of `changeChannels`.
 
 ## Embedded Protocol
 
+This introduces a breaking change in the Embedded Protocol, as it removes the
+legacy SassScript values.
+
 ### SassColor
 
 ```proto
@@ -533,7 +538,7 @@ message SassColor {
 }
 ```
 
-### Deprecations
+### Removed SassScript values
 
-The `RgbColor`, `HslColor` and `HwbColor` SassScript values will be marked as
-deprecated in the Embedded Protocol.
+The `RgbColor`, `HslColor` and `HwbColor` SassScript values will be removed from
+the Embedded Protocol.
