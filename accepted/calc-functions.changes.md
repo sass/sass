@@ -10,6 +10,9 @@
   `SpaceListExpressions` with multiple elements that actually contain
   interpolation to be calculation-safe.
 
+* Handle `"*"` and `"/"` tokens when evaluating `SumExpresssion`s and
+  `ProductExpression`s as calculations.
+
 ## Draft 3.0
 
 * Refactor the way calculations are parsed to allow them to coexist with

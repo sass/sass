@@ -555,7 +555,8 @@ To evaluate a `SumExpresssion` or a `ProductExpression` as a calculation value:
 * Let `left` be the result of evaluating the first operand as a calculation
   value.
 
-* For each remaining "+" or "-" token `operator` and operand `operand`:
+* For each remaining `"+"`, `"-"`, `"*"`, or `"/"` token `operator` and operand
+  `operand`:
 
   * Let `right` be the result of evaluating `operand` as a calculation value.
 
