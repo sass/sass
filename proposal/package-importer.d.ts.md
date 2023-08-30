@@ -49,10 +49,10 @@ Sass users often need to use styles from a dependency to customize an existing
 theme or access styling utilities.
 
 This proposal defines a `pkg:` URL scheme for usage with `@use` that directs an
-implementation to resolve a URL within a dependency. The implementation will
-resolve the dependency URL using the resolution standards and conventions for
-that environment. Once resolved, this URL will be loaded in the same way as any
-other `file:` URL.
+implementation to resolve a URL within a dependency. Sass interfaces may provide
+one or more implementations that  will resolve the dependency URL using the
+resolution standards and conventions for that environment. Once resolved, this
+URL will be loaded in the same way as any other `file:` URL.
 
 This proposal also defines a built-in Node importer.
 
@@ -238,11 +238,13 @@ standard requirements for importers, it must handle only non-canonical URLs that
 * optionally followed by a path, with path segments separated with a forward
   slash.
 
-The package name will often be the first path segment, but the importer should
-take into account any conventions in the environment. For instance, Node
-supports scoped package names, which start with `@` followed by 2 path segments.
+The package name will often be the first path segment, but the importer may take
+into account any conventions in the environment. For instance, Node supports
+scoped package names, which start with `@` followed by 2 path segments. Note
+that package names that contain non-alphanumeric characters may be less portable
+across different package importers.
 
-Package Importers will reject the following patterns:
+Package Importers must reject the following patterns:
 
 * A URL whose path begins with `/`.
 * A URL with non-empty/null username, password, host, port, query, or fragment.
