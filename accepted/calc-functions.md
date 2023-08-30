@@ -31,6 +31,9 @@
     * [`SumExpression` and `ProductExpression`](#sumexpression-and-productexpression)
     * [`ParenthesizedExpression`](#parenthesizedexpression)
     * [`InterpolatedIdentifier`](#interpolatedidentifier)
+* [Interaction with Forward Slash as a Separator](#interaction-with-forward-slash-as-a-separator)
+  * [Adjusting Slash Precedence](#adjusting-slash-precedence)
+  * [`SlashListExpression`](#slashlistexpression)
 * [Deprecation Process](#deprecation-process)
   * [`abs-percent`](#abs-percent)
   * [`calc-interp`](#calc-interp)
@@ -620,6 +623,96 @@ To evaluate an `InterpolatedIdentifier` `ident` as a calculation value:
 * Otherwise, return the result of evaluating `ident` using standard semantics.
 
   > This will be an `UnquotedString`.
+
+## Interaction with Forward Slash as a Separator
+
+Although the [Forward Slash as a Separator proposal] has not yet been integrated
+into the canonical spec, it will affect some of the constructs modified by this
+proposal. This section defines additional modifications to the spec *as it will
+exist* when that proposal is integrated.
+
+[Forward Slash as a Separator proposal]: slash-separator.md
+
+Remove "or `/`" from the definition of a calculation-safe `ProductExpression`.
+Add "An unbracketed `SlashListExpression` with more than one element, all of
+which are calculation-safe" to the list of calculation-safe expressions.
+
+Replace "evaluating each `Expression`" with "[adjusting slash precedence] in and
+then evaluating each `Expression`" in [evaluting a `FunctionCall` as a
+calculation].
+
+[adjusting slash precedence]: #adjusting-slash-precedence
+[evaluting a `FunctionCall` as a calculation]: #evaluating-a-functioncall-as-a-calculation
+
+### Adjusting Slash Precedence
+
+This algorithm takes a calculation-safe expression `expression` and returns
+another calculation-safe expression with the precedence of
+`SlashListExpression`s adjusted to match division precedence.
+
+* Return a copy of `expression` except, for each `SlashListExpression`:
+
+  * Let `left` be the first element of the list.
+
+  * For each remaining element `right`:
+
+    * If `left` and `right` are both `SumExpression`s:
+
+      * Let `last-left` be the last operand of `left` and `first-right` the
+        first operand of `right`.
+
+      * Set `left` to a `SumExpression` that begins with all operands and
+        operators of `left` except `last-left`, followed by a
+        `SlashListExpression` with elements `last-left` and `first-right`,
+        followed by all operators and operands of `right` except `first-right`.
+
+        > For example, if we insert virtual parentheses to explicitly indicate
+        > precedence groupings, `(1 + 2) / (3 + 4)` becomes `1 + (2 / 3) + 4`.
+
+    * Otherwise, if `left` is a `SumExpression`:
+
+      * Let `last-left` be the last operand of `left`.
+
+      * Set `left` to a `SumExpression` that begins with all operands and
+        operators of `left` except `last-left`, followed by a
+        `SlashListExpression` with elements `last-left` and `right`.
+
+        > For example, `(1 + 2) / 3` becomes `1 + (2 / 3)`.
+
+    * Otherwise, if `right` is a `SumExpression` or a `ProductExpression`:
+
+      * Let `first-right` be the first operand of `right`.
+
+      * Set `left` to an expression of the same type as `right` that begins a
+        `SlashListExpression` with elements `left` and `first-right`, followed
+        by operators and operands of `right` except `first-right`.
+
+        > For example, `1 / (2 * 3)` becomes `(1 / 2) * 3`.
+
+    * Otherwise, if `left` is a slash-separated list, add `right` to the end.
+
+    * Otherwise, set `left` to a slash-separated list containing `left` and
+      `right`.
+
+  * Replace each element in `left` with the result of adjusting slash precedence
+    in that element.
+
+  * Replace the `SlashListExpression` with `left` in the returned expression.
+
+### `SlashListExpression`
+
+To evaluate a `SlashListExpression` as a calculation value:
+
+* Let `left` be the result of evaluating the first element of the list as a
+  calculation value.
+
+* For each remaining element `element`:
+
+  * Let `right` be the result of evaluating `element` as a calculation value.
+
+  * Set `left` to a `CalcOperation` with operator `"/"`, `left`, and `right`.
+
+* Return `left`.
 
 ## Deprecation Process
 

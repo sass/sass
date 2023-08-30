@@ -3,6 +3,9 @@
 * Update the definition of potentially slash-separated numbers to reflect the
   fact that calculations are no longer determinable syntactically.
 
+* Add a section describing how to restructure slash-separated lists as division
+  within calculations.
+
 * Don't evaluate `min()`, `max()`, `round()`, or `abs()` as a calculation if it
   has keyword or rest arguments.
 
