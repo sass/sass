@@ -518,8 +518,10 @@ global function:
 [the semantics for `FunctionCall`]: ../spec/functions.md#functioncall
 
 * If `function` is null; `name` is case-insensitively equal to `"min"`, `"max"`,
-  `"round"`, or `"abs"`; and all arguments in `call`'s `ArgumentInvocation` are
-  [calculation-safe], return the result of evaluating `call` [as a calculation].
+  `"round"`, or `"abs"`; `call`'s `ArgumentInvocation` doesn't have any
+  `KeywordArgument`s or `RestArgument`s; and all arguments in `call`'s
+  `ArgumentInvocation` are [calculation-safe], return the result of evaluating
+  `call` [as a calculation].
 
   [calculation-safe]: #calculation-safe-expression
   [as a calculation]: #evaluating-a-functioncall-as-a-calculation
