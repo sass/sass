@@ -30,6 +30,7 @@ Importer.
   * [Resolving package exports](#resolving-package-exports)
   * [Resolving package root values](#resolving-package-root-values)
   * [Export Load Paths](#export-load-paths)
+* [Embedded Protocol](#embedded-protocol)
 * [Ecosystem Notes](#ecosystem-notes)
 
 ## Background
@@ -312,18 +313,18 @@ This algorithm takes a URL with scheme `pkg:` named `url`, and an optional URL
 * Let `resolved` be the result of [resolving package exports] with `sass` as the
   condition, `packageRoot`, `subpath`, and `packageManifest`.
 
-  * If `resolved` has the scheme `file:` and an extension of `sass`, `scss` or
-    `css`, return it.
+* If `resolved` has the scheme `file:` and an extension of `sass`, `scss` or
+  `css`, return it.
 
-  * Otherwise, if `resolved` is not null, throw an error.
+* Otherwise, if `resolved` is not null, throw an error.
 
-* Let `resolved` be the result of [resolving package exports] with `style` as the
-  condition, `packageRoot`, `subpath`, and `packageManifest`.
+* Let `resolved` be the result of [resolving package exports] with `style` as
+  the condition, `packageRoot`, `subpath`, and `packageManifest`.
 
-  * If `resolved` has the scheme `file:` and an extension of `sass`, `scss` or
-    `css`, return it.
+* If `resolved` has the scheme `file:` and an extension of `sass`, `scss` or
+  `css`, return it.
 
-  * Otherwise, if `resolved` is not null, throw an error.
+* Otherwise, if `resolved` is not null, throw an error.
 
 * If `subpath` is empty, return the result of [resolving package root values].
 
@@ -452,6 +453,19 @@ potential subpaths, resolving for partials and file extensions.
 * Return `paths`.
 
 [basename]: ../spec/modules.md#basename
+
+## Embedded Protocol
+
+```proto
+message CompileRequest {
+  message Importer {
+    PackageImporter packageImporter = 14;
+  }
+}
+enum PackageImporter {
+  NODE = 0
+}
+```
 
 ## Ecosystem Notes
 
