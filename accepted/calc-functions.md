@@ -644,9 +644,10 @@ calling `math.abs()` with that number and emit a deprecation warning named
 > cause the entire expression (out to the nearest parentheses) to be parsed as
 > an unquoted string.
 
-During the deprecation period, add "A `SpaceListExpression` that directly
-contains at least one `InterpolatedIdentifier`" to the list of [calculation-safe
-expressions]. In addition, add the following to the [calculation semantics]:
+During the deprecation period, add "An unbracketed `SpaceListExpression` with
+more than one element, at least one of which is an `InterpolatedIdentifier` that
+contains interpolation" to the list of [calculation-safe expressions]. In
+addition, add the following to the [calculation semantics]:
 
 [calculation-safe expressions]: #calculation-safe-expression
 [calculation semantics]: #calculations

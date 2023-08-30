@@ -6,6 +6,10 @@
 * Don't evaluate `min()`, `max()`, `round()`, or `abs()` as a calculation if it
   has keyword or rest arguments.
 
+* During the deprecation period, only consider unbracketed
+  `SpaceListExpressions` with multiple elements that actually contain
+  interpolation to be calculation-safe.
+
 ## Draft 3.0
 
 * Refactor the way calculations are parsed to allow them to coexist with
