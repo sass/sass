@@ -1,4 +1,4 @@
-# Calculation Functions: Draft 3.0
+# Calculation Functions: Draft 3.1
 
 *([Issue](https://github.com/sass/sass/issues/3504), [Changelog](calc-functions.changes.md))*
 
@@ -163,21 +163,23 @@ a `/` operator is evaluated and each operand is *syntactically* one of the
 following:
 
 * a `Number`,
-* a [`Calculation`] **whose name is not `abs`, `max`, `min`, or `round`**, or
+* a [`FunctionCall`], or
 * a `ProductExpression` that can itself create potentially slash-separated
   numbers.
+  
+[`FunctionCall`]: ../spec/functions.md#functioncall
 
-> We exclude these four calc functions from producing potentially
-> slash-separated numbers to ensure that existing code like `1 / round(1.5)`
-> continues to be evaluated as division when the function goes from being
-> evaluated as a Sass global function to being evaluated as a calc function.
+If the result of evaluating the `ProductExpression` is a number, that number is
+potentially slash-separated if all of the following are true:
 
-[`Calculation`]: ../spec/types/calculation.md#syntax
+* the results of evaluating both operands were numbers, and
+* if either operand was a `FunctionCall`, it was [evaluated as a calculation].
 
-If both operands are evaluated as numbers, the resulting number is potentially
-slash-separated. The first operand is the original numerator of the potentially
-slash-separated number returned by the `/` operator, and the second is the
-original denominator.
+[evaluated as a calculation]: #evaluating-a-functioncall-as-a-calculation
+
+If both of these are true, the first operand is the original numerator of the
+potentially slash-separated number returned by the `/` operator, and the second
+is the original denominator.
 
 ## Syntax
 
@@ -247,8 +249,6 @@ Let `n1` and `n2` be two numbers. To determine `n1 % n2`:
 
 This algorithm takes a [`FunctionCall`] `call` whose name is a plain identifier
 and returns a number or a calculation.
-
-[`FunctionCall`]: ../spec/functions.md#functioncall
 
 * If `call`'s `ArgumentInvocation` contains one or more `KeywordArgument`s or
   one or more `RestArgument`s, throw an error.
