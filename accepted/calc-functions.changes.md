@@ -24,6 +24,9 @@
   anywhere, as well as any unquoted strings that appear in `calc()` and might
   need parentheses.
 
+* Don't treat `abs()`, `min()`, `max()`, or `round()` as potentially
+  slash-separated operands..
+
 ## Draft 3.0
 
 * Refactor the way calculations are parsed to allow them to coexist with

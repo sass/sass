@@ -189,7 +189,8 @@ If the result of evaluating the `ProductExpression` is a number, that number is
 potentially slash-separated if all of the following are true:
 
 * the results of evaluating both operands were numbers, and
-* if either operand was a `FunctionCall`, it was [evaluated as a calculation].
+* if either operand was a `FunctionCall`, it was [evaluated as a calculation]
+  and its name was not `"abs"`, `"max"`, `"min"`, or `"round"`.
 
 [evaluated as a calculation]: #evaluating-a-functioncall-as-a-calculation
 
