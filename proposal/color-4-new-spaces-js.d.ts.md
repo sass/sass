@@ -374,10 +374,6 @@ interpolate(options: {
 
 ### New Constructors
 
-Because the value of each channel may be a string, number, or `null`, this
-algorithm checks if an option with a key exists, and not evaluating whether the
-key's value is truthy.
-
 * If `options.space` is not set, or `space` is a legacy space, follow the legacy
   procedure for [construction].
 
