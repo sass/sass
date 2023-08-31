@@ -105,7 +105,7 @@ export type HueInterpolationMethod =
   | 'longer'
   | 'shorter';
 
-export type ChannelValue = string | number | null;
+export type ChannelValue = number | null;
 ```
 
 ### New Color Functions
@@ -137,7 +137,7 @@ Returns an array of channel values for [`internal`], with missing channels
 converted to `null`.
 
 ```ts
-get channelsOrNull(): ChannelValue;
+get channelsOrNull(): ChannelValue[];
 ```
 
 #### `isLegacy`
@@ -280,14 +280,17 @@ combination of channels in that space may be changed. Throws an error if any
 [`color.change(internal, ...arguments)`]: ./color-4-new-spaces.md#colorchange
 
 ```ts
-changeChannels(options: {
-  [key in ChannelName]?: ChannelValue;
-}): SassColor;
+changeChannels(
+  options: {
+    [key in ChannelName]?: ChannelValue;
+  } & {alpha?: number}
+): SassColor;
 
 changeChannels(
   options: {
     [key in ChannelNameHSL]?: ChannelValue;
   } & {
+    alpha?: number;
     space: ColorSpaceHSL;
   }
 ): SassColor;
@@ -296,6 +299,7 @@ changeChannels(
   options: {
     [key in ChannelNameHWB]?: ChannelValue;
   } & {
+    alpha?: number;
     space: ColorSpaceHWB;
   }
 ): SassColor;
@@ -304,6 +308,7 @@ changeChannels(
   options: {
     [key in ChannelNameLAB]?: ChannelValue;
   } & {
+    alpha?: number;
     space: ColorSpaceLAB;
   }
 ): SassColor;
@@ -312,6 +317,7 @@ changeChannels(
   options: {
     [key in ChannelNameLCH]?: ChannelValue;
   } & {
+    alpha?: number;
     space: ColorSpaceLCH;
   }
 ): SassColor;
@@ -320,6 +326,7 @@ changeChannels(
   options: {
     [key in ChannelNameRGB]?: ChannelValue;
   } & {
+    alpha?: number;
     space: ColorSpaceRGB;
   }
 ): SassColor;
@@ -328,6 +335,7 @@ changeChannels(
   options: {
     [key in ChannelNameXYZ]?: ChannelValue;
   } & {
+    alpha?: number;
     space: ColorSpaceXYZ;
   }
 ): SassColor;
