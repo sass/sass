@@ -254,10 +254,10 @@ Package Importers must reject the following patterns:
 
 ### Node Package Importer
 
-The Node Package Importer is the built-in implementation of a [Package Importer]
-using the standards and conventions of the Node ecosystem. When the Node Package
-Importer is invoked with a string named `string` and a `baseURL` which is either
-the [previous URL] or the `file:` URL to the entry point:
+The Node Package Importer is an implementation of a [Package Importer] using the
+standards and conventions of the Node ecosystem. When the Node Package Importer
+is invoked with a string named `string` and a `baseURL` which is either the
+[previous URL] or the `file:` URL to the entry point:
 
 * If `string` is a relative URL, return null.
 
@@ -294,13 +294,13 @@ the [previous URL] or the `file:` URL to the entry point:
 
 ### Node Algorithm for Resolving a `pkg:` URL
 
-This algorithm takes a URL with scheme `pkg:` named `url`, and an optional URL
-`baseURL`. It returns a canonical `file:` URL or null.
+This algorithm takes a URL with scheme `pkg:` named `url`, and a URL `baseURL`.
+It returns a canonical `file:` URL or null.
 
 * Let `fullPath` be `url`'s path.
 
 * Let `packageName` be the result of [resolving a package name] with `fullPath`,
-  and `subpath` be the path without the `packageName`.
+  and `subpath` be `fullPath` without the `packageName`.
 
 * Let `packageRoot` be the result of [resolving the root directory for a
   package] with `packageName` and `baseURL`.
