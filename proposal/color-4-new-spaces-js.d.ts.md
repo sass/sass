@@ -201,7 +201,8 @@ channel(
 
 Returns whether the given `channel` of [`internal`] is missing. Missing channels
 can be explicitly specified using the special value `none` and can appear
-automatically when [toSpace()] returns a color with a powerless channel.
+automatically when [toSpace()] returns a color with a powerless channel. Throws
+an error if `channel` is not a channel in [`internal]`'s `space`.
 
 ```ts
 isChannelMissing(channel: ChannelName): boolean;
