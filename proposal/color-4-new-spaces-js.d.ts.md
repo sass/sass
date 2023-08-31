@@ -24,15 +24,15 @@ proposal].
     * [`toSpace`](#tospace)
     * [`toGamut`](#togamut)
     * [`changeChannels`](#changechannels)
-  * [`interpolate()`](#interpolate)
+    * [`interpolate()`](#interpolate)
   * [New Constructors](#new-constructors)
-    * [HSL Channel Constructor](#hsl-channel-constructor)
-    * [HWB Channel Constructor](#hwb-channel-constructor)
     * [LAB Channel Constructor](#lab-channel-constructor)
     * [LCH Channel Constructor](#lch-channel-constructor)
-    * [RGB Channel Constructor](#rgb-channel-constructor)
+    * [Predefined RGB Channel Constructor](#predefined-rgb-channel-constructor)
     * [XYZ Channel Constructor](#xyz-channel-constructor)
   * [Deprecations](#deprecations)
+* [Procedures](#procedures)
+  * [Parsing a Channel Value](#parsing-a-channel-value)
 * [Embedded Protocol](#embedded-protocol)
   * [SassColor](#sasscolor)
   * [Removed SassScript values](#removed-sassscript-values)
@@ -341,7 +341,7 @@ changeChannels(
 ): SassColor;
 ```
 
-### `interpolate()`
+#### `interpolate()`
 
 Returns a new SassColor with the result of mixing [`internal`] with `color2`.
 
@@ -378,109 +378,35 @@ Because the value of each channel may be a string, number, or `null`, this
 algorithm checks if an option with a key exists, and not evaluating whether the
 key's value is truthy.
 
-* If `options.space` is not set, follow the legacy procedure for [construction].
+* If `options.space` is not set, or `space` is a legacy space, follow the legacy
+  procedure for [construction].
 
-* Let `space` be a string with the value of `options.space`.
-
-* To calulate the channels:
-
-  * If `options.red` exists:
-
-    * Let `channel1` be the value of `options.red`.
-
-    * Let `channel2` be the value of `options.green`.
-
-    * Let `channel3` be the value of `options.blue`.
-
-  * If `options.saturation` exists:
-
-    * Let `channel1` be the value of `options.hue`.
-
-    * Let `channel2` be the value of `options.saturation`.
-
-    * Let `channel3` be the value of `options.lightness`.
-
-  * If `options.whiteness` exists:
-
-    * Let `channel1` be the value of `options.hue`.
-
-    * Let `channel2` be the value of `options.whiteness`.
-
-    * Let `channel3` be the value of `options.blackness`.
-
-  * If `options.x` exists:
-
-    * Let `channel1` be the value of `options.x`.
-
-    * Let `channel2` be the value of `options.y`.
-
-    * Let `channel3` be the value of `options.z`.
-
-  * If `options.chroma` exists:
-
-    * Let `channel1` be the value of `options.lightness`.
-
-    * Let `channel2` be the value of `options.chroma`.
-
-    * Let `channel3` be the value of `options.hue`.
-
-  * If `options.a` exists:
-
-    * Let `channel1` be the value of `options.lightness`.
-
-    * Let `channel2` be the value of `options.a`.
-
-    * Let `channel3` be the value of `options.b`.
-
-* If `options.alpha` is set:
-
-  * Let `alpha` be a Sass number with a value of `options.alpha`
-
-  * Set [`internal`] to the result of
-    [`color(channel1 channel2 channel3 / alpha)`]
-
-* Otherwise, set [`internal`] to the result of
-  [`color(channel1 channel2 channel3 )`]
-
-[`color(channel1 channel2 channel3 / alpha)`]: ./color-4-new-spaces.md#color-1
-[`color(channel1 channel2 channel3 )`]: ./color-4-new-spaces.md#color-1
+* Otherwise, use the constructor that matches the value of `options.space`.
 
 [construction]: ../spec/js-api/value/color.d.ts.md#constructor
-
-#### HSL Channel Constructor
-
-Create a new SassColor in the `hsl` color space. `space` is optional to not
-break the legacy constructor, but allowed for constructor consistency.
-
-```ts
-constructor(options: {
-  hue: ChannelValue;
-  saturation: ChannelValue;
-  lightness: ChannelValue;
-  alpha?: number;
-  space?: ColorSpaceHSL;
-});
-```
-
-#### HWB Channel Constructor
-
-Create a new SassColor in the `hwb` color space. `space` is optional to not
-break the legacy constructor, but allowed for constructor consistency.
-
-```ts
-constructor(options: {
-  hue: ChannelValue;
-  whiteness: ChannelValue;
-  blackness: ChannelValue;
-  alpha?: number;
-  space?: ColorSpaceHWB;
-});
-```
 
 #### LAB Channel Constructor
 
 Create a new SassColor in a color space with LAB channels -- `lab` and `oklab`.
-`space` is required as there is no legacy space to default to.
+
+* Let `lightness` be the result of [parsing a channel value] with value
+  `options.lightness`.
+
+* Let `a` be the result of [parsing a channel value] with value `options.a`.
+
+* Let `b` be the result of [parsing a channel value] with value `options.b`.
+  
+* If `options.alpha` is set, let `alpha` be a Sass number with a value of
+    `options.alpha`. Otherwise, let `alpha` be `null`.
+
+* If `options.space` equals `lab`, set [`internal`] to the result of
+  [`lab(lightness, a, b, alpha)`].
+
+* Otherwise, if `options.space` equals `oklab`, set [`internal`] to the result
+  of [`oklab(lightness, a, b, alpha)`].
+
+ [`lab(lightness, a, b, alpha)`]: ./color-4-new-spaces.md#lab
+ [`oklab(lightness, a, b, alpha)`]: ./color-4-new-spaces.md#oklab
 
 ```ts
 constructor(options: {
@@ -495,7 +421,22 @@ constructor(options: {
 #### LCH Channel Constructor
 
 Create a new SassColor in a color space with LCH channels -- `lch` and `oklch`.
-`space` is required as there is no legacy space to default to.
+
+* Let `lightness` be the result of [parsing a channel value] with value
+  `options.lightness`.
+
+* Let `c` be the result of [parsing a channel value] with value `options.c`.
+
+* Let `h` be the result of [parsing a channel value] with value `options.h`.
+  
+* If `options.alpha` is set, let `alpha` be a Sass number with a value of
+    `options.alpha`. Otherwise, let `alpha` be `null`.
+
+* If `options.space` equals `lch`, set [`internal`] to the result of
+  [`lch(lightness, a, b, alpha)`].
+
+* Otherwise, if `options.space` equals `oklch`, set [`internal`] to the result
+  of [`oklch(lightness, a, b, alpha)`].
 
 ```ts
 constructor(options: {
@@ -507,12 +448,29 @@ constructor(options: {
 });
 ```
 
-#### RGB Channel Constructor
+#### Predefined RGB Channel Constructor
 
-Create a new SassColor in a color space with RGB channels -- `rgb`, `srgb`,
-`srgb-linear`, `display-p3`, `a98-rgb`, and `prophoto-rgb`. If `space` is set,
-it will create a new SassColor in that space, and it will default to the legacy
-`rgb` space.
+Create a new SassColor in a color space with RGB channels -- `srgb`,
+`srgb-linear`, `display-p3`, `a98-rgb`, and `prophoto-rgb`. `rgb` is not
+supported with this constructor, as the legacy `rgb` color does not support
+missing colors.
+
+* Let `red` be the result of [parsing a channel value] with value `options.red`.
+
+* Let `green` be the result of [parsing a channel value] with value
+  `options.green`.
+
+* Let `blue` be the result of [parsing a channel value] with value
+  `options.blue`.
+  
+* If `options.alpha` is set, let `alpha` be a Sass number with a value of
+    `options.alpha`. Otherwise, let `alpha` be `null`.
+
+* Let `space` be the unquoted string value of `options.space`.
+
+* Set [`internal`] to the result of [`color(space red green blue / alpha)`].
+
+[`color(space red green blue / alpha)`]: ./color-4-new-spaces.md#color-1
 
 ```ts
 constructor(options: {
@@ -520,14 +478,27 @@ constructor(options: {
   green: ChannelValue;
   blue: ChannelValue;
   alpha?: number;
-  space?: ColorSpaceRGB;
+  space: Omit<ColorSpaceRGB, 'rgb'>;
 });
 ```
 
 #### XYZ Channel Constructor
 
 Create a new SassColor in a color space with XYZ channels -- `xyz`, `xyz-d50`,
-and `xyz-d65`. `space` is required as there is no legacy space to default to.
+and `xyz-d65`.
+
+* Let `x` be the result of [parsing a channel value] with value `options.x`.
+
+* Let `y` be the result of [parsing a channel value] with value `options.y`.
+
+* Let `z` be the result of [parsing a channel value] with value `options.z`.
+  
+* If `options.alpha` is set, let `alpha` be a Sass number with a value of
+    `options.alpha`. Otherwise, let `alpha` be `null`.
+
+* Let `space` be the unquoted string value of `options.space`.
+
+* Set [`internal`] to the result of [`color(space x y z / alpha)`].
 
 ```ts
 constructor(options: {
@@ -559,6 +530,18 @@ being deprecated for `channel`.
 * `alpha`
 
 In addition, `change` is deprecated in favor of `changeChannels`.
+
+## Procedures
+
+### Parsing a Channel Value
+
+This procedure takes a channel value `value`, and returns a the special value
+`none` if the value is `null`.
+
+* If `value` is a number, return a Sass number with a value of `value`.
+
+* If `value` is the Javascript value `null`, return the unquoted Sass string
+  `none`.
 
 ## Embedded Protocol
 
