@@ -18,12 +18,15 @@
   * [`FunctionExpression`](#functionexpression)
   * [`CssMinMax`](#cssminmax)
   * [`CalculationExpression`](#calculationexpression)
+* [Types](#types)
+  * [Calculation](#calculation)
 * [Operations](#operations)
   * [Modulo](#modulo)
 * [Procedures](#procedures)
   * [Evaluating a `FunctionCall` as a Calculation](#evaluating-a-functioncall-as-a-calculation)
   * [Evaluating an Expression as a Calculation Value](#evaluating-an-expression-as-a-calculation-value)
   * [Simplifying a Calculation](#simplifying-a-calculation)
+  * [Simplifying a `CalculationValue`](#simplifying-a-calculationvalue)
 * [Semantics](#semantics)
   * [`FunctionCall`](#functioncall)
   * [Calculations](#calculations)
@@ -34,6 +37,16 @@
 * [Interaction with Forward Slash as a Separator](#interaction-with-forward-slash-as-a-separator)
   * [Adjusting Slash Precedence](#adjusting-slash-precedence)
   * [`SlashListExpression`](#slashlistexpression)
+* [API](#api)
+  * [Types](#types-1)
+    * [`CalculationInterpolation`](#calculationinterpolation)
+      * [`internal`](#internal)
+      * [Constructor](#constructor)
+      * [`value`](#value)
+      * [`equals`](#equals)
+      * [`hashCode`](#hashcode)
+* [Embedded Protocol](#embedded-protocol)
+  * [`CalculationValue.value.interpolation`](#calculationvaluevalueinterpolation)
 * [Deprecation Process](#deprecation-process)
   * [`abs-percent`](#abs-percent)
   * [`calc-interp`](#calc-interp)
@@ -520,6 +533,31 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
 * Otherwise, return a calculation with the same name as `calc` and `arguments`
   as its arguments.
 
+### Simplifying a `CalculationValue`
+
+Replace the block "If `value` is a calculation" in the procedure for
+[simplifying a `CalculationValue`] with the following:
+
+[simplifying a `CalculationValue`]: ../spec/types/calculation.md#simplifying-a-calculationvalue
+
+* If `value` is a calculation:
+
+  * Let `result` be the result of [simplifying] `value`.
+
+  * If `result` isn't a calculation whose name is `"calc"`, return `result`.
+
+  * If `result`'s argument isn't an unquoted string, return `result`.
+
+  * If `result`'s argument begins case-insensitively with `"var("`; or if it
+    contains whitespace, `"/"`, or `"*"`; return `"(" +` result's argument `+
+    ")"` as an unquoted string.
+
+    > This is ensures that values that could resolve to operations end up
+    > parenthesized if used in other operations. It's potentially a little
+    > overzealous, but that's unlikely to be a major problem given that the
+    > output is still smaller than including the full `calc()` and we don't want
+    > to encourage users to inject calculations with interpolation anyway.
+
 ## Semantics
 
 ### `FunctionCall`
@@ -590,22 +628,18 @@ To evaluate a `SumExpresssion` or a `ProductExpression` as a calculation value:
 To evaluate a `ParenthesizedExpression` with contents `expression` as a
 calculation value:
 
-* If `expression` is a `FunctionCall` whose name is case-insensitively equal to
-  `"var"` or an `EmptyFallbackVar`, or it it's an `InterpolatedIdentifer` that
-  contains interpolation, or if it's an `InterpolatedDeclarationValue`:
+* Let `result` be the result of evaluating `expression` as a calculation value.
 
-  * Let `result` be the result of evaluating `expression`.
+* If `result` is a number or a calculation, return it.
 
-  * If `result` is a number or a calculation, return it.
+  > Otherwise, it must be an unquoted string.
 
-    > This could happen if the user defines a `var` function in Sass.
+* If `result` begins case-insensitively with `"var("`, or if `expression` is an
+  `InterpolatedIdentifer` that contains interpolation, or if `expression` is an
+  `InterpolatedDeclarationValue`, return `"(" + result + ")"` as an unquoted
+  string.
 
-  * If `result` is not an unquoted string, throw an error.
-
-  * Return `"(" + result + ")"` as an unquoted string.
-
-* Otherwise, return the result of evaluating `expression` as a calculation
-  value.
+* Otherwise, return `result`.
 
 #### `InterpolatedIdentifier`
 

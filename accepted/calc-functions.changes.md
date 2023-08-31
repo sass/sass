@@ -20,6 +20,10 @@
   API and embedded protocol field. The problem this type existed to work around
   is no longer an issue in the new parsing structure.
 
+* Preserve parentheses around all `var()` strings that get injected from
+  anywhere, as well as any unquoted strings that appear in `calc()` and might
+  need parentheses.
+
 ## Draft 3.0
 
 * Refactor the way calculations are parsed to allow them to coexist with
