@@ -16,6 +16,10 @@
 * Handle `"*"` and `"/"` tokens when evaluating `SumExpresssion`s and
   `ProductExpression`s as calculations.
 
+* Remove the `CalculationInterpolation` type, and deprecate the associated JS
+  API and embedded protocol field. The problem this type existed to work around
+  is no longer an issue in the new parsing structure.
+
 ## Draft 3.0
 
 * Refactor the way calculations are parsed to allow them to coexist with

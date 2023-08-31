@@ -205,6 +205,16 @@ Remove the `CssMinMax` production.
 
 Remove the `CalculationExpression` production.
 
+## Types
+
+### Calculation
+
+Delete the `CalculationInterpolation` type and remove all references to it.
+
+> This type only existed to track where we needed to defensively insert
+> parentheses. Now that we track parentheses as part of the calculation AST,
+> this is no longer necessary
+
 ## Operations
 
 ### Modulo
@@ -299,8 +309,8 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
   or calculation, return it.
 
 * If `calc`'s name is `"mod"`, `"rem"`, `"atan2"`, or `"pow"`; `arguments` has
-  fewer than two elements; and none of those are unquoted strings or
-  `CalculationInterpolation`s, throw an error.
+  fewer than two elements; and none of those are unquoted strings, throw an
+  error.
 
   > It's valid to write `pow(var(--two-args))` or `pow(#{"2, 3"})`, but
   > otherwise calculations' arguments must match the expected number.
@@ -368,8 +378,8 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
 
 * If `calc`'s name is `"mod"` or `"rem"`:
 
-  * If `arguments` has only one element and it's not an unquoted string or a
-    `CalculationInterpolation`, throw an error.
+  * If `arguments` has only one element and it's not an unquoted string, throw
+    an error.
 
   * Otherwise, if `arguments` contains exactly two numbers `dividend` and
     `modulus`:
@@ -402,7 +412,7 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
 
     * If the first element is an unquoted string or interpolation with value
       `"nearest"`, `"up"`, `"down"`, or `"to-zero"`, and the second argument
-      isn't an unquoted string or `CalculationInterpolation`, throw an error.
+      isn't an unquoted string, throw an error.
 
       > Normally we allow unquoted strings anywhere in a calculation, but this
       > helps catch the likely error of a user accidentally writing `round(up,
@@ -411,8 +421,7 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
     * Otherwise, set `number` and `step` to the two arguments respectively and
       `strategy` to an unquoted string with value `"nearest"`.
 
-  * Otherwise, if the single argument isn't an unquoted string or
-    `CalculationInterpolation`, throw an error.
+  * Otherwise, if the single argument isn't an unquoted string, throw an error.
 
   * If `strategy`, `number`, and `step` are set:
 
@@ -472,7 +481,7 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
 * If `calc`'s name is `"clamp"`:
 
   * If `arguments` has fewer than three elements, and none of those are unquoted
-    strings or `CalculationInterpolation`s, throw an error.
+    strings, throw an error.
 
   * Otherwise, if any two elements of `arguments` are [definitely-incompatible]
     numbers, throw an error.
@@ -569,10 +578,10 @@ To evaluate a `SumExpresssion` or a `ProductExpression` as a calculation value:
 
 #### `ParenthesizedExpression`
 
-> If a `var()` is written directly within parentheses, it's necessary to
-> preserve those parentheses. CSS resolves `var()` by literally replacing the
-> function with the value of the variable and *then* parsing the surrounding
-> context.
+> If a `var()` or an interpolation is written directly within parentheses, it's
+> necessary to preserve those parentheses. CSS resolves `var()` by literally
+> replacing the function with the value of the variable and *then* parsing the
+> surrounding context.
 >
 > For example, if `--ratio: 2/3`, `calc(1 / (var(--ratio)))` is parsed as
 > `calc(1 / (2/3)) = calc(3/2)` but `calc(1 / var(--ratio))` is parsed as
@@ -581,8 +590,9 @@ To evaluate a `SumExpresssion` or a `ProductExpression` as a calculation value:
 To evaluate a `ParenthesizedExpression` with contents `expression` as a
 calculation value:
 
-* If `expression` is a `FunctionCall` whose name is case-insensitively equal
-  to `"var"` or an `EmptyFallbackVar`:
+* If `expression` is a `FunctionCall` whose name is case-insensitively equal to
+  `"var"` or an `EmptyFallbackVar`, or it it's an `InterpolatedIdentifer` that
+  contains interpolation, or if it's an `InterpolatedDeclarationValue`:
 
   * Let `result` be the result of evaluating `expression`.
 
@@ -616,9 +626,6 @@ To evaluate an `InterpolatedIdentifier` `ident` as a calculation value:
   `-Infinity`.
 
 * If `ident` is case-insensitively equal to `nan`, return the double `NaN`.
-
-* If `ident` contains only a single `Interpolation`, return a
-  `CalculationInterpolation` whose value is the result of evaluating it.
 
 * Otherwise, return the result of evaluating `ident` using standard semantics.
 
@@ -714,6 +721,89 @@ To evaluate a `SlashListExpression` as a calculation value:
 
 * Return `left`.
 
+## API
+
+```ts
+import {List, ValueObject} from 'immutable';
+```
+
+### Types
+
+#### `CalculationInterpolation`
+
+Replace the definition of this class with the following:
+
+A deprecated alternative JS API representation of an unquoted Sass string that's
+always surrounded by parentheses. It's never returned by the Sass compiler, but
+for backwards-compatibility users may still construct it and pass it to the Sass
+compiler.
+
+> `CalculationInterpolation`s are no longer generated by the Sass compiler,
+> because it can now tell at evaluation time whether an interpolation was
+> originally surrounded by parentheses. However, until we make a breaking
+> revision of the JS API, users may continue to pass `CalculationInterpolation`s
+
+```ts
+declare module '../spec/js-api/value' {
+  class CalculationInterpolation implements ValueObject {
+```
+
+##### `internal`
+
+A private property like [`Value.internal`] that refers to a Sass string.
+
+##### Constructor
+
+Creates a `CalculationInterpolation` with its `internal` set to an unquoted Sass
+string with text `"(" + value + ")"` and returns it.
+
+```ts
+constructor(value: string);
+```
+
+##### `value`
+
+Returns [`internal`](#internal)'s `value` field's text, without the leading and
+trailing parentheses.
+
+```ts
+get value(): string;
+```
+
+##### `equals`
+
+Whether `other` is a `CalculationInterpolation` and [`internal`](#internal) is
+equal to `other.internal` in Sass.
+
+```ts
+equals(other: unknown): boolean;
+```
+
+##### `hashCode`
+
+Returns the same number for any two `CalculationInterpolation`s that are equal
+according to [`equals`](#equals).
+
+```ts
+hashCode(): number;
+```
+
+```ts
+  } // CalculationInterpolation
+} // module
+```
+
+## Embedded Protocol
+
+### `CalculationValue.value.interpolation`
+
+Add the following to this field's documentation:
+
+The compiler must treat this as identical to a `string` option whose value is
+`"(" + interpolation + ")"`.
+
+This field is deprecated and hosts should avoid using it.
+
 ## Deprecation Process
 
 This proposal causes two breaking changes, each of which will be mitigated by
@@ -755,5 +845,4 @@ To evaluate a `SpaceListExpression` as a calculation value:
 * Let `interp` be the result of reparsing the source text covered by the
   expression as an `InterpolatedDeclarationValue`.
 
-* Return a `CalculationInterpolation` whose value is the result of evaluating
-  `interp`.
+* Return a `StringExpression` whose value is the result of evaluating `interp`.
