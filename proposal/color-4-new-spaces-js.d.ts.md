@@ -30,6 +30,7 @@ proposal].
     * [LCH Channel Constructor](#lch-channel-constructor)
     * [Predefined RGB Channel Constructor](#predefined-rgb-channel-constructor)
     * [XYZ Channel Constructor](#xyz-channel-constructor)
+    * [Legacy Color Constructors with `space`](#legacy-color-constructors-with-space)
   * [Deprecations](#deprecations)
 * [Procedures](#procedures)
   * [Parsing a Channel Value](#parsing-a-channel-value)
@@ -375,7 +376,7 @@ interpolate(options: {
 
 ### New Constructors
 
-* If `options.space` is not set, or `space` is a legacy space, follow the legacy
+* If `options.space` is not set, or `space` is a [legacy color space], follow the legacy
   procedure for [construction].
 
 * Otherwise, use the constructor that matches the value of `options.space`.
@@ -507,13 +508,46 @@ constructor(options: {
 });
 ```
 
+#### Legacy Color Constructors with `space`
+
+While the [legacy color space] constructors do not require a space, these constuctor
+overloads should replace the [existing types] for forward compatibility.
+
+[existing types]: ../spec/js-api/value/color.d.ts.md#constructor
+
+```ts
+constructor(options: {
+  red: number;
+  green: number;
+  blue: number;
+  alpha?: number;
+  space?: 'rgb';
+});
+
+constructor(options: {
+  hue: number;
+  saturation: number;
+  lightness: number;
+  alpha?: number;
+  space?: 'hsl';
+});
+
+constructor(options: {
+  hue: number;
+  whiteness: number;
+  blackness: number;
+  alpha?: number;
+  space?: 'hwb';
+});
+```
+
 ```ts
 }
 ```
 
 ### Deprecations
 
-A number of SassColor getters only make sense for legacy colors, and so are
+A number of SassColor getters only make sense for [legacy color space], and so are
 being deprecated for `channel`.
 
 * `red`
