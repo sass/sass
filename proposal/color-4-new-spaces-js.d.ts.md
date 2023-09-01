@@ -127,8 +127,8 @@ get space(): KnownColorSpace;
 
 #### `channels`
 
-Returns an array of channel values (excluding `alpha`) for [`internal`], with [missing
-channels][missing components] converted to `0`.
+Returns an array of channel values (excluding `alpha`) for [`internal`], with
+[missing channels][missing components] converted to `0`.
 
 [missing components]: ./color-4-new-spaces.md#missing-components
 
@@ -138,8 +138,8 @@ get channels(): number[];
 
 #### `channelsOrNull`
 
-Returns an array of channel values (excluding `alpha`) for [`internal`], with [missing
-channels][missing components] converted to `null`.
+Returns an array of channel values (excluding `alpha`) for [`internal`], with
+[missing channels][missing components] converted to `null`.
 
 ```ts
 get channelsOrNull(): ChannelValue[];
@@ -291,11 +291,11 @@ Replace the definition of [color.change] with the following:
 
 [color.change]: [`internal`]: ../spec/js-api/value/color.d.ts.md#change
 
-This algorithm takes a JavaScript object `options` and returns a new SassColor as the result of changing some of [`internal`]'s
-channels.
+This algorithm takes a JavaScript object `options` and returns a new SassColor
+as the result of changing some of [`internal`]'s channels.
 
-The `space` value defaults to the `space` of [`internal`], and any
-combination of channels in that space may be changed.
+The `space` value defaults to the `space` of [`internal`], and any combination
+of channels in that space may be changed.
 
 If `space` is not a [legacy color space], a channel value of `null` will result
 in a [missing component][missing components] value for that channel.
@@ -308,7 +308,8 @@ in a [missing component][missing components] value for that channel.
 
 * Let `channels` be "alpha" and the channels in `space`.
 
-* If any key in `keys` is not the name of a channel in `channels`, throw an error.
+* If any key in `keys` is not the name of a channel in `channels`, throw an
+  error.
 
 * If `space` is not equal to `initialSpace`, let `convertedColor` be the result
   of [`internal.toSpace(space)`].
@@ -500,8 +501,8 @@ interpolate(options: {
 
 ### New Constructors
 
-* If `options.space` is not set, or `space` is a [legacy color space], follow the legacy
-  procedure for [construction].
+* If `options.space` is not set, or `space` is a [legacy color space], follow
+  the legacy procedure for [construction].
 
 * Otherwise, use the constructor that matches the value of `options.space`.
 
@@ -634,8 +635,9 @@ constructor(options: {
 
 #### Legacy Color Constructors with `space`
 
-While the [legacy color space] constructors do not require a space, these constuctor
-overloads should replace the [existing types] for forward compatibility.
+While the [legacy color space] constructors do not require a space, these
+constuctor overloads should replace the [existing types] for forward
+compatibility.
 
 [existing types]: ../spec/js-api/value/color.d.ts.md#constructor
 
@@ -671,8 +673,8 @@ constructor(options: {
 
 ### Deprecations
 
-A number of SassColor getters only make sense for [legacy color space], and so are
-being deprecated for `channel`.
+A number of SassColor getters only make sense for [legacy color space], and so
+are being deprecated for `channel`.
 
 * `red`
 * `green`
