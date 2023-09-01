@@ -577,10 +577,15 @@ global function:
   [calculation-safe]: #calculation-safe-expression
   [as a calculation]: #evaluating-a-functioncall-as-a-calculation
 
+  > For calculation functions that overlap with global Sass function names, we
+  > want anything Sass-specific like this to end up calling the Sass function.
+  > For all other calculation functions, we want those constructs to throw an
+  > error (which they do when evaluating `call` [as a calculation]).
+
 * If `function` is null and `name` is case-insensitively equal to `"calc"`,
   `"clamp"`, `"hypot"`, `"sin"`, `"cos"`, `"tan"`, `"asin"`, `"acos"`, `"atan"`,
   `"sqrt"`, `"exp"`, `"sign"`, `"mod"`, `"rem"`, `"atan2"`, `"pow"`, or `"log"`,
-  return the result of evaluating `call` as a calculation.
+  return the result of evaluating `call` [as a calculation].
 
 ### Calculations
 
@@ -708,8 +713,7 @@ another calculation-safe expression with the precedence of
         `SlashListExpression` with elements `last-left` and `first-right`,
         followed by all operators and operands of `right` except `first-right`.
 
-        > For example, if we insert virtual parentheses to explicitly indicate
-        > precedence groupings, `(1 + 2) / (3 + 4)` becomes `1 + (2 / 3) + 4`.
+        > For example, `slash-list(1 + 2, 3 + 4)` becomes `1 + (2 / 3) + 4`.
 
     * Otherwise, if `left` is a `SumExpression`:
 
@@ -719,7 +723,7 @@ another calculation-safe expression with the precedence of
         operators of `left` except `last-left`, followed by a
         `SlashListExpression` with elements `last-left` and `right`.
 
-        > For example, `(1 + 2) / 3` becomes `1 + (2 / 3)`.
+        > For example, `slash-list(1 + 2, 3)` becomes `1 + (2 / 3)`.
 
     * Otherwise, if `right` is a `SumExpression` or a `ProductExpression`:
 
@@ -729,7 +733,7 @@ another calculation-safe expression with the precedence of
         `SlashListExpression` with elements `left` and `first-right`, followed
         by operators and operands of `right` except `first-right`.
 
-        > For example, `1 / (2 * 3)` becomes `(1 / 2) * 3`.
+        > For example, `slash-list(1, 2 * 3)` becomes `(1 / 2) * 3`.
 
     * Otherwise, if `left` is a slash-separated list, add `right` to the end.
 
