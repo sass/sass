@@ -19,12 +19,14 @@ proposal].
     * [`isLegacy`](#islegacy)
     * [`isInGamut`](#isingamut)
     * [`channel`](#channel)
+    * [`alpha`](#alpha)
     * [`isChannelMissing`](#ischannelmissing)
+    * [`isAlphaMissing`](#isalphamissing)
     * [`isChannelPowerless`](#ischannelpowerless)
     * [`toSpace`](#tospace)
     * [`toGamut`](#togamut)
     * [`change`](#change)
-    * [`interpolate()`](#interpolate)
+    * [`interpolate`](#interpolate)
   * [New Constructors](#new-constructors)
     * [LAB Channel Constructor](#lab-channel-constructor)
     * [LCH Channel Constructor](#lch-channel-constructor)
@@ -125,8 +127,10 @@ get space(): KnownColorSpace;
 
 #### `channels`
 
-Returns an array of channel values for [`internal`], with missing channels
-converted to `0`.
+Returns an array of channel values (excluding `alpha`) for [`internal`], with [missing
+channels][missing components] converted to `0`.
+
+[missing components]: ./color-4-new-spaces.md#missing-components
 
 ```ts
 get channels(): number[];
@@ -134,8 +138,8 @@ get channels(): number[];
 
 #### `channelsOrNull`
 
-Returns an array of channel values for [`internal`], with missing channels
-converted to `null`.
+Returns an array of channel values (excluding `alpha`) for [`internal`], with [missing
+channels][missing components] converted to `null`.
 
 ```ts
 get channelsOrNull(): ChannelValue[];
@@ -198,15 +202,32 @@ channel(
 
 [convert]: ./color-4-new-spaces.md#converting-a-color
 
+#### `alpha`
+
+Returns the value of the `alpha` component, or `null` if one is not set.
+
+```ts
+alpha(): ChannelValue;
+```
+
 #### `isChannelMissing`
 
-Returns whether the given `channel` of [`internal`] is missing. Missing channels
-can be explicitly specified using the special value `none` and can appear
-automatically when [toSpace()] returns a color with a powerless channel. Throws
-an error if `channel` is not a channel in [`internal]`'s `space`.
+Returns whether the given `channel` of [`internal`] is missing. [Missing
+channels][missing components] can be explicitly specified using the special
+value `none` and can appear automatically when [toSpace()] returns a color with
+a powerless channel. Throws an error if `channel` is not a channel in
+[`internal`]'s `space`.
 
 ```ts
 isChannelMissing(channel: ChannelName): boolean;
+```
+
+#### `isAlphaMissing`
+
+Returns whether the `alpha` component is missing.
+
+```ts
+isAlphaMissing(): boolean;
 ```
 
 [toSpace()]: #tospace
@@ -277,7 +298,7 @@ The `space` value defaults to the `space` of [`internal`], and any
 combination of channels in that space may be changed.
 
 If `space` is not a [legacy color space], a channel value of `null` will result
-in a [missing component] value for that channel.
+in a [missing component][missing components] value for that channel.
 
 * Let `initialSpace` be the value of [`internal.space()`].
 
@@ -446,7 +467,7 @@ change(
 ): SassColor;
 ```
 
-#### `interpolate()`
+#### `interpolate`
 
 Returns a new SassColor with the result of mixing [`internal`] with `color2`.
 
@@ -497,17 +518,17 @@ Create a new SassColor in a color space with LAB channels -- `lab` and `oklab`.
 
 * Let `b` be the result of [parsing a channel value] with value `options.b`.
   
-* If `options.alpha` is set, let `alpha` be a Sass number with a value of
-    `options.alpha`. Otherwise, let `alpha` be `null`.
+* If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
+    the result of [parsing a channel value] with value `options.alpha`.
 
 * If `options.space` equals `lab`, set [`internal`] to the result of
-  [`lab(lightness, a, b, alpha)`].
+  [`lab(lightness a b / alpha)`].
 
 * Otherwise, if `options.space` equals `oklab`, set [`internal`] to the result
-  of [`oklab(lightness, a, b, alpha)`].
+  of [`oklab(lightness a b / alpha)`].
 
- [`lab(lightness, a, b, alpha)`]: ./color-4-new-spaces.md#lab
- [`oklab(lightness, a, b, alpha)`]: ./color-4-new-spaces.md#oklab
+ [`lab(lightness a b / alpha)`]: ./color-4-new-spaces.md#lab
+ [`oklab(lightness a b / alpha)`]: ./color-4-new-spaces.md#oklab
 
 ```ts
 constructor(options: {
@@ -530,14 +551,14 @@ Create a new SassColor in a color space with LCH channels -- `lch` and `oklch`.
 
 * Let `h` be the result of [parsing a channel value] with value `options.h`.
   
-* If `options.alpha` is set, let `alpha` be a Sass number with a value of
-    `options.alpha`. Otherwise, let `alpha` be `null`.
+* If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
+    the result of [parsing a channel value] with value `options.alpha`.
 
 * If `options.space` equals `lch`, set [`internal`] to the result of
-  [`lch(lightness, a, b, alpha)`].
+  [`lch(lightness a b / alpha)`].
 
 * Otherwise, if `options.space` equals `oklch`, set [`internal`] to the result
-  of [`oklch(lightness, a, b, alpha)`].
+  of [`oklch(lightness a b / alpha)`].
 
 ```ts
 constructor(options: {
@@ -564,8 +585,8 @@ supported with this constructor, as the legacy `rgb` color does not support
 * Let `blue` be the result of [parsing a channel value] with value
   `options.blue`.
   
-* If `options.alpha` is set, let `alpha` be a Sass number with a value of
-    `options.alpha`. Otherwise, let `alpha` be `null`.
+* If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
+    the result of [parsing a channel value] with value `options.alpha`.
 
 * Let `space` be the unquoted string value of `options.space`.
 
@@ -594,8 +615,8 @@ and `xyz-d65`.
 
 * Let `z` be the result of [parsing a channel value] with value `options.z`.
   
-* If `options.alpha` is set, let `alpha` be a Sass number with a value of
-    `options.alpha`. Otherwise, let `alpha` be `null`.
+* If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
+    the result of [parsing a channel value] with value `options.alpha`.
 
 * Let `space` be the unquoted string value of `options.space`.
 
@@ -667,7 +688,7 @@ being deprecated for `channel`.
 
 ### Parsing a Channel Value
 
-This procedure takes a channel value `value`, and returns a the special value
+This procedure takes a channel value `value`, and returns the special value
 `none` if the value is `null`.
 
 * If `value` is a number, return a Sass number with a value of `value`.
