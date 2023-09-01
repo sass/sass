@@ -23,7 +23,7 @@ proposal].
     * [`isChannelPowerless`](#ischannelpowerless)
     * [`toSpace`](#tospace)
     * [`toGamut`](#togamut)
-    * [`changeChannels`](#changechannels)
+    * [`change`](#change)
     * [`interpolate()`](#interpolate)
   * [New Constructors](#new-constructors)
     * [LAB Channel Constructor](#lab-channel-constructor)
@@ -264,31 +264,134 @@ colors as best they can, but it may be necessary in some cases.
 toGamut(): SassColor;
 ```
 
-#### `changeChannels`
+#### `change`
 
-Returns a new SassColor as the result of changing some of [`internal`]'s
-channels. The `space` value defaults to the `space` of [`internal`], and any
-combination of channels in that space may be changed. Throws an error if any
-`channel` is not present in `space`.
+Replace the definition of [color.change] with the following:
 
-* If `space` is not defined, let `space` be the value of [`color.space(internal)`].
+[color.change]: [`internal`]: ../spec/js-api/value/color.d.ts.md#change
 
-* Let `arguments` be the key value pairs in `channels` as keyword arguments.
+This algorithm takes a JavaScript object `options` and returns a new SassColor as the result of changing some of [`internal`]'s
+channels.
 
-* Return the value of the result of [`color.change(internal, ...arguments)`].
+The `space` value defaults to the `space` of [`internal`], and any
+combination of channels in that space may be changed.
 
-[`color.space(internal)`]: #space
+If `space` is not a [legacy color space], a channel value of `null` will result
+in a [missing component] value for that channel.
 
-[`color.change(internal, ...arguments)`]: ./color-4-new-spaces.md#colorchange
+* Let `initialSpace` be the value of [`internal.space()`].
+
+* If `options.space` is not defined, let `space` be the value of `initialSpace`.
+
+* Let `keys` be a list of the keys in `options` without `space`.
+
+* Let `channels` be "alpha" and the channels in `space`.
+
+* If any key in `keys` is not the name of a channel in `channels`, throw an error.
+
+* If `space` is not equal to `initialSpace`, let `convertedColor` be the result
+  of [`internal.toSpace(space)`].
+
+* If `space` equals `hsl`, let `changedColor` be the result of:
+
+```js
+  SassColor({
+    hue: options.hue ?? internal.channel('hue'),
+    saturation: options.saturation ?? internal.channel('saturation'),
+    lightness: options.lightness ?? internal.channel('lightness'),
+    alpha: options.alpha ?? internal.channel('alpha'),
+    space: space
+  })
+  ```
+
+* If space equals `hwb`, let `changedColor` be the result of:
+
+```js
+  SassColor({
+    hue: options.hue ?? internal.channel('hue'),
+    whiteness: options.whiteness ?? internal.channel('whiteness'),
+    blackness: options.blackness ?? internal.channel('blackness'),
+    alpha: options.alpha ?? internal.channel('alpha'),
+    space: space
+  })
+  ```
+
+* If space equals `rgb`, let `changedColor` be the result of:
+
+```js
+  SassColor({
+    red: options.red ?? internal.channel('red'),
+    green: options.green ?? internal.channel('green'),
+    blue: options.blue ?? internal.channel('blue'),
+    alpha: options.alpha ?? internal.channel('alpha'),
+    space: space
+  })
+  ```
+
+* If space equals `lab` or `oklab`, let `changedColor` be the result of:
+
+  ```js
+  SassColor({
+    lightness: keys.includes('lightness') ? options.lightness : internal.channel('lightness'),
+    a: keys.includes('a') ? options.a : internal.channel('a'),
+    b: keys.includes('b') ? options.b : internal.channel('b'),
+    alpha: keys.includes('alpha') ? options.alpha : internal.channel('alpha'),
+    space: space
+  })
+  ```
+
+* If space equals `lch` or `oklch`, let `changedColor` be the result of:
+
+  ```js
+  SassColor({
+    lightness: keys.includes('lightness') ? options.lightness : internal.channel('lightness'),
+    c: keys.includes('c') ? options.c : internal.channel('c'),
+    h: keys.includes('h') ? options.h : internal.channel('h'),
+    alpha: keys.includes('alpha') ? options.alpha : internal.channel('alpha'),
+    space: space
+  })
+  ```
+
+* If `space` equals `a98-rgb`, `display-p3`, `prophoto-rgb`, `srgb`, or
+  `srgb-linear`, let `changedColor` be the result of:
+
+  ```js
+  SassColor({
+    red: keys.includes('red') ? options.red : internal.channel('red'),
+    green: keys.includes('green') ? options.green : internal.channel('green'),
+    blue: keys.includes('blue') ? options.blue : internal.channel('blue'),
+    alpha: keys.includes('alpha') ? options.alpha : internal.channel('alpha'),
+    space: space
+  })
+  ```
+
+* If `space` equals `xyz`,  `xyz-d50`, or `xyz-d65`, let `changedColor` be the
+    result of:
+
+  ```js
+  SassColor({
+    x: keys.includes('x') ? options.x : internal.channel('x'),
+    y: keys.includes('y') ? options.y : internal.channel('y'),
+    z: keys.includes('z') ? options.z : internal.channel('z'),
+    alpha: keys.includes('alpha') ? options.alpha : internal.channel('alpha'),
+    space: space
+  })
+  ```
+
+* Return the result of [`changedColor.toSpace(initialSpace)`].
+  
+[`internal.space()`]: #space
+[`internal.toSpace(space)`]: #tospace
+[`changedColor.toSpace(initialSpace)`]: #tospace
 
 ```ts
-changeChannels(
+change(
   options: {
     [key in ChannelName]?: ChannelValue;
   } & {alpha?: number}
 ): SassColor;
 
-changeChannels(
+change(
   options: {
     [key in ChannelNameHSL]?: ChannelValue;
   } & {
@@ -297,7 +400,7 @@ changeChannels(
   }
 ): SassColor;
 
-changeChannels(
+change(
   options: {
     [key in ChannelNameHWB]?: ChannelValue;
   } & {
@@ -306,7 +409,7 @@ changeChannels(
   }
 ): SassColor;
 
-changeChannels(
+change(
   options: {
     [key in ChannelNameLAB]?: ChannelValue;
   } & {
@@ -315,7 +418,7 @@ changeChannels(
   }
 ): SassColor;
 
-changeChannels(
+change(
   options: {
     [key in ChannelNameLCH]?: ChannelValue;
   } & {
@@ -324,7 +427,7 @@ changeChannels(
   }
 ): SassColor;
 
-changeChannels(
+change(
   options: {
     [key in ChannelNameRGB]?: ChannelValue;
   } & {
@@ -333,7 +436,7 @@ changeChannels(
   }
 ): SassColor;
 
-changeChannels(
+change(
   options: {
     [key in ChannelNameXYZ]?: ChannelValue;
   } & {
@@ -451,7 +554,7 @@ constructor(options: {
 Create a new SassColor in a color space with RGB channels -- `srgb`,
 `srgb-linear`, `display-p3`, `a98-rgb`, and `prophoto-rgb`. `rgb` is not
 supported with this constructor, as the legacy `rgb` color does not support
-missing colors.
+[missing components].
 
 * Let `red` be the result of [parsing a channel value] with value `options.red`.
 
@@ -559,8 +662,6 @@ being deprecated for `channel`.
 * `whiteness`
 * `blackness`
 * `alpha`
-
-In addition, `change` is deprecated in favor of `changeChannels`.
 
 ## Procedures
 
