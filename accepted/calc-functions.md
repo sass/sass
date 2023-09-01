@@ -758,15 +758,12 @@ To evaluate a `SlashListExpression` as a calculation value:
 
 ## API
 
-```ts
-import {List, ValueObject} from 'immutable';
-```
-
 ### Types
 
 #### `CalculationInterpolation`
 
-Replace the definition of this class with the following:
+Replace the definition of this class, other than its TypeScript API, with the
+following:
 
 A deprecated alternative JS API representation of an unquoted Sass string that's
 always surrounded by parentheses. It's never returned by the Sass compiler, but
@@ -778,11 +775,6 @@ compiler.
 > originally surrounded by parentheses. However, until we make a breaking
 > revision of the JS API, users may continue to pass `CalculationInterpolation`s
 
-```ts
-declare module '../spec/js-api/value' {
-  class CalculationInterpolation implements ValueObject {
-```
-
 ##### `internal`
 
 A private property like [`Value.internal`] that refers to a Sass string.
@@ -792,41 +784,20 @@ A private property like [`Value.internal`] that refers to a Sass string.
 Creates a `CalculationInterpolation` with its `internal` set to an unquoted Sass
 string with text `"(" + value + ")"` and returns it.
 
-```ts
-constructor(value: string);
-```
-
 ##### `value`
 
 Returns [`internal`](#internal)'s `value` field's text, without the leading and
 trailing parentheses.
-
-```ts
-get value(): string;
-```
 
 ##### `equals`
 
 Whether `other` is a `CalculationInterpolation` and [`internal`](#internal) is
 equal to `other.internal` in Sass.
 
-```ts
-equals(other: unknown): boolean;
-```
-
 ##### `hashCode`
 
 Returns the same number for any two `CalculationInterpolation`s that are equal
 according to [`equals`](#equals).
-
-```ts
-hashCode(): number;
-```
-
-```ts
-  } // CalculationInterpolation
-} // module
-```
 
 ## Embedded Protocol
 
