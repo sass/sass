@@ -1,3 +1,32 @@
+## Draft 3.1
+
+* Update the definition of potentially slash-separated numbers to reflect the
+  fact that calculations are no longer determinable syntactically.
+
+* Add a section describing how to restructure slash-separated lists as division
+  within calculations.
+
+* Don't evaluate `min()`, `max()`, `round()`, or `abs()` as a calculation if it
+  has keyword or rest arguments.
+
+* During the deprecation period, only consider unbracketed
+  `SpaceListExpressions` with multiple elements that actually contain
+  interpolation to be calculation-safe.
+
+* Handle `"*"` and `"/"` tokens when evaluating `SumExpresssion`s and
+  `ProductExpression`s as calculations.
+
+* Remove the `CalculationInterpolation` type, and deprecate the associated JS
+  API and embedded protocol field. The problem this type existed to work around
+  is no longer an issue in the new parsing structure.
+
+* Preserve parentheses around all `var()` strings that get injected from
+  anywhere, as well as any unquoted strings that appear in `calc()` and might
+  need parentheses.
+
+* Don't treat `abs()`, `min()`, `max()`, or `round()` as potentially
+  slash-separated operands..
+
 ## Draft 3.0
 
 * Refactor the way calculations are parsed to allow them to coexist with
