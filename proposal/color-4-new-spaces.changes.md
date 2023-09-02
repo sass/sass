@@ -1,3 +1,8 @@
+## Draft 1.11
+
+* Add support for the relative color syntax in the algorithm parsing color
+  arguments, for CSS compatibility.
+
 ## Draft 1.10
 
 * Properly scale `%` return values for `color.channel()`.
