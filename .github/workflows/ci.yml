@@ -75,7 +75,7 @@ jobs:
       - uses: bufbuild/buf-setup-action@v1.26.1
         with: {github_token: "${{ github.token }}"}
       - name: Generate protobuf code
-        run: buf generate --output=/tmp --path=spec/embedded_sass.proto
+        run: buf generate
 
   embedded_protocol_versions:
     name: "Validate Embedded Protocol versions"
