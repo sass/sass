@@ -67,11 +67,9 @@ resolved within `node_modules`, using the [Node resolution algorithm].
 
 The built-in Node importer resolves in the following order:
 
-1. `sass` condition in package.json `exports`.
+1. `sass`, `style`, or `default` condition in package.json `exports`.
 
-2. `style` condition in package.json `exports`.
-
-3. If there is not a subpath, then find the root export:
+2. If there is not a subpath, then find the root export:
 
    1. `sass` key at package.json root.
 
@@ -79,12 +77,14 @@ The built-in Node importer resolves in the following order:
 
    3. `index` file at package root, resolved for file extensions and partials.
 
-4. If there is a subpath, resolve that path relative to the package root, and
+3. If there is a subpath, resolve that path relative to the package root, and
    resolve for file extensions and partials.
 
 For library creators, the recommended method is to add a `sass` conditional
-export to `package.json`, with the `sass` key being the first listed condition
-for the exported file path.
+export to `package.json`. The `style` condition is an acceptable alternative,
+but relying on the `default` condition is discouraged. Notably, the key order
+matters, and the importer will resolve to the first value with a key that is
+`sass`, `style`, or `default`.
 
 ```json
 {
@@ -92,7 +92,7 @@ for the exported file path.
     ".": {
       "sass": "./dist/scss/index.scss",
       "import": "./dist/js/index.mjs",
-      "require": "./dist/js/index.js"
+      "default": "./dist/js/index.js"
     }
   }
 }
@@ -310,16 +310,8 @@ It returns a canonical `file:` URL or null.
 * Let `packageManifest` be the result of parsing the `package.json` file at
   `packageRoot` as [JSON].
 
-* Let `resolved` be the result of [resolving package exports] with `sass` as the
-  condition, `packageRoot`, `subpath`, and `packageManifest`.
-
-* If `resolved` has the scheme `file:` and an extension of `sass`, `scss` or
-  `css`, return it.
-
-* Otherwise, if `resolved` is not null, throw an error.
-
-* Let `resolved` be the result of [resolving package exports] with `style` as
-  the condition, `packageRoot`, `subpath`, and `packageManifest`.
+* Let `resolved` be the result of [resolving package exports] with
+  `packageRoot`, `subpath`, and `packageManifest`.
 
 * If `resolved` has the scheme `file:` and an extension of `sass`, `scss` or
   `css`, return it.
@@ -363,9 +355,8 @@ returns an absolute URL to the root directory for the most proximate installed
 
 ### Resolving package exports
 
-This algorithm takes a string `condition`, a package.json value
-`packageManifest`, a directory URL `packageRoot` and a relative URL path
-`subpath`. It returns a file URL or null.
+This algorithm takes a package.json value `packageManifest`, a directory URL
+`packageRoot` and a relative URL path `subpath`. It returns a file URL or null.
 
 * Let `exports` be the value of `packageManifest.exports`.
 
@@ -374,9 +365,12 @@ This algorithm takes a string `condition`, a package.json value
 * Let `subpathVariants` be the result of [Export load paths] with `subpath`.
 
 * Let `resolvedPaths` be a list of the results of calling
-  `PACKAGE_EXPORTS_RESOLVE(packageRoot, subpathVariant, exports, [condition])`
-  as defined in the [Node resolution algorithm specification], with each
-  `subpathVariants` as `subpathVariant`.
+  `PACKAGE_EXPORTS_RESOLVE(packageRoot, subpathVariant, exports, ["sass",
+  "style"])` as defined in the [Node resolution algorithm specification], with
+  each `subpathVariants` as `subpathVariant`.
+
+  > The PACKAGE_EXPORTS_RESOLVE algorithm always includes a `default` condition,
+  > so one does not have to be passed here.
 
 * If `resolvedPaths` contains more than one resolved URL, throw an error.
 
