@@ -133,7 +133,7 @@ Returns an array of channel values (excluding `alpha`) for [`internal`], with
 [missing components]: ./color-4-new-spaces.md#missing-components
 
 ```ts
-get channels(): number[];
+get channels(): [number, number, number];
 ```
 
 #### `channelsOrNull`
@@ -142,7 +142,7 @@ Returns an array of channel values (excluding `alpha`) for [`internal`], with
 [missing channels][missing components] converted to `null`.
 
 ```ts
-get channelsOrNull(): ChannelValue[];
+get channelsOrNull(): [ChannelValue, ChannelValue, ChannelValue];
 ```
 
 #### `isLegacy`
@@ -224,7 +224,7 @@ isChannelMissing(channel: ChannelName): boolean;
 
 #### `isAlphaMissing`
 
-Returns whether the `alpha` component is missing.
+Returns whether the `alpha` component is [missing][missing components].
 
 ```ts
 isAlphaMissing(): boolean;
@@ -289,13 +289,13 @@ toGamut(): SassColor;
 
 Replace the definition of [color.change] with the following:
 
-[color.change]: [`internal`]: ../spec/js-api/value/color.d.ts.md#change
+[color.change]: ../spec/js-api/value/color.d.ts.md#change
 
 This algorithm takes a JavaScript object `options` and returns a new SassColor
-as the result of changing some of [`internal`]'s channels.
+as the result of changing some of [`internal`]'s components.
 
 The `space` value defaults to the `space` of [`internal`], and any combination
-of channels in that space may be changed.
+of channels and alpha in that space may be changed.
 
 If `space` is not a [legacy color space], a channel value of `null` will result
 in a [missing component][missing components] value for that channel.
@@ -435,7 +435,7 @@ change(
   options: {
     [key in ChannelNameLAB]?: ChannelValue;
   } & {
-    alpha?: number;
+    alpha?: ChannelValue;
     space: ColorSpaceLAB;
   }
 ): SassColor;
@@ -444,7 +444,7 @@ change(
   options: {
     [key in ChannelNameLCH]?: ChannelValue;
   } & {
-    alpha?: number;
+    alpha?: ChannelValue;
     space: ColorSpaceLCH;
   }
 ): SassColor;
@@ -453,7 +453,7 @@ change(
   options: {
     [key in ChannelNameRGB]?: ChannelValue;
   } & {
-    alpha?: number;
+    alpha?: ChannelValue;
     space: ColorSpaceRGB;
   }
 ): SassColor;
@@ -462,7 +462,7 @@ change(
   options: {
     [key in ChannelNameXYZ]?: ChannelValue;
   } & {
-    alpha?: number;
+    alpha?: ChannelValue;
     space: ColorSpaceXYZ;
   }
 ): SassColor;
@@ -536,7 +536,7 @@ constructor(options: {
   lightness: ChannelValue;
   a: ChannelValue;
   b: ChannelValue;
-  alpha?: number;
+  alpha?: ChannelValue;
   space: ColorSpaceLAB;
 });
 ```
@@ -566,7 +566,7 @@ constructor(options: {
   lightness: ChannelValue;
   chroma: ChannelValue;
   hue: ChannelValue;
-  alpha?: number;
+  alpha?: ChannelValue;
   space: ColorSpaceLCH;
 });
 ```
@@ -600,7 +600,7 @@ constructor(options: {
   red: ChannelValue;
   green: ChannelValue;
   blue: ChannelValue;
-  alpha?: number;
+  alpha?: ChannelValue;
   space: Omit<ColorSpaceRGB, 'rgb'>;
 });
 ```
@@ -628,16 +628,15 @@ constructor(options: {
   x: ChannelValue;
   y: ChannelValue;
   z: ChannelValue;
-  alpha?: number;
+  alpha?: ChannelValue;
   space: ColorSpaceXYZ;
 });
 ```
 
 #### Legacy Color Constructors with `space`
 
-While the [legacy color space] constructors do not require a space, these
-constuctor overloads should replace the [existing types] for forward
-compatibility.
+While the [legacy color space] constructors do not require a space, replace the
+[existing types] with these constuctor overloads  for forward compatibility.
 
 [existing types]: ../spec/js-api/value/color.d.ts.md#constructor
 
@@ -711,13 +710,13 @@ message SassColor {
   string space = 1;
 
   // The value of the first channel associated with `space`.
-  double Channel1 = 2;
+  double channel1 = 2;
 
   // The value of the second channel associated with `space`.
-  double Channel2 = 3;
+  double channel2 = 3;
 
   // The value of the third channel associated with `space`.
-  double Channel3 = 4;
+  double channel3 = 4;
 
   // The color's alpha channel. Mandatory. Must be between 0 and 1,
   // inclusive.
