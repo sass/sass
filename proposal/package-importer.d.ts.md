@@ -214,6 +214,23 @@ is `node`, which follows Node resolution logic to locate Sass files.
 
 Defaults to undefined.
 
+After the first bullet points in [`compile`] and [`compileString`] in the
+Javascript Compile API, insert:
+
+* If `options.pkgImporter` equals `'node'`:
+
+  * Let `pkgImporter` be a [Node Package Importer] with an associated
+    `entryPointURL` of `require.main.filename`.
+
+  * Append `pkgImporter` to the `options.importers`.
+  
+  > Package Importers are evaluated after user-defined importers but
+  > before load paths.
+
+[`compile`]: ../spec/js-api/compile.d.ts.md#compile
+[`compileString`]: ../spec/js-api/compile.d.ts.md#compilestring
+[Node Package Importer]: #node-package-importer
+
 ```ts
 declare module '../spec/js-api/options' {
   interface Options<sync extends 'sync' | 'async'> {
@@ -250,14 +267,19 @@ Package Importers must reject the following patterns:
 * A URL whose path begins with `/`.
 * A URL with non-empty/null username, password, host, port, query, or fragment.
 
+Package Importers must be added to the [global importer list] immediately after any
+user-provided importers.
+
 [importer]: ../spec/modules.md#importer
+[global importer list]: ../spec/modules.md#global-importer-list
 
 ### Node Package Importer
 
 The Node Package Importer is an implementation of a [Package Importer] using the
-standards and conventions of the Node ecosystem. When the Node Package Importer
-is invoked with a string named `string` and a `baseURL` which is either the
-[previous URL] or the `file:` URL to the entry point:
+standards and conventions of the Node ecosystem. It has an associated absolute
+`file:` URL named `entryPointURL`.
+
+When the Node Package Importer is invoked with a string named `string`:
 
 * If `string` is a relative URL, return null.
 
@@ -265,6 +287,13 @@ is invoked with a string named `string` and a `baseURL` which is either the
   returns a failure, throw that failure.
 
 * If `url`'s scheme is not `pkg:`, return null.
+
+* Let `sourceFile` be the canonical URL of the [current source file] that
+  contained the load.
+
+* If `sourceFile`'s scheme is `file:`, let `baseURL` be `sourceFile`.
+
+* Otherwise, let `baseURL` be `entryPointURL`.
 
 * Let `resolved` be the result of [resolving a `pkg:` URL as Node] with `url` and
   `baseURL`.
@@ -288,6 +317,7 @@ is invoked with a string named `string` and a `baseURL` which is either the
 
 [Package Importer]: #package-importers
 [parsing a URL]: https://url.spec.whatwg.org/#concept-url-parser
+[current source file]: ../spec/spec.md#current-source-file
 [resolving a `pkg:` URL as Node]: #node-algorithm-for-resolving-a-pkg-url
 
 ## Procedures
@@ -324,7 +354,6 @@ It returns a canonical `file:` URL or null.
 
 * Return the result of [resolving a `file:` URL] with `resolved`.
 
-[previous URL]: ../accepted/prev-url.d.ts.md
 [Resolving package exports]: #resolving-package-exports
 [resolving package root values]: #resolving-package-root-values
 [resolving a package name]: #resolving-a-package-name
