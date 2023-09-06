@@ -306,9 +306,9 @@ in a [missing component][missing components] value for that channel.
 
 * Let `keys` be a list of the keys in `options` without `space`.
 
-* Let `channels` be "alpha" and the channels in `space`.
+* Let `components` be `"alpha"` and the channels in `space`.
 
-* If any key in `keys` is not the name of a channel in `channels`, throw an
+* If any key in `keys` is not the name of a channel in `components`, throw an
   error.
 
 * If `space` is not equal to `initialSpace`, let `convertedColor` be the result
@@ -636,7 +636,7 @@ constructor(options: {
 #### Legacy Color Constructors with `space`
 
 While the [legacy color space] constructors do not require a space, replace the
-[existing types] with these constuctor overloads  for forward compatibility.
+[existing types] with these constuctor overloads for forward compatibility.
 
 [existing types]: ../spec/js-api/value/color.d.ts.md#constructor
 
