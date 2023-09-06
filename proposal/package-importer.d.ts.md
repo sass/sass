@@ -288,6 +288,11 @@ When the Node Package Importer is invoked with a string named `string`:
 
 * If `url`'s scheme is not `pkg:`, return null.
 
+* If `url`'s path begins with a `/` or is empty, throw an error.
+
+* If `url` contains a username, password, host, port, query, or fragment, throw
+  an error.
+
 * Let `sourceFile` be the canonical URL of the [current source file] that
   contained the load.
 
