@@ -207,7 +207,7 @@ channel(
 Returns the value of the `alpha` component, or `null` if one is not set.
 
 ```ts
-alpha(): ChannelValue;
+get alpha(): ChannelValue;
 ```
 
 #### `isChannelMissing`
@@ -219,7 +219,7 @@ a powerless channel. Throws an error if `channel` is not a channel in
 [`internal`]'s `space`.
 
 ```ts
-get isChannelMissing(channel: ChannelName): boolean;
+isChannelMissing(channel: ChannelName): boolean;
 ```
 
 #### `isAlphaMissing`
