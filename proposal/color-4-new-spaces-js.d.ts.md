@@ -671,7 +671,7 @@ constructor(options: {
 ### Deprecations
 
 A number of SassColor getters only make sense for [legacy color space], and so
-are being deprecated for `channel`.
+are being deprecated for `channel`. This deprecation is called `color-4-api`. 
 
 * `red`
 * `green`
