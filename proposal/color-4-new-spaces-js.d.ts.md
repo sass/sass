@@ -303,6 +303,17 @@ as the result of changing some of [`internal`]'s components.
 * Let `space` be `options.space` if it is defined, and the value of
   `initialSpace` otherwise.
 
+* If `initialSpace` is a [legacy color space] and `options.space` is not set:
+
+  * If `options.red` is set, let `space` be `rgb`.
+
+  * Otherwise, if `options.saturation` is set, let `space` be `hsl`.
+
+  * Otherwise, if `options.whiteness` is set, let `space` be `hwb`.
+
+  * If `initialSpace` is not equal to `space`, emit a deprecation warning named
+    `color-4-api`.
+
 * Let `keys` be a list of the keys in `options` without `space`.
 
 * Let `components` be `"alpha"` and the names of the channels in `space`.
