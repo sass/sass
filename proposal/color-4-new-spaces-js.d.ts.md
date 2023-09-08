@@ -107,8 +107,6 @@ export type HueInterpolationMethod =
   | 'increasing'
   | 'longer'
   | 'shorter';
-
-export type ChannelValue = number | null;
 ```
 
 ### New Color Functions
@@ -142,7 +140,7 @@ Returns an array of channel values (excluding `alpha`) for [`internal`], with
 [missing channels][missing components] converted to `null`.
 
 ```ts
-get channelsOrNull(): [ChannelValue, ChannelValue, ChannelValue];
+get channelsOrNull(): [number | null, number | null, number | null];
 ```
 
 #### `isLegacy`
@@ -173,31 +171,31 @@ Returns the value of the given `channel` in [`internal`]. If `space` is set, it
 will first [convert] to that `space`.
 
 ```ts
-channel(channel: ChannelName): ChannelValue;
+channel(channel: ChannelName): number | null;
 channel(
   channel: ChannelNameHSL,
   options: {space: ColorSpaceHSL}
-): ChannelValue;
+): number | null;
 channel(
   channel: ChannelNameHWB,
   options: {space: ColorSpaceHWB}
-): ChannelValue;
+): number | null;
 channel(
   channel: ChannelNameLAB,
   options: {space: ColorSpaceLAB}
-): ChannelValue;
+): number | null;
 channel(
   channel: ChannelNameLCH,
   options: {space: ColorSpaceLCH}
-): ChannelValue;
+): number | null;
 channel(
   channel: ChannelNameRGB,
   options: {space: ColorSpaceRGB}
-): ChannelValue;
+): number | null;
 channel(
   channel: ChannelNameXYZ,
   options: {space: ColorSpaceXYZ}
-): ChannelValue;
+): number | null;
 ```
 
 [convert]: ./color-4-new-spaces.md#converting-a-color
@@ -207,7 +205,7 @@ channel(
 Returns the value of the `alpha` component, or `null` if one is not set.
 
 ```ts
-get alpha(): ChannelValue;
+get alpha(): number | null;
 ```
 
 #### `isChannelMissing`
@@ -409,13 +407,13 @@ as the result of changing some of [`internal`]'s components.
 ```ts
 change(
   options: {
-    [key in ChannelName]?: ChannelValue;
+    [key in ChannelName]?: number | null;
   } & {alpha?: number}
 ): SassColor;
 
 change(
   options: {
-    [key in ChannelNameHSL]?: ChannelValue;
+    [key in ChannelNameHSL]?: number | null;
   } & {
     alpha?: number;
     space: ColorSpaceHSL;
@@ -424,7 +422,7 @@ change(
 
 change(
   options: {
-    [key in ChannelNameHWB]?: ChannelValue;
+    [key in ChannelNameHWB]?: number | null;
   } & {
     alpha?: number;
     space: ColorSpaceHWB;
@@ -433,36 +431,36 @@ change(
 
 change(
   options: {
-    [key in ChannelNameLAB]?: ChannelValue;
+    [key in ChannelNameLAB]?: number | null;
   } & {
-    alpha?: ChannelValue;
+    alpha?: number | null;
     space: ColorSpaceLAB;
   }
 ): SassColor;
 
 change(
   options: {
-    [key in ChannelNameLCH]?: ChannelValue;
+    [key in ChannelNameLCH]?: number | null;
   } & {
-    alpha?: ChannelValue;
+    alpha?: number | null;
     space: ColorSpaceLCH;
   }
 ): SassColor;
 
 change(
   options: {
-    [key in ChannelNameRGB]?: ChannelValue;
+    [key in ChannelNameRGB]?: number | null;
   } & {
-    alpha?: ChannelValue;
+    alpha?: number | null;
     space: ColorSpaceRGB;
   }
 ): SassColor;
 
 change(
   options: {
-    [key in ChannelNameXYZ]?: ChannelValue;
+    [key in ChannelNameXYZ]?: number | null;
   } & {
-    alpha?: ChannelValue;
+    alpha?: number | null;
     space: ColorSpaceXYZ;
   }
 ): SassColor;
@@ -533,10 +531,10 @@ Create a new SassColor in a color space with LAB channels -- `lab` and `oklab`.
 
 ```ts
 constructor(options: {
-  lightness: ChannelValue;
-  a: ChannelValue;
-  b: ChannelValue;
-  alpha?: ChannelValue;
+  lightness: number | null;
+  a: number | null;
+  b: number | null;
+  alpha?: number | null;
   space: ColorSpaceLAB;
 });
 ```
@@ -563,10 +561,10 @@ Create a new SassColor in a color space with LCH channels -- `lch` and `oklch`.
 
 ```ts
 constructor(options: {
-  lightness: ChannelValue;
-  chroma: ChannelValue;
-  hue: ChannelValue;
-  alpha?: ChannelValue;
+  lightness: number | null;
+  chroma: number | null;
+  hue: number | null;
+  alpha?: number | null;
   space: ColorSpaceLCH;
 });
 ```
@@ -597,10 +595,10 @@ supported with this constructor, as the legacy `rgb` color does not support
 
 ```ts
 constructor(options: {
-  red: ChannelValue;
-  green: ChannelValue;
-  blue: ChannelValue;
-  alpha?: ChannelValue;
+  red: number | null;
+  green: number | null;
+  blue: number | null;
+  alpha?: number | null;
   space: Omit<ColorSpaceRGB, 'rgb'>;
 });
 ```
@@ -625,10 +623,10 @@ and `xyz-d65`.
 
 ```ts
 constructor(options: {
-  x: ChannelValue;
-  y: ChannelValue;
-  z: ChannelValue;
-  alpha?: ChannelValue;
+  x: number | null;
+  y: number | null;
+  z: number | null;
+  alpha?: number | null;
   space: ColorSpaceXYZ;
 });
 ```
