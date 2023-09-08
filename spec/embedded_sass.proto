@@ -967,7 +967,7 @@ message Value {
     ArgumentList argument_list = 10;
     HwbColor hwb_color = 11;
     Calculation calculation = 12;
-    CompilerMixin mixin = 13;
+    CompilerMixin compiler_mixin = 13;
   }
 }
 
