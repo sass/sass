@@ -324,41 +324,56 @@ as the result of changing some of [`internal`]'s components.
 * If `space` is not equal to `initialSpace`, let `color` be the result
   of [`this.toSpace(space)`]. Otherwise let `color` be `this`.
 
-* If `space` equals `hsl`, let `changedColor` be the result of:
+* If `space` equals `hsl`:
 
-  ```js
-  SassColor({
-    hue: options.hue ?? color.channel('hue'),
-    saturation: options.saturation ?? color.channel('saturation'),
-    lightness: options.lightness ?? color.channel('lightness'),
-    alpha: options.alpha ?? color.channel('alpha'),
-    space: space
-  })
-  ```
+  * If `options.hue`, `options.saturation`, `options.lightness` or
+    `options.alpha` equals null, emit a deprecation warning named `null-alpha`.
 
-* If space equals `hwb`, let `changedColor` be the result of:
+  * Let `changedColor` be the result of:
 
-  ```js
-  SassColor({
-    hue: options.hue ?? internal.channel('hue'),
-    whiteness: options.whiteness ?? color.channel('whiteness'),
-    blackness: options.blackness ?? color.channel('blackness'),
-    alpha: options.alpha ?? color.channel('alpha'),
-    space: space
-  })
-  ```
+    ```js
+    SassColor({
+      hue: options.hue ?? color.channel('hue'),
+      saturation: options.saturation ?? color.channel('saturation'),
+      lightness: options.lightness ?? color.channel('lightness'),
+      alpha: options.alpha ?? color.channel('alpha'),
+      space: space
+    })
+    ```
 
-* If space equals `rgb`, let `changedColor` be the result of:
+* If space equals `hwb`:
 
-  ```js
-  SassColor({
-    red: options.red ?? color.channel('red'),
-    green: options.green ?? color.channel('green'),
-    blue: options.blue ?? color.channel('blue'),
-    alpha: options.alpha ?? color.channel('alpha'),
-    space: space
-  })
-  ```
+  * If `options.hue`, `options.whiteness`, `options.blackness` or
+    `options.alpha` equals null, emit a deprecation warning named `null-alpha`.
+
+  * Let `changedColor` be the result of:
+
+    ```js
+    SassColor({
+      hue: options.hue ?? color.channel('hue'),
+      whiteness: options.whiteness ?? color.channel('whiteness'),
+      blackness: options.blackness ?? color.channel('blackness'),
+      alpha: options.alpha ?? color.channel('alpha'),
+      space: space
+    })
+    ```
+
+* If space equals `rgb`:
+
+  * If `options.red`, `options.green`, `options.blue` or `options.alpha` equals
+    null, emit a deprecation warning named `null-alpha`.
+
+  * Let `changedColor` be the result of:
+
+    ```js
+    SassColor({
+      red: options.red ?? color.channel('red'),
+      green: options.green ?? color.channel('green'),
+      blue: options.blue ?? color.channel('blue'),
+      alpha: options.alpha ?? color.channel('alpha'),
+      space: space
+    })
+    ```
 
 * If space equals `lab` or `oklab`, let `changedColor` be the result of:
 
@@ -683,7 +698,7 @@ constructor(options: {
 ### Deprecations
 
 A number of SassColor getters only make sense for [legacy color space], and so
-are being deprecated for `channel`. This deprecation is called `color-4-api`. 
+are being deprecated for `channel`. This deprecation is called `color-4-api`.
 
 * `red`
 * `green`
