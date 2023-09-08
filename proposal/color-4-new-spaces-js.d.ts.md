@@ -176,27 +176,27 @@ will first [convert] to that `space`.
 channel(channel: ChannelName): ChannelValue;
 channel(
   channel: ChannelNameHSL,
-  options?: {space: ColorSpaceHSL}
+  options: {space: ColorSpaceHSL}
 ): ChannelValue;
 channel(
   channel: ChannelNameHWB,
-  options?: {space: ColorSpaceHWB}
+  options: {space: ColorSpaceHWB}
 ): ChannelValue;
 channel(
   channel: ChannelNameLAB,
-  options?: {space: ColorSpaceLAB}
+  options: {space: ColorSpaceLAB}
 ): ChannelValue;
 channel(
   channel: ChannelNameLCH,
-  options?: {space: ColorSpaceLCH}
+  options: {space: ColorSpaceLCH}
 ): ChannelValue;
 channel(
   channel: ChannelNameRGB,
-  options?: {space: ColorSpaceRGB}
+  options: {space: ColorSpaceRGB}
 ): ChannelValue;
 channel(
   channel: ChannelNameXYZ,
-  options?: {space: ColorSpaceXYZ}
+  options: {space: ColorSpaceXYZ}
 ): ChannelValue;
 ```
 
@@ -219,7 +219,7 @@ a powerless channel. Throws an error if `channel` is not a channel in
 [`internal`]'s `space`.
 
 ```ts
-isChannelMissing(channel: ChannelName): boolean;
+get isChannelMissing(channel: ChannelName): boolean;
 ```
 
 #### `isAlphaMissing`
@@ -227,7 +227,7 @@ isChannelMissing(channel: ChannelName): boolean;
 Returns whether the `alpha` component is [missing][missing components].
 
 ```ts
-isAlphaMissing(): boolean;
+get isAlphaMissing(): boolean;
 ```
 
 [toSpace()]: #tospace
@@ -294,11 +294,11 @@ Replace the definition of [color.change] with the following:
 This algorithm takes a JavaScript object `options` and returns a new SassColor
 as the result of changing some of [`internal`]'s components.
 
-The `space` value defaults to the `space` of [`internal`], and any combination
-of channels and alpha in that space may be changed.
-
-If `space` is not a [legacy color space], a channel value of `null` will result
-in a [missing component][missing components] value for that channel.
+> The `space` value defaults to the `space` of [`internal`], and the caller may
+> specify any combination of channels and alpha in that space to be changed.
+>
+> If `space` is not a [legacy color space], a channel value of `null` will
+> result in a [missing component][missing components] value for that channel.
 
 * Let `initialSpace` be the value of [`internal.space()`].
 
@@ -306,7 +306,7 @@ in a [missing component][missing components] value for that channel.
 
 * Let `keys` be a list of the keys in `options` without `space`.
 
-* Let `components` be `"alpha"` and the channels in `space`.
+* Let `components` be `"alpha"` and the names of the channels in `space`.
 
 * If any key in `keys` is not the name of a channel in `components`, throw an
   error.
@@ -316,7 +316,7 @@ in a [missing component][missing components] value for that channel.
 
 * If `space` equals `hsl`, let `changedColor` be the result of:
 
-```js
+  ```js
   SassColor({
     hue: options.hue ?? internal.channel('hue'),
     saturation: options.saturation ?? internal.channel('saturation'),
@@ -328,7 +328,7 @@ in a [missing component][missing components] value for that channel.
 
 * If space equals `hwb`, let `changedColor` be the result of:
 
-```js
+  ```js
   SassColor({
     hue: options.hue ?? internal.channel('hue'),
     whiteness: options.whiteness ?? internal.channel('whiteness'),
@@ -340,7 +340,7 @@ in a [missing component][missing components] value for that channel.
 
 * If space equals `rgb`, let `changedColor` be the result of:
 
-```js
+  ```js
   SassColor({
     red: options.red ?? internal.channel('red'),
     green: options.green ?? internal.channel('green'),
@@ -502,7 +502,7 @@ interpolate(options: {
 ### New Constructors
 
 * If `options.space` is not set, or `space` is a [legacy color space], follow
-  the legacy procedure for [construction].
+  the previous procedure for [construction].
 
 * Otherwise, use the constructor that matches the value of `options.space`.
 
