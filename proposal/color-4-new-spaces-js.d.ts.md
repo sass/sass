@@ -298,9 +298,10 @@ as the result of changing some of [`internal`]'s components.
 > If `space` is not a [legacy color space], a channel value of `null` will
 > result in a [missing component][missing components] value for that channel.
 
-* Let `initialSpace` be the value of [`internal.space()`].
+* Let `initialSpace` be the value of [`this.space()`].
 
-* If `options.space` is not defined, let `space` be the value of `initialSpace`.
+* Let `space` be `options.space` if it is defined, and the value of
+  `initialSpace` otherwise.
 
 * Let `keys` be a list of the keys in `options` without `space`.
 
@@ -309,17 +310,17 @@ as the result of changing some of [`internal`]'s components.
 * If any key in `keys` is not the name of a channel in `components`, throw an
   error.
 
-* If `space` is not equal to `initialSpace`, let `convertedColor` be the result
-  of [`internal.toSpace(space)`].
+* If `space` is not equal to `initialSpace`, let `color` be the result
+  of [`this.toSpace(space)`]. Otherwise let `color` be `this`.
 
 * If `space` equals `hsl`, let `changedColor` be the result of:
 
   ```js
   SassColor({
-    hue: options.hue ?? internal.channel('hue'),
-    saturation: options.saturation ?? internal.channel('saturation'),
-    lightness: options.lightness ?? internal.channel('lightness'),
-    alpha: options.alpha ?? internal.channel('alpha'),
+    hue: options.hue ?? color.channel('hue'),
+    saturation: options.saturation ?? color.channel('saturation'),
+    lightness: options.lightness ?? color.channel('lightness'),
+    alpha: options.alpha ?? color.channel('alpha'),
     space: space
   })
   ```
@@ -329,9 +330,9 @@ as the result of changing some of [`internal`]'s components.
   ```js
   SassColor({
     hue: options.hue ?? internal.channel('hue'),
-    whiteness: options.whiteness ?? internal.channel('whiteness'),
-    blackness: options.blackness ?? internal.channel('blackness'),
-    alpha: options.alpha ?? internal.channel('alpha'),
+    whiteness: options.whiteness ?? color.channel('whiteness'),
+    blackness: options.blackness ?? color.channel('blackness'),
+    alpha: options.alpha ?? color.channel('alpha'),
     space: space
   })
   ```
@@ -340,10 +341,10 @@ as the result of changing some of [`internal`]'s components.
 
   ```js
   SassColor({
-    red: options.red ?? internal.channel('red'),
-    green: options.green ?? internal.channel('green'),
-    blue: options.blue ?? internal.channel('blue'),
-    alpha: options.alpha ?? internal.channel('alpha'),
+    red: options.red ?? color.channel('red'),
+    green: options.green ?? color.channel('green'),
+    blue: options.blue ?? color.channel('blue'),
+    alpha: options.alpha ?? color.channel('alpha'),
     space: space
   })
   ```
@@ -352,10 +353,10 @@ as the result of changing some of [`internal`]'s components.
 
   ```js
   SassColor({
-    lightness: keys.includes('lightness') ? options.lightness : internal.channel('lightness'),
-    a: keys.includes('a') ? options.a : internal.channel('a'),
-    b: keys.includes('b') ? options.b : internal.channel('b'),
-    alpha: keys.includes('alpha') ? options.alpha : internal.channel('alpha'),
+    lightness: keys.includes('lightness') ? options.lightness : color.channel('lightness'),
+    a: keys.includes('a') ? options.a : color.channel('a'),
+    b: keys.includes('b') ? options.b : color.channel('b'),
+    alpha: keys.includes('alpha') ? options.alpha : color.channel('alpha'),
     space: space
   })
   ```
@@ -364,10 +365,10 @@ as the result of changing some of [`internal`]'s components.
 
   ```js
   SassColor({
-    lightness: keys.includes('lightness') ? options.lightness : internal.channel('lightness'),
-    c: keys.includes('c') ? options.c : internal.channel('c'),
-    h: keys.includes('h') ? options.h : internal.channel('h'),
-    alpha: keys.includes('alpha') ? options.alpha : internal.channel('alpha'),
+    lightness: keys.includes('lightness') ? options.lightness : color.channel('lightness'),
+    c: keys.includes('c') ? options.c : color.channel('c'),
+    h: keys.includes('h') ? options.h : color.channel('h'),
+    alpha: keys.includes('alpha') ? options.alpha : color.channel('alpha'),
     space: space
   })
   ```
@@ -377,10 +378,10 @@ as the result of changing some of [`internal`]'s components.
 
   ```js
   SassColor({
-    red: keys.includes('red') ? options.red : internal.channel('red'),
-    green: keys.includes('green') ? options.green : internal.channel('green'),
-    blue: keys.includes('blue') ? options.blue : internal.channel('blue'),
-    alpha: keys.includes('alpha') ? options.alpha : internal.channel('alpha'),
+    red: keys.includes('red') ? options.red : color.channel('red'),
+    green: keys.includes('green') ? options.green : color.channel('green'),
+    blue: keys.includes('blue') ? options.blue : color.channel('blue'),
+    alpha: keys.includes('alpha') ? options.alpha : color.channel('alpha'),
     space: space
   })
   ```
@@ -390,18 +391,18 @@ as the result of changing some of [`internal`]'s components.
 
   ```js
   SassColor({
-    x: keys.includes('x') ? options.x : internal.channel('x'),
-    y: keys.includes('y') ? options.y : internal.channel('y'),
-    z: keys.includes('z') ? options.z : internal.channel('z'),
-    alpha: keys.includes('alpha') ? options.alpha : internal.channel('alpha'),
+    y: keys.includes('y') ? options.y : color.channel('y'),
+    x: keys.includes('x') ? options.x : color.channel('x'),
+    z: keys.includes('z') ? options.z : color.channel('z'),
+    alpha: keys.includes('alpha') ? options.alpha : color.channel('alpha'),
     space: space
   })
   ```
 
 * Return the result of [`changedColor.toSpace(initialSpace)`].
   
-[`internal.space()`]: #space
-[`internal.toSpace(space)`]: #tospace
+[`this.space()`]: #space
+[`this.toSpace(space)`]: #tospace
 [`changedColor.toSpace(initialSpace)`]: #tospace
 
 ```ts
