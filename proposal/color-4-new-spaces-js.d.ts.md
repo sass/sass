@@ -120,6 +120,8 @@ export class SassColor extends Value {
 
 Returns the name of [`internal`]'s space.
 
+[`internal`]: ../spec/js-api/value/color.d.ts.md#internal
+
 ```ts
 get space(): KnownColorSpace;
 ```
@@ -282,34 +284,30 @@ isChannelPowerless(
 
 #### `interpolate`
 
-Returns a new SassColor with the result of mixing [`internal`] with `color2`.
+* Let `space` be the value of [`this.space()`].
 
-It accepts an optional float `weight`, which defaults to 0.5. Lower values will
-appear closer to [`internal`] and higher values will appear closer to `color2`.
+* If `options.method` is set, let `interpolationMethod` be a space separated
+  list containing the value of `space`, a space, and the value of `options.method`.
 
-If `space` is set, interpolation will happen in that space. Otherwise it will
-happen in the color space for [`internal`].
+* Otherwise, if `space` is a rectangular color space, let `interpolationMethod` be
+    `space`.
+  
+* Otherwise, let `interpolationMethod` be a space separated list containing th
+  value of `space`, a space, and the string "shorter".
 
-If `space` (or the color space of [`internal`] if no `space` argument is
-provided) is a PolarColorSpace (a color space with a polar angle `hue` channel),
-a `method` may be provided, which defaults to `shorter`.
+* Return the result of [`color.mix(internal, options.color2, options.weight, interpolationMethod)`][`color.mix()`].
 
 ```ts
-interpolate(options: {
-  color2: SassColor;
-  weight?: number;
-  space?: RectangularColorSpace;
-}): SassColor;
+interpolate(options: {color2: SassColor; weight?: number}): SassColor;
 
 interpolate(options: {
   color2: SassColor;
   weight?: number;
-  space?: PolarColorSpace;
   method?: HueInterpolationMethod;
 }): SassColor;
 ```
 
-[`internal`]: ../spec/js-api/value/color.d.ts.md#internal
+[`color.mix()`]: ./color-4-new-spaces.md#colormix-1
 
 ### Updated Color Functions
 
