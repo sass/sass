@@ -126,11 +126,13 @@ get space(): KnownColorSpace;
 
 #### `toSpace`
 
-Returns the result of converting [`internal`] to `space` as a new SassColor.
+Returns the result of [`color.to-space(internal, space)`] as a new SassColor.
 
 ```ts
 toSpace(space: KnownColorSpace): SassColor;
 ```
+
+[`color.to-space(internal, space)`]: ./color-4-new-spaces.md#colorto-space
 
 #### `isLegacy`
 
@@ -145,24 +147,23 @@ get isLegacy(): boolean;
 
 #### `isInGamut`
 
-Returns whether [`internal`] is [in-gamut] for its color space (as opposed to
-having one or more of its channels out of bounds, like `rgb(300 0 0)`).
+Returns the result of [`color.is-in-gamut(internal, space)`].
 
 ```ts
-get isInGamut(): boolean;
+isInGamut(space?: KnownColorSpace): boolean;
 ```
 
-[in-gamut]: ./color-4-new-spaces.md#coloris-in-gamut
+[`color.is-in-gamut(internal, space)`]: ./color-4-new-spaces.md#coloris-in-gamut
 
 #### `toGamut`
 
-Returns [`internal`] constrained to its space's gamut as a new SassColor. This
-is generally not recommended since even older browsers will display out-of-gamut
-colors as best they can, but it may be necessary in some cases.
+Returns the result of [`color.to-gamut(internal, space)`].
 
 ```ts
-toGamut(): SassColor;
+toGamut(space?: KnownColorSpace): SassColor;
 ```
+
+[`color.to-gamut(internal, space)`]:  ./color-4-new-spaces.md#colorto-gamut-1
 
 #### `channels`
 
@@ -229,32 +230,27 @@ get alpha(): number | null;
 
 #### `isChannelMissing`
 
-Returns whether the given `channel` of [`internal`] is missing. [Missing
-channels][missing components] can be explicitly specified using the special
-value `none` and can appear automatically when [toSpace()] returns a color with
-a powerless channel. Throws an error if `channel` is not a channel in
-[`internal`]'s `space`.
+Returns the result of [`color.is-missing(internal, channel)`][color.is-missing()].
 
 ```ts
-isChannelMissing(channel: ChannelName): boolean;
+isChannelMissing(channel: ChannelName | 'alpha'): boolean;
 ```
+
+[color.is-missing()]: ./color-4-new-spaces.md#coloris-missing-1
 
 #### `isAlphaMissing`
 
-Returns whether the `alpha` component is [missing][missing components].
+Returns the result of [`color.is-missing(internal, 'alpha')`][color.is-missing()].
 
 ```ts
 get isAlphaMissing(): boolean;
 ```
 
-[toSpace()]: #tospace
-
 #### `isChannelPowerless`
 
-Returns whether the given `channel` of [`internal`] is powerless in `space`,
-defaulting to its own color space. A channel is "powerless" if its value doesn't
-affect the way the color is displayed, such as hue for a color with 0 chroma.
-Throws an error if `channel` is not a channel in `space`.
+Returns the result of [`color.is-powerless(internal, channel, space)`].
+
+[`color.is-powerless(internal, channel, space)`]: ./color-4-new-spaces.md#coloris-powerless-1
 
 ```ts
 isChannelPowerless(channel: ChannelName): boolean;
