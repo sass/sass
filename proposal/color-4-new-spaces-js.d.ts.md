@@ -18,8 +18,8 @@ proposal].
     * [`isLegacy`](#islegacy)
     * [`isInGamut`](#isingamut)
     * [`toGamut`](#togamut)
-    * [`channels`](#channels)
     * [`channelsOrNull`](#channelsornull)
+    * [`channels`](#channels)
     * [`channel`](#channel)
     * [`alpha`](#alpha)
     * [`isChannelMissing`](#ischannelmissing)
@@ -167,24 +167,58 @@ toGamut(space?: KnownColorSpace): SassColor;
 
 [`color.to-gamut(internal, space)`]:  ./color-4-new-spaces.md#colorto-gamut-1
 
-#### `channels`
-
-Returns an array of channel values (excluding `alpha`) for [`internal`], with
-[missing channels][missing components] converted to `0`.
-
-[missing components]: ./color-4-new-spaces.md#missing-components
-
-```ts
-get channels(): [number, number, number];
-```
-
 #### `channelsOrNull`
 
-Returns an array of channel values (excluding `alpha`) for [`internal`], with
-[missing channels][missing components] converted to `null`.
+Returns an array of channel values for [`internal`], with [missing
+channels][missing components] converted to `null`.
+
+* Let `space` be the result of [`this.space`].
+
+* Let `components` be the list of channels in `space` and "alpha".
+
+* Let `channels` be an empty array.
+
+* For each `component` in `components`:
+
+  * Let `value` be the channel value in `color` with name of `channel`.
+
+  * If `value` is `none`, let `value` be `null`.
+
+  * Append `value` to `channels`.
+
+* Return `channels`.
 
 ```ts
-get channelsOrNull(): [number | null, number | null, number | null];
+get channelsOrNull(): [
+  number | null,
+  number | null,
+  number | null,
+  number | null
+];
+```
+
+[missing components]: ./color-4-new-spaces.md#missing-components
+[`this.space`]: #space
+
+#### `channels`
+
+This algorithm returns an array of channel values for [`internal`], with
+[missing channels][missing components] converted to `0`.
+
+* Let `channels` be the result of [`this.channelsOrNull`].
+
+* For each `channel` in `channels`:
+
+  * If `value` equals `null`, let `value` be 0.
+
+  * Append `value` to `channels`.
+
+* Return `channels`.
+
+[`this.channelsOrNull`]: #channelsornull
+
+```ts
+get channels(): [number, number, number, number];
 ```
 
 #### `channel`
