@@ -221,7 +221,7 @@ This algorithm returns an array of channel values for [`internal`], with
 get channels(): [number, number, number, number];
 ```
 
-#### `channel()`
+#### `channel`
 
 * Let `value` be the result of [`color.channel(internal, options.channel,
 options.options.space)`][`color.channel()`].
@@ -236,32 +236,30 @@ options.options.space)`][`color.channel()`].
 ```ts
 channel(channel: ChannelName): number | null;
 channel(
-  channel: ChannelNameHSL | "alpha",
+  channel: ChannelNameHSL | 'alpha',
   options: {space: ColorSpaceHSL}
 ): number;
 channel(
-  channel: ChannelNameHWB | "alpha",
+  channel: ChannelNameHWB | 'alpha',
   options: {space: ColorSpaceHWB}
 ): number;
 channel(
-  channel: ChannelNameLAB | "alpha",
+  channel: ChannelNameLAB | 'alpha',
   options: {space: ColorSpaceLAB}
 ): number;
 channel(
-  channel: ChannelNameLCH | "alpha",
+  channel: ChannelNameLCH | 'alpha',
   options: {space: ColorSpaceLCH}
 ): number;
 channel(
-  channel: ChannelNameRGB | "alpha",
+  channel: ChannelNameRGB | 'alpha',
   options: {space: ColorSpaceRGB}
 ): number;
 channel(
-  channel: ChannelNameXYZ | "alpha",
+  channel: ChannelNameXYZ | 'alpha',
   options: {space: ColorSpaceXYZ}
 ): number;
 ```
-
-[convert]: ./color-4-new-spaces.md#converting-a-color
 
 #### `alpha`
 
