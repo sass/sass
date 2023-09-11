@@ -221,44 +221,53 @@ This algorithm returns an array of channel values for [`internal`], with
 get channels(): [number, number, number, number];
 ```
 
-#### `channel`
+#### `channel()`
 
-Returns the value of the given `channel` in [`internal`]. If `space` is set, it
-will first [convert] to that `space`.
+* Let `value` be the result of [`color.channel(internal, options.channel,
+options.options.space)`][`color.channel()`].
+
+* If `value` is a string containing a unit, let `value` be `value` without the
+  `unit`, parsed to a double.
+
+* Return `value`.
+
+[`color.channel()`]: ./color-4-new-spaces.md#color-channel1
 
 ```ts
 channel(channel: ChannelName): number | null;
 channel(
-  channel: ChannelNameHSL,
+  channel: ChannelNameHSL | "alpha",
   options: {space: ColorSpaceHSL}
-): number | null;
+): number;
 channel(
-  channel: ChannelNameHWB,
+  channel: ChannelNameHWB | "alpha",
   options: {space: ColorSpaceHWB}
-): number | null;
+): number;
 channel(
-  channel: ChannelNameLAB,
+  channel: ChannelNameLAB | "alpha",
   options: {space: ColorSpaceLAB}
-): number | null;
+): number;
 channel(
-  channel: ChannelNameLCH,
+  channel: ChannelNameLCH | "alpha",
   options: {space: ColorSpaceLCH}
-): number | null;
+): number;
 channel(
-  channel: ChannelNameRGB,
+  channel: ChannelNameRGB | "alpha",
   options: {space: ColorSpaceRGB}
-): number | null;
+): number;
 channel(
-  channel: ChannelNameXYZ,
+  channel: ChannelNameXYZ | "alpha",
   options: {space: ColorSpaceXYZ}
-): number | null;
+): number;
 ```
 
 [convert]: ./color-4-new-spaces.md#converting-a-color
 
 #### `alpha`
 
-Returns the value of the `alpha` component, or `null` if one is not set.
+Returns the result of calling [`this.channel('alpha')`].
+
+[`this.channel('alpha')`]: #channel
 
 ```ts
 get alpha(): number | null;
