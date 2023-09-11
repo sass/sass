@@ -15,11 +15,12 @@ Importer.
   * [Design Decisions](#design-decisions)
     * [Using a `pkg:` URL scheme](#using-a-pkg-url-scheme)
     * [No built-in `pkg:` resolver for browsers](#no-built-in-pkg-resolver-for-browsers)
-    * [Available as an opt-in setting](#available-as-an-opt-in-setting)
+    * [Available as an opt-in importer](#available-as-an-opt-in-importer)
     * [Available in legacy API](#available-in-legacy-api)
     * [Node Resolution Decisions](#node-resolution-decisions)
 * [Types](#types)
-  * [`pkgImporter`](#pkgimporter)
+  * [`nodePackageImporter`](#nodepackageimporter)
+  * [Legacy API `pkgImporter`](#legacy-api-pkgimporter)
 * [Semantics](#semantics)
   * [Package Importers](#package-importers)
   * [Node Package Importer](#node-package-importer)
@@ -137,13 +138,17 @@ importers to fit their needs.
 
 [resolving a file: url]: ../spec/modules.md#resolving-a-file-url
 
-#### Available as an opt-in setting
+#### Available as an opt-in importer
 
-The `pkg:` import loader will be exposed through an opt-in setting as it adds the
+The `pkg:` import loader will be exposed as an opt-in importer as it adds the
 potential for unexpected file system interaction to `compileString` and
 `compileStringAsync`. Specifically, we want people who invoke Sass compilation
 functions to have control over what files get accessed, and there's even a risk
 of leaking file contents in error messages.
+
+For the modern API, it will be exported from Sass as a constant value that can
+be added to the list of `importers`. This allows for multiple Package Importer
+types with user-defined order.
 
 #### Available in legacy API
 
@@ -203,29 +208,28 @@ with `exports` as below, The Node package importer will resolve a
 ## Types
 
 ```ts
-import '../spec/js-api';
+import {FileImporter, Importer} from '../spec/js-api/importer';
 ```
 
-### `pkgImporter`
+### `nodePackageImporter`
 
-If set, the compiler will use the specified built-in package importer to resolve
-any URL with the `pkg:` scheme. Currently, the only available package importer
-is `node`, which follows Node resolution logic to locate Sass files.
-
-Defaults to undefined.
+```ts
+type NodePackageImporter = {
+  _NodePackageImporterBrand: any;
+};
+export declare const nodePackageImporter: NodePackageImporter;
+```
 
 After the first bullet points in [`compile`] and [`compileString`] in the
 Javascript Compile API, insert:
 
-* If `options.pkgImporter` equals `'node'`:
+* If any object in `options.importers` is exactly equal to the object
+  `nodePackageImporter`:
 
   * Let `pkgImporter` be a [Node Package Importer] with an associated
     `entryPointURL` of `require.main.filename`.
 
-  * Append `pkgImporter` to the `options.importers`.
-  
-  > Package Importers are evaluated after user-defined importers but
-  > before load paths.
+  * Replace `nodePackageImporter` with `pkgImporter` in `options.importers`.
 
 [`compile`]: ../spec/js-api/compile.d.ts.md#compile
 [`compileString`]: ../spec/js-api/compile.d.ts.md#compilestring
@@ -234,12 +238,24 @@ Javascript Compile API, insert:
 ```ts
 declare module '../spec/js-api/options' {
   interface Options<sync extends 'sync' | 'async'> {
-    pkgImporter?: 'node';
+    importers?: (Importer<sync> | FileImporter<sync> | NodePackageImporter)[];
   }
 }
+```
 
-export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
-  pkgImporter?: 'node';
+### Legacy API `pkgImporter`
+
+If set, the compiler will use the specified built-in package importer to resolve
+any URL with the `pkg:` scheme. Currently, the only available package importer
+is `node`, which follows Node resolution logic to locate Sass files.
+
+Defaults to undefined.
+
+```ts
+declare module '../spec/js-api/legacy/options' {
+  export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
+    pkgImporter?: 'node';
+  }
 }
 ```
 
