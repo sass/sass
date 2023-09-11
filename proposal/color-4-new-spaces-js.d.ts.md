@@ -14,19 +14,20 @@ proposal].
   * [Color Space Definitions](#color-space-definitions)
   * [New Color Functions](#new-color-functions)
     * [`space`](#space)
-    * [`channels`](#channels)
-    * [`channelsOrNull`](#channelsornull)
+    * [`toSpace`](#tospace)
     * [`isLegacy`](#islegacy)
     * [`isInGamut`](#isingamut)
+    * [`toGamut`](#togamut)
+    * [`channels`](#channels)
+    * [`channelsOrNull`](#channelsornull)
     * [`channel`](#channel)
     * [`alpha`](#alpha)
     * [`isChannelMissing`](#ischannelmissing)
     * [`isAlphaMissing`](#isalphamissing)
     * [`isChannelPowerless`](#ischannelpowerless)
-    * [`toSpace`](#tospace)
-    * [`toGamut`](#togamut)
-    * [`change`](#change)
     * [`interpolate`](#interpolate)
+  * [Updated Color Functions](#updated-color-functions)
+    * [`change`](#change)
   * [New Constructors](#new-constructors)
     * [LAB Channel Constructor](#lab-channel-constructor)
     * [LCH Channel Constructor](#lch-channel-constructor)
@@ -123,24 +124,12 @@ Returns the name of [`internal`]'s space.
 get space(): KnownColorSpace;
 ```
 
-#### `channels`
+#### `toSpace`
 
-Returns an array of channel values (excluding `alpha`) for [`internal`], with
-[missing channels][missing components] converted to `0`.
-
-[missing components]: ./color-4-new-spaces.md#missing-components
+Returns the result of converting [`internal`] to `space` as a new SassColor.
 
 ```ts
-get channels(): [number, number, number];
-```
-
-#### `channelsOrNull`
-
-Returns an array of channel values (excluding `alpha`) for [`internal`], with
-[missing channels][missing components] converted to `null`.
-
-```ts
-get channelsOrNull(): [number | null, number | null, number | null];
+toSpace(space: KnownColorSpace): SassColor;
 ```
 
 #### `isLegacy`
@@ -164,6 +153,36 @@ get isInGamut(): boolean;
 ```
 
 [in-gamut]: ./color-4-new-spaces.md#coloris-in-gamut
+
+#### `toGamut`
+
+Returns [`internal`] constrained to its space's gamut as a new SassColor. This
+is generally not recommended since even older browsers will display out-of-gamut
+colors as best they can, but it may be necessary in some cases.
+
+```ts
+toGamut(): SassColor;
+```
+
+#### `channels`
+
+Returns an array of channel values (excluding `alpha`) for [`internal`], with
+[missing channels][missing components] converted to `0`.
+
+[missing components]: ./color-4-new-spaces.md#missing-components
+
+```ts
+get channels(): [number, number, number];
+```
+
+#### `channelsOrNull`
+
+Returns an array of channel values (excluding `alpha`) for [`internal`], with
+[missing channels][missing components] converted to `null`.
+
+```ts
+get channelsOrNull(): [number | null, number | null, number | null];
+```
 
 #### `channel`
 
@@ -265,23 +284,38 @@ isChannelPowerless(
 ): boolean;
 ```
 
-#### `toSpace`
+#### `interpolate`
 
-Returns the result of converting [`internal`] to `space` as a new SassColor.
+Returns a new SassColor with the result of mixing [`internal`] with `color2`.
+
+It accepts an optional float `weight`, which defaults to 0.5. Lower values will
+appear closer to [`internal`] and higher values will appear closer to `color2`.
+
+If `space` is set, interpolation will happen in that space. Otherwise it will
+happen in the color space for [`internal`].
+
+If `space` (or the color space of [`internal`] if no `space` argument is
+provided) is a PolarColorSpace (a color space with a polar angle `hue` channel),
+a `method` may be provided, which defaults to `shorter`.
 
 ```ts
-toSpace(space: KnownColorSpace): SassColor;
+interpolate(options: {
+  color2: SassColor;
+  weight?: number;
+  space?: RectangularColorSpace;
+}): SassColor;
+
+interpolate(options: {
+  color2: SassColor;
+  weight?: number;
+  space?: PolarColorSpace;
+  method?: HueInterpolationMethod;
+}): SassColor;
 ```
 
-#### `toGamut`
+[`internal`]: ../spec/js-api/value/color.d.ts.md#internal
 
-Returns [`internal`] constrained to its space's gamut as a new SassColor. This
-is generally not recommended since even older browsers will display out-of-gamut
-colors as best they can, but it may be necessary in some cases.
-
-```ts
-toGamut(): SassColor;
-```
+### Updated Color Functions
 
 #### `change`
 
@@ -425,7 +459,10 @@ as the result of changing some of [`internal`]'s components.
   })
   ```
 
-* Return the result of [`changedColor.toSpace(initialSpace)`].
+* If `initialSpace` is not equal to `space`, return the result of
+  [`changedColor.toSpace(initialSpace)`].
+
+* Otherwise, return `changedColor`.
   
 [`this.space()`]: #space
 [`this.toSpace(space)`]: #tospace
@@ -492,37 +529,6 @@ change(
   }
 ): SassColor;
 ```
-
-#### `interpolate`
-
-Returns a new SassColor with the result of mixing [`internal`] with `color2`.
-
-It accepts an optional float `weight`, which defaults to 0.5. Lower values will
-appear closer to [`internal`] and higher values will appear closer to `color2`.
-
-If `space` is set, interpolation will happen in that space. Otherwise it will
-happen in the color space for [`internal`].
-
-If `space` (or the color space of [`internal`] if no `space` argument is
-provided) is a PolarColorSpace (a color space with a polar angle `hue` channel),
-a `method` may be provided, which defaults to `shorter`.
-
-```ts
-interpolate(options: {
-  color2: SassColor;
-  weight?: number;
-  space?: RectangularColorSpace;
-}): SassColor;
-
-interpolate(options: {
-  color2: SassColor;
-  weight?: number;
-  space?: PolarColorSpace;
-  method?: HueInterpolationMethod;
-}): SassColor;
-```
-
-[`internal`]: ../spec/js-api/value/color.d.ts.md#internal
 
 ### New Constructors
 
