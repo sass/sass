@@ -434,7 +434,7 @@ as the result of changing some of [`internal`]'s components.
     hue: changedValue('hue'),
     saturation: changedValue('saturation'),
     lightness: changedValue('lightness'),
-    alpha: changedValue('alpha),
+    alpha: changedValue('alpha'),
     space: space
   })
   ```
