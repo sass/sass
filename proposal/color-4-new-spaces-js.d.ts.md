@@ -239,8 +239,6 @@ get channels(): [number, number, number, number];
 
 * Otherwise, return `value`.
 
-[`color.channel()`]: ./color-4-new-spaces.md#color-channel1
-
 ```ts
 channel(channel: ChannelName): number;
 channel(
@@ -377,7 +375,10 @@ as the result of changing some of [`internal`]'s components.
 
 * Let `initialSpace` be the value of [`this.space()`].
 
-* Let `space` be `options.space` if it is defined, and the value of
+* Let `spaceSetExplicitly` be `true` if `options.space` is defined, and `false`
+  otherwise.
+
+* Let `space` be `options.space` if `spaceSetExplicitly` is true, and the value of
   `initialSpace` otherwise.
 
 * If `initialSpace` is a [legacy color space] and `options.space` is not set:
@@ -401,9 +402,9 @@ as the result of changing some of [`internal`]'s components.
 * If `space` is not equal to `initialSpace`, let `color` be the result
   of [`this.toSpace(space)`]. Otherwise let `color` be `this`.
 
-* If `space` equals `hsl`:
+* If `space` equals `hsl` and `spaceSetExplicitly` is `false`:
 
-  * If `options.hue`, `options.saturation`, `options.lightness` or
+  * If any of `options.hue`, `options.saturation`, `options.lightness` or
     `options.alpha` equals null, emit a deprecation warning named `null-alpha`.
 
   * Let `changedColor` be the result of:
@@ -418,9 +419,22 @@ as the result of changing some of [`internal`]'s components.
     })
     ```
 
-* If space equals `hwb`:
+* If `space` equals `hsl` and `spaceSetExplicitly` is `true`, let `changedColor`
+  be the result of:
 
-  * If `options.hue`, `options.whiteness`, `options.blackness` or
+   ```js
+  SassColor({
+    hue: keys.includes('hue') ? options.hue : color.channel('hue'),
+    saturation: keys.includes('saturation') ? options.saturation : color.channel('saturation'),
+    lightness: keys.includes('lightness') ? options.lightness : color.channel('lightness'),
+    alpha: keys.includes('alpha') ? options.alpha : color.channel('alpha'),
+    space: space
+  })
+  ```
+
+* If `space` equals `hwb` and `spaceSetExplicitly` is `false`:
+
+  * If any of `options.hue`, `options.whiteness`, `options.blackness` or
     `options.alpha` equals null, emit a deprecation warning named `null-alpha`.
 
   * Let `changedColor` be the result of:
@@ -435,10 +449,23 @@ as the result of changing some of [`internal`]'s components.
     })
     ```
 
-* If space equals `rgb`:
+* If `space` equals `hwb` and `spaceSetExplicitly` is `true`, let `changedColor`
+  be the result of:
 
-  * If `options.red`, `options.green`, `options.blue` or `options.alpha` equals
-    null, emit a deprecation warning named `null-alpha`.
+   ```js
+  SassColor({
+    hue: keys.includes('hue') ? options.hue : color.channel('hue'),
+    whiteness: keys.includes('whiteness') ? options.whiteness : color.channel('whiteness'),
+    blackness: keys.includes('blackness') ? options.blackness : color.channel('blackness'),
+    alpha: keys.includes('alpha') ? options.alpha : color.channel('alpha'),
+    space: space
+  })
+  ```
+
+* If space equals `rgb` and `spaceSetExplicitly` is `false`:
+
+  * If any of `options.red`, `options.green`, `options.blue` or `options.alpha`
+    equals null, emit a deprecation warning named `null-alpha`.
 
   * Let `changedColor` be the result of:
 
@@ -451,6 +478,19 @@ as the result of changing some of [`internal`]'s components.
       space: space
     })
     ```
+
+* If `space` equals `rgb` and `spaceSetExplicitly` is `true`, let `changedColor`
+  be the result of:
+
+   ```js
+  SassColor({
+    red: keys.includes('red') ? options.red : color.channel('red'),
+    green: keys.includes('green') ? options.green : color.channel('green'),
+    blue: keys.includes('blue') ? options.blue : color.channel('blue'),
+    alpha: keys.includes('alpha') ? options.alpha : color.channel('alpha'),
+    space: space
+  })
+  ```
 
 * If space equals `lab` or `oklab`, let `changedColor` be the result of:
 
