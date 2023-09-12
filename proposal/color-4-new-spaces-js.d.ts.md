@@ -180,7 +180,7 @@ channels][missing components] converted to `null`.
 
 * For each `component` in `components`:
 
-  * Let `value` be the channel value in `color` with name of `channel`.
+  * Let `value` be the channel value in `color` with name of `component`.
 
   * If `value` is `none`, let `value` be `null`.
 
@@ -223,18 +223,26 @@ get channels(): [number, number, number, number];
 
 #### `channel`
 
-* Let `value` be the result of [`color.channel(internal, options.channel,
-options.options.space)`][`color.channel()`].
+* Let `initialSpace` be the value of [`this.space()`].
 
-* If `value` is a string containing a unit, let `value` be `value` without the
-  `unit`, parsed to a double.
+* Let `space` be `options.space` if it is defined, and the value of
+  `initialSpace` otherwise.
 
-* Return `value`.
+* If `channel` is not "alpha" or a channel in `space`, throw an error.
+
+* If `space` is not equal to `initialSpace`, let `color` be the result
+  of [`this.toSpace(space)`]. Otherwise let `color` be `this`.
+
+* Let `value` be the channel value in `color` with name of `component`.
+
+* If `value` is null, return 0.
+
+* Otherwise, return `value`.
 
 [`color.channel()`]: ./color-4-new-spaces.md#color-channel1
 
 ```ts
-channel(channel: ChannelName): number | null;
+channel(channel: ChannelName): number;
 channel(
   channel: ChannelNameHSL | 'alpha',
   options: {space: ColorSpaceHSL}
