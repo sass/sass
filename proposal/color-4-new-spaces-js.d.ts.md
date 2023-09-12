@@ -37,6 +37,7 @@ proposal].
   * [Deprecations](#deprecations)
 * [Procedures](#procedures)
   * [Parsing a Channel Value](#parsing-a-channel-value)
+  * [Changing a Component Value](#changing-a-component-value)
 * [Embedded Protocol](#embedded-protocol)
   * [SassColor](#sasscolor)
   * [Removed SassScript values](#removed-sassscript-values)
@@ -392,7 +393,9 @@ as the result of changing some of [`internal`]'s components.
   * If `initialSpace` is not equal to `space`, emit a deprecation warning named
     `color-4-api`.
 
-* Let `keys` be a list of the keys in `options` without `space`.
+* Let `changes` be the object `options` without `space` and its value.
+
+* Let `keys` be a list of the keys in `changes`.
 
 * Let `components` be `"alpha"` and the names of the channels in `space`.
 
@@ -401,6 +404,10 @@ as the result of changing some of [`internal`]'s components.
 
 * If `space` is not equal to `initialSpace`, let `color` be the result
   of [`this.toSpace(space)`]. Otherwise let `color` be `this`.
+
+* Let `changedValue` be a function that takes a string argument for `channel`
+  and calls the procedure [`Changing a Component Value`] with `changes` and `this`
+  as `initial`.
 
 * If `space` equals `hsl` and `spaceSetExplicitly` is `false`:
 
@@ -424,10 +431,10 @@ as the result of changing some of [`internal`]'s components.
 
    ```js
   SassColor({
-    hue: keys.includes('hue') ? options.hue : color.channel('hue'),
-    saturation: keys.includes('saturation') ? options.saturation : color.channel('saturation'),
-    lightness: keys.includes('lightness') ? options.lightness : color.channel('lightness'),
-    alpha: keys.includes('alpha') ? options.alpha : color.channel('alpha'),
+    hue: changedValue('hue'),
+    saturation: changedValue('saturation'),
+    lightness: changedValue('lightness'),
+    alpha: changedValue('alpha),
     space: space
   })
   ```
@@ -454,10 +461,10 @@ as the result of changing some of [`internal`]'s components.
 
    ```js
   SassColor({
-    hue: keys.includes('hue') ? options.hue : color.channel('hue'),
-    whiteness: keys.includes('whiteness') ? options.whiteness : color.channel('whiteness'),
-    blackness: keys.includes('blackness') ? options.blackness : color.channel('blackness'),
-    alpha: keys.includes('alpha') ? options.alpha : color.channel('alpha'),
+    hue: changedValue('hue'),
+    whiteness: changedValue('whiteness'),
+    blackness: changedValue('blackness'),
+    alpha: changedValue('alpha'),
     space: space
   })
   ```
@@ -484,10 +491,10 @@ as the result of changing some of [`internal`]'s components.
 
    ```js
   SassColor({
-    red: keys.includes('red') ? options.red : color.channel('red'),
-    green: keys.includes('green') ? options.green : color.channel('green'),
-    blue: keys.includes('blue') ? options.blue : color.channel('blue'),
-    alpha: keys.includes('alpha') ? options.alpha : color.channel('alpha'),
+    red: changedValue('red'),
+    green: changedValue('green'),
+    blue: changedValue('blue'),
+    alpha: changedValue('alpha'),
     space: space
   })
   ```
@@ -496,10 +503,10 @@ as the result of changing some of [`internal`]'s components.
 
   ```js
   SassColor({
-    lightness: keys.includes('lightness') ? options.lightness : color.channel('lightness'),
-    a: keys.includes('a') ? options.a : color.channel('a'),
-    b: keys.includes('b') ? options.b : color.channel('b'),
-    alpha: keys.includes('alpha') ? options.alpha : color.channel('alpha'),
+    lightness: changedValue('lightness'),
+    a: changedValue('a'),
+    b: changedValue('b'),
+    alpha: changedValue('alpha'),
     space: space
   })
   ```
@@ -508,10 +515,10 @@ as the result of changing some of [`internal`]'s components.
 
   ```js
   SassColor({
-    lightness: keys.includes('lightness') ? options.lightness : color.channel('lightness'),
-    c: keys.includes('c') ? options.c : color.channel('c'),
-    h: keys.includes('h') ? options.h : color.channel('h'),
-    alpha: keys.includes('alpha') ? options.alpha : color.channel('alpha'),
+    lightness: changedValue('lightness'),
+    c: changedValue('c'),
+    h: changedValue('h'),
+    alpha: changedValue('alpha'),
     space: space
   })
   ```
@@ -521,10 +528,10 @@ as the result of changing some of [`internal`]'s components.
 
   ```js
   SassColor({
-    red: keys.includes('red') ? options.red : color.channel('red'),
-    green: keys.includes('green') ? options.green : color.channel('green'),
-    blue: keys.includes('blue') ? options.blue : color.channel('blue'),
-    alpha: keys.includes('alpha') ? options.alpha : color.channel('alpha'),
+    red: changedValue('red'),
+    green: changedValue('green'),
+    blue: changedValue('blue'),
+    alpha: changedValue('alpha'),
     space: space
   })
   ```
@@ -534,10 +541,10 @@ as the result of changing some of [`internal`]'s components.
 
   ```js
   SassColor({
-    y: keys.includes('y') ? options.y : color.channel('y'),
-    x: keys.includes('x') ? options.x : color.channel('x'),
-    z: keys.includes('z') ? options.z : color.channel('z'),
-    alpha: keys.includes('alpha') ? options.alpha : color.channel('alpha'),
+    y: changedValue('y'),
+    x: changedValue('x'),
+    z: changedValue('z'),
+    alpha: changedValue('alpha'),
     space: space
   })
   ```
@@ -550,6 +557,7 @@ as the result of changing some of [`internal`]'s components.
 [`this.space()`]: #space
 [`this.toSpace(space)`]: #tospace
 [`changedColor.toSpace(initialSpace)`]: #tospace
+[`Changing a Component Value`]: #changing-a-component-value
 
 ```ts
 change(
@@ -810,6 +818,18 @@ This procedure takes a channel value `value`, and returns the special value
 
 * If `value` is the Javascript value `null`, return the unquoted Sass string
   `none`.
+
+### Changing a Component Value
+
+This procedure takes a `channel` name, an object `changes` and a SassColor
+`initial` and returns the result of applying the change for `channel` to
+`initial`.
+
+* Let `initialValue` be the channel value in `initial` with name of `channel`.
+
+* If `channel` is not a key in `changes`, return `initialValue`.
+
+* Otherwise, return the value for `channel` in `changes`.
 
 ## Embedded Protocol
 
