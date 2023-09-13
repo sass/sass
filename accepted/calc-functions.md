@@ -675,14 +675,8 @@ calculation value:
 
 * Let `result` be the result of evaluating `expression` as a calculation value.
 
-* If `result` is a number or a calculation, return it.
-
-  > Otherwise, it must be an unquoted string.
-
-* If `result` begins case-insensitively with `"var("`, or if `expression` is an
-  `InterpolatedIdentifer` that contains interpolation, or if `expression` is an
-  `InterpolatedDeclarationValue` or a `SpaceListExpresssion`, return `"(" +
-  result + ")"` as an unquoted string.
+* If `result` is an unquoted string, return `"(" + result + ")"` as an unquoted
+  string.
 
 * Otherwise, return `result`.
 
