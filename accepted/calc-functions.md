@@ -84,8 +84,8 @@ handle this, we'll deprecate the global `abs()` function with a percentage and
 recommend users explicitly write `math.abs()` or `abs(#{})` instead.
 
 This also expands calculation parsing to allow constructs like `calc(1
-var(--plus-two))` which are valid CSS but weren't supported by the old
-first-class calculation parsing.
+var(--plus-two))` (where for example `--plus-two: + 2`) which are valid CSS but
+weren't supported by the old first-class calculation parsing.
 
 ### Design Decisions
 
@@ -638,6 +638,10 @@ To evaluate a `SpaceListExpresssion` as a calculation value:
   > This ensures that valid CSS constructs like `calc(1 var(--plus-two))` and
   > similar Sass constructs like `calc(1 #{"+ 2"})` work while preventing clear
   > errors like `calc(1 2)`.
+  >
+  > This does allow errors like `calc(a b)`, but the complexity of verifying
+  > that the unquoted strings could actually be a partial operation isn't worth
+  > the benefit of eagerly producing an error in this edge case.
 
 * Let `serialized` be an empty list.
 
