@@ -1,3 +1,11 @@
+## Draft 3.2
+
+* Support space-separated lists in calculation expressions without deprecation,
+  since they're necessary to support the valid CSS construct `calc(1
+  var(--plus-two))`.
+
+* Always preserve parentheses around unquoted strings.
+
 ## Draft 3.1
 
 * Update the definition of potentially slash-separated numbers to reflect the
