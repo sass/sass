@@ -150,7 +150,7 @@ get isLegacy(): boolean;
 
 #### `isInGamut`
 
-Returns the result of [`color.is-in-gamut(internal, space)`].
+Returns the result of [`color.is-in-gamut(internal, space)`] as a JavaScript boolean.
 
 ```ts
 isInGamut(space?: KnownColorSpace): boolean;
@@ -280,7 +280,8 @@ get alpha(): number | null;
 
 #### `isChannelMissing`
 
-Returns the result of [`color.is-missing(internal, channel)`][color.is-missing()].
+Returns the result of [`color.is-missing(internal,
+channel)`][color.is-missing()] as a JavaScript boolean.
 
 ```ts
 isChannelMissing(channel: ChannelName | 'alpha'): boolean;
@@ -290,7 +291,8 @@ isChannelMissing(channel: ChannelName | 'alpha'): boolean;
 
 #### `isAlphaMissing`
 
-Returns the result of [`color.is-missing(internal, 'alpha')`][color.is-missing()].
+Returns the result of [`color.is-missing(internal,
+'alpha')`][color.is-missing()] as a JavaScript boolean.
 
 ```ts
 get isAlphaMissing(): boolean;
@@ -298,7 +300,7 @@ get isAlphaMissing(): boolean;
 
 #### `isChannelPowerless`
 
-Returns the result of [`color.is-powerless(internal, channel, space)`].
+Returns the result of [`color.is-powerless(internal, channel, space)`] as a JavaScript boolean.
 
 [`color.is-powerless(internal, channel, space)`]: ./color-4-new-spaces.md#coloris-powerless-1
 
