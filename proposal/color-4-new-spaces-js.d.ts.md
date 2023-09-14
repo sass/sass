@@ -384,7 +384,7 @@ as the result of changing some of [`internal`]'s components.
 * Let `space` be `options.space` if `spaceSetExplicitly` is true, and the value of
   `initialSpace` otherwise.
 
-* If `initialSpace` is a [legacy color space] and `options.space` is not set:
+* If `initialSpace` is a [legacy color space] and `spaceSetExplicitly` is false:
 
   * If `options.red` is set, let `space` be `rgb`.
 
@@ -654,6 +654,7 @@ Create a new SassColor in a color space with LAB channels -- `lab` and `oklab`.
 
  [`lab(lightness a b / alpha)`]: ./color-4-new-spaces.md#lab
  [`oklab(lightness a b / alpha)`]: ./color-4-new-spaces.md#oklab
+ [parsing a channel value]: #parsing-a-channel-value
 
 ```ts
 constructor(options: {
