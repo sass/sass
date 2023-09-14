@@ -20,6 +20,8 @@ Importer.
     * [Node Resolution Decisions](#node-resolution-decisions)
 * [Types](#types)
   * [`nodePackageImporter`](#nodepackageimporter)
+    * [The `nodePackageImporter` Importer](#the-nodepackageimporter-importer)
+    * [Instantiating a `nodePackageImporter`](#instantiating-a-nodepackageimporter)
   * [Legacy API `pkgImporter`](#legacy-api-pkgimporter)
 * [Semantics](#semantics)
   * [Package Importers](#package-importers)
@@ -208,51 +210,42 @@ with `exports` as below, The Node package importer will resolve a
 ## Types
 
 ```ts
-import {FileImporter, Importer} from '../spec/js-api/importer';
+import {Importer} from '../spec/js-api/importer';
 ```
 
 ### `nodePackageImporter`
 
 ```ts
-type NodePackageImporter = {
-  _NodePackageImporterBrand: any;
-};
-export declare const nodePackageImporter: NodePackageImporter;
+export declare const nodePackageImporter: Importer;
 ```
 
-Before the first bullet points in [`compile`] and [`compileString`] in the
+#### The `nodePackageImporter` Importer
+
+The `nodePackageImporter` is a stubbed [Importer] that is replaced with an
+instantiated [Node Package Importer] at compile time.
+
+* If `nodePackageImporter.canonicalize` is invoked, throw an error.
+
+* If `nodePackageImporter.load` is invoked, throw an error.
+
+[Node Package Importer]: #node-package-importer
+
+#### Instantiating a `nodePackageImporter`
+
+After the first bullet points in [`compile`] and [`compileString`] in the
 Javascript Compile API, insert:
 
-* If both `options.importers` and `options.importers_new_` are set, throw an
-  error.
-
-* If any object in `options.importers_new_` is exactly equal to the object
+* If any object in `options.importers` is exactly equal to the object
   `nodePackageImporter`:
 
   * Let `pkgImporter` be a [Node Package Importer] with an associated
     `entryPointURL` of `require.main.filename`.
 
   * Replace `nodePackageImporter` with `pkgImporter` in
-    `options.importers_new_`.
-  
-* If `options.importers_new_` is set, set `options.importers` to the value of
-  `options.importers_new_`.
+    `options.importers`.
 
 [`compile`]: ../spec/js-api/compile.d.ts.md#compile
 [`compileString`]: ../spec/js-api/compile.d.ts.md#compilestring
-[Node Package Importer]: #node-package-importer
-
-```ts
-declare module '../spec/js-api/options' {
-  interface Options<sync extends 'sync' | 'async'> {
-    importers_new_?: (
-      | Importer<sync>
-      | FileImporter<sync>
-      | NodePackageImporter
-    )[];
-  }
-}
-```
 
 ### Legacy API `pkgImporter`
 
