@@ -172,12 +172,12 @@ toGamut(space?: KnownColorSpace): SassColor;
 
 #### `channelsOrNull`
 
-Returns an array of channel values for [`internal`], with [missing
-channels][missing components] converted to `null`.
+Returns an array of channel values (excluding alpha) for [`internal`], with
+[missing channels][missing components] converted to `null`.
 
 * Let `space` be the result of [`this.space`].
 
-* Let `components` be the list of channels in `space` and "alpha".
+* Let `components` be the list of channels in `space`.
 
 * Let `channels` be an empty array.
 
@@ -192,12 +192,7 @@ channels][missing components] converted to `null`.
 * Return `channels`.
 
 ```ts
-get channelsOrNull(): [
-  number | null,
-  number | null,
-  number | null,
-  number | null
-];
+get channelsOrNull(): [number | null, number | null, number | null];
 ```
 
 [missing components]: ./color-4-new-spaces.md#missing-components
@@ -205,8 +200,8 @@ get channelsOrNull(): [
 
 #### `channels`
 
-This algorithm returns an array of channel values for [`internal`], with
-[missing channels][missing components] converted to `0`.
+This algorithm returns an array of channel values (excluding alpha) for
+[`internal`], with [missing channels][missing components] converted to `0`.
 
 * Let `channels` be the result of [`this.channelsOrNull`].
 
@@ -221,7 +216,7 @@ This algorithm returns an array of channel values for [`internal`], with
 [`this.channelsOrNull`]: #channelsornull
 
 ```ts
-get channels(): [number, number, number, number];
+get channels(): [number, number, number];
 ```
 
 #### `channel`
