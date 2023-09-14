@@ -275,7 +275,7 @@ Returns the result of calling [`this.channel('alpha')`].
 [`this.channel('alpha')`]: #channel
 
 ```ts
-get alpha(): number | null;
+get alpha(): number;
 ```
 
 #### `isChannelMissing`
