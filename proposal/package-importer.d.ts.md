@@ -220,16 +220,23 @@ type NodePackageImporter = {
 export declare const nodePackageImporter: NodePackageImporter;
 ```
 
-After the first bullet points in [`compile`] and [`compileString`] in the
+Before the first bullet points in [`compile`] and [`compileString`] in the
 Javascript Compile API, insert:
 
-* If any object in `options.importers` is exactly equal to the object
+* If both `options.importers` and `options.importers_new_` are set, throw an
+  error.
+
+* If any object in `options.importers_new_` is exactly equal to the object
   `nodePackageImporter`:
 
   * Let `pkgImporter` be a [Node Package Importer] with an associated
     `entryPointURL` of `require.main.filename`.
 
-  * Replace `nodePackageImporter` with `pkgImporter` in `options.importers`.
+  * Replace `nodePackageImporter` with `pkgImporter` in
+    `options.importers_new_`.
+  
+* If `options.importers_new_` is set, set `options.importers` to the value of
+  `options.importers_new_`.
 
 [`compile`]: ../spec/js-api/compile.d.ts.md#compile
 [`compileString`]: ../spec/js-api/compile.d.ts.md#compilestring
@@ -238,7 +245,11 @@ Javascript Compile API, insert:
 ```ts
 declare module '../spec/js-api/options' {
   interface Options<sync extends 'sync' | 'async'> {
-    importers?: (Importer<sync> | FileImporter<sync> | NodePackageImporter)[];
+    importers_new_?: (
+      | Importer<sync>
+      | FileImporter<sync>
+      | NodePackageImporter
+    )[];
   }
 }
 ```
