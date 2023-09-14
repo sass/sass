@@ -129,7 +129,9 @@ get space(): KnownColorSpace;
 
 #### `toSpace`
 
-Returns the result of [`color.to-space(internal, space)`] as a new SassColor.
+* If `this.space` is equal to `space`, return `this`.
+
+* Otherwise, return the result of [`color.to-space(internal, space)`].
 
 ```ts
 toSpace(space: KnownColorSpace): SassColor;
@@ -231,8 +233,7 @@ get channels(): [number, number, number, number];
 
 * If `channel` is not "alpha" or a channel in `space`, throw an error.
 
-* If `space` is not equal to `initialSpace`, let `color` be the result
-  of [`this.toSpace(space)`]. Otherwise let `color` be `this`.
+* Let `color` be the result of [`this.toSpace(space)`].
 
 * Let `value` be the channel value in `color` with name of `component`.
 
@@ -404,8 +405,7 @@ as the result of changing some of [`internal`]'s components.
 * If any key in `keys` is not the name of a channel in `components`, throw an
   error.
 
-* If `space` is not equal to `initialSpace`, let `color` be the result
-  of [`this.toSpace(space)`]. Otherwise let `color` be `this`.
+* Let `color` be the result of [`this.toSpace(space)`].
 
 * Let `changedValue` be a function that takes a string argument for `channel`
   and calls the procedure [`Changing a Component Value`] with `changes` and `this`
@@ -551,10 +551,7 @@ as the result of changing some of [`internal`]'s components.
   })
   ```
 
-* If `initialSpace` is not equal to `space`, return the result of
-  [`changedColor.toSpace(initialSpace)`].
-
-* Otherwise, return `changedColor`.
+* Return the result of [`changedColor.toSpace(initialSpace)`].
   
 [`this.space()`]: #space
 [`this.toSpace(space)`]: #tospace
