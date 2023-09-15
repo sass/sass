@@ -1,4 +1,4 @@
-# Calculation Functions: Draft 3.1
+# Calculation Functions: Draft 3.2
 
 *([Issue](https://github.com/sass/sass/issues/3504), [Changelog](calc-functions.changes.md))*
 
@@ -32,6 +32,7 @@
   * [Calculations](#calculations)
     * [`FunctionExpression` and `Variable`](#functionexpression-and-variable)
     * [`SumExpression` and `ProductExpression`](#sumexpression-and-productexpression)
+  * [`SpaceListExpression`](#spacelistexpression)
     * [`ParenthesizedExpression`](#parenthesizedexpression)
     * [`InterpolatedIdentifier`](#interpolatedidentifier)
 * [Interaction with Forward Slash as a Separator](#interaction-with-forward-slash-as-a-separator)
@@ -49,8 +50,6 @@
   * [`CalculationValue.value.interpolation`](#calculationvaluevalueinterpolation)
 * [Deprecation Process](#deprecation-process)
   * [`abs-percent`](#abs-percent)
-  * [`calc-interp`](#calc-interp)
-    * [`SpaceListExpression`](#spacelistexpression)
 
 ## Background
 
@@ -83,6 +82,10 @@ This poses a small compatibility problem: in Sass, `abs(10%)` will always return
 equivalent of `-10%` since percentages are resolved before calculations. To
 handle this, we'll deprecate the global `abs()` function with a percentage and
 recommend users explicitly write `math.abs()` or `abs(#{})` instead.
+
+This also expands calculation parsing to allow constructs like `calc(1
+var(--plus-two))` (where for example `--plus-two: + 2`) which are valid CSS but
+weren't supported by the old first-class calculation parsing.
 
 ### Design Decisions
 
@@ -132,6 +135,8 @@ An expression is "calculation-safe" if it is one of:
 * A `Number`.
 * A `Variable`.
 * An `InterpolatedIdentifier`.
+* An unbracketed `SpaceListExpression` with more than one element, whose
+  elements are all calculation-safe.
 
 [`FunctionExpression`]: ../spec/functions.md#syntax
 
@@ -620,6 +625,40 @@ To evaluate a `SumExpresssion` or a `ProductExpression` as a calculation value:
 
 * Return `left`.
 
+### `SpaceListExpression`
+
+To evaluate a `SpaceListExpresssion` as a calculation value:
+
+* Let `elements` be the results of evaluating each element as a calculation
+  value.
+
+* If `elements` has two adjacent elements that aren't unquoted strings, throw an
+  error.
+
+  > This ensures that valid CSS constructs like `calc(1 var(--plus-two))` and
+  > similar Sass constructs like `calc(1 #{"+ 2"})` work while preventing clear
+  > errors like `calc(1 2)`.
+  >
+  > This does allow errors like `calc(a b)`, but the complexity of verifying
+  > that the unquoted strings could actually be a partial operation isn't worth
+  > the benefit of eagerly producing an error in this edge case.
+
+* Let `serialized` be an empty list.
+
+* For each `element` of `elements`:
+
+  * Let `css` be the result of [serializing] `element`.
+
+    [serializing]: ../spec/types/calculation.md#serialization
+
+  * If `element` is a `CalcOperation` that was produced by evaluating a
+    `ParenthesizedExpression`, set `css` to `"(" + css + ")"`.
+
+  * Append `css` to `serialized`.
+
+* Return an unquoted strings whose contents are the elements of `serialized`
+  separated by `" "`.
+
 #### `ParenthesizedExpression`
 
 > If a `var()` or an interpolation is written directly within parentheses, it's
@@ -636,13 +675,7 @@ calculation value:
 
 * Let `result` be the result of evaluating `expression` as a calculation value.
 
-* If `result` is a number or a calculation, return it.
-
-  > Otherwise, it must be an unquoted string.
-
-* If `result` begins case-insensitively with `"var("`, or if `expression` is an
-  `InterpolatedIdentifer` that contains interpolation, or if `expression` is an
-  `InterpolatedDeclarationValue`, return `"(" + result + ")"` as an unquoted
+* If `result` is an unquoted string, return `"(" + result + ")"` as an unquoted
   string.
 
 * Otherwise, return `result`.
@@ -830,29 +863,3 @@ During the deprecation period, when simplifying a calculation named `"abs"`
 whose sole argument is a number *without* [known units], return the result of
 calling `math.abs()` with that number and emit a deprecation warning named
 `abs-percent`.
-
-### `calc-interp`
-
-> Under this proposal, interpolation in calculations is only allowed wherever an
-> identifier would be allowed otherwise. Previously, any interpolation would
-> cause the entire expression (out to the nearest parentheses) to be parsed as
-> an unquoted string.
-
-During the deprecation period, add "An unbracketed `SpaceListExpression` with
-more than one element, at least one of which is an `InterpolatedIdentifier` that
-contains interpolation" to the list of [calculation-safe expressions]. In
-addition, add the following to the [calculation semantics]:
-
-[calculation-safe expressions]: #calculation-safe-expression
-[calculation semantics]: #calculations
-
-#### `SpaceListExpression`
-
-To evaluate a `SpaceListExpression` as a calculation value:
-
-* Print a deprecation warning named `calc-interp`.
-
-* Let `interp` be the result of reparsing the source text covered by the
-  expression as an `InterpolatedDeclarationValue`.
-
-* Return a `StringExpression` whose value is the result of evaluating `interp`.
