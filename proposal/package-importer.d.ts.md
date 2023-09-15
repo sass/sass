@@ -507,11 +507,13 @@ potential subpaths, resolving for partials and file extensions.
 ```proto
 message CompileRequest {
   message Importer {
-    PackageImporter packageImporter = 14;
+    oneof importer {
+      NodePackageImporter node_package_importer = 4;
+    }
   }
 }
-enum PackageImporter {
-  NODE = 0
+message NodePackageImporter {
+  string entry_point_url = 1;
 }
 ```
 
