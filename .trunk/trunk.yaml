@@ -1,10 +1,10 @@
 version: 0.1
 cli:
-  version: 1.6.2-beta.6
+  version: 1.7.0
 api:
   # or whatever you want to point this at
   # you can use ngrok to point it at something running locally
-  address: 6.tcp.ngrok.io:17950
+  address: localhost:5021
 plugins:
   sources:
     - id: trunk
