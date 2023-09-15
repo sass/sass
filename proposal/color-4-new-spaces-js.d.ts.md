@@ -33,11 +33,15 @@ proposal].
     * [LCH Channel Constructor](#lch-channel-constructor)
     * [Predefined RGB Channel Constructor](#predefined-rgb-channel-constructor)
     * [XYZ Channel Constructor](#xyz-channel-constructor)
-    * [Legacy Color Constructors with `space`](#legacy-color-constructors-with-space)
+  * [Modified Legacy Color Constructors](#modified-legacy-color-constructors)
+    * [HSL Constructor](#hsl-constructor)
+    * [HWB Constructor](#hwb-constructor)
+    * [RGB Constructor](#rgb-constructor)
   * [Deprecations](#deprecations)
 * [Procedures](#procedures)
   * [Parsing a Channel Value](#parsing-a-channel-value)
   * [Changing a Component Value](#changing-a-component-value)
+  * [Determining Construction Space](#determining-construction-space)
 * [Embedded Protocol](#embedded-protocol)
   * [SassColor](#sasscolor)
   * [Removed SassScript values](#removed-sassscript-values)
@@ -617,12 +621,10 @@ change(
 
 ### New Constructors
 
-* If `options.space` is not set, or `space` is a [legacy color space], follow
-  the previous procedure for [construction].
+* Let `constructionSpace` be the result of [Determining Construction Space] with
+  the `options` object passed to the constructor.
 
-* Otherwise, use the constructor that matches the value of `options.space`.
-
-[construction]: ../spec/js-api/value/color.d.ts.md#constructor
+* Use the constructor that matches `constructionSpace`.
 
 #### LAB Channel Constructor
 
@@ -750,36 +752,100 @@ constructor(options: {
 });
 ```
 
-#### Legacy Color Constructors with `space`
+### Modified Legacy Color Constructors
 
-While the [legacy color space] constructors do not require a space, replace the
-[existing types] with these constuctor overloads for forward compatibility.
+These will replace the [existing constructors] for legacy colors.
 
-[existing types]: ../spec/js-api/value/color.d.ts.md#constructor
+#### HSL Constructor
+
+Create a new SassColor in the `hsl` color space.
+
+* Let `hue` be the result of [parsing a channel value] with value `options.hue`.
+
+* Let `saturation` be the result of [parsing a channel value] with value `options.saturation`.
+
+* Let `lightness` be the result of [parsing a channel value] with value `options.lightness`.
+  
+* If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
+    the result of [parsing a channel value] with value `options.alpha`.
+
+* Set [`internal`] to the result of [`hsl(hue saturation lightness / alpha)`].
 
 ```ts
 constructor(options: {
-  red: number;
-  green: number;
-  blue: number;
-  alpha?: number;
-  space?: 'rgb';
-});
-
-constructor(options: {
-  hue: number;
-  saturation: number;
-  lightness: number;
-  alpha?: number;
+  hue: number | null;
+  saturation: number | null;
+  lightness: number | null;
+  alpha?: number | null;
   space?: 'hsl';
 });
+```
 
+#### HWB Constructor
+
+Create a new SassColor in the `hwb` color space.
+
+* Let `hue` be the result of [parsing a channel value] with value `options.hue`.
+
+* Let `whiteness` be the result of [parsing a channel value] with value `options.whiteness`.
+
+* Let `blackness` be the result of [parsing a channel value] with value `options.blackness`.
+  
+* If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
+    the result of [parsing a channel value] with value `options.alpha`.
+
+* Set [`internal`] to the result of [`hwb(hue whiteness blackness / alpha)`].
+
+```ts
 constructor(options: {
-  hue: number;
-  whiteness: number;
-  blackness: number;
-  alpha?: number;
+  hue: number | null;
+  whiteness: number | null;
+  blackness: number | null;
+  alpha?: number | null;
   space?: 'hwb';
+});
+```
+
+#### RGB Constructor
+
+Create a new SassColor in the `rgb` color space.
+
+* If `options.space` is not set:
+
+  * Let `red` be a Sass number with a value of `options.red` `fuzzyRound`ed
+    to the nearest integer.
+
+  * Let `green` be a Sass number with a value of `options.green`
+    `fuzzyRound`ed to the nearest integer.
+
+  * Let `blue` be a Sass number with a value of `options.blue`
+    `fuzzyRound`ed to the nearest integer.
+
+  * If `options.alpha` is set, let `alpha` be a Sass number with a value of
+    `options.alpha`. Otherwise, let `alpha` be `null`.
+
+* Otherwise:
+
+* Let `red` be the result of [parsing a channel value] with value `options.red`.
+
+* Let `green` be the result of [parsing a channel value] with value
+    `options.green`.
+
+* Let `blue` be the result of [parsing a channel value] with value
+    `options.blue`.
+
+* If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
+      the result of [parsing a channel value] with value `options.alpha`.
+
+* Return the result of `rgb(red green blue / alpha)
+
+```ts
+constructor(options: {
+  red: number | null;
+  green: number | null;
+  blue: number | null;
+  alpha?: number | null;
+  space?: 'rgb';
 });
 ```
 
@@ -825,6 +891,19 @@ This procedure takes a `channel` name, an object `changes` and a SassColor
 * If `channel` is not a key in `changes`, return `initialValue`.
 
 * Otherwise, return the value for `channel` in `changes`.
+
+### Determining Construction Space
+
+This procedure takes an object `options` with unknown keys and returns a color
+space for construction.
+
+* If `options.space` is set, return `options.space`.
+
+* If `options.red` is set, return "rgb".
+
+* If `options.saturation` is set, return "hsl".
+
+* If `options.whiteness` is set, return "hwb".
 
 ## Embedded Protocol
 
