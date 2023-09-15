@@ -16,7 +16,7 @@
     "typedoc": "npm run tangle && npx typedoc --treatWarningsAsErrors js-api-doc/index.d.ts",
     "tangle": "npx ts-node tool/tangle.ts",
     "untangle": "npx ts-node tool/untangle.ts",
-    "markdownlint": "npx markdownlint-cli '**/*.md' '*.md' --ignore 'node_modules/**'",
+    "markdownlint": "npx markdownlint-cli2 '**/*.md' '*.md' --ignore 'node_modules/**'",
     "fix": "npm run update-toc && npm run markdownlint -- --fix && npm run tangle && gts fix && npm run untangle",
     "test": "npm run tangle && gts lint && tsc --noEmit && npm run toc-check && npm run link-check && npm run js-api-doc-check && npm run typedoc"
   },
