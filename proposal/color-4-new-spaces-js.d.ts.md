@@ -810,21 +810,8 @@ constructor(options: {
 
 Create a new SassColor in the `rgb` color space.
 
-* If `options.space` is not set:
-
-  * Let `red` be a Sass number with a value of `options.red` `fuzzyRound`ed
-    to the nearest integer.
-
-  * Let `green` be a Sass number with a value of `options.green`
-    `fuzzyRound`ed to the nearest integer.
-
-  * Let `blue` be a Sass number with a value of `options.blue`
-    `fuzzyRound`ed to the nearest integer.
-
-  * If `options.alpha` is set, let `alpha` be a Sass number with a value of
-    `options.alpha`. Otherwise, let `alpha` be `null`.
-
-* Otherwise:
+* If `options.alpha` is `null` and `options.space` is not set, emit a
+  deprecation warning named `null-alpha`.
 
 * Let `red` be the result of [parsing a channel value] with value `options.red`.
 
