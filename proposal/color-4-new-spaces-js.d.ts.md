@@ -760,6 +760,9 @@ These will replace the [existing constructors] for legacy colors.
 
 Create a new SassColor in the `hsl` color space.
 
+* If `options.alpha` is `null` and `options.space` is not set, emit a
+  deprecation warning named `null-alpha`.
+  
 * Let `hue` be the result of [parsing a channel value] with value `options.hue`.
 
 * Let `saturation` be the result of [parsing a channel value] with value `options.saturation`.
@@ -784,6 +787,9 @@ constructor(options: {
 #### HWB Constructor
 
 Create a new SassColor in the `hwb` color space.
+
+* If `options.alpha` is `null` and `options.space` is not set, emit a
+  deprecation warning named `null-alpha`.
 
 * Let `hue` be the result of [parsing a channel value] with value `options.hue`.
 
