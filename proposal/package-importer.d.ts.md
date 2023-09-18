@@ -504,6 +504,16 @@ potential subpaths, resolving for partials and file extensions.
 
 ## Embedded Protocol
 
+An Importer that resolves `pkg:` URLs using the [node resolution algorithm]. It
+is instantiated with an associated `entry_point_url` set to the value of
+`file://${process.cwd()}/`.
+
+```proto
+message NodePackageImporter {
+  string entry_point_url = 1;
+}
+```
+
 ```proto
 message CompileRequest {
   message Importer {
@@ -511,9 +521,6 @@ message CompileRequest {
       NodePackageImporter node_package_importer = 4;
     }
   }
-}
-message NodePackageImporter {
-  string entry_point_url = 1;
 }
 ```
 
