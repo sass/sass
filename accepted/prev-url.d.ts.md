@@ -188,7 +188,7 @@ interface FileImporter<sync extends 'sync' | 'async' = 'sync' | 'async'> {
 ```ts
 findFileUrl(
   url: string,
-  options: {fromImport: boolean, containingUrl?: URL}
+  options: {fromImport: boolean; containingUrl?: URL}
 ): PromiseOr<URL | null, sync>;
 ```
 
