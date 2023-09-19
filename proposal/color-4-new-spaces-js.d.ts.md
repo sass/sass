@@ -693,9 +693,8 @@ constructor(options: {
 #### Predefined RGB Channel Constructor
 
 Create a new SassColor in a color space with RGB channels -- `srgb`,
-`srgb-linear`, `display-p3`, `a98-rgb`, and `prophoto-rgb`. `rgb` is not
-supported with this constructor, as the legacy `rgb` color does not support
-[missing components].
+`srgb-linear`, `display-p3`, `a98-rgb`, and `prophoto-rgb`. `rgb` is supported
+through the modifed [RGB Constructor].
 
 * Let `red` be the result of [parsing a channel value] with value `options.red`.
 
@@ -713,6 +712,7 @@ supported with this constructor, as the legacy `rgb` color does not support
 * Set [`internal`] to the result of [`color(space red green blue / alpha)`].
 
 [`color(space red green blue / alpha)`]: ./color-4-new-spaces.md#color-1
+[RGB Constructor]: #rgb-constructor
 
 ```ts
 constructor(options: {
