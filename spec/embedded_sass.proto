@@ -2,6 +2,12 @@
 // MIT-style license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
+// This protocol buffer uses optional fields, which requires either [buf] or a
+// [protoc] version 3.15 or later.
+//
+// [buf]: https://buf.build/
+// [protoc]: https://github.com/protocolbuffers/protobuf#protobuf-compiler-installation
+
 syntax = "proto3";
 
 package sass.embedded_protocol;
