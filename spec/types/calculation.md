@@ -2,88 +2,48 @@
 
 ## Table of Contents
 
-* [Syntax](#syntax)
-  * [`CalculationExpression`](#calculationexpression)
-  * [`CssMinMax`](#cssminmax)
+* [Definitions](#definitions)
+  * [Calculation-Safe Expression](#calculation-safe-expression)
 * [Types](#types)
   * [Operations](#operations)
     * [Equality](#equality)
   * [Serialization](#serialization)
     * [Calculation](#calculation)
     * [`CalculationOperation`](#calculationoperation)
-    * [`CalculationInterpolation`](#calculationinterpolation)
     * [`Number`](#number)
 * [Procedures](#procedures)
+  * [Evaluating a `FunctionCall` as a Calculation](#evaluating-a-functioncall-as-a-calculation)
+  * [Evaluating an Expression as a Calculation Value](#evaluating-an-expression-as-a-calculation-value)
   * [Simplifying a Calculation](#simplifying-a-calculation)
   * [Simplifying a `CalculationValue`](#simplifying-a-calculationvalue)
 * [Semantics](#semantics)
-  * [`CalcExpression`](#calcexpression)
-  * [`ClampExpression`](#clampexpression)
-  * [`CssMinMax`](#cssminmax-1)
-  * [`CalcArgument`](#calcargument)
-  * [`CalcSum`](#calcsum)
-  * [`CalcProduct`](#calcproduct)
-  * [`CalcValue`](#calcvalue)
-  * [`ParenthesizedVar`](#parenthesizedvar)
+  * [`FunctionExpression` and `Variable`](#functionexpression-and-variable)
+  * [`SumExpression` and `ProductExpression`](#sumexpression-and-productexpression)
+  * [`SpaceListExpression`](#spacelistexpression)
+  * [`ParenthesizedExpression`](#parenthesizedexpression)
+  * [`InterpolatedIdentifier`](#interpolatedidentifier)
 
-## Syntax
+## Definitions
 
-### `CalculationExpression`
+### Calculation-Safe Expression
 
-This production is parsed in a SassScript context when an expression is expected
-and the input stream starts with an identifier with value `calc` or `clamp`
-(ignoring case) followed immediately by `(`.
+An expression is "calculation-safe" if it is one of:
 
-The grammar for this production is:
+* A [`FunctionExpression`].
+* A `ParenthesizedExpression` whose contents is calculation-safe.
+* A `SumExpression` whose operands are calculation-safe.
+* A `ProductExpression` whose operator is `*` or `/` and whose operands are
+  calculation-safe.
+* A `Number`.
+* A `Variable`.
+* An `InterpolatedIdentifier`.
+* An unbracketed `SpaceListExpression` with more than one element, whose
+  elements are all calculation-safe.
 
-<x><pre>
-**CalculationExpression** ::= CalcExpression | ClampExpression
-**CalcExpression**        ::= 'calc('¹ CalcArgument ')'
-**ClampExpression**       ::= 'clamp('¹ CalcArgument ( ',' CalcArgument ){2} ')'
-**CalcArgument**²         ::= InterpolatedDeclarationValue† | CalcSum
-**CalcSum**               ::= CalcProduct (('+' | '-')³ CalcProduct)\*
-**CalcProduct**           ::= CalcValue (('\*' | '/') CalcValue)\*
-**CalcValue**             ::= ParenthesizedVar
-&#32;                       | '(' CalcArgument⁴ ')'
-&#32;                       | CalculationExpression
-&#32;                       | CssMinMax
-&#32;                       | FunctionExpression⁵
-&#32;                       | Number
-&#32;                       | Variable†
-&#32;                       | [\<ident-token>]
-**ParenthesizedVar**      ::= '(' 'var('¹ ArgumentInvocation ')' ')'
-</pre></x>
+[`FunctionExpression`]: ../functions.md#syntax
 
-[\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
-
-1: The strings `calc(`, `clamp(`, and `var(` are matched case-insensitively.
-
-2: A `CalcArgument` is only parsed as an `InterpolatedDeclarationValue` if it
-includes interpolation, unless that interpolation is within a region bounded by
-parentheses (a `FunctionExpression` counts as parentheses).
-
-3: Whitespace is required around these `"+"` and `"-"` tokens.
-
-4: This `CalcArgument` cannot begin with `var(`, case-insensitively.
-
-5: This `FunctionExpression` cannot begin with `min(`, `max(`, or `clamp(`,
-case-insensitively.
-
-†: These productions are invalid in plain CSS syntax.
-
-> The `CalcArgument` production provides backwards-compatibility with the
-> historical use of interpolation to inject SassScript values into `calc()`
-> expressions. Because interpolation could inject any part of a `calc()`
-> expression regardless of syntax, for full compatibility it's necessary to
-> parse it very expansively.
-
-### `CssMinMax`
-
-<x><pre>
-**CssMinMax**         ::= ('min(' | 'max(')¹ CalcArgument (',' CalcArgument)* ')'
-</pre></x>
-
-1: The strings `min(` and `max(` are matched case-insensitively.
+> Because calculations have special syntax in CSS, only a subset of SassScript
+> expressions are valid (and these are interpreted differently than elsewhere).
 
 ## Types
 
@@ -98,13 +58,8 @@ interface Calculation {
 type CalculationValue =
   | Number
   | UnquotedString
-  | CalculationInterpolation
   | CalculationOperation
   | Calculation;
-
-interface CalculationInterpolation {
-  value: string;
-}
 
 interface CalculationOperation {
   operator: '+' | '-' | '*' | '/';
@@ -136,8 +91,8 @@ Two calculations are considered equal if their names are equal, they have the
 same number of arguments, and each argument in one calculation is equal to the
 corresponding argument in the other.
 
-`CalculationOperation` and `CalculationInterpolation` values are equal if each
-field in one value is equal to the corresponding field in the other.
+`CalculationOperation` values are equal if each field in one value is equal to
+the corresponding field in the other.
 
 ### Serialization
 
@@ -153,19 +108,14 @@ To serialize a `CalculationOperation`:
 * Let `left` and `right` be the result of serializing the left and right values,
   respectively.
 
-* If either:
-
-  * the left value is a `CalculationInterpolation`, or
-  * the operator is `"*"` or `"/"` and the left value is a
-    `CalculationOperation` with operator `"+"` or `"-"`,
-
-  emit `"("` followed by `left` followed by `")"`. Otherwise, emit `left`.
+* If the operator is `"*"` or `"/"` and the left value is a
+  `CalculationOperation` with operator `"+"` or `"-"`, emit `"("` followed by
+  `left` followed by `")"`. Otherwise, emit `left`.
 
 * Emit `" "`, then the operator, then `" "`.
 
 * If either:
 
-  * the right value is a `CalculationInterpolation`, or
   * the operator is `"*"` or `"-"` and the right value is a
     `CalculationOperation` with operator `"+"` or `"-"`, or
   * the operator is `"/"` and the right value is a `CalculationOperation`,
@@ -173,10 +123,6 @@ To serialize a `CalculationOperation`:
     more units.
 
   emit `"("` followed by `right` followed by `")"`. Otherwise, emit `right`.
-
-#### `CalculationInterpolation`
-
-To serialize a `CalculationInterpolation`, emit its `value`.
 
 #### `Number`
 
@@ -197,6 +143,34 @@ To serialize a `Number` within a `CalculationExpression`:
 
 ## Procedures
 
+### Evaluating a `FunctionCall` as a Calculation
+
+This algorithm takes a [`FunctionCall`] `call` whose name is a plain identifier
+and returns a number or a calculation.
+
+* If `call`'s `ArgumentInvocation` contains one or more `KeywordArgument`s or
+  one or more `RestArgument`s, throw an error.
+
+* Let `calc` be a calculation whose name is the lower-case value of `call`'s
+  name and whose arguments are the result of evaluating each `Expression` in
+  `call`'s `ArgumentInvocation` [as a calculation value].
+
+  [as a calculation value]: #evaluating-an-expression-as-a-calculation-value
+
+* Return the result of [simplifying](#simplifying-a-calculation) `calc`.
+
+### Evaluating an Expression as a Calculation Value
+
+This algorithm takes an expression `expression` and returns a
+`CalculationValue`.
+
+* If `expression` isn't [calculation-safe], throw an error.
+
+* Otherwise, evaluate `expression` using the semantics defined in the
+  [Semantics] section if available, or the standard semantics otherwise.
+
+  [Semantics]: #semantics
+
 ### Simplifying a Calculation
 
 This algorithm takes a calculation `calc` and returns a number or a calculation.
@@ -207,31 +181,205 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
 * If `calc` was parsed from an expression within a `SupportsDeclaration`'s
   `Expression`, but outside any interpolation, return a `calc` as-is.
 
-* Let `arguments` be the result of [simplifying](#simplifying-a-calculationvalue) each
-  of `calc`'s arguments.
+* Let `arguments` be the result of [simplifying] each of `calc`'s arguments.
 
-* If `calc`'s name is `"calc"`, the syntax guarantees that `arguments` contain
-  only a single argument. If that argument is a number or calculation, return
-  it.
+  [simplifying]: #simplifying-a-calculationvalue
 
-* If `calc`'s name is `"clamp"`, `arguments` has fewer than three elements, and
-  none of those are unquoted strings or `CalculationInterpolation`s, throw an
+* If `calc`'s name is `"calc"` and `arguments` contains exactly a single number
+  or calculation, return it.
+
+* If `calc`'s name is `"mod"`, `"rem"`, `"atan2"`, or `"pow"`; `arguments` has
+  fewer than two elements; and none of those are unquoted strings, throw an
   error.
 
-  > It's valid to write `clamp(var(--three-args))` or `clamp(#{"1, 2, 3"})`, but
-  > otherwise `clamp()` has to have three physical arguments.
+  > It's valid to write `pow(var(--two-args))` or `pow(#{"2, 3"})`, but
+  > otherwise calculations' arguments must match the expected number.
 
-* If `calc`'s name is `"clamp"` and `arguments` are all
-  numbers:
+* If `calc`'s name is `"sin"`, `"cos"`, `"tan"`, `"asin"`, `"acos"`, `"atan"`,
+  `"sqrt"`, `"log"`, or `"round"` and `arguments` contains exactly a single
+  number, return the result of passing that number to the function in
+  [`sass:math`] whose name matches `calc`'s.
 
-  * If those arguments' are mutually [compatible], return the result of calling
-    `math.clamp()` with those arguments.
+  [`sass:math`]: ../built-in-modules/math.md
 
-  * Otherwise, if any two of those arguments are [definitely-incompatible],
-    throw an error.
+  > The `sass:math` functions will check units here for the functions that
+  > require specific or no units.
+
+* If `calc`'s name is `"abs"` and `arguments` contains exactly a single number
+  with [known units], return the result of passing that number to the function
+  in [`sass:math`] whose name matches `calc`'s.
+
+  [known units]: number.md#known-units
+
+* If `calc`'s name is `"exp"` and `arguments` contains exactly a single number
+  `number`, return the result of calling `math.pow(math.$e, number)`.
+
+  > This will throw an error if the argument has units.
+
+* If `calc`'s name is `"sign"` and `arguments` contains exactly a single number
+  `number` with [known units]:
+
+  * If `number`'s value is positive, return `1`.
+  * If `number`'s value is negative, return `-1`.
+  * Otherwise, return a unitless number with the same value as `number`.
+
+    > In this case, `number` is either `+0`, `-0`, or NaN.
+
+  > To match CSS's behavior, these computations *don't* use fuzzy comparisons.
+
+* If `calc`'s name is `"log"`:
+
+  * If any argument is a number with units, throw an error.
+
+  * Otherwise, if `arguments` contains exactly two numbers, return the result of
+    passing its arguments to the [`log()` function] in [`sass:math`].
+
+  [`log()` function]: ../built-in-modules/math.md#log
+
+* If `calc`'s name is `"pow"`:
+
+  * If any argument is a number with units, throw an error.
+
+  * Otherwise, if `arguments` contains exactly two numbers, return the result of
+    passing those numbers to the [`pow()` function] in [`sass:math`].
+
+  [`pow()` function]: ../built-in-modules/math.md#pow
+
+* If `calc`'s name is `"atan2"` and `arguments` contains two numbers which both
+  have [known units], return the result of passing those numbers to the
+  [`atan2()` function] in [`sass:math`].
+
+  > This will throw an error if either argument has units.
+  >
+  > `atan2()` passes percentages along to the browser because they may resolve
+  > to negative values, and `atan2(-x, -y) != atan2(x, y)`.
+
+  [`atan2()` function]: ../built-in-modules/math.md#atan2
+
+* If `calc`'s name is `"mod"` or `"rem"`:
+
+  * If `arguments` has only one element and it's not an unquoted string, throw
+    an error.
+
+  * Otherwise, if `arguments` contains exactly two numbers `dividend` and
+    `modulus`:
+
+    * If `dividend` and `modulus` are [definitely-incompatible], throw an error.
+
+    * If `dividend` and `modulus` are mutually [compatible]:
+
+      * Let `result` be the result of `dividend % modulus`.
+
+      * If `calc`'s name is `"rem"`, and if `dividend` is positive and `modulus`
+        is negative or vice versa:
+
+        * If `modulus` is infinite, return `dividend`.
+        * If `result` [exactly equals] 0, return `-result`.
+        * Otherwise, return `result - modulus`.
+
+      * Otherwise, return `result`.
 
   [compatible]: number.md#compatible-units
   [definitely-incompatible]: number.md#possibly-compatible-numbers
+  [exactly equals]: number.md#exact-equality
+
+* If `calc`'s name is `"round"`:
+
+  * If `arguments` has exactly three elements, set `strategy`, `number`, and
+    `step` to those arguments respectively.
+
+  * Otherwise, if `arguments` has exactly two elements:
+
+    * If the first element is an unquoted string or interpolation with value
+      `"nearest"`, `"up"`, `"down"`, or `"to-zero"`, and the second argument
+      isn't an unquoted string, throw an error.
+
+      > Normally we allow unquoted strings anywhere in a calculation, but this
+      > helps catch the likely error of a user accidentally writing `round(up,
+      > 10px)` without realizing that it needs a third argument.
+
+    * Otherwise, set `number` and `step` to the two arguments respectively and
+      `strategy` to an unquoted string with value `"nearest"`.
+
+  * Otherwise, if the single argument isn't an unquoted string, throw an error.
+
+  * If `strategy`, `number`, and `step` are set:
+
+    * If `strategy` isn't a [special variable string], nor is it an unquoted
+      string or interpolation with value `"nearest"`, `"up"`, `"down"`, or
+      `"to-zero"`, throw an error.
+
+    * If `strategy` is an unquoted string or interpolation and both `number` and
+      `step` are numbers:
+
+      * If `number` and `step` are [definitely-incompatible], throw an error.
+
+      * If `number` and `step` are mutually [compatible]:
+
+        * If `number`'s and `step`'s values are both infinite, if `step` is
+          [exactly equal] to 0, or if either `number`'s or `step`'s values are
+          NaN, return NaN with the same units as `number`.
+
+        * If `number`'s value is infinite, return `number`.
+
+        * If `step`'s value is infinite:
+
+          * If `strategy`'s value is `"nearest"` or `"to-zero"`, return `+0` if
+            `number`'s value is positive or `+0`, and `-0` otherwise.
+
+          * If `strategy`'s value is `"up"`, return positive infinity if
+            `number`'s value is positive, `+0` if `number`'s value is `+0`, and
+            `-0` otherwise.
+
+          * If `strategy`'s value is `"down"`, return negative infinity if
+            `number`'s value is negative, `-0` if `number`'s value is `-0`, and
+            `+0` otherwise.
+
+        * Set `number` and `step` to the result of [matching units] for `number`
+          and `step`.
+
+        * If `number`'s value is [exactly equal] to `step`'s, return `number`.
+
+        * Let `upper` and `lower` be the two integer multiples of `step` which
+          are closest to `number` such that `upper` is greater than `lower`. If
+          `upper` would be 0, it's specifically `-0`; if `lower` would be zero,
+          it's specifically `-0`.
+
+        * If `strategy`'s value is `"nearest"`, return whichever of `upper` and
+          `lower` has the smallest absolute distance from `number`. If both have
+          an equal difference, return `upper`.
+
+        * If `strategy`'s value is `"up"`, return `upper`.
+
+        * If `strategy`'s value is `"down"`, return `lower`.
+
+        * If `strategy`'s value is `"to-zero"`, return whichever of `upper` and
+          `lower` has the smallest absolute difference from 0.
+
+  [special variable string]: ../functions.md#special-variable-string
+
+* If `calc`'s name is `"clamp"`:
+
+  * If `arguments` has fewer than three elements, and none of those are unquoted
+    strings, throw an error.
+
+  * Otherwise, if any two elements of `arguments` are [definitely-incompatible]
+    numbers, throw an error.
+
+  * Otherwise, if `arguments` are all mutually [compatible] numbers, return the
+    result of calling `math.clamp()` with those arguments.
+
+* If `calc`'s name is `"hypot"`:
+
+  * If any two elements of `arguments` are [definitely-incompatible] numbers,
+    throw an error.
+
+  * Otherwise, if all `arguments` are all numbers with [known units] that are
+    mutually [compatible], return the result of calling `math.hypot()` with
+    those arguments.
+
+    > `hypot()` has an exemption for percentages because it squares its inputs,
+    > so `hypot(-x, -y) != -hypot(x, y)`.
 
 * If `calc`'s name is `"min"` or `"max"` and `arguments` are all numbers:
 
@@ -260,19 +408,25 @@ This algorithm takes a `CalculationValue` `value` and returns a
 > This algorithm is intended to return a value that's CSS-semantically identical
 > to the input.
 
-* If `value` is a number, unquoted string, or `CalculationInterpolation`, return
-  it as-is.
+* If `value` is a number or unquoted string, return it as-is.
 
 * If `value` is a calculation:
 
   * Let `result` be the result of [simplifying] `value`.
 
-  * If `result` is a calculation whose name is `"calc"`, return `result`'s
-    single argument.
+  * If `result` isn't a calculation whose name is `"calc"`, return `result`.
 
-  * Otherwise, return `result`.
+  * If `result`'s argument isn't an unquoted string, return `result`'s argument.
 
-  [simplifying]: #simplifying-a-calculation
+  * If `result`'s argument begins case-insensitively with `"var("`; or if it
+    contains whitespace, `"/"`, or `"*"`; return `"(" +` result's argument `+
+    ")"` as an unquoted string.
+
+    > This is ensures that values that could resolve to operations end up
+    > parenthesized if used in other operations. It's potentially a little
+    > overzealous, but that's unlikely to be a major problem given that the
+    > output is still smaller than including the full `calc()` and we don't want
+    > to encourage users to inject calculations with interpolation anyway.
 
 * Otherwise, `value` must be a `CalculationOperation`. Let `left` and `right` be
   the result of simplifying `value.left` and `value.right`, respectively.
@@ -313,133 +467,111 @@ This algorithm takes a `CalculationValue` `value` and returns a
 
 ## Semantics
 
-### `CalcExpression`
+The following semantics only apply when evaluating expressions [as calculation
+values].
 
-To evaluate a `CalcExpression`:
+[as calculation values]: #evaluating-an-expression-as-a-calculation-value
 
-* Let `calc` be a calculation whose name is `"calc"` and whose only argument is
-  the result of [evaluating the expression's `CalcArgument`](#calcargument).
+### `FunctionExpression` and `Variable`
 
-* Return the result of [simplifying] `calc`.
+To evaluate a `FunctionExpression` or a `Variable` as a calculation value,
+evaluate it using the standard semantics. If the result is a number, an unquoted
+string, or a calculation, return it. Otherwise, throw an error.
 
-### `ClampExpression`
+> Allowing variables to return unquoted strings here supports referential
+> transparency, so that `$var: fn(); calc($var)` works the same as `calc(fn())`.
 
-To evaluate a `ClampExpression`:
+### `SumExpression` and `ProductExpression`
 
-* Let `clamp` be a calculation whose name is `"clamp"` and whose arguments are the
-  results of [evaluating the expression's `CalcArgument`s](#calcargument).
+To evaluate a `SumExpresssion` or a `ProductExpression` as a calculation value:
 
-* Return the result of [simplifying] `clamp`.
+* Let `left` be the result of evaluating the first operand as a calculation
+  value.
 
-### `CssMinMax`
+* For each remaining `"+"`, `"-"`, `"*"`, or `"/"` token `operator` and operand
+  `operand`:
 
-To evaluate a `CssMinMax`:
-
-* Let `calc` be a calculation whose name is `"min"` or `"max"` according to the
-  `CssMinMax`'s first token, and whose arguments are the results of [evaluating
-  the expression's `CalcArgument`s](#calcargument).
-
-* Return the result of [simplifying] `calc`.
-
-### `CalcArgument`
-
-To evaluate a `CalcArgument` production `argument` into a `CalculationValue` object:
-
-* If `argument` is an `InterpolatedDeclarationValue`, evaluate it and return a
-  `CalculationInterpolation` whose `value` is the resulting string.
-
-* Otherwise, return the result of [evaluating `argument`'s
-  `CalcValue`](#calcvalue).
-
-### `CalcSum`
-
-To evaluate a `CalcSum` production `sum` into a `CalculationValue` object:
-
-* Left `left` be the result of evaluating the first `CalcProduct`.
-
-* For each remaining "+" or "-" token `operator` and `CalcProduct` `product`:
-
-  * Let `right` be the result of evaluating `product`.
+  * Let `right` be the result of evaluating `operand` as a calculation value.
 
   * Set `left` to a `CalcOperation` with `operator`, `left`, and `right`.
 
 * Return `left`.
 
-### `CalcProduct`
+### `SpaceListExpression`
 
-To evaluate a `CalcProduct` production `product` into a `CalculationValue`
-object:
+To evaluate a `SpaceListExpresssion` as a calculation value:
 
-* Left `left` be the result of evaluating the first `CalcValue`.
+* Let `elements` be the results of evaluating each element as a calculation
+  value.
 
-* For each remaining "*" or "/" token `operator` and `CalcValue` `value`:
+* If `elements` has two adjacent elements that aren't unquoted strings, throw an
+  error.
 
-  * Let `right` be the result of evaluating `value`.
+  > This ensures that valid CSS constructs like `calc(1 var(--plus-two))` and
+  > similar Sass constructs like `calc(1 #{"+ 2"})` work while preventing clear
+  > errors like `calc(1 2)`.
+  >
+  > This does allow errors like `calc(a b)`, but the complexity of verifying
+  > that the unquoted strings could actually be a partial operation isn't worth
+  > the benefit of eagerly producing an error in this edge case.
 
-  * Set `left` to a `CalcOperation` with `operator`, `left`, and `right` as its
-    values.
+* Let `serialized` be an empty list.
 
-* Return `left`.
+* For each `element` of `elements`:
 
-### `CalcValue`
+  * Let `css` be the result of [serializing] `element`.
 
-To evaluate a `CalcValue` production `value` into a `CalculationValue` object:
+    [serializing]: #serialization
 
-* If `value` is a `CalcArgument`, `CssMinMax`, `Number`, or `ParenthesizedVar`,
-  return the result of evaluating it.
+  * If `element` is a `CalcOperation` that was produced by evaluating a
+    `ParenthesizedExpression`, set `css` to `"(" + css + ")"`.
 
-* If `value` is a `FunctionExpression` or `Variable`, evaluate it. If the result
-  is a number, an unquoted string, or a calculation, return it. Otherwise, throw
-  an error.
+  * Append `css` to `serialized`.
 
-  > Allowing variables to return unquoted strings here supports referential
-  > transparency, so that `$var: fn(); calc($var)` works the same as
-  > `calc(fn())`.
+* Return an unquoted strings whose contents are the elements of `serialized`
+  separated by `" "`.
 
-* If `value` is case-insensitively equal to `pi`, return 3.141592653589793.
+### `ParenthesizedExpression`
 
-  > This is the closest double approximation of the mathematical constant π.
-
-* If `value` is case-insensitively equal to `e`, return 2.718281828459045.
-
-  > This is the closest double approximation of the mathematical constant e.
-
-* If `value` is case-insensitively equal to `infinity`, return the double
-  `Infinity`.
-
-* If `value` is case-insensitively equal to `-infinity`, return the double
-  `-Infinity`.
-
-* If `value` is case-insensitively equal to `nan`, return the double `NaN`.
-
-* If `value` is any other `<identifier>`, return an `UnquotedString` with
-  `value` as its contents.
-
-### `ParenthesizedVar`
-
-> If a `var()` is written directly within parentheses, it's necessary to
-> preserve those parentheses. CSS resolves `var()` by literally replacing the
-> function with the value of the variable and *then* parsing the surrounding
-> context.
+> If a `var()` or an interpolation is written directly within parentheses, it's
+> necessary to preserve those parentheses. CSS resolves `var()` by literally
+> replacing the function with the value of the variable and *then* parsing the
+> surrounding context.
 >
 > For example, if `--ratio: 2/3`, `calc(1 / (var(--ratio)))` is parsed as
 > `calc(1 / (2/3)) = calc(3/2)` but `calc(1 / var(--ratio))` is parsed as
 > `calc(1 / 2/3) = calc(1/6)`.
 
-To evaluate a `ParenthesizedVar` production `value` into an unquoted string:
+To evaluate a `ParenthesizedExpression` with contents `expression` as a
+calculation value:
 
-* Let `function` be a [`FunctionCall`] with `"var"` as its
-  [`NamespacedIdentifier`] and with `value`'s `ArgumentInvocation`.
+* Let `result` be the result of evaluating `expression` as a calculation value.
 
-  [`FunctionCall`]: ../functions.md#syntax
-  [`NamespacedIdentifier`]: ../modules.md#syntax
+* If `result` is an unquoted string, return `"(" + result + ")"` as an unquoted
+  string.
 
-* Let `result` be the result of evaluating `function`.
+* Otherwise, return `result`.
 
-* If `result` is a number or a calculation, return it.
+### `InterpolatedIdentifier`
 
-  > This could happen if the user defines a `var` function in Sass.
+To evaluate an `InterpolatedIdentifier` `ident` as a calculation value:
 
-* If `result` is not an unquoted string, throw an error.
+* If `ident` is case-insensitively equal to `pi`, return 3.141592653589793.
 
-* Return `"(" + result + ")"` as an unquoted string.
+  > This is the closest double approximation of the mathematical constant π.
+
+* If `ident` is case-insensitively equal to `e`, return 2.718281828459045.
+
+  > This is the closest double approximation of the mathematical constant e.
+
+* If `ident` is case-insensitively equal to `infinity`, return the double
+  `Infinity`.
+
+* If `ident` is case-insensitively equal to `-infinity`, return the double
+  `-Infinity`.
+
+* If `ident` is case-insensitively equal to `nan`, return the double `NaN`.
+
+* Otherwise, return the result of evaluating `ident` using standard semantics.
+
+  > This will be an `UnquotedString`.

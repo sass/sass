@@ -958,6 +958,11 @@ message Value {
 
         // An unquoted string as created by interpolation for
         // backwards-compatibility with older Sass syntax.
+        //
+        // The compiler must treat this as identical to a `string` option whose
+        // value is `"(" + interpolation + ")"`.
+        //
+        // This field is deprecated and hosts should avoid using it.
         string interpolation = 3;
 
         CalculationOperation operation = 4;
