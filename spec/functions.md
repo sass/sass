@@ -47,18 +47,14 @@ matching is case-insensitive.
 ## Syntax
 
 <x><pre>
-**FunctionExpression**¹ ::= [CssMinMax]
-&#32;                     | [SpecialFunctionExpression]
-&#32;                     | [CalculationExpression]
+**FunctionExpression**¹ ::= [SpecialFunctionExpression]
 &#32;                     | EmptyFallbackVar
 &#32;                     | FunctionCall
 **EmptyFallbackVar**²   ::= 'var(' Expression ',' ')'
 **FunctionCall**⁴       ::= [NamespacedIdentifier] ArgumentInvocation
 </pre></x>
 
-[CssMinMax]: types/calculation.md#cssminmax
 [SpecialFunctionExpression]: syntax.md#specialfunctionexpression
-[CalculationExpression]: types/calculation.md#calculationexpression
 [NamespacedIdentifier]: modules.md#syntax
 
 1: Both `CssMinMax` and `EmptyFallbackVar` take precedence over `FunctionCall`
@@ -106,6 +102,25 @@ To evaluate a `FunctionCall` `call`:
 * Let `function` be the result of [resolving a function][] named `name`.
 
 * If `function` is null and `name` is not a plain `Identifier`, throw an error.
+
+* If `function` is null; `name` is case-insensitively equal to `"min"`, `"max"`,
+  `"round"`, or `"abs"`; `call`'s `ArgumentInvocation` doesn't have any
+  `KeywordArgument`s or `RestArgument`s; and all arguments in `call`'s
+  `ArgumentInvocation` are [calculation-safe], return the result of evaluating
+  `call` [as a calculation].
+
+  [calculation-safe]: types/calculation.md#calculation-safe-expression
+  [as a calculation]: types/calculation.md#evaluating-a-functioncall-as-a-calculation
+
+  > For calculation functions that overlap with global Sass function names, we
+  > want anything Sass-specific like this to end up calling the Sass function.
+  > For all other calculation functions, we want those constructs to throw an
+  > error (which they do when evaluating `call` [as a calculation]).
+
+* If `function` is null and `name` is case-insensitively equal to `"calc"`,
+  `"clamp"`, `"hypot"`, `"sin"`, `"cos"`, `"tan"`, `"asin"`, `"acos"`, `"atan"`,
+  `"sqrt"`, `"exp"`, `"sign"`, `"mod"`, `"rem"`, `"atan2"`, `"pow"`, or `"log"`,
+  return the result of evaluating `call` [as a calculation].
 
 * If `function` is null, set it to the [global function](#global-functions)
   named `name`.

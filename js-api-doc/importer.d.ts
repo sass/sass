@@ -2,6 +2,38 @@ import {Syntax} from './options';
 import {PromiseOr} from './util/promise_or';
 
 /**
+ * Contextual information passed to {@link Importer.canonicalize} and {@link
+ * FileImporter.findFileUrl}. Not all importers will need this information to
+ * resolve loads, but some may find it useful.
+ */
+export interface CanonicalizeContext {
+  /**
+   * Whether this is being invoked because of a Sass
+   * `@import` rule, as opposed to a `@use` or `@forward` rule.
+   *
+   * This should *only* be used for determining whether or not to load
+   * [import-only files](https://sass-lang.com/documentation/at-rules/import#import-only-files).
+   */
+  fromImport: boolean;
+
+  /**
+   * The canonical URL of the file that contains the load, if that information
+   * is available.
+   *
+   * For an {@link Importer}, this is only passed when the `url` parameter is a
+   * relative URL _or_ when its [URL scheme] is included in {@link
+   * Importer.nonCanonicalScheme}. This ensures that canonical URLs are always
+   * resolved the same way regardless of context.
+   *
+   * [URL scheme]: https://developer.mozilla.org/en-US/docs/Learn/Common_questions/Web_mechanics/What_is_a_URL#scheme
+   *
+   * For a {@link FileImporter}, this is always available as long as Sass knows
+   * the canonical URL of the containing file.
+   */
+  containingUrl: URL | null;
+}
+
+/**
  * A special type of importer that redirects all loads to existing files on
  * disk. Although this is less powerful than a full {@link Importer}, it
  * automatically takes care of Sass features like resolving partials and file
@@ -56,12 +88,6 @@ export interface FileImporter<
    * @param url - The loaded URL. Since this might be relative, it's represented
    * as a string rather than a {@link URL} object.
    *
-   * @param options.fromImport - Whether this is being invoked because of a Sass
-   * `@import` rule, as opposed to a `@use` or `@forward` rule.
-   *
-   * This should *only* be used for determining whether or not to load
-   * [import-only files](https://sass-lang.com/documentation/at-rules/import#import-only-files).
-   *
    * @returns An absolute `file:` URL if this importer recognizes the `url`.
    * This may be only partially resolved: the compiler will automatically look
    * for [partials](https://sass-lang.com/documentation/at-rules/use#partials),
@@ -85,7 +111,7 @@ export interface FileImporter<
    */
   findFileUrl(
     url: string,
-    options: {fromImport: boolean}
+    context: CanonicalizeContext
   ): PromiseOr<URL | null, sync>;
 
   /** @hidden */
@@ -220,12 +246,6 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
    * @param url - The loaded URL. Since this might be relative, it's represented
    * as a string rather than a {@link URL} object.
    *
-   * @param options.fromImport - Whether this is being invoked because of a Sass
-   * `@import` rule, as opposed to a `@use` or `@forward` rule.
-   *
-   * This should *only* be used for determining whether or not to load
-   * [import-only files](https://sass-lang.com/documentation/at-rules/import#import-only-files).
-   *
    * @returns An absolute URL if this importer recognizes the `url`, or `null`
    * if it doesn't. If this returns `null`, other importers or {@link
    * Options.loadPaths | load paths} may handle the load.
@@ -242,7 +262,7 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
    */
   canonicalize(
     url: string,
-    options: {fromImport: boolean}
+    context: CanonicalizeContext
   ): PromiseOr<URL | null, sync>;
 
   /**
@@ -272,6 +292,20 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
 
   /** @hidden */
   findFileUrl?: never;
+
+  /**
+   * A URL scheme or set of schemes (without the `:`) that this importer
+   * promises never to use for URLs returned by {@link canonicalize}. If it does
+   * return a URL with one of these schemes, that's an error.
+   *
+   * If this is set, any call to canonicalize for a URL with a non-canonical
+   * scheme will be passed {@link CanonicalizeContext.containingUrl} if it's
+   * known.
+   *
+   * These schemes may only contain lowercase ASCII letters, ASCII numerals,
+   * `+`, `-`, and `.`. They may not be empty.
+   */
+  nonCanonicalScheme?: string | string[];
 }
 
 /**

@@ -2,6 +2,12 @@
 // MIT-style license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
+// This protocol buffer uses optional fields, which requires either [buf] or a
+// [protoc] version 3.15 or later.
+//
+// [buf]: https://buf.build/
+// [protoc]: https://github.com/protocolbuffers/protobuf#protobuf-compiler-installation
+
 syntax = "proto3";
 
 package sass.embedded_protocol;
@@ -93,6 +99,14 @@ message InboundMessage {
         // registered for this compilation.
         uint32 file_importer_id = 3;
       }
+
+      // The set of URL schemes that are considered *non-canonical* for this
+      // importer. This must be empty unless `importer.importer_id` is set.
+      //
+      // If any element of this contains a character other than a lowercase
+      // ASCII letter, an ASCII numeral, U+002B (`+`), U+002D (`-`), or U+002E
+      // (`.`), the compiler must treat the compilation as failed.
+      repeated string non_canonical_scheme = 4;
     }
 
     // Importers (including load paths on the filesystem) to use when resolving
@@ -147,7 +161,9 @@ message InboundMessage {
       // The successfully canonicalized URL.
       //
       // If this is not an absolute URL (including scheme), the compiler must
-      // treat that as an error thrown by the importer.
+      // treat that as an error thrown by the importer. If this URL's scheme is
+      // an `Importer.non_canonical_scheme` for the importer being invoked, the
+      // compiler must treat that as an error thrown by the importer.
       string url = 2;
 
       // An error message explaining why canonicalization failed.
@@ -442,15 +458,27 @@ message OutboundMessage {
     // That is the result of the import.
     string url = 4;
 
-    /// Whether this request comes from an `@import` rule.
-    ///
-    /// When evaluating `@import` rules, URLs should canonicalize to an
-    /// [import-only file] if one exists for the URL being canonicalized.
-    /// Otherwise, canonicalization should be identical for `@import` and `@use`
-    /// rules.
-    ///
-    /// [import-only file]: https://sass-lang.com/documentation/at-rules/import#import-only-files
+    // Whether this request comes from an `@import` rule.
+    //
+    // When evaluating `@import` rules, URLs should canonicalize to an
+    // [import-only file] if one exists for the URL being canonicalized.
+    // Otherwise, canonicalization should be identical for `@import` and `@use`
+    // rules.
+    //
+    // [import-only file]: https://sass-lang.com/documentation/at-rules/import#import-only-files
     bool from_import = 5;
+
+    // The canonical URL of the [current source file] that contained the load
+    // to be canonicalized.
+    //
+    // [current source file]: ../spec.md#current-source-file
+    //
+    // The compiler must set this if and only if `url` is relative or its
+    // scheme is an `Importer.non_canonical_scheme` for the importer being
+    // invoked, unless the current source file has no canonical URL.
+    //
+    // [non-canonical-proto]: #non_canonical_scheme
+    optional string containing_url = 6;
   }
 
   // A request for a custom importer to load the contents of a stylesheet.
@@ -486,8 +514,13 @@ message OutboundMessage {
   //   * Let `fromImport` be `true` if the importer is being run for an
   //     `@import` and `false` otherwise.
   //
+  //   * Let `containingUrl` be the canonical URL of the [current source file]
+  //     if it has one, or undefined otherwise.
+  //
+  //
   //   * Let `response` be the result of sending a `FileImportRequest` with
-  //     `string` as its `url` and `fromImport` as `from_import`.
+  //     `string` as its `url`, `fromImport` as `from_import`, and
+  //     `containingUrl` as `containing_url`.
   //
   //   * If `response.result` is null, return null.
   //
@@ -511,6 +544,7 @@ message OutboundMessage {
   //
   // * Return `text`, `syntax`, and `resolved`.
   //
+  // [current source file]: ../spec.md#current-source-file
   // [resolving `url`]: https://github.com/sass/sass/tree/main/spec/modules.md#resolving-a-file-url
   message FileImportRequest {
     reserved 2;
@@ -525,15 +559,20 @@ message OutboundMessage {
     // The (non-canonicalized) URL of the import.
     string url = 4;
 
-    /// Whether this request comes from an `@import` rule.
-    ///
-    /// When evaluating `@import` rules, filesystem importers should load an
-    /// [import-only file] if one exists for the URL being canonicalized.
-    /// Otherwise, canonicalization should be identical for `@import` and `@use`
-    /// rules.
-    ///
-    /// [import-only file]: https://sass-lang.com/documentation/at-rules/import#import-only-files
+    // Whether this request comes from an `@import` rule.
+    //
+    // When evaluating `@import` rules, filesystem importers should load an
+    // [import-only file] if one exists for the URL being canonicalized.
+    // Otherwise, canonicalization should be identical for `@import` and `@use`
+    // rules.
+    //
+    // [import-only file]: https://sass-lang.com/documentation/at-rules/import#import-only-files
     bool from_import = 5;
+
+    // The canonical URL of the [current source file] that contained the load
+    // being resolved. The compiler must set this unless the current source file
+    // has no canonical URL.
+    optional string containing_url = 6;
   }
 
   // A request to invoke a custom Sass function and return its result.
@@ -930,6 +969,11 @@ message Value {
 
         // An unquoted string as created by interpolation for
         // backwards-compatibility with older Sass syntax.
+        //
+        // The compiler must treat this as identical to a `string` option whose
+        // value is `"(" + interpolation + ")"`.
+        //
+        // This field is deprecated and hosts should avoid using it.
         string interpolation = 3;
 
         CalculationOperation operation = 4;

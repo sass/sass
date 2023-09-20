@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: actions/setup-node@v3
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: actions/setup-node@v3
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: actions/setup-node@v3
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
@@ -49,7 +49,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: actions/setup-node@v3
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
@@ -60,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: actions/setup-node@v3
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
@@ -71,18 +71,18 @@ jobs:
     runs-on: "ubuntu-latest"
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: arduino/setup-protoc@v1
-        with: { version: "3.x", repo-token: "${{ github.token }}" }
+      - uses: actions/checkout@v4
+      - uses: bufbuild/buf-setup-action@v1.26.1
+        with: {github_token: "${{ github.token }}"}
       - name: Generate protobuf code
-        run: protoc --js_out=/tmp spec/embedded_sass.proto
+        run: buf generate
 
   embedded_protocol_versions:
     name: "Validate Embedded Protocol versions"
     runs-on: "ubuntu-latest"
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Check versions match
         run: |
           if ! (grep -q '\-dev$' spec/EMBEDDED_PROTOCOL_VERSION ||
@@ -100,7 +100,7 @@ jobs:
           github.ref == 'refs/heads/main'
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 2
 
@@ -133,12 +133,12 @@ jobs:
       github.ref == 'refs/heads/main'
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with: {fetch-depth: 0}
 
     - name: Find changed files in js-api-doc
       id: changed-files
-      uses: tj-actions/changed-files@c860b5c47fa71f461da850094ef2f6e3d6514e44
+      uses: tj-actions/changed-files@76c4d81a6acd339b55bd7407a016981c853eb702
       with: {files: js-api-doc}
 
     - name: Deploy

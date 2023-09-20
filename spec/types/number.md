@@ -10,6 +10,8 @@
   * [Compatible Units](#compatible-units)
   * [Possibly-Compatible Units](#possibly-compatible-units)
   * [Possibly-Compatible Numbers](#possibly-compatible-numbers)
+  * [Known Units](#known-units)
+  * [Exact Equality](#exact-equality)
   * [Fuzzy Equality](#fuzzy-equality)
   * [Integer](#integer)
   * [Potentially Slash-Separated Number](#potentially-slash-separated-number)
@@ -159,11 +161,32 @@ Two numbers are *definitely-incompatible* if they are not possibly-compatible.
 > complex units, but in practice these numbers are already flagged as errors
 > prior to any possible-compatibility checks.
 
+### Known Units
+
+A number has *known units* unless it has unit `%`.
+
+> This is relevant for calculations, because in plain CSS they resolve
+> percentages before doing their operations. This means that any non-linear
+> operations involving percentages must be passed through to plain CSS rather
+> than handled by Sass.
+>
+> More complex units involving percentages are allowed because any non-linear
+> function will throw for complex units anyway.
+
+### Exact Equality
+
+Two [doubles] are said to be *exactly equal* if they are equal according to the
+`compareQuietEqual` predicate as defined by [IEEE 754 2019], §5.11.
+
+[doubles]: #double
+
+> This is as opposed to [fuzzy equality].
+>
+> [fuzzy equality]: #fuzzy-equality
+
 ### Fuzzy Equality
 
 Two [doubles] are said to be *fuzzy equal* to one another if either:
-
-[doubles]: #double
 
 * They are equal according to the `compareQuietEqual` predicate as defined
   by [IEEE 754 2019], §5.11.
@@ -195,47 +218,28 @@ denominator*. A number that is not potentially slash-separated is known as
 *slash-free*.
 
 A potentially slash-separated number is created when a `ProductExpression` with
-a `/` operator is evaluated and both operands are *syntactically* one of the
+a `/` operator is evaluated and each operand is *syntactically* one of the
 following:
 
-* `Number`s,
-* [`Calculation`]s, or
-* `ProductExpression`s that can themselves create potentially slash-separated
+* a `Number`,
+* a [`FunctionCall`], or
+* a `ProductExpression` that can itself create potentially slash-separated
   numbers.
-
-[`Calculation`]: calculation.md#syntax
   
-If both operands are evaluated as numbers, the resulting number is potentially
-slash-separated. The first operand is the original numerator of the potentially
-slash-separated number returned by the `/` operator, and the second is the
-original denominator.
+[`FunctionCall`]: ../functions.md#functioncall
 
-A potentially slash-separated number is converted to a slash-free number when:
+If the result of evaluating the `ProductExpression` is a number, that number is
+potentially slash-separated if all of the following are true:
 
-* It is the value of a `ParenthesizedExpression`.
+* the results of evaluating both operands were numbers, and
+* if either operand was a `FunctionCall`, it was [evaluated as a calculation]
+  and its name was not `"abs"`, `"max"`, `"min"`, or `"round"`.
 
-  > That is, it's in parentheses, such as in `(1 / 2)`. Note that if it's in a
-  > list that's in parentheses, it's *not* converted to a slash-free number.
+  [evaluated as a calculation]: calculation.md#evaluating-a-functioncall-as-a-calculation
 
-* It is stored in a Sass variable.
-
-* It is passed to a function or mixin.
-
-* It is returned by a function.
-
-> Any expressions that normally produce a new number (such as other mathematical
-> operations) always produce slash-free numbers, even when their arguments are
-> slash-separated.
->
-> When a potentially slash-separated number is "converted" to a slash-free
-> number, a slash-free copy is made of the original. Sass values are always
-> immutable.
-
-When a potentially slash-separated number is converted to CSS, either when
-converted to a string via interpolation or when included in a declaration's
-value, it is written as the original numerator followed by `/` followed by the
-original denominator. If either the original numerator or denominator are
-themselves slash-separated, they're also written this way.
+If both of these are true, the first operand is the original numerator of the
+potentially slash-separated number returned by the `/` operator, and the second
+is the original denominator.
 
 ## Types
 
@@ -341,23 +345,29 @@ Let `n1` and `n2` be two numbers. To determine `n1 % n2`:
 * Let `c1` and `c2` be the result of [matching units] for `n1` and `n2` allowing
   unitless.
 
+* If `c2` is infinity and has a different sign than `c1` (including
+  oppositely-signed zero), return NaN with the same units as `c1`.
+
+  > This matches the behavior of CSS's `mod()` function.
+
 * Let `remainder` be a number whose value is the result of `remainder(c1.value,
   c2.value)` as defined by [IEEE 754 2019], §5.3.1; and whose units are the same
   as `c1`'s.
 
-* If `c2`'s value is less than 0 and `remainder`'s value isn't `0` or `-0`,
-  return `result - c2`.
+* If `c2`'s value is less than 0 and `remainder`'s value isn't [exactly equal]
+  to `0`, return `remainder - c2`.
+
+  [exactly equal]: #exact-equality
 
   > This is known as [floored division]. It differs from the standard IEEE 754
-  > specification because it was originally inherited from Ruby when that was
-  > used for Sass's original implementation.
+  > specification, but matches the behavior of CSS's `mod()` function.
   >
   > Note: These comparisons are not the same as `c2 < 0` or `remainder == 0`,
   > because they don't do fuzzy equality.
 
   [floored division]: https://en.wikipedia.org/wiki/Modulo_operation#Variants_of_the_definition
 
-* Otherwise, return `result`.
+* Otherwise, return `remainder`.
 
 #### Negation
 
