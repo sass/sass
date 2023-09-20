@@ -257,7 +257,7 @@ A private property like [`Value.internal`] that refers to a Sass string.
 
 #### Constructor
 
-Creates a `CalculationInterpolation` with its `internal` set to an unquoted Sass
+Creates a `CalculationInterpolation` with `internal` set to an unquoted Sass
 string with text `"(" + value + ")"` and returns it.
 
 ```ts
