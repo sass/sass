@@ -389,9 +389,7 @@ case-insensitively.
 ### `CssMinMax`
 
 This proposal replaces the reference to `CalcValue` in the definition of
-[`CssMinMax`] with `CalcArgument`.
-
-[`CssMinMax`]: ../spec/types/calculation.md#cssminmax
+`CssMinMax` with `CalcArgument`.
 
 > Note that this increases the number of cases where a `MinMaxExpression` will
 > be parsed as a `CssMinMax` rather than a `FunctionExpression` (for example,

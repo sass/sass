@@ -19,7 +19,7 @@ export {
   CalculationValue,
   CalculationOperator,
   CalculationOperation,
-  CalculationInterpolation
+  CalculationInterpolation,
 } from './calculation';
 export {SassColor} from './color';
 export {SassFunction} from './function';
