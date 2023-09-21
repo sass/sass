@@ -207,6 +207,16 @@ with `exports` as below, The Node package importer will resolve a
 }
 ```
 
+Node supports two module resolution algorithms- CommonJS and ECMAScript. While
+these are very similar in most cases, there are corner cases that resolve in
+different ways. The Node package importer will be implemented based on the
+ECMAScript algorithm. This means that the Node package importer will not support
+loading from `NODE_PATH` or `GLOBAL_FOLDERS`, as that is only supported in
+CommonJS resolution. The Node documentation for [ECMAScript modules] recommends
+using symlinks if this behavior is desired.
+
+[ECMAScript modules]: https://nodejs.org/api/esm.html#no-node_path
+
 ## Types
 
 ```ts
