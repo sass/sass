@@ -1,3 +1,8 @@
+## Draft 1.8
+
+* Require a quoted string for `color.is-missing()` for consistency with other
+  color functions and ease of use with channels whose names overlap with colors.
+
 ## Draft 1.7
 
 * Resolve missing `alpha` channels *after* premultiplying colors.

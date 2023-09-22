@@ -1,4 +1,4 @@
-# CSS Color Level 4, New Color Spaces: Draft 1.7
+# CSS Color Level 4, New Color Spaces: Draft 1.8
 
 *([Issue](https://github.com/sass/sass/issues/2831))*
 
@@ -1581,7 +1581,7 @@ is-missing($color, $channel)
 
 * If `$color` is not a color, throw an error.
 
-* If `$channel` is not an unquoted string, throw an error.
+* If `$channel` is not a quoted string, throw an error.
 
 * If `$channel == alpha` (ignoring case), let `value` be the alpha value of
   `$color`.
