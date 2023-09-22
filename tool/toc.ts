@@ -2,7 +2,7 @@ import * as glob from 'glob';
 import markdownToc = require('markdown-toc');
 
 /** Files that may contain tables of contents. */
-export const files = glob.sync('**/*.md', {
+export const files = glob.sync('**/*.md?(.d.ts)', {
   ignore: ['node_modules/**/*.md', '**/*.changes.md'],
 });
 
