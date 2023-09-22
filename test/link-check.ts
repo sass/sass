@@ -104,6 +104,8 @@ function runLinkCheck(
             {pattern: /^https?:\/\/twitter\.com(\/|$)/},
             // tcort/markdown-link-check#260
             {pattern: /^https?:\/\/blogs\.msdn\.microsoft\.com(\/|$)/},
+            // Link consistently fails within CI
+            {pattern: /^https:\/\/runtime-keys\.proposal\.wintercg\.org(\/|$)/},
           ],
         },
         (error, results) => {
