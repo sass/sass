@@ -577,19 +577,24 @@ The known color spaces and their channels are:
 
 * `hwb` (RGB, legacy):
   * `hue`:
+    * associated unit: `deg`
     * degrees: polar angle
   * `whiteness`, `blackness`:
+    * associated unit: `%`
     * gamut: bounded
     * percentage: `[0%,100%]`
 
 * `hsl` (RGB, legacy):
   * `hue`:
+    * associated unit: `deg`
     * degrees: polar angle
   * `saturation`:
     * gamut: bounded
+    * associated unit: `%`
     * percentage: `[0%,100%]`
   * `lightness`:
     * gamut: bounded, clamped
+    * associated unit: `%`
     * percentage: `[0%,100%]`
 
 * `srgb`, `srgb-linear`, `display-p3`, `a98-rgb`, `prophoto-rgb`,
@@ -610,6 +615,7 @@ The known color spaces and their channels are:
 * `lab`:
   * `lightness`:
     * gamut: un-bounded, clamped
+    * associated unit: `%`
     * number: `[0,100]`
 
       > Percentages `[0%,100%]` map to the `[0,100]` range.
@@ -623,6 +629,7 @@ The known color spaces and their channels are:
 * `lch`:
   * `lightness`:
     * gamut: un-bounded, clamped
+    * associated unit: `%`
     * number: `[0,100]`
 
       > Percentages `[0%,100%]` map to the `[0,100]` range.
@@ -634,11 +641,13 @@ The known color spaces and their channels are:
       > Percentages `[0%,100%]` map to the `[0,150]` range.
 
   * `hue`:
+    * associated unit: `deg`
     * degrees: polar angle
 
 * `oklab`:
   * `lightness`:
     * gamut: un-bounded, clamped
+    * associated unit: `%`
     * number: `[0,1]`
 
       > Percentages `[0%,100%]` map to the `[0,1]` range.
@@ -652,6 +661,7 @@ The known color spaces and their channels are:
 * `oklch`:
   * `lightness`:
     * gamut: un-bounded, clamped
+    * associated unit: `%`
     * number: `[0,1]`
 
       > Percentages `[0%,100%]` map to the `[0,1]` range.
@@ -663,6 +673,7 @@ The known color spaces and their channels are:
       > Percentages `[0%,100%]` map to the `[0,0.4]` range.
 
   * `hue`:
+    * associated unit: `deg`
     * degrees: polar angle
 
 ### Predefined Color Spaces
