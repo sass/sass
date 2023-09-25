@@ -264,6 +264,7 @@ Javascript Compile API, insert:
 
 [`compile`]: ../spec/js-api/compile.d.ts.md#compile
 [`compileString`]: ../spec/js-api/compile.d.ts.md#compilestring
+[Node Package Importer]: #node-package-importer
 
 ### Legacy API `pkgImporter`
 
@@ -455,9 +456,9 @@ This algorithm takes a package.json value `packageManifest`, a directory URL
 * Let `subpathIndexVariants` be the result of [Export load paths] with `subpathIndex`.
 
 * Let `resolvedIndexPaths` be a list of the results of calling
-  `PACKAGE_EXPORTS_RESOLVE(packageRoot, subpathVariant, exports, [condition])`
-  as defined in the [Node resolution algorithm specification], with each
-  `subpathIndexVariants` as `subpathVariant`.
+  `PACKAGE_EXPORTS_RESOLVE(packageRoot, subpathVariant, exports, ["sass",
+  "style"])` as defined in the [Node resolution algorithm specification], with
+  each `subpathIndexVariants` as `subpathVariant`.
 
 * If `resolvedIndexPaths` contains more than one resolved URL, throw an error.
 
