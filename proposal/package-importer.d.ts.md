@@ -206,7 +206,7 @@ with `exports` as below, The Node package importer will resolve a
 }
 ```
 
-Node supports two module resolution algorithms- CommonJS and ECMAScript. While
+Node supports two module resolution algorithms: CommonJS and ECMAScript. While
 these are very similar in most cases, there are corner cases that resolve in
 different ways. The Node package importer will be implemented based on the
 ECMAScript algorithm. This means that the Node package importer will not support
@@ -523,7 +523,7 @@ potential subpaths, resolving for partials and file extensions.
 
 ## Embedded Protocol
 
-An Importer that resolves `pkg:` URLs using the [node resolution algorithm]. It
+An Importer that resolves `pkg:` URLs using the [Node resolution algorithm]. It
 is instantiated with an associated `entry_point_url`.
 
 ```proto
