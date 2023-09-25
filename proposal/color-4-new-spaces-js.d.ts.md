@@ -843,7 +843,9 @@ Create a new SassColor in the `rgb` color space.
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
       the result of [parsing a channel value] with value `options.alpha`.
 
-* Return the result of `rgb(red green blue / alpha)
+* Return the result of [`rgb(red green blue / alpha)`].
+
+[`rgb(red green blue / alpha)`]: ./color-4-new-spaces.md#rgb-and-rgba
 
 ```ts
 constructor(options: {
