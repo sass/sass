@@ -341,7 +341,7 @@ isChannelPowerless(
 
 * Otherwise, if `space` is a rectangular color space, let `interpolationMethod` be
     `space`.
-  
+
 * Otherwise, let `interpolationMethod` be a space separated list containing th
   value of `space`, a space, and the string "shorter".
 
@@ -551,7 +551,7 @@ as the result of changing some of [`internal`]'s components.
   ```
 
 * Return the result of [`changedColor.toSpace(initialSpace)`].
-  
+
 [`this.space()`]: #space
 [`this.toSpace(space)`]: #tospace
 [`changedColor.toSpace(initialSpace)`]: #tospace
@@ -626,6 +626,8 @@ change(
 
 * Use the constructor that matches `constructionSpace`.
 
+[Determining Construction Space]: #determining-construction-space
+
 #### LAB Channel Constructor
 
 Create a new SassColor in a color space with LAB channels -- `lab` and `oklab`.
@@ -636,7 +638,7 @@ Create a new SassColor in a color space with LAB channels -- `lab` and `oklab`.
 * Let `a` be the result of [parsing a channel value] with value `options.a`.
 
 * Let `b` be the result of [parsing a channel value] with value `options.b`.
-  
+
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
     the result of [parsing a channel value] with value `options.alpha`.
 
@@ -646,9 +648,9 @@ Create a new SassColor in a color space with LAB channels -- `lab` and `oklab`.
 * Otherwise, if `options.space` equals `oklab`, set [`internal`] to the result
   of [`oklab(lightness a b / alpha)`].
 
- [`lab(lightness a b / alpha)`]: ./color-4-new-spaces.md#lab
- [`oklab(lightness a b / alpha)`]: ./color-4-new-spaces.md#oklab
- [parsing a channel value]: #parsing-a-channel-value
+[`lab(lightness a b / alpha)`]: ./color-4-new-spaces.md#lab
+[`oklab(lightness a b / alpha)`]: ./color-4-new-spaces.md#oklab
+[parsing a channel value]: #parsing-a-channel-value
 
 ```ts
 constructor(options: {
@@ -670,7 +672,7 @@ Create a new SassColor in a color space with LCH channels -- `lch` and `oklch`.
 * Let `c` be the result of [parsing a channel value] with value `options.c`.
 
 * Let `h` be the result of [parsing a channel value] with value `options.h`.
-  
+
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
     the result of [parsing a channel value] with value `options.alpha`.
 
@@ -679,6 +681,9 @@ Create a new SassColor in a color space with LCH channels -- `lch` and `oklch`.
 
 * Otherwise, if `options.space` equals `oklch`, set [`internal`] to the result
   of [`oklch(lightness a b / alpha)`].
+
+[`lch(lightness a b / alpha)`]: ./color-4-new-spaces.md#lch
+[`oklch(lightness a b / alpha)`]: ./color-4-new-spaces.md#oklch
 
 ```ts
 constructor(options: {
@@ -703,7 +708,7 @@ through the modifed [RGB Constructor].
 
 * Let `blue` be the result of [parsing a channel value] with value
   `options.blue`.
-  
+
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
     the result of [parsing a channel value] with value `options.alpha`.
 
@@ -734,13 +739,15 @@ and `xyz-d65`.
 * Let `y` be the result of [parsing a channel value] with value `options.y`.
 
 * Let `z` be the result of [parsing a channel value] with value `options.z`.
-  
+
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
     the result of [parsing a channel value] with value `options.alpha`.
 
 * Let `space` be the unquoted string value of `options.space`.
 
 * Set [`internal`] to the result of [`color(space x y z / alpha)`].
+
+[`color(space x y z / alpha)`]: ./color-4-new-spaces.md#color-1
 
 ```ts
 constructor(options: {
@@ -756,23 +763,27 @@ constructor(options: {
 
 These will replace the [existing constructors] for legacy colors.
 
+[existing constructors]: ../spec/js-api/value/color.d.ts.md#constructor
+
 #### HSL Constructor
 
 Create a new SassColor in the `hsl` color space.
 
 * If `options.alpha` is `null` and `options.space` is not set, emit a
   deprecation warning named `null-alpha`.
-  
+
 * Let `hue` be the result of [parsing a channel value] with value `options.hue`.
 
 * Let `saturation` be the result of [parsing a channel value] with value `options.saturation`.
 
 * Let `lightness` be the result of [parsing a channel value] with value `options.lightness`.
-  
+
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
     the result of [parsing a channel value] with value `options.alpha`.
 
 * Set [`internal`] to the result of [`hsl(hue saturation lightness / alpha)`].
+
+[`hsl(hue saturation lightness / alpha)`]: ../spec/functions.md#hsl-and-hsla
 
 ```ts
 constructor(options: {
@@ -796,11 +807,13 @@ Create a new SassColor in the `hwb` color space.
 * Let `whiteness` be the result of [parsing a channel value] with value `options.whiteness`.
 
 * Let `blackness` be the result of [parsing a channel value] with value `options.blackness`.
-  
+
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
     the result of [parsing a channel value] with value `options.alpha`.
 
 * Set [`internal`] to the result of [`hwb(hue whiteness blackness / alpha)`].
+
+[`hwb(hue whiteness blackness / alpha)`]: ./color-4-new-spaces.md#hwb-1
 
 ```ts
 constructor(options: {
@@ -830,7 +843,9 @@ Create a new SassColor in the `rgb` color space.
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
       the result of [parsing a channel value] with value `options.alpha`.
 
-* Return the result of `rgb(red green blue / alpha)
+* Return the result of [`rgb(red green blue / alpha)`].
+
+[`rgb(red green blue / alpha)`]: ./color-4-new-spaces.md#rgb-and-rgba
 
 ```ts
 constructor(options: {
