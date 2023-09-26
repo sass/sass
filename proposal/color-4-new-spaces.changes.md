@@ -1,3 +1,7 @@
+## Draft 1.9
+
+* Explicitly define associated units for color space channels.
+
 ## Draft 1.8
 
 * Require a quoted string for `color.is-missing()` for consistency with other
