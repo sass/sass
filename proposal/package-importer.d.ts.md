@@ -256,6 +256,8 @@ Javascript Compile API, insert:
 * If any object in `options.importers` is exactly equal to the object
   `nodePackageImporter`:
 
+  * If the execution environment is the browser, throw an error.
+
   * Let `pkgImporter` be a [Node Package Importer] with an associated
     `entryPointURL` of `require.main.filename`.
 
@@ -305,11 +307,7 @@ Package Importers must reject the following patterns:
 * A URL whose path begins with `/`.
 * A URL with non-empty/null username, password, host, port, query, or fragment.
 
-Package Importers must be added to the [global importer list] immediately after any
-user-provided importers.
-
 [importer]: ../spec/modules.md#importer
-[global importer list]: ../spec/modules.md#global-importer-list
 
 ### Node Package Importer
 
