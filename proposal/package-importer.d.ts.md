@@ -206,7 +206,7 @@ with `exports` as below, The Node package importer will resolve a
 }
 ```
 
-Node supports two module resolution algorithms- CommonJS and ECMAScript. While
+Node supports two module resolution algorithms: CommonJS and ECMAScript. While
 these are very similar in most cases, there are corner cases that resolve in
 different ways. The Node package importer will be implemented based on the
 ECMAScript algorithm. This means that the Node package importer will not support
@@ -269,6 +269,7 @@ Javascript Compile API, insert:
 
 [`compile`]: ../spec/js-api/compile.d.ts.md#compile
 [`compileString`]: ../spec/js-api/compile.d.ts.md#compilestring
+[Node Package Importer]: #node-package-importer
 
 ### Legacy API `pkgImporter`
 
@@ -460,9 +461,9 @@ This algorithm takes a package.json value `packageManifest`, a directory URL
 * Let `subpathIndexVariants` be the result of [Export load paths] with `subpathIndex`.
 
 * Let `resolvedIndexPaths` be a list of the results of calling
-  `PACKAGE_EXPORTS_RESOLVE(packageRoot, subpathVariant, exports, [condition])`
-  as defined in the [Node resolution algorithm specification], with each
-  `subpathIndexVariants` as `subpathVariant`.
+  `PACKAGE_EXPORTS_RESOLVE(packageRoot, subpathVariant, exports, ["sass",
+  "style"])` as defined in the [Node resolution algorithm specification], with
+  each `subpathIndexVariants` as `subpathVariant`.
 
 * If `resolvedIndexPaths` contains more than one resolved URL, throw an error.
 
@@ -527,7 +528,7 @@ potential subpaths, resolving for partials and file extensions.
 
 ## Embedded Protocol
 
-An Importer that resolves `pkg:` URLs using the [node resolution algorithm]. It
+An Importer that resolves `pkg:` URLs using the [Node resolution algorithm]. It
 is instantiated with an associated `entry_point_url`.
 
 ```proto
