@@ -273,8 +273,12 @@ Javascript Compile API, insert:
 ### Legacy API `pkgImporter`
 
 If set, the compiler will use the specified built-in package importer to resolve
-any URL with the `pkg:` scheme. Currently, the only available package importer
-is `node`, which follows Node resolution logic to locate Sass files.
+any URL with the `pkg:` scheme. This step will be inserted immediately before
+the existing legacy importer logic, and if the package importer returns `null`,
+the legacy importer logic will be invoked.
+
+Currently, the only available package importer is `node`, which follows Node
+resolution logic to locate Sass files.
 
 Defaults to undefined.
 

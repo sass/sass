@@ -6,6 +6,8 @@
 * Remove specified order in the global import list, as users can specify the
   order within the `importers` option.
 
+* Specify importer ordering for the Legacy API.
+
 ## Draft 1
 
 * Initial draft
