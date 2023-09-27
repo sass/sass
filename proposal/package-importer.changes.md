@@ -1,6 +1,7 @@
 ## Draft 1.1
 
-* Throw an error if `nodePackageImporter` is used in the browser.
+* Throw an error if `nodePackageImporter` is used in the browser or other
+  environment without filesystem access.
 
 * Remove specified order in the global import list, as users can specify the
   order within the `importers` option.
