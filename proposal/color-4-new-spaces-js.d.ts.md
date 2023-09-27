@@ -187,7 +187,7 @@ Returns an array of channel values (excluding alpha) for [`internal`], with
 
 * For each `component` in `components`:
 
-  * Let `value` be the channel value in `color` with name of `component`.
+  * Let `value` be the channel value in [`internal`] with name of `component`.
 
   * If `value` is `none`, let `value` be `null`.
 
@@ -207,11 +207,13 @@ get channelsOrNull(): [number | null, number | null, number | null];
 This algorithm returns an array of channel values (excluding alpha) for
 [`internal`], with [missing channels][missing components] converted to `0`.
 
-* Let `channels` be the result of [`this.channelsOrNull`].
+* Let `channelsOrNull` be the result of [`this.channelsOrNull`].
 
-* For each `channel` in `channels`:
+* Let `channels` be an empty array.
 
-  * If `value` equals `null`, let `value` be 0.
+* For each `channel` in `channelsOrNull`:
+
+  * If `channel` equals `null`, let `value` be 0.
 
   * Append `value` to `channels`.
 
@@ -912,6 +914,8 @@ space for construction.
 * If `options.saturation` is set, return "hsl".
 
 * If `options.whiteness` is set, return "hwb".
+
+* Otherwise, throw an error.
 
 ## Embedded Protocol
 
