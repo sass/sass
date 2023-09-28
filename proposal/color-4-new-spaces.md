@@ -1,4 +1,4 @@
-# CSS Color Level 4, New Color Spaces: Draft 1.8
+# CSS Color Level 4, New Color Spaces: Draft 1.10
 
 *([Issue](https://github.com/sass/sass/issues/2831))*
 
@@ -1571,18 +1571,21 @@ channel($color, $channel, $space: null)
   * Let `color` be `$color` if `$space` is null, and the result of calling
     `color.to-space($color, $space)` otherwise.
 
-  * If `channel` is not the name of a channel in `color`, throw an error.
+  * Let `channel` be the channel in `color`'s space named `$channel`. Throw an
+    error if no such channel exists.
 
-  * Let `value` be the channel value in `color` with name of `channel`.
+  * Let `value` be `channel`'s value in `color`, or `0` if the channel's value
+    is missing.
 
   * Let `unit` be the unit associated with `channel` in `color`'s space, if
     defined, and `null` otherwise.
 
-* If `value` is `null`, return `0`.
+* If `unit` is `%`, return `value * 100` divided by the maximum of
+  `channel`'s gamut range with unit `%`.
 
-* If `unit` is not null, return the result of appending `unit` units to `value`.
+* Otherwise, if `unit` is not null, return `value` with unit `unit`.
 
-* Return `value`.
+* Otherwise, return `value` as a unitless number.
 
 ### `color.is-missing()`
 
@@ -1706,8 +1709,8 @@ This function is also available as a global function named `change-color()`.
 
 * If the keyword argument `$alpha` is specified in `$args`:
 
-  * Set `alpha` to the result of [percent-converting] `$alpha`, and clamping
-      it between 0 and 1 (inclusive).
+  * Set `alpha` to the result of [percent-converting] `$alpha` with a `max` of
+      1, and clamping it between 0 and 1 (inclusive).
 
 * Let `channel-args` be the remaining keyword arguments in `$args`, not
   including `$space` or `$alpha` arguments.
@@ -1789,7 +1792,7 @@ This function is also available as a global function named `adjust-color()`.
       > match CSS relative color syntax if possible. Throwing an error for now
       > means we can adjust to match the CSS behavior once it is defined.
 
-  * Let `new-alpha` be the result of [percent-converting] `$alpha` with a max
+  * Let `new-alpha` be the result of [percent-converting] `$alpha` with a `max`
     of 1.
 
   * Set `alpha` to the value of `new-alpha + alpha` clamped between 0 and 1.
@@ -1839,8 +1842,8 @@ This function is also available as a global function named `adjust-color()`.
       `%` units to `channel`.
 
     * Otherwise, if `valid` allows percentage mapping, set `adjust` to the
-      result of [percent-converting] `adjust` with a `min` and `max` defined
-      by the `valid` channel range.
+      result of [percent-converting] `adjust` with a `max` given by the maximum
+      of `valid`'s gamut range.
 
     * Otherwise, throw an error.
 

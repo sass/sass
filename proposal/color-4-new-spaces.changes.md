@@ -1,3 +1,9 @@
+## Draft 1.10
+
+* Properly scale `%` return values for `color.channel()`.
+
+* Clean up some language related to percent-conversion.
+
 ## Draft 1.9
 
 * Explicitly define associated units for color space channels.
