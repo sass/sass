@@ -30,7 +30,7 @@ proposal].
   * [Updated Color Functions](#updated-color-functions)
     * [`change`](#change)
   * [New Constructors](#new-constructors)
-    * [LAB Channel Constructor](#lab-channel-constructor)
+    * [Lab Channel Constructor](#lab-channel-constructor)
     * [LCH Channel Constructor](#lch-channel-constructor)
     * [Predefined RGB Channel Constructor](#predefined-rgb-channel-constructor)
     * [XYZ Channel Constructor](#xyz-channel-constructor)
@@ -67,9 +67,9 @@ export type ColorSpaceHWB = 'hwb';
 
 export type ChannelNameHWB = 'hue' | 'whiteness' | 'blackness';
 
-export type ColorSpaceLAB = 'lab' | 'oklab';
+export type ColorSpaceLab = 'lab' | 'oklab';
 
-export type ChannelNameLAB = 'lightness' | 'a' | 'b';
+export type ChannelNameLab = 'lightness' | 'a' | 'b';
 
 export type ColorSpaceLCH = 'lch' | 'oklch';
 
@@ -92,7 +92,7 @@ export type ChannelNameXYZ = 'x' | 'y' | 'z';
 export type ChannelName =
   | ChannelNameHSL
   | ChannelNameHWB
-  | ChannelNameLAB
+  | ChannelNameLab
   | ChannelNameLCH
   | ChannelNameRGB
   | ChannelNameXYZ;
@@ -100,7 +100,7 @@ export type ChannelName =
 export type KnownColorSpace =
   | ColorSpaceHSL
   | ColorSpaceHWB
-  | ColorSpaceLAB
+  | ColorSpaceLab
   | ColorSpaceLCH
   | ColorSpaceRGB
   | ColorSpaceXYZ;
@@ -174,7 +174,7 @@ Returns the result of [`color.to-gamut(internal, space)`].
 toGamut(space?: KnownColorSpace): SassColor;
 ```
 
-[`color.to-gamut(internal, space)`]:  ./color-4-new-spaces.md#colorto-gamut-1
+[`color.to-gamut(internal, space)`]: ./color-4-new-spaces.md#colorto-gamut-1
 
 #### `channelsOrNull`
 
@@ -255,8 +255,8 @@ channel(
   options: {space: ColorSpaceHWB}
 ): number;
 channel(
-  channel: ChannelNameLAB | 'alpha',
-  options: {space: ColorSpaceLAB}
+  channel: ChannelNameLab | 'alpha',
+  options: {space: ColorSpaceLab}
 ): number;
 channel(
   channel: ChannelNameLCH | 'alpha',
@@ -320,8 +320,8 @@ isChannelPowerless(
   options?: {space: ColorSpaceHWB}
 ): boolean;
 isChannelPowerless(
-  channel: ChannelNameLAB,
-  options?: {space: ColorSpaceLAB}
+  channel: ChannelNameLab,
+  options?: {space: ColorSpaceLab}
 ): boolean;
 isChannelPowerless(
   channel: ChannelNameLCH,
@@ -543,7 +543,7 @@ as the result of changing some of [`internal`]'s components.
   })
   ```
 
-* If `space` equals `xyz`,  `xyz-d50`, or `xyz-d65`, let `changedColor` be the
+* If `space` equals `xyz`, `xyz-d50`, or `xyz-d65`, let `changedColor` be the
   result of:
 
   ```js
@@ -590,10 +590,10 @@ change(
 
 change(
   options: {
-    [key in ChannelNameLAB]?: number | null;
+    [key in ChannelNameLab]?: number | null;
   } & {
     alpha?: number | null;
-    space: ColorSpaceLAB;
+    space: ColorSpaceLab;
   }
 ): SassColor;
 
@@ -634,9 +634,9 @@ change(
 
 [Determining Construction Space]: #determining-construction-space
 
-#### LAB Channel Constructor
+#### Lab Channel Constructor
 
-Create a new SassColor in a color space with LAB channels -- `lab` and `oklab`.
+Create a new SassColor in a color space with Lab channels -- `lab` and `oklab`.
 
 * Let `lightness` be the result of [parsing a channel value] with value
   `options.lightness`.
@@ -664,7 +664,7 @@ constructor(options: {
   a: number | null;
   b: number | null;
   alpha?: number | null;
-  space: ColorSpaceLAB;
+  space: ColorSpaceLab;
 });
 ```
 
@@ -874,7 +874,10 @@ constructor(options: {
 ### Deprecations
 
 A number of SassColor getters only make sense for [legacy color space], and so
-are being deprecated for `channel`. This deprecation is called `color-4-api`.
+are being deprecated in favor of the new [`channel`] function. This deprecation
+is called `color-4-api`.
+
+[`channel`]: #channel
 
 * `red`
 * `green`

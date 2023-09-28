@@ -6,6 +6,9 @@
 
 * Remove `alpha` from list of deprecated getters.
 
+* Rename types: `ColorSpaceLAB` to `ColorSpaceLab`, `ChannelNameLAB` to
+  `ChannelNameLab`.
+
 ## Draft 1
 
 * Initial draft
