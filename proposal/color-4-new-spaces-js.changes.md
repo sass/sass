@@ -4,6 +4,8 @@
 
 * Throw an error if construction space can not be determined.
 
+* Remove `alpha` from list of deprecated getters.
+
 ## Draft 1
 
 * Initial draft

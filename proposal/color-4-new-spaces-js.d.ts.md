@@ -876,7 +876,6 @@ are being deprecated for `channel`. This deprecation is called `color-4-api`.
 * `lightness`
 * `whiteness`
 * `blackness`
-* `alpha`
 
 ## Procedures
 
