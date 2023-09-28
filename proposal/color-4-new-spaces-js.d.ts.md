@@ -157,7 +157,8 @@ get isLegacy(): boolean;
 
 #### `isInGamut`
 
-Returns the result of [`color.is-in-gamut(internal, space)`] as a JavaScript boolean.
+Returns the result of [`color.is-in-gamut(internal, space)`] as a JavaScript
+boolean.
 
 ```ts
 isInGamut(space?: KnownColorSpace): boolean;
@@ -303,7 +304,8 @@ get isAlphaMissing(): boolean;
 
 #### `isChannelPowerless`
 
-Returns the result of [`color.is-powerless(internal, channel, space)`] as a JavaScript boolean.
+Returns the result of [`color.is-powerless(internal, channel, space)`] as a
+JavaScript boolean.
 
 [`color.is-powerless(internal, channel, space)`]: ./color-4-new-spaces.md#coloris-powerless-1
 
@@ -340,12 +342,13 @@ isChannelPowerless(
 * Let `space` be the value of [`this.space()`].
 
 * If `options.method` is set, let `interpolationMethod` be a space separated
-  list containing the value of `space`, a space, and the value of `options.method`.
+  list containing the value of `space`, a space, and the value of
+  `options.method`.
 
-* Otherwise, if `space` is a rectangular color space, let `interpolationMethod` be
-    `space`.
+* Otherwise, if `space` is a rectangular color space, let `interpolationMethod`
+  be `space`.
 
-* Otherwise, let `interpolationMethod` be a space separated list containing th
+* Otherwise, let `interpolationMethod` be a space separated list containing the
   value of `space`, a space, and the string "shorter".
 
 * Return the result of [`color.mix(internal, options.color2, options.weight, interpolationMethod)`][`color.mix()`].
@@ -384,8 +387,8 @@ as the result of changing some of [`internal`]'s components.
 * Let `spaceSetExplicitly` be `true` if `options.space` is defined, and `false`
   otherwise.
 
-* Let `space` be `options.space` if `spaceSetExplicitly` is true, and the value of
-  `initialSpace` otherwise.
+* Let `space` be `options.space` if `spaceSetExplicitly` is true, and the value
+  of `initialSpace` otherwise.
 
 * If `initialSpace` is a [legacy color space] and `spaceSetExplicitly` is false:
 
@@ -410,8 +413,8 @@ as the result of changing some of [`internal`]'s components.
 * Let `color` be the result of [`this.toSpace(space)`].
 
 * Let `changedValue` be a function that takes a string argument for `channel`
-  and calls the procedure [`Changing a Component Value`] with `changes` and `this`
-  as `initial`.
+  and calls the procedure [`Changing a Component Value`] with `changes` and
+  `this` as `initial`.
 
 * If `space` equals `hsl` and `spaceSetExplicitly` is `false`:
 
@@ -473,7 +476,7 @@ as the result of changing some of [`internal`]'s components.
   })
   ```
 
-* If space equals `rgb` and `spaceSetExplicitly` is `false`:
+* If `space` equals `rgb` and `spaceSetExplicitly` is `false`:
 
   * If any of `options.red`, `options.green`, `options.blue` or `options.alpha`
     equals null, emit a deprecation warning named `null-alpha`.
@@ -503,7 +506,7 @@ as the result of changing some of [`internal`]'s components.
   })
   ```
 
-* If space equals `lab` or `oklab`, let `changedColor` be the result of:
+* If `space` equals `lab` or `oklab`, let `changedColor` be the result of:
 
   ```js
   SassColor({
@@ -515,7 +518,7 @@ as the result of changing some of [`internal`]'s components.
   })
   ```
 
-* If space equals `lch` or `oklch`, let `changedColor` be the result of:
+* If `space` equals `lch` or `oklch`, let `changedColor` be the result of:
 
   ```js
   SassColor({
@@ -541,7 +544,7 @@ as the result of changing some of [`internal`]'s components.
   ```
 
 * If `space` equals `xyz`,  `xyz-d50`, or `xyz-d65`, let `changedColor` be the
-    result of:
+  result of:
 
   ```js
   SassColor({
@@ -643,7 +646,7 @@ Create a new SassColor in a color space with LAB channels -- `lab` and `oklab`.
 * Let `b` be the result of [parsing a channel value] with value `options.b`.
 
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-    the result of [parsing a channel value] with value `options.alpha`.
+  the result of [parsing a channel value] with value `options.alpha`.
 
 * If `options.space` equals `lab`, set [`internal`] to the result of
   [`lab(lightness a b / alpha)`].
@@ -677,7 +680,7 @@ Create a new SassColor in a color space with LCH channels -- `lch` and `oklch`.
 * Let `h` be the result of [parsing a channel value] with value `options.h`.
 
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-    the result of [parsing a channel value] with value `options.alpha`.
+  the result of [parsing a channel value] with value `options.alpha`.
 
 * If `options.space` equals `lch`, set [`internal`] to the result of
   [`lch(lightness a b / alpha)`].
@@ -702,7 +705,7 @@ constructor(options: {
 
 Create a new SassColor in a color space with RGB channels -- `srgb`,
 `srgb-linear`, `display-p3`, `a98-rgb`, and `prophoto-rgb`. `rgb` is supported
-through the modifed [RGB Constructor].
+through the modified [RGB Constructor].
 
 * Let `red` be the result of [parsing a channel value] with value `options.red`.
 
@@ -713,7 +716,7 @@ through the modifed [RGB Constructor].
   `options.blue`.
 
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-    the result of [parsing a channel value] with value `options.alpha`.
+  the result of [parsing a channel value] with value `options.alpha`.
 
 * Let `space` be the unquoted string value of `options.space`.
 
@@ -744,7 +747,7 @@ and `xyz-d65`.
 * Let `z` be the result of [parsing a channel value] with value `options.z`.
 
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-    the result of [parsing a channel value] with value `options.alpha`.
+  the result of [parsing a channel value] with value `options.alpha`.
 
 * Let `space` be the unquoted string value of `options.space`.
 
@@ -777,12 +780,14 @@ Create a new SassColor in the `hsl` color space.
 
 * Let `hue` be the result of [parsing a channel value] with value `options.hue`.
 
-* Let `saturation` be the result of [parsing a channel value] with value `options.saturation`.
+* Let `saturation` be the result of [parsing a channel value] with value
+  `options.saturation`.
 
-* Let `lightness` be the result of [parsing a channel value] with value `options.lightness`.
+* Let `lightness` be the result of [parsing a channel value] with value
+  `options.lightness`.
 
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-    the result of [parsing a channel value] with value `options.alpha`.
+  the result of [parsing a channel value] with value `options.alpha`.
 
 * Set [`internal`] to the result of [`hsl(hue saturation lightness / alpha)`].
 
@@ -807,12 +812,14 @@ Create a new SassColor in the `hwb` color space.
 
 * Let `hue` be the result of [parsing a channel value] with value `options.hue`.
 
-* Let `whiteness` be the result of [parsing a channel value] with value `options.whiteness`.
+* Let `whiteness` be the result of [parsing a channel value] with value
+  `options.whiteness`.
 
-* Let `blackness` be the result of [parsing a channel value] with value `options.blackness`.
+* Let `blackness` be the result of [parsing a channel value] with value
+  `options.blackness`.
 
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-    the result of [parsing a channel value] with value `options.alpha`.
+  the result of [parsing a channel value] with value `options.alpha`.
 
 * Set [`internal`] to the result of [`hwb(hue whiteness blackness / alpha)`].
 
@@ -838,13 +845,13 @@ Create a new SassColor in the `rgb` color space.
 * Let `red` be the result of [parsing a channel value] with value `options.red`.
 
 * Let `green` be the result of [parsing a channel value] with value
-    `options.green`.
+  `options.green`.
 
 * Let `blue` be the result of [parsing a channel value] with value
-    `options.blue`.
+  `options.blue`.
 
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-      the result of [parsing a channel value] with value `options.alpha`.
+  the result of [parsing a channel value] with value `options.alpha`.
 
 * Return the result of [`rgb(red green blue / alpha)`].
 
