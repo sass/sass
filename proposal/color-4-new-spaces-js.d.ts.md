@@ -799,7 +799,7 @@ constructor(options: {
   saturation: number | null;
   lightness: number | null;
   alpha?: number | null;
-  space?: 'hsl';
+  space?: ColorSpaceHSL;
 });
 ```
 
@@ -831,7 +831,7 @@ constructor(options: {
   whiteness: number | null;
   blackness: number | null;
   alpha?: number | null;
-  space?: 'hwb';
+  space?: ColorSpaceHWB;
 });
 ```
 
