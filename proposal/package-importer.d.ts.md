@@ -256,6 +256,11 @@ Javascript Compile API, insert:
 * If any object in `options.importers` is exactly equal to the object
   `nodePackageImporter`:
 
+  * If no filesystem is available, throw an error.
+
+    > This primarily refers to a browser environment, but applies to other
+    > sandboxed JavaScript environments as well.
+
   * Let `pkgImporter` be a [Node Package Importer] with an associated
     `entryPointURL` of `require.main.filename`.
 
@@ -269,8 +274,12 @@ Javascript Compile API, insert:
 ### Legacy API `pkgImporter`
 
 If set, the compiler will use the specified built-in package importer to resolve
-any URL with the `pkg:` scheme. Currently, the only available package importer
-is `node`, which follows Node resolution logic to locate Sass files.
+any URL with the `pkg:` scheme. This step will be inserted immediately before
+the existing legacy importer logic, and if the package importer returns `null`,
+the legacy importer logic will be invoked.
+
+Currently, the only available package importer is `node`, which follows Node
+resolution logic to locate Sass files.
 
 Defaults to undefined.
 
@@ -306,11 +315,7 @@ Package Importers must reject the following patterns:
 * A URL whose path begins with `/`.
 * A URL with non-empty/null username, password, host, port, query, or fragment.
 
-Package Importers must be added to the [global importer list] immediately after any
-user-provided importers.
-
 [importer]: ../spec/modules.md#importer
-[global importer list]: ../spec/modules.md#global-importer-list
 
 ### Node Package Importer
 
