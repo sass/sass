@@ -215,7 +215,7 @@ accepted.
   See [CSS Imports][css-imports deprecation] for a good example of a Deprecation
   Process section.
 
-  [css-imports deprecation]: https://github.com/sass/dart-sass#compatibility-policy
+  [css-imports deprecation]: accepted/css-imports.md#deprecation-process
 
 ### JavaScript API Proposals
 
