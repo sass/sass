@@ -258,8 +258,8 @@ Javascript Compile API, insert:
 
   * If no filesystem is available, throw an error.
 
-  > This primarily refers to a browser environment, but applies to other
-  > sandboxed JavaScript environments as well.
+    > This primarily refers to a browser environment, but applies to other
+    > sandboxed JavaScript environments as well.
 
   * Let `pkgImporter` be a [Node Package Importer] with an associated
     `entryPointURL` of `require.main.filename`.
