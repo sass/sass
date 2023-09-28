@@ -107,7 +107,7 @@ export type KnownColorSpace =
 
 export type PolarColorSpace = ColorSpaceHSL | ColorSpaceHWB | ColorSpaceLCH;
 
-export type RectangularColorSpace = Omit<KnownColorSpace, PolarColorSpace>;
+export type RectangularColorSpace = Exclude<KnownColorSpace, PolarColorSpace>;
 
 export type HueInterpolationMethod =
   | 'decreasing'
@@ -731,7 +731,7 @@ constructor(options: {
   green: number | null;
   blue: number | null;
   alpha?: number | null;
-  space: Omit<ColorSpaceRGB, 'rgb'>;
+  space: Exclude<ColorSpaceRGB, 'rgb'>;
 });
 ```
 

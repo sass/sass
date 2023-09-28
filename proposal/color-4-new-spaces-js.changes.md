@@ -9,6 +9,8 @@
 * Rename types: `ColorSpaceLAB` to `ColorSpaceLab`, `ChannelNameLAB` to
   `ChannelNameLab`.
 
+* Use `Exclude<>` instead of `Omit<>` for union types.
+
 ## Draft 1
 
 * Initial draft
