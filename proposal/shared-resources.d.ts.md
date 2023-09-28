@@ -3,8 +3,9 @@
 *([Issue](https://github.com/sass/sass/issues/3296))*
 
 This proposal adds an API design for sharing resources across multiple
-invocations of the Sass compiler’s JavaScript API. This will provide Sass’s users with a
-more efficient way of running Sass compilations across multiple files.
+invocations of the Sass compiler's JavaScript API. This will provide Sass's
+users with a more efficient way of running Sass compilations across multiple
+files.
 
 ## Table of Contents
 
@@ -22,7 +23,7 @@ more efficient way of running Sass compilations across multiple files.
 Currently, the JavaScript API for Sass only accommodates a single compilation
 per process. In practice, we have observed build tools are compiling multiple
 times in response to a single user action. For instance, Vue.js authors using
-Vite will see a Sass compilation for each `<style lang="sass">` tag that appears
+Vite will see a Sass compilation for each `<style lang="scss">` tag that appears
 in their codebase.
 
 While processes can be spun up and down quickly, the combined time can add up to
@@ -39,11 +40,11 @@ JavaScript API unrelated to compilation. The Compiler interface will be nearly
 identical to the top level Sass interface. This allows users to replace
 instances of the imported `sass` class with an instance of the compiler.
 
-In environments without access to a long-running compiler, for instance, the
-Dart Sass implementation, the Compiler interface will continue to perform a
+In environments without access to a long-running compiler -- for instance, the
+Dart Sass implementation -- the Compiler interface will continue to perform a
 single compilation per process.
 
-Notable differences are that the compiler interface will have additional methods
+Notable differences are that the Compiler interface will have additional methods
 to manage the process lifecycle, and will not contain the legacy API.
 
 #### No shared state
@@ -70,7 +71,7 @@ long-running compiler process.
   * If an internal reference of `runningProcess` exists, throw an error.
 
   * Start the process.
-  
+
   * Store an internal reference to the process as `runningProcess`.
 
 * Return an instance of the Sass JS API.
