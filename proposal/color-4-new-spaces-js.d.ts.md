@@ -1,6 +1,7 @@
-# CSS Color Level 4, New Color Spaces JavaScript API
+# CSS Color Level 4, New Color Spaces JavaScript API: Draft 1.1
 
-*([Issue](https://github.com/sass/sass/issues/2831))*
+*([Issue](https://github.com/sass/sass/issues/2831),
+[Changelog](color-4-new-spaces-js.changes.md))*
 
 This proposal updates Sass's JavaScript (JS) API to match the [color spaces
 proposal].
