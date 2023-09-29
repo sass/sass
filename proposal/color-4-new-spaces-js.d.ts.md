@@ -400,8 +400,6 @@ as the result of changing some of [`internal`]'s components.
   * Otherwise, if `options.red`, `options.green`, or `options.blue` is set, let
     `space` be `rgb`.
 
-  * Otherwise, let `space` be `initialSpace`.
-
   * If `initialSpace` is not equal to `space`, emit a deprecation warning named
     `color-4-api`.
 
