@@ -21,6 +21,8 @@
 
 * Fix channel names for `change` with `oklch` and `lch`.
 
+* Throw an error if changing a non-legacy color without specifying a space.
+
 ## Draft 1
 
 * Initial draft
