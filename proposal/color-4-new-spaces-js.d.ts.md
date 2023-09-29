@@ -58,7 +58,6 @@ import {Value} from '../spec/js-api/value';
 ### Color Space Definitions
 
 ```ts
-
 export type ColorSpaceHSL = 'hsl';
 
 export type ChannelNameHSL = 'hue' | 'saturation' | 'lightness';
@@ -393,7 +392,7 @@ as the result of changing some of [`internal`]'s components.
 * If `initialSpace` is a [legacy color space] and `spaceSetExplicitly` is false:
 
   * If `options.whiteness` or `options.blackness` is set, let `space` be `hwb`.
-  
+
   * Otherwise, if `options.hue`, `options.saturation`, or `options.lightness` is
     set, let `space` be `hsl`.
 
@@ -409,12 +408,8 @@ as the result of changing some of [`internal`]'s components.
 
 * Let `components` be `"alpha"` and the names of the channels in `space`.
 
-* If any key in `keys` is not the name of a channel in `components`:
-
-  * If `initialSpace` is a [legacy color space] and `spaceSetExplicitly` is
-    false, emit a deprecation warning named `color-4-api`.
-
-  * Otherwise, throw an error.
+* If any key in `keys` is not the name of a channel in `components`, throw an
+  error.
 
 * Let `color` be the result of [`this.toSpace(space)`].
 
@@ -430,7 +425,7 @@ as the result of changing some of [`internal`]'s components.
   * Let `changedColor` be the result of:
 
     ```js
-    SassColor({
+    new SassColor({
       hue: options.hue ?? color.channel('hue'),
       saturation: options.saturation ?? color.channel('saturation'),
       lightness: options.lightness ?? color.channel('lightness'),
@@ -443,7 +438,7 @@ as the result of changing some of [`internal`]'s components.
   be the result of:
 
    ```js
-  SassColor({
+  new SassColor({
     hue: changedValue('hue'),
     saturation: changedValue('saturation'),
     lightness: changedValue('lightness'),
@@ -460,7 +455,7 @@ as the result of changing some of [`internal`]'s components.
   * Let `changedColor` be the result of:
 
     ```js
-    SassColor({
+    new SassColor({
       hue: options.hue ?? color.channel('hue'),
       whiteness: options.whiteness ?? color.channel('whiteness'),
       blackness: options.blackness ?? color.channel('blackness'),
@@ -473,7 +468,7 @@ as the result of changing some of [`internal`]'s components.
   be the result of:
 
    ```js
-  SassColor({
+  new SassColor({
     hue: changedValue('hue'),
     whiteness: changedValue('whiteness'),
     blackness: changedValue('blackness'),
@@ -490,7 +485,7 @@ as the result of changing some of [`internal`]'s components.
   * Let `changedColor` be the result of:
 
     ```js
-    SassColor({
+    new SassColor({
       red: options.red ?? color.channel('red'),
       green: options.green ?? color.channel('green'),
       blue: options.blue ?? color.channel('blue'),
@@ -503,7 +498,7 @@ as the result of changing some of [`internal`]'s components.
   be the result of:
 
    ```js
-  SassColor({
+  new SassColor({
     red: changedValue('red'),
     green: changedValue('green'),
     blue: changedValue('blue'),
@@ -515,7 +510,7 @@ as the result of changing some of [`internal`]'s components.
 * If `space` equals `lab` or `oklab`, let `changedColor` be the result of:
 
   ```js
-  SassColor({
+  new SassColor({
     lightness: changedValue('lightness'),
     a: changedValue('a'),
     b: changedValue('b'),
@@ -527,7 +522,7 @@ as the result of changing some of [`internal`]'s components.
 * If `space` equals `lch` or `oklch`, let `changedColor` be the result of:
 
   ```js
-  SassColor({
+  new SassColor({
     lightness: changedValue('lightness'),
     chroma: changedValue('chroma'),
     hue: changedValue('hue'),
@@ -540,7 +535,7 @@ as the result of changing some of [`internal`]'s components.
   `srgb-linear`, let `changedColor` be the result of:
 
   ```js
-  SassColor({
+  new SassColor({
     red: changedValue('red'),
     green: changedValue('green'),
     blue: changedValue('blue'),
@@ -553,7 +548,7 @@ as the result of changing some of [`internal`]'s components.
   result of:
 
   ```js
-  SassColor({
+  new SassColor({
     y: changedValue('y'),
     x: changedValue('x'),
     z: changedValue('z'),
