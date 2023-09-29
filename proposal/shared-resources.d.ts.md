@@ -11,7 +11,8 @@ files.
 
 * [Summary](#summary)
   * [Design Decisions](#design-decisions)
-    * [Parity across JavaScript API interfaces](#parity-across-javascript-api-interfaces)
+    * [Parity across JavaScript API
+      interfaces](#parity-across-javascript-api-interfaces)
     * [No shared state](#no-shared-state)
 * [API](#api)
   * [Types](#types)
@@ -64,17 +65,15 @@ long-running compiler process.
 
 ### Types
 
+> These type definitions are currently incomplete. In the current draft state,
+> this only shows the new items, but it will need to be amended to define all
+> the exports available through the Compiler interface.
+
 #### Compiler
 
-* If an environment supports long-running processes:
+Returns the result of creating a new [Compiler interface].
 
-  * If an internal reference of `runningProcess` exists, throw an error.
-
-  * Start the process.
-
-  * Store an internal reference to the process as `runningProcess`.
-
-* Return an instance of the Sass JS API.
+[Compiler interface]: #compiler-interface
 
 ```ts
 export class Compiler {
@@ -82,19 +81,43 @@ export class Compiler {
 
 #### dispose()
 
-* If an environment supports long-running processes:
+* Resolves with the result of [Disposing a Compiler].
 
-  * If no internal reference of `runningProcess` exists, throw an error.
-
-  * Stop the process referred to by `runningProcess`.
-
-  * Remove the internal reference to `runningProcess`.
-
-* Replace all members of Compiler with getters or methods that throw an error.
-
-* Return `true`.
+[Disposing a Compiler]: #disposing-a-compiler
 
 ```ts
-  dispose(): Boolean;
+  dispose(): Promise<Boolean>;
 }
 ```
+
+## Semantics
+
+### Compiler interface
+
+A Compiler must:
+
+* Have a lifetime, which starts upon construction.
+
+* Include all items of the Sass interface, but must not include `render`,
+  `renderSync`, `FALSE`, `NULL`, `TRUE`, `types` or any export starting with
+  `Legacy`.
+
+* All methods must have identical semantics to the Sass interface.
+
+* Have a `dispose` method.
+
+> Implementations may choose to associate a long-running process with a
+> Compiler.
+
+### Disposing a Compiler
+
+When `dispose` is invoked on a Compiler:
+
+* Any related process must be shut down and cleaned up.
+
+* Any subsequent invokations of `compile`, `compileAsync`, `compileString`, or
+  `compileStringAsync` must throw an error.
+
+* Any subsequent usage of other exports on Compiler must continue to function.
+
+* Resolves a Promise with `true` when disposal is complete.
