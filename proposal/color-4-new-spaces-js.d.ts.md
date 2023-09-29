@@ -529,8 +529,8 @@ as the result of changing some of [`internal`]'s components.
   ```js
   SassColor({
     lightness: changedValue('lightness'),
-    c: changedValue('c'),
-    h: changedValue('h'),
+    chroma: changedValue('chroma'),
+    hue: changedValue('hue'),
     alpha: changedValue('alpha'),
     space: space
   })

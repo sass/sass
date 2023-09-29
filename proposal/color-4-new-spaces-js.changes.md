@@ -19,6 +19,8 @@
     emit a deprecation warning instead of throwing an error to prevent a
     breaking change.
 
+* Fix channel names for `change` with `oklch` and `lch`.
+
 ## Draft 1
 
 * Initial draft
