@@ -24,7 +24,7 @@ export type ColorSpaceLCH = 'lch' | 'oklch';
 /** The LCH / Oklch color space channel names. */
 export type ChannelNameLCH = 'lightness' | 'chroma' | 'hue';
 
-/** The RGB color space names. */
+/** Names of color spaces with RGB channels. */
 export type ColorSpaceRGB =
   | 'a98-rgb'
   | 'display-p3'
@@ -33,13 +33,13 @@ export type ColorSpaceRGB =
   | 'srgb'
   | 'srgb-linear';
 
-/** The RGB color space channel names. */
+/** RGB channel names. */
 export type ChannelNameRGB = 'red' | 'green' | 'blue';
 
-/** The XYZ color space name. */
+/** Names of color spaces with XYZ channels. */
 export type ColorSpaceXYZ = 'xyz' | 'xyz-d50' | 'xyz-d65';
 
-/** The XYZ color space channel names. */
+/** XYZ channel names. */
 export type ChannelNameXYZ = 'x' | 'y' | 'z';
 
 /** All supported color space names. */
@@ -99,8 +99,9 @@ export class SassColor extends Value {
    * [missing component]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
    * [breaking changes]: /documentation/breaking-changes/null-alpha
    *
-   * @throws `Error` if `alpha` isn't between `0` and `1`, or if `space` is
-   * missing and `red`, `green`, or `blue` aren't between `0` and `255`.
+   * @throws `Error` if `alpha` isn't between `0` and `1`.
+   * @throws `Error` if `space` is missing and `red`, `green`, or `blue` isn't
+   * between `0` and `255`.
    */
   constructor(options: {
     red: number | null;
@@ -125,8 +126,9 @@ export class SassColor extends Value {
    * [missing component]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
    * [breaking changes]: /documentation/breaking-changes/null-alpha
    *
-   * @throws `Error` if `alpha` isn't between `0` and `1`, or if `space` is
-   * missing and `saturation` or `lightness` aren't between `0` and `100`.
+   * @throws `Error` if `alpha` isn't between `0` and `1`.
+   * @throws `Error` if `space` is missing and `saturation` or `lightness` isn't
+   * between `0` and `100`.
    */
   constructor(options: {
     hue: number | null;
@@ -151,8 +153,9 @@ export class SassColor extends Value {
    * [missing component]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
    * [breaking changes]: /documentation/breaking-changes/null-alpha
    *
-   * @throws `Error` if `alpha` isn't between `0` and `1`, or if `space` is
-   * missing and `whiteness` or `blackness` aren't between `0` and `100`.
+   * @throws `Error` if `alpha` isn't between `0` and `1`.
+   * @throws `Error` if `space` is missing and `whiteness` or `blackness` isn't
+   * between `0` and `100`.
    */
   constructor(options: {
     hue: number | null;
@@ -302,8 +305,8 @@ export class SassColor extends Value {
    *
    * [missing channels]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
    *
-   * @throws `Error` if `channel` is not `alpha` or a valid channel in this
-   * color's space.
+   * @throws `Error` if `channel` is not `alpha` or a channel in this color's
+   * space.
    */
   channel(channel: ChannelName): number;
 
@@ -394,9 +397,12 @@ export class SassColor extends Value {
   /**
    * Changes one or more of this color's channels and returns the result.
    *
-   * @throws `Error` if this color is not a legacy color format (`rgb`, `hsl`,
-   * or `hwb`) and any passed key (other than `alpha`) is not the name of a
-   * channel in this color's space.
+   * @throws `Error` if this color is a legacy color space (`rgb`, `hsl`, or
+   * `hwb`) and any passed key is not the name of a channel in another legacy
+   * color space.
+   * @throws `Error` if this color is not a legacy color space and any passed
+   * key (other than `alpha`) is not the name of a channel in this color's
+   * space.
    */
   change(
     options: {
@@ -468,7 +474,7 @@ export class SassColor extends Value {
    * Changes one or more of this color's RGB channels and returns the result.
    *
    * @throws `Error` if any passed key (other than `alpha`) is not the name of a
-   * channel in the RGB color space.
+   * channel in an RGB color space.
    */
   change(
     options: {
@@ -483,7 +489,7 @@ export class SassColor extends Value {
    * Changes one or more of this color's XYZ channels and returns the result.
    *
    * @throws `Error` if any passed key (other than `alpha`) is not the name of a
-   * channel in the XYZ color space.
+   * channel in an XYZ color space.
    */
   change(
     options: {

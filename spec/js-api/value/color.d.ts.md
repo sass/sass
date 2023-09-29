@@ -7,6 +7,23 @@ import {Value} from './index';
 ## Table of Contents
 
 * [Types](#types)
+  * [`ColorSpaceHSL`](#colorspacehsl)
+  * [`ChannelNameHSL`](#channelnamehsl)
+  * [`ColorSpaceHWB`](#colorspacehwb)
+  * [`ChannelNameHWB`](#channelnamehwb)
+  * [`ColorSpaceLab`](#colorspacelab)
+  * [`ChannelNameLab`](#channelnamelab)
+  * [`ColorSpaceLCH`](#colorspacelch)
+  * [`ChannelNameLCH`](#channelnamelch)
+  * [`ColorSpaceRGB`](#colorspacergb)
+  * [`ChannelNameRGB`](#channelnamergb)
+  * [`ColorSpaceXYZ`](#colorspacexyz)
+  * [`ChannelNameXYZ`](#channelnamexyz)
+  * [`ChannelName`](#channelname)
+  * [`KnownColorSpace`](#knowncolorspace)
+  * [`PolarColorSpace`](#polarcolorspace)
+  * [`RectangularColorSpace`](#rectangularcolorspace)
+  * [`HueInterpolationMethod`](#hueinterpolationmethod)
   * [`SassColor`](#sasscolor)
     * [`internal`](#internal)
     * [Constructor](#constructor)
@@ -22,6 +39,165 @@ import {Value} from './index';
     * [`change`](#change)
 
 ## Types
+
+### `ColorSpaceHSL`
+
+The HSL color space name.
+
+```ts
+export type ColorSpaceHSL = 'hsl';
+```
+
+### `ChannelNameHSL`
+
+The HSL color space channel names.
+
+```ts
+export type ChannelNameHSL = 'hue' | 'saturation' | 'lightness';
+```
+
+### `ColorSpaceHWB`
+
+The HWB color space name.
+
+```ts
+export type ColorSpaceHWB = 'hwb';
+```
+
+### `ChannelNameHWB`
+
+The HWB color space channel names.
+
+```ts
+export type ChannelNameHWB = 'hue' | 'whiteness' | 'blackness';
+```
+
+### `ColorSpaceLab`
+
+The Lab and Oklab color space names.
+
+```ts
+export type ColorSpaceLab = 'lab' | 'oklab';
+```
+
+### `ChannelNameLab`
+
+The Lab and Oklab color space channel names.
+
+```ts
+export type ChannelNameLab = 'lightness' | 'a' | 'b';
+```
+
+### `ColorSpaceLCH`
+
+The LCH and Oklch color space names.
+
+```ts
+export type ColorSpaceLCH = 'lch' | 'oklch';
+```
+
+### `ChannelNameLCH`
+
+The LCH and Oklch color space channel names.
+
+```ts
+export type ChannelNameLCH = 'lightness' | 'chroma' | 'hue';
+```
+
+### `ColorSpaceRGB`
+
+Names of color spaces with RGB channels.
+
+```ts
+export type ColorSpaceRGB =
+  | 'a98-rgb'
+  | 'display-p3'
+  | 'prophoto-rgb'
+  | 'rgb'
+  | 'srgb'
+  | 'srgb-linear';
+```
+
+### `ChannelNameRGB`
+
+RGB channel names.
+
+```ts
+export type ChannelNameRGB = 'red' | 'green' | 'blue';
+```
+
+### `ColorSpaceXYZ`
+
+Names of color spaces with XYZ channels.
+
+```ts
+export type ColorSpaceXYZ = 'xyz' | 'xyz-d50' | 'xyz-d65';
+```
+
+### `ChannelNameXYZ`
+
+XYZ channel names.
+
+```ts
+export type ChannelNameXYZ = 'x' | 'y' | 'z';
+```
+
+### `ChannelName`
+
+All supported color space names.
+
+```ts
+export type ChannelName =
+  | ChannelNameHSL
+  | ChannelNameHWB
+  | ChannelNameLab
+  | ChannelNameLCH
+  | ChannelNameRGB
+  | ChannelNameXYZ;
+```
+
+### `KnownColorSpace`
+
+All supported color space channel names.
+
+```ts
+export type KnownColorSpace =
+  | ColorSpaceHSL
+  | ColorSpaceHWB
+  | ColorSpaceLab
+  | ColorSpaceLCH
+  | ColorSpaceRGB
+  | ColorSpaceXYZ;
+```
+
+### `PolarColorSpace`
+
+Names of known color spaces which use a polar angle value for the `hue` channel.
+
+```ts
+export type PolarColorSpace = ColorSpaceHSL | ColorSpaceHWB | ColorSpaceLCH;
+```
+
+### `RectangularColorSpace`
+
+Names of known color spaces which do not use a polar angle value for the `hue`
+channel.
+
+```ts
+export type RectangularColorSpace = Exclude<KnownColorSpace, PolarColorSpace>;
+```
+
+### `HueInterpolationMethod`
+
+Methods by which two hues are adjusted when interpolating between colors.
+
+```ts
+export type HueInterpolationMethod =
+  | 'decreasing'
+  | 'increasing'
+  | 'longer'
+  | 'shorter';
+```
 
 ### `SassColor`
 

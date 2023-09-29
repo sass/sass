@@ -58,7 +58,6 @@ import {Value} from '../spec/js-api/value';
 ### Color Space Definitions
 
 ```ts
-
 export type ColorSpaceHSL = 'hsl';
 
 export type ChannelNameHSL = 'hue' | 'saturation' | 'lightness';
@@ -393,7 +392,7 @@ as the result of changing some of [`internal`]'s components.
 * If `initialSpace` is a [legacy color space] and `spaceSetExplicitly` is false:
 
   * If `options.whiteness` or `options.blackness` is set, let `space` be `hwb`.
-  
+
   * Otherwise, if `options.hue`, `options.saturation`, or `options.lightness` is
     set, let `space` be `hsl`.
 
