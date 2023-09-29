@@ -11,13 +11,15 @@ files.
 
 * [Summary](#summary)
   * [Design Decisions](#design-decisions)
-    * [Parity across JavaScript API
-      interfaces](#parity-across-javascript-api-interfaces)
+    * [Parity across JavaScript API interfaces](#parity-across-javascript-api-interfaces)
     * [No shared state](#no-shared-state)
 * [API](#api)
   * [Types](#types)
     * [Compiler](#compiler)
     * [dispose()](#dispose)
+* [Semantics](#semantics)
+  * [Compiler interface](#compiler-interface)
+  * [Disposing a Compiler](#disposing-a-compiler)
 
 ## Summary
 
