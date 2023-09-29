@@ -390,6 +390,9 @@ as the result of changing some of [`internal`]'s components.
 * Let `space` be `options.space` if `spaceSetExplicitly` is true, and the value
   of `initialSpace` otherwise.
 
+* If `initialSpace` is not a [legacy color space] and `spaceSetExplicitly` is
+  false, throw an error.
+
 * If `initialSpace` is a [legacy color space] and `spaceSetExplicitly` is false:
 
   * If `options.whiteness` or `options.blackness` is set, let `space` be `hwb`.
@@ -529,8 +532,8 @@ as the result of changing some of [`internal`]'s components.
   ```js
   SassColor({
     lightness: changedValue('lightness'),
-    c: changedValue('c'),
-    h: changedValue('h'),
+    chroma: changedValue('chroma'),
+    hue: changedValue('hue'),
     alpha: changedValue('alpha'),
     space: space
   })
