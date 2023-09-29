@@ -392,11 +392,15 @@ as the result of changing some of [`internal`]'s components.
 
 * If `initialSpace` is a [legacy color space] and `spaceSetExplicitly` is false:
 
-  * If `options.red` is set, let `space` be `rgb`.
+  * If `options.whiteness` or `options.blackness` is set, let `space` be `hwb`.
+  
+  * Otherwise, if `options.hue`, `options.saturation`, or `options.lightness` is
+    set, let `space` be `hsl`.
 
-  * Otherwise, if `options.saturation` is set, let `space` be `hsl`.
+  * Otherwise, if `options.red`, `options.green`, or `options.blue` is set, let
+    `space` be `rgb`.
 
-  * Otherwise, if `options.whiteness` is set, let `space` be `hwb`.
+  * Otherwise, let `space` be `initialSpace`.
 
   * If `initialSpace` is not equal to `space`, emit a deprecation warning named
     `color-4-api`.
@@ -407,8 +411,12 @@ as the result of changing some of [`internal`]'s components.
 
 * Let `components` be `"alpha"` and the names of the channels in `space`.
 
-* If any key in `keys` is not the name of a channel in `components`, throw an
-  error.
+* If any key in `keys` is not the name of a channel in `components`:
+
+  * If `initialSpace` is a [legacy color space] and `spaceSetExplicitly` is
+    false, emit a deprecation warning named `color-4-api`.
+
+  * Otherwise, throw an error.
 
 * Let `color` be the result of [`this.toSpace(space)`].
 

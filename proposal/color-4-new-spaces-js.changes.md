@@ -11,6 +11,14 @@
 
 * Use `Exclude<>` instead of `Omit<>` for union types.
 
+* Update `change` for legacy colors:
+
+  * Make procedure for determining space backwards compatible
+  
+  * If channels from multiple spaces are specified and no space is specified,
+    emit a deprecation warning instead of throwing an error to prevent a
+    breaking change.
+
 ## Draft 1
 
 * Initial draft
