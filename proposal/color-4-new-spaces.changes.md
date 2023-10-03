@@ -1,3 +1,23 @@
+## Draft 1.11
+
+* Add support for the relative color syntax in the algorithm parsing color
+  arguments, for CSS compatibility.
+
+## Draft 1.10
+
+* Properly scale `%` return values for `color.channel()`.
+
+* Clean up some language related to percent-conversion.
+
+## Draft 1.9
+
+* Explicitly define associated units for color space channels.
+
+## Draft 1.8
+
+* Require a quoted string for `color.is-missing()` for consistency with other
+  color functions and ease of use with channels whose names overlap with colors.
+
 ## Draft 1.7
 
 * Resolve missing `alpha` channels *after* premultiplying colors.

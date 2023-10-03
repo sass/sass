@@ -272,6 +272,10 @@ plain CSS function named `"rgb"` that function is named `"rgba"` instead.
 
     * If `rgb` is not an unbracketed space-separated list, throw an error.
 
+    * If the first element of `rgb` is an unquoted string which is
+      case-insensitively equal to `from`, return a plain CSS function string
+      with the name `"rgb"` and the argument `$channels`.
+
     * If `rgb` has more than three elements, throw an error.
 
     * If `rgb` has fewer than three elements:
@@ -288,6 +292,10 @@ plain CSS function named `"rgb"` that function is named `"rgba"` instead.
       return the result.
 
   * If `$channels` is not an unbracketed space-separated list, throw an error.
+
+  * If the first element of `$channels` is an unquoted string which is
+    case-insensitively equal to `from`, return a plain CSS function string
+    with the name `"rgb"` and the argument `$channels`.
 
   * If `$channels` has more than three elements, throw an error.
 
@@ -398,6 +406,10 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
 
     * If `hsl` is not an unbracketed space-separated list, throw an error.
 
+    * If the first element of `hsl` is an unquoted string which is
+      case-insensitively equal to `from`, return a plain CSS function string
+      with the name `"hsl"` and the argument `$channels`.
+
     * If `hsl` has more than three elements, throw an error.
 
     * If `hsl` has fewer than three elements:
@@ -414,6 +426,10 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
       arguments and return the result.
 
   * If `$channels` is not an unbracketed space-separated list, throw an error.
+
+  * If the first element of `$channels` is an unquoted string which is
+    case-insensitively equal to `from`, return a plain CSS function string
+    with the name `"hsl"` and the argument `$channels`.
 
   * If `$channels` has more than three elements, throw an error.
 

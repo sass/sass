@@ -16,6 +16,7 @@ process][], very small features can follow the [fast-track process][] instead.
     * [Embedded Protocol](#embedded-protocol)
 * [Fast Track](#fast-track)
 * [Emergency Track](#emergency-track)
+* [Large Language Models](#large-language-models)
 
 ## Process
 
@@ -214,7 +215,7 @@ accepted.
   See [CSS Imports][css-imports deprecation] for a good example of a Deprecation
   Process section.
 
-  [css-imports deprecation]: https://github.com/sass/dart-sass#compatibility-policy
+  [css-imports deprecation]: accepted/css-imports.md#deprecation-process
 
 ### JavaScript API Proposals
 
@@ -371,3 +372,14 @@ as follows:
 2. These pull requests may be merged as soon as they're approved. If the issue
    appears outside of work hours, it may be merged without review, but a *post
    facto* review should be done as soon as possible.
+
+## Large Language Models
+
+Do not submit any code or prose written or modified by large language models or
+"artificial intelligence" such as GitHub Copilot or ChatGPT to this project.
+These tools produce code that looks plausible, which means that not only is it
+likely to contain bugs those bugs are likely to be difficult to notice on
+review. In addition, because these models were trained indiscriminately and
+non-consensually on open-source code with a variety of licenses, it's not
+obvious that we have the moral or legal right to redistribute code they
+generate.
