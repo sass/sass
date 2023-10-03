@@ -117,7 +117,7 @@ wider RGB gamuts.
 
 * A *color model* is a mathematical approach to representing colors and their
   relationships. Historically, RGB has been the dominant color model for both
-  computer monitors and web browsers. Lately, CIELab and OKLab models have
+  computer monitors and web browsers. Lately, CIELab and Oklab models have
   shown significant benefits by providing a more *perceptually uniform*
   distribution of colors, so that similar mathematical adjustments achieve
   visually similar results.
@@ -128,7 +128,7 @@ wider RGB gamuts.
   project the RGB color model into cubic coordinate systems, while `hsl()`
   projects the same color model into a cylindrical (polar-angle) space.
   Similarly, `oklab()` and `oklch()` provide different coordinate projections
-  of the OKLab model.
+  of the Oklab model.
 
 * A *color gamut* is the full range of colors that can be described in a color
   space. Historically, all CSS syntaxes have been limited to the sRGB gamut.
@@ -235,8 +235,8 @@ such, `oklch` is often the best space for consistent transforms.
 #### `lab()` and `lch()`
 
 The `lab()` and `lch()` functions provide access to an unbounded gamut of colors
-in a space that's less perpetually-uniform but more widely-adopted than OKLab
-and OKLCH.
+in a space that's less perpetually-uniform but more widely-adopted than Oklab
+and Oklch.
 
 #### `hwb()`
 
@@ -902,15 +902,15 @@ The individual conversion algorithms are:
 
 * [sRGB to HWB](https://www.w3.org/TR/css-color-4/#rgb-to-hwb)
 
-* [Lab to LCH, OKLab to OKLCH](https://www.w3.org/TR/css-color-4/#lab-to-lch)
+* [Lab to LCH, Oklab to Oklch](https://www.w3.org/TR/css-color-4/#lab-to-lch)
 
-* [LCH to Lab, OKLCH to OKLab](https://www.w3.org/TR/css-color-4/#lch-to-lab)
+* [LCH to Lab, Oklch to Oklab](https://www.w3.org/TR/css-color-4/#lch-to-lab)
 
 * [Between predefined RGB spaces](https://www.w3.org/TR/css-color-4/#predefined-to-predefined)
 
-* [Any RGB to Lab/OKLab](https://www.w3.org/TR/css-color-4/#predefined-to-lab-oklab)
+* [Any RGB to Lab/Oklab](https://www.w3.org/TR/css-color-4/#predefined-to-lab-oklab)
 
-* [Lab/OKLab to any RGB](https://www.w3.org/TR/css-color-4/#oklab-lab-to-predefined)
+* [Lab/Oklab to any RGB](https://www.w3.org/TR/css-color-4/#oklab-lab-to-predefined)
 
 > For additional details, see the [Sample code for color conversions][convert].
 
@@ -962,42 +962,42 @@ three values: a color space, a list of channel values, and an alpha value.
 The procedure is:
 
 * If `input` is a [special variable string], return an unquoted string with
-    the value of `input`.
+  the value of `input`.
 
 * If `input` is a bracketed list, or a list with a separator other than
-    'slash' or 'space', throw an error.
+  'slash' or 'space', throw an error.
 
 * If `input` is a slash-separated list:
 
   * If `input` doesn't have exactly two elements, throw an error.
 
   * Otherwise, let `components` be the first element and `alpha` the second
-      element of `input`.
+    element of `input`.
 
 * Otherwise:
 
   * Let `components` be an unbracketed space separated list of all except the
-      last element of `input`.
+    last element of `input`.
 
   * If the last element of `input` is an unquoted string that contains `/`:
 
     * Let `split-last` be the result calling `string.split()` with the last
-        element of `input` as the string to split, and `/` as the separator.
+      element of `input` as the string to split, and `/` as the separator.
 
     * If `split-last` has two items, and one or both items are an unquoted
-        string that's case-insensitively equal to 'none':
+      string that's case-insensitively equal to 'none':
 
-        > Special handling for `none/none`, `none/<number>`, and `<number>/none`.
+      > Special handling for `none/none`, `none/<number>`, and `<number>/none`.
 
       * If either item in `split-last` can be coerced to a number, replace
-          the current value of the item with the resulting number value.
+        the current value of the item with the resulting number value.
 
       * If any item in `split-last` is not a number or an unquoted string
-          that's case-insensitively equal to 'none', return an unquoted string
-          with the value of `input`.
+        that's case-insensitively equal to 'none', return an unquoted string
+        with the value of `input`.
 
       * Otherwise, let `alpha` be the second element in `split-last`, and
-          append the first element of `split-last` to `components`.
+        append the first element of `split-last` to `components`.
 
     * Otherwise, return an unquoted string with the value of `input`.
 
@@ -1006,10 +1006,10 @@ The procedure is:
       > or when either value is `none`.
 
   * Otherwise, if the last element of `input` has preserved its status as two
-      slash-separated numbers:
+    slash-separated numbers:
 
     * Let `alpha` be the number after the slash, and append the number before
-        the slash to `components`.
+      the slash to `components`.
 
   * Otherwise, append the last element of `input` to `components`.
 
@@ -1032,46 +1032,46 @@ The procedure is:
     * Let `input-space` be the first element in `components`.
 
     * If `input-space` is a [special variable string], return an unquoted
-        string with the value of `input`.
+      string with the value of `input`.
 
     * Set `space` be the result of [looking up a known color space] with the
-        name `input-space`.
+      name `input-space`.
 
     * If `space` is not a [predefined color space], throw an error.
 
-        > Only predefined spaces can be passed in as color syntax components.
-        > All other known color spaces use explicit functions.
+      > Only predefined spaces can be passed in as color syntax components.
+      > All other known color spaces use explicit functions.
 
     * Let `channels` be an unbracketed space-separated list with the
-        remaining elements from `components`.
+      remaining elements from `components`.
 
   * Otherwise, let `channels` be the value of `components`.
 
   * Let `expected` be the number of channels in `space`.
 
   * If any element of `channels` is not either a number, a special variable
-      string, a [special number], or an unquoted string that's
-      case-insensitively equal to 'none', throw an error.
+    string, a [special number], or an unquoted string that's
+    case-insensitively equal to 'none', throw an error.
 
 * If `alpha` is null, let `alpha` be `1`.
 
 * Otherwise, If `alpha` is not a [special number]:
 
   * If `alpha` is a number, set `alpha` to the result of
-      [percent-converting] `alpha` with a max of 1, and then clamping the value
-      between 0 and 1, inclusive.
+    [percent-converting] `alpha` with a max of 1, and then clamping the value
+    between 0 and 1, inclusive.
 
   * Otherwise, throw an error.
 
 * If `channels` is a [special variable string], or if `alpha` is a [special
-    number], return an unquoted string with the value of `input`.
+  number], return an unquoted string with the value of `input`.
 
 * If any element of `channels` is a [special number]:
 
   * If `space` is a [legacy color] space:
 
     * Let `comma-list` be the result of calling
-        `list.append(channels, alpha, 'comma')`.
+      `list.append(channels, alpha, 'comma')`.
 
     * Return an unquoted string with the value of `comma-list`.
 
@@ -1288,7 +1288,7 @@ input colors.
 * If `space` is a [PolarColorSpace][color-method]:
 
   * Let `hue-arc` be the `HueInterpolationMethod` specified in `method`, or
-      `shorter` if no hue interpolation is specified.
+    `shorter` if no hue interpolation is specified.
 
 * Set `color1` and `color2` respectively to the results of [converting] `color1`
   and `color2` into `space`.
@@ -1702,10 +1702,10 @@ This function is also available as a global function named `change-color()`.
 * If the keyword argument `$space` is specified in `$args`:
 
   * Let `known-space` be the result [looking up a known color space] named
-      `$space`.
+    `$space`.
 
   * If `space != origin-space`, set `color` to the result of calling
-      `color.to-space(color, space)`.
+    `color.to-space(color, space)`.
 
 * Otherwise, let `known-space` be `origin-space`.
 
@@ -1714,7 +1714,7 @@ This function is also available as a global function named `change-color()`.
 * If the keyword argument `$alpha` is specified in `$args`:
 
   * Set `alpha` to the result of [percent-converting] `$alpha` with a `max` of
-      1, and clamping it between 0 and 1 (inclusive).
+    1, and clamping it between 0 and 1 (inclusive).
 
 * Let `channel-args` be the remaining keyword arguments in `$args`, not
   including `$space` or `$alpha` arguments.
@@ -1779,10 +1779,10 @@ This function is also available as a global function named `adjust-color()`.
 * If the keyword argument `$space` is specified in `$args`:
 
   * Let `known-space` be the result [looking up a known color space] named
-      `$space`.
+    `$space`.
 
   * If `space != origin-space`, set `color` to the result of calling
-      `color.to-space(color, space)`.
+    `color.to-space(color, space)`.
 
 * Otherwise, let `known-space` be `origin-space`.
 
@@ -1792,9 +1792,9 @@ This function is also available as a global function named `adjust-color()`.
 
   * If `alpha == none`, throw an error.
 
-      > This is not the ideal solution for handling `none`, but we want to
-      > match CSS relative color syntax if possible. Throwing an error for now
-      > means we can adjust to match the CSS behavior once it is defined.
+    > This is not the ideal solution for handling `none`, but we want to
+    > match CSS relative color syntax if possible. Throwing an error for now
+    > means we can adjust to match the CSS behavior once it is defined.
 
   * Let `new-alpha` be the result of [percent-converting] `$alpha` with a `max`
     of 1.
@@ -1880,7 +1880,7 @@ This function is also available as a global function named `scale-color()`.
 * If the keyword argument `$space` is specified in `$args`:
 
   * Let `space` be the result of [looking up a known color space] named
-      `$space`.
+    `$space`.
 
   * Let `color` be the result of [converting] `$color` to `space`.
 
@@ -1896,9 +1896,9 @@ This function is also available as a global function named `scale-color()`.
 
   * If `alpha == none`, throw an error.
 
-      > This is not the ideal solution for handling `none`, but we want to
-      > match CSS relative color syntax if possible. Throwing an error for now
-      > means we can adjust to match the CSS behavior once it is defined.
+    > This is not the ideal solution for handling `none`, but we want to
+    > match CSS relative color syntax if possible. Throwing an error for now
+    > means we can adjust to match the CSS behavior once it is defined.
 
   * Set `alpha` to the result of [scaling] `alpha` by `$alpha` with `max` 1.
 

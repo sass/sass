@@ -1,6 +1,7 @@
-# CSS Color Level 4, New Color Spaces JavaScript API
+# CSS Color Level 4, New Color Spaces JavaScript API: Draft 1.1
 
-*([Issue](https://github.com/sass/sass/issues/2831))*
+*([Issue](https://github.com/sass/sass/issues/2831),
+[Changelog](color-4-new-spaces-js.changes.md))*
 
 This proposal updates Sass's JavaScript (JS) API to match the [color spaces
 proposal].
@@ -29,7 +30,7 @@ proposal].
   * [Updated Color Functions](#updated-color-functions)
     * [`change`](#change)
   * [New Constructors](#new-constructors)
-    * [LAB Channel Constructor](#lab-channel-constructor)
+    * [Lab Channel Constructor](#lab-channel-constructor)
     * [LCH Channel Constructor](#lch-channel-constructor)
     * [Predefined RGB Channel Constructor](#predefined-rgb-channel-constructor)
     * [XYZ Channel Constructor](#xyz-channel-constructor)
@@ -57,7 +58,6 @@ import {Value} from '../spec/js-api/value';
 ### Color Space Definitions
 
 ```ts
-
 export type ColorSpaceHSL = 'hsl';
 
 export type ChannelNameHSL = 'hue' | 'saturation' | 'lightness';
@@ -66,9 +66,9 @@ export type ColorSpaceHWB = 'hwb';
 
 export type ChannelNameHWB = 'hue' | 'whiteness' | 'blackness';
 
-export type ColorSpaceLAB = 'lab' | 'oklab';
+export type ColorSpaceLab = 'lab' | 'oklab';
 
-export type ChannelNameLAB = 'lightness' | 'a' | 'b';
+export type ChannelNameLab = 'lightness' | 'a' | 'b';
 
 export type ColorSpaceLCH = 'lch' | 'oklch';
 
@@ -91,7 +91,7 @@ export type ChannelNameXYZ = 'x' | 'y' | 'z';
 export type ChannelName =
   | ChannelNameHSL
   | ChannelNameHWB
-  | ChannelNameLAB
+  | ChannelNameLab
   | ChannelNameLCH
   | ChannelNameRGB
   | ChannelNameXYZ;
@@ -99,14 +99,14 @@ export type ChannelName =
 export type KnownColorSpace =
   | ColorSpaceHSL
   | ColorSpaceHWB
-  | ColorSpaceLAB
+  | ColorSpaceLab
   | ColorSpaceLCH
   | ColorSpaceRGB
   | ColorSpaceXYZ;
 
 export type PolarColorSpace = ColorSpaceHSL | ColorSpaceHWB | ColorSpaceLCH;
 
-export type RectangularColorSpace = Omit<KnownColorSpace, PolarColorSpace>;
+export type RectangularColorSpace = Exclude<KnownColorSpace, PolarColorSpace>;
 
 export type HueInterpolationMethod =
   | 'decreasing'
@@ -156,7 +156,8 @@ get isLegacy(): boolean;
 
 #### `isInGamut`
 
-Returns the result of [`color.is-in-gamut(internal, space)`] as a JavaScript boolean.
+Returns the result of [`color.is-in-gamut(internal, space)`] as a JavaScript
+boolean.
 
 ```ts
 isInGamut(space?: KnownColorSpace): boolean;
@@ -172,7 +173,7 @@ Returns the result of [`color.to-gamut(internal, space)`].
 toGamut(space?: KnownColorSpace): SassColor;
 ```
 
-[`color.to-gamut(internal, space)`]:  ./color-4-new-spaces.md#colorto-gamut-1
+[`color.to-gamut(internal, space)`]: ./color-4-new-spaces.md#colorto-gamut-1
 
 #### `channelsOrNull`
 
@@ -187,7 +188,7 @@ Returns an array of channel values (excluding alpha) for [`internal`], with
 
 * For each `component` in `components`:
 
-  * Let `value` be the channel value in `color` with name of `component`.
+  * Let `value` be the channel value in [`internal`] with name of `component`.
 
   * If `value` is `none`, let `value` be `null`.
 
@@ -207,11 +208,13 @@ get channelsOrNull(): [number | null, number | null, number | null];
 This algorithm returns an array of channel values (excluding alpha) for
 [`internal`], with [missing channels][missing components] converted to `0`.
 
-* Let `channels` be the result of [`this.channelsOrNull`].
+* Let `channelsOrNull` be the result of [`this.channelsOrNull`].
 
-* For each `channel` in `channels`:
+* Let `channels` be an empty array.
 
-  * If `value` equals `null`, let `value` be 0.
+* For each `channel` in `channelsOrNull`:
+
+  * If `channel` equals `null`, let `value` be 0.
 
   * Append `value` to `channels`.
 
@@ -251,8 +254,8 @@ channel(
   options: {space: ColorSpaceHWB}
 ): number;
 channel(
-  channel: ChannelNameLAB | 'alpha',
-  options: {space: ColorSpaceLAB}
+  channel: ChannelNameLab | 'alpha',
+  options: {space: ColorSpaceLab}
 ): number;
 channel(
   channel: ChannelNameLCH | 'alpha',
@@ -300,7 +303,8 @@ get isAlphaMissing(): boolean;
 
 #### `isChannelPowerless`
 
-Returns the result of [`color.is-powerless(internal, channel, space)`] as a JavaScript boolean.
+Returns the result of [`color.is-powerless(internal, channel, space)`] as a
+JavaScript boolean.
 
 [`color.is-powerless(internal, channel, space)`]: ./color-4-new-spaces.md#coloris-powerless-1
 
@@ -315,8 +319,8 @@ isChannelPowerless(
   options?: {space: ColorSpaceHWB}
 ): boolean;
 isChannelPowerless(
-  channel: ChannelNameLAB,
-  options?: {space: ColorSpaceLAB}
+  channel: ChannelNameLab,
+  options?: {space: ColorSpaceLab}
 ): boolean;
 isChannelPowerless(
   channel: ChannelNameLCH,
@@ -337,12 +341,13 @@ isChannelPowerless(
 * Let `space` be the value of [`this.space()`].
 
 * If `options.method` is set, let `interpolationMethod` be a space separated
-  list containing the value of `space`, a space, and the value of `options.method`.
+  list containing the value of `space`, a space, and the value of
+  `options.method`.
 
-* Otherwise, if `space` is a rectangular color space, let `interpolationMethod` be
-    `space`.
+* Otherwise, if `space` is a rectangular color space, let `interpolationMethod`
+  be `space`.
 
-* Otherwise, let `interpolationMethod` be a space separated list containing th
+* Otherwise, let `interpolationMethod` be a space separated list containing the
   value of `space`, a space, and the string "shorter".
 
 * Return the result of [`color.mix(internal, options.color2, options.weight, interpolationMethod)`][`color.mix()`].
@@ -381,16 +386,18 @@ as the result of changing some of [`internal`]'s components.
 * Let `spaceSetExplicitly` be `true` if `options.space` is defined, and `false`
   otherwise.
 
-* Let `space` be `options.space` if `spaceSetExplicitly` is true, and the value of
-  `initialSpace` otherwise.
+* Let `space` be `options.space` if `spaceSetExplicitly` is true, and the value
+  of `initialSpace` otherwise.
 
 * If `initialSpace` is a [legacy color space] and `spaceSetExplicitly` is false:
 
-  * If `options.red` is set, let `space` be `rgb`.
+  * If `options.whiteness` or `options.blackness` is set, let `space` be `hwb`.
 
-  * Otherwise, if `options.saturation` is set, let `space` be `hsl`.
+  * Otherwise, if `options.hue`, `options.saturation`, or `options.lightness` is
+    set, let `space` be `hsl`.
 
-  * Otherwise, if `options.whiteness` is set, let `space` be `hwb`.
+  * Otherwise, if `options.red`, `options.green`, or `options.blue` is set, let
+    `space` be `rgb`.
 
   * If `initialSpace` is not equal to `space`, emit a deprecation warning named
     `color-4-api`.
@@ -407,8 +414,8 @@ as the result of changing some of [`internal`]'s components.
 * Let `color` be the result of [`this.toSpace(space)`].
 
 * Let `changedValue` be a function that takes a string argument for `channel`
-  and calls the procedure [`Changing a Component Value`] with `changes` and `this`
-  as `initial`.
+  and calls the procedure [`Changing a Component Value`] with `changes` and
+  `this` as `initial`.
 
 * If `space` equals `hsl` and `spaceSetExplicitly` is `false`:
 
@@ -418,7 +425,7 @@ as the result of changing some of [`internal`]'s components.
   * Let `changedColor` be the result of:
 
     ```js
-    SassColor({
+    new SassColor({
       hue: options.hue ?? color.channel('hue'),
       saturation: options.saturation ?? color.channel('saturation'),
       lightness: options.lightness ?? color.channel('lightness'),
@@ -431,7 +438,7 @@ as the result of changing some of [`internal`]'s components.
   be the result of:
 
    ```js
-  SassColor({
+  new SassColor({
     hue: changedValue('hue'),
     saturation: changedValue('saturation'),
     lightness: changedValue('lightness'),
@@ -448,7 +455,7 @@ as the result of changing some of [`internal`]'s components.
   * Let `changedColor` be the result of:
 
     ```js
-    SassColor({
+    new SassColor({
       hue: options.hue ?? color.channel('hue'),
       whiteness: options.whiteness ?? color.channel('whiteness'),
       blackness: options.blackness ?? color.channel('blackness'),
@@ -461,7 +468,7 @@ as the result of changing some of [`internal`]'s components.
   be the result of:
 
    ```js
-  SassColor({
+  new SassColor({
     hue: changedValue('hue'),
     whiteness: changedValue('whiteness'),
     blackness: changedValue('blackness'),
@@ -470,7 +477,7 @@ as the result of changing some of [`internal`]'s components.
   })
   ```
 
-* If space equals `rgb` and `spaceSetExplicitly` is `false`:
+* If `space` equals `rgb` and `spaceSetExplicitly` is `false`:
 
   * If any of `options.red`, `options.green`, `options.blue` or `options.alpha`
     equals null, emit a deprecation warning named `null-alpha`.
@@ -478,7 +485,7 @@ as the result of changing some of [`internal`]'s components.
   * Let `changedColor` be the result of:
 
     ```js
-    SassColor({
+    new SassColor({
       red: options.red ?? color.channel('red'),
       green: options.green ?? color.channel('green'),
       blue: options.blue ?? color.channel('blue'),
@@ -491,7 +498,7 @@ as the result of changing some of [`internal`]'s components.
   be the result of:
 
    ```js
-  SassColor({
+  new SassColor({
     red: changedValue('red'),
     green: changedValue('green'),
     blue: changedValue('blue'),
@@ -500,10 +507,10 @@ as the result of changing some of [`internal`]'s components.
   })
   ```
 
-* If space equals `lab` or `oklab`, let `changedColor` be the result of:
+* If `space` equals `lab` or `oklab`, let `changedColor` be the result of:
 
   ```js
-  SassColor({
+  new SassColor({
     lightness: changedValue('lightness'),
     a: changedValue('a'),
     b: changedValue('b'),
@@ -512,13 +519,13 @@ as the result of changing some of [`internal`]'s components.
   })
   ```
 
-* If space equals `lch` or `oklch`, let `changedColor` be the result of:
+* If `space` equals `lch` or `oklch`, let `changedColor` be the result of:
 
   ```js
-  SassColor({
+  new SassColor({
     lightness: changedValue('lightness'),
-    c: changedValue('c'),
-    h: changedValue('h'),
+    chroma: changedValue('chroma'),
+    hue: changedValue('hue'),
     alpha: changedValue('alpha'),
     space: space
   })
@@ -528,7 +535,7 @@ as the result of changing some of [`internal`]'s components.
   `srgb-linear`, let `changedColor` be the result of:
 
   ```js
-  SassColor({
+  new SassColor({
     red: changedValue('red'),
     green: changedValue('green'),
     blue: changedValue('blue'),
@@ -537,11 +544,11 @@ as the result of changing some of [`internal`]'s components.
   })
   ```
 
-* If `space` equals `xyz`,  `xyz-d50`, or `xyz-d65`, let `changedColor` be the
-    result of:
+* If `space` equals `xyz`, `xyz-d50`, or `xyz-d65`, let `changedColor` be the
+  result of:
 
   ```js
-  SassColor({
+  new SassColor({
     y: changedValue('y'),
     x: changedValue('x'),
     z: changedValue('z'),
@@ -584,10 +591,10 @@ change(
 
 change(
   options: {
-    [key in ChannelNameLAB]?: number | null;
+    [key in ChannelNameLab]?: number | null;
   } & {
     alpha?: number | null;
-    space: ColorSpaceLAB;
+    space: ColorSpaceLab;
   }
 ): SassColor;
 
@@ -628,9 +635,9 @@ change(
 
 [Determining Construction Space]: #determining-construction-space
 
-#### LAB Channel Constructor
+#### Lab Channel Constructor
 
-Create a new SassColor in a color space with LAB channels -- `lab` and `oklab`.
+Create a new SassColor in a color space with Lab channels -- `lab` and `oklab`.
 
 * Let `lightness` be the result of [parsing a channel value] with value
   `options.lightness`.
@@ -640,7 +647,7 @@ Create a new SassColor in a color space with LAB channels -- `lab` and `oklab`.
 * Let `b` be the result of [parsing a channel value] with value `options.b`.
 
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-    the result of [parsing a channel value] with value `options.alpha`.
+  the result of [parsing a channel value] with value `options.alpha`.
 
 * If `options.space` equals `lab`, set [`internal`] to the result of
   [`lab(lightness a b / alpha)`].
@@ -658,7 +665,7 @@ constructor(options: {
   a: number | null;
   b: number | null;
   alpha?: number | null;
-  space: ColorSpaceLAB;
+  space: ColorSpaceLab;
 });
 ```
 
@@ -674,7 +681,7 @@ Create a new SassColor in a color space with LCH channels -- `lch` and `oklch`.
 * Let `h` be the result of [parsing a channel value] with value `options.h`.
 
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-    the result of [parsing a channel value] with value `options.alpha`.
+  the result of [parsing a channel value] with value `options.alpha`.
 
 * If `options.space` equals `lch`, set [`internal`] to the result of
   [`lch(lightness a b / alpha)`].
@@ -699,7 +706,7 @@ constructor(options: {
 
 Create a new SassColor in a color space with RGB channels -- `srgb`,
 `srgb-linear`, `display-p3`, `a98-rgb`, and `prophoto-rgb`. `rgb` is supported
-through the modifed [RGB Constructor].
+through the modified [RGB Constructor].
 
 * Let `red` be the result of [parsing a channel value] with value `options.red`.
 
@@ -710,7 +717,7 @@ through the modifed [RGB Constructor].
   `options.blue`.
 
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-    the result of [parsing a channel value] with value `options.alpha`.
+  the result of [parsing a channel value] with value `options.alpha`.
 
 * Let `space` be the unquoted string value of `options.space`.
 
@@ -725,7 +732,7 @@ constructor(options: {
   green: number | null;
   blue: number | null;
   alpha?: number | null;
-  space: Omit<ColorSpaceRGB, 'rgb'>;
+  space: Exclude<ColorSpaceRGB, 'rgb'>;
 });
 ```
 
@@ -741,7 +748,7 @@ and `xyz-d65`.
 * Let `z` be the result of [parsing a channel value] with value `options.z`.
 
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-    the result of [parsing a channel value] with value `options.alpha`.
+  the result of [parsing a channel value] with value `options.alpha`.
 
 * Let `space` be the unquoted string value of `options.space`.
 
@@ -774,12 +781,14 @@ Create a new SassColor in the `hsl` color space.
 
 * Let `hue` be the result of [parsing a channel value] with value `options.hue`.
 
-* Let `saturation` be the result of [parsing a channel value] with value `options.saturation`.
+* Let `saturation` be the result of [parsing a channel value] with value
+  `options.saturation`.
 
-* Let `lightness` be the result of [parsing a channel value] with value `options.lightness`.
+* Let `lightness` be the result of [parsing a channel value] with value
+  `options.lightness`.
 
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-    the result of [parsing a channel value] with value `options.alpha`.
+  the result of [parsing a channel value] with value `options.alpha`.
 
 * Set [`internal`] to the result of [`hsl(hue saturation lightness / alpha)`].
 
@@ -791,7 +800,7 @@ constructor(options: {
   saturation: number | null;
   lightness: number | null;
   alpha?: number | null;
-  space?: 'hsl';
+  space?: ColorSpaceHSL;
 });
 ```
 
@@ -804,12 +813,14 @@ Create a new SassColor in the `hwb` color space.
 
 * Let `hue` be the result of [parsing a channel value] with value `options.hue`.
 
-* Let `whiteness` be the result of [parsing a channel value] with value `options.whiteness`.
+* Let `whiteness` be the result of [parsing a channel value] with value
+  `options.whiteness`.
 
-* Let `blackness` be the result of [parsing a channel value] with value `options.blackness`.
+* Let `blackness` be the result of [parsing a channel value] with value
+  `options.blackness`.
 
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-    the result of [parsing a channel value] with value `options.alpha`.
+  the result of [parsing a channel value] with value `options.alpha`.
 
 * Set [`internal`] to the result of [`hwb(hue whiteness blackness / alpha)`].
 
@@ -821,7 +832,7 @@ constructor(options: {
   whiteness: number | null;
   blackness: number | null;
   alpha?: number | null;
-  space?: 'hwb';
+  space?: ColorSpaceHWB;
 });
 ```
 
@@ -835,13 +846,13 @@ Create a new SassColor in the `rgb` color space.
 * Let `red` be the result of [parsing a channel value] with value `options.red`.
 
 * Let `green` be the result of [parsing a channel value] with value
-    `options.green`.
+  `options.green`.
 
 * Let `blue` be the result of [parsing a channel value] with value
-    `options.blue`.
+  `options.blue`.
 
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-      the result of [parsing a channel value] with value `options.alpha`.
+  the result of [parsing a channel value] with value `options.alpha`.
 
 * Return the result of [`rgb(red green blue / alpha)`].
 
@@ -864,7 +875,10 @@ constructor(options: {
 ### Deprecations
 
 A number of SassColor getters only make sense for [legacy color space], and so
-are being deprecated for `channel`. This deprecation is called `color-4-api`.
+are being deprecated in favor of the new [`channel`] function. This deprecation
+is called `color-4-api`.
+
+[`channel`]: #channel
 
 * `red`
 * `green`
@@ -874,7 +888,6 @@ are being deprecated for `channel`. This deprecation is called `color-4-api`.
 * `lightness`
 * `whiteness`
 * `blackness`
-* `alpha`
 
 ## Procedures
 
@@ -912,6 +925,8 @@ space for construction.
 * If `options.saturation` is set, return "hsl".
 
 * If `options.whiteness` is set, return "hwb".
+
+* Otherwise, throw an error.
 
 ## Embedded Protocol
 
