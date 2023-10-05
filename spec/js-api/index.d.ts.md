@@ -77,6 +77,7 @@ export {
   SassFunction,
   SassList,
   SassMap,
+  SassMixin,
   SassNumber,
   SassString,
   Value,
