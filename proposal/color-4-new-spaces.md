@@ -1,4 +1,4 @@
-# CSS Color Level 4, New Color Spaces: Draft 1.10
+# CSS Color Level 4, New Color Spaces: Draft 1.11
 
 *([Issue](https://github.com/sass/sass/issues/2831))*
 
@@ -1022,6 +1022,10 @@ The procedure is:
 * Otherwise:
 
   * If `components` is not an unbracketed space-separated list, throw an error.
+
+  * If the first element of `components` is an unquoted string which is
+    case-insensitively equal to `from`, return an unquoted string with the
+    value of `input`.
 
   * If `space` is null:
 
