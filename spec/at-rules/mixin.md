@@ -33,20 +33,22 @@ To execute a `@mixin` rule `rule`:
 
 * If `rule` is outside of any block of statements:
 
-  * If `name` *doesn't* begin with `-` or `_`, set [the current module][]'s
+  * If `name` *doesn't* begin with `-` or `_`, set [the current module]'s
     mixin `name` to `rule`.
 
     > This overrides the previous definition, if one exists.
 
-  * Set [the current import context][]'s mixin `name` to `rule`.
+  * Set [the current import context]'s mixin `name` to `rule`.
 
     > This happens regardless of whether or not it begins with `-` or `_`.
 
-* Otherwise, set the innermost block's [scope][]'s mixin `name` to `value`.
+* Otherwise, set the [current scope]'s mixin `name` to `rule`.
 
-  [scope]: ../variables.md#scope
-  [the current module]: ../spec.md#current-module
-  [the current import context]: ../spec.md#current-import-context
+  > This overrides the previous definition, if one exists.
+
+[the current module]: ../spec.md#current-module
+[the current import context]: ../spec.md#current-import-context
+[current scope]: ../spec.md#scope
 
 ## `@include`
 

@@ -19,16 +19,37 @@ the language this way.
 ## Table of Contents
 
 * [Definitions](#definitions)
+  * [Scope](#scope)
+  * [Global Scope](#global-scope)
   * [Current Source File](#current-source-file)
   * [Current Configuration](#current-configuration)
   * [Current Import Context](#current-import-context)
   * [Current Module](#current-module)
+* [Procedures](#procedures)
+  * [Running in a New Scope](#running-in-a-new-scope)
 * [Semantics](#semantics)
   * [Compiling a Path](#compiling-a-path)
   * [Compiling a String](#compiling-a-string)
   * [Executing a File](#executing-a-file)
 
 ## Definitions
+
+### Scope
+
+A *scope* is a mutable structure that contains:
+
+* The scope's *variables*: a mapping from identifiers to SassScript values.
+* The scope's *mixins*: a mapping from identifiers to mixins.
+* The scope's *functions*: a mapping from identifiers to functions.
+* The scope's *parent*: a reference to another scope, which may be unset.
+
+One scope at a time is designated the *current scope*. By default, this is the
+[global scope](#global-scope).
+
+### Global Scope
+
+The *global scope* is the scope shared among the top level of all Sass files. It
+has no parent.
 
 ### Current Source File
 
@@ -63,6 +84,19 @@ invocation of [Executing a File](#executing-a-file).
 
 > Because a module is only made immutable (other than its variables) when
 > execution has finished, the current module is always mutable.
+
+## Procedures
+
+### Running in a New Scope
+
+To run a set of steps *in a new scope*:
+
+* Let `parent` be the [current scope].
+
+  [current scope]: #scope
+
+* Return the result of running the given steps with the current scope set to an
+  empty scope with `parent` as its parent.
 
 ## Semantics
 

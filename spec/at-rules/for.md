@@ -53,15 +53,16 @@ To execute a `@for` rule `rule`:
 
 * While `i` is not equal to `to`:
 
-  * Let `scope` be a new [scope].
+  * [In a new scope]:
 
-  * Add a variable with `rule`'s `VariableName` as its name and `i` as its value
-    to `scope`.
+    * Add a variable with `rule`'s `VariableName` as its name and `i` as its value
+      to the [current scope].
 
-    > Note that this variable will have the same unit that `from`.
-  
-  * Execute the `ForBlock`'s statements in `scope`.
-  
-  * Set `i` to `i + direction`.
+      > Note that this variable will have the same unit that `from`.
 
-  [scope]: ../variables.md#scope
+    * Execute the `ForBlock`'s statements.
+
+    * Set `i` to `i + direction`.
+
+  [In a new scope]: ../spec.md#running-in-a-new-scope
+  [current scope]: ../spec.md#scope
