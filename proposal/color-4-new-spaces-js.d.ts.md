@@ -24,7 +24,6 @@ proposal].
     * [`channel`](#channel)
     * [`alpha`](#alpha)
     * [`isChannelMissing`](#ischannelmissing)
-    * [`isAlphaMissing`](#isalphamissing)
     * [`isChannelPowerless`](#ischannelpowerless)
     * [`interpolate`](#interpolate)
   * [Updated Color Functions](#updated-color-functions)
@@ -50,6 +49,8 @@ proposal].
 ## API
 
 ```ts
+import {List} from 'immutable';
+
 import {Value} from '../spec/js-api/value';
 ```
 
@@ -58,23 +59,23 @@ import {Value} from '../spec/js-api/value';
 ### Color Space Definitions
 
 ```ts
-export type ColorSpaceHSL = 'hsl';
+export type ColorSpaceHsl = 'hsl';
 
-export type ChannelNameHSL = 'hue' | 'saturation' | 'lightness';
+export type ChannelNameHsl = 'hue' | 'saturation' | 'lightness' | 'alpha';
 
-export type ColorSpaceHWB = 'hwb';
+export type ColorSpaceHwb = 'hwb';
 
-export type ChannelNameHWB = 'hue' | 'whiteness' | 'blackness';
+export type ChannelNameHwb = 'hue' | 'whiteness' | 'blackness' | 'alpha';
 
 export type ColorSpaceLab = 'lab' | 'oklab';
 
-export type ChannelNameLab = 'lightness' | 'a' | 'b';
+export type ChannelNameLab = 'lightness' | 'a' | 'b' | 'alpha';
 
-export type ColorSpaceLCH = 'lch' | 'oklch';
+export type ColorSpaceLch = 'lch' | 'oklch';
 
-export type ChannelNameLCH = 'lightness' | 'chroma' | 'hue';
+export type ChannelNameLch = 'lightness' | 'chroma' | 'hue' | 'alpha';
 
-export type ColorSpaceRGB =
+export type ColorSpaceRgb =
   | 'a98-rgb'
   | 'display-p3'
   | 'prophoto-rgb'
@@ -82,29 +83,29 @@ export type ColorSpaceRGB =
   | 'srgb'
   | 'srgb-linear';
 
-export type ChannelNameRGB = 'red' | 'green' | 'blue';
+export type ChannelNameRgb = 'red' | 'green' | 'blue' | 'alpha';
 
-export type ColorSpaceXYZ = 'xyz' | 'xyz-d50' | 'xyz-d65';
+export type ColorSpaceXyz = 'xyz' | 'xyz-d50' | 'xyz-d65';
 
-export type ChannelNameXYZ = 'x' | 'y' | 'z';
+export type ChannelNameXyz = 'x' | 'y' | 'z' | 'alpha';
 
 export type ChannelName =
-  | ChannelNameHSL
-  | ChannelNameHWB
+  | ChannelNameHsl
+  | ChannelNameHwb
   | ChannelNameLab
-  | ChannelNameLCH
-  | ChannelNameRGB
-  | ChannelNameXYZ;
+  | ChannelNameLch
+  | ChannelNameRgb
+  | ChannelNameXyz;
 
 export type KnownColorSpace =
-  | ColorSpaceHSL
-  | ColorSpaceHWB
+  | ColorSpaceHsl
+  | ColorSpaceHwb
   | ColorSpaceLab
-  | ColorSpaceLCH
-  | ColorSpaceRGB
-  | ColorSpaceXYZ;
+  | ColorSpaceLch
+  | ColorSpaceRgb
+  | ColorSpaceXyz;
 
-export type PolarColorSpace = ColorSpaceHSL | ColorSpaceHWB | ColorSpaceLCH;
+export type PolarColorSpace = ColorSpaceHsl | ColorSpaceHwb | ColorSpaceLch;
 
 export type RectangularColorSpace = Exclude<KnownColorSpace, PolarColorSpace>;
 
@@ -177,14 +178,14 @@ toGamut(space?: KnownColorSpace): SassColor;
 
 #### `channelsOrNull`
 
-Returns an array of channel values (excluding alpha) for [`internal`], with
+Returns a list of channel values (excluding alpha) for [`internal`], with
 [missing channels][missing components] converted to `null`.
 
-* Let `space` be the result of [`this.space`].
+* Let `space` be the value of [`this.space`].
 
 * Let `components` be the list of channels in `space`.
 
-* Let `channels` be an empty array.
+* Let `channels` be an empty list.
 
 * For each `component` in `components`:
 
@@ -197,7 +198,7 @@ Returns an array of channel values (excluding alpha) for [`internal`], with
 * Return `channels`.
 
 ```ts
-get channelsOrNull(): [number | null, number | null, number | null];
+get channelsOrNull(): List<number | null>;
 ```
 
 [missing components]: ./color-4-new-spaces.md#missing-components
@@ -205,12 +206,12 @@ get channelsOrNull(): [number | null, number | null, number | null];
 
 #### `channels`
 
-This algorithm returns an array of channel values (excluding alpha) for
+This algorithm returns a list of channel values (excluding alpha) for
 [`internal`], with [missing channels][missing components] converted to `0`.
 
-* Let `channelsOrNull` be the result of [`this.channelsOrNull`].
+* Let `channelsOrNull` be the value of [`this.channelsOrNull`].
 
-* Let `channels` be an empty array.
+* Let `channels` be an empty list.
 
 * For each `channel` in `channelsOrNull`:
 
@@ -223,12 +224,12 @@ This algorithm returns an array of channel values (excluding alpha) for
 [`this.channelsOrNull`]: #channelsornull
 
 ```ts
-get channels(): [number, number, number];
+get channels(): List<number>;
 ```
 
 #### `channel`
 
-* Let `initialSpace` be the value of [`this.space()`].
+* Let `initialSpace` be the value of [`this.space`].
 
 * Let `space` be `options.space` if it is defined, and the value of
   `initialSpace` otherwise.
@@ -245,30 +246,12 @@ get channels(): [number, number, number];
 
 ```ts
 channel(channel: ChannelName): number;
-channel(
-  channel: ChannelNameHSL | 'alpha',
-  options: {space: ColorSpaceHSL}
-): number;
-channel(
-  channel: ChannelNameHWB | 'alpha',
-  options: {space: ColorSpaceHWB}
-): number;
-channel(
-  channel: ChannelNameLab | 'alpha',
-  options: {space: ColorSpaceLab}
-): number;
-channel(
-  channel: ChannelNameLCH | 'alpha',
-  options: {space: ColorSpaceLCH}
-): number;
-channel(
-  channel: ChannelNameRGB | 'alpha',
-  options: {space: ColorSpaceRGB}
-): number;
-channel(
-  channel: ChannelNameXYZ | 'alpha',
-  options: {space: ColorSpaceXYZ}
-): number;
+channel(channel: ChannelNameHsl, options: {space: ColorSpaceHsl}): number;
+channel(channel: ChannelNameHwb, options: {space: ColorSpaceHwb}): number;
+channel(channel: ChannelNameLab, options: {space: ColorSpaceLab}): number;
+channel(channel: ChannelNameLch, options: {space: ColorSpaceLch}): number;
+channel(channel: ChannelNameRgb, options: {space: ColorSpaceRgb}): number;
+channel(channel: ChannelNameXyz, options: {space: ColorSpaceXyz}): number;
 ```
 
 #### `alpha`
@@ -287,19 +270,10 @@ Returns the result of [`color.is-missing(internal,
 channel)`][color.is-missing()] as a JavaScript boolean.
 
 ```ts
-isChannelMissing(channel: ChannelName | 'alpha'): boolean;
+isChannelMissing(channel: ChannelName): boolean;
 ```
 
 [color.is-missing()]: ./color-4-new-spaces.md#coloris-missing-1
-
-#### `isAlphaMissing`
-
-Returns the result of [`color.is-missing(internal,
-'alpha')`][color.is-missing()] as a JavaScript boolean.
-
-```ts
-get isAlphaMissing(): boolean;
-```
 
 #### `isChannelPowerless`
 
@@ -311,34 +285,34 @@ JavaScript boolean.
 ```ts
 isChannelPowerless(channel: ChannelName): boolean;
 isChannelPowerless(
-  channel: ChannelNameHSL,
-  options?: {space: ColorSpaceHSL}
+  channel: ChannelNameHsl,
+  options?: {space: ColorSpaceHsl}
 ): boolean;
 isChannelPowerless(
-  channel: ChannelNameHWB,
-  options?: {space: ColorSpaceHWB}
+  channel: ChannelNameHwb,
+  options?: {space: ColorSpaceHwb}
 ): boolean;
 isChannelPowerless(
   channel: ChannelNameLab,
   options?: {space: ColorSpaceLab}
 ): boolean;
 isChannelPowerless(
-  channel: ChannelNameLCH,
-  options?: {space: ColorSpaceLCH}
+  channel: ChannelNameLch,
+  options?: {space: ColorSpaceLch}
 ): boolean;
 isChannelPowerless(
-  channel: ChannelNameRGB,
-  options?: {space: ColorSpaceRGB}
+  channel: ChannelNameRgb,
+  options?: {space: ColorSpaceRgb}
 ): boolean;
 isChannelPowerless(
-  channel: ChannelNameXYZ,
-  options?: {space: ColorSpaceXYZ}
+  channel: ChannelNameXyz,
+  options?: {space: ColorSpaceXyz}
 ): boolean;
 ```
 
 #### `interpolate`
 
-* Let `space` be the value of [`this.space()`].
+* Let `space` be the value of [`this.space`].
 
 * If `options.method` is set, let `interpolationMethod` be a space separated
   list containing the value of `space`, a space, and the value of
@@ -381,7 +355,7 @@ as the result of changing some of [`internal`]'s components.
 > If `space` is not a [legacy color space], a channel value of `null` will
 > result in a [missing component][missing components] value for that channel.
 
-* Let `initialSpace` be the value of [`this.space()`].
+* Let `initialSpace` be the value of [`this.space`].
 
 * Let `spaceSetExplicitly` be `true` if `options.space` is defined, and `false`
   otherwise.
@@ -559,7 +533,6 @@ as the result of changing some of [`internal`]'s components.
 
 * Return the result of [`changedColor.toSpace(initialSpace)`].
 
-[`this.space()`]: #space
 [`this.toSpace(space)`]: #tospace
 [`changedColor.toSpace(initialSpace)`]: #tospace
 [`Changing a Component Value`]: #changing-a-component-value
@@ -567,25 +540,17 @@ as the result of changing some of [`internal`]'s components.
 ```ts
 change(
   options: {
-    [key in ChannelName]?: number | null;
-  } & {alpha?: number}
-): SassColor;
-
-change(
-  options: {
-    [key in ChannelNameHSL]?: number | null;
+    [key in ChannelNameHsl]?: number | null;
   } & {
-    alpha?: number;
-    space: ColorSpaceHSL;
+    space?: ColorSpaceHsl;
   }
 ): SassColor;
 
 change(
   options: {
-    [key in ChannelNameHWB]?: number | null;
+    [key in ChannelNameHwb]?: number | null;
   } & {
-    alpha?: number;
-    space: ColorSpaceHWB;
+    space?: ColorSpaceHwb;
   }
 ): SassColor;
 
@@ -593,35 +558,31 @@ change(
   options: {
     [key in ChannelNameLab]?: number | null;
   } & {
-    alpha?: number | null;
-    space: ColorSpaceLab;
+    space?: ColorSpaceLab;
   }
 ): SassColor;
 
 change(
   options: {
-    [key in ChannelNameLCH]?: number | null;
+    [key in ChannelNameLch]?: number | null;
   } & {
-    alpha?: number | null;
-    space: ColorSpaceLCH;
+    space?: ColorSpaceLch;
   }
 ): SassColor;
 
 change(
   options: {
-    [key in ChannelNameRGB]?: number | null;
+    [key in ChannelNameRgb]?: number | null;
   } & {
-    alpha?: number | null;
-    space: ColorSpaceRGB;
+    space?: ColorSpaceRgb;
   }
 ): SassColor;
 
 change(
   options: {
-    [key in ChannelNameXYZ]?: number | null;
+    [key in ChannelNameXyz]?: number | null;
   } & {
-    alpha?: number | null;
-    space: ColorSpaceXYZ;
+    space?: ColorSpaceXyz;
   }
 ): SassColor;
 ```
@@ -698,7 +659,7 @@ constructor(options: {
   chroma: number | null;
   hue: number | null;
   alpha?: number | null;
-  space: ColorSpaceLCH;
+  space: ColorSpaceLch;
 });
 ```
 
@@ -732,7 +693,7 @@ constructor(options: {
   green: number | null;
   blue: number | null;
   alpha?: number | null;
-  space: Exclude<ColorSpaceRGB, 'rgb'>;
+  space: Exclude<ColorSpaceRgb, 'rgb'>;
 });
 ```
 
@@ -762,7 +723,7 @@ constructor(options: {
   y: number | null;
   z: number | null;
   alpha?: number | null;
-  space: ColorSpaceXYZ;
+  space: ColorSpaceXyz;
 });
 ```
 
@@ -800,7 +761,7 @@ constructor(options: {
   saturation: number | null;
   lightness: number | null;
   alpha?: number | null;
-  space?: ColorSpaceHSL;
+  space?: ColorSpaceHsl;
 });
 ```
 
@@ -832,7 +793,7 @@ constructor(options: {
   whiteness: number | null;
   blackness: number | null;
   alpha?: number | null;
-  space?: ColorSpaceHWB;
+  space?: ColorSpaceHwb;
 });
 ```
 
@@ -854,7 +815,7 @@ Create a new SassColor in the `rgb` color space.
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
   the result of [parsing a channel value] with value `options.alpha`.
 
-* Return the result of [`rgb(red green blue / alpha)`].
+* Set [`internal`] to the result of [`rgb(red green blue / alpha)`].
 
 [`rgb(red green blue / alpha)`]: ./color-4-new-spaces.md#rgb-and-rgba
 
