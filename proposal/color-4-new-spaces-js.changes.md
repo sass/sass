@@ -1,3 +1,7 @@
+## Draft 1.2
+
+* Remove generic `change` overload, and make `space` optional on others.
+
 ## Draft 1.1
 
 * Clarify values in `channels` and `channelsOrNull`.

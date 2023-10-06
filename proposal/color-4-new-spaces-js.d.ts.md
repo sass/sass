@@ -567,16 +567,10 @@ as the result of changing some of [`internal`]'s components.
 ```ts
 change(
   options: {
-    [key in ChannelName]?: number | null;
-  } & {alpha?: number}
-): SassColor;
-
-change(
-  options: {
     [key in ChannelNameHSL]?: number | null;
   } & {
     alpha?: number;
-    space: ColorSpaceHSL;
+    space?: ColorSpaceHSL;
   }
 ): SassColor;
 
@@ -585,7 +579,7 @@ change(
     [key in ChannelNameHWB]?: number | null;
   } & {
     alpha?: number;
-    space: ColorSpaceHWB;
+    space?: ColorSpaceHWB;
   }
 ): SassColor;
 
@@ -594,7 +588,7 @@ change(
     [key in ChannelNameLab]?: number | null;
   } & {
     alpha?: number | null;
-    space: ColorSpaceLab;
+    space?: ColorSpaceLab;
   }
 ): SassColor;
 
@@ -603,7 +597,7 @@ change(
     [key in ChannelNameLCH]?: number | null;
   } & {
     alpha?: number | null;
-    space: ColorSpaceLCH;
+    space?: ColorSpaceLCH;
   }
 ): SassColor;
 
@@ -612,7 +606,7 @@ change(
     [key in ChannelNameRGB]?: number | null;
   } & {
     alpha?: number | null;
-    space: ColorSpaceRGB;
+    space?: ColorSpaceRGB;
   }
 ): SassColor;
 
@@ -621,7 +615,7 @@ change(
     [key in ChannelNameXYZ]?: number | null;
   } & {
     alpha?: number | null;
-    space: ColorSpaceXYZ;
+    space?: ColorSpaceXYZ;
   }
 ): SassColor;
 ```
