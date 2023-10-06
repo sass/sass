@@ -50,6 +50,8 @@ proposal].
 ## API
 
 ```ts
+import {List, ValueObject} from 'immutable';
+
 import {Value} from '../spec/js-api/value';
 ```
 
@@ -197,7 +199,7 @@ Returns an array of channel values (excluding alpha) for [`internal`], with
 * Return `channels`.
 
 ```ts
-get channelsOrNull(): [number | null, number | null, number | null];
+get channelsOrNull(): List<number | null>;
 ```
 
 [missing components]: ./color-4-new-spaces.md#missing-components
@@ -223,7 +225,7 @@ This algorithm returns an array of channel values (excluding alpha) for
 [`this.channelsOrNull`]: #channelsornull
 
 ```ts
-get channels(): [number, number, number];
+get channels(): List<number>;
 ```
 
 #### `channel`
