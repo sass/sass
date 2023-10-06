@@ -125,8 +125,6 @@ Compiles the Sass `source`:
     > The structure of the sourceMap can vary from implementation to
     > implementation.
 
-  [loaded]: ../modules.md#loading-a-source-file
-
 * If the compilation fails, throw an `Exception`.
 
 ```ts

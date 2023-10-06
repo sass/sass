@@ -62,7 +62,7 @@ This proposal makes three breaking changes to the embedded Sass protocol:
 
 #### Length Before Compilation ID
 
-This proposal places the compilation ID for each request _after_ the length. The
+This proposal places the compilation ID for each request *after* the length. The
 length is defined as the length of the protocol buffer plus the length of the
 compilation ID.
 
@@ -101,7 +101,7 @@ length of the compilation ID, which is given by the following table:
 
 #### Cross-Compilation State
 
-We have a [future goal] to (optionally) share state _across_ compilations, to
+We have a [future goal] to (optionally) share state *across* compilations, to
 more efficiently compile projects with many small entrypoints where the bulk of
 the complexity is in static shared libraries. If/when we support this, there
 could be two broad implementation strategies for a compiler with worker-based
@@ -139,8 +139,8 @@ compilation ID will only have one request at a time, so we could just declare
 that any response with a given compilation ID is for the single outstanding
 request.
 
-However, the _expectation_ that each compilation be single-threaded isn't a
-_requirement_. One could imagine a multithreaded Sass compiler that actually is
+However, the *expectation* that each compilation be single-threaded isn't a
+*requirement*. One could imagine a multithreaded Sass compiler that actually is
 capable of fielding multiple concurrent requests as it compiles independent
 chunks of a given stylesheet or resolves loads eagerly. We don't want to cut off
 this possibility, so we retain the outbound request IDs.
@@ -153,12 +153,12 @@ Replace the last paragraph of the [embedded protocol overview] with:
 
 [embedded protocol overview]: ../spec/embedded-protocol.md#overview
 
-Each message in the embedded protocol is sent as a _packet_ which contains two
+Each message in the embedded protocol is sent as a *packet* which contains two
 values: an unsigned [varint] up to 32 bits long known as the "compilation ID",
 and a protocol buffer that contains the protobuf message. For streams (like
 standard input and output) that don't have built-in message boundaries, every
 packet must begin with another unsigned varint indicating the length in bytes of
-the remaining message (_including the compilation ID_). This matches the best
+the remaining message (*including the compilation ID*). This matches the best
 practice described in [the protocol buffer documentation].
 
 Because JavaScript can't easily represent integers larger than 2^53 - 1, the

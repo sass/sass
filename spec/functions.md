@@ -7,7 +7,7 @@
   * [Special Variable String](#special-variable-string)
 * [Syntax](#syntax)
 * [Semantics](#semantics)
-  * [`EmptyFallbackVar`:](#emptyfallbackvar)
+  * [`EmptyFallbackVar`](#emptyfallbackvar)
   * [`FunctionCall`](#functioncall)
 * [Global Functions](#global-functions)
   * [`adjust-hue()`](#adjust-hue)
@@ -47,18 +47,14 @@ matching is case-insensitive.
 ## Syntax
 
 <x><pre>
-**FunctionExpression**¹ ::= [CssMinMax]
-&#32;                     | [SpecialFunctionExpression]
-&#32;                     | [CalculationExpression]
+**FunctionExpression**¹ ::= [SpecialFunctionExpression]
 &#32;                     | EmptyFallbackVar
 &#32;                     | FunctionCall
 **EmptyFallbackVar**²   ::= 'var(' Expression ',' ')'
 **FunctionCall**⁴       ::= [NamespacedIdentifier] ArgumentInvocation
 </pre></x>
 
-[CssMinMax]: types/calculation.md#cssminmax
 [SpecialFunctionExpression]: syntax.md#specialfunctionexpression
-[CalculationExpression]: types/calculation.md#calculationexpression
 [NamespacedIdentifier]: modules.md#syntax
 
 1: Both `CssMinMax` and `EmptyFallbackVar` take precedence over `FunctionCall`
@@ -76,14 +72,12 @@ matching is case-insensitive.
 **FunctionCall** ::= [NamespacedIdentifier][] ArgumentInvocation
 </pre></x>
 
-[NamespacedIdentifier]: modules.md#syntax
-
 No whitespace is allowed between the `NamespacedIdentifier` and the
 `ArgumentInvocation` in `FunctionCall`.
 
 ## Semantics
 
-### `EmptyFallbackVar`:
+### `EmptyFallbackVar`
 
 To evaluate an `EmptyFallbackVar` `call`:
 
@@ -108,6 +102,25 @@ To evaluate a `FunctionCall` `call`:
 * Let `function` be the result of [resolving a function][] named `name`.
 
 * If `function` is null and `name` is not a plain `Identifier`, throw an error.
+
+* If `function` is null; `name` is case-insensitively equal to `"min"`, `"max"`,
+  `"round"`, or `"abs"`; `call`'s `ArgumentInvocation` doesn't have any
+  `KeywordArgument`s or `RestArgument`s; and all arguments in `call`'s
+  `ArgumentInvocation` are [calculation-safe], return the result of evaluating
+  `call` [as a calculation].
+
+  [calculation-safe]: types/calculation.md#calculation-safe-expression
+  [as a calculation]: types/calculation.md#evaluating-a-functioncall-as-a-calculation
+
+  > For calculation functions that overlap with global Sass function names, we
+  > want anything Sass-specific like this to end up calling the Sass function.
+  > For all other calculation functions, we want those constructs to throw an
+  > error (which they do when evaluating `call` [as a calculation]).
+
+* If `function` is null and `name` is case-insensitively equal to `"calc"`,
+  `"clamp"`, `"hypot"`, `"sin"`, `"cos"`, `"tan"`, `"asin"`, `"acos"`, `"atan"`,
+  `"sqrt"`, `"exp"`, `"sign"`, `"mod"`, `"rem"`, `"atan2"`, `"pow"`, or `"log"`,
+  return the result of evaluating `call` [as a calculation].
 
 * If `function` is null, set it to the [global function](#global-functions)
   named `name`.
@@ -259,6 +272,10 @@ plain CSS function named `"rgb"` that function is named `"rgba"` instead.
 
     * If `rgb` is not an unbracketed space-separated list, throw an error.
 
+    * If the first element of `rgb` is an unquoted string which is
+      case-insensitively equal to `from`, return a plain CSS function string
+      with the name `"rgb"` and the argument `$channels`.
+
     * If `rgb` has more than three elements, throw an error.
 
     * If `rgb` has fewer than three elements:
@@ -275,6 +292,10 @@ plain CSS function named `"rgb"` that function is named `"rgba"` instead.
       return the result.
 
   * If `$channels` is not an unbracketed space-separated list, throw an error.
+
+  * If the first element of `$channels` is an unquoted string which is
+    case-insensitively equal to `from`, return a plain CSS function string
+    with the name `"rgb"` and the argument `$channels`.
 
   * If `$channels` has more than three elements, throw an error.
 
@@ -385,6 +406,10 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
 
     * If `hsl` is not an unbracketed space-separated list, throw an error.
 
+    * If the first element of `hsl` is an unquoted string which is
+      case-insensitively equal to `from`, return a plain CSS function string
+      with the name `"hsl"` and the argument `$channels`.
+
     * If `hsl` has more than three elements, throw an error.
 
     * If `hsl` has fewer than three elements:
@@ -401,6 +426,10 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
       arguments and return the result.
 
   * If `$channels` is not an unbracketed space-separated list, throw an error.
+
+  * If the first element of `$channels` is an unquoted string which is
+    case-insensitively equal to `from`, return a plain CSS function string
+    with the name `"hsl"` and the argument `$channels`.
 
   * If `$channels` has more than three elements, throw an error.
 
@@ -435,8 +464,6 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
 
   * Call `hsl()` with `hue`, `saturation`, `lightness`, and `alpha` (if it's
     defined) as arguments and return the result.
-
-  [special variable string]: #special-variable-string
 
 ### `if()`
 

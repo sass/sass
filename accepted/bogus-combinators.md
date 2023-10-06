@@ -119,7 +119,7 @@ combinator].
 combinators*) as well as a sequence of [complex selector components]. Either,
 but not both, of these sequences may be empty~~
 
-[visible combinators]: #visible-combinator 
+[visible combinators]: #visible-combinator
 [complex selector components]: #complex-selector-component
 
 A *complex selector* is an optional [visible combinator] (its *leading
@@ -127,7 +127,7 @@ combinator*) as well as a sequence of [complex selector components]. The
 component sequence may be empty only for complex selectors with leading
 combinators.
 
-[visible combinator]: #visible-combinator 
+[visible combinator]: #visible-combinator
 
 ### Complex Selector Component
 
@@ -169,9 +169,9 @@ This proposal modifies the existing `ComplexSelector` and
 `ComplexSelectorComponent` productions to drop support for multiple combinators:
 
 <x><pre>
-~~**ComplexSelector**          ::= [\<combinator>]* ComplexSelectorComponent+~~
+~~**ComplexSelector**          ::= [\<combinator>]\* ComplexSelectorComponent+~~
 ~~&#32;                          | [\<combinator>]+~~
-~~**ComplexSelectorComponent** ::= CompoundSelector [\<combinator>]*~~
+~~**ComplexSelectorComponent** ::= CompoundSelector [\<combinator>]\*~~
 **ComplexSelector**          ::= [\<combinator>]? ComplexSelectorComponent+
 &#32;                          | [\<combinator>]
 **ComplexSelectorComponent** ::= CompoundSelector [\<combinator>]?
@@ -228,7 +228,7 @@ In particular:
 * The parsing of `ComplexSelector` and `ComplexSelectorComponent` is unchanged.
 
 * A complex selector is instead considered [bogus] if it would be bogus in Phase
-  2 _or_ if it can be parsed in Phase 1 but not in Phase 2.
+  2 *or* if it can be parsed in Phase 1 but not in Phase 2.
 
 * The newly-added errors produce deprecation warnings instead.
 

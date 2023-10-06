@@ -61,7 +61,6 @@ one would with function values:
 
 * `meta.call()` => `meta.apply()`
 
-
 ### JavaScript API Design Decisions
 
 Mixins differ from functions in that the result of their execution is a Sass AST
@@ -72,7 +71,6 @@ the future.
 For this reason, it is not meaningful -- or even possible -- to construct or
 execute a mixin through the JavaScript API. A mixin object shall be opaque, and
 the only operation available shall be to return the object as-is.
-
 
 ## Types
 

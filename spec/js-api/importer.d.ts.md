@@ -11,11 +11,26 @@ import {PromiseOr} from './util/promise_or';
 ## Table of Contents
 
 * [Types](#types)
+  * [`CanonicalizeContext`](#canonicalizecontext)
   * [`FileImporter`](#fileimporter)
   * [`Importer`](#importer)
+    * [`nonCanonicalScheme`](#noncanonicalscheme)
   * [`ImporterResult`](#importerresult)
 
 ## Types
+
+### `CanonicalizeContext`
+
+This is a data object passed into calls to `Importer.canonicalize()` and
+`FileImporter.findFileUrl()`. Its fields are set as part of the function
+invocations.
+
+```ts
+export interface CanonicalizeContext {
+  fromImport: boolean;
+  containingUrl: URL | null;
+}
+```
 
 ### `FileImporter`
 
@@ -33,13 +48,18 @@ string `string`:
   * Let `fromImport` be `true` if the importer is being run for an `@import` and
     `false` otherwise.
 
-  * Let `url` be the result of calling `findFileUrl` with `string` and
-    `fromImport`. If it returns a promise, wait for it to complete and use its
-    value instead, or rethrow its error if it rejects.
+  * Let `containingUrl` be the canonical URL of the [current source file] if it
+    has one, or undefined otherwise.
+
+  * Let `url` be the result of calling `findFileUrl` with `string`, `fromImport`,
+    and `containingUrl`. If it returns a promise, wait for it to complete and use
+    its value instead, or rethrow its error if it rejects.
 
   * If `url` is null, return null.
 
   * If `url`'s scheme is not `file`, throw an error.
+
+  [current source file]: ../spec.md#current-source-file
 
 * Let `resolved` be the result of [resolving `url`].
 
@@ -65,7 +85,7 @@ export interface FileImporter<
 > {
   findFileUrl(
     url: string,
-    options: {fromImport: boolean}
+    context: CanonicalizeContext
   ): PromiseOr<URL | null, sync>;
 
   canonicalize?: never;
@@ -80,9 +100,18 @@ string `string`:
 * Let `fromImport` be `true` if the importer is being run for an `@import` and
   `false` otherwise.
 
-* Let `url` be the result of calling `canonicalize` with `url` and `fromImport`.
-  If it returns a promise, wait for it to complete and use its value instead, or
-  rethrow its error if it rejects.
+* If `string` is a relative URL, or if it's an absolute URL whose scheme is
+  non-canonical for this importer, let `containingUrl` be the canonical URL of
+  the [current source file]. Otherwise, or if the current source file has no
+  canonical URL, let `containingUrl` be undefined.
+
+* Let `url` be the result of calling `canonicalize` with `string`, `fromImport`,
+  and `containingUrl`. If it returns a promise, wait for it to complete and use
+  its value instead, or rethrow its error if it rejects.
+
+* If the scheme of `url` is [non-canonical] for this importer, throw an error.
+
+  [non-canonical]: #noncanonicalscheme
 
 * If `url` is null, return null.
 
@@ -104,13 +133,32 @@ string `string`:
 export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
   canonicalize(
     url: string,
-    options: {fromImport: boolean}
+    context: CanonicalizeContext
   ): PromiseOr<URL | null, sync>;
 
   load(canonicalUrl: URL): PromiseOr<ImporterResult | null, sync>;
 
   findFileUrl?: never;
-}
+```
+
+#### `nonCanonicalScheme`
+
+The set of URL schemes that are considered *non-canonical* for this importer. If
+this is a single string, treat it as a list containing that string.
+
+Before beginning compilation, throw an error if any element of this is empty or
+contains a character other than a lowercase ASCII letter, an ASCII numeral,
+U+002B (`+`), U+002D (`-`), or U+002E (`.`).
+
+> Uppercase letters are normalized to lowercase in the `URL` constructor, so for
+> simplicity and efficiency we only allow lowercase here.
+
+```ts
+nonCanonicalScheme?: string | string[];
+```
+
+```ts
+} // Importer
 ```
 
 ### `ImporterResult`

@@ -135,7 +135,6 @@ charset?: boolean;
 
 #### `quietDeps`
 
-
 If true, the compiler must not print deprecation warnings for stylesheets that
 are transitively loaded through an import path.
 
@@ -161,7 +160,6 @@ verbose?: boolean;
 ```
 
 #### `logger`
-
 
 A [custom logger] that provides callbacks for the compiler to use in lieu of its
 default messaging behavior.

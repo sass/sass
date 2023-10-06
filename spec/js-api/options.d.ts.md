@@ -312,7 +312,7 @@ url?: URL;
 ### `StringOptionsWithImporter`
 
 > This interface is used for calls to [`compileString()`] and
-> [`compileStringAsync()`] that _do_ pass the `importer` parameter, and so _do_
+> [`compileStringAsync()`] that *do* pass the `importer` parameter, and so *do*
 > support relative imports.
 
 ```ts
@@ -334,7 +334,7 @@ importer: Importer<sync> | FileImporter<sync>;
 
 The canonical URL of the entrypoint.
 
-> This _must_ be passed when `importer` is passed, since otherwise there's
+> This *must* be passed when `importer` is passed, since otherwise there's
 > nothing to resolve relative URLs relative to.
 
 ```ts

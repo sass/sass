@@ -41,8 +41,6 @@ to access the URL of the stylesheet that contained the load, known in the legacy
 API as the "previous URL". This was an intentional design choice which enforced
 the invariant that the same canonical URL always refers to the same file.
 
-[new import API]: ../accepted/new-js-importer.d.ts
-
 However, this restriction makes it difficult for importers to work as expected
 in certain contexts. For example, in the Node.js ecosystem JS loads depend on
 the structure of the `node_modules` directory closest to the containing file.
@@ -63,10 +61,10 @@ that provides the canonical URL of the containing file (the "containing URL").
 However, in order to preserve the desired invariants, this option is only
 provided when either:
 
-- `Importer.canonicalize()` is being passed a relative URL (which means the URL
+* `Importer.canonicalize()` is being passed a relative URL (which means the URL
   has already been tried as a load relative to the current canonical URL), or
 
-- `Importer.canonicalize()` is passed an absolute URL whose scheme the importer
+* `Importer.canonicalize()` is passed an absolute URL whose scheme the importer
   has declared as non-canonical.
 
 A "non-canonical" scheme is a new concept introduced by this proposal.
@@ -110,7 +108,7 @@ Providing access to the containing URL puts these invariants at risk in two ways
 
 #### Alternatives Considered
 
-To mitigate these risks, we need to have _some_ restriction on when the
+To mitigate these risks, we need to have *some* restriction on when the
 containing URL is available to importers. We considered the following
 alternative restrictions before settling on the current one:
 
@@ -155,7 +153,7 @@ URLs, this is a blocking limitation.
 [package imports]: https://github.com/sass/sass/issues/2739
 
 Thus we arrive at the actual behavior, which makes the containing URL
-unavailable for absolute loads _unless_ they have a URL scheme declared
+unavailable for absolute loads *unless* they have a URL scheme declared
 explicitly non-canonical. This supports the `pkg:` use-case while still
 protecting against risk (1), since the containing URL is never available for
 canonical resolutions.
@@ -190,7 +188,7 @@ interface FileImporter<sync extends 'sync' | 'async' = 'sync' | 'async'> {
 ```ts
 findFileUrl(
   url: string,
-  options: {fromImport: boolean, containingUrl?: URL}
+  options: {fromImport: boolean; containingUrl?: URL}
 ): PromiseOr<URL | null, sync>;
 ```
 

@@ -221,7 +221,6 @@ hypot($numbers...)
 log($number, $base: null)
 ```
 
-
 * If `$number` has units, throw an error.
 
 * Return a unitless number whose value is the result of `log($number.value)` as
@@ -444,9 +443,10 @@ This function is also available as a global function named `random()`.
     units as `$limit`.
 
     > Examples:
-    > - `math.random(123) => 87`
-    > - `math.random(123px) => 43px`
-    > - `math.random(500%) => 238%`
+    >
+    > * `math.random(123) => 87`
+    > * `math.random(123px) => 43px`
+    > * `math.random(500%) => 238%`
 
 * Otherwise throw an error.
 
