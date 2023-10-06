@@ -106,9 +106,7 @@ The [`SpecialFunctionName`] production will be changed to the following:
 
 ### `CalcValue`
 
-The [`CalcValue`] production will be changed to the following:
-
-[`CalcValue`]: ../spec/types/calculation.md#calculationexpression
+The `CalcValue` production will be changed to the following:
 
 <x><pre>
 **CalcValue**         ::= CalcValue (('+' | '-' | '*' | '/') CalcValue)+

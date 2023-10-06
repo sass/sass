@@ -12,18 +12,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: actions/setup-node@v3
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
-    - run: npm run tangle && npx gts lint && npx tsc --noEmit
+    - run: >
+        npm run tangle &&
+          npx gts lint &&
+          npx tsc --noEmit &&
+          npx markdownlint-cli2
 
   toc:
     name: Tables of contents
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: actions/setup-node@v3
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
@@ -34,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: actions/setup-node@v3
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
@@ -45,7 +49,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: actions/setup-node@v3
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
@@ -56,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: actions/setup-node@v3
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
@@ -67,18 +71,18 @@ jobs:
     runs-on: "ubuntu-latest"
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: arduino/setup-protoc@v1
-        with: { version: "3.x", repo-token: "${{ github.token }}" }
+      - uses: actions/checkout@v4
+      - uses: bufbuild/buf-setup-action@v1.26.1
+        with: {github_token: "${{ github.token }}"}
       - name: Generate protobuf code
-        run: protoc --js_out=/tmp spec/embedded_sass.proto
+        run: buf generate
 
   embedded_protocol_versions:
     name: "Validate Embedded Protocol versions"
     runs-on: "ubuntu-latest"
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Check versions match
         run: |
           if ! (grep -q '\-dev$' spec/EMBEDDED_PROTOCOL_VERSION ||
@@ -96,7 +100,7 @@ jobs:
           github.ref == 'refs/heads/main'
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 2
 
@@ -129,12 +133,12 @@ jobs:
       github.ref == 'refs/heads/main'
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with: {fetch-depth: 0}
 
     - name: Find changed files in js-api-doc
       id: changed-files
-      uses: tj-actions/changed-files@a96679dfee2a1e64b1db5a210c0ffaf1f2cb24ce
+      uses: tj-actions/changed-files@8238a4103220c636f2dad328ead8a7c8dbe316a3
       with: {files: js-api-doc}
 
     - name: Deploy

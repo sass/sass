@@ -102,6 +102,7 @@ a string.
 > exposes this to the user.
 
 This algorithm takes:
+
 * a string `string`,
 * a syntax `syntax` ("indented", "scss", or "css"),
 * an optional URL `url`,
@@ -147,8 +148,6 @@ It runs as follows:
 * Let `file` be the [source file][] with `ast`, canonical URL `url`, and
   importer `importer`.
 
-  [source file]: syntax.md#source-file
-
 * Let `module` be the result of [executing](#executing-a-file) `file`.
 
 * Let `css` be the result of [resolving `module`'s extensions][].
@@ -165,10 +164,6 @@ It runs as follows:
 
 This algorithm takes a [source file][] `file`, a [configuration][] `config`, an
 [import context][] `import`, and returns a [module][].
-
-[module]: modules.md#module
-[configuration]: modules.md#configuration
-[import context]: modules.md#import-context
 
 * Let `module` be an empty module with source file `file`.
 

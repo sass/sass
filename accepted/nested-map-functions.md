@@ -23,13 +23,13 @@ setting, and getting elements from nested maps.
 
 Variables have always been a key feature of the Sass language. But these days,
 design systems and component libraries form the basis of most CSS projects --
-with well organized _design tokens_ as the foundation. While Individual token
+with well organized *design tokens* as the foundation. While Individual token
 variables can be quite useful, the ability to group tokens into structured and
 meaningful relationships is essential for creating resilient systems.
 
 There are many ways to group tokens. The popular [Style Dictionary] recommends a
-deep nesting of _category_, _type_, _item_, _sub-item_, and _state_. Other
-taxonomies also include concepts like _theme_, or even _operating system_. Most
+deep nesting of *category*, *type*, *item*, *sub-item*, and *state*. Other
+taxonomies also include concepts like *theme*, or even *operating system*. Most
 of the existing tools rely on YAML or JSON objects to achieve that nested
 structure, at the expense of other important information. YAML and JSON are not
 design languages, and do not understand fundamental CSS concepts like color or

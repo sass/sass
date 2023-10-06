@@ -131,15 +131,12 @@ This production has the same grammar as [`<ident-token>`][].
 This algorithm consumes input from a stream of [code points][] and returns a
 sequence of strings and/or expressions.
 
-[code points]: https://infra.spec.whatwg.org/#code-point
-
 The grammar for this production is:
 
 <x><pre>
 **InterpolatedIdentifier** ::= ([\<ident-token>][`<ident-token>`] | '-'? Interpolation) ([Name](#consuming-a-name) | Interpolation)*
 </pre></x>
 
-[name-start code point]: https://drafts.csswg.org/css-syntax-3/#name-start-code-point
 [escape]: https://drafts.csswg.org/css-syntax-3/#escape-diagram
 
 No whitespace is allowed between components of an `InterpolatedIdentifier`.
@@ -219,10 +216,9 @@ This production has the same grammar as [`escape`][escape] in CSS Syntax Level 3
   [non-printable code point]: https://drafts.csswg.org/css-syntax-3/#non-printable-code-point
   [digit]: https://drafts.csswg.org/css-syntax-3/#digit
 
-    * Let `code` be the lowercase hexadecimal representation of `codepoint`,
+  * Let `code` be the lowercase hexadecimal representation of `codepoint`,
       with no leading `0`s.
 
-    * Return `"\"` + `code` + `" "`.
+  * Return `"\"` + `code` + `" "`.
 
 * Otherwise, return `"\"` + `character`.
-

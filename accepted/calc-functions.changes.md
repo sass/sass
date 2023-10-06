@@ -1,3 +1,63 @@
+## Draft 3.2
+
+* Support space-separated lists in calculation expressions without deprecation,
+  since they're necessary to support the valid CSS construct `calc(1
+  var(--plus-two))`.
+
+* Always preserve parentheses around unquoted strings.
+
+## Draft 3.1
+
+* Update the definition of potentially slash-separated numbers to reflect the
+  fact that calculations are no longer determinable syntactically.
+
+* Add a section describing how to restructure slash-separated lists as division
+  within calculations.
+
+* Don't evaluate `min()`, `max()`, `round()`, or `abs()` as a calculation if it
+  has keyword or rest arguments.
+
+* During the deprecation period, only consider unbracketed
+  `SpaceListExpressions` with multiple elements that actually contain
+  interpolation to be calculation-safe.
+
+* Handle `"*"` and `"/"` tokens when evaluating `SumExpresssion`s and
+  `ProductExpression`s as calculations.
+
+* Remove the `CalculationInterpolation` type, and deprecate the associated JS
+  API and embedded protocol field. The problem this type existed to work around
+  is no longer an issue in the new parsing structure.
+
+* Preserve parentheses around all `var()` strings that get injected from
+  anywhere, as well as any unquoted strings that appear in `calc()` and might
+  need parentheses.
+
+* Don't treat `abs()`, `min()`, `max()`, or `round()` as potentially
+  slash-separated operands..
+
+## Draft 3.0
+
+* Refactor the way calculations are parsed to allow them to coexist with
+  user-defined Sass functions of the same names.
+
+* No longer forbid user-defined functions with the same names as CSS math
+  functions and remove the associated deprecation process.
+
+* Drop support for interpolation in calculations outside of identifier position
+  and add a deprecation process for this.
+
+## Draft 2.1
+
+* Allow custom functions named like vendor-prefixed new CSS functions.
+
+## Draft 2.0
+
+* Explicitly forbid user-defined functions with the same names as CSS math
+  functions.
+
+* Add a deprecation process for gradually phasing out user-defined functions
+  with name conflicts.
+
 ## Draft 1.5
 
 * Fix the definition of `rem()` to use `result - modulus` rather than `result -
@@ -6,7 +66,7 @@
 ## Draft 1.4
 
 * Don't exempt percentages from most functions' simplification logic, since
-  those functions don't allow _any_ units in CSS, including percents. Now only
+  those functions don't allow *any* units in CSS, including percents. Now only
   `abs()`, `sign()`, `atan2()`, and `hypot()` check for known units because CSS
   allows percentages for them but they aren't linear so they can't be resolved
   in terms of percentages in Sass.

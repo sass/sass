@@ -17,7 +17,6 @@ export {SourceSpan} from './source_span';
   * [`Logger`](#logger-1)
     * [`silent`](#silent)
 
-
 ## Types
 
 ### `Logger`

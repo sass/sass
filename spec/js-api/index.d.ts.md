@@ -47,7 +47,12 @@ export {
   compileStringAsync,
 } from './compile';
 export {Exception} from './exception';
-export {FileImporter, Importer, ImporterResult} from './importer';
+export {
+  CanonicalizeContext,
+  FileImporter,
+  Importer,
+  ImporterResult,
+} from './importer';
 export {Logger, SourceSpan, SourceLocation} from './logger';
 export {
   CustomFunction,
@@ -72,6 +77,7 @@ export {
   SassFunction,
   SassList,
   SassMap,
+  SassMixin,
   SassNumber,
   SassString,
   Value,
