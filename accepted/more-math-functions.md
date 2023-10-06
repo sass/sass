@@ -125,7 +125,7 @@ To execute a `VariableDeclaration` `declaration`:
   variable named `name`, set the innermost block's scope's variable `name` to
   `value`.~~
 
-[scope]: ../spec/variables.md#scope
+[scope]: ../spec/spec.md#scope
 
 * **Otherwise, if `resolved` is null, get the innermost block containing
   `declaration` and set its scope's variable `name` to `value`.**

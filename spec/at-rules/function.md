@@ -42,6 +42,6 @@ To execute a `@function` rule `rule`:
   [the current module]: ../spec.md#current-module
   [the current import context]: ../spec.md#current-import-context
 
-* Otherwise, set the innermost block's [scope][]'s function `name` to `value`.
+* Otherwise, set the [current scope]'s function `name` to `rule`.
 
-  [scope]: ../variables.md#scope
+  [current scope]: ../spec.md#scope
