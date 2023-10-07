@@ -134,7 +134,7 @@ The situations we chose to warn for are:
   `futureDeprecations`.
 
   In this scenario, the future deprecation will still be treated as fatal,
-  but we want to warn users to prevent situtations where a user tries to
+  but we want to warn users to prevent situations where a user tries to
   make every deprecation fatal and ends up including future ones too.
 
 * an obsolete deprecation is passed to `fatalDeprecations`.
@@ -326,7 +326,7 @@ behavior of their global counterparts for compatibility reasons.
 
 #### `slash-div`
 
-Deprecation for treaing `/` as division.
+Deprecation for treating `/` as division.
 
 Update the proposal for forward slash as a separator to say that it emits
 deprecation warnings with ID 'slash-div'.

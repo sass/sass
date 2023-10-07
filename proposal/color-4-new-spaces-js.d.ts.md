@@ -50,6 +50,8 @@ proposal].
 ## API
 
 ```ts
+import {List} from 'immutable';
+
 import {Value} from '../spec/js-api/value';
 ```
 
@@ -197,7 +199,7 @@ Returns an array of channel values (excluding alpha) for [`internal`], with
 * Return `channels`.
 
 ```ts
-get channelsOrNull(): [number | null, number | null, number | null];
+get channelsOrNull(): List<number | null>;
 ```
 
 [missing components]: ./color-4-new-spaces.md#missing-components
@@ -223,7 +225,7 @@ This algorithm returns an array of channel values (excluding alpha) for
 [`this.channelsOrNull`]: #channelsornull
 
 ```ts
-get channels(): [number, number, number];
+get channels(): List<number>;
 ```
 
 #### `channel`
@@ -567,16 +569,10 @@ as the result of changing some of [`internal`]'s components.
 ```ts
 change(
   options: {
-    [key in ChannelName]?: number | null;
-  } & {alpha?: number}
-): SassColor;
-
-change(
-  options: {
     [key in ChannelNameHSL]?: number | null;
   } & {
     alpha?: number;
-    space: ColorSpaceHSL;
+    space?: ColorSpaceHSL;
   }
 ): SassColor;
 
@@ -585,7 +581,7 @@ change(
     [key in ChannelNameHWB]?: number | null;
   } & {
     alpha?: number;
-    space: ColorSpaceHWB;
+    space?: ColorSpaceHWB;
   }
 ): SassColor;
 
@@ -594,7 +590,7 @@ change(
     [key in ChannelNameLab]?: number | null;
   } & {
     alpha?: number | null;
-    space: ColorSpaceLab;
+    space?: ColorSpaceLab;
   }
 ): SassColor;
 
@@ -603,7 +599,7 @@ change(
     [key in ChannelNameLCH]?: number | null;
   } & {
     alpha?: number | null;
-    space: ColorSpaceLCH;
+    space?: ColorSpaceLCH;
   }
 ): SassColor;
 
@@ -612,7 +608,7 @@ change(
     [key in ChannelNameRGB]?: number | null;
   } & {
     alpha?: number | null;
-    space: ColorSpaceRGB;
+    space?: ColorSpaceRGB;
   }
 ): SassColor;
 
@@ -621,7 +617,7 @@ change(
     [key in ChannelNameXYZ]?: number | null;
   } & {
     alpha?: number | null;
-    space: ColorSpaceXYZ;
+    space?: ColorSpaceXYZ;
   }
 ): SassColor;
 ```

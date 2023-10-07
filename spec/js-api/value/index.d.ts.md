@@ -9,6 +9,7 @@ import {SassColor} from './color';
 import {SassFunction} from './function';
 import {ListSeparator} from './list';
 import {SassMap} from './map';
+import {SassMixin} from './mixin';
 import {SassNumber} from './number';
 import {SassString} from './string';
 
@@ -25,6 +26,7 @@ export {SassColor} from './color';
 export {SassFunction} from './function';
 export {SassList, ListSeparator} from './list';
 export {SassMap} from './map';
+export {SassMixin} from './mixin';
 export {SassNumber} from './number';
 export {SassString} from './string';
 ```
@@ -48,6 +50,7 @@ export {SassString} from './string';
     * [`assertColor`](#assertcolor)
     * [`assertFunction`](#assertfunction)
     * [`assertMap`](#assertmap)
+    * [`assertMixin`](#assertmixin)
     * [`assertNumber`](#assertnumber)
     * [`assertString`](#assertstring)
     * [`tryMap`](#trymap)
@@ -229,6 +232,18 @@ Return `this.tryMap()` if it's not null, and throw an error otherwise.
 
 ```ts
 assertMap(name?: string): SassMap;
+```
+
+#### `assertMixin`
+
+Returns `this` if it's a [`SassMixin`] and throws an error otherwise.
+
+[`SassMixin`]: mixin.d.ts.md
+
+> The `name` parameter may be used for error reporting.
+
+```ts
+assertMixin(name?: string): SassMixin;
 ```
 
 #### `assertNumber`

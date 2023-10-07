@@ -1,3 +1,10 @@
+## Draft 1.2
+
+* Remove generic `change` overload, and make `space` optional on others.
+
+* Return `immutable` types for `channels` and `channelsOrNull`, and remove
+  assumption of 3 channels.
+
 ## Draft 1.1
 
 * Clarify values in `channels` and `channelsOrNull`.

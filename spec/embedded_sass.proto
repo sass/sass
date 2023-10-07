@@ -887,6 +887,17 @@ message Value {
     string signature = 2;
   }
 
+  // A first-class mixin defined in the compiler. New `CompilerMixin`s may
+  // only be created by the compiler, but the host may pass `CompilerMixin`s
+  // back to the compiler as long as their IDs match IDs of mixins received
+  // by the host during that same compilation.
+  message CompilerMixin {
+    // A unique ID for this mixin. The compiler is responsible for generating
+    // this ID and ensuring it's unique across all mixins passed to the host
+    // for this compilation. Mandatory.
+    uint32 id = 1;
+  }
+
   // A SassScript argument list value. This represents rest arguments passed to
   // a function's `$arg...` parameter. Unlike a normal `List`, an argument list
   // has an associated keywords map which tracks keyword arguments passed in
@@ -1000,6 +1011,7 @@ message Value {
     ArgumentList argument_list = 10;
     HwbColor hwb_color = 11;
     Calculation calculation = 12;
+    CompilerMixin compiler_mixin = 13;
   }
 }
 
