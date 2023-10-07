@@ -31,24 +31,40 @@ To execute a `@mixin` rule `rule`:
 
 * Let `name` be the value of `rule`'s `Identifier`.
 
+* Let `parent` be the [current scope].
+
+  [current scope]: ../spec.md#scope
+
+* Let `mixin` be a [mixin] named `name` which accepts a content block if `rule`
+  contains a `@content` rule. To execute this mixin with `args`:
+
+  [mixin]: ../types/mixins.md
+
+  * With the current scope set to an empty [scope] with `parent` as its parent:
+
+    * Evaluate `args` with `rule`'s `ArgumentDeclaration`.
+
+    * Execute each statement in `rule`.
+
+  [scope]: ../spec.md#scope
+
 * If `rule` is outside of any block of statements:
 
   * If `name` *doesn't* begin with `-` or `_`, set [the current module]'s
-    mixin `name` to `rule`.
+    mixin `name` to `mixin`.
 
     > This overrides the previous definition, if one exists.
 
-  * Set [the current import context]'s mixin `name` to `rule`.
+  * Set [the current import context]'s mixin `name` to `mixin`.
 
     > This happens regardless of whether or not it begins with `-` or `_`.
 
-* Otherwise, set the [current scope]'s mixin `name` to `rule`.
+  [the current module]: ../spec.md#current-module
+  [the current import context]: ../spec.md#current-import-context
+
+* Otherwise, set the [current scope]'s mixin `name` to `mixin`.
 
   > This overrides the previous definition, if one exists.
-
-[the current module]: ../spec.md#current-module
-[the current import context]: ../spec.md#current-import-context
-[current scope]: ../spec.md#scope
 
 ## `@include`
 
@@ -72,15 +88,12 @@ To execute an `@include` rule `rule`:
 
 * Let `name` be `rule`'s `NamespacedIdentifier`.
 
-* Let `mixin` be the result of [resolving a mixin][] named `name`. If this
-  returns null, throw an error.
+* Let `mixin` be the result of [resolving a mixin] named `name`. If this returns
+  null, throw an error.
 
   [resolving a mixin]: ../modules.md#resolving-a-member
 
-* Execute `rule`'s `ArgumentInvocation` with `mixin`'s `ArgumentDeclaration` in
-  `mixin`'s scope.
-
-* Execute each statement in `mixin`.
+* Execute `mixin` with `rule`'s `ArgumentInvocation`.
 
 ## `@content`
 
