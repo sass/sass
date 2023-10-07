@@ -50,7 +50,7 @@ proposal].
 ## API
 
 ```ts
-import {List, ValueObject} from 'immutable';
+import {List} from 'immutable';
 
 import {Value} from '../spec/js-api/value';
 ```
