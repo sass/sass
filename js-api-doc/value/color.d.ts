@@ -1,3 +1,5 @@
+import {List} from 'immutable';
+
 import {Value} from './index';
 
 /** The HSL color space name. */
@@ -256,7 +258,7 @@ export class SassColor extends Value {
    *
    * [missing channels]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
    */
-  get channelsOrNull(): [number | null, number | null, number | null];
+  get channelsOrNull(): List<number | null>;
 
   /**
    * An array of this color's channel values (excluding alpha), with [missing
@@ -264,7 +266,7 @@ export class SassColor extends Value {
    *
    * [missing channels]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
    */
-  get channels(): [number, number, number];
+  get channels(): List<number>;
 
   /** This color's alpha channel, between `0` and `1`. */
   get alpha(): number;
@@ -395,108 +397,92 @@ export class SassColor extends Value {
   }): SassColor;
 
   /**
-   * Changes one or more of this color's channels and returns the result.
-   *
-   * @throws `Error` if this color is a legacy color space (`rgb`, `hsl`, or
-   * `hwb`) and any passed key is not the name of a channel in another legacy
-   * color space.
-   * @throws `Error` if this color is not a legacy color space and any passed
-   * key (other than `alpha`) is not the name of a channel in this color's
-   * space.
-   */
-  change(
-    options: {
-      [key in ChannelName]?: number | null;
-    } & {alpha?: number}
-  ): SassColor;
-
-  /**
    * Changes one or more of this color's HSL channels and returns the result.
    *
-   * @throws `Error` if any passed key (other than `alpha`) is not the name of a
-   * channel in the HSL color space.
+   * @throws `Error` if `space` is missing and this color is not a legacy color
+   * space (`rgb`, `hsl`, or `hwb`).
    */
   change(
     options: {
       [key in ChannelNameHSL]?: number | null;
     } & {
       alpha?: number;
-      space: ColorSpaceHSL;
+      space?: ColorSpaceHSL;
     }
   ): SassColor;
 
   /**
    * Changes one or more of this color's HWB channels and returns the result.
    *
-   * @throws `Error` if any passed key (other than `alpha`) is not the name of a
-   * channel in the HWB color space.
+   * @throws `Error` if `space` is missing and this color is not a legacy color
+   * space (`rgb`, `hsl`, or `hwb`).
    */
   change(
     options: {
       [key in ChannelNameHWB]?: number | null;
     } & {
       alpha?: number;
-      space: ColorSpaceHWB;
+      space?: ColorSpaceHWB;
     }
   ): SassColor;
 
   /**
    * Changes one or more of this color's Lab channels and returns the result.
    *
-   * @throws `Error` if any passed key (other than `alpha`) is not the name of a
-   * channel in the Lab color space.
+   * @throws `Error` if `space` is missing and this color is not in the Lab or
+   * Oklab color spaces.
    */
   change(
     options: {
       [key in ChannelNameLab]?: number | null;
     } & {
       alpha?: number | null;
-      space: ColorSpaceLab;
+      space?: ColorSpaceLab;
     }
   ): SassColor;
 
   /**
    * Changes one or more of this color's LCH channels and returns the result.
    *
-   * @throws `Error` if any passed key (other than `alpha`) is not the name of a
-   * channel in the LCH color space.
+   * @throws `Error` if `space` is missing and this color is not in the LCH or
+   * Oklch color spaces.
    */
   change(
     options: {
       [key in ChannelNameLCH]?: number | null;
     } & {
       alpha?: number | null;
-      space: ColorSpaceLCH;
+      space?: ColorSpaceLCH;
     }
   ): SassColor;
 
   /**
    * Changes one or more of this color's RGB channels and returns the result.
    *
-   * @throws `Error` if any passed key (other than `alpha`) is not the name of a
-   * channel in an RGB color space.
+   * @throws `Error` if `space` is missing and this color is not a legacy color
+   * space (`rgb`, `hsl`, or `hwb`).
    */
   change(
     options: {
       [key in ChannelNameRGB]?: number | null;
     } & {
       alpha?: number | null;
-      space: ColorSpaceRGB;
+      space?: ColorSpaceRGB;
     }
   ): SassColor;
 
   /**
    * Changes one or more of this color's XYZ channels and returns the result.
    *
-   * @throws `Error` if any passed key (other than `alpha`) is not the name of a
-   * channel in an XYZ color space.
+   * @throws `Error` if `space` is missing and this color is not in an XYZ color
+   * space.
    */
   change(
     options: {
       [key in ChannelNameXYZ]?: number | null;
     } & {
       alpha?: number | null;
-      space: ColorSpaceXYZ;
+      space?: ColorSpaceXYZ;
     }
   ): SassColor;
 
