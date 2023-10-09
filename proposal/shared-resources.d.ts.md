@@ -2,10 +2,10 @@
 
 *([Issue](https://github.com/sass/sass/issues/3296))*
 
-This proposal adds an API design for sharing resources across multiple
-invocations of the Sass compiler's JavaScript API. This will provide Sass's
-users with a more efficient way of running Sass compilations across multiple
-files.
+This proposal adds an API design that allows for sharing resources across
+multiple invocations of the Sass compiler's JavaScript API. This will provide
+Sass's users with a more efficient way of running Sass compilations across
+multiple files.
 
 ## Table of Contents
 
@@ -100,22 +100,24 @@ A Compiler must:
 
 * Have a lifetime, which starts upon construction.
 
-* Include all items of the Sass interface, but must not include `render`,
-  `renderSync`, `FALSE`, `NULL`, `TRUE`, `types` or any export starting with
-  `Legacy`.
+* Include all items of the Sass interface, but must not include `Compiler`,
+  `render`, `renderSync`, `FALSE`, `NULL`, `TRUE`, `types` or any export
+  starting with `Legacy`.
 
-* All methods must have identical semantics to the Sass interface.
+* All methods must have identical semantics to the [Sass interface].
 
 * Have a `dispose` method.
 
-> Implementations may choose to associate a long-running process with a
-> Compiler.
+[Sass interface]: ../spec/js-api/index.d.ts.md
+
+### Creating a Compiler
+
+
+
 
 ### Disposing a Compiler
 
 When `dispose` is invoked on a Compiler:
-
-* Any related process must be shut down and cleaned up.
 
 * Any subsequent invokations of `compile`, `compileAsync`, `compileString`, or
   `compileStringAsync` must throw an error.
