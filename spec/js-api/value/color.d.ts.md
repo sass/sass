@@ -60,6 +60,7 @@ import {Value} from './index';
     * [`blackness`](#blackness)
 * [Procedures](#procedures)
   * [Parsing a Channel Value](#parsing-a-channel-value)
+  * [Changing a Component Value](#changing-a-component-value)
 
 ## Types
 
@@ -736,63 +737,250 @@ interpolate(options: {
 
 #### `change`
 
-Returns a new color created by changing some of this color's channels:
+This algorithm takes a JavaScript object `options` and returns a new SassColor
+as the result of changing some of [`internal`]'s components.
 
-* If `options.whiteness` or `options.blackness` is set, return the result of:
+> The `space` value defaults to the `space` of [`internal`], and the caller may
+> specify any combination of channels and alpha in that space to be changed.
+>
+> If `space` is not a [legacy color space], a channel value of `null` will
+> result in a [missing component][missing components] value for that channel.
 
-  ```js
-  SassColor({
-    hue: options.hue ?? this.hue,
-    whiteness: options.whiteness ?? this.whiteness,
-    blackness: options.blackness ?? this.blackness,
-    alpha: options.alpha ?? this.alpha
+* Let `initialSpace` be the value of [`this.space`].
+
+* Let `spaceSetExplicitly` be `true` if `options.space` is defined, and `false`
+  otherwise.
+
+* Let `space` be `options.space` if `spaceSetExplicitly` is true, and the value
+  of `initialSpace` otherwise.
+
+* If `initialSpace` is a [legacy color space] and `spaceSetExplicitly` is false:
+
+  * If `options.whiteness` or `options.blackness` is set, let `space` be `hwb`.
+
+  * Otherwise, if `options.hue`, `options.saturation`, or `options.lightness` is
+    set, let `space` be `hsl`.
+
+  * Otherwise, if `options.red`, `options.green`, or `options.blue` is set, let
+    `space` be `rgb`.
+
+  * If `initialSpace` is not equal to `space`, emit a deprecation warning named
+    `color-4-api`.
+
+* Let `changes` be the object `options` without `space` and its value.
+
+* Let `keys` be a list of the keys in `changes`.
+
+* Let `components` be `"alpha"` and the names of the channels in `space`.
+
+* If any key in `keys` is not the name of a channel in `components`, throw an
+  error.
+
+* Let `color` be the result of [`this.toSpace(space)`].
+
+* Let `changedValue` be a function that takes a string argument for `channel`
+  and calls the procedure [`Changing a Component Value`] with `changes` and
+  `this` as `initial`.
+
+* If `space` equals `hsl` and `spaceSetExplicitly` is `false`:
+
+  * If any of `options.hue`, `options.saturation`, `options.lightness` or
+    `options.alpha` equals null, emit a deprecation warning named `null-alpha`.
+
+  * Let `changedColor` be the result of:
+
+    ```js
+    new SassColor({
+      hue: options.hue ?? color.channel('hue'),
+      saturation: options.saturation ?? color.channel('saturation'),
+      lightness: options.lightness ?? color.channel('lightness'),
+      alpha: options.alpha ?? color.channel('alpha'),
+      space: space
+    })
+    ```
+
+* If `space` equals `hsl` and `spaceSetExplicitly` is `true`, let `changedColor`
+  be the result of:
+
+   ```js
+  new SassColor({
+    hue: changedValue('hue'),
+    saturation: changedValue('saturation'),
+    lightness: changedValue('lightness'),
+    alpha: changedValue('alpha'),
+    space: space
   })
   ```
 
-* Otherwise, if `options.hue`, `options.saturation`, or `options.lightness`
-  is set, return the result of:
+* If `space` equals `hwb` and `spaceSetExplicitly` is `false`:
 
-  ```js
-  SassColor({
-    hue: options.hue ?? this.hue,
-    saturation: options.saturation ?? this.saturation,
-    lightness: options.lightness ?? this.lightness,
-    alpha: options.alpha ?? this.alpha
+  * If any of `options.hue`, `options.whiteness`, `options.blackness` or
+    `options.alpha` equals null, emit a deprecation warning named `null-alpha`.
+
+  * Let `changedColor` be the result of:
+
+    ```js
+    new SassColor({
+      hue: options.hue ?? color.channel('hue'),
+      whiteness: options.whiteness ?? color.channel('whiteness'),
+      blackness: options.blackness ?? color.channel('blackness'),
+      alpha: options.alpha ?? color.channel('alpha'),
+      space: space
+    })
+    ```
+
+* If `space` equals `hwb` and `spaceSetExplicitly` is `true`, let `changedColor`
+  be the result of:
+
+   ```js
+  new SassColor({
+    hue: changedValue('hue'),
+    whiteness: changedValue('whiteness'),
+    blackness: changedValue('blackness'),
+    alpha: changedValue('alpha'),
+    space: space
   })
   ```
 
-* Otherwise, return the result of:
+* If `space` equals `rgb` and `spaceSetExplicitly` is `false`:
 
-  ```js
-  SassColor({
-    red: options.red ?? this.red,
-    green: options.green ?? this.gren,
-    blue: options.blue ?? this.blue,
-    alpha: options.alpha ?? this.alpha
+  * If any of `options.red`, `options.green`, `options.blue` or `options.alpha`
+    equals null, emit a deprecation warning named `null-alpha`.
+
+  * Let `changedColor` be the result of:
+
+    ```js
+    new SassColor({
+      red: options.red ?? color.channel('red'),
+      green: options.green ?? color.channel('green'),
+      blue: options.blue ?? color.channel('blue'),
+      alpha: options.alpha ?? color.channel('alpha'),
+      space: space
+    })
+    ```
+
+* If `space` equals `rgb` and `spaceSetExplicitly` is `true`, let `changedColor`
+  be the result of:
+
+   ```js
+  new SassColor({
+    red: changedValue('red'),
+    green: changedValue('green'),
+    blue: changedValue('blue'),
+    alpha: changedValue('alpha'),
+    space: space
   })
   ```
+
+* If `space` equals `lab` or `oklab`, let `changedColor` be the result of:
+
+  ```js
+  new SassColor({
+    lightness: changedValue('lightness'),
+    a: changedValue('a'),
+    b: changedValue('b'),
+    alpha: changedValue('alpha'),
+    space: space
+  })
+  ```
+
+* If `space` equals `lch` or `oklch`, let `changedColor` be the result of:
+
+  ```js
+  new SassColor({
+    lightness: changedValue('lightness'),
+    chroma: changedValue('chroma'),
+    hue: changedValue('hue'),
+    alpha: changedValue('alpha'),
+    space: space
+  })
+  ```
+
+* If `space` equals `a98-rgb`, `display-p3`, `prophoto-rgb`, `srgb`, or
+  `srgb-linear`, let `changedColor` be the result of:
+
+  ```js
+  new SassColor({
+    red: changedValue('red'),
+    green: changedValue('green'),
+    blue: changedValue('blue'),
+    alpha: changedValue('alpha'),
+    space: space
+  })
+  ```
+
+* If `space` equals `xyz`, `xyz-d50`, or `xyz-d65`, let `changedColor` be the
+  result of:
+
+  ```js
+  new SassColor({
+    y: changedValue('y'),
+    x: changedValue('x'),
+    z: changedValue('z'),
+    alpha: changedValue('alpha'),
+    space: space
+  })
+  ```
+
+* Return the result of [`changedColor.toSpace(initialSpace)`].
+
+[`changedColor.toSpace(initialSpace)`]: #tospace
+[`Changing a Component Value`]: #changing-a-component-value
 
 ```ts
-change(options: {
-  red?: number;
-  green?: number;
-  blue?: number;
-  alpha?: number;
-}): SassColor;
+change(
+  options: {
+    [key in ChannelNameHSL]?: number | null;
+  } & {
+    alpha?: number;
+    space?: ColorSpaceHSL;
+  }
+): SassColor;
 
-change(options: {
-  hue?: number;
-  saturation?: number;
-  lightness?: number;
-  alpha?: number;
-}): SassColor;
+change(
+  options: {
+    [key in ChannelNameHWB]?: number | null;
+  } & {
+    alpha?: number;
+    space?: ColorSpaceHWB;
+  }
+): SassColor;
 
-change(options: {
-  hue?: number;
-  whiteness?: number;
-  blackness?: number;
-  alpha?: number;
-}): SassColor;
+change(
+  options: {
+    [key in ChannelNameLab]?: number | null;
+  } & {
+    alpha?: number | null;
+    space?: ColorSpaceLab;
+  }
+): SassColor;
+
+change(
+  options: {
+    [key in ChannelNameLCH]?: number | null;
+  } & {
+    alpha?: number | null;
+    space?: ColorSpaceLCH;
+  }
+): SassColor;
+
+change(
+  options: {
+    [key in ChannelNameRGB]?: number | null;
+  } & {
+    alpha?: number | null;
+    space?: ColorSpaceRGB;
+  }
+): SassColor;
+
+change(
+  options: {
+    [key in ChannelNameXYZ]?: number | null;
+  } & {
+    alpha?: number | null;
+    space?: ColorSpaceXYZ;
+  }
+): SassColor;
 ```
 
 #### `red`
@@ -910,3 +1098,15 @@ This procedure takes a channel value `value`, and returns the special value
 
 * If `value` is the Javascript value `null`, return the unquoted Sass string
   `none`.
+
+### Changing a Component Value
+
+This procedure takes a `channel` name, an object `changes` and a SassColor
+`initial` and returns the result of applying the change for `channel` to
+`initial`.
+
+* Let `initialValue` be the channel value in `initial` with name of `channel`.
+
+* If `channel` is not a key in `changes`, return `initialValue`.
+
+* Otherwise, return the value for `channel` in `changes`.
