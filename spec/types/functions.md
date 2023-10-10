@@ -43,11 +43,11 @@ refer to the exact same instance of the same procedure.
 >
 > $a: meta.get-function(foo);
 >
-> @mixin foo {
+> @function foo {
 >   @return red;
 > }
 >
-> $b: meta.get-mixin(foo);
+> $b: meta.get-function(foo);
 > ```
 >
 > Although every aspect of the two functions is the same, `$a != $b`, because

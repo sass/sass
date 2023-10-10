@@ -55,7 +55,7 @@ To execute a `@function` rule `rule`:
 
     > This overrides the previous definition, if one exists.
 
-  * Set [the current import context][]'s function `name` to `function`.
+  * Set [the current import context]'s function `name` to `function`.
 
     > This happens regardless of whether or not it begins with `-` or `_`.
 
