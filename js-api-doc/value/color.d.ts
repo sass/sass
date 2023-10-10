@@ -248,42 +248,15 @@ export class SassColor extends Value {
   get space(): KnownColorSpace;
 
   /**
+   * Returns this color converted to the specified `space`.
+   */
+  toSpace(space: KnownColorSpace): SassColor;
+
+  /**
    * A boolean indicating whether this color is in a legacy color space (`rgb`,
    * `hsl`, or `hwb`).
    */
   get isLegacy(): boolean;
-
-  /**
-   * An array of this color's channel values (excluding alpha), with [missing
-   * channels] converted to `null`.
-   *
-   * [missing channels]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
-   */
-  get channelsOrNull(): List<number | null>;
-
-  /**
-   * An array of this color's channel values (excluding alpha), with [missing
-   * channels] converted to `0`.
-   *
-   * [missing channels]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
-   */
-  get channels(): List<number>;
-
-  /** This color's alpha channel, between `0` and `1`. */
-  get alpha(): number;
-
-  /**
-   * A boolean indicating whether this color's alpha channel is a [missing
-   * channel].
-   *
-   * [missing channel]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
-   */
-  get isAlphaMissing(): boolean;
-
-  /**
-   * Returns this color converted to the specified `space`.
-   */
-  toSpace(space: KnownColorSpace): SassColor;
 
   /**
    * Returns a boolean indicating whether this color is in gamut (as opposed to
@@ -301,6 +274,22 @@ export class SassColor extends Value {
    * [css-mapping]: https://www.w3.org/TR/css-color-4/#css-gamut-mapping-algorithm
    */
   toGamut(space?: KnownColorSpace): SassColor;
+
+  /**
+   * An array of this color's channel values (excluding alpha), with [missing
+   * channels] converted to `null`.
+   *
+   * [missing channels]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
+   */
+  get channelsOrNull(): List<number | null>;
+
+  /**
+   * An array of this color's channel values (excluding alpha), with [missing
+   * channels] converted to `0`.
+   *
+   * [missing channels]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
+   */
+  get channels(): List<number>;
 
   /**
    * Returns the value of a single specified `channel` of this color, with
@@ -347,6 +336,9 @@ export class SassColor extends Value {
     options: {space: ColorSpaceXYZ}
   ): number;
 
+  /** This color's alpha channel, between `0` and `1`. */
+  get alpha(): number;
+
   /**
    * Returns a boolean indicating whether a given channel value is a [missing
    * channel].
@@ -354,6 +346,14 @@ export class SassColor extends Value {
    * [missing channel]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
    */
   isChannelMissing(channel: ChannelName | 'alpha'): boolean;
+
+  /**
+   * A boolean indicating whether this color's alpha channel is a [missing
+   * channel].
+   *
+   * [missing channel]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
+   */
+  get isAlphaMissing(): boolean;
 
   /**
    * Returns a boolean indicating whether a given `channel` is "powerless" in
