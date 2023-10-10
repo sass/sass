@@ -276,7 +276,7 @@ export class SassColor extends Value {
   toGamut(space?: KnownColorSpace): SassColor;
 
   /**
-   * An array of this color's channel values (excluding alpha), with [missing
+   * A list of this color's channel values (excluding alpha), with [missing
    * channels] converted to `null`.
    *
    * [missing channels]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
@@ -284,7 +284,7 @@ export class SassColor extends Value {
   get channelsOrNull(): List<number | null>;
 
   /**
-   * An array of this color's channel values (excluding alpha), with [missing
+   * A list of this color's channel values (excluding alpha), with [missing
    * channels] converted to `0`.
    *
    * [missing channels]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
