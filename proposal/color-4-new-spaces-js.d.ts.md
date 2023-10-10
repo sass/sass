@@ -210,7 +210,7 @@ get channelsOrNull(): List<number | null>;
 This algorithm returns a list of channel values (excluding alpha) for
 [`internal`], with [missing channels][missing components] converted to `0`.
 
-* Let `channelsOrNull` be the result of [`this.channelsOrNull`].
+* Let `channelsOrNull` be the value of [`this.channelsOrNull`].
 
 * Let `channels` be an empty list.
 
