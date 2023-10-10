@@ -179,14 +179,14 @@ toGamut(space?: KnownColorSpace): SassColor;
 
 #### `channelsOrNull`
 
-Returns an array of channel values (excluding alpha) for [`internal`], with
+Returns a list of channel values (excluding alpha) for [`internal`], with
 [missing channels][missing components] converted to `null`.
 
-* Let `space` be the result of [`this.space`].
+* Let `space` be the value of [`this.space`].
 
 * Let `components` be the list of channels in `space`.
 
-* Let `channels` be an empty array.
+* Let `channels` be an empty list.
 
 * For each `component` in `components`:
 
@@ -207,12 +207,12 @@ get channelsOrNull(): List<number | null>;
 
 #### `channels`
 
-This algorithm returns an array of channel values (excluding alpha) for
+This algorithm returns a list of channel values (excluding alpha) for
 [`internal`], with [missing channels][missing components] converted to `0`.
 
-* Let `channelsOrNull` be the result of [`this.channelsOrNull`].
+* Let `channelsOrNull` be the value of [`this.channelsOrNull`].
 
-* Let `channels` be an empty array.
+* Let `channels` be an empty list.
 
 * For each `channel` in `channelsOrNull`:
 
@@ -230,7 +230,7 @@ get channels(): List<number>;
 
 #### `channel`
 
-* Let `initialSpace` be the value of [`this.space()`].
+* Let `initialSpace` be the value of [`this.space`].
 
 * Let `space` be `options.space` if it is defined, and the value of
   `initialSpace` otherwise.
@@ -340,7 +340,7 @@ isChannelPowerless(
 
 #### `interpolate`
 
-* Let `space` be the value of [`this.space()`].
+* Let `space` be the value of [`this.space`].
 
 * If `options.method` is set, let `interpolationMethod` be a space separated
   list containing the value of `space`, a space, and the value of
@@ -383,7 +383,7 @@ as the result of changing some of [`internal`]'s components.
 > If `space` is not a [legacy color space], a channel value of `null` will
 > result in a [missing component][missing components] value for that channel.
 
-* Let `initialSpace` be the value of [`this.space()`].
+* Let `initialSpace` be the value of [`this.space`].
 
 * Let `spaceSetExplicitly` be `true` if `options.space` is defined, and `false`
   otherwise.
@@ -561,7 +561,6 @@ as the result of changing some of [`internal`]'s components.
 
 * Return the result of [`changedColor.toSpace(initialSpace)`].
 
-[`this.space()`]: #space
 [`this.toSpace(space)`]: #tospace
 [`changedColor.toSpace(initialSpace)`]: #tospace
 [`Changing a Component Value`]: #changing-a-component-value
@@ -850,7 +849,7 @@ Create a new SassColor in the `rgb` color space.
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
   the result of [parsing a channel value] with value `options.alpha`.
 
-* Return the result of [`rgb(red green blue / alpha)`].
+* Set [`internal`] to the result of [`rgb(red green blue / alpha)`].
 
 [`rgb(red green blue / alpha)`]: ./color-4-new-spaces.md#rgb-and-rgba
 
