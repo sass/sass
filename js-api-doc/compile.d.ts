@@ -44,10 +44,10 @@ export interface CompileResult {
  *
  * This only allows synchronous {@link Importer}s and {@link CustomFunction}s.
  *
- * **Heads up!**  When using `sass-embedded` npm package, **{@link compileAsync}
- * is almost always faster than {@link compile}**, due to the overhead of
- * emulating synchronous messaging with worker threads and concurrent
- * compilations being blocked on main thread.
+ * **Heads up!**  When using the `sass-embedded` npm package,
+ * **{@link compileAsync} is almost always faster than {@link compile}**, due to
+ * the overhead of emulating synchronous messaging with worker threads and
+ * concurrent compilations being blocked on main thread.
  *
  * @example
  *
@@ -71,9 +71,9 @@ export function compile(path: string, options?: Options<'sync'>): CompileResult;
  * This only allows synchronous or asynchronous {@link Importer}s and
  * {@link CustomFunction}s.
  *
- * **Heads up!** When using `sass` npm package, **{@link compile} is almost twice
- * as fast as {@link compileAsync}**, due to the overhead of making the entire
- * evaluation process asynchronous.
+ * **Heads up!** When using the `sass` npm package, **{@link compile} is almost
+ * twice as fast as {@link compileAsync}**, due to the overhead of making the
+ * entire evaluation process asynchronous.
  *
  * @example
  *
@@ -99,7 +99,7 @@ export function compileAsync(
  *
  * This only allows synchronous {@link Importer}s and {@link CustomFunction}s.
  *
- * **Heads up!**  When using `sass-embedded` npm package,
+ * **Heads up!**  When using the `sass-embedded` npm package,
  * **{@link compileStringAsync} is almost always faster than
  * {@link compileString}**, due to the overhead of emulating synchronous
  * messaging with worker threads and concurrent compilations being blocked on
@@ -136,7 +136,7 @@ export function compileString(
  * This only allows synchronous or asynchronous {@link Importer}s and {@link
  * CustomFunction}s.
  *
- * **Heads up!** When using `sass` npm package, **{@link compileString} is
+ * **Heads up!** When using the `sass` npm package, **{@link compileString} is
  * almost twice as fast as {@link compileStringAsync}**, due to the overhead
  * of making the entire evaluation process asynchronous.
  *
