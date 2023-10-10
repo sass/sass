@@ -96,7 +96,7 @@ export interface LegacyResult {
  * This function synchronously compiles a Sass file to CSS. If it succeeds, it
  * returns the result, and if it fails it throws an error.
  *
- * **Heads up!**  When using the `sass-embedded` npm package, **{@link render}
+ * **Heads up!** When using the `sass-embedded` npm package, **{@link render}
  * is almost always faster than {@link renderSync}**, due to the overhead of
  * emulating synchronous messaging with worker threads and concurrent
  * compilations being blocked on main thread.
