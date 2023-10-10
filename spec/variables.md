@@ -3,9 +3,6 @@
 ## Table of Contents
 
 * [Syntax](#syntax)
-* [Definitions](#definitions)
-  * [Scope](#scope)
-  * [Global Scope](#global-scope)
 * [Semantics](#semantics)
   * [Executing a Variable Declaration](#executing-a-variable-declaration)
   * [Evaluating a Variable](#evaluating-a-variable)
@@ -26,18 +23,6 @@ No whitespace is allowed after the `$` in `PlainVariable` or before or after
 the `.$` in `NamespacedVariable`. Each of `!global` and `!default` is allowed
 at most once in `VariableDeclaration`. As with all statements, a
 `VariableDeclaration` must be separated from other statements with a semicolon.
-
-## Definitions
-
-### Scope
-
-A *scope* is a mapping from variable names to values. Every block of statements
-delimited by `{` and `}` in SCSS or by indentation in the indented syntax has an
-associated scope.
-
-### Global Scope
-
-The *global scope* is the scope shared among the top level of all Sass files.
 
 ## Semantics
 
@@ -107,8 +92,10 @@ To execute a `VariableDeclaration` `declaration`:
 
       > This also overrides the previous definition.
 
-* Otherwise, if `resolved` is null, get the innermost block containing
-  `declaration` and set its scope's variable `name` to `value`.
+* Otherwise, if `resolved` is null, set the [current scope]'s variable `name` to
+  `value`.
+
+  [current scope]: spec.md#scope
 
 * Otherwise, set `resolved`'s value to `value`.
 
