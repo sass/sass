@@ -108,6 +108,10 @@ This function is also available as a global function named `function-exists()`.
 
 * If `$name` is not a string, throw an error.
 
+* If `$name` is not an [`<ident-token>`], return false.
+
+  [`<ident-token>`]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
+
 * If `$module` is null:
 
   * Return whether [resolving a function][] named `$name` returns null.
@@ -134,6 +138,8 @@ get-function($name, $css: false, $module: null)
 This function is also available as a global function named `get-function()`.
 
 * If `$name` is not a string, throw an error.
+
+* If `$name` is not an [`<ident-token>`], throw an error.
 
 * If `$module` is null:
 
@@ -170,6 +176,8 @@ get-mixin($name, $module: null)
 
 * If `$name` is not a string, throw an error.
 
+* If `$name` is not an [`<ident-token>`], throw an error.
+
 * If `$module` is null:
 
   * Return the result of [resolving a mixin] named `$name`. If this returns
@@ -196,6 +204,10 @@ global-variable-exists($name, $module: null)
 This function is also available as a global function named `global-variable-exists()`.
 
 * If `$name` is not a string, throw an error.
+
+* If `$name` is not a [`PlainVariable`], return false.
+
+  [`PlainVariable`]: ../variables.md#syntax
 
 * If `$module` is null:
 
@@ -238,6 +250,8 @@ mixin-exists($name, $module: null)
 This function is also available as a global function named `mixin-exists()`.
 
 * If `$name` is not a string, throw an error.
+
+* If `$name` is not an [`<ident-token>`], return false.
 
 * If `$module` is null:
 
@@ -332,6 +346,8 @@ variable-exists($name, $module: null)
 This function is also available as a global function named `variable-exists()`.
 
 * If `$name` is not a string, throw an error.
+
+* If `$name` is not a [`PlainVariable`], return false.
 
 * If `$module` is null:
 
