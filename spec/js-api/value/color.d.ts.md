@@ -144,7 +144,7 @@ export type ChannelNameXYZ = 'x' | 'y' | 'z';
 
 ### `ChannelName`
 
-All supported color space names.
+All supported channel names.
 
 ```ts
 export type ChannelName =
@@ -158,7 +158,7 @@ export type ChannelName =
 
 ### `KnownColorSpace`
 
-All supported color space channel names.
+All supported color space names.
 
 ```ts
 export type KnownColorSpace =
@@ -189,7 +189,7 @@ export type RectangularColorSpace = Exclude<KnownColorSpace, PolarColorSpace>;
 
 ### `HueInterpolationMethod`
 
-Methods by which two hues are adjusted when interpolating between colors.
+Methods by which two hues are adjusted when interpolating between polar colors.
 
 ```ts
 export type HueInterpolationMethod =

@@ -44,7 +44,7 @@ export type ColorSpaceXYZ = 'xyz' | 'xyz-d50' | 'xyz-d65';
 /** XYZ channel names. */
 export type ChannelNameXYZ = 'x' | 'y' | 'z';
 
-/** All supported color space names. */
+/** All supported color space channel names. */
 export type ChannelName =
   | ChannelNameHSL
   | ChannelNameHWB
@@ -53,7 +53,7 @@ export type ChannelName =
   | ChannelNameRGB
   | ChannelNameXYZ;
 
-/** All supported color space channel names. */
+/** All supported color space names. */
 export type KnownColorSpace =
   | ColorSpaceHSL
   | ColorSpaceHWB
@@ -69,7 +69,8 @@ export type PolarColorSpace = ColorSpaceHSL | ColorSpaceHWB | ColorSpaceLCH;
 export type RectangularColorSpace = Exclude<KnownColorSpace, PolarColorSpace>;
 
 /**
- * Methods by which two hues are adjusted when interpolating between colors.
+ * Methods by which two hues are adjusted when interpolating between polar
+ * colors.
  */
 export type HueInterpolationMethod =
   | 'decreasing'
