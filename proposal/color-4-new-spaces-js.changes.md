@@ -1,5 +1,9 @@
 ## Draft 1.2
 
+* Add "alpha" to all channel name types.
+
+* Remove `isAlphaMissing` in favor of `isChannelMissing("alpha")`.
+
 * Rename types using title-case for acronyms longer than two letters in
   camel-case identifiers (e.g. `ColorSpaceHsl` instead of `ColorSpaceHSL`).
 
