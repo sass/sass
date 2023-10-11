@@ -24,7 +24,6 @@ proposal].
     * [`channel`](#channel)
     * [`alpha`](#alpha)
     * [`isChannelMissing`](#ischannelmissing)
-    * [`isAlphaMissing`](#isalphamissing)
     * [`isChannelPowerless`](#ischannelpowerless)
     * [`interpolate`](#interpolate)
   * [Updated Color Functions](#updated-color-functions)
@@ -62,19 +61,19 @@ import {Value} from '../spec/js-api/value';
 ```ts
 export type ColorSpaceHsl = 'hsl';
 
-export type ChannelNameHsl = 'hue' | 'saturation' | 'lightness';
+export type ChannelNameHsl = 'hue' | 'saturation' | 'lightness' | 'alpha';
 
 export type ColorSpaceHwb = 'hwb';
 
-export type ChannelNameHwb = 'hue' | 'whiteness' | 'blackness';
+export type ChannelNameHwb = 'hue' | 'whiteness' | 'blackness' | 'alpha';
 
 export type ColorSpaceLab = 'lab' | 'oklab';
 
-export type ChannelNameLab = 'lightness' | 'a' | 'b';
+export type ChannelNameLab = 'lightness' | 'a' | 'b' | 'alpha';
 
 export type ColorSpaceLch = 'lch' | 'oklch';
 
-export type ChannelNameLch = 'lightness' | 'chroma' | 'hue';
+export type ChannelNameLch = 'lightness' | 'chroma' | 'hue' | 'alpha';
 
 export type ColorSpaceRgb =
   | 'a98-rgb'
@@ -84,11 +83,11 @@ export type ColorSpaceRgb =
   | 'srgb'
   | 'srgb-linear';
 
-export type ChannelNameRgb = 'red' | 'green' | 'blue';
+export type ChannelNameRgb = 'red' | 'green' | 'blue' | 'alpha';
 
 export type ColorSpaceXyz = 'xyz' | 'xyz-d50' | 'xyz-d65';
 
-export type ChannelNameXyz = 'x' | 'y' | 'z';
+export type ChannelNameXyz = 'x' | 'y' | 'z' | 'alpha';
 
 export type ChannelName =
   | ChannelNameHsl
@@ -247,30 +246,12 @@ get channels(): List<number>;
 
 ```ts
 channel(channel: ChannelName): number;
-channel(
-  channel: ChannelNameHsl | 'alpha',
-  options: {space: ColorSpaceHsl}
-): number;
-channel(
-  channel: ChannelNameHwb | 'alpha',
-  options: {space: ColorSpaceHwb}
-): number;
-channel(
-  channel: ChannelNameLab | 'alpha',
-  options: {space: ColorSpaceLab}
-): number;
-channel(
-  channel: ChannelNameLch | 'alpha',
-  options: {space: ColorSpaceLch}
-): number;
-channel(
-  channel: ChannelNameRgb | 'alpha',
-  options: {space: ColorSpaceRgb}
-): number;
-channel(
-  channel: ChannelNameXyz | 'alpha',
-  options: {space: ColorSpaceXyz}
-): number;
+channel(channel: ChannelNameHsl, options: {space: ColorSpaceHsl}): number;
+channel(channel: ChannelNameHwb, options: {space: ColorSpaceHwb}): number;
+channel(channel: ChannelNameLab, options: {space: ColorSpaceLab}): number;
+channel(channel: ChannelNameLch, options: {space: ColorSpaceLch}): number;
+channel(channel: ChannelNameRgb, options: {space: ColorSpaceRgb}): number;
+channel(channel: ChannelNameXyz, options: {space: ColorSpaceXyz}): number;
 ```
 
 #### `alpha`
@@ -289,19 +270,10 @@ Returns the result of [`color.is-missing(internal,
 channel)`][color.is-missing()] as a JavaScript boolean.
 
 ```ts
-isChannelMissing(channel: ChannelName | 'alpha'): boolean;
+isChannelMissing(channel: ChannelName): boolean;
 ```
 
 [color.is-missing()]: ./color-4-new-spaces.md#coloris-missing-1
-
-#### `isAlphaMissing`
-
-Returns the result of [`color.is-missing(internal,
-'alpha')`][color.is-missing()] as a JavaScript boolean.
-
-```ts
-get isAlphaMissing(): boolean;
-```
 
 #### `isChannelPowerless`
 
@@ -570,7 +542,6 @@ change(
   options: {
     [key in ChannelNameHsl]?: number | null;
   } & {
-    alpha?: number;
     space?: ColorSpaceHsl;
   }
 ): SassColor;
@@ -579,7 +550,6 @@ change(
   options: {
     [key in ChannelNameHwb]?: number | null;
   } & {
-    alpha?: number;
     space?: ColorSpaceHwb;
   }
 ): SassColor;
@@ -588,7 +558,6 @@ change(
   options: {
     [key in ChannelNameLab]?: number | null;
   } & {
-    alpha?: number | null;
     space?: ColorSpaceLab;
   }
 ): SassColor;
@@ -597,7 +566,6 @@ change(
   options: {
     [key in ChannelNameLch]?: number | null;
   } & {
-    alpha?: number | null;
     space?: ColorSpaceLch;
   }
 ): SassColor;
@@ -606,7 +574,6 @@ change(
   options: {
     [key in ChannelNameRgb]?: number | null;
   } & {
-    alpha?: number | null;
     space?: ColorSpaceRgb;
   }
 ): SassColor;
@@ -615,7 +582,6 @@ change(
   options: {
     [key in ChannelNameXyz]?: number | null;
   } & {
-    alpha?: number | null;
     space?: ColorSpaceXyz;
   }
 ): SassColor;
