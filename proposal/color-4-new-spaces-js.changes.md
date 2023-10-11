@@ -1,5 +1,8 @@
 ## Draft 1.2
 
+* Rename types using title-case for acronyms longer than two letters in
+  camel-case identifiers (e.g. `ColorSpaceHsl` instead of `ColorSpaceHSL`).
+
 * Remove generic `change` overload, and make `space` optional on others.
 
 * Return `immutable` types for `channels` and `channelsOrNull`, and remove
