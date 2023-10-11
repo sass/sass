@@ -60,23 +60,23 @@ import {Value} from '../spec/js-api/value';
 ### Color Space Definitions
 
 ```ts
-export type ColorSpaceHSL = 'hsl';
+export type ColorSpaceHsl = 'hsl';
 
-export type ChannelNameHSL = 'hue' | 'saturation' | 'lightness';
+export type ChannelNameHsl = 'hue' | 'saturation' | 'lightness';
 
-export type ColorSpaceHWB = 'hwb';
+export type ColorSpaceHwb = 'hwb';
 
-export type ChannelNameHWB = 'hue' | 'whiteness' | 'blackness';
+export type ChannelNameHwb = 'hue' | 'whiteness' | 'blackness';
 
 export type ColorSpaceLab = 'lab' | 'oklab';
 
 export type ChannelNameLab = 'lightness' | 'a' | 'b';
 
-export type ColorSpaceLCH = 'lch' | 'oklch';
+export type ColorSpaceLch = 'lch' | 'oklch';
 
-export type ChannelNameLCH = 'lightness' | 'chroma' | 'hue';
+export type ChannelNameLch = 'lightness' | 'chroma' | 'hue';
 
-export type ColorSpaceRGB =
+export type ColorSpaceRgb =
   | 'a98-rgb'
   | 'display-p3'
   | 'prophoto-rgb'
@@ -84,29 +84,29 @@ export type ColorSpaceRGB =
   | 'srgb'
   | 'srgb-linear';
 
-export type ChannelNameRGB = 'red' | 'green' | 'blue';
+export type ChannelNameRgb = 'red' | 'green' | 'blue';
 
-export type ColorSpaceXYZ = 'xyz' | 'xyz-d50' | 'xyz-d65';
+export type ColorSpaceXyz = 'xyz' | 'xyz-d50' | 'xyz-d65';
 
-export type ChannelNameXYZ = 'x' | 'y' | 'z';
+export type ChannelNameXyz = 'x' | 'y' | 'z';
 
 export type ChannelName =
-  | ChannelNameHSL
-  | ChannelNameHWB
+  | ChannelNameHsl
+  | ChannelNameHwb
   | ChannelNameLab
-  | ChannelNameLCH
-  | ChannelNameRGB
-  | ChannelNameXYZ;
+  | ChannelNameLch
+  | ChannelNameRgb
+  | ChannelNameXyz;
 
 export type KnownColorSpace =
-  | ColorSpaceHSL
-  | ColorSpaceHWB
+  | ColorSpaceHsl
+  | ColorSpaceHwb
   | ColorSpaceLab
-  | ColorSpaceLCH
-  | ColorSpaceRGB
-  | ColorSpaceXYZ;
+  | ColorSpaceLch
+  | ColorSpaceRgb
+  | ColorSpaceXyz;
 
-export type PolarColorSpace = ColorSpaceHSL | ColorSpaceHWB | ColorSpaceLCH;
+export type PolarColorSpace = ColorSpaceHsl | ColorSpaceHwb | ColorSpaceLch;
 
 export type RectangularColorSpace = Exclude<KnownColorSpace, PolarColorSpace>;
 
@@ -248,28 +248,28 @@ get channels(): List<number>;
 ```ts
 channel(channel: ChannelName): number;
 channel(
-  channel: ChannelNameHSL | 'alpha',
-  options: {space: ColorSpaceHSL}
+  channel: ChannelNameHsl | 'alpha',
+  options: {space: ColorSpaceHsl}
 ): number;
 channel(
-  channel: ChannelNameHWB | 'alpha',
-  options: {space: ColorSpaceHWB}
+  channel: ChannelNameHwb | 'alpha',
+  options: {space: ColorSpaceHwb}
 ): number;
 channel(
   channel: ChannelNameLab | 'alpha',
   options: {space: ColorSpaceLab}
 ): number;
 channel(
-  channel: ChannelNameLCH | 'alpha',
-  options: {space: ColorSpaceLCH}
+  channel: ChannelNameLch | 'alpha',
+  options: {space: ColorSpaceLch}
 ): number;
 channel(
-  channel: ChannelNameRGB | 'alpha',
-  options: {space: ColorSpaceRGB}
+  channel: ChannelNameRgb | 'alpha',
+  options: {space: ColorSpaceRgb}
 ): number;
 channel(
-  channel: ChannelNameXYZ | 'alpha',
-  options: {space: ColorSpaceXYZ}
+  channel: ChannelNameXyz | 'alpha',
+  options: {space: ColorSpaceXyz}
 ): number;
 ```
 
@@ -313,28 +313,28 @@ JavaScript boolean.
 ```ts
 isChannelPowerless(channel: ChannelName): boolean;
 isChannelPowerless(
-  channel: ChannelNameHSL,
-  options?: {space: ColorSpaceHSL}
+  channel: ChannelNameHsl,
+  options?: {space: ColorSpaceHsl}
 ): boolean;
 isChannelPowerless(
-  channel: ChannelNameHWB,
-  options?: {space: ColorSpaceHWB}
+  channel: ChannelNameHwb,
+  options?: {space: ColorSpaceHwb}
 ): boolean;
 isChannelPowerless(
   channel: ChannelNameLab,
   options?: {space: ColorSpaceLab}
 ): boolean;
 isChannelPowerless(
-  channel: ChannelNameLCH,
-  options?: {space: ColorSpaceLCH}
+  channel: ChannelNameLch,
+  options?: {space: ColorSpaceLch}
 ): boolean;
 isChannelPowerless(
-  channel: ChannelNameRGB,
-  options?: {space: ColorSpaceRGB}
+  channel: ChannelNameRgb,
+  options?: {space: ColorSpaceRgb}
 ): boolean;
 isChannelPowerless(
-  channel: ChannelNameXYZ,
-  options?: {space: ColorSpaceXYZ}
+  channel: ChannelNameXyz,
+  options?: {space: ColorSpaceXyz}
 ): boolean;
 ```
 
@@ -568,19 +568,19 @@ as the result of changing some of [`internal`]'s components.
 ```ts
 change(
   options: {
-    [key in ChannelNameHSL]?: number | null;
+    [key in ChannelNameHsl]?: number | null;
   } & {
     alpha?: number;
-    space?: ColorSpaceHSL;
+    space?: ColorSpaceHsl;
   }
 ): SassColor;
 
 change(
   options: {
-    [key in ChannelNameHWB]?: number | null;
+    [key in ChannelNameHwb]?: number | null;
   } & {
     alpha?: number;
-    space?: ColorSpaceHWB;
+    space?: ColorSpaceHwb;
   }
 ): SassColor;
 
@@ -595,28 +595,28 @@ change(
 
 change(
   options: {
-    [key in ChannelNameLCH]?: number | null;
+    [key in ChannelNameLch]?: number | null;
   } & {
     alpha?: number | null;
-    space?: ColorSpaceLCH;
+    space?: ColorSpaceLch;
   }
 ): SassColor;
 
 change(
   options: {
-    [key in ChannelNameRGB]?: number | null;
+    [key in ChannelNameRgb]?: number | null;
   } & {
     alpha?: number | null;
-    space?: ColorSpaceRGB;
+    space?: ColorSpaceRgb;
   }
 ): SassColor;
 
 change(
   options: {
-    [key in ChannelNameXYZ]?: number | null;
+    [key in ChannelNameXyz]?: number | null;
   } & {
     alpha?: number | null;
-    space?: ColorSpaceXYZ;
+    space?: ColorSpaceXyz;
   }
 ): SassColor;
 ```
@@ -693,7 +693,7 @@ constructor(options: {
   chroma: number | null;
   hue: number | null;
   alpha?: number | null;
-  space: ColorSpaceLCH;
+  space: ColorSpaceLch;
 });
 ```
 
@@ -727,7 +727,7 @@ constructor(options: {
   green: number | null;
   blue: number | null;
   alpha?: number | null;
-  space: Exclude<ColorSpaceRGB, 'rgb'>;
+  space: Exclude<ColorSpaceRgb, 'rgb'>;
 });
 ```
 
@@ -757,7 +757,7 @@ constructor(options: {
   y: number | null;
   z: number | null;
   alpha?: number | null;
-  space: ColorSpaceXYZ;
+  space: ColorSpaceXyz;
 });
 ```
 
@@ -795,7 +795,7 @@ constructor(options: {
   saturation: number | null;
   lightness: number | null;
   alpha?: number | null;
-  space?: ColorSpaceHSL;
+  space?: ColorSpaceHsl;
 });
 ```
 
@@ -827,7 +827,7 @@ constructor(options: {
   whiteness: number | null;
   blackness: number | null;
   alpha?: number | null;
-  space?: ColorSpaceHWB;
+  space?: ColorSpaceHwb;
 });
 ```
 
