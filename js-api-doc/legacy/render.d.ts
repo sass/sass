@@ -96,6 +96,11 @@ export interface LegacyResult {
  * This function synchronously compiles a Sass file to CSS. If it succeeds, it
  * returns the result, and if it fails it throws an error.
  *
+ * **Heads up!** When using the `sass-embedded` npm package, **{@link render}
+ * is almost always faster than {@link renderSync}**, due to the overhead of
+ * emulating synchronous messaging with worker threads and concurrent
+ * compilations being blocked on main thread.
+ *
  * @example
  *
  * ```js
@@ -116,9 +121,9 @@ export function renderSync(options: LegacyOptions<'sync'>): LegacyResult;
  * `callback` with a {@link LegacyResult} if compilation succeeds or {@link
  * LegacyException} if it fails.
  *
- * **Heads up!** When using Dart Sass, **{@link renderSync} is almost twice as
- * fast as {@link render}** by default, due to the overhead of making the entire
- * evaluation process asynchronous.
+ * **Heads up!** When using the `sass` npm package, **{@link renderSync} is
+ * almost twice as fast as {@link render}** by default, due to the overhead of
+ * making the entire evaluation process asynchronous.
  *
  * ```js
  * const sass = require('sass'); // or require('node-sass');

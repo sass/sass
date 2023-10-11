@@ -44,6 +44,11 @@ export interface CompileResult {
  *
  * This only allows synchronous {@link Importer}s and {@link CustomFunction}s.
  *
+ * **Heads up!** When using the `sass-embedded` npm package,
+ * **{@link compileAsync} is almost always faster than {@link compile}**, due to
+ * the overhead of emulating synchronous messaging with worker threads and
+ * concurrent compilations being blocked on main thread.
+ *
  * @example
  *
  * ```js
@@ -66,9 +71,9 @@ export function compile(path: string, options?: Options<'sync'>): CompileResult;
  * This only allows synchronous or asynchronous {@link Importer}s and
  * {@link CustomFunction}s.
  *
- * **Heads up!** When using Dart Sass, **{@link compile} is almost twice as fast
- * as {@link compileAsync}**, due to the overhead of making the entire
- * evaluation process asynchronous.
+ * **Heads up!** When using the `sass` npm package, **{@link compile} is almost
+ * twice as fast as {@link compileAsync}**, due to the overhead of making the
+ * entire evaluation process asynchronous.
  *
  * @example
  *
@@ -93,6 +98,12 @@ export function compileAsync(
  * {@link Exception}.
  *
  * This only allows synchronous {@link Importer}s and {@link CustomFunction}s.
+ *
+ * **Heads up!** When using the `sass-embedded` npm package,
+ * **{@link compileStringAsync} is almost always faster than
+ * {@link compileString}**, due to the overhead of emulating synchronous
+ * messaging with worker threads and concurrent compilations being blocked on
+ * main thread.
  *
  * @example
  *
@@ -125,9 +136,9 @@ export function compileString(
  * This only allows synchronous or asynchronous {@link Importer}s and {@link
  * CustomFunction}s.
  *
- * **Heads up!** When using Dart Sass, **{@link compile} is almost twice as fast
- * as {@link compileAsync}**, due to the overhead of making the entire
- * evaluation process asynchronous.
+ * **Heads up!** When using the `sass` npm package, **{@link compileString} is
+ * almost twice as fast as {@link compileStringAsync}**, due to the overhead
+ * of making the entire evaluation process asynchronous.
  *
  * @example
  *
