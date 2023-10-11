@@ -3,31 +3,31 @@ import {List} from 'immutable';
 import {Value} from './index';
 
 /** The HSL color space name. */
-export type ColorSpaceHSL = 'hsl';
+export type ColorSpaceHsl = 'hsl';
 
 /** The HSL color space channel names. */
-export type ChannelNameHSL = 'hue' | 'saturation' | 'lightness';
+export type ChannelNameHsl = 'hue' | 'saturation' | 'lightness' | 'alpha';
 
 /** The HWB color space name. */
-export type ColorSpaceHWB = 'hwb';
+export type ColorSpaceHwb = 'hwb';
 
 /** The HWB color space channel names. */
-export type ChannelNameHWB = 'hue' | 'whiteness' | 'blackness';
+export type ChannelNameHwb = 'hue' | 'whiteness' | 'blackness' | 'alpha';
 
 /** The Lab / Oklab color space names. */
 export type ColorSpaceLab = 'lab' | 'oklab';
 
 /** The Lab / Oklab color space channel names. */
-export type ChannelNameLab = 'lightness' | 'a' | 'b';
+export type ChannelNameLab = 'lightness' | 'a' | 'b' | 'alpha';
 
 /** The LCH / Oklch color space names. */
-export type ColorSpaceLCH = 'lch' | 'oklch';
+export type ColorSpaceLch = 'lch' | 'oklch';
 
 /** The LCH / Oklch color space channel names. */
-export type ChannelNameLCH = 'lightness' | 'chroma' | 'hue';
+export type ChannelNameLch = 'lightness' | 'chroma' | 'hue' | 'alpha';
 
 /** Names of color spaces with RGB channels. */
-export type ColorSpaceRGB =
+export type ColorSpaceRgb =
   | 'a98-rgb'
   | 'display-p3'
   | 'prophoto-rgb'
@@ -36,36 +36,36 @@ export type ColorSpaceRGB =
   | 'srgb-linear';
 
 /** RGB channel names. */
-export type ChannelNameRGB = 'red' | 'green' | 'blue';
+export type ChannelNameRgb = 'red' | 'green' | 'blue' | 'alpha';
 
 /** Names of color spaces with XYZ channels. */
-export type ColorSpaceXYZ = 'xyz' | 'xyz-d50' | 'xyz-d65';
+export type ColorSpaceXyz = 'xyz' | 'xyz-d50' | 'xyz-d65';
 
 /** XYZ channel names. */
-export type ChannelNameXYZ = 'x' | 'y' | 'z';
+export type ChannelNameXyz = 'x' | 'y' | 'z' | 'alpha';
 
 /** All supported color space channel names. */
 export type ChannelName =
-  | ChannelNameHSL
-  | ChannelNameHWB
+  | ChannelNameHsl
+  | ChannelNameHwb
   | ChannelNameLab
-  | ChannelNameLCH
-  | ChannelNameRGB
-  | ChannelNameXYZ;
+  | ChannelNameLch
+  | ChannelNameRgb
+  | ChannelNameXyz;
 
 /** All supported color space names. */
 export type KnownColorSpace =
-  | ColorSpaceHSL
-  | ColorSpaceHWB
+  | ColorSpaceHsl
+  | ColorSpaceHwb
   | ColorSpaceLab
-  | ColorSpaceLCH
-  | ColorSpaceRGB
-  | ColorSpaceXYZ;
+  | ColorSpaceLch
+  | ColorSpaceRgb
+  | ColorSpaceXyz;
 
 /** Polar color space names (HSL, HWB, LCH, and Oklch spaces). */
-export type PolarColorSpace = ColorSpaceHSL | ColorSpaceHWB | ColorSpaceLCH;
+export type PolarColorSpace = ColorSpaceHsl | ColorSpaceHwb | ColorSpaceLch;
 
-/** Rectangle color space names (Lab, Oklab, RGB, and XYZ spaces). */
+/** Rectangular color space names (Lab, Oklab, RGB, and XYZ spaces). */
 export type RectangularColorSpace = Exclude<KnownColorSpace, PolarColorSpace>;
 
 /**
@@ -88,17 +88,16 @@ export type HueInterpolationMethod =
  */
 export class SassColor extends Value {
   /**
-   * Creates an RGB color.
+   * Creates an [RGB color].
    *
    * If `space` is missing, **only** `undefined` should be passed to indicate a
    * missing `alpha`. If `null` is passed instead, it will be treated as a
-   * [missing component] in future versions of Dart Sass. See [breaking changes]
-   * for details.
+   * [missing component]. See [breaking changes] for details.
    *
-   * If `space` is defined and `null` is passed for `alpha`, it will be treated
-   * as a [missing component]. In most cases, this is equivalent to the color
-   * being transparent.
+   * If `space` is defined and `null` is passed for any component, it will be
+   * treated as a [missing component].
    *
+   * [RGB color]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/rgb
    * [missing component]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
    * [breaking changes]: /documentation/breaking-changes/null-alpha
    *
@@ -115,17 +114,16 @@ export class SassColor extends Value {
   });
 
   /**
-   * Creates an HSL color.
+   * Creates an [HSL color].
    *
    * If `space` is missing, **only** `undefined` should be passed to indicate a
    * missing `alpha`. If `null` is passed instead, it will be treated as a
-   * [missing component] in future versions of Dart Sass. See [breaking changes]
-   * for details.
+   * [missing component]. See [breaking changes] for details.
    *
-   * If `space` is defined and `null` is passed for `alpha`, it will be treated
-   * as a [missing component]. In most cases, this is equivalent to the color
-   * being transparent.
+   * If `space` is defined and `null` is passed for any component, it will be
+   * treated as a [missing component].
    *
+   * [HSL color]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/hsl
    * [missing component]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
    * [breaking changes]: /documentation/breaking-changes/null-alpha
    *
@@ -138,21 +136,20 @@ export class SassColor extends Value {
     saturation: number | null;
     lightness: number | null;
     alpha?: number | null;
-    space?: ColorSpaceHSL;
+    space?: ColorSpaceHsl;
   });
 
   /**
-   * Creates an HWB color.
+   * Creates an [HWB color].
    *
    * If `space` is missing, **only** `undefined` should be passed to indicate a
    * missing `alpha`. If `null` is passed instead, it will be treated as a
-   * [missing component] in future versions of Dart Sass. See [breaking changes]
-   * for details.
+   * [missing component]. See [breaking changes] for details.
    *
-   * If `space` is defined and `null` is passed for `alpha`, it will be treated
-   * as a [missing component]. In most cases, this is equivalent to the color
-   * being transparent.
+   * If `space` is defined and `null` is passed for any component, it will be
+   * treated as a [missing component].
    *
+   * [HWB color]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/hwb
    * [missing component]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
    * [breaking changes]: /documentation/breaking-changes/null-alpha
    *
@@ -165,16 +162,17 @@ export class SassColor extends Value {
     whiteness: number | null;
     blackness: number | null;
     alpha?: number | null;
-    space?: ColorSpaceHWB;
+    space?: ColorSpaceHwb;
   });
 
   /**
-   * Creates a Lab or Oklab color.
+   * Creates a [Lab] or [Oklab] color.
    *
-   * If `null` is passed for `alpha`, it will be treated as a [missing
-   * component]. In most cases, this is equivalent to the color being
-   * transparent.
+   * If `null` is passed for any component, it will be treated as a [missing
+   * component].
    *
+   * [Lab]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/lab
+   * [Oklab]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/oklab
    * [missing component]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
    *
    * @throws `Error` if `alpha` isn't between `0` and `1`.
@@ -188,12 +186,13 @@ export class SassColor extends Value {
   });
 
   /**
-   * Creates an LCH or Oklch color.
+   * Creates an [LCH] or [Oklch] color.
    *
-   * If `null` is passed for `alpha`, it will be treated as a [missing
-   * component]. In most cases, this is equivalent to the color being
-   * transparent.
+   * If `null` is passed for any component, it will be treated as a [missing
+   * component].
    *
+   * [LCH]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/lch
+   * [Oklch]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/oklch
    * [missing component]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
    *
    * @throws `Error` if `alpha` isn't between `0` and `1`.
@@ -203,16 +202,16 @@ export class SassColor extends Value {
     chroma: number | null;
     hue: number | null;
     alpha?: number | null;
-    space: ColorSpaceLCH;
+    space: ColorSpaceLch;
   });
 
   /**
-   * Creates a color in a predefined RGB color space.
+   * Creates a color in a predefined [RGB color space].
    *
-   * If `null` is passed for `alpha`, it will be treated as a [missing
-   * component]. In most cases, this is equivalent to the color being
-   * transparent.
+   * If `null` is passed for any component, it will be treated as a [missing
+   * component].
    *
+   * [RGB color space]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/color#using_predefined_colorspaces_with_color
    * [missing component]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
    *
    * @throws `Error` if `alpha` isn't between `0` and `1`.
@@ -222,16 +221,16 @@ export class SassColor extends Value {
     green: number | null;
     blue: number | null;
     alpha?: number | null;
-    space: Exclude<ColorSpaceRGB, 'rgb'>;
+    space: Exclude<ColorSpaceRgb, 'rgb'>;
   });
 
   /**
-   * Creates a color in a predefined XYZ color space.
+   * Creates a color in a predefined [XYZ color space].
    *
-   * If `null` is passed for `alpha`, it will be treated as a [missing
-   * component]. In most cases, this is equivalent to the color being
-   * transparent.
+   * If `null` is passed for any component, it will be treated as a [missing
+   * component].
    *
+   * [XYZ color space]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/color#using_the_xyz_colorspace_with_color
    * [missing component]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
    *
    * @throws `Error` if `alpha` isn't between `0` and `1`.
@@ -241,7 +240,7 @@ export class SassColor extends Value {
     y: number | null;
     z: number | null;
     alpha?: number | null;
-    space: ColorSpaceXYZ;
+    space: ColorSpaceXyz;
   });
 
   /** The name of this color's space. */
@@ -259,17 +258,17 @@ export class SassColor extends Value {
   get isLegacy(): boolean;
 
   /**
-   * Returns a boolean indicating whether this color is in gamut (as opposed to
+   * Returns a boolean indicating whether this color is in-gamut (as opposed to
    * having one or more of its channels out of bounds) for the specified
    * `space`, or its current color space if `space` is not specified.
    */
   isInGamut(space?: KnownColorSpace): boolean;
 
   /**
-   * Returns this color, modified so it is in gamut for the specified `space` --
-   * or the current color space if `space` is not specified -- using the
-   * recommended [CSS Gamut Mapping Algorithm][css-mapping] to map out-of-gamut
-   * colors into the desired gamut with as little perceptual change as possible.
+   * Returns this color, modified so it is in-gamut for the specified `space`—or
+   * the current color space if `space` is not specified—using the recommended
+   * [CSS Gamut Mapping Algorithm][css-mapping] to map out-of-gamut colors into
+   * the desired gamut with as little perceptual change as possible.
    *
    * [css-mapping]: https://www.w3.org/TR/css-color-4/#css-gamut-mapping-algorithm
    */
@@ -311,30 +310,12 @@ export class SassColor extends Value {
    *
    * @throws `Error` if `channel` is not `alpha` or a channel in `space`.
    */
-  channel(
-    channel: ChannelNameHSL | 'alpha',
-    options: {space: ColorSpaceHSL}
-  ): number;
-  channel(
-    channel: ChannelNameHWB | 'alpha',
-    options: {space: ColorSpaceHWB}
-  ): number;
-  channel(
-    channel: ChannelNameLab | 'alpha',
-    options: {space: ColorSpaceLab}
-  ): number;
-  channel(
-    channel: ChannelNameLCH | 'alpha',
-    options: {space: ColorSpaceLCH}
-  ): number;
-  channel(
-    channel: ChannelNameRGB | 'alpha',
-    options: {space: ColorSpaceRGB}
-  ): number;
-  channel(
-    channel: ChannelNameXYZ | 'alpha',
-    options: {space: ColorSpaceXYZ}
-  ): number;
+  channel(channel: ChannelNameHsl, options: {space: ColorSpaceHsl}): number;
+  channel(channel: ChannelNameHwb, options: {space: ColorSpaceHwb}): number;
+  channel(channel: ChannelNameLab, options: {space: ColorSpaceLab}): number;
+  channel(channel: ChannelNameLch, options: {space: ColorSpaceLch}): number;
+  channel(channel: ChannelNameRgb, options: {space: ColorSpaceRgb}): number;
+  channel(channel: ChannelNameXyz, options: {space: ColorSpaceXyz}): number;
 
   /** This color's alpha channel, between `0` and `1`. */
   get alpha(): number;
@@ -345,15 +326,7 @@ export class SassColor extends Value {
    *
    * [missing channel]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
    */
-  isChannelMissing(channel: ChannelName | 'alpha'): boolean;
-
-  /**
-   * A boolean indicating whether this color's alpha channel is a [missing
-   * channel].
-   *
-   * [missing channel]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
-   */
-  get isAlphaMissing(): boolean;
+  isChannelMissing(channel: ChannelName): boolean;
 
   /**
    * Returns a boolean indicating whether a given `channel` is "powerless" in
@@ -363,32 +336,43 @@ export class SassColor extends Value {
    */
   isChannelPowerless(channel: ChannelName): boolean;
   isChannelPowerless(
-    channel: ChannelNameHSL,
-    options?: {space: ColorSpaceHSL}
+    channel: ChannelNameHsl,
+    options?: {space: ColorSpaceHsl}
   ): boolean;
   isChannelPowerless(
-    channel: ChannelNameHWB,
-    options?: {space: ColorSpaceHWB}
+    channel: ChannelNameHwb,
+    options?: {space: ColorSpaceHwb}
   ): boolean;
   isChannelPowerless(
     channel: ChannelNameLab,
     options?: {space: ColorSpaceLab}
   ): boolean;
   isChannelPowerless(
-    channel: ChannelNameLCH,
-    options?: {space: ColorSpaceLCH}
+    channel: ChannelNameLch,
+    options?: {space: ColorSpaceLch}
   ): boolean;
   isChannelPowerless(
-    channel: ChannelNameRGB,
-    options?: {space: ColorSpaceRGB}
+    channel: ChannelNameRgb,
+    options?: {space: ColorSpaceRgb}
   ): boolean;
   isChannelPowerless(
-    channel: ChannelNameXYZ,
-    options?: {space: ColorSpaceXYZ}
+    channel: ChannelNameXyz,
+    options?: {space: ColorSpaceXyz}
   ): boolean;
 
   /**
-   * Returns a color partway between this color and passed `color2`.
+   * Returns a color partway between this color and passed `color2` according to
+   * `method`, as defined by the CSS Color 4 [color interpolation] procedure.
+   *
+   * [color interpolation]: https://www.w3.org/TR/css-color-4/#interpolation
+   *
+   * If `method` is missing and this color is in a rectangular color space (Lab,
+   * Oklab, RGB, and XYZ spaces), `method` defaults to the color space of this
+   * color. Otherwise, `method` defaults to a space separated list containing
+   * the color space of this color and the string "shorter".
+   *
+   * The `weight` is a number between 0 and 1 that indicates how much of this
+   * color should be in the resulting color. If omitted, it defaults to 0.5.
    */
   interpolate(options: {color2: SassColor; weight?: number}): SassColor;
   interpolate(options: {
@@ -400,30 +384,28 @@ export class SassColor extends Value {
   /**
    * Changes one or more of this color's HSL channels and returns the result.
    *
-   * @throws `Error` if `space` is missing and this color is not a legacy color
-   * space (`rgb`, `hsl`, or `hwb`).
+   * @throws `Error` if `space` is missing and this color is not in a legacy
+   * color space (`rgb`, `hsl`, or `hwb`).
    */
   change(
     options: {
-      [key in ChannelNameHSL]?: number | null;
+      [key in ChannelNameHsl]?: number | null;
     } & {
-      alpha?: number;
-      space?: ColorSpaceHSL;
+      space?: ColorSpaceHsl;
     }
   ): SassColor;
 
   /**
    * Changes one or more of this color's HWB channels and returns the result.
    *
-   * @throws `Error` if `space` is missing and this color is not a legacy color
-   * space (`rgb`, `hsl`, or `hwb`).
+   * @throws `Error` if `space` is missing and this color is not in a legacy
+   * color space (`rgb`, `hsl`, or `hwb`).
    */
   change(
     options: {
-      [key in ChannelNameHWB]?: number | null;
+      [key in ChannelNameHwb]?: number | null;
     } & {
-      alpha?: number;
-      space?: ColorSpaceHWB;
+      space?: ColorSpaceHwb;
     }
   ): SassColor;
 
@@ -437,7 +419,6 @@ export class SassColor extends Value {
     options: {
       [key in ChannelNameLab]?: number | null;
     } & {
-      alpha?: number | null;
       space?: ColorSpaceLab;
     }
   ): SassColor;
@@ -450,25 +431,23 @@ export class SassColor extends Value {
    */
   change(
     options: {
-      [key in ChannelNameLCH]?: number | null;
+      [key in ChannelNameLch]?: number | null;
     } & {
-      alpha?: number | null;
-      space?: ColorSpaceLCH;
+      space?: ColorSpaceLch;
     }
   ): SassColor;
 
   /**
    * Changes one or more of this color's RGB channels and returns the result.
    *
-   * @throws `Error` if `space` is missing and this color is not a legacy color
-   * space (`rgb`, `hsl`, or `hwb`).
+   * @throws `Error` if `space` is missing and this color is not in a legacy
+   * color space (`rgb`, `hsl`, or `hwb`).
    */
   change(
     options: {
-      [key in ChannelNameRGB]?: number | null;
+      [key in ChannelNameRgb]?: number | null;
     } & {
-      alpha?: number | null;
-      space?: ColorSpaceRGB;
+      space?: ColorSpaceRgb;
     }
   ): SassColor;
 
@@ -480,10 +459,9 @@ export class SassColor extends Value {
    */
   change(
     options: {
-      [key in ChannelNameXYZ]?: number | null;
+      [key in ChannelNameXyz]?: number | null;
     } & {
-      alpha?: number | null;
-      space?: ColorSpaceXYZ;
+      space?: ColorSpaceXyz;
     }
   ): SassColor;
 

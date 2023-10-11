@@ -9,18 +9,18 @@ import {Value} from './index';
 ## Table of Contents
 
 * [Types](#types)
-  * [`ColorSpaceHSL`](#colorspacehsl)
-  * [`ChannelNameHSL`](#channelnamehsl)
-  * [`ColorSpaceHWB`](#colorspacehwb)
-  * [`ChannelNameHWB`](#channelnamehwb)
+  * [`ColorSpaceHsl`](#colorspacehsl)
+  * [`ChannelNameHsl`](#channelnamehsl)
+  * [`ColorSpaceHwb`](#colorspacehwb)
+  * [`ChannelNameHwb`](#channelnamehwb)
   * [`ColorSpaceLab`](#colorspacelab)
   * [`ChannelNameLab`](#channelnamelab)
-  * [`ColorSpaceLCH`](#colorspacelch)
-  * [`ChannelNameLCH`](#channelnamelch)
-  * [`ColorSpaceRGB`](#colorspacergb)
-  * [`ChannelNameRGB`](#channelnamergb)
-  * [`ColorSpaceXYZ`](#colorspacexyz)
-  * [`ChannelNameXYZ`](#channelnamexyz)
+  * [`ColorSpaceLch`](#colorspacelch)
+  * [`ChannelNameLch`](#channelnamelch)
+  * [`ColorSpaceRgb`](#colorspacergb)
+  * [`ChannelNameRgb`](#channelnamergb)
+  * [`ColorSpaceXyz`](#colorspacexyz)
+  * [`ChannelNameXyz`](#channelnamexyz)
   * [`ChannelName`](#channelname)
   * [`KnownColorSpace`](#knowncolorspace)
   * [`PolarColorSpace`](#polarcolorspace)
@@ -46,7 +46,6 @@ import {Value} from './index';
     * [`channel`](#channel)
     * [`alpha`](#alpha)
     * [`isChannelMissing`](#ischannelmissing)
-    * [`isAlphaMissing`](#isalphamissing)
     * [`isChannelPowerless`](#ischannelpowerless)
     * [`interpolate`](#interpolate)
     * [`change`](#change)
@@ -64,36 +63,36 @@ import {Value} from './index';
 
 ## Types
 
-### `ColorSpaceHSL`
+### `ColorSpaceHsl`
 
 The HSL color space name.
 
 ```ts
-export type ColorSpaceHSL = 'hsl';
+export type ColorSpaceHsl = 'hsl';
 ```
 
-### `ChannelNameHSL`
+### `ChannelNameHsl`
 
 The HSL color space channel names.
 
 ```ts
-export type ChannelNameHSL = 'hue' | 'saturation' | 'lightness';
+export type ChannelNameHsl = 'hue' | 'saturation' | 'lightness' | 'alpha';
 ```
 
-### `ColorSpaceHWB`
+### `ColorSpaceHwb`
 
 The HWB color space name.
 
 ```ts
-export type ColorSpaceHWB = 'hwb';
+export type ColorSpaceHwb = 'hwb';
 ```
 
-### `ChannelNameHWB`
+### `ChannelNameHwb`
 
 The HWB color space channel names.
 
 ```ts
-export type ChannelNameHWB = 'hue' | 'whiteness' | 'blackness';
+export type ChannelNameHwb = 'hue' | 'whiteness' | 'blackness' | 'alpha';
 ```
 
 ### `ColorSpaceLab`
@@ -109,31 +108,31 @@ export type ColorSpaceLab = 'lab' | 'oklab';
 The Lab and Oklab color space channel names.
 
 ```ts
-export type ChannelNameLab = 'lightness' | 'a' | 'b';
+export type ChannelNameLab = 'lightness' | 'a' | 'b' | 'alpha';
 ```
 
-### `ColorSpaceLCH`
+### `ColorSpaceLch`
 
 The LCH and Oklch color space names.
 
 ```ts
-export type ColorSpaceLCH = 'lch' | 'oklch';
+export type ColorSpaceLch = 'lch' | 'oklch';
 ```
 
-### `ChannelNameLCH`
+### `ChannelNameLch`
 
 The LCH and Oklch color space channel names.
 
 ```ts
-export type ChannelNameLCH = 'lightness' | 'chroma' | 'hue';
+export type ChannelNameLch = 'lightness' | 'chroma' | 'hue' | 'alpha';
 ```
 
-### `ColorSpaceRGB`
+### `ColorSpaceRgb`
 
 Names of color spaces with RGB channels.
 
 ```ts
-export type ColorSpaceRGB =
+export type ColorSpaceRgb =
   | 'a98-rgb'
   | 'display-p3'
   | 'prophoto-rgb'
@@ -142,28 +141,28 @@ export type ColorSpaceRGB =
   | 'srgb-linear';
 ```
 
-### `ChannelNameRGB`
+### `ChannelNameRgb`
 
 RGB channel names.
 
 ```ts
-export type ChannelNameRGB = 'red' | 'green' | 'blue';
+export type ChannelNameRgb = 'red' | 'green' | 'blue' | 'alpha';
 ```
 
-### `ColorSpaceXYZ`
+### `ColorSpaceXyz`
 
 Names of color spaces with XYZ channels.
 
 ```ts
-export type ColorSpaceXYZ = 'xyz' | 'xyz-d50' | 'xyz-d65';
+export type ColorSpaceXyz = 'xyz' | 'xyz-d50' | 'xyz-d65';
 ```
 
-### `ChannelNameXYZ`
+### `ChannelNameXyz`
 
 XYZ channel names.
 
 ```ts
-export type ChannelNameXYZ = 'x' | 'y' | 'z';
+export type ChannelNameXyz = 'x' | 'y' | 'z' | 'alpha';
 ```
 
 ### `ChannelName`
@@ -172,12 +171,12 @@ All supported channel names.
 
 ```ts
 export type ChannelName =
-  | ChannelNameHSL
-  | ChannelNameHWB
+  | ChannelNameHsl
+  | ChannelNameHwb
   | ChannelNameLab
-  | ChannelNameLCH
-  | ChannelNameRGB
-  | ChannelNameXYZ;
+  | ChannelNameLch
+  | ChannelNameRgb
+  | ChannelNameXyz;
 ```
 
 ### `KnownColorSpace`
@@ -186,12 +185,12 @@ All supported color space names.
 
 ```ts
 export type KnownColorSpace =
-  | ColorSpaceHSL
-  | ColorSpaceHWB
+  | ColorSpaceHsl
+  | ColorSpaceHwb
   | ColorSpaceLab
-  | ColorSpaceLCH
-  | ColorSpaceRGB
-  | ColorSpaceXYZ;
+  | ColorSpaceLch
+  | ColorSpaceRgb
+  | ColorSpaceXyz;
 ```
 
 ### `PolarColorSpace`
@@ -199,7 +198,7 @@ export type KnownColorSpace =
 Names of known color spaces which use a polar angle value for the `hue` channel.
 
 ```ts
-export type PolarColorSpace = ColorSpaceHSL | ColorSpaceHWB | ColorSpaceLCH;
+export type PolarColorSpace = ColorSpaceHsl | ColorSpaceHwb | ColorSpaceLch;
 ```
 
 ### `RectangularColorSpace`
@@ -317,7 +316,7 @@ constructor(options: {
   saturation: number | null;
   lightness: number | null;
   alpha?: number | null;
-  space?: ColorSpaceHSL;
+  space?: ColorSpaceHsl;
 });
 ```
 
@@ -352,7 +351,7 @@ constructor(options: {
   whiteness: number | null;
   blackness: number | null;
   alpha?: number | null;
-  space?: ColorSpaceHWB;
+  space?: ColorSpaceHwb;
 });
 ```
 
@@ -422,7 +421,7 @@ constructor(options: {
   chroma: number | null;
   hue: number | null;
   alpha?: number | null;
-  space: ColorSpaceLCH;
+  space: ColorSpaceLch;
 });
 ```
 
@@ -457,7 +456,7 @@ constructor(options: {
   green: number | null;
   blue: number | null;
   alpha?: number | null;
-  space: Exclude<ColorSpaceRGB, 'rgb'>;
+  space: Exclude<ColorSpaceRgb, 'rgb'>;
 });
 ```
 
@@ -488,7 +487,7 @@ constructor(options: {
   y: number | null;
   z: number | null;
   alpha?: number | null;
-  space: ColorSpaceXYZ;
+  space: ColorSpaceXyz;
 });
 ```
 
@@ -616,30 +615,12 @@ get channels(): List<number>;
 
 ```ts
 channel(channel: ChannelName): number;
-channel(
-  channel: ChannelNameHSL | 'alpha',
-  options: {space: ColorSpaceHSL}
-): number;
-channel(
-  channel: ChannelNameHWB | 'alpha',
-  options: {space: ColorSpaceHWB}
-): number;
-channel(
-  channel: ChannelNameLab | 'alpha',
-  options: {space: ColorSpaceLab}
-): number;
-channel(
-  channel: ChannelNameLCH | 'alpha',
-  options: {space: ColorSpaceLCH}
-): number;
-channel(
-  channel: ChannelNameRGB | 'alpha',
-  options: {space: ColorSpaceRGB}
-): number;
-channel(
-  channel: ChannelNameXYZ | 'alpha',
-  options: {space: ColorSpaceXYZ}
-): number;
+channel(channel: ChannelNameHsl, options: {space: ColorSpaceHsl}): number;
+channel(channel: ChannelNameHwb, options: {space: ColorSpaceHwb}): number;
+channel(channel: ChannelNameLab, options: {space: ColorSpaceLab}): number;
+channel(channel: ChannelNameLch, options: {space: ColorSpaceLch}): number;
+channel(channel: ChannelNameRgb, options: {space: ColorSpaceRgb}): number;
+channel(channel: ChannelNameXyz, options: {space: ColorSpaceXyz}): number;
 ```
 
 #### `alpha`
@@ -658,19 +639,10 @@ Returns the result of [`color.is-missing(internal,
 channel)`][color.is-missing()] as a JavaScript boolean.
 
 ```ts
-isChannelMissing(channel: ChannelName | 'alpha'): boolean;
+isChannelMissing(channel: ChannelName): boolean;
 ```
 
 [color.is-missing()]: ../../../proposal/color-4-new-spaces.md#coloris-missing-1
-
-#### `isAlphaMissing`
-
-Returns the result of [`color.is-missing(internal,
-'alpha')`][color.is-missing()] as a JavaScript boolean.
-
-```ts
-get isAlphaMissing(): boolean;
-```
 
 #### `isChannelPowerless`
 
@@ -682,28 +654,28 @@ JavaScript boolean.
 ```ts
 isChannelPowerless(channel: ChannelName): boolean;
 isChannelPowerless(
-  channel: ChannelNameHSL,
-  options?: {space: ColorSpaceHSL}
+  channel: ChannelNameHsl,
+  options?: {space: ColorSpaceHsl}
 ): boolean;
 isChannelPowerless(
-  channel: ChannelNameHWB,
-  options?: {space: ColorSpaceHWB}
+  channel: ChannelNameHwb,
+  options?: {space: ColorSpaceHwb}
 ): boolean;
 isChannelPowerless(
   channel: ChannelNameLab,
   options?: {space: ColorSpaceLab}
 ): boolean;
 isChannelPowerless(
-  channel: ChannelNameLCH,
-  options?: {space: ColorSpaceLCH}
+  channel: ChannelNameLch,
+  options?: {space: ColorSpaceLch}
 ): boolean;
 isChannelPowerless(
-  channel: ChannelNameRGB,
-  options?: {space: ColorSpaceRGB}
+  channel: ChannelNameRgb,
+  options?: {space: ColorSpaceRgb}
 ): boolean;
 isChannelPowerless(
-  channel: ChannelNameXYZ,
-  options?: {space: ColorSpaceXYZ}
+  channel: ChannelNameXyz,
+  options?: {space: ColorSpaceXyz}
 ): boolean;
 ```
 
@@ -930,19 +902,17 @@ as the result of changing some of [`internal`]'s components.
 ```ts
 change(
   options: {
-    [key in ChannelNameHSL]?: number | null;
+    [key in ChannelNameHsl]?: number | null;
   } & {
-    alpha?: number;
-    space?: ColorSpaceHSL;
+    space?: ColorSpaceHsl;
   }
 ): SassColor;
 
 change(
   options: {
-    [key in ChannelNameHWB]?: number | null;
+    [key in ChannelNameHwb]?: number | null;
   } & {
-    alpha?: number;
-    space?: ColorSpaceHWB;
+    space?: ColorSpaceHwb;
   }
 ): SassColor;
 
@@ -950,35 +920,31 @@ change(
   options: {
     [key in ChannelNameLab]?: number | null;
   } & {
-    alpha?: number | null;
     space?: ColorSpaceLab;
   }
 ): SassColor;
 
 change(
   options: {
-    [key in ChannelNameLCH]?: number | null;
+    [key in ChannelNameLch]?: number | null;
   } & {
-    alpha?: number | null;
-    space?: ColorSpaceLCH;
+    space?: ColorSpaceLch;
   }
 ): SassColor;
 
 change(
   options: {
-    [key in ChannelNameRGB]?: number | null;
+    [key in ChannelNameRgb]?: number | null;
   } & {
-    alpha?: number | null;
-    space?: ColorSpaceRGB;
+    space?: ColorSpaceRgb;
   }
 ): SassColor;
 
 change(
   options: {
-    [key in ChannelNameXYZ]?: number | null;
+    [key in ChannelNameXyz]?: number | null;
   } & {
-    alpha?: number | null;
-    space?: ColorSpaceXYZ;
+    space?: ColorSpaceXyz;
   }
 ): SassColor;
 ```
