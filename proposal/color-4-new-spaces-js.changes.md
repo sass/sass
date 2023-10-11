@@ -1,3 +1,17 @@
+## Draft 1.2
+
+* Add "alpha" to all channel name types.
+
+* Remove `isAlphaMissing` in favor of `isChannelMissing("alpha")`.
+
+* Rename types using title-case for acronyms longer than two letters in
+  camel-case identifiers (e.g. `ColorSpaceHsl` instead of `ColorSpaceHSL`).
+
+* Remove generic `change` overload, and make `space` optional on others.
+
+* Return `immutable` types for `channels` and `channelsOrNull`, and remove
+  assumption of 3 channels.
+
 ## Draft 1.1
 
 * Clarify values in `channels` and `channelsOrNull`.
