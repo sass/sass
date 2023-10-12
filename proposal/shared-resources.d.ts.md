@@ -69,7 +69,7 @@ long-running compiler process.
 
 ### Example
 
-```ts
+```js
 import * as sassRoot from 'sass';
 async function setup() {
   const sass = await sassRoot.initCompiler();
