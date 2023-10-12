@@ -13,6 +13,7 @@ multiple files.
   * [Design Decisions](#design-decisions)
     * [Parity across JavaScript API interfaces](#parity-across-javascript-api-interfaces)
     * [No shared state](#no-shared-state)
+  * [Example](#example)
 * [API](#api)
   * [Types](#types)
     * [Compiler](#compiler)
@@ -70,13 +71,13 @@ long-running compiler process.
 
 ```ts
 import * as sassRoot from 'sass';
-async function setup(){
+async function setup() {
   const sass = await sassRoot.initCompiler();
   const result1 = sass.compileString('a {b: c}').css;
   const result2 = sass.compileString('a {b: c}').css;
   const color = new sass.SassColor({red: 0, green: 0, blue: 0});
   sass.dispose();
-  
+
   // throws error
   const result3 = sass.compileString('a {b: c}').css;
   // continues to work
@@ -99,6 +100,8 @@ import {Options, StringOptions} from '../spec/js-api/options';
 
 #### Compiler
 
+An instance of the [Compiler interface].
+
 [Compiler interface]: #compiler-interface
 
 ```ts
@@ -114,7 +117,9 @@ export interface Compiler {
     options?: StringOptions<'async'>
   ): Promise<CompileResult>;
 ```
-> For brevity in this draft, only `compile*` functions are shown here, but other root exports will also be present here as 
+
+> For brevity in this draft, only `compile*` functions are shown here, but other
+> root exports will also be present here.
 
 #### dispose()
 
@@ -163,10 +168,8 @@ A Compiler must:
 
 ### Initializing a Compiler
 
-
-
 ### Disposing a Compiler
- 
+
 When `dispose` is invoked on a Compiler:
 
 * Any subsequent invokations of `compile`, `compileAsync`, `compileString`, or
