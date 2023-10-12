@@ -28,20 +28,38 @@ To execute a `@function` rule `rule`:
 
   [vendor prefix]: ../syntax.md#vendor-prefix
 
+* Let `parent` be the [current scope].
+
+  [current scope]: ../spec.md#scope
+
+* Let `function` be a [function] named `name` which does the following when
+  executed with `args`:
+
+  [function]: ../types/functions.md
+
+  * With the current scope set to an empty [scope] with `parent` as its parent:
+
+    * Evaluate `args` with `rule`'s `ArgumentDeclaration`.
+
+    * Execute each statement in `rule`.
+
+    * Return the value from the `@return` rule if one was executed, or throw an
+      error if no `@return` rule was executed.
+
+  [scope]: ../spec.md#scope
+
 * If `rule` is outside of any block of statements:
 
   * If `name` *doesn't* begin with `-` or `_`, set [the current module][]'s
-    function `name` to `rule`.
+    function `name` to `function`.
 
     > This overrides the previous definition, if one exists.
 
-  * Set [the current import context][]'s function `name` to `rule`.
+  * Set [the current import context]'s function `name` to `function`.
 
     > This happens regardless of whether or not it begins with `-` or `_`.
 
   [the current module]: ../spec.md#current-module
   [the current import context]: ../spec.md#current-import-context
 
-* Otherwise, set the innermost block's [scope][]'s function `name` to `value`.
-
-  [scope]: ../variables.md#scope
+* Otherwise, set the [current scope]'s function `name` to `function`.

@@ -426,13 +426,12 @@ and returns a member of type `type` or null.
 * If `name` is a plain `Identifier` or a `Variable` that's not a
   `NamespacedVariable`:
 
-  * Let `scope` be the [scope][] of the innermost block containing the current
-    statement such that `scope` has a member of type `type` named `name`, or
-    null if no such scope exists.
+  * Let `scope` be the [current scope] or its innermost parent such that `scope`
+    has a member of type `type` named `name`, or null if no such scope exists.
 
   * If `scope` is not null, return `scope`'s value of type `type` named `name`.
 
-  [scope]: variables.md#scope
+  [current scope]: spec.md#scope
 
 * If `name` is a [`NamespacedIdentifier`](#syntax) of the form
   `namespace.raw-name` or a [`Variable`][] of the form `namespace.$raw-name`:
