@@ -17,8 +17,11 @@ multiple files.
   * [Types](#types)
     * [Compiler](#compiler)
     * [dispose()](#dispose)
+    * [initCompiler()](#initcompiler)
 * [Semantics](#semantics)
   * [Compiler interface](#compiler-interface)
+  * [Creating a Compiler](#creating-a-compiler)
+  * [Initializing a Compiler](#initializing-a-compiler)
   * [Disposing a Compiler](#disposing-a-compiler)
 
 ## Summary
@@ -63,6 +66,24 @@ This also means that the proposal makes no assertions about whether file content
 has changed. It is also up to the user to determine when to start and stop a
 long-running compiler process.
 
+### Example
+
+```ts
+import * as sassRoot from 'sass';
+async function setup(){
+  const sass = await sassRoot.initCompiler();
+  const result1 = sass.compileString('a {b: c}').css;
+  const result2 = sass.compileString('a {b: c}').css;
+  const color = new sass.SassColor({red: 0, green: 0, blue: 0});
+  sass.dispose();
+  
+  // throws error
+  const result3 = sass.compileString('a {b: c}').css;
+  // continues to work
+  const color2 = new sass.SassColor({red: 0, green: 0, blue: 0});
+}
+```
+
 ## API
 
 ### Types
@@ -71,15 +92,29 @@ long-running compiler process.
 > this only shows the new items, but it will need to be amended to define all
 > the exports available through the Compiler interface.
 
-#### Compiler
+```ts
+import {CompileResult} from '../spec/js-api/compile';
+import {Options, StringOptions} from '../spec/js-api/options';
+```
 
-Returns the result of creating a new [Compiler interface].
+#### Compiler
 
 [Compiler interface]: #compiler-interface
 
 ```ts
-export class Compiler {
+export interface Compiler {
+  compile(path: string, options?: Options<'sync'>): CompileResult;
+  compileAsync(
+    path: string,
+    options?: Options<'async'>
+  ): Promise<CompileResult>;
+  compileString(source: string, options?: StringOptions<'sync'>): CompileResult;
+  compileStringAsync(
+    source: string,
+    options?: StringOptions<'async'>
+  ): Promise<CompileResult>;
 ```
+> For brevity in this draft, only `compile*` functions are shown here, but other root exports will also be present here as 
 
 #### dispose()
 
@@ -88,8 +123,22 @@ export class Compiler {
 [Disposing a Compiler]: #disposing-a-compiler
 
 ```ts
-  dispose(): Promise<Boolean>;
+dispose(): Promise<Boolean>;
+```
+
+```ts
 }
+// End Compiler
+```
+
+#### initCompiler()
+
+* Resolves with the result of [Initializing a Compiler].
+
+[Initializing a Compiler]: #initializing-a-compiler
+
+```ts
+export function initCompiler(): Promise<Compiler>;
 ```
 
 ## Semantics
@@ -112,11 +161,12 @@ A Compiler must:
 
 ### Creating a Compiler
 
+### Initializing a Compiler
 
 
 
 ### Disposing a Compiler
-
+ 
 When `dispose` is invoked on a Compiler:
 
 * Any subsequent invokations of `compile`, `compileAsync`, `compileString`, or
