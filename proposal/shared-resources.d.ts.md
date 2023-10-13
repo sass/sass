@@ -11,19 +11,26 @@ multiple files.
 
 * [Summary](#summary)
   * [Design Decisions](#design-decisions)
-    * [Parity across JavaScript API interfaces](#parity-across-javascript-api-interfaces)
+    * [Splitting Sync and Async Compilers](#splitting-sync-and-async-compilers)
+    * [Limited API interface](#limited-api-interface)
+    * [Flexibility for interfaces on process management](#flexibility-for-interfaces-on-process-management)
     * [No shared state](#no-shared-state)
   * [Example](#example)
+    * [Sync Compiler](#sync-compiler)
+    * [Async Compiler](#async-compiler)
 * [API](#api)
   * [Types](#types)
-    * [Compiler](#compiler)
-    * [dispose()](#dispose)
     * [initCompiler()](#initcompiler)
+    * [initAsyncCompiler()](#initasynccompiler)
+    * [Compiler](#compiler)
+      * [dispose()](#dispose)
+    * [Async Compiler](#async-compiler-1)
+      * [dispose()](#dispose-1)
 * [Semantics](#semantics)
-  * [Compiler interface](#compiler-interface)
-  * [Creating a Compiler](#creating-a-compiler)
-  * [Initializing a Compiler](#initializing-a-compiler)
+  * [Compiler](#compiler-1)
+  * [Async Compiler](#async-compiler-2)
   * [Disposing a Compiler](#disposing-a-compiler)
+  * [Disposing an Async Compiler](#disposing-an-async-compiler)
 
 ## Summary
 
@@ -40,19 +47,27 @@ lifecycle of these processes through a Compiler interface.
 
 ### Design Decisions
 
-#### Parity across JavaScript API interfaces
+#### Splitting Sync and Async Compilers
 
-When using the Compiler interface, users may still want to use portions of the
-JavaScript API unrelated to compilation. The Compiler interface will be nearly
-identical to the top level Sass interface. This allows users to replace
-instances of the imported `sass` class with an instance of the compiler.
+When creating a Compiler, users will need to choose either a compiler that
+provides access to synchronous or asynchronous compilation.
+
+#### Limited API interface
+
+Many build tools allow passing the Sass module as a parameter, which offers
+flexibility to users on what implementation of Sass is used. Because users may
+still want to use portions of the JavaScript API unrelated to compilation, we
+considered having the Compiler interface mirror the top level Sass interface,
+which would allow users to replace instances of the imported `sass` class with
+an instance of the compiler. However, this adds an additional ongoing cost to
+ongoing Sass development. The proposed API does not eliminate this as a
+possibility in the future.
+
+#### Flexibility for interfaces on process management
 
 In environments without access to a long-running compiler -- for instance, the
 Dart Sass implementation -- the Compiler interface will continue to perform a
 single compilation per process.
-
-Notable differences are that the Compiler interface will have additional methods
-to manage the process lifecycle, and will not contain the legacy API.
 
 #### No shared state
 
@@ -69,19 +84,33 @@ long-running compiler process.
 
 ### Example
 
+#### Sync Compiler
+
 ```js
-import * as sassRoot from 'sass';
+import * as sass from 'sass';
 async function setup() {
-  const sass = await sassRoot.initCompiler();
-  const result1 = sass.compileString('a {b: c}').css;
-  const result2 = sass.compileString('a {b: c}').css;
-  const color = new sass.SassColor({red: 0, green: 0, blue: 0});
-  sass.dispose();
+  const compiler = await sass.initCompiler();
+  const result1 = compiler.compileString('a {b: c}').css;
+  const result2 = compiler.compileString('a {b: c}').css;
+  compiler.dispose();
 
   // throws error
   const result3 = sass.compileString('a {b: c}').css;
-  // continues to work
-  const color2 = new sass.SassColor({red: 0, green: 0, blue: 0});
+}
+```
+
+#### Async Compiler
+
+```js
+import * as sass from 'sass';
+async function setup() {
+  const compiler = await sass.initAsyncCompiler();
+  const result1 = await compiler.compileStringAsync('a {b: c}').css;
+  const result2 = await compiler.compileStringAsync('a {b: c}').css;
+  compiler.dispose();
+
+  // throws error
+  const result3 = sass.compileStringAsync('a {b: c}').css;
 }
 ```
 
@@ -89,92 +118,125 @@ async function setup() {
 
 ### Types
 
-> These type definitions are currently incomplete. In the current draft state,
-> this only shows the new items, but it will need to be amended to define all
-> the exports available through the Compiler interface.
-
 ```ts
 import {CompileResult} from '../spec/js-api/compile';
 import {Options, StringOptions} from '../spec/js-api/options';
 ```
 
+#### initCompiler()
+
+Returns a synchronous [Compiler].
+
+[Compiler]: #compiler
+
+```ts
+export function initCompiler(): Compiler;
+```
+
+#### initAsyncCompiler()
+
+Returns an [Async Compiler].
+
+[Async Compiler]: #async-compiler
+
+```ts
+export function initAsyncCompiler(): AsyncCompiler;
+```
+
 #### Compiler
 
-An instance of the [Compiler interface].
+An instance of the synchronous [Compiler]. Re-exports [`compile()`]
+and [`compileString()`].
 
-[Compiler interface]: #compiler-interface
+[`compile()`]: ../spec/js-api/compile.d.ts.md#compile
+[`compilestring()`]: ../spec/js-api/compile.d.ts.md#compilestring
 
 ```ts
 export interface Compiler {
   compile(path: string, options?: Options<'sync'>): CompileResult;
+  compileString(source: string, options?: StringOptions<'sync'>): CompileResult;
+```
+
+##### dispose()
+
+Returns the result of [Disposing a Compiler].
+
+[disposing a compiler]: #disposing-a-compiler
+
+```ts
+  dispose(): Boolean;
+}
+```
+
+#### Async Compiler
+
+An instance of the asynchronous [Compiler interface]. Re-exports
+[`compileAsync()`] and [`compileStringAsync()`].
+
+[`compileasync()`]: ../spec/js-api/compile.d.ts.md#compileasync
+[`compilestringasync()`]: ../spec/js-api/compile.d.ts.md#compilestringasync
+
+```ts
+export interface AsyncCompiler {
   compileAsync(
     path: string,
     options?: Options<'async'>
   ): Promise<CompileResult>;
-  compileString(source: string, options?: StringOptions<'sync'>): CompileResult;
   compileStringAsync(
     source: string,
     options?: StringOptions<'async'>
   ): Promise<CompileResult>;
 ```
 
-> For brevity in this draft, only `compile*` functions are shown here, but other
-> root exports will also be present here.
-
-#### dispose()
+##### dispose()
 
 * Resolves with the result of [Disposing a Compiler].
 
-[Disposing a Compiler]: #disposing-a-compiler
-
 ```ts
-dispose(): Promise<Boolean>;
-```
-
-```ts
+  dispose(): Promise<Boolean>;
 }
-// End Compiler
-```
-
-#### initCompiler()
-
-* Resolves with the result of [Initializing a Compiler].
-
-[Initializing a Compiler]: #initializing-a-compiler
-
-```ts
-export function initCompiler(): Promise<Compiler>;
 ```
 
 ## Semantics
 
-### Compiler interface
+### Compiler
 
 A Compiler must:
 
 * Have a lifetime, which starts upon construction.
 
-* Include all items of the Sass interface, but must not include `Compiler`,
-  `render`, `renderSync`, `FALSE`, `NULL`, `TRUE`, `types` or any export
-  starting with `Legacy`.
+* `compile` and `compileString` must have identical semantics to the [Sass
+  interface].
 
-* All methods must have identical semantics to the [Sass interface].
+* Have a `dispose` method, which ends the Compiler's lifetime.
 
-* Have a `dispose` method.
+[sass interface]: ../spec/js-api/index.d.ts.md
 
-[Sass interface]: ../spec/js-api/index.d.ts.md
+### Async Compiler
 
-### Creating a Compiler
+An Async Compiler must:
 
-### Initializing a Compiler
+* Have a lifetime, which starts upon construction.
+
+* `compileAsync` and `compileStringAsync` must have identical semantics to the
+  [Sass interface].
+
+* Have a `dispose` method, which ends the Compiler's lifetime.
 
 ### Disposing a Compiler
 
 When `dispose` is invoked on a Compiler:
 
-* Any subsequent invokations of `compile`, `compileAsync`, `compileString`, or
-  `compileStringAsync` must throw an error.
+* Any subsequent invokations of `compile` and `compileString` for the
+   synchronous compiler.
 
-* Any subsequent usage of other exports on Compiler must continue to function.
+* Returns `true` when disposal is complete.
+
+### Disposing an Async Compiler
+
+When `dispose` is invoked on a Compiler or Async Compiler:
+
+* Any subsequent invokations of `compileAsync` and `compileStringAsync` must
+   throw an error.
 
 * Resolves a Promise with `true` when disposal is complete.
