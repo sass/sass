@@ -50,7 +50,12 @@ lifecycle of these processes through a Compiler interface.
 #### Splitting Sync and Async Compilers
 
 When creating a Compiler, users will need to choose either a compiler that
-provides access to synchronous or asynchronous compilation.
+provides access to synchronous or asynchronous compilation. While providing both
+simultaneously from a single Compiler would offer more flexibility, it also adds
+significant complexity to the API. In practice, we expect most users will only
+want to use one mode, generally in the mode that is the fastest for the
+implementation. If synchronous and asynchronous compilations are both needed,
+users can create multiple Compilers.
 
 #### Limited API interface
 
@@ -88,8 +93,8 @@ long-running compiler process.
 
 ```js
 import * as sass from 'sass';
-async function setup() {
-  const compiler = await sass.initCompiler();
+function setup() {
+  const compiler = sass.initCompiler();
   const result1 = compiler.compileString('a {b: c}').css;
   const result2 = compiler.compileString('a {b: c}').css;
   compiler.dispose();
@@ -135,12 +140,12 @@ export function initCompiler(): Compiler;
 
 #### initAsyncCompiler()
 
-Returns an [Async Compiler].
+Resolves with an [Async Compiler].
 
 [Async Compiler]: #async-compiler
 
 ```ts
-export function initAsyncCompiler(): AsyncCompiler;
+export function initAsyncCompiler(): Promise<AsyncCompiler>;
 ```
 
 #### Compiler
