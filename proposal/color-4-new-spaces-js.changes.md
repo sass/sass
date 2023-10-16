@@ -1,3 +1,7 @@
+## Draft 1.3
+
+* Rename new Embedded Protocol message from `SassColor` to `Color`.
+
 ## Draft 1.2
 
 * Add "alpha" to all channel name types.

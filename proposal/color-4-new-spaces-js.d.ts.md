@@ -1,4 +1,4 @@
-# CSS Color Level 4, New Color Spaces JavaScript API: Draft 1.1
+# CSS Color Level 4, New Color Spaces JavaScript API: Draft 1.3
 
 *([Issue](https://github.com/sass/sass/issues/2831),
 [Changelog](color-4-new-spaces-js.changes.md))*
@@ -43,7 +43,7 @@ proposal].
   * [Changing a Component Value](#changing-a-component-value)
   * [Determining Construction Space](#determining-construction-space)
 * [Embedded Protocol](#embedded-protocol)
-  * [SassColor](#sasscolor)
+  * [Color](#color)
   * [Removed SassScript values](#removed-sassscript-values)
 
 ## API
@@ -598,7 +598,7 @@ change(
 
 #### Lab Channel Constructor
 
-Create a new SassColor in a color space with Lab channels -- `lab` and `oklab`.
+Create a new SassColor in a color space with Lab channels—`lab` and `oklab`.
 
 * Let `lightness` be the result of [parsing a channel value] with value
   `options.lightness`.
@@ -632,7 +632,7 @@ constructor(options: {
 
 #### LCH Channel Constructor
 
-Create a new SassColor in a color space with LCH channels -- `lch` and `oklch`.
+Create a new SassColor in a color space with LCH channels—`lch` and `oklch`.
 
 * Let `lightness` be the result of [parsing a channel value] with value
   `options.lightness`.
@@ -665,9 +665,9 @@ constructor(options: {
 
 #### Predefined RGB Channel Constructor
 
-Create a new SassColor in a color space with RGB channels -- `srgb`,
-`srgb-linear`, `display-p3`, `a98-rgb`, and `prophoto-rgb`. `rgb` is supported
-through the modified [RGB Constructor].
+Create a new SassColor in a color space with RGB channels—`srgb`, `srgb-linear`,
+`display-p3`, `a98-rgb`, and `prophoto-rgb`. `rgb` is supported through the
+modified [RGB Constructor].
 
 * Let `red` be the result of [parsing a channel value] with value `options.red`.
 
@@ -699,8 +699,8 @@ constructor(options: {
 
 #### XYZ Channel Constructor
 
-Create a new SassColor in a color space with XYZ channels -- `xyz`, `xyz-d50`,
-and `xyz-d65`.
+Create a new SassColor in a color space with XYZ channels—`xyz`, `xyz-d50`, and
+`xyz-d65`.
 
 * Let `x` be the result of [parsing a channel value] with value `options.x`.
 
@@ -894,10 +894,10 @@ space for construction.
 This introduces a breaking change in the Embedded Protocol, as it removes the
 legacy SassScript values.
 
-### SassColor
+### Color
 
 ```proto
-message SassColor {
+message Color {
   // The name of a known color space.
   string space = 1;
 
@@ -910,8 +910,7 @@ message SassColor {
   // The value of the third channel associated with `space`.
   double channel3 = 4;
 
-  // The color's alpha channel. Mandatory. Must be between 0 and 1,
-  // inclusive.
+  // The color's alpha channel. Mandatory. Must be between 0 and 1, inclusive.
   double alpha = 5;
 }
 ```
