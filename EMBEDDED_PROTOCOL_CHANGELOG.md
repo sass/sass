@@ -1,3 +1,9 @@
+## 3.0.0-dev
+
+* Add `SassColor` SassScript value.
+
+* Remove `RgbColor`, `HslColor` and `HwbColor` SassScript values.
+
 ## 2.1.0
 
 * Use the Java package `com.sass_lang.embedded_protocol` and generate multiple
@@ -18,7 +24,7 @@
   * The `CompileRequest.id`, `CompileResponse.id`, `LogEvent.compilation_id`,
     `CanonicalizeRequest.compilation_id`, `ImportRequest.compilation_id`,
     `FileImportRequest.compilation_id`, and `FunctionCallRequest.compilation_id`
-    fields  have been removed.
+    fields have been removed.
 
 * The following fields are now explicitly declared as proto3 `optional` fields:
   `ImportSuccess.source_map_url`, `LogEvent.span`, `SourceSpan.end`. These

@@ -763,62 +763,22 @@ message Value {
     repeated string denominators = 3;
   }
 
-  // A SassScript color value, represented as red, green, and blue channels.
-  //
-  // All Sass color values can be equivalently represented as `RgbColor`,
-  // `HslColor`, and `HwbColor` messages without loss of color information that
-  // can affect CSS rendering. As such, either endpoint may choose to send any
-  // color value as any one of these three messages.
-  message RgbColor {
-    // The color's red channel. May not be above 255.
-    uint32 red = 1;
+  // A SassScript color value.
+  message SassColor {
+    // The name of a known color space.
+    string space = 1;
 
-    // The color's green channel. May not be above 255.
-    uint32 green = 2;
+    // The value of the first channel associated with `space`.
+    double channel1 = 2;
 
-    // The color's blue channel. May not be above 255.
-    uint32 blue = 3;
+    // The value of the second channel associated with `space`.
+    double channel2 = 3;
 
-    // The color's alpha channel. Must be between 0 and 1,
-    // inclusive.
-    double alpha = 4;
-  }
+    // The value of the third channel associated with `space`.
+    double channel3 = 4;
 
-  // A SassScript color value, represented as hue, saturation, and lightness channels.
-  message HslColor {
-    // The color's hue.
-    double hue = 1;
-
-    // The color's percent saturation. Must be between 0 and 100,
-    // inclusive.
-    double saturation = 2;
-
-    // The color's percent lightness. Must be between 0 and 100,
-    // inclusive.
-    double lightness = 3;
-
-    // The color's alpha channel. Must be between 0 and 1,
-    // inclusive.
-    double alpha = 4;
-  }
-
-  // A SassScript color value, represented as hue, whiteness, and blackness
-  // channels.
-  message HwbColor {
-    // The color's hue.
-    double hue = 1;
-
-    // The color's percent whiteness. Must be between 0 and 100,
-    // inclusive. The sum of `whiteness` and `blackness` must not exceed 100.
-    double whiteness = 2;
-
-    // The color's percent blackness. Must be between 0 and 100,
-    // inclusive. The sum of `whiteness` and `blackness` must not exceed 100.
-    double blackness = 3;
-
-    // The color's alpha channel. Mandatory. Must be between 0 and 1,
-    // inclusive.
-    double alpha = 4;
+    // The color's alpha channel. Mandatory. Must be between 0 and 1, inclusive.
+    double alpha = 5;
   }
 
   // A SassScript list value.
@@ -1001,17 +961,15 @@ message Value {
   oneof value {
     String string = 1;
     Number number = 2;
-    RgbColor rgb_color = 3;
-    HslColor hsl_color = 4;
     List list = 5;
     Map map = 6;
     SingletonValue singleton = 7;
     CompilerFunction compiler_function = 8;
     HostFunction host_function = 9;
     ArgumentList argument_list = 10;
-    HwbColor hwb_color = 11;
     Calculation calculation = 12;
     CompilerMixin compiler_mixin = 13;
+    SassColor sass_color = 14;
   }
 }
 
