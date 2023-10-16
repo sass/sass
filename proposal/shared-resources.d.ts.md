@@ -64,15 +64,15 @@ flexibility to users on what implementation of Sass is used. Because users may
 still want to use portions of the JavaScript API unrelated to compilation, we
 considered having the Compiler interface mirror the top level Sass interface,
 which would allow users to replace instances of the imported `sass` class with
-an instance of the compiler. However, this adds an additional ongoing cost to
-ongoing Sass development. The proposed API does not eliminate this as a
-possibility in the future.
+an instance of the compiler. However, this adds an additional cost to ongoing
+Sass development. The proposed API does not eliminate this as a possibility in
+the future.
 
 #### Flexibility for interfaces on process management
 
-In environments without access to a long-running compiler -- for instance, the
-Dart Sass implementation -- the Compiler interface will continue to perform a
-single compilation per process.
+In environments without access to a long-running compiler—for instance, the Dart
+Sass implementation—the Compiler interface will continue to perform a single
+compilation per process.
 
 #### No shared state
 
@@ -232,8 +232,8 @@ An Async Compiler must:
 
 When `dispose` is invoked on a Compiler:
 
-* Any subsequent invokations of `compile` and `compileString` for the
-   synchronous compiler.
+* Any subsequent invocations of `compile` and `compileString` must throw an
+  error.
 
 * Returns `true` when disposal is complete.
 
@@ -241,7 +241,7 @@ When `dispose` is invoked on a Compiler:
 
 When `dispose` is invoked on a Compiler or Async Compiler:
 
-* Any subsequent invokations of `compileAsync` and `compileStringAsync` must
-   throw an error.
+* Any subsequent invocations of `compileAsync` and `compileStringAsync` must
+  throw an error.
 
 * Resolves a Promise with `true` when disposal is complete.
