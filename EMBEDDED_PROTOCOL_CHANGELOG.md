@@ -1,6 +1,6 @@
 ## 3.0.0-dev
 
-* Add `SassColor` SassScript value.
+* Add `Color` SassScript value.
 
 * Remove `RgbColor`, `HslColor` and `HwbColor` SassScript values.
 

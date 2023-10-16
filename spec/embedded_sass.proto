@@ -764,7 +764,7 @@ message Value {
   }
 
   // A SassScript color value.
-  message SassColor {
+  message Color {
     // The name of a known color space.
     string space = 1;
 
@@ -969,7 +969,7 @@ message Value {
     ArgumentList argument_list = 10;
     Calculation calculation = 12;
     CompilerMixin compiler_mixin = 13;
-    SassColor sass_color = 14;
+    Color color = 14;
   }
 }
 
