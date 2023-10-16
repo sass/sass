@@ -1,4 +1,4 @@
-# CSS Color Level 4, New Color Spaces JavaScript API: Draft 1.1
+# CSS Color Level 4, New Color Spaces JavaScript API: Draft 1.3
 
 *([Issue](https://github.com/sass/sass/issues/2831),
 [Changelog](color-4-new-spaces-js.changes.md))*
@@ -43,7 +43,7 @@ proposal].
   * [Changing a Component Value](#changing-a-component-value)
   * [Determining Construction Space](#determining-construction-space)
 * [Embedded Protocol](#embedded-protocol)
-  * [SassColor](#sasscolor)
+  * [Color](#color)
   * [Removed SassScript values](#removed-sassscript-values)
 
 ## API
@@ -894,10 +894,10 @@ space for construction.
 This introduces a breaking change in the Embedded Protocol, as it removes the
 legacy SassScript values.
 
-### SassColor
+### Color
 
 ```proto
-message SassColor {
+message Color {
   // The name of a known color space.
   string space = 1;
 
