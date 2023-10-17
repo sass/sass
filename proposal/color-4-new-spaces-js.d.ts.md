@@ -324,16 +324,18 @@ isChannelPowerless(
 * Otherwise, let `interpolationMethod` be a space separated list containing the
   value of `space`, a space, and the string "shorter".
 
-* Return the result of [`color.mix(internal, options.color2, options.weight, interpolationMethod)`][`color.mix()`].
+* Return the result of [`color.mix(internal, color2, options.weight, interpolationMethod)`][`color.mix()`].
 
 ```ts
-interpolate(options: {color2: SassColor; weight?: number}): SassColor;
+interpolate(color2: SassColor, options: {weight?: number}): SassColor;
 
-interpolate(options: {
-  color2: SassColor;
-  weight?: number;
-  method?: HueInterpolationMethod;
-}): SassColor;
+interpolate(
+  color2: SassColor,
+  options: {
+    weight?: number;
+    method?: HueInterpolationMethod;
+  }
+): SassColor;
 ```
 
 [`color.mix()`]: ./color-4-new-spaces.md#colormix-1
