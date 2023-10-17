@@ -79,6 +79,7 @@ export type ColorSpaceRgb =
   | 'a98-rgb'
   | 'display-p3'
   | 'prophoto-rgb'
+  | 'rec2020'
   | 'rgb'
   | 'srgb'
   | 'srgb-linear';
@@ -507,8 +508,8 @@ as the result of changing some of [`internal`]'s components.
   })
   ```
 
-* If `space` equals `a98-rgb`, `display-p3`, `prophoto-rgb`, `srgb`, or
-  `srgb-linear`, let `changedColor` be the result of:
+* If `space` equals `a98-rgb`, `display-p3`, `prophoto-rgb`, `rec2020`, `srgb`,
+  or `srgb-linear`, let `changedColor` be the result of:
 
   ```js
   new SassColor({
@@ -668,8 +669,8 @@ constructor(options: {
 #### Predefined RGB Channel Constructor
 
 Create a new SassColor in a color space with RGB channels—`srgb`, `srgb-linear`,
-`display-p3`, `a98-rgb`, and `prophoto-rgb`. `rgb` is supported through the
-modified [RGB Constructor].
+`display-p3`, `a98-rgb`, `prophoto-rgb`, and `rec2020`. `rgb` is supported
+through the modified [RGB Constructor].
 
 * Let `red` be the result of [parsing a channel value] with value `options.red`.
 
