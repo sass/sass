@@ -1,3 +1,11 @@
+## Draft 1.3
+
+* Rename new Embedded Protocol message from `SassColor` to `Color`.
+
+* Make `color2` a positional parameter of `interpolate`, not an option.
+
+* Add `rec2020` color space.
+
 ## Draft 1.2
 
 * Add "alpha" to all channel name types.
