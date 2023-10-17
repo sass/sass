@@ -136,6 +136,7 @@ export type ColorSpaceRgb =
   | 'a98-rgb'
   | 'display-p3'
   | 'prophoto-rgb'
+  | 'rec2020'
   | 'rgb'
   | 'srgb'
   | 'srgb-linear';
@@ -428,7 +429,7 @@ constructor(options: {
 ##### Predefined RGB
 
 * Otherwise, if `constructionSpace` is "srgb", "srgb-linear", "display-p3",
-  "a98-rgb", or "prophoto-rgb":
+  "a98-rgb", "prophoto-rgb", or "rec2020":
 
   * Let `red` be the result of [parsing a channel value] with value
     `options.red`.
@@ -693,16 +694,18 @@ isChannelPowerless(
 * Otherwise, let `interpolationMethod` be a space separated list containing the
   value of `space`, a space, and the string "shorter".
 
-* Return the result of [`color.mix(internal, options.color2, options.weight, interpolationMethod)`][`color.mix()`].
+* Return the result of [`color.mix(internal, color2, options.weight, interpolationMethod)`][`color.mix()`].
 
 ```ts
-interpolate(options: {color2: SassColor; weight?: number}): SassColor;
+interpolate(color2: SassColor, options: {weight?: number}): SassColor;
 
-interpolate(options: {
-  color2: SassColor;
-  weight?: number;
-  method?: HueInterpolationMethod;
-}): SassColor;
+interpolate(
+  color2: SassColor,
+  options: {
+    weight?: number;
+    method?: HueInterpolationMethod;
+  }
+): SassColor;
 ```
 
 [`color.mix()`]: ../../../proposal/color-4-new-spaces.md#colormix-1
@@ -868,8 +871,8 @@ as the result of changing some of [`internal`]'s components.
   })
   ```
 
-* If `space` equals `a98-rgb`, `display-p3`, `prophoto-rgb`, `srgb`, or
-  `srgb-linear`, let `changedColor` be the result of:
+* If `space` equals `a98-rgb`, `display-p3`, `prophoto-rgb`, `rec2020`, `srgb`,
+  or `srgb-linear`, let `changedColor` be the result of:
 
   ```js
   new SassColor({

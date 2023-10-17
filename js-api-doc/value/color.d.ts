@@ -31,6 +31,7 @@ export type ColorSpaceRgb =
   | 'a98-rgb'
   | 'display-p3'
   | 'prophoto-rgb'
+  | 'rec2020'
   | 'rgb'
   | 'srgb'
   | 'srgb-linear';
@@ -374,12 +375,14 @@ export class SassColor extends Value {
    * The `weight` is a number between 0 and 1 that indicates how much of this
    * color should be in the resulting color. If omitted, it defaults to 0.5.
    */
-  interpolate(options: {color2: SassColor; weight?: number}): SassColor;
-  interpolate(options: {
-    color2: SassColor;
-    weight?: number;
-    method?: HueInterpolationMethod;
-  }): SassColor;
+  interpolate(color2: SassColor, options: {weight?: number}): SassColor;
+  interpolate(
+    color2: SassColor,
+    options: {
+      weight?: number;
+      method?: HueInterpolationMethod;
+    }
+  ): SassColor;
 
   /**
    * Changes one or more of this color's HSL channels and returns the result.

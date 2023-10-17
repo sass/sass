@@ -257,9 +257,8 @@ the same equality semantics can be generated for a number `x` by rounding
 
 ### Colors
 
-Colors are represented by the `SassColor` value type. The API should provide
-means of changing one or more channels of a color while leaving other channels
-as-is.
+Colors are represented by the `Color` value type. The API should provide means
+of changing one or more channels of a color while leaving other channels as-is.
 
 Two [legacy colors] are equal if their RGB forms have the same red, green, blue
 channels and alpha channels within 1e-11 of one another.
