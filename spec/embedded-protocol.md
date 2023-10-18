@@ -261,10 +261,10 @@ Colors are represented by the `Color` value type. The API should provide means
 of changing one or more channels of a color while leaving other channels as-is.
 
 Two [legacy colors] are equal if their RGB forms have the same red, green, blue
-channels and alpha channels within 1e-11 of one another.
+channels and alpha channels equal rounded to the nearest 1e-11.
 
 Two non-legacy colors are equal if they are in the same color space and their
-channel and alpha values are within 1e-11 of one another.
+channel and alpha values are equal rounded to the nearest 1e-11.
 
 [legacy colors]: ../proposal/color-4-new-spaces.md#legacy-color
 
