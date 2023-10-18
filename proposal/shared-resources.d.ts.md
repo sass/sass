@@ -23,14 +23,11 @@ multiple files.
     * [initCompiler()](#initcompiler)
     * [initAsyncCompiler()](#initasynccompiler)
     * [Compiler](#compiler)
+      * [`compile()` and `compileString()`](#compile-and-compilestring)
       * [dispose()](#dispose)
     * [Async Compiler](#async-compiler-1)
+      * [`compileAsync()` and `compileStringAsync()`](#compileasync-and-compilestringasync)
       * [dispose()](#dispose-1)
-* [Semantics](#semantics)
-  * [Compiler](#compiler-1)
-  * [Async Compiler](#async-compiler-2)
-  * [Disposing a Compiler](#disposing-a-compiler)
-  * [Disposing an Async Compiler](#disposing-an-async-compiler)
 
 ## Summary
 
@@ -150,85 +147,27 @@ export function initAsyncCompiler(): Promise<AsyncCompiler>;
 
 #### Compiler
 
-An instance of the synchronous [Compiler]. Re-exports [`compile()`]
-and [`compileString()`].
-
-[`compile()`]: ../spec/js-api/compile.d.ts.md#compile
-[`compilestring()`]: ../spec/js-api/compile.d.ts.md#compilestring
+An instance of the synchronous Compiler.
 
 ```ts
 export interface Compiler {
-  compile(path: string, options?: Options<'sync'>): CompileResult;
-  compileString(source: string, options?: StringOptions<'sync'>): CompileResult;
+```
+
+##### `compile()` and `compileString()`
+
+Only synchronous compilation methods [`compile()`] and [`compileString()`] must be
+included, and must have with identical semantics to the [Sass interface].
+
+[`compile()`]: ../spec/js-api/compile.d.ts.md#compile
+[`compilestring()`]: ../spec/js-api/compile.d.ts.md#compilestring
+[Sass interface]: ../spec/js-api/index.d.ts.md
+
+```ts
+compile(path: string, options?: Options<'sync'>): CompileResult;
+compileString(source: string, options?: StringOptions<'sync'>): CompileResult;
 ```
 
 ##### dispose()
-
-Returns the result of [Disposing a Compiler].
-
-[disposing a compiler]: #disposing-a-compiler
-
-```ts
-  dispose(): Boolean;
-}
-```
-
-#### Async Compiler
-
-An instance of the asynchronous [Compiler interface]. Re-exports
-[`compileAsync()`] and [`compileStringAsync()`].
-
-[`compileasync()`]: ../spec/js-api/compile.d.ts.md#compileasync
-[`compilestringasync()`]: ../spec/js-api/compile.d.ts.md#compilestringasync
-
-```ts
-export interface AsyncCompiler {
-  compileAsync(
-    path: string,
-    options?: Options<'async'>
-  ): Promise<CompileResult>;
-  compileStringAsync(
-    source: string,
-    options?: StringOptions<'async'>
-  ): Promise<CompileResult>;
-```
-
-##### dispose()
-
-* Resolves with the result of [Disposing a Compiler].
-
-```ts
-  dispose(): Promise<Boolean>;
-}
-```
-
-## Semantics
-
-### Compiler
-
-A Compiler must:
-
-* Have a lifetime, which starts upon construction.
-
-* `compile` and `compileString` must have identical semantics to the [Sass
-  interface].
-
-* Have a `dispose` method, which ends the Compiler's lifetime.
-
-[sass interface]: ../spec/js-api/index.d.ts.md
-
-### Async Compiler
-
-An Async Compiler must:
-
-* Have a lifetime, which starts upon construction.
-
-* `compileAsync` and `compileStringAsync` must have identical semantics to the
-  [Sass interface].
-
-* Have a `dispose` method, which ends the Compiler's lifetime.
-
-### Disposing a Compiler
 
 When `dispose` is invoked on a Compiler:
 
@@ -237,11 +176,53 @@ When `dispose` is invoked on a Compiler:
 
 * Returns `true` when disposal is complete.
 
-### Disposing an Async Compiler
+```ts
+  dispose(): Boolean;
+}
+```
 
-When `dispose` is invoked on a Compiler or Async Compiler:
+#### Async Compiler
+
+An instance of the asynchronous Compiler.
+
+```ts
+export interface AsyncCompiler {
+```
+
+##### `compileAsync()` and `compileStringAsync()`
+
+Only asynchronous compilation methods [`compileAsync()`] and
+[`compileStringAsync()`] must be included, and must have with identical
+semantics to the [Sass interface].
+
+[`compileasync()`]: ../spec/js-api/compile.d.ts.md#compileasync
+[`compilestringasync()`]: ../spec/js-api/compile.d.ts.md#compilestringasync
+
+```ts
+compileAsync(
+  path: string,
+  options?: Options<'async'>
+): Promise<CompileResult>;
+compileStringAsync(
+  source: string,
+  options?: StringOptions<'async'>
+): Promise<CompileResult>;
+```
+
+##### dispose()
+
+When `dispose` is invoked on an Async Compiler:
 
 * Any subsequent invocations of `compileAsync` and `compileStringAsync` must
   throw an error.
 
-* Resolves a Promise with `true` when disposal is complete.
+* Any compilations that have not yet been settled must be allowed to settle, and
+  not be cancelled.
+
+* Resolves a Promise with `true` when all compilations have been settled, and
+  disposal is complete.
+
+```ts
+  dispose(): Promise<Boolean>;
+}
+```
