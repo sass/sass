@@ -504,13 +504,14 @@ get space(): KnownColorSpace;
 
 * If `this.space` is equal to `space`, return `this`.
 
-* Otherwise, return the result of [`color.to-space(internal, space)`].
+* Otherwise, return the result of [Converting a Color] with `this` as
+  `origin-color` and `space` as `target-space`.
 
 ```ts
 toSpace(space: KnownColorSpace): SassColor;
 ```
 
-[`color.to-space(internal, space)`]: ../../../proposal/color-4-new-spaces.md#colorto-space
+[Converting a Color]: ../../../proposal/color-4-new-spaces.md#converting-a-color
 
 #### `isLegacy`
 
@@ -732,6 +733,9 @@ as the result of changing some of [`internal`]'s components.
 * If `initialSpace` is a [legacy color space] and `spaceSetExplicitly` is false:
 
   * If `options.whiteness` or `options.blackness` is set, let `space` be `hwb`.
+
+  * Otherwise, if `options.hue` is set and `initialSpace` is `hwb`, let space be
+    `hwb`.
 
   * Otherwise, if `options.hue`, `options.saturation`, or `options.lightness` is
     set, let `space` be `hsl`.
@@ -1078,4 +1082,8 @@ This procedure takes a `channel` name, an object `changes` and a SassColor
 
 * If `channel` is not a key in `changes`, return `initialValue`.
 
-* Otherwise, return the value for `channel` in `changes`.
+* Let `changedValue` be the value for `channel` in `changes`.
+
+* If `changedValue` is `undefined` and not `null`, return `initialValue`.
+
+* Otherwise, return `changedValue`.
