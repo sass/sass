@@ -1,3 +1,14 @@
+## Draft 1.4
+
+* In `change`, adjust algorithm for differentiating `hwb` from `hsl` when only
+  `hue` and no `space` is specified.
+
+* In procedure for Changing a Component Value, specify that `undefined` values
+  should return the `initialValue`.
+
+* `toSpace` uses `Converting a Color` algorithm instead of `color.to-space()` to
+  avoid removing missing channels when converting to a legacy space.
+
 ## Draft 1.3
 
 * Rename new Embedded Protocol message from `SassColor` to `Color`.
