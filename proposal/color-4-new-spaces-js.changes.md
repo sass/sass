@@ -3,6 +3,9 @@
 * In `change`, adjust algorithm for differentiating `hwb` from `hsl` when only
   `hue` and no `space` is specified.
 
+* In procedure for Changing a Component Value, specify that `undefined` values
+  should return the `initialValue`.
+
 ## Draft 1.3
 
 * Rename new Embedded Protocol message from `SassColor` to `Color`.

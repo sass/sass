@@ -877,7 +877,11 @@ This procedure takes a `channel` name, an object `changes` and a SassColor
 
 * If `channel` is not a key in `changes`, return `initialValue`.
 
-* Otherwise, return the value for `channel` in `changes`.
+* Let `changedValue` be the value for `channel` in `changes`.
+
+* If `changedValue` is `undefined` and not `null`, return `initialValue`.
+
+* Otherwise, return `changedValue`.
 
 ### Determining Construction Space
 
