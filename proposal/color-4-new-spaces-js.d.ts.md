@@ -370,6 +370,8 @@ as the result of changing some of [`internal`]'s components.
 
   * If `options.whiteness` or `options.blackness` is set, let `space` be `hwb`.
 
+  * Otherwise, if `options.hue` is set and `initialSpace` is `hwb`, let space be `hwb`.
+
   * Otherwise, if `options.hue`, `options.saturation`, or `options.lightness` is
     set, let `space` be `hsl`.
 

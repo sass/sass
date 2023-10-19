@@ -1,3 +1,8 @@
+## Draft 1.4
+
+* In `change`, adjust algorithm for differentiating `hwb` from `hsl` when only
+  `hue` and no `space` is specified.
+
 ## Draft 1.3
 
 * Rename new Embedded Protocol message from `SassColor` to `Color`.
