@@ -137,13 +137,14 @@ get space(): KnownColorSpace;
 
 * If `this.space` is equal to `space`, return `this`.
 
-* Otherwise, return the result of [`color.to-space(internal, space)`].
+* Otherwise, return the result of [Converting a Color] with `this` as
+  `origin-color` and `space` as `target-space`.
 
 ```ts
 toSpace(space: KnownColorSpace): SassColor;
 ```
 
-[`color.to-space(internal, space)`]: ./color-4-new-spaces.md#colorto-space
+[Converting a Color]: ./color-4-new-spaces.md#converting-a-color
 
 #### `isLegacy`
 
