@@ -12,6 +12,9 @@
 * `toSpace` uses `Converting a Color` algorithm instead of `color.to-space()` to
   avoid removing missing channels when converting to a legacy space.
 
+* In `change` and constructors, throw an error for alpha and lightness values
+  that are out of range.
+
 ## Draft 1.3
 
 * Rename new Embedded Protocol message from `SassColor` to `Color`.
