@@ -3,6 +3,9 @@
 * In `change`, adjust algorithm for differentiating `hwb` from `hsl` when only
   `hue` and no `space` is specified.
 
+* In `change` for legacy colors, emit a `color-4-api` warning if a non-alpha
+  channel is explicitly null and no space is set.
+
 * In procedure for Changing a Component Value, specify that `undefined` values
   should return the `initialValue`.
 
