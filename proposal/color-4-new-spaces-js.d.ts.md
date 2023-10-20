@@ -242,7 +242,7 @@ get channels(): List<number>;
 
 * Let `value` be the channel value in `color` with name of `component`.
 
-* If `value` is null, return 0.
+* If `value` is `null`, return 0.
 
 * Otherwise, return `value`.
 
@@ -400,8 +400,11 @@ as the result of changing some of [`internal`]'s components.
 
 * If `space` equals `hsl` and `spaceSetExplicitly` is `false`:
 
-  * If any of `options.hue`, `options.saturation`, `options.lightness` or
-    `options.alpha` equals null, emit a deprecation warning named `null-alpha`.
+  * If any of `options.hue`, `options.saturation` or `options.lightness` equals
+    `null`, emit a deprecation warning named `color-4-api`.
+
+  * If `options.alpha` equals `null`, emit a deprecation warning named
+    `null-alpha`.
 
   * Let `changedColor` be the result of:
 
@@ -430,8 +433,11 @@ as the result of changing some of [`internal`]'s components.
 
 * If `space` equals `hwb` and `spaceSetExplicitly` is `false`:
 
-  * If any of `options.hue`, `options.whiteness`, `options.blackness` or
-    `options.alpha` equals null, emit a deprecation warning named `null-alpha`.
+  * If any of `options.hue`, `options.whiteness` or `options.blackness` equals
+    `null`, emit a deprecation warning named `color-4-api`.
+
+    * If `options.alpha` equals `null`, emit a deprecation warning named
+      `null-alpha`.
 
   * Let `changedColor` be the result of:
 
@@ -460,8 +466,11 @@ as the result of changing some of [`internal`]'s components.
 
 * If `space` equals `rgb` and `spaceSetExplicitly` is `false`:
 
-  * If any of `options.red`, `options.green`, `options.blue` or `options.alpha`
-    equals null, emit a deprecation warning named `null-alpha`.
+  * If any of `options.red`, `options.green` or `options.blue` equals
+    `null`, emit a deprecation warning named `color-4-api`.
+    
+  * If `options.alpha` equals `null`, emit a deprecation warning named
+    `null-alpha`.
 
   * Let `changedColor` be the result of:
 
