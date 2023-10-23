@@ -780,7 +780,7 @@ Create a new SassColor in the `hsl` color space.
   `options.saturation`.
 
 * Let `lightness` be the result of [parsing a clamped channel value] with
-  `value` of `options.lightness`, `minimum` of `0`, and `maximum` of `1`.
+  `value` of `options.lightness`, `minimum` of `0`, and `maximum` of `100`.
 
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
   the result of [parsing a clamped channel value] with `value` of
