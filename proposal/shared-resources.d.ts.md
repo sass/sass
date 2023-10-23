@@ -1,4 +1,4 @@
-# Shared Resources in JavaScript API
+# Shared Resources in JavaScript API: Draft 1.1
 
 *([Issue](https://github.com/sass/sass/issues/3296))*
 
@@ -174,10 +174,8 @@ When `dispose` is invoked on a Compiler:
 * Any subsequent invocations of `compile` and `compileString` must throw an
   error.
 
-* Returns `true` when disposal is complete.
-
 ```ts
-  dispose(): Boolean;
+  dispose(): void;
 }
 ```
 
@@ -219,10 +217,10 @@ When `dispose` is invoked on an Async Compiler:
 * Any compilations that have not yet been settled must be allowed to settle, and
   not be cancelled.
 
-* Resolves a Promise with `true` when all compilations have been settled, and
-  disposal is complete.
+* Resolves a Promise when all compilations have been settled, and disposal is
+  complete.
 
 ```ts
-  dispose(): Promise<Boolean>;
+  dispose(): Promise<void>;
 }
 ```
