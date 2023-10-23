@@ -15,6 +15,7 @@ import {PromiseOr} from './util/promise_or';
   * [`FileImporter`](#fileimporter)
   * [`Importer`](#importer)
     * [`nonCanonicalScheme`](#noncanonicalscheme)
+  * [`nodePackageImporter`](#nodepackageimporter)
   * [`ImporterResult`](#importerresult)
 
 ## Types
@@ -159,6 +160,15 @@ nonCanonicalScheme?: string | string[];
 
 ```ts
 } // Importer
+```
+
+### `nodePackageImporter`
+
+```ts
+type NodePackageImporter = {
+  _NodePackageImporterBrand: any;
+};
+export declare const nodePackageImporter: NodePackageImporter;
 ```
 
 ### `ImporterResult`

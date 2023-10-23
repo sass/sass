@@ -6,7 +6,7 @@
 > [compile API]: compile.d.ts.md
 
 ```ts
-import {FileImporter, Importer} from './importer';
+import {FileImporter, Importer, NodePackageImporter} from './importer';
 import {Logger} from './logger';
 import {Value} from './value';
 import {PromiseOr} from './util/promise_or';
@@ -165,12 +165,14 @@ functions?: Record<string, CustomFunction<sync>>;
 
 #### `importers`
 
-The list of [custom importers] to use to resolve file loads.
+The list of [custom importers] or [package importers] to use to resolve file
+loads.
 
 [custom importers]: importer.d.ts.md
+[package importers]: importer.d.ts.md
 
 ```ts
-importers?: (Importer<sync> | FileImporter<sync>)[];
+importers?: (Importer<sync> | FileImporter<sync> | NodePackageImporter)[];
 ```
 
 #### `loadPaths`

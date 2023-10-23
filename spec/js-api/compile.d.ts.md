@@ -40,6 +40,22 @@ export interface CompileResult {
 
 Compiles the Sass file at `path`:
 
+* If any object in `options.importers` is exactly equal to the object
+  `nodePackageImporter`:
+
+  * If no filesystem is available, throw an error.
+
+    > This primarily refers to a browser environment, but applies to other
+    > sandboxed JavaScript environments as well.
+
+  * Let `pkgImporter` be a [Node Package Importer] with an associated
+    `entryPointURL` of `require.main.filename`.
+
+    [Node Package Importer]: ../modules.md#node-package-importer
+
+  * Replace `nodePackageImporter` with `pkgImporter` in a copy of
+    `options.importers`.
+
 * If any object in `options.importers` has both `findFileUrl` and `canonicalize`
   fields, throw an error.
 
@@ -90,6 +106,20 @@ export function compileAsync(
 ### `compileString`
 
 Compiles the Sass `source`:
+
+* If any object in `options.importers` is exactly equal to the object
+  `nodePackageImporter`:
+
+  * If no filesystem is available, throw an error.
+
+    > This primarily refers to a browser environment, but applies to other
+    > sandboxed JavaScript environments as well.
+
+  * Let `pkgImporter` be a [Node Package Importer] with an associated
+    `entryPointURL` of `require.main.filename`.
+
+  * Replace `nodePackageImporter` with `pkgImporter` in a copy of
+    `options.importers`.
 
 * If `options.importer` or any object in `options.importers` has both
   `findFileUrl` and `canonicalize` fields, throw an error.

@@ -309,6 +309,37 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
 }
 
 /**
+ * An opaque branded type, representing the built-in Node Package Importer. This
+ * is used for type checking. Users should use the exposed `nodePackageImporter`
+ * and not instantiate their own.
+ *
+ * @category Importer
+ */
+type NodePackageImporter = {
+  _NodePackageImporterBrand: any;
+};
+/**
+ * The built-in Node Package Importer, which is a Package Importer that resolves
+ * using the standards and conventions of the Node ecosystem. It enables a
+ * `pkg:` URL scheme for usage with `@use` that directs an implementation to
+ * resolve a URL within a dependency.
+ *
+ * A Node Package Importer is exposed as a constant that can be added to the
+ * `importers` option.
+ *
+ * @example
+ *
+ *```js
+ *const sass = require('sass');
+ *sass.compile('style.scss', {
+ *  importers: [sass.nodePackageImporter]
+ *});
+ *```
+ * @category Importer
+ */
+export declare const nodePackageImporter: NodePackageImporter;
+
+/**
  * The result of successfully loading a stylesheet with an {@link Importer}.
  *
  * @category Importer

@@ -27,6 +27,7 @@ import {LegacyFunction} from './function';
     * [`quietDeps`](#quietdeps)
     * [`verbose`](#verbose)
     * [`logger`](#logger)
+    * [`pkgImporter`](#pkgimporter)
   * [`LegacyFileOptions`](#legacyfileoptions)
   * [`LegacyStringOptions`](#legacystringoptions)
   * [`LegacyOptions`](#legacyoptions)
@@ -171,6 +172,22 @@ doesn't have `warn` or `debug` fields.
 
 ```ts
 logger?: Logger;
+```
+
+#### `pkgImporter`
+
+If set, the compiler will use the specified built-in [package importer] to
+resolve any URL with the `pkg:` scheme. This importer will be checked
+immediately before the existing legacy importer logic, and if it returns `null`,
+the legacy importer logic will be invoked.
+
+Currently, the only available package importer is `node`, which follows Node
+resolution logic to locate Sass files.
+
+[package importer]: ../importer.d.ts.md
+
+```ts
+pkgImporter?: 'node';
 ```
 
 ```ts

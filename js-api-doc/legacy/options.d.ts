@@ -508,6 +508,13 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    * @compatibility dart: "1.43.0", node: false
    */
   logger?: Logger;
+
+  /**
+   * If this option is set to `'node'`, Sass will use the built-in Node Package
+   * Importer to resolve Sass files with a `pkg:` URL scheme.
+   */
+
+  pkgImporter?: 'node';
 }
 
 /**
