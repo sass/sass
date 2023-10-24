@@ -394,10 +394,11 @@ as the result of changing some of [`internal`]'s components.
   error.
 
 * If `options.alpha` is set, and isn't either null or a number between 0 and 1
-  (inclusive), throw an error.
+  (inclusive and fuzzy), throw an error.
 
 * If `options.lightness` is set, and isn't either null or a number between 0 and
-    the maximum channel value for the space (inclusive), throw an error.
+    the maximum channel value for the space (inclusive and fuzzy), throw an
+    error.
 
 * Let `color` be the result of [`this.toSpace(space)`].
 
@@ -905,9 +906,9 @@ This procedure takes a channel value `value` and an inclusive range of `minimum`
 and `maximum`. It asserts the value is in the range, and returns the special
 value `none` if the value is `null`.
 
-* If `value` is less than `minimum`, throw an error.
+* If `value` is fuzzy less-than `minimum`, throw an error.
 
-* If `value` is greater than `maximum`, throw an error.
+* If `value` is fuzzy greater-than `maximum`, throw an error.
 
 * Otherwise, return the result of [Parsing a Channel Value].
 
