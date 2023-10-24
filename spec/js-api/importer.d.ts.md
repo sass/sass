@@ -165,8 +165,8 @@ nonCanonicalScheme?: string | string[];
 ### `nodePackageImporter`
 
 ```ts
-type NodePackageImporter = {
-  _NodePackageImporterBrand: any;
+export type NodePackageImporter = {
+  _NodePackageImporterBrand: unknown;
 };
 export declare const nodePackageImporter: NodePackageImporter;
 ```

@@ -316,7 +316,7 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
  * @category Importer
  */
 type NodePackageImporter = {
-  _NodePackageImporterBrand: any;
+  _NodePackageImporterBrand: unknown;
 };
 /**
  * The built-in Node Package Importer, which is a Package Importer that resolves
