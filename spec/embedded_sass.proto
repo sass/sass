@@ -102,7 +102,7 @@ message InboundMessage {
         // A built-in Package Importer, with an associated `entry_point_url`,
         // that resolves `pkg:` URLs using the standards and conventions of the
         // Node ecosystem. 
-        NodePackageImporter node_package_importer = 4;
+        NodePackageImporter node_package_importer = 5;
       }
 
       // The set of URL schemes that are considered *non-canonical* for this
