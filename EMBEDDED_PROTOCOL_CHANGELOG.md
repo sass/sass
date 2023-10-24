@@ -1,3 +1,8 @@
+## 3.0.0-dev
+
+* Add `NodePackageImporter` as a built-in Package Importer, resolving `pkg:`
+  URLs using the standards and conventions of the Node ecosystem.  
+
 ## 2.1.0
 
 * Use the Java package `com.sass_lang.embedded_protocol` and generate multiple

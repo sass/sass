@@ -98,6 +98,11 @@ message InboundMessage {
         // generating this ID and ensuring that it's unique across all importers
         // registered for this compilation.
         uint32 file_importer_id = 3;
+
+        // A built-in Package Importer, with an associated `entry_point_url`,
+        // that resolves `pkg:` URLs using the standards and conventions of the
+        // Node ecosystem. 
+        NodePackageImporter node_package_importer = 4;
       }
 
       // The set of URL schemes that are considered *non-canonical* for this
@@ -1059,4 +1064,12 @@ enum CalculationOperator {
 
   // The division operator.
   DIVIDE = 3;
+}
+
+// The built-in Node Package Importer, which is a Package Importer that resolves
+//using the standards and conventions of the Node ecosystem. It enables a `pkg:`
+// URL scheme for usage with `@use` that directs an implementation to resolve a
+// URL within a dependency. It must be instantiated with an`entry_point_url`.
+message NodePackageImporter {
+  string entry_point_url = 1;
 }
