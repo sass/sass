@@ -397,8 +397,7 @@ as the result of changing some of [`internal`]'s components.
   (inclusive and fuzzy), throw an error.
 
 * If `options.lightness` is set, and isn't either null or a number between 0 and
-    the maximum channel value for the space (inclusive and fuzzy), throw an
-    error.
+  the maximum channel value for the space (inclusive and fuzzy), throw an error.
 
 * Let `color` be the result of [`this.toSpace(space)`].
 
