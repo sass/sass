@@ -443,8 +443,8 @@ as the result of changing some of [`internal`]'s components.
   * If any of `options.hue`, `options.whiteness` or `options.blackness` equals
     `null`, emit a deprecation warning named `color-4-api`.
 
-    * If `options.alpha` equals `null`, emit a deprecation warning named
-      `null-alpha`.
+  * If `options.alpha` equals `null`, emit a deprecation warning named
+    `null-alpha`.
 
   * Let `changedColor` be the result of:
 
