@@ -59,6 +59,7 @@ import {Value} from './index';
     * [`blackness`](#blackness)
 * [Procedures](#procedures)
   * [Parsing a Channel Value](#parsing-a-channel-value)
+  * [Parsing a Clamped Channel Value](#parsing-a-clamped-channel-value)
   * [Changing a Component Value](#changing-a-component-value)
 
 ## Types
