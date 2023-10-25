@@ -102,7 +102,8 @@ export class SassColor extends Value {
    * [missing component]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
    * [breaking changes]: /documentation/breaking-changes/null-alpha
    *
-   * @throws `Error` if `alpha` isn't between `0` and `1`.
+   * @throws `Error` if `alpha` is set and isn't `null` or a number between `0`
+   * and `1`.
    * @throws `Error` if `space` is missing and `red`, `green`, or `blue` isn't
    * between `0` and `255`.
    */
@@ -128,8 +129,9 @@ export class SassColor extends Value {
    * [missing component]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
    * [breaking changes]: /documentation/breaking-changes/null-alpha
    *
-   * @throws `Error` if `alpha` isn't between `0` and `1`.
-   * @throws `Error` if `space` is missing and `saturation` or `lightness` isn't
+   * @throws `Error` if `alpha` is set and isn't `null` or a number between `0`
+   * and `1`.
+   * @throws `Error` if `lightness` is set and isn't `null` or a number between
    * between `0` and `100`.
    */
   constructor(options: {
@@ -154,9 +156,8 @@ export class SassColor extends Value {
    * [missing component]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
    * [breaking changes]: /documentation/breaking-changes/null-alpha
    *
-   * @throws `Error` if `alpha` isn't between `0` and `1`.
-   * @throws `Error` if `space` is missing and `whiteness` or `blackness` isn't
-   * between `0` and `100`.
+   * @throws `Error` if `alpha` is set and isn't `null` or a number between `0`
+   * and `1`.
    */
   constructor(options: {
     hue: number | null;
@@ -176,7 +177,11 @@ export class SassColor extends Value {
    * [Oklab]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/oklab
    * [missing component]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
    *
-   * @throws `Error` if `alpha` isn't between `0` and `1`.
+   * @throws `Error` if `alpha` is set and isn't `null` or a number between `0`
+   * and `1`.
+   * @throws `Error` if `lightness` is set and isn't `null` or a number between
+   * `0` and the maximum channel value for `space`—`100` for Lab or `1` for
+   * Oklab.
    */
   constructor(options: {
     lightness: number | null;
@@ -196,7 +201,11 @@ export class SassColor extends Value {
    * [Oklch]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/oklch
    * [missing component]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
    *
-   * @throws `Error` if `alpha` isn't between `0` and `1`.
+   * @throws `Error` if `alpha` is set and isn't `null` or a number between `0`
+   * and `1`.
+   * @throws `Error` if `lightness` is set and isn't `null` or a number between
+   * `0` and the maximum channel value for `space`—`100` for LCH or `1` for
+   * Oklch.
    */
   constructor(options: {
     lightness: number | null;
@@ -215,7 +224,8 @@ export class SassColor extends Value {
    * [RGB color space]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/color#using_predefined_colorspaces_with_color
    * [missing component]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
    *
-   * @throws `Error` if `alpha` isn't between `0` and `1`.
+   * @throws `Error` if `alpha` is set and isn't `null` or a number between `0`
+   * and `1`.
    */
   constructor(options: {
     red: number | null;
@@ -234,7 +244,8 @@ export class SassColor extends Value {
    * [XYZ color space]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/color#using_the_xyz_colorspace_with_color
    * [missing component]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
    *
-   * @throws `Error` if `alpha` isn't between `0` and `1`.
+   * @throws `Error` if `alpha` is set and isn't `null` or a number between `0`
+   * and `1`.
    */
   constructor(options: {
     x: number | null;
@@ -389,6 +400,10 @@ export class SassColor extends Value {
    *
    * @throws `Error` if `space` is missing and this color is not in a legacy
    * color space (`rgb`, `hsl`, or `hwb`).
+   * @throws `Error` if `alpha` is set and isn't `null` or a number between `0`
+   * and `1`.
+   * @throws `Error` if `lightness` is set and isn't `null` or a number between
+   * `0` and `100`.
    */
   change(
     options: {
@@ -403,6 +418,8 @@ export class SassColor extends Value {
    *
    * @throws `Error` if `space` is missing and this color is not in a legacy
    * color space (`rgb`, `hsl`, or `hwb`).
+   * @throws `Error` if `alpha` is set and isn't `null` or a number between `0`
+   * and `1`.
    */
   change(
     options: {
@@ -417,6 +434,11 @@ export class SassColor extends Value {
    *
    * @throws `Error` if `space` is missing and this color is not in the Lab or
    * Oklab color spaces.
+   * @throws `Error` if `alpha` is set and isn't `null` or a number between `0`
+   * and `1`.
+   * @throws `Error` if `lightness` is set and isn't `null` or a number between
+   * `0` and the maximum channel value for `space` (or this color's color space,
+   * if `space` is missing)—`100` for Lab or `1` for Oklab.
    */
   change(
     options: {
@@ -431,6 +453,11 @@ export class SassColor extends Value {
    *
    * @throws `Error` if `space` is missing and this color is not in the LCH or
    * Oklch color spaces.
+   * @throws `Error` if `alpha` is set and isn't `null` or a number between `0`
+   * and `1`.
+   * @throws `Error` if `lightness` is set and isn't `null` or a number between
+   * `0` and the maximum channel value for `space` (or this color's color space,
+   * if `space` is missing)—`100` for LCH or `1` for Oklch.
    */
   change(
     options: {
@@ -445,6 +472,8 @@ export class SassColor extends Value {
    *
    * @throws `Error` if `space` is missing and this color is not in a legacy
    * color space (`rgb`, `hsl`, or `hwb`).
+   * @throws `Error` if `alpha` is set and isn't `null` or a number between `0`
+   * and `1`.
    */
   change(
     options: {
@@ -459,6 +488,8 @@ export class SassColor extends Value {
    *
    * @throws `Error` if `space` is missing and this color is not in an XYZ color
    * space.
+   * @throws `Error` if `alpha` is set and isn't `null` or a number between `0`
+   * and `1`.
    */
   change(
     options: {

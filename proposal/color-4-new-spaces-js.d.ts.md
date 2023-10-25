@@ -443,8 +443,8 @@ as the result of changing some of [`internal`]'s components.
   * If any of `options.hue`, `options.whiteness` or `options.blackness` equals
     `null`, emit a deprecation warning named `color-4-api`.
 
-    * If `options.alpha` equals `null`, emit a deprecation warning named
-      `null-alpha`.
+  * If `options.alpha` equals `null`, emit a deprecation warning named
+    `null-alpha`.
 
   * Let `changedColor` be the result of:
 
@@ -780,11 +780,7 @@ Create a new SassColor in the `hsl` color space.
   `options.saturation`.
 
 * Let `lightness` be the result of [parsing a clamped channel value] with
-<<<<<<< HEAD
-  `value` of `options.lightness`, `minimum` of `0`, and `maximum` of `1`.
-=======
   `value` of `options.lightness`, `minimum` of `0`, and `maximum` of `100`.
->>>>>>> color-spaces-js-changes-1.4
 
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
   the result of [parsing a clamped channel value] with `value` of
@@ -909,15 +905,9 @@ This procedure takes a channel value `value` and an inclusive range of `minimum`
 and `maximum`. It asserts the value is in the range, and returns the special
 value `none` if the value is `null`.
 
-<<<<<<< HEAD
-* If `value` is less than `minimum`, throw an error.
-
-* If `value` is greater than `maximum`, throw an error.
-=======
 * If `value` is fuzzy less-than `minimum`, throw an error.
 
 * If `value` is fuzzy greater-than `maximum`, throw an error.
->>>>>>> color-spaces-js-changes-1.4
 
 * Otherwise, return the result of [Parsing a Channel Value].
 

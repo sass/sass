@@ -266,13 +266,15 @@ The [private `internal` field] refers to a Sass color.
     `options.blue`.
 
   * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-    the result of [parsing a channel value] with value `options.alpha`.
+    the result of [parsing a clamped channel value] with `value` of
+    `options.alpha`, `minimum` of `0`, and `maximum` of `1`.
 
   * Set [`internal`] to the result of [`rgb(red green blue / alpha)`].
 
   * Return `this`.
 
 [parsing a channel value]: #parsing-a-channel-value
+[parsing a clamped channel value]: #parsing-a-clamped-channel-value
 [`internal`]: #internal
 [`rgb(red green blue / alpha)`]: ../../functions.md#rgb-and-rgba
 
@@ -299,11 +301,12 @@ constructor(options: {
   * Let `saturation` be the result of [parsing a channel value] with value
     `options.saturation`.
 
-  * Let `lightness` be the result of [parsing a channel value] with value
-    `options.lightness`.
+  * Let `lightness` be the result of [parsing a clamped channel value] with
+    `value` of `options.lightness`, `minimum` of `0`, and `maximum` of `100`.
 
   * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-    the result of [parsing a channel value] with value `options.alpha`.
+    the result of [parsing a clamped channel value] with `value` of
+    `options.alpha`, `minimum` of `0`, and `maximum` of `1`.
 
   * Set [`internal`] to the result of [`hsl(hue saturation lightness / alpha)`].
 
@@ -338,7 +341,8 @@ constructor(options: {
     `options.blackness`.
 
   * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-    the result of [parsing a channel value] with value `options.alpha`.
+    the result of [parsing a clamped channel value] with `value` of
+    `options.alpha`, `minimum` of `0`, and `maximum` of `1`.
 
   * Set [`internal`] to the result of [`hwb(hue whiteness blackness / alpha)`].
 
@@ -360,15 +364,20 @@ constructor(options: {
 
 * Otherwise, if `constructionSpace` is "lab" or "oklab":
 
-  * Let `lightness` be the result of [parsing a channel value] with value
-    `options.lightness`.
+  * If `options.space` equals `lab`, let `maximum` be `100`. Otherwise, let
+    `maximum` be `1`.
+
+  * Let `lightness` be the result of [parsing a clamped channel value] with
+    `value` of `options.lightness`, `minimum` of `0`, and `maximum` of
+    `maximum`.
 
   * Let `a` be the result of [parsing a channel value] with value `options.a`.
 
   * Let `b` be the result of [parsing a channel value] with value `options.b`.
 
   * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-    the result of [parsing a channel value] with value `options.alpha`.
+    the result of [parsing a clamped channel value] with value `options.alpha`,
+    `minimum` of 0, and `maximum` of 1.
 
   * If `options.space` equals `lab`, set [`internal`] to the result of
     [`lab(lightness a b / alpha)`].
@@ -395,15 +404,20 @@ constructor(options: {
 
 * Otherwise, if `constructionSpace` is "lch" or "oklch":
 
-  * Let `lightness` be the result of [parsing a channel value] with value
-    `options.lightness`.
+  * If `options.space` equals `lch`, let `maximum` be `100`. Otherwise, let
+    `maximum` be `1`.
+
+  * Let `lightness` be the result of [parsing a clamped channel value] with
+    `value` of `options.lightness`, `minimum` of `0`, and `maximum` of
+    `maximum`.
 
   * Let `c` be the result of [parsing a channel value] with value `options.c`.
 
   * Let `h` be the result of [parsing a channel value] with value `options.h`.
 
   * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-    the result of [parsing a channel value] with value `options.alpha`.
+    the result of [parsing a clamped channel value] with value `options.alpha`,
+    `minimum` of 0, and `maximum` of 1.
 
   * If `options.space` equals `lch`, set [`internal`] to the result of
     [`lch(lightness a b / alpha)`].
@@ -441,7 +455,8 @@ constructor(options: {
     `options.blue`.
 
   * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-    the result of [parsing a channel value] with value `options.alpha`.
+    the result of [parsing a clamped channel value] with value `options.alpha`,
+    `minimum` of 0, and `maximum` of 1.
 
   * Let `space` be the unquoted string value of `options.space`.
 
@@ -472,7 +487,8 @@ constructor(options: {
   * Let `z` be the result of [parsing a channel value] with value `options.z`.
 
   * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-    the result of [parsing a channel value] with value `options.alpha`.
+    the result of [parsing a clamped channel value] with value `options.alpha`,
+    `minimum` of 0, and `maximum` of 1.
 
   * Let `space` be the unquoted string value of `options.space`.
 
@@ -609,7 +625,7 @@ get channels(): List<number>;
 
 * Let `value` be the channel value in `color` with name of `component`.
 
-* If `value` is null, return 0.
+* If `value` is `null`, return 0.
 
 * Otherwise, return `value`.
 
@@ -755,6 +771,12 @@ as the result of changing some of [`internal`]'s components.
 * If any key in `keys` is not the name of a channel in `components`, throw an
   error.
 
+* If `options.alpha` is set, and isn't either null or a number between 0 and 1
+  (inclusive and fuzzy), throw an error.
+
+* If `options.lightness` is set, and isn't either null or a number between 0 and
+  the maximum channel value for the space (inclusive and fuzzy), throw an error.
+
 * Let `color` be the result of [`this.toSpace(space)`].
 
 * Let `changedValue` be a function that takes a string argument for `channel`
@@ -763,8 +785,11 @@ as the result of changing some of [`internal`]'s components.
 
 * If `space` equals `hsl` and `spaceSetExplicitly` is `false`:
 
-  * If any of `options.hue`, `options.saturation`, `options.lightness` or
-    `options.alpha` equals null, emit a deprecation warning named `null-alpha`.
+  * If any of `options.hue`, `options.saturation` or `options.lightness` equals
+    `null`, emit a deprecation warning named `color-4-api`.
+
+  * If `options.alpha` equals `null`, emit a deprecation warning named
+    `null-alpha`.
 
   * Let `changedColor` be the result of:
 
@@ -793,8 +818,11 @@ as the result of changing some of [`internal`]'s components.
 
 * If `space` equals `hwb` and `spaceSetExplicitly` is `false`:
 
-  * If any of `options.hue`, `options.whiteness`, `options.blackness` or
-    `options.alpha` equals null, emit a deprecation warning named `null-alpha`.
+  * If any of `options.hue`, `options.whiteness` or `options.blackness` equals
+    `null`, emit a deprecation warning named `color-4-api`.
+
+  * If `options.alpha` equals `null`, emit a deprecation warning named
+    `null-alpha`.
 
   * Let `changedColor` be the result of:
 
@@ -823,8 +851,11 @@ as the result of changing some of [`internal`]'s components.
 
 * If `space` equals `rgb` and `spaceSetExplicitly` is `false`:
 
-  * If any of `options.red`, `options.green`, `options.blue` or `options.alpha`
-    equals null, emit a deprecation warning named `null-alpha`.
+  * If any of `options.red`, `options.green` or `options.blue` equals `null`,
+    emit a deprecation warning named `color-4-api`.
+
+  * If `options.alpha` equals `null`, emit a deprecation warning named
+    `null-alpha`.
 
   * Let `changedColor` be the result of:
 
@@ -1071,6 +1102,18 @@ This procedure takes a channel value `value`, and returns the special value
 
 * If `value` is the Javascript value `null`, return the unquoted Sass string
   `none`.
+
+### Parsing a Clamped Channel Value
+
+This procedure takes a channel value `value` and an inclusive range of `minimum`
+and `maximum`. It asserts the value is in the range, and returns the special
+value `none` if the value is `null`.
+
+* If `value` is fuzzy less-than `minimum`, throw an error.
+
+* If `value` is fuzzy greater-than `maximum`, throw an error.
+
+* Otherwise, return the result of [Parsing a Channel Value].
 
 ### Changing a Component Value
 
