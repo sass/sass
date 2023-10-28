@@ -1,3 +1,20 @@
+## Draft 1.4
+
+* In `change`, adjust algorithm for differentiating `hwb` from `hsl` when only
+  `hue` and no `space` is specified.
+
+* In `change` for legacy colors, emit a `color-4-api` warning if a non-alpha
+  channel is explicitly null and no space is set.
+
+* In procedure for Changing a Component Value, specify that `undefined` values
+  should return the `initialValue`.
+
+* `toSpace` uses `Converting a Color` algorithm instead of `color.to-space()` to
+  avoid removing missing channels when converting to a legacy space.
+
+* In `change` and constructors, throw an error for alpha and lightness values
+  that are out of range.
+
 ## Draft 1.3
 
 * Rename new Embedded Protocol message from `SassColor` to `Color`.
