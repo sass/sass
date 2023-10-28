@@ -1,3 +1,8 @@
+## Draft 1.2
+
+* Export `NodePackageImporter` type, and set `_NodePackageImporterBrand` to
+  unknown.
+
 ## Draft 1.1
 
 * Throw an error if `nodePackageImporter` is used in the browser or other
