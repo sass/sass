@@ -1,4 +1,4 @@
-# Package Importer
+# Package Importer: Draft 1.2
 
 *([Issue](https://github.com/sass/sass/issues/2739))*
 
@@ -225,8 +225,8 @@ import {FileImporter, Importer} from '../spec/js-api/importer';
 ### `nodePackageImporter`
 
 ```ts
-type NodePackageImporter = {
-  _NodePackageImporterBrand: any;
+export type NodePackageImporter = {
+  _NodePackageImporterBrand: unknown;
 };
 export declare const nodePackageImporter: NodePackageImporter;
 ```
