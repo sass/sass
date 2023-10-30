@@ -13,7 +13,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@v4
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
     - run: >
@@ -28,7 +28,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@v4
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
     - run: npm run toc-check
@@ -39,7 +39,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@v4
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
     - run: npm run link-check
@@ -50,7 +50,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@v4
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
     - run: npm run js-api-doc-check
@@ -61,7 +61,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@v4
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
     - run: npm run typedoc
