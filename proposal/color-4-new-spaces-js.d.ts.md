@@ -1,4 +1,4 @@
-# CSS Color Level 4, New Color Spaces JavaScript API: Draft 1.4
+# CSS Color Level 4, New Color Spaces JavaScript API: Draft 1.5
 
 *([Issue](https://github.com/sass/sass/issues/2831),
 [Changelog](color-4-new-spaces-js.changes.md))*
@@ -876,16 +876,30 @@ A number of SassColor getters only make sense for [legacy color space], and so
 are being deprecated in favor of the new [`channel`] function. This deprecation
 is called `color-4-api`.
 
-[`channel`]: #channel
+The following deprecated getters return the result of
+[`this.channel(channelName, { space: "rgb" })`][`channel`] where `channelName`
+is the name of the respective getter.
 
 * `red`
 * `green`
 * `blue`
+
+The following deprecated getters return the result of
+[`this.channel(channelName, { space: "hsl" })`][`channel`] where `channelName`
+is the name of the respective getter.
+
 * `hue`
 * `saturation`
 * `lightness`
+
+The following deprecated getters return the result of
+[`this.channel(channelName, { space: "hwb" })`][`channel`] where `channelName`
+is the name of the respective getter.
+
 * `whiteness`
 * `blackness`
+
+[`channel`]: #channel
 
 ## Procedures
 
