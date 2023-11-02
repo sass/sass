@@ -104,8 +104,8 @@ export class SassColor extends Value {
    *
    * @throws `Error` if `alpha` is set and isn't `null` or a number between `0`
    * and `1`.
-   * @throws `Error` if `space` is missing and `red`, `green`, or `blue` isn't
-   * between `0` and `255`.
+   * @throws `Error` if `space` is missing and `red`, `green`, or `blue` isn't a
+   * number between `0` and `255`.
    */
   constructor(options: {
     red: number | null;
@@ -131,8 +131,10 @@ export class SassColor extends Value {
    *
    * @throws `Error` if `alpha` is set and isn't `null` or a number between `0`
    * and `1`.
-   * @throws `Error` if `lightness` is set and isn't `null` or a number between
-   * between `0` and `100`.
+   * @throws `Error` if `lightness` isn't `null` or a number between between `0`
+   * and `100`.
+   * @throws `Error` if `space` is missing and `saturation` isn't a number
+   * between between `0` and `100`.
    */
   constructor(options: {
     hue: number | null;
@@ -158,6 +160,8 @@ export class SassColor extends Value {
    *
    * @throws `Error` if `alpha` is set and isn't `null` or a number between `0`
    * and `1`.
+   * @throws `Error` if `space` is missing and `whiteness` or `blackness` isn't
+   * a number between between `0` and `100`.
    */
   constructor(options: {
     hue: number | null;
@@ -179,9 +183,8 @@ export class SassColor extends Value {
    *
    * @throws `Error` if `alpha` is set and isn't `null` or a number between `0`
    * and `1`.
-   * @throws `Error` if `lightness` is set and isn't `null` or a number between
-   * `0` and the maximum channel value for `space`—`100` for Lab or `1` for
-   * Oklab.
+   * @throws `Error` if `lightness` isn't `null` or a number between `0` and the
+   * maximum channel value for `space`—`100` for Lab or `1` for Oklab.
    */
   constructor(options: {
     lightness: number | null;
@@ -203,9 +206,8 @@ export class SassColor extends Value {
    *
    * @throws `Error` if `alpha` is set and isn't `null` or a number between `0`
    * and `1`.
-   * @throws `Error` if `lightness` is set and isn't `null` or a number between
-   * `0` and the maximum channel value for `space`—`100` for LCH or `1` for
-   * Oklch.
+   * @throws `Error` if `lightness` isn't `null` or a number between `0` and the
+   * maximum channel value for `space`—`100` for LCH or `1` for Oklch.
    */
   constructor(options: {
     lightness: number | null;
