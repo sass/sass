@@ -1,3 +1,7 @@
+## Draft 1.3
+
+* Handle empty subpath in "Resolving package exports" subprocedure.
+
 ## Draft 1.2
 
 * Export `NodePackageImporter` type, and set `_NodePackageImporterBrand` to
