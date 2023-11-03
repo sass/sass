@@ -1,3 +1,8 @@
+## Draft 1.5
+
+* Clarify that deprecated SassColor getters (e.g. `red`, `blue`, etc.) convert
+  color to a legacy space before returning channel value.
+
 ## Draft 1.4
 
 * In `change`, adjust algorithm for differentiating `hwb` from `hsl` when only
