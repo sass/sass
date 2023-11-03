@@ -343,10 +343,12 @@ export class SassColor extends Value {
   isChannelMissing(channel: ChannelName): boolean;
 
   /**
-   * Returns a boolean indicating whether a given `channel` is "powerless" in
+   * Returns a boolean indicating whether a given `channel` is [powerless] in
    * this color. This is a special state that's defined for individual color
    * spaces, which indicates that a channel's value won't affect how a color is
    * displayed.
+   *
+   * [powerless]: https://www.w3.org/TR/css-color-4/#powerless
    */
   isChannelPowerless(channel: ChannelName): boolean;
   isChannelPowerless(
