@@ -91,8 +91,8 @@ export class SassColor extends Value {
   /**
    * Creates an [RGB color].
    *
-   * If `space` is missing, **only** `undefined` should be passed to indicate a
-   * missing `alpha`. If `null` is passed instead, it will be treated as a
+   * If `space` is missing, **only** `undefined` should be used to indicate that
+   * `alpha` isn't passed. If `null` is used instead, it will be treated as a
    * [missing component]. See [breaking changes] for details.
    *
    * If `space` is defined and `null` is passed for any component, it will be
@@ -116,8 +116,8 @@ export class SassColor extends Value {
   /**
    * Creates an [HSL color].
    *
-   * If `space` is missing, **only** `undefined` should be passed to indicate a
-   * missing `alpha`. If `null` is passed instead, it will be treated as a
+   * If `space` is missing, **only** `undefined` should be used to indicate that
+   * `alpha` isn't passed. If `null` is used instead, it will be treated as a
    * [missing component]. See [breaking changes] for details.
    *
    * If `space` is defined and `null` is passed for any component, it will be
@@ -143,8 +143,8 @@ export class SassColor extends Value {
   /**
    * Creates an [HWB color].
    *
-   * If `space` is missing, **only** `undefined` should be passed to indicate a
-   * missing `alpha`. If `null` is passed instead, it will be treated as a
+   * If `space` is missing, **only** `undefined` should be used to indicate that
+   * `alpha` isn't passed. If `null` is used instead, it will be treated as a
    * [missing component]. See [breaking changes] for details.
    *
    * If `space` is defined and `null` is passed for any component, it will be
@@ -371,7 +371,7 @@ export class SassColor extends Value {
   ): boolean;
 
   /**
-   * Returns a color partway between this color and passed `color2` according to
+   * Returns a color partway between this color and `color2` according to
    * `method`, as defined by the CSS Color 4 [color interpolation] procedure.
    *
    * [color interpolation]: https://www.w3.org/TR/css-color-4/#interpolation
@@ -498,56 +498,56 @@ export class SassColor extends Value {
   ): SassColor;
 
   /**
-   * This color's red channel, between `0` and `255`.
+   * This color's red channel in the RGB color space, between `0` and `255`.
    *
    * @deprecated Use {@link channel} instead.
    */
   get red(): number;
 
   /**
-   * This color's green channel, between `0` and `255`.
+   * This color's green channel in the RGB color space, between `0` and `255`.
    *
    * @deprecated Use {@link channel} instead.
    */
   get green(): number;
 
   /**
-   * This color's blue channel, between `0` and `255`.
+   * This color's blue channel in the RGB color space, between `0` and `255`.
    *
    * @deprecated Use {@link channel} instead.
    */
   get blue(): number;
 
   /**
-   * This color's hue, between `0` and `360`.
+   * This color's hue in the HSL color space, between `0` and `360`.
    *
    * @deprecated Use {@link channel} instead.
    */
   get hue(): number;
 
   /**
-   * This color's saturation, between `0` and `100`.
+   * This color's saturation in the HSL color space, between `0` and `100`.
    *
    * @deprecated Use {@link channel} instead.
    */
   get saturation(): number;
 
   /**
-   * This color's lightness, between `0` and `100`.
+   * This color's lightness in the HSL color space, between `0` and `100`.
    *
    * @deprecated Use {@link channel} instead.
    */
   get lightness(): number;
 
   /**
-   * This color's whiteness, between `0` and `100`.
+   * This color's whiteness in the HWB color space, between `0` and `100`.
    *
    * @deprecated Use {@link channel} instead.
    */
   get whiteness(): number;
 
   /**
-   * This color's blackness, between `0` and `100`.
+   * This color's blackness in the HWB color space, between `0` and `100`.
    *
    * @deprecated Use {@link channel} instead.
    */
