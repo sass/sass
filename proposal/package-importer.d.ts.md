@@ -1,4 +1,4 @@
-# Package Importer: Draft 1.2
+# Package Importer: Draft 1.3
 
 *([Issue](https://github.com/sass/sass/issues/2739))*
 
@@ -440,7 +440,9 @@ This algorithm takes a package.json value `packageManifest`, a directory URL
 
 * If `exports` is undefined, return null.
 
-* Let `subpathVariants` be the result of [Export load paths] with `subpath`.
+* If `subpath` is empty, let `subpathVariants` be an array with the string `.`.
+  Otherwise, let `subpathVariants` be the result of [Export load paths] with
+  `subpath`.
 
 * Let `resolvedPaths` be a list of the results of calling
   `PACKAGE_EXPORTS_RESOLVE(packageRoot, subpathVariant, exports, ["sass",
