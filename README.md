@@ -10,6 +10,7 @@
 variables, mixins, selector inheritance, and more. It's translated to
 well-formatted, standard CSS using the command line tool or a plugin for your
 build system.
+hi all
 
 ```scss
 $font-stack: Helvetica, sans-serif;
