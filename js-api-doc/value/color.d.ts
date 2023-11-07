@@ -384,10 +384,9 @@ export class SassColor extends Value {
    * The `weight` is a number between 0 and 1 that indicates how much of this
    * color should be in the resulting color. If omitted, it defaults to 0.5.
    */
-  interpolate(color2: SassColor, options: {weight?: number}): SassColor;
   interpolate(
     color2: SassColor,
-    options: {
+    options?: {
       weight?: number;
       method?: HueInterpolationMethod;
     }

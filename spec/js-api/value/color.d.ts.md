@@ -715,11 +715,9 @@ isChannelPowerless(
 * Return the result of [`color.mix(internal, color2, options.weight, interpolationMethod)`][`color.mix()`].
 
 ```ts
-interpolate(color2: SassColor, options: {weight?: number}): SassColor;
-
 interpolate(
   color2: SassColor,
-  options: {
+  options?: {
     weight?: number;
     method?: HueInterpolationMethod;
   }
@@ -995,7 +993,7 @@ change(
 
 [`channel`]: #channel
 
-Returns [`internal`]'s red channel.
+Returns [`internal`]'s red channel in the RGB color space.
 
 ```ts
 get red(): number;
@@ -1006,7 +1004,7 @@ get red(): number;
 > This is deprecated in favor of the new [`channel`] function. This deprecation
 > is called `color-4-api`.
 
-Returns [`internal`]'s green channel.
+Returns [`internal`]'s green channel in the RGB color space.
 
 ```ts
 get green(): number;
@@ -1017,7 +1015,7 @@ get green(): number;
 > This is deprecated in favor of the new [`channel`] function. This deprecation
 > is called `color-4-api`.
 
-Returns [`internal`]'s blue channel.
+Returns [`internal`]'s blue channel in the RGB color space.
 
 ```ts
 get blue(): number;
