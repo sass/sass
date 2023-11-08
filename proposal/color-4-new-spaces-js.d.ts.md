@@ -1,4 +1,4 @@
-# CSS Color Level 4, New Color Spaces JavaScript API: Draft 1.3
+# CSS Color Level 4, New Color Spaces JavaScript API: Draft 1.5
 
 *([Issue](https://github.com/sass/sass/issues/2831),
 [Changelog](color-4-new-spaces-js.changes.md))*
@@ -40,6 +40,7 @@ proposal].
   * [Deprecations](#deprecations)
 * [Procedures](#procedures)
   * [Parsing a Channel Value](#parsing-a-channel-value)
+  * [Parsing a Clamped Channel Value](#parsing-a-clamped-channel-value)
   * [Changing a Component Value](#changing-a-component-value)
   * [Determining Construction Space](#determining-construction-space)
 * [Embedded Protocol](#embedded-protocol)
@@ -137,13 +138,14 @@ get space(): KnownColorSpace;
 
 * If `this.space` is equal to `space`, return `this`.
 
-* Otherwise, return the result of [`color.to-space(internal, space)`].
+* Otherwise, return the result of [Converting a Color] with `this` as
+  `origin-color` and `space` as `target-space`.
 
 ```ts
 toSpace(space: KnownColorSpace): SassColor;
 ```
 
-[`color.to-space(internal, space)`]: ./color-4-new-spaces.md#colorto-space
+[Converting a Color]: ./color-4-new-spaces.md#converting-a-color
 
 #### `isLegacy`
 
@@ -241,7 +243,7 @@ get channels(): List<number>;
 
 * Let `value` be the channel value in `color` with name of `component`.
 
-* If `value` is null, return 0.
+* If `value` is `null`, return 0.
 
 * Otherwise, return `value`.
 
@@ -370,6 +372,9 @@ as the result of changing some of [`internal`]'s components.
 
   * If `options.whiteness` or `options.blackness` is set, let `space` be `hwb`.
 
+  * Otherwise, if `options.hue` is set and `initialSpace` is `hwb`, let space be
+    `hwb`.
+
   * Otherwise, if `options.hue`, `options.saturation`, or `options.lightness` is
     set, let `space` be `hsl`.
 
@@ -388,6 +393,12 @@ as the result of changing some of [`internal`]'s components.
 * If any key in `keys` is not the name of a channel in `components`, throw an
   error.
 
+* If `options.alpha` is set, and isn't either null or a number between 0 and 1
+  (inclusive and fuzzy), throw an error.
+
+* If `options.lightness` is set, and isn't either null or a number between 0 and
+  the maximum channel value for the space (inclusive and fuzzy), throw an error.
+
 * Let `color` be the result of [`this.toSpace(space)`].
 
 * Let `changedValue` be a function that takes a string argument for `channel`
@@ -396,8 +407,11 @@ as the result of changing some of [`internal`]'s components.
 
 * If `space` equals `hsl` and `spaceSetExplicitly` is `false`:
 
-  * If any of `options.hue`, `options.saturation`, `options.lightness` or
-    `options.alpha` equals null, emit a deprecation warning named `null-alpha`.
+  * If any of `options.hue`, `options.saturation` or `options.lightness` equals
+    `null`, emit a deprecation warning named `color-4-api`.
+
+  * If `options.alpha` equals `null`, emit a deprecation warning named
+    `null-alpha`.
 
   * Let `changedColor` be the result of:
 
@@ -426,8 +440,11 @@ as the result of changing some of [`internal`]'s components.
 
 * If `space` equals `hwb` and `spaceSetExplicitly` is `false`:
 
-  * If any of `options.hue`, `options.whiteness`, `options.blackness` or
-    `options.alpha` equals null, emit a deprecation warning named `null-alpha`.
+  * If any of `options.hue`, `options.whiteness` or `options.blackness` equals
+    `null`, emit a deprecation warning named `color-4-api`.
+
+  * If `options.alpha` equals `null`, emit a deprecation warning named
+    `null-alpha`.
 
   * Let `changedColor` be the result of:
 
@@ -456,8 +473,11 @@ as the result of changing some of [`internal`]'s components.
 
 * If `space` equals `rgb` and `spaceSetExplicitly` is `false`:
 
-  * If any of `options.red`, `options.green`, `options.blue` or `options.alpha`
-    equals null, emit a deprecation warning named `null-alpha`.
+  * If any of `options.red`, `options.green` or `options.blue` equals
+    `null`, emit a deprecation warning named `color-4-api`.
+
+  * If `options.alpha` equals `null`, emit a deprecation warning named
+    `null-alpha`.
 
   * Let `changedColor` be the result of:
 
@@ -603,15 +623,19 @@ change(
 
 Create a new SassColor in a color space with Lab channels—`lab` and `oklab`.
 
-* Let `lightness` be the result of [parsing a channel value] with value
-  `options.lightness`.
+* If `options.space` equals `lab`, let `maximum` be `100`. Otherwise, let
+  `maximum` be `1`.
+
+* Let `lightness` be the result of [parsing a clamped channel value] with
+  `value` of `options.lightness`, `minimum` of `0`, and `maximum` of `maximum`.
 
 * Let `a` be the result of [parsing a channel value] with value `options.a`.
 
 * Let `b` be the result of [parsing a channel value] with value `options.b`.
 
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-  the result of [parsing a channel value] with value `options.alpha`.
+  the result of [parsing a clamped channel value] with value `options.alpha`,
+  `minimum` of 0, and `maximum` of 1.
 
 * If `options.space` equals `lab`, set [`internal`] to the result of
   [`lab(lightness a b / alpha)`].
@@ -622,6 +646,7 @@ Create a new SassColor in a color space with Lab channels—`lab` and `oklab`.
 [`lab(lightness a b / alpha)`]: ./color-4-new-spaces.md#lab
 [`oklab(lightness a b / alpha)`]: ./color-4-new-spaces.md#oklab
 [parsing a channel value]: #parsing-a-channel-value
+[parsing a clamped channel value]: #parsing-a-clamped-channel-value
 
 ```ts
 constructor(options: {
@@ -637,15 +662,19 @@ constructor(options: {
 
 Create a new SassColor in a color space with LCH channels—`lch` and `oklch`.
 
-* Let `lightness` be the result of [parsing a channel value] with value
-  `options.lightness`.
+* If `options.space` equals `lch`, let `maximum` be `100`. Otherwise, let
+  `maximum` be `1`.
+
+* Let `lightness` be the result of [parsing a clamped channel value] with
+  `value` of `options.lightness`, `minimum` of `0`, and `maximum` of `maximum`.
 
 * Let `c` be the result of [parsing a channel value] with value `options.c`.
 
 * Let `h` be the result of [parsing a channel value] with value `options.h`.
 
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-  the result of [parsing a channel value] with value `options.alpha`.
+  the result of [parsing a clamped channel value] with value `options.alpha`,
+  `minimum` of 0, and `maximum` of 1.
 
 * If `options.space` equals `lch`, set [`internal`] to the result of
   [`lch(lightness a b / alpha)`].
@@ -681,7 +710,8 @@ through the modified [RGB Constructor].
   `options.blue`.
 
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-  the result of [parsing a channel value] with value `options.alpha`.
+  the result of [parsing a clamped channel value] with value `options.alpha`,
+  `minimum` of 0, and `maximum` of 1.
 
 * Let `space` be the unquoted string value of `options.space`.
 
@@ -712,7 +742,8 @@ Create a new SassColor in a color space with XYZ channels—`xyz`, `xyz-d50`, an
 * Let `z` be the result of [parsing a channel value] with value `options.z`.
 
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-  the result of [parsing a channel value] with value `options.alpha`.
+  the result of [parsing a clamped channel value] with value `options.alpha`,
+  `minimum` of 0, and `maximum` of 1.
 
 * Let `space` be the unquoted string value of `options.space`.
 
@@ -748,11 +779,12 @@ Create a new SassColor in the `hsl` color space.
 * Let `saturation` be the result of [parsing a channel value] with value
   `options.saturation`.
 
-* Let `lightness` be the result of [parsing a channel value] with value
-  `options.lightness`.
+* Let `lightness` be the result of [parsing a clamped channel value] with
+  `value` of `options.lightness`, `minimum` of `0`, and `maximum` of `100`.
 
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-  the result of [parsing a channel value] with value `options.alpha`.
+  the result of [parsing a clamped channel value] with `value` of
+  `options.alpha`, `minimum` of `0`, and `maximum` of `1`.
 
 * Set [`internal`] to the result of [`hsl(hue saturation lightness / alpha)`].
 
@@ -784,7 +816,8 @@ Create a new SassColor in the `hwb` color space.
   `options.blackness`.
 
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-  the result of [parsing a channel value] with value `options.alpha`.
+  the result of [parsing a clamped channel value] with `value` of
+  `options.alpha`, `minimum` of `0`, and `maximum` of `1`.
 
 * Set [`internal`] to the result of [`hwb(hue whiteness blackness / alpha)`].
 
@@ -816,7 +849,8 @@ Create a new SassColor in the `rgb` color space.
   `options.blue`.
 
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-  the result of [parsing a channel value] with value `options.alpha`.
+  the result of [parsing a clamped channel value] with `value` of
+  `options.alpha`, `minimum` of `0`, and `maximum` of `1`.
 
 * Set [`internal`] to the result of [`rgb(red green blue / alpha)`].
 
@@ -842,16 +876,30 @@ A number of SassColor getters only make sense for [legacy color space], and so
 are being deprecated in favor of the new [`channel`] function. This deprecation
 is called `color-4-api`.
 
-[`channel`]: #channel
+The following deprecated getters return the result of
+[`this.channel(channelName, { space: "rgb" })`][`channel`] where `channelName`
+is the name of the respective getter.
 
 * `red`
 * `green`
 * `blue`
+
+The following deprecated getters return the result of
+[`this.channel(channelName, { space: "hsl" })`][`channel`] where `channelName`
+is the name of the respective getter.
+
 * `hue`
 * `saturation`
 * `lightness`
+
+The following deprecated getters return the result of
+[`this.channel(channelName, { space: "hwb" })`][`channel`] where `channelName`
+is the name of the respective getter.
+
 * `whiteness`
 * `blackness`
+
+[`channel`]: #channel
 
 ## Procedures
 
@@ -865,6 +913,18 @@ This procedure takes a channel value `value`, and returns the special value
 * If `value` is the Javascript value `null`, return the unquoted Sass string
   `none`.
 
+### Parsing a Clamped Channel Value
+
+This procedure takes a channel value `value` and an inclusive range of `minimum`
+and `maximum`. It asserts the value is in the range, and returns the special
+value `none` if the value is `null`.
+
+* If `value` is fuzzy less-than `minimum`, throw an error.
+
+* If `value` is fuzzy greater-than `maximum`, throw an error.
+
+* Otherwise, return the result of [Parsing a Channel Value].
+
 ### Changing a Component Value
 
 This procedure takes a `channel` name, an object `changes` and a SassColor
@@ -875,7 +935,11 @@ This procedure takes a `channel` name, an object `changes` and a SassColor
 
 * If `channel` is not a key in `changes`, return `initialValue`.
 
-* Otherwise, return the value for `channel` in `changes`.
+* Let `changedValue` be the value for `channel` in `changes`.
+
+* If `changedValue` is `undefined` and not `null`, return `initialValue`.
+
+* Otherwise, return `changedValue`.
 
 ### Determining Construction Space
 
