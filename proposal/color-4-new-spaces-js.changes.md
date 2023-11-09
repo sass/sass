@@ -3,6 +3,8 @@
 * Simplify the type definition for `interpolate`, and make `options` argument
   optional.
 
+* Fix typo in `changedValue` definition of `color.change`.
+
 ## Draft 1.5
 
 * Clarify that deprecated SassColor getters (e.g. `red`, `blue`, etc.) convert
