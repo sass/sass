@@ -255,7 +255,8 @@ export class SassColor extends Value {
   get space(): KnownColorSpace;
 
   /**
-   * Returns this color converted to the specified `space`.
+   * Returns a new color that's the result of converting this color to the
+   * specified `space`.
    */
   toSpace(space: KnownColorSpace): SassColor;
 
@@ -273,12 +274,13 @@ export class SassColor extends Value {
   isInGamut(space?: KnownColorSpace): boolean;
 
   /**
-   * Returns this color, modified so it is in-gamut for the specified `space`—or
-   * the current color space if `space` is not specified—using the recommended
-   * [CSS Gamut Mapping Algorithm][css-mapping] to map out-of-gamut colors into
-   * the desired gamut with as little perceptual change as possible.
+   * Returns a copy of this color, modified so it is in-gamut for the specified
+   * `space`—or the current color space if `space` is not specified—using the
+   * recommended [CSS Gamut Mapping Algorithm][css-mapping] to map out-of-gamut
+   * colors into the desired gamut with as little perceptual change as possible.
    *
-   * [css-mapping]: https://www.w3.org/TR/css-color-4/#css-gamut-mapping-algorithm
+   * [css-mapping]:
+   * https://www.w3.org/TR/css-color-4/#css-gamut-mapping-algorithm
    */
   toGamut(space?: KnownColorSpace): SassColor;
 
@@ -393,7 +395,8 @@ export class SassColor extends Value {
   ): SassColor;
 
   /**
-   * Changes one or more of this color's HSL channels and returns the result.
+   * Returns a new color that's the result of changing one or more of this
+   * color's HSL channels.
    *
    * @throws `Error` if `space` is missing and this color is not in a legacy
    * color space (`rgb`, `hsl`, or `hwb`).
@@ -411,7 +414,8 @@ export class SassColor extends Value {
   ): SassColor;
 
   /**
-   * Changes one or more of this color's HWB channels and returns the result.
+   * Returns a new color that's the result of changing one or more of this
+   * color's HWB channels.
    *
    * @throws `Error` if `space` is missing and this color is not in a legacy
    * color space (`rgb`, `hsl`, or `hwb`).
@@ -427,7 +431,8 @@ export class SassColor extends Value {
   ): SassColor;
 
   /**
-   * Changes one or more of this color's Lab channels and returns the result.
+   * Returns a new color that's the result of changing one or more of this
+   * color's Lab channels.
    *
    * @throws `Error` if `space` is missing and this color is not in the Lab or
    * Oklab color spaces.
@@ -446,7 +451,8 @@ export class SassColor extends Value {
   ): SassColor;
 
   /**
-   * Changes one or more of this color's LCH channels and returns the result.
+   * Returns a new color that's the result of changing one or more of this
+   * color's LCH channels.
    *
    * @throws `Error` if `space` is missing and this color is not in the LCH or
    * Oklch color spaces.
@@ -465,7 +471,8 @@ export class SassColor extends Value {
   ): SassColor;
 
   /**
-   * Changes one or more of this color's RGB channels and returns the result.
+   * Returns a new color that's the result of changing one or more of this
+   * color's RGB channels.
    *
    * @throws `Error` if `space` is missing and this color is not in a legacy
    * color space (`rgb`, `hsl`, or `hwb`).
@@ -481,7 +488,8 @@ export class SassColor extends Value {
   ): SassColor;
 
   /**
-   * Changes one or more of this color's XYZ channels and returns the result.
+   * Returns a new color that's the result of changing one or more of this
+   * color's XYZ channels.
    *
    * @throws `Error` if `space` is missing and this color is not in an XYZ color
    * space.

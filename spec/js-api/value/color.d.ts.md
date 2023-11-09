@@ -780,7 +780,7 @@ as the result of changing some of [`internal`]'s components.
 
 * Let `changedValue` be a function that takes a string argument for `channel`
   and calls the procedure [`Changing a Component Value`] with `changes` and
-  `this` as `initial`.
+  `color` as `initial`.
 
 * If `space` equals `hsl` and `spaceSetExplicitly` is `false`:
 
