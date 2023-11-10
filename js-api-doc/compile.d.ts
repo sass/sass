@@ -37,7 +37,6 @@ export interface CompileResult {
   sourceMap?: RawSourceMap;
 }
 
-
 export interface Compiler {
   compile(path: string, options?: Options<'sync'>): CompileResult;
   compileString(source: string, options?: StringOptions<'sync'>): CompileResult;
