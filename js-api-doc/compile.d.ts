@@ -37,6 +37,25 @@ export interface CompileResult {
   sourceMap?: RawSourceMap;
 }
 
+
+export interface Compiler {
+  compile(path: string, options?: Options<'sync'>): CompileResult;
+  compileString(source: string, options?: StringOptions<'sync'>): CompileResult;
+  dispose(): void;
+}
+
+export interface AsyncCompiler {
+  compileAsync(
+    path: string,
+    options?: Options<'async'>
+  ): Promise<CompileResult>;
+  compileStringAsync(
+    source: string,
+    options?: StringOptions<'async'>
+  ): Promise<CompileResult>;
+  dispose(): Promise<void>;
+}
+
 /**
  * Synchronously compiles the Sass file at `path` to CSS. If it succeeds it
  * returns a {@link CompileResult}, and if it fails it throws an {@link
@@ -162,3 +181,6 @@ export function compileStringAsync(
   source: string,
   options?: StringOptions<'async'>
 ): Promise<CompileResult>;
+
+export function initCompiler(): Compiler;
+export function initAsyncCompiler(): Promise<AsyncCompiler>;

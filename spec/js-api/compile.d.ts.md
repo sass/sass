@@ -12,11 +12,15 @@ import {Options, StringOptions} from './options';
 
 * [Types](#types)
   * [`CompileResult`](#compileresult)
+  * [`Compiler`](#compiler)
+  * [`AsyncCompiler`](#asynccompiler)
 * [Functions](#functions)
   * [`compile`](#compile)
   * [`compileAsync`](#compileasync)
   * [`compileString`](#compilestring)
   * [`compileStringAsync`](#compilestringasync)
+  * [`initCompiler`](#initcompiler)
+  * [`initAsyncCompiler`](#initasynccompiler)
 
 ## Types
 
@@ -31,6 +35,36 @@ export interface CompileResult {
   loadedUrls: URL[];
 
   sourceMap?: RawSourceMap;
+}
+```
+
+### `Compiler`
+
+```ts
+export interface Compiler {
+  compile(path: string, options?: Options<'sync'>): CompileResult;
+
+  compileString(source: string, options?: StringOptions<'sync'>): CompileResult;
+
+  dispose(): void;
+}
+```
+
+### `AsyncCompiler`
+
+```ts
+export interface AsyncCompiler {
+  compileAsync(
+    path: string,
+    options?: Options<'async'>
+  ): Promise<CompileResult>;
+
+  compileStringAsync(
+    source: string,
+    options?: StringOptions<'async'>
+  ): Promise<CompileResult>;
+
+  dispose(): Promise<void>;
 }
 ```
 
@@ -145,4 +179,16 @@ export function compileStringAsync(
   source: string,
   options?: StringOptions<'async'>
 ): Promise<CompileResult>;
+```
+
+### `initCompiler`
+
+```ts
+export function initCompiler(): Compiler;
+```
+
+### `initAsyncCompiler`
+
+```ts
+export function initAsyncCompiler(): Promise<AsyncCompiler>;
 ```
