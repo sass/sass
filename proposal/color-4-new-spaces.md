@@ -31,6 +31,12 @@ colors outside the sRGB gamut.
     * [`color.mix()`](#colormix)
     * [Deprecations](#deprecations)
   * [Design Decisions](#design-decisions)
+    * [Unclamped Channels](#unclamped-channels)
+    * [Changing Color Spaces](#changing-color-spaces)
+    * [Gamut Mapping](#gamut-mapping)
+    * [CSS Color 5](#css-color-5)
+    * [Clipping Lightness](#clipping-lightness)
+    * [Special Thanks](#special-thanks)
 * [Definitions](#definitions)
   * [Color](#color)
   * [Legacy Color](#legacy-color)
@@ -45,8 +51,8 @@ colors outside the sRGB gamut.
 * [Procedures](#procedures)
   * [Looking Up a Known Color Space](#looking-up-a-known-color-space)
   * [Converting a Color](#converting-a-color)
-* [CSS-Converting a Color Space](#css-converting-a-color-space)
-  * [Gamut Mapping](#gamut-mapping)
+  * [CSS-Converting a Color Space](#css-converting-a-color-space)
+  * [Gamut Mapping](#gamut-mapping-1)
   * [Parsing Color Components](#parsing-color-components)
   * [Percent-Converting a Number](#percent-converting-a-number)
   * [Validating a Color Channel](#validating-a-color-channel)
@@ -420,6 +426,8 @@ being deprecated in favor of color-space-friendly functions like
 
 ### Design Decisions
 
+#### Unclamped Channels
+
 Most of the design decisions involved in the proposal are based on the
 [CSS Color Level 4][color-4] specification, which we have tried to emulate as
 closely as possible, while maintaining support for legacy projects. In some
@@ -431,9 +439,12 @@ cases, that required major changes to the way Sass handles colors:
    colors, because browsers can provide better gamut mapping based on the user
    device capabilities. However, authors can use the provided `color.to-gamut()`
    function to enforce mapping a color into a specific gamut.
+
 2. RGB-style channel values are no longer rounded to the nearest integer, since
    the spec now requires maintaining precision wherever possible. This is
    especially important in RGB spaces, where color distribution is inconsistent.
+
+#### Changing Color Spaces
 
 Different color spaces often represent different color-gamuts, which can present
 a new set of problems for authors. Some color manipulations are best handled
@@ -454,6 +465,8 @@ and mapping in Sass color functions:
 * No color function performs gamut-mapping on out-of-gamut channels, except
   `color.to-gamut()`, which can be used for manual gamut-mapping.
 
+#### Gamut Mapping
+
 Browsers currently use channel-clipping rather than the proposed
 [css gamut mapping algorithm][css-mapping] to handle colors that cannot be
 shown correctly on a given display. We've decided to provide `color.to-gamut()`
@@ -462,6 +475,8 @@ may eventually choose to provide a different algorithm. If that happens, we
 will consider adding an additional algorithm-selection argument. However, the
 primary goal of this function is not to match CSS behavior, but to provide a
 better mapping than the default channel-clipping.
+
+#### CSS Color 5
 
 We are not attempting to support all of [CSS Color Level 5][color-5] at this
 point, since it is not yet implemented in browsers. However, we have used it as
@@ -478,6 +493,30 @@ provides us with the most flexibility to change our behavior in the future.
 [open issue in CSS]: https://github.com/w3c/csswg-drafts/issues/7771
 [color-5]: https://www.w3.org/TR/css-color-5/
 [relative color syntax]: https://drafts.csswg.org/css-color-5/#relative-colors
+
+#### Clipping Lightness
+
+Per the CSS specs, the lightness channel of the Lab, LCH, OKLab, and OKLCH color
+spaces is clipped to between 0% and 100% at parse time [but *not* in
+interpolation]. In fact, it's necessary to have out-of-gamut lightness to
+represent valid colors from other spaces—for example, `color(xyz 1 1 1)` is
+equivalent to `lab(100.12% 9.0645 5.8018)`. To match the behavior of CSS, we
+clip lightness when constructing colors directly through color functions, so
+writing `lab(110% 0 0)` will return `lab(100% 0 0)`. To preserve colors on a
+round trip between spaces, we need to allow these colors to go out-of-gamut.
+However, the question remains as to how to handle cases that don't directly
+correspond to CSS, such as the `color.change()` function.
+
+[but *not* in interpolation]: https://github.com/w3c/csswg-drafts/issues/9484
+
+Because out-of-gamut lightness is meaningful in CSS, we've chosen the design
+principle of preserving them in all situations where clamping isn't specifically
+mandated by CSS. In addition, to ensure that that the colors represent the same
+values in CSS that they do in Sass, they're be serialized to a special format
+that transforms them from the XYZ colorspace to avoid parse-time lightness
+clipping.
+
+#### Special Thanks
 
 Thanks to the editors of the CSS Color Level 4 specification (Tab Atkins Jr.,
 Chris Lilley, and Lea Verou) for answering our many questions along the way. We
@@ -554,9 +593,10 @@ unquoted lowercase strings by inspection functions.
 
 Values outside a *bounded gamut* range (including infinity or negative infinity)
 are valid but are considered *out of gamut* for the given color space. They
-remain un-clamped unless the gamut is specifically marked as "clamped". If the
-channel is bounded, or has a percentage mapping, then the channel is considered
-*scalable*.
+remain un-clamped unless the gamut is specifically marked as "clamped", in which
+case they're clamped *only* when constructing the color from the global color
+function. If the channel is bounded, or has a percentage mapping, then the
+channel is considered *scalable*.
 
 Some color spaces use a *polar angle* value for the `hue` channel. Polar-angle
 hues represent an angle position around a given hue wheel, using a CSS `<angle>`
@@ -786,6 +826,18 @@ To serialize a non-legacy color `color`:
 
 * Let `space-name` be an unquoted lowercase string of `color`'s space name.
 
+* If `color` has a clamped channel whose value is out-of-bounds:
+
+  * Let `xyz` be the result of [converting] `color` into the `xyz` color space.
+
+  * Emit "color-mix(in ", followed by `space-name`, ", ", the result of
+    serializing `xyz`, and then " 100%, black)".
+
+  > This syntax effectively converts the `xyz` color back into the original
+  > color space. The second argument to `color-mix()` is irrelevant when the
+  > first color has weight 100%, so implementations are free to change it (for
+  > example, an implementation might use "red" instead to minimize bytes).
+
 * Let `known-space` be the result of [looking up a known color space] with a
   `name` of `space-name`.
 
@@ -881,7 +933,7 @@ returns a color `color`.
 [missing]: #missing-components
 [powerless]: #powerless-components
 
-## CSS-Converting a Color Space
+### CSS-Converting a Color Space
 
 [css-converting]: #css-converting-a-color-space
 
@@ -1147,9 +1199,10 @@ normalized channel value otherwise.
   * Otherwise, set `channel` to the result of [percent-converting] `channel`
     with a `min` and `max` defined by the `valid` channel range.
 
-  * If `valid` is a `lightness` channel, and `space` is not a [legacy color]
-    space, set `channel` to the result of clamping the `channel` value between
-    0 and 100, inclusive.
+  * If this was (transitively) invoked from the global [`lab()`, `lch()`,
+    `oklab()`, `oklch()`, or `color()`] function; `valid` is a `lightness`
+    channel; and `space` is not a [legacy color] space, set `channel` to the
+    result of clamping the `channel` value between 0 and 100, inclusive.
 
   * Return `channel`.
 
@@ -1159,7 +1212,7 @@ normalized channel value otherwise.
 
 [normalizing]: #normalizing-color-channels
 
-This process accepts a list of `channels` to validate, and a [known color space]
+This process accepts a list of `channels` to validate, a [known color space]
 `space` to normalize against. It throws an error if any channel is invalid for
 the color space, or returns a normalized list of valid channels otherwise.
 
