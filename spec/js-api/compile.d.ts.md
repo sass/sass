@@ -13,7 +13,9 @@ import {Options, StringOptions} from './options';
 * [Types](#types)
   * [`CompileResult`](#compileresult)
   * [`Compiler`](#compiler)
+    * [`dispose()`](#dispose)
   * [`AsyncCompiler`](#asynccompiler)
+    * [`dispose()`](#dispose-1)
 * [Functions](#functions)
   * [`compile`](#compile)
   * [`compileAsync`](#compileasync)
@@ -40,17 +42,47 @@ export interface CompileResult {
 
 ### `Compiler`
 
+The object returned by creating a synchronous compiler with [`initCompiler()`].
+
+Only synchronous compilation methods [`compile()`] and [`compileString()`] must
+be included, and must have with identical semantics to the [Sass interface].
+
+[`initCompiler()`]: #initcompiler
+[`compile()`]: #compile
+[`compilestring()`]: #compilestring
+[Sass interface]: ./index.d.ts.md
+
 ```ts
 export interface Compiler {
   compile(path: string, options?: Options<'sync'>): CompileResult;
 
   compileString(source: string, options?: StringOptions<'sync'>): CompileResult;
+```
 
+#### `dispose()`
+
+When `dispose` is invoked on a Compiler:
+
+* Any subsequent invocations of `compile` and `compileString` must throw an
+  error.
+
+```ts
   dispose(): void;
 }
 ```
 
 ### `AsyncCompiler`
+
+The object returned by creating an asynchronous compiler with
+[`initAsyncCompiler()`].
+
+Only asynchronous compilation methods [`compileAsync()`] and
+[`compileStringAsync()`] must be included, and must have with identical
+semantics to the [Sass interface].
+
+[`initAsyncCompiler()`]: #initasynccompiler
+[`compileasync()`]: #compileasync
+[`compilestringasync()`]: #compilestringasync
 
 ```ts
 export interface AsyncCompiler {
@@ -63,7 +95,22 @@ export interface AsyncCompiler {
     source: string,
     options?: StringOptions<'async'>
   ): Promise<CompileResult>;
+```
 
+#### `dispose()`
+
+When `dispose` is invoked on an Async Compiler:
+
+* Any subsequent invocations of `compileAsync` and `compileStringAsync` must
+  throw an error.
+
+* Any compilations that have not yet been settled must be allowed to settle, and
+  not be cancelled.
+
+* Resolves a Promise when all compilations have been settled, and disposal is
+  complete.
+
+```ts
   dispose(): Promise<void>;
 }
 ```
@@ -183,11 +230,19 @@ export function compileStringAsync(
 
 ### `initCompiler`
 
+Returns a synchronous [Compiler].
+
+[Compiler]: #compiler
+
 ```ts
 export function initCompiler(): Compiler;
 ```
 
 ### `initAsyncCompiler`
+
+Resolves with an [Async Compiler].
+
+[Async Compiler]: #asynccompiler
 
 ```ts
 export function initAsyncCompiler(): Promise<AsyncCompiler>;

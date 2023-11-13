@@ -37,21 +37,89 @@ export interface CompileResult {
   sourceMap?: RawSourceMap;
 }
 
+/**
+ * The result of creating a synchronous compiler. Returned by
+ * {@link initCompiler}.
+ *
+ * @category Compile
+ */
 export interface Compiler {
+  /**
+   * The {@link compile} method exposed through a Compiler instance while it is
+   * active. If this is called after {@link dispose} on the Compiler
+   * instance, an error will be thrown.
+   *
+   * During the Compiler instance's lifespace, given the same input, this will
+   * return an identical result to the {@link compile} method exposed at the
+   * module root.
+   */
   compile(path: string, options?: Options<'sync'>): CompileResult;
+
+  /**
+   * The {@link compileString} method exposed through a Compiler instance while
+   * it is active. If this is called after {@link dispose} on the Compiler
+   * instance, an error will be thrown.
+   *
+   * During the Compiler instance's lifespace, given the same input, this will
+   * return an identical result to the {@link compileString} method exposed at
+   * the module root.
+   */
   compileString(source: string, options?: StringOptions<'sync'>): CompileResult;
+
+  /**
+   * Ends the lifespan of this Compiler instance. After this is invoked, all
+   * calls to the Compiler instance's `compile` or `compileString` methods will
+   * result in an error.
+   */
   dispose(): void;
 }
 
+/**
+ * The result of creating an asynchronous compiler. Returned by
+ * {@link initAsyncCompiler}.
+ *
+ * @category Compile
+ */
 export interface AsyncCompiler {
+  /**
+   * The {@link compileAsync} method exposed through an Async Compiler instance
+   * while it is active. If this is called after {@link dispose} on the Async
+   * Compiler instance, an error will be thrown.
+   *
+   * During the Async Compiler instance's lifespace, given the same input, this
+   * will return an identical result to the {@link compileAsync} method exposed
+   * at the module root.
+   */
   compileAsync(
     path: string,
     options?: Options<'async'>
   ): Promise<CompileResult>;
+
+  /**
+   * The {@link compileStringAsync} method exposed through an Async Compiler
+   * instance while it is active. If this is called after {@link dispose} on the
+   * Async Compiler instance, an error will be thrown.
+   *
+   * During the Async Compiler instance's lifespace, given the same input, this
+   * will return an identical result to the {@link compileStringAsync} method
+   * exposed at the module root.
+   */
   compileStringAsync(
     source: string,
     options?: StringOptions<'async'>
   ): Promise<CompileResult>;
+
+  /**
+   * Ends the lifespan of this Async Compiler instance. After this is invoked,
+   * all subsequent calls to the Compiler instance's `compileAsync` or
+   * `compileStringAsync` methods will result in an error.
+   *
+   * Any compilations that are submitted before `dispose` will not be cancelled,
+   * and will be allowed to settle.
+   *
+   * After all compilations have been settled and Sass completes any internal
+   * task cleanup, `dispose` will resolve its promise.
+   */
   dispose(): Promise<void>;
 }
 
@@ -181,5 +249,60 @@ export function compileStringAsync(
   options?: StringOptions<'async'>
 ): Promise<CompileResult>;
 
+/**
+ * Creates an instance of a synchronous {@link Compiler}. Each compiler instance
+ * exposes the {@link compile} and {@link compileString} methods within the
+ * lifespan of the Compiler. To use asynchronous compilation, use
+ * {@link initAsyncCompiler};
+ *
+ * When using the `sass-embedded` npm package, this allows Sass to reuse a
+ * process across multiple compilations, reducing the amount of time needed to
+ * create and destroy each process.
+ *
+ * @example
+ *
+ * ```js
+ * const sass = require('sass');
+ * function setup() {
+ *   const compiler = sass.initCompiler();
+ *   const result1 = compiler.compileString('a {b: c}').css;
+ *   const result2 = compiler.compileString('a {b: c}').css;
+ *   compiler.dispose();
+ *
+ *   //throws error
+ *   const result3 = sass.compileString('a {b: c}').css;
+ * }
+ * ```
+ * @category Compile
+ * @compatibility dart: "1.70.0", node: false
+ */
 export function initCompiler(): Compiler;
+
+/**
+ * Creates an instance of an asynchronous {@link AsyncCompiler}. Each compiler instance
+ * exposes the {@link compileAsync} and {@link compileStringAsync} methods within the
+ * lifespan of the Compiler. To use synchronous compilation, use
+ * {@link initCompiler};
+ *
+ * When using the `sass-embedded` npm package, this allows Sass to reuse a
+ * process across multiple compilations, reducing the amount of time needed to
+ * create and destroy each process.
+ *
+ * @example
+ *
+ * ```js
+ * const sass = require('sass');
+ * async function setup() {
+ *   const compiler = await sass.initAsyncCompiler();
+ *   const result1 = await compiler.compileStringAsync('a {b: c}').css;
+ *   const result2 = await compiler.compileStringAsync('a {b: c}').css;
+ *   compiler.dispose();
+ *
+ *   //throws error
+ *   const result3 = await sass.compileStringAsync('a {b: c}').css;
+ * }
+ * ```
+ * @category Compile
+ * @compatibility dart: "1.70.0", node: false
+ */
 export function initAsyncCompiler(): Promise<AsyncCompiler>;
