@@ -32,10 +32,10 @@ colors outside the sRGB gamut.
     * [Deprecations](#deprecations)
   * [Design Decisions](#design-decisions)
     * [Unclamped Channels](#unclamped-channels)
+    * [Clamped Channels](#clamped-channels)
     * [Changing Color Spaces](#changing-color-spaces)
     * [Gamut Mapping](#gamut-mapping)
     * [CSS Color 5](#css-color-5)
-    * [Clipping Lightness](#clipping-lightness)
     * [Special Thanks](#special-thanks)
 * [Definitions](#definitions)
   * [Color](#color)
@@ -48,6 +48,7 @@ colors outside the sRGB gamut.
   * [Color Interpolation Method](#color-interpolation-method)
 * [Serialization](#serialization)
   * [Serialization of Non-Legacy Colors](#serialization-of-non-legacy-colors)
+  * [Serialization of Out-of-Gamut RGB Colors](#serialization-of-out-of-gamut-rgb-colors)
 * [Procedures](#procedures)
   * [Looking Up a Known Color Space](#looking-up-a-known-color-space)
   * [Converting a Color](#converting-a-color)
@@ -428,21 +429,61 @@ being deprecated in favor of color-space-friendly functions like
 
 #### Unclamped Channels
 
-Most of the design decisions involved in the proposal are based on the
-[CSS Color Level 4][color-4] specification, which we have tried to emulate as
-closely as possible, while maintaining support for legacy projects. In some
-cases, that required major changes to the way Sass handles colors:
+Most of the design decisions involved in the proposal are based on the [CSS
+Color Level 4][color-4] specification, which we have tried to emulate as closely
+as possible while maintaining support for legacy projects. In some cases, that
+required major changes to the way Sass handles colors:
 
-1. RGB-style channel values are no longer clamped to the gamut of a color space,
-   except for the `hsl` and `hwb` spaces, which are unable to represent
-   out-of-gamut colors. By default Sass will output CSS with out-of-gamut
-   colors, because browsers can provide better gamut mapping based on the user
-   device capabilities. However, authors can use the provided `color.to-gamut()`
-   function to enforce mapping a color into a specific gamut.
+1. Channel values are no longer internally clamped to the gamut of a color
+   space. By default Sass will output CSS with out-of-gamut colors, because
+   these colors are handled differently when doing interpolation across
+   different color spaces. Browsers may also eventually handle gamut-mapping for
+   these colors, although at the time of writing they do not. Authors can also
+   use the provided `color.to-gamut()` function to force a color to be mapped
+   into the gamut of its native color space.
 
 2. RGB-style channel values are no longer rounded to the nearest integer, since
    the spec now requires maintaining precision wherever possible. This is
    especially important in RGB spaces, where color distribution is inconsistent.
+
+#### Clamped Channels
+
+Per the CSS specs, certain channels are clamped at parse time [but *not* in
+interpolation] for specific color functions:
+
+* All channels of the `rgb()` and `rgba()` functions.
+* The lightness channel of the `lab()`, `lch()`, `oklab()`, and `oklch()`
+  functions.
+* The lower bound of the chroma channel of the `lch()` and `oklch()` functions.
+
+However, it's necessary to use out-of-gamut values in these spaces to represent
+valid colors from other spaces—for example, `color(xyz 1 1 1)` is equivalent to
+`lab(100.12% 9.0645 5.8018)` and `color(prophoto-rgb 0 1 0)` is equivalent to
+`rgb(-221.6192400378, 279.4082218845, -109.1140773956)`. To match the behavior
+of CSS, we have to clamp these channels when constructing colors directly
+through color functions, so writing `lab(110% 0 0)` will return `lab(100% 0 0)`.
+On the other hand, to preserve colors on a round trip between spaces, we need to
+allow the internal representation of these colors to go out-of-gamut.
+
+[but *not* in interpolation]: https://github.com/w3c/csswg-drafts/issues/9484
+
+The question remains as to how to handle cases that don't directly correspond to
+CSS, such as the `color.change()` function. Because out-of-gamut clamped
+channels are meaningful in CSS, we've chosen the design principle of preserving
+them in all situations where clamping isn't specifically mandated by CSS. In
+addition, to ensure that that the colors represent the same values in CSS that
+they do in Sass, they're be serialized to special formats that preserves their
+out-of-gamut values:
+
+* Out-of-gamut RGB colors with are serialized to `hsl()`, which per spec is not
+  clamped at parse-time (although in practice browsers do clamp it at time of
+  writing). This ensures that older browsers will still handle these colors
+  correctly while still preserving the unclamped value for modern browsers (once
+  they work per spec).
+
+* Out-of-gamut Lab, LCH, OKLab, and OKLCH colors are serialized to `color-mix(in
+  ..., color(xyz ...) 100%, black)` to preserve both the original color space
+  and the unclamped value.
 
 #### Changing Color Spaces
 
@@ -493,28 +534,6 @@ provides us with the most flexibility to change our behavior in the future.
 [open issue in CSS]: https://github.com/w3c/csswg-drafts/issues/7771
 [color-5]: https://www.w3.org/TR/css-color-5/
 [relative color syntax]: https://drafts.csswg.org/css-color-5/#relative-colors
-
-#### Clipping Lightness
-
-Per the CSS specs, the lightness channel of the Lab, LCH, OKLab, and OKLCH color
-spaces is clipped to between 0% and 100% at parse time [but *not* in
-interpolation]. In fact, it's necessary to have out-of-gamut lightness to
-represent valid colors from other spaces—for example, `color(xyz 1 1 1)` is
-equivalent to `lab(100.12% 9.0645 5.8018)`. To match the behavior of CSS, we
-clip lightness when constructing colors directly through color functions, so
-writing `lab(110% 0 0)` will return `lab(100% 0 0)`. To preserve colors on a
-round trip between spaces, we need to allow these colors to go out-of-gamut.
-However, the question remains as to how to handle cases that don't directly
-correspond to CSS, such as the `color.change()` function.
-
-[but *not* in interpolation]: https://github.com/w3c/csswg-drafts/issues/9484
-
-Because out-of-gamut lightness is meaningful in CSS, we've chosen the design
-principle of preserving them in all situations where clamping isn't specifically
-mandated by CSS. In addition, to ensure that that the colors represent the same
-values in CSS that they do in Sass, they're be serialized to a special format
-that transforms them from the XYZ colorspace to avoid parse-time lightness
-clipping.
 
 #### Special Thanks
 
@@ -594,9 +613,9 @@ unquoted lowercase strings by inspection functions.
 Values outside a *bounded gamut* range (including infinity or negative infinity)
 are valid but are considered *out of gamut* for the given color space. They
 remain un-clamped unless the gamut is specifically marked as "clamped", in which
-case they're clamped *only* when constructing the color from the global color
-function. If the channel is bounded, or has a percentage mapping, then the
-channel is considered *scalable*.
+case they're clamped *only* when constructing the color from its global
+constructor function. If the channel is bounded, or has a percentage mapping,
+then the channel is considered *scalable*.
 
 Some color spaces use a *polar angle* value for the `hue` channel. Polar-angle
 hues represent an angle position around a given hue wheel, using a CSS `<angle>`
@@ -610,7 +629,7 @@ The known color spaces and their channels are:
 
 * `rgb` (RGB, legacy):
   * `red`, `green`, `blue`:
-    * gamut: bounded
+    * gamut: bounded, clamped
     * number: `[0,255]`
 
       > Percentages `[0%,100%]` map to the `[0,255]` range.
@@ -633,7 +652,7 @@ The known color spaces and their channels are:
     * associated unit: `%`
     * percentage: `[0%,100%]`
   * `lightness`:
-    * gamut: bounded, clamped
+    * gamut: bounded
     * associated unit: `%`
     * percentage: `[0%,100%]`
 
@@ -675,7 +694,7 @@ The known color spaces and their channels are:
       > Percentages `[0%,100%]` map to the `[0,100]` range.
 
   * `chroma`:
-    * gamut: un-bounded
+    * gamut: un-bounded, clamped (lower bound only)
     * number: `[0,150]`
 
       > Percentages `[0%,100%]` map to the `[0,150]` range.
@@ -707,7 +726,7 @@ The known color spaces and their channels are:
       > Percentages `[0%,100%]` map to the `[0,1]` range.
 
   * `chroma`:
-    * gamut: un-bounded
+    * gamut: un-bounded, clamped (lower bound only)
     * number: `[0,0.4]`
 
       > Percentages `[0%,100%]` map to the `[0,0.4]` range.
@@ -875,6 +894,14 @@ To serialize a non-legacy color `color`:
   then ")".
 
 [predefined color space]: #predefined-color-spaces
+
+### Serialization of Out-of-Gamut RGB Colors
+
+To serialize an out-of-gamut color `color` in the `rgb` space:
+
+* Let `hsl` be the result of [converting] `color` into the `hsl` space.
+
+* Return the result of serializing `hsl`.
 
 ## Procedures
 
@@ -1199,10 +1226,10 @@ normalized channel value otherwise.
   * Otherwise, set `channel` to the result of [percent-converting] `channel`
     with a `min` and `max` defined by the `valid` channel range.
 
-  * If this was (transitively) invoked from the global [`lab()`, `lch()`,
-    `oklab()`, `oklch()`, or `color()`] function; `valid` is a `lightness`
-    channel; and `space` is not a [legacy color] space, set `channel` to the
-    result of clamping the `channel` value between 0 and 100, inclusive.
+  * If this was (transitively) invoked from the global [`rgb()`, `lab()`,
+    `lch()`, `oklab()`, `oklch()`, or `color()`] function and `valid` is a
+    clamped channel, return the result of clamping `channel` to its native
+    range.
 
   * Return `channel`.
 
