@@ -279,10 +279,10 @@ export function compileStringAsync(
 export function initCompiler(): Compiler;
 
 /**
- * Creates an instance of an asynchronous {@link AsyncCompiler}. Each compiler instance
- * exposes the {@link compileAsync} and {@link compileStringAsync} methods within the
- * lifespan of the Compiler. To use synchronous compilation, use
- * {@link initCompiler};
+ * Creates an instance of an asynchronous {@link AsyncCompiler}. Each compiler
+ * instance exposes the {@link compileAsync} and {@link compileStringAsync}
+ * methods within the lifespan of the Compiler. To use synchronous compilation,
+ * use {@link initCompiler};
  *
  * When using the `sass-embedded` npm package, this allows Sass to reuse a
  * process across multiple compilations, reducing the amount of time needed to
