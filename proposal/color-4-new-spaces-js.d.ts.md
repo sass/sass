@@ -1,4 +1,4 @@
-# CSS Color Level 4, New Color Spaces JavaScript API: Draft 1.5
+# CSS Color Level 4, New Color Spaces JavaScript API: Draft 1.6
 
 *([Issue](https://github.com/sass/sass/issues/2831),
 [Changelog](color-4-new-spaces-js.changes.md))*
@@ -330,11 +330,9 @@ isChannelPowerless(
 * Return the result of [`color.mix(internal, color2, options.weight, interpolationMethod)`][`color.mix()`].
 
 ```ts
-interpolate(color2: SassColor, options: {weight?: number}): SassColor;
-
 interpolate(
   color2: SassColor,
-  options: {
+  options?: {
     weight?: number;
     method?: HueInterpolationMethod;
   }
@@ -403,7 +401,7 @@ as the result of changing some of [`internal`]'s components.
 
 * Let `changedValue` be a function that takes a string argument for `channel`
   and calls the procedure [`Changing a Component Value`] with `changes` and
-  `this` as `initial`.
+  `color` as `initial`.
 
 * If `space` equals `hsl` and `spaceSetExplicitly` is `false`:
 
