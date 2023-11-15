@@ -1,7 +1,7 @@
 ## Draft 1.2
 
 * Await method calls in example code.
-* Replace non-existent `sass.dispose()` with `compiler.dispose()` in example code.
+* Use `compiler.compile*()` methods in example code.
 
 ## Draft 1.1
 
