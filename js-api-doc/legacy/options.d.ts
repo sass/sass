@@ -518,7 +518,7 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    * @example
    * ```js
    * sass.renderSync({
-   *  data: '@use "pkg:@angular/material";',
+   *  data: '@use "pkg:vuetify";',
    *  pkgImporter: 'node'
    * });
    * ```

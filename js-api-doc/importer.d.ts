@@ -329,7 +329,7 @@ export type NodePackageImporter = {
  * @example
  *```js
  *const sass = require('sass');
- *sass.compileString('@use "pkg:@angular/material', {
+ *sass.compileString('@use "pkg:vuetify', {
  *  importers: [sass.nodePackageImporter]
  *});
  *```
