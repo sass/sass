@@ -510,10 +510,21 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
   logger?: Logger;
 
   /**
-   * If this option is set to `'node'`, Sass will use the built-in Node Package
-   * Importer to resolve Sass files with a `pkg:` URL scheme.
+   * If this option is set to `'node'`, Sass will use the built-in Node.js
+   * package importer to resolve Sass files with a `pkg:` URL scheme. Details
+   * for library authors and users can be found in the
+   * {@link nodePackageImporter} documentation.
+   *
+   * @example
+   * ```js
+   * sass.renderSync({
+   *  data: '@use "pkg:@angular/material";',
+   *  pkgImporter: 'node'
+   * });
+   * ```
+   * @category Plugins
+   * @compatibility dart: "2.0", node: false
    */
-
   pkgImporter?: 'node';
 }
 

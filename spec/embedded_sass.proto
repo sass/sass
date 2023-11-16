@@ -99,9 +99,11 @@ message InboundMessage {
         // registered for this compilation.
         uint32 file_importer_id = 3;
 
-        // A built-in Package Importer, with an associated `entry_point_url`,
-        // that resolves `pkg:` URLs using the standards and conventions of the
-        // Node ecosystem. 
+        // The [Node.js package importer], which is a built-in Package Importer,
+        // with an associated `entry_point_url`, that resolves `pkg:` URLs using
+        // the standards and conventions of the Node ecosystem.
+        //
+        // [Node.js package importer]: https://github.com/sass/sass/tree/main/spec/modules.md#node-package-importer
         NodePackageImporter node_package_importer = 5;
       }
 
@@ -1066,10 +1068,12 @@ enum CalculationOperator {
   DIVIDE = 3;
 }
 
-// The built-in Node Package Importer, which is a Package Importer that resolves
-//using the standards and conventions of the Node ecosystem. It enables a `pkg:`
-// URL scheme for usage with `@use` that directs an implementation to resolve a
-// URL within a dependency. It must be instantiated with an`entry_point_url`.
+// The built-in Node.js Package Importer, which is a Package Importer that
+// resolves using the standards and conventions of the Node.js ecosystem. It
+// enables a `pkg:` URL scheme for usage with `@use` that directs an
+// implementation to resolve a URL within a dependency. It must be instantiated
+// with an`entry_point_url`, which is the path to a file within the NPM package
+// that contains the NPM packages that will be imported using the `pkg:` scheme.
 message NodePackageImporter {
   string entry_point_url = 1;
 }

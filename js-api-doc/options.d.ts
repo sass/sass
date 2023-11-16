@@ -208,7 +208,7 @@ export interface Options<sync extends 'sync' | 'async'> {
    * - The importer that was used to load the current stylesheet, with the
    *   loaded URL resolved relative to the current stylesheet's canonical URL.
    *
-   * - Each {@link Importer} or {@link FileImporter} or
+   * - Each {@link Importer}, {@link FileImporter}, or
    *   {@link NodePackageImporter} in {@link importers}, in order.
    *
    * - Each load path in {@link loadPaths}, in order.
