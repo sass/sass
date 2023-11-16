@@ -49,7 +49,7 @@ export interface Compiler {
    * active. If this is called after {@link dispose} on the Compiler
    * instance, an error will be thrown.
    *
-   * During the Compiler instance's lifespace, given the same input, this will
+   * During the Compiler instance's lifespan, given the same input, this will
    * return an identical result to the {@link compile} method exposed at the
    * module root.
    */
@@ -60,7 +60,7 @@ export interface Compiler {
    * it is active. If this is called after {@link dispose} on the Compiler
    * instance, an error will be thrown.
    *
-   * During the Compiler instance's lifespace, given the same input, this will
+   * During the Compiler instance's lifespan, given the same input, this will
    * return an identical result to the {@link compileString} method exposed at
    * the module root.
    */
@@ -68,7 +68,7 @@ export interface Compiler {
 
   /**
    * Ends the lifespan of this Compiler instance. After this is invoked, all
-   * calls to the Compiler instance's `compile` or `compileString` methods will
+   * calls to the Compiler instance's {@link compile} or {@link compileString} methods will
    * result in an error.
    */
   dispose(): void;
@@ -86,7 +86,7 @@ export interface AsyncCompiler {
    * while it is active. If this is called after {@link dispose} on the Async
    * Compiler instance, an error will be thrown.
    *
-   * During the Async Compiler instance's lifespace, given the same input, this
+   * During the Async Compiler instance's lifespan, given the same input, this
    * will return an identical result to the {@link compileAsync} method exposed
    * at the module root.
    */
@@ -100,7 +100,7 @@ export interface AsyncCompiler {
    * instance while it is active. If this is called after {@link dispose} on the
    * Async Compiler instance, an error will be thrown.
    *
-   * During the Async Compiler instance's lifespace, given the same input, this
+   * During the Async Compiler instance's lifespan, given the same input, this
    * will return an identical result to the {@link compileStringAsync} method
    * exposed at the module root.
    */
@@ -130,10 +130,12 @@ export interface AsyncCompiler {
  *
  * This only allows synchronous {@link Importer}s and {@link CustomFunction}s.
  *
- * **Heads up!** When using the `sass-embedded` npm package,
+ * **Heads up!** When using the [sass-embedded] npm package,
  * **{@link compileAsync} is almost always faster than {@link compile}**, due to
  * the overhead of emulating synchronous messaging with worker threads and
  * concurrent compilations being blocked on main thread.
+ *
+ * [sass-embedded]: https://www.npmjs.com/package/sass-embedded
  *
  * @example
  *
@@ -185,11 +187,13 @@ export function compileAsync(
  *
  * This only allows synchronous {@link Importer}s and {@link CustomFunction}s.
  *
- * **Heads up!** When using the `sass-embedded` npm package,
+ * **Heads up!** When using the [sass-embedded] npm package,
  * **{@link compileStringAsync} is almost always faster than
  * {@link compileString}**, due to the overhead of emulating synchronous
  * messaging with worker threads and concurrent compilations being blocked on
  * main thread.
+ *
+ * [sass-embedded]: https://www.npmjs.com/package/sass-embedded
  *
  * @example
  *
@@ -252,12 +256,15 @@ export function compileStringAsync(
 /**
  * Creates an instance of a synchronous {@link Compiler}. Each compiler instance
  * exposes the {@link compile} and {@link compileString} methods within the
- * lifespan of the Compiler. To use asynchronous compilation, use
- * {@link initAsyncCompiler};
+ * lifespan of the Compiler. Given identical input, these methods will return
+ * results identical to their counterparts exposed at the module root. To use
+ * asynchronous compilation, use {@link initAsyncCompiler}.
  *
- * When using the `sass-embedded` npm package, this allows Sass to reuse a
+ * When using the [sass-embedded] npm package, this allows Sass to reuse a
  * process across multiple compilations, reducing the amount of time needed to
  * create and destroy each process.
+ *
+ * [sass-embedded]: https://www.npmjs.com/package/sass-embedded
  *
  * @example
  *
@@ -281,12 +288,15 @@ export function initCompiler(): Compiler;
 /**
  * Creates an instance of an asynchronous {@link AsyncCompiler}. Each compiler
  * instance exposes the {@link compileAsync} and {@link compileStringAsync}
- * methods within the lifespan of the Compiler. To use synchronous compilation,
- * use {@link initCompiler};
+ * methods within the lifespan of the Compiler. Given identical input, these
+ * methods will return results identical to their counterparts exposed at the
+ * module root. To use synchronous compilation, use {@link initCompiler};
  *
- * When using the `sass-embedded` npm package, this allows Sass to reuse a
+ * When using the [sass-embedded] npm package, this allows Sass to reuse a
  * process across multiple compilations, reducing the amount of time needed to
  * create and destroy each process.
+ *
+ * [sass-embedded]: https://www.npmjs.com/package/sass-embedded
  *
  * @example
  *
