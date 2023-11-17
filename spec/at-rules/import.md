@@ -138,7 +138,7 @@ To execute an `@import` rule `rule`:
   * Add `imported`'s [extensions][] to the current module.
 
   * If the `@import` rule is nested within at-rules and/or style rules, add each
-     member in `imported` to the local [scope][].
+    member in `imported` to the [current scope].
 
   * Otherwise, add each member in `imported` to the current import context and
      the current module.
@@ -158,4 +158,4 @@ To execute an `@import` rule `rule`:
   [current import context]: ../spec.md#current-import-context
   [resolving `imported`'s extensions]: extend.md#resolving-a-modules-extensions
   [extensions]: extend.md#extension
-  [scope]: ../variables.md#scope
+  [current scope]: ../spec.md#scope
