@@ -1,3 +1,7 @@
+## Draft 1.4
+
+* Export `nodePackageImporter` as a Symbol.
+
 ## Draft 1.3
 
 * Handle empty subpath in "Resolving package exports" subprocedure.
