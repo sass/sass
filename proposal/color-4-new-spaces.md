@@ -472,10 +472,10 @@ CSS, such as the `color.change()` function. Because out-of-gamut clamped
 channels are meaningful in CSS, we've chosen the design principle of preserving
 them in all situations where clamping isn't specifically mandated by CSS. In
 addition, to ensure that that the colors represent the same values in CSS that
-they do in Sass, they're be serialized to special formats that preserves their
+they do in Sass, they'll be serialized to special formats that preserves their
 out-of-gamut values:
 
-* Out-of-gamut RGB colors with are serialized to `hsl()`, which per spec is not
+* Out-of-gamut RGB colors are serialized to `hsl()`, which per spec is not
   clamped at parse-time (although in practice browsers do clamp it at time of
   writing). This ensures that older browsers will still handle these colors
   correctly while still preserving the unclamped value for modern browsers (once
