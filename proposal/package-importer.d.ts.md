@@ -225,8 +225,8 @@ import {FileImporter, Importer} from '../spec/js-api/importer';
 ### `nodePackageImporter`
 
 ```ts
-export type NodePackageImporter = Symbol;
-export declare const nodePackageImporter: NodePackageImporter;
+export declare const nodePackageImporter: unique symbol;
+export type NodePackageImporter = typeof nodePackageImporter;
 ```
 
 ### Updated `importers` option
