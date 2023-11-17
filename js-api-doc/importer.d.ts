@@ -315,7 +315,7 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
  *
  * @category Importer
  */
-export type NodePackageImporter = Symbol;
+export type NodePackageImporter = typeof nodePackageImporter;
 
 /**
  * The built-in Node.js package importer. This loads pkg: URLs from node_modules
@@ -423,7 +423,7 @@ export type NodePackageImporter = Symbol;
  * @compatibility dart: "2.0", node: false
  * @category Importer
  */
-export declare const nodePackageImporter: NodePackageImporter;
+export declare const nodePackageImporter: unique symbol;
 
 /**
  * The result of successfully loading a stylesheet with an {@link Importer}.
