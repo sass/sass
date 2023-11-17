@@ -309,15 +309,13 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
 }
 
 /**
- * An opaque branded type, representing the built-in Node.js Package Importer.
- * This is used for type checking. Users should use the exposed
+ * An opaque type, representing the built-in Node.js Package Importer. This is
+ * only used for type checking. Users should use the exposed
  * {@link nodePackageImporter} and not instantiate their own.
  *
  * @category Importer
  */
-export type NodePackageImporter = {
-  _NodePackageImporterBrand: unknown;
-};
+export type NodePackageImporter = Symbol;
 
 /**
  * The built-in Node.js package importer. This loads pkg: URLs from node_modules
