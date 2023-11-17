@@ -1187,7 +1187,7 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
   * Otherwise, let `scope` be the scope of the innermost block such that `scope`
     already has a variable named `name`. Set `scope`'s variable `name` to `value`.
 
-  [scope]: ../spec/variables.md#scope
+  [scope]: ../spec/spec.md#scope
 
 * When a top-level mixin or function declaration `declaration` is encountered:
 
