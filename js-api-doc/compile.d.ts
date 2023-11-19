@@ -260,11 +260,13 @@ export function compileStringAsync(
  * results identical to their counterparts exposed at the module root. To use
  * asynchronous compilation, use {@link initAsyncCompiler}.
  *
- * When using the [sass-embedded] npm package, this allows Sass to reuse a
- * process across multiple compilations, reducing the amount of time needed to
- * create and destroy each process.
+ * When calling the compile functions multiple times, using a compiler instance
+ * with the [sass-embedded] npm package is much faster than using the top-level
+ * compilation methods or the [sass] npm package.
  *
  * [sass-embedded]: https://www.npmjs.com/package/sass-embedded
+ *
+ * [sass]: https://www.npmjs.com/package/sass
  *
  * @example
  *
@@ -292,11 +294,13 @@ export function initCompiler(): Compiler;
  * methods will return results identical to their counterparts exposed at the
  * module root. To use synchronous compilation, use {@link initCompiler};
  *
- * When using the [sass-embedded] npm package, this allows Sass to reuse a
- * process across multiple compilations, reducing the amount of time needed to
- * create and destroy each process.
+ * When calling the compile functions multiple times, using a compiler instance
+ * with the [sass-embedded] npm package is much faster than using the top-level
+ * compilation methods or the [sass] npm package.
  *
  * [sass-embedded]: https://www.npmjs.com/package/sass-embedded
+ *
+ * [sass]: https://www.npmjs.com/package/sass
  *
  * @example
  *
