@@ -324,19 +324,10 @@ export type NodePackageImporter = typeof nodePackageImporter;
  * A Node.js package importer is exposed as a constant that can be added to the
  * `importers` option.
  *
- * @example
- *```js
- *const sass = require('sass');
- *sass.compileString('@use "pkg:vuetify', {
- *  importers: [sass.nodePackageImporter]
- *});
- *```
- *
  * Package authors can control what is exposed to their users through their
  * `package.json` manifest. The recommended method is to add a `sass`
  * conditional export to `package.json`.
  *
- * @example
  * ```json
  * // node_modules/uicomponents/package.json
  * {
@@ -358,7 +349,6 @@ export type NodePackageImporter = typeof nodePackageImporter;
  *
  * [package entry points]: https://nodejs.org/api/packages.html#package-entry-points
  *
- * @example
  * ```json
  * // node_modules/uicomponents/package.json
  * {
@@ -399,7 +389,6 @@ export type NodePackageImporter = typeof nodePackageImporter;
  * package importer will look for a `sass` or `style` key at the root of
  * `package.json`.
  *
- * @example
  * ```json
  * // node_modules/uicomponents/package.json
  * {
@@ -420,6 +409,14 @@ export type NodePackageImporter = typeof nodePackageImporter;
  * example, if the file `src/sass/_colors.scss` exists in the `uicomponents`
  * package, a user can import that file using `@use
  * "pkg:uicomponents/src/sass/colors";`.
+ * 
+ * @example
+ *```js
+ * const sass = require('sass');
+ * sass.compileString('@use "pkg:vuetify', {
+ *   importers: [sass.nodePackageImporter]
+ * });
+ *```
  *
  * @compatibility dart: "2.0", node: false
  * @category Importer
