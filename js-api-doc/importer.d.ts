@@ -309,15 +309,6 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
 }
 
 /**
- * An opaque type, representing the built-in Node.js Package Importer. This is
- * only used for type checking. Users should use the exposed
- * {@link nodePackageImporter} and not instantiate their own.
- *
- * @category Importer
- */
-export type NodePackageImporter = typeof nodePackageImporter;
-
-/**
  * The built-in Node.js package importer. This loads pkg: URLs from node_modules
  * according to the standard Node.js resolution algorithm.
  *
@@ -422,6 +413,15 @@ export type NodePackageImporter = typeof nodePackageImporter;
  * @category Importer
  */
 export declare const nodePackageImporter: unique symbol;
+
+/**
+ * An opaque type, representing the built-in Node.js Package Importer. This is
+ * only used for type checking. Users should use the exposed
+ * {@link nodePackageImporter} and not instantiate their own.
+ *
+ * @category Importer
+ */
+export type NodePackageImporter = typeof nodePackageImporter;
 
 /**
  * The result of successfully loading a stylesheet with an {@link Importer}.
