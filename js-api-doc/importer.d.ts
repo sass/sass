@@ -400,7 +400,7 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
  * example, if the file `src/sass/_colors.scss` exists in the `uicomponents`
  * package, a user can import that file using `@use
  * "pkg:uicomponents/src/sass/colors";`.
- * 
+ *
  * @example
  *```js
  * const sass = require('sass');
