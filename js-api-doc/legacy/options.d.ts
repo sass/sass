@@ -518,8 +518,8 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    * @example
    * ```js
    * sass.renderSync({
-   *  data: '@use "pkg:vuetify";',
-   *  pkgImporter: 'node'
+   *   data: '@use "pkg:vuetify";',
+   *   pkgImporter: 'node'
    * });
    * ```
    * @category Plugins

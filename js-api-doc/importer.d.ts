@@ -388,8 +388,9 @@ export type NodePackageImporter = typeof nodePackageImporter;
  * extensions, library authors must specify the entire file path.
  *
  * In addition to the `sass` condition, the `style` condition is also
- * acceptable, but authors should avoid using the `default` condition for Sass
- * exports. Notably, the key order matters, and the importer will resolve to the
+ * acceptable. Sass will match the default condition if it's a relevant file
+ * type, but authors are discouraged from relying on this. Notably, the key
+ * order matters, and the importer will resolve to the
  * first value with a key that is `sass`, `style`, or `default`.
  *
  * To help package authors who haven't transitioned to package entry points
@@ -415,7 +416,7 @@ export type NodePackageImporter = typeof nodePackageImporter;
  *
  * If a `pkg:` URL includes a subpath that doesn't have a match in package entry
  * points, the Node.js importer will attempt to find that file relative to the
- * package, resolving for file extensions, partials and index files. For
+ * package root, resolving for file extensions, partials and index files. For
  * example, if the file `src/sass/_colors.scss` exists in the `uicomponents`
  * package, a user can import that file using `@use
  * "pkg:uicomponents/src/sass/colors";`.

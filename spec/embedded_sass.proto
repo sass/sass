@@ -1072,8 +1072,8 @@ enum CalculationOperator {
 // resolves using the standards and conventions of the Node.js ecosystem. It
 // enables a `pkg:` URL scheme for usage with `@use` that directs an
 // implementation to resolve a URL within a dependency. It must be instantiated
-// with an`entry_point_url`, which is the path to a file within the NPM package
-// that contains the NPM packages that will be imported using the `pkg:` scheme.
+// with an`entry_point_url`, which is passed as the `parentURL` to the Node.js
+// resolution algorithm.
 message NodePackageImporter {
   string entry_point_url = 1;
 }
