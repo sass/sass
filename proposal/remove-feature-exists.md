@@ -18,7 +18,8 @@ This proposal removes `feature-exists` in the built-in `sass:meta` module.
 `feature-exists` is ill-defined as nothing specifies what each feature actually
 requires to be considered as supported. The shared `sass-spec` testsuite does
 not cover this either. Thus, no new feature identifier has been added in it
-since years.
+for years.
+
 New Sass features essentially fall into one of three categories:
 
 1. New built-in functions or mixins, which are easy to detect using other
