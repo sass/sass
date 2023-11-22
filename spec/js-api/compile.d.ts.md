@@ -49,7 +49,7 @@ Compiles the Sass file at `path`:
     > sandboxed JavaScript environments as well.
 
   * Let `pkgImporter` be a [Node Package Importer] with an associated
-    `entryPointURL` of `require.main.filename`.
+    `entryPointURL` of `path`.
 
     [Node Package Importer]: ../modules.md#node-package-importer
 
@@ -116,7 +116,8 @@ Compiles the Sass `source`:
     > sandboxed JavaScript environments as well.
 
   * Let `pkgImporter` be a [Node Package Importer] with an associated
-    `entryPointURL` of `require.main.filename`.
+    `entryPointURL` of `options.url` if it is a `file:` URL or the current
+    working directory otherwise.
 
   * Replace `nodePackageImporter` with `pkgImporter` in a copy of
     `options.importers`.
