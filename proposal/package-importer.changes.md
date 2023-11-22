@@ -2,6 +2,8 @@
 
 * Export `nodePackageImporter` as a Symbol.
 
+* Use `path`, `url` or current working directory as `entryPointURL`.
+
 ## Draft 1.3
 
 * Handle empty subpath in "Resolving package exports" subprocedure.

@@ -259,10 +259,20 @@ Javascript Compile API, insert:
     > This primarily refers to a browser environment, but applies to other
     > sandboxed JavaScript environments as well.
 
-  * Let `pkgImporter` be a [Node Package Importer] with an associated
-    `entryPointURL` of `require.main.filename`.
+For [`compile`], insert:
 
-  * Replace `nodePackageImporter` with `pkgImporter` in a copy of
+* Let `pkgImporter` be a [Node Package Importer] with an associated
+    `entryPointURL` of `path`.
+
+For [`compileString`], insert:
+
+* Let `pkgImporter` be a [Node Package Importer] with an associated
+    `entryPointURL` of `options.url` if it is a `file:` URL or the current
+    working directory otherwise.
+
+For both [`compile`] and [`compileString`], insert:
+
+* Replace `nodePackageImporter` with `pkgImporter` in a copy of
     `options.importers`.
 
 [`compile`]: ../spec/js-api/compile.d.ts.md#compile
