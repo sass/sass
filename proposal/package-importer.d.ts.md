@@ -262,13 +262,13 @@ Javascript Compile API, insert:
 For [`compile`], insert:
 
 * Let `pkgImporter` be a [Node Package Importer] with an associated
-    `entryPointURL` of `path`.
+  `entryPointURL` of `path`.
 
 For [`compileString`], insert:
 
 * Let `pkgImporter` be a [Node Package Importer] with an associated
-    `entryPointURL` of `options.url` if it is a `file:` URL or the current
-    working directory otherwise.
+  `entryPointURL` of `options.url` if it is a `file:` URL or the current working
+  directory otherwise.
 
 For both [`compile`] and [`compileString`], insert:
 
