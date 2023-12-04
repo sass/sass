@@ -4,7 +4,7 @@
 
 This proposal adds support for units other than `deg` to HSL and HWB functions.
 
-## Table of Contents
+# Table of Contents 
 
 * [Background](#background)
 * [Summary](#summary)
