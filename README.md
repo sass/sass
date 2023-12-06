@@ -32,6 +32,8 @@ nav {
     margin: 0;
     padding: 0;
     list-style: none;
+    display:block
+    color:blue
   }
 
   li { @include border-radius(10px); }
