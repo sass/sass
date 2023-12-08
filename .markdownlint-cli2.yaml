@@ -1,6 +1,7 @@
 globs: ["**.md"]
 ignores: ["node_modules/**"]
 config:
+# stop doing anything here
   # BNF syntax examples can go over length, and there's no way to exempt them
   # specifically.
   line-length: false
