@@ -315,6 +315,15 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
  * A Node.js package importer is exposed as a constant that can be added to the
  * `importers` option.
  *
+ *```js
+ * const sass = require('sass');
+ * sass.compileString('@use "pkg:vuetify', {
+ *   importers: [sass.nodePackageImporter]
+ * });
+ *```
+ *
+ * ## Writing Sass packages
+ *
  * Package authors can control what is exposed to their users through their
  * `package.json` manifest. The recommended method is to add a `sass`
  * conditional export to `package.json`.
@@ -400,14 +409,6 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
  * example, if the file `src/sass/_colors.scss` exists in the `uicomponents`
  * package, a user can import that file using `@use
  * "pkg:uicomponents/src/sass/colors";`.
- *
- * @example
- *```js
- * const sass = require('sass');
- * sass.compileString('@use "pkg:vuetify', {
- *   importers: [sass.nodePackageImporter]
- * });
- *```
  *
  * @compatibility dart: "2.0", node: false
  * @category Importer
