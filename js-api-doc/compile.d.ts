@@ -39,11 +39,12 @@ export interface CompileResult {
 
 /**
  * The result of creating a synchronous compiler. Returned by
+ * {@link initCompiler}. Throws an error if constructed directly, instead of via
  * {@link initCompiler}.
  *
  * @category Compile
  */
-export interface Compiler {
+export class Compiler {
   /**
    * The {@link compile} method exposed through a Compiler instance while it is
    * active. If this is called after {@link dispose} on the Compiler
@@ -76,11 +77,12 @@ export interface Compiler {
 
 /**
  * The result of creating an asynchronous compiler. Returned by
- * {@link initAsyncCompiler}.
+ * {@link initAsyncCompiler}. Throws an error if constructed directly, instead
+ * of via {@link initAsyncCompiler}.
  *
  * @category Compile
  */
-export interface AsyncCompiler {
+export class AsyncCompiler {
   /**
    * The {@link compileAsync} method exposed through an Async Compiler instance
    * while it is active. If this is called after {@link dispose} on the Async
