@@ -1,3 +1,10 @@
+## Draft 1.3
+
+* Expose `Compiler` and `AsyncCompiler` classes.
+
+* Specify the classes throw errors if constructed without going through the
+  `init` methods.
+
 ## Draft 1.2
 
 * Await method calls in example code.

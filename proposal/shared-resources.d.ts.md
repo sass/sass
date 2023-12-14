@@ -1,4 +1,4 @@
-# Shared Resources in JavaScript API: Draft 1.1
+# Shared Resources in JavaScript API: Draft 1.3
 
 *([Issue](https://github.com/sass/sass/issues/3296))*
 
@@ -147,10 +147,11 @@ export function initAsyncCompiler(): Promise<AsyncCompiler>;
 
 #### Compiler
 
-An instance of the synchronous Compiler.
+An instance of the synchronous Compiler. If the constructor is directly invoked
+(as opposed to the Compiler being created via `initCompiler`), throw an error.
 
 ```ts
-export interface Compiler {
+export class Compiler {
 ```
 
 ##### `compile()` and `compileString()`
@@ -181,10 +182,12 @@ When `dispose` is invoked on a Compiler:
 
 #### Async Compiler
 
-An instance of the asynchronous Compiler.
+An instance of the asynchronous Compiler. If the constructor is directly invoked
+(as opposed to the Compiler being created via `initAsyncCompiler`), throw an
+error.
 
 ```ts
-export interface AsyncCompiler {
+export class AsyncCompiler {
 ```
 
 ##### `compileAsync()` and `compileStringAsync()`
