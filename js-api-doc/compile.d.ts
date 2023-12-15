@@ -39,12 +39,15 @@ export interface CompileResult {
 
 /**
  * The result of creating a synchronous compiler. Returned by
- * {@link initCompiler}. Throws an error if constructed directly, instead of via
  * {@link initCompiler}.
  *
  * @category Compile
  */
 export class Compiler {
+  /**Throws an error if constructed directly, instead of via
+   * {@link initCompiler}. */
+  private constructor();
+
   /**
    * The {@link compile} method exposed through a Compiler instance while it is
    * active. If this is called after {@link dispose} on the Compiler
@@ -77,12 +80,14 @@ export class Compiler {
 
 /**
  * The result of creating an asynchronous compiler. Returned by
- * {@link initAsyncCompiler}. Throws an error if constructed directly, instead
- * of via {@link initAsyncCompiler}.
+ * {@link initAsyncCompiler}.
  *
  * @category Compile
  */
 export class AsyncCompiler {
+  /**Throws an error if constructed directly, instead of via
+   * {@link initAsyncCompiler}. */
+  private constructor();
   /**
    * The {@link compileAsync} method exposed through an Async Compiler instance
    * while it is active. If this is called after {@link dispose} on the Async

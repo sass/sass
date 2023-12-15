@@ -43,7 +43,7 @@ export interface CompileResult {
 ### `Compiler`
 
 The class returned by creating a synchronous compiler with [`initCompiler()`].
-If the constructor is directly invoked (as opposed to the Compiler being created
+If the class is directly constructed (as opposed to the Compiler being created
 via `initCompiler`), throw an error.
 
 Only synchronous compilation methods [`compile()`] and [`compileString()`] must
@@ -56,6 +56,7 @@ be included, and must have with identical semantics to the [Sass interface].
 
 ```ts
 export class Compiler {
+  private constructor();
   compile(path: string, options?: Options<'sync'>): CompileResult;
 
   compileString(source: string, options?: StringOptions<'sync'>): CompileResult;
@@ -76,8 +77,8 @@ When `dispose` is invoked on a Compiler:
 ### `AsyncCompiler`
 
 The object returned by creating an asynchronous compiler with
-[`initAsyncCompiler()`]. If the constructor is directly invoked (as opposed to
-the AsyncCompiler being created via `initAsyncCompiler`), throw an error.
+[`initAsyncCompiler()`]. If the class is directly constructed (as opposed to the
+AsyncCompiler being created via `initAsyncCompiler`), throw an error.
 
 Only asynchronous compilation methods [`compileAsync()`] and
 [`compileStringAsync()`] must be included, and must have with identical
@@ -89,6 +90,7 @@ semantics to the [Sass interface].
 
 ```ts
 export class AsyncCompiler {
+  private constructor();
   compileAsync(
     path: string,
     options?: Options<'async'>
