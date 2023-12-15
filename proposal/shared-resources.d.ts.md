@@ -147,11 +147,17 @@ export function initAsyncCompiler(): Promise<AsyncCompiler>;
 
 #### Compiler
 
-An instance of the synchronous Compiler. If the constructor is directly invoked
-(as opposed to the Compiler being created via `initCompiler`), throw an error.
+An instance of the synchronous Compiler.
 
 ```ts
 export class Compiler {
+```
+
+If the Compiler is directly constructed (as opposed to the Compiler being
+created via `initCompiler`), throw an error.
+
+```ts
+private constructor();
 ```
 
 ##### `compile()` and `compileString()`
@@ -182,12 +188,17 @@ When `dispose` is invoked on a Compiler:
 
 #### Async Compiler
 
-An instance of the asynchronous Compiler. If the constructor is directly invoked
-(as opposed to the Compiler being created via `initAsyncCompiler`), throw an
-error.
+An instance of the asynchronous Compiler.
 
 ```ts
 export class AsyncCompiler {
+```
+
+If the AsyncCompiler is directly constructed (as opposed to the Compiler being
+created via `initAsyncCompiler`), throw an error.
+
+```ts
+private constructor();
 ```
 
 ##### `compileAsync()` and `compileStringAsync()`
