@@ -44,8 +44,9 @@ export interface CompileResult {
  * @category Compile
  */
 export class Compiler {
-  /**Throws an error if constructed directly, instead of via
-   * {@link initCompiler}. */
+  /** Throws an error if constructed directly, instead of via
+   * {@link initCompiler}.
+   */
   private constructor();
 
   /**
@@ -85,9 +86,11 @@ export class Compiler {
  * @category Compile
  */
 export class AsyncCompiler {
-  /**Throws an error if constructed directly, instead of via
-   * {@link initAsyncCompiler}. */
+  /** Throws an error if constructed directly, instead of via
+   * {@link initAsyncCompiler}.
+   */
   private constructor();
+
   /**
    * The {@link compileAsync} method exposed through an Async Compiler instance
    * while it is active. If this is called after {@link dispose} on the Async
