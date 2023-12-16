@@ -140,10 +140,15 @@ export class AsyncCompiler {
  *
  * This only allows synchronous {@link Importer}s and {@link CustomFunction}s.
  *
- * **Heads up!** When using the [sass-embedded] npm package,
- * **{@link compileAsync} is almost always faster than {@link compile}**, due to
- * the overhead of emulating synchronous messaging with worker threads and
- * concurrent compilations being blocked on main thread.
+ * **Heads up!** When using the [sass-embedded] npm package for single
+ * compilations, **{@link compileAsync} is almost always faster than
+ * {@link compile}**, due to the overhead of emulating synchronous messaging
+ * with worker threads and concurrent compilations being blocked on main thread.
+ *
+ * If you are running multiple compilations with the [sass-embedded] npm
+ * package, using an {@link AsyncCompiler} or a {@link Compiler} will be much
+ * faster on average, and the difference between synchronous and asynchronous
+ * compilation will likely not be significant.
  *
  * [sass-embedded]: https://www.npmjs.com/package/sass-embedded
  *
@@ -197,11 +202,16 @@ export function compileAsync(
  *
  * This only allows synchronous {@link Importer}s and {@link CustomFunction}s.
  *
- * **Heads up!** When using the [sass-embedded] npm package,
- * **{@link compileStringAsync} is almost always faster than
+ * **Heads up!** When using the [sass-embedded] npm package for single
+ * compilations, **{@link compileStringAsync} is almost always faster than
  * {@link compileString}**, due to the overhead of emulating synchronous
  * messaging with worker threads and concurrent compilations being blocked on
  * main thread.
+ *
+ * If you are running multiple compilations with the [sass-embedded] npm
+ * package, using an {@link AsyncCompiler} or a {@link Compiler} will be much
+ * faster on average, and the difference between synchronous and asynchronous
+ * compilation will likely not be significant.
  *
  * [sass-embedded]: https://www.npmjs.com/package/sass-embedded
  *
