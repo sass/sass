@@ -1,8 +1,6 @@
 ## Draft 1.4
 
-* Export `nodePackageImporter` as a Symbol.
-
-* Use `path`, `url` or current working directory as `entryPointURL`.
+* Allow NodePackageImporter to accept an entry point path.
 
 ## Draft 1.3
 
