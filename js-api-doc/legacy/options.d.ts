@@ -513,19 +513,22 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    * If this option is set to `'node'`, Sass will use the built-in Node.js
    * package importer to resolve Sass files with a `pkg:` URL scheme. Details
    * for library authors and users can be found in the
-   * {@link nodePackageImporter} documentation.
+   * {@link NodePackageImporter} documentation.
    *
    * @example
    * ```js
    * sass.renderSync({
    *   data: '@use "pkg:vuetify";',
-   *   pkgImporter: 'node'
+   *   pkgImporter: {type: 'node'}
    * });
    * ```
    * @category Plugins
    * @compatibility dart: "2.0", node: false
    */
-  pkgImporter?: 'node';
+  pkgImporter?: {
+    type: 'node';
+    entryPointPath?: string;
+  };
 }
 
 /**

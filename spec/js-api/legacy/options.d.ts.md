@@ -181,13 +181,24 @@ resolve any URL with the `pkg:` scheme. This importer will be checked
 immediately before the existing legacy importer logic, and if it returns `null`,
 the legacy importer logic will be invoked.
 
-Currently, the only available package importer is `node`, which follows Node
-resolution logic to locate Sass files.
-
 [package importer]: ../importer.d.ts.md
 
 ```ts
-pkgImporter?: 'node';
+pkgImporter?: {
+  /**
+   * A constant specifying which package importer to use. Currently, the only
+   * available package importer is `node`, which follows Node resolution logic
+   * to locate Sass files.
+   */
+  type: 'node';
+
+  /**
+   * An optional `entryPointPath` path can be passed to provide
+   * a starting `parentURL` for the Node package resolution algorithm.
+   * If not set, the default value is `require.main.filename`.
+   */
+  entryPointPath?: string;
+};
 ```
 
 ```ts

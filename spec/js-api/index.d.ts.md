@@ -52,7 +52,6 @@ export {
   FileImporter,
   Importer,
   ImporterResult,
-  nodePackageImporter,
   NodePackageImporter,
 } from './importer';
 export {Logger, SourceSpan, SourceLocation} from './logger';

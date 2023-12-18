@@ -116,6 +116,9 @@ export interface FileImporter<
 
   /** @hidden */
   canonicalize?: never;
+
+  /** @hidden */
+  pkgImporter?: never;
 }
 
 /**
@@ -293,6 +296,9 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
   /** @hidden */
   findFileUrl?: never;
 
+  /** @hidden */
+  pkgImporter?: never;
+
   /**
    * A URL scheme or set of schemes (without the `:`) that this importer
    * promises never to use for URLs returned by {@link canonicalize}. If it does
@@ -413,16 +419,37 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
  * @compatibility dart: "2.0", node: false
  * @category Importer
  */
-export declare const nodePackageImporter: unique symbol;
+export interface NodePackageImporter {
+  /**
+   * A constant specifying which package importer to use. Currently, the only
+   * available package importer is `node`, which follows Node resolution logic
+   * to locate Sass files.
+   */
+  pkgImporter: 'node';
 
-/**
- * An opaque type, representing the built-in Node.js Package Importer. This is
- * only used for type checking. Users should use the exposed
- * {@link nodePackageImporter} and not instantiate their own.
- *
- * @category Importer
- */
-export type NodePackageImporter = typeof nodePackageImporter;
+  /**
+   * The path where the Node Package Importer should start when resolving `pkg:`
+   * URLs. This will be used as the `parentURL` in the [Node Module
+   * Resolution](https://nodejs.org/api/esm.html#resolution-algorithm-specification)
+   * algorithm.
+   *
+   * In order to be found by the Node Package Importer, a package will need to
+   * be inside a node_modules folder located in the directory containing the
+   * `entryPointPath`, or one of its parent directories, up to the filesystem
+   * root.
+   *
+   * Relative paths will be resolved relative to the current working directory.
+   * If a path is not provided, the default value of `require.main.filename`
+   * will be used.
+   */
+  entryPointPath?: string;
+
+  /** @hidden */
+  findFileUrl?: never;
+
+  /** @hidden */
+  canonicalize?: never;
+}
 
 /**
  * The result of successfully loading a stylesheet with an {@link Importer}.

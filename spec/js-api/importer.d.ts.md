@@ -15,7 +15,7 @@ import {PromiseOr} from './util/promise_or';
   * [`FileImporter`](#fileimporter)
   * [`Importer`](#importer)
     * [`nonCanonicalScheme`](#noncanonicalscheme)
-  * [`nodePackageImporter`](#nodepackageimporter)
+  * [`NodePackageImporter`](#nodepackageimporter)
   * [`ImporterResult`](#importerresult)
 
 ## Types
@@ -90,6 +90,8 @@ export interface FileImporter<
   ): PromiseOr<URL | null, sync>;
 
   canonicalize?: never;
+
+  pkgImporter?: never;
 }
 ```
 
@@ -140,6 +142,8 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
   load(canonicalUrl: URL): PromiseOr<ImporterResult | null, sync>;
 
   findFileUrl?: never;
+
+  pkgImporter?: never;
 ```
 
 #### `nonCanonicalScheme`
@@ -162,11 +166,18 @@ nonCanonicalScheme?: string | string[];
 } // Importer
 ```
 
-### `nodePackageImporter`
+### `NodePackageImporter`
 
 ```ts
-export declare const nodePackageImporter: unique symbol;
-export type NodePackageImporter = typeof nodePackageImporter;
+export interface NodePackageImporter {
+  pkgImporter: 'node';
+
+  entryPointPath?: string;
+
+  findFileUrl?: never;
+
+  canonicalize?: never;
+}
 ```
 
 ### `ImporterResult`
