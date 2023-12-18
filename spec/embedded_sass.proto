@@ -1071,9 +1071,10 @@ enum CalculationOperator {
 // The built-in Node.js Package Importer, which is a Package Importer that
 // resolves using the standards and conventions of the Node.js ecosystem. It
 // enables a `pkg:` URL scheme for usage with `@use` that directs an
-// implementation to resolve a URL within a dependency. It must be instantiated
-// with an`entry_point_url`, which is passed as the `parentURL` to the Node.js
-// resolution algorithm.
+// implementation to resolve a URL within a dependency. 
 message NodePackageImporter {
-  string entry_point_url = 1;
+  // The path to associate with the Node Package Importer. It can either be an
+  // absolute path, or a relative path that will be resolved relative to the
+  // current working directory.
+  string entry_point_path = 1;
 }
