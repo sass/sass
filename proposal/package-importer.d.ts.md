@@ -549,11 +549,12 @@ potential subpaths, resolving for partials and file extensions.
 ## Embedded Protocol
 
 An Importer that resolves `pkg:` URLs using the [Node resolution algorithm]. It
-is instantiated with an associated `entry_point_url`.
+is instantiated with an associated `entry_point_path`, which is either absolute
+or will be resolved relative to the current working directory.
 
 ```proto
 message NodePackageImporter {
-  string entry_point_url = 1;
+  string entry_point_path = 1;
 }
 ```
 
