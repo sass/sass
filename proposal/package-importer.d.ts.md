@@ -235,6 +235,7 @@ import {FileImporter, Importer} from '../spec/js-api/importer';
 
 ```ts
 export class NodePackageImporter {
+  entryPointPath?: string;
   constructor(entryPointPath?: string);
 }
 ```
