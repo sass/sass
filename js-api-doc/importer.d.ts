@@ -116,9 +116,6 @@ export interface FileImporter<
 
   /** @hidden */
   canonicalize?: never;
-
-  /** @hidden */
-  pkgImporter?: never;
 }
 
 /**
@@ -295,9 +292,6 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
 
   /** @hidden */
   findFileUrl?: never;
-
-  /** @hidden */
-  pkgImporter?: never;
 
   /**
    * A URL scheme or set of schemes (without the `:`) that this importer
