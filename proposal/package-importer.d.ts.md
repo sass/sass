@@ -217,9 +217,10 @@ using symlinks if this behavior is desired.
 [ECMAScript modules]: https://nodejs.org/api/esm.html#no-node_path
 
 The [Node resolution algorithm] requires a `parentURL`, used for determining
-where in the file system to start searching for a module. When compiling a
-string, for instance `compileString('@use "pkg:bootstrap";')`, we don't know
-where to start looking for the Bootstrap module. We considered
+where in the file system to start searching for a module if a `pkg:` URL is
+being resolved in a source somewhere other than a file on disk. For instance,
+when compiling a string like `compileString('@use "pkg:bootstrap";')`, we don't
+know where to start looking for the Bootstrap module. We considered
 `require.main.filename` and the current working directory, but found that
 neither would allow for all use cases. We decided to allow users to specify an
 entry point path, defaulting to `require.main.filename`.
@@ -233,9 +234,8 @@ import {FileImporter, Importer} from '../spec/js-api/importer';
 ### `NodePackageImporter`
 
 ```ts
-export interface NodePackageImporter {
-  pkgImporter: 'node';
-  entryPointPath?: string;
+export class NodePackageImporter {
+  constructor(entryPointPath?: string);
 }
 ```
 
