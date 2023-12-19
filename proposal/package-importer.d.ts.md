@@ -261,22 +261,22 @@ declare module '../spec/js-api/options' {
 Before the first bullet points in [`compile`] and [`compileString`] in the
 Javascript Compile API, insert:
 
-* If any object in `options.importers` contains the key `pkgImporter` with the
-  value `node`:
+* If any item in `options.importers` is an instance of the `NodePackageImporter`
+  class:
 
   * If no filesystem is available, throw an error.
 
     > This primarily refers to a browser environment, but applies to other
     > sandboxed JavaScript environments as well.
 
-  * Let `entryPointPath` be the value of the object's `entryPointPath` key if
-    set, resolved relative to the current working directory, and
-    otherwise the value of `require.main.filename`.
+  * Let `entryPointPath` be the class's `entryPointPath` value if set, resolved
+    relative to the current working directory, and otherwise the value of
+    `require.main.filename`.
   
   * Let `pkgImporter` be a [Node Package Importer] with an associated
     `entryPointURL` of the absolute file URL for`entryPointPath`.
 
-  * Replace the object with `pkgImporter` in a copy of `options.importers`.
+  * Replace the item with `pkgImporter` in a copy of `options.importers`.
 
 [`compile`]: ../spec/js-api/compile.d.ts.md#compile
 [`compileString`]: ../spec/js-api/compile.d.ts.md#compilestring
