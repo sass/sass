@@ -44,7 +44,8 @@ export interface CompileResult {
  * @category Compile
  */
 export class Compiler {
-  /** Throws an error if constructed directly, instead of via
+  /**
+   * Throws an error if constructed directly, instead of via
    * {@link initCompiler}.
    */
   private constructor();
@@ -86,7 +87,8 @@ export class Compiler {
  * @category Compile
  */
 export class AsyncCompiler {
-  /** Throws an error if constructed directly, instead of via
+  /**
+   * Throws an error if constructed directly, instead of via
    * {@link initAsyncCompiler}.
    */
   private constructor();
