@@ -90,8 +90,6 @@ export interface FileImporter<
   ): PromiseOr<URL | null, sync>;
 
   canonicalize?: never;
-
-  pkgImporter?: never;
 }
 ```
 
@@ -142,8 +140,6 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
   load(canonicalUrl: URL): PromiseOr<ImporterResult | null, sync>;
 
   findFileUrl?: never;
-
-  pkgImporter?: never;
 ```
 
 #### `nonCanonicalScheme`
@@ -169,14 +165,8 @@ nonCanonicalScheme?: string | string[];
 ### `NodePackageImporter`
 
 ```ts
-export interface NodePackageImporter {
-  pkgImporter: 'node';
-
-  entryPointPath?: string;
-
-  findFileUrl?: never;
-
-  canonicalize?: never;
+export class NodePackageImporter {
+  constructor(entryPointPath?: string);
 }
 ```
 

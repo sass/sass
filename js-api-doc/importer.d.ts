@@ -318,13 +318,13 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
  * The built-in Node.js package importer. This loads pkg: URLs from node_modules
  * according to the standard Node.js resolution algorithm.
  *
- * A Node.js package importer is exposed as a constant that can be added to the
+ * A Node.js package importer is exposed as a class that can be added to the
  * `importers` option.
  *
  *```js
  * const sass = require('sass');
  * sass.compileString('@use "pkg:vuetify', {
- *   importers: [sass.nodePackageImporter]
+ *   importers: [new sass.NodePackageImporter()]
  * });
  *```
  *
@@ -419,16 +419,10 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
  * @compatibility dart: "2.0", node: false
  * @category Importer
  */
-export interface NodePackageImporter {
+export class NodePackageImporter {
   /**
-   * A constant specifying which package importer to use. Currently, the only
-   * available package importer is `node`, which follows Node resolution logic
-   * to locate Sass files.
-   */
-  pkgImporter: 'node';
-
-  /**
-   * The path where the Node Package Importer should start when resolving `pkg:`
+   * The NodePackageImporter has an optional `entryPointPath` option, which is
+   * the path where the Node Package Importer should start when resolving `pkg:`
    * URLs. This will be used as the `parentURL` in the [Node Module
    * Resolution](https://nodejs.org/api/esm.html#resolution-algorithm-specification)
    * algorithm.
@@ -442,13 +436,7 @@ export interface NodePackageImporter {
    * If a path is not provided, the default value of `require.main.filename`
    * will be used.
    */
-  entryPointPath?: string;
-
-  /** @hidden */
-  findFileUrl?: never;
-
-  /** @hidden */
-  canonicalize?: never;
+  constructor(entryPointPath?: string);
 }
 
 /**
