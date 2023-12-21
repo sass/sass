@@ -1,6 +1,7 @@
 import {Logger} from '../logger';
 import {LegacyImporter} from './importer';
 import {LegacyFunction} from './function';
+import {NodePackageImporter} from '../../spec/js-api';
 
 /**
  * Options for {@link render} and {@link renderSync} that are shared between
@@ -525,10 +526,7 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    * @category Plugins
    * @compatibility dart: "2.0", node: false
    */
-  pkgImporter?: {
-    type: 'node';
-    entryPointPath?: string;
-  };
+  pkgImporter?: NodePackageImporter;
 }
 
 /**

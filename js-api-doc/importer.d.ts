@@ -341,13 +341,14 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
  * }
  * ```
  *
- * This allows a package user to write `@use "pkg:uicomponents"` to load the file at
- * `node_modules/uicomponents/src/scss/index.scss`.
+ * This allows a package user to write `@use "pkg:uicomponents"` to load the
+ * file at `node_modules/uicomponents/src/scss/index.scss`.
  *
  * The Node.js package importer supports the variety of formats supported by
  * Node.js [package entry points], allowing authors to expose multiple subpaths.
  *
- * [package entry points]: https://nodejs.org/api/packages.html#package-entry-points
+ * [package entry points]:
+ * https://nodejs.org/api/packages.html#package-entry-points
  *
  * ```json
  * // node_modules/uicomponents/package.json
@@ -375,13 +376,14 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
  * Note that while library users can rely on the importer to resolve
  * [partials](https://sass-lang.com/documentation/at-rules/use#partials), [index
  * files](https://sass-lang.com/documentation/at-rules/use#index-files), and
- * extensions, library authors must specify the entire file path.
+ * extensions, library authors must specify the entire file path in exports.
  *
  * In addition to the `sass` condition, the `style` condition is also
- * acceptable. Sass will match the default condition if it's a relevant file
+ * acceptable. Sass will match the `default` condition if it's a relevant file
  * type, but authors are discouraged from relying on this. Notably, the key
- * order matters, and the importer will resolve to the
- * first value with a key that is `sass`, `style`, or `default`.
+ * order matters, and the importer will resolve to the first value with a key
+ * that is `sass`, `style`, or `default`, so you should always put `default`
+ * last.
  *
  * To help package authors who haven't transitioned to package entry points
  * using the `exports` field, the Node.js package importer provides several
@@ -396,7 +398,8 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
  * }
  * ```
  *
- * This allows a user to write `@use "pkg:uicomponents";` to import the `index.scss` file.
+ * This allows a user to write `@use "pkg:uicomponents";` to import the
+ * `index.scss` file.
  *
  * Finally, the Node.js package importer will look for an `index` file at the
  * package root, resolving partials and extensions. For example, if the file
@@ -417,7 +420,8 @@ export class NodePackageImporter {
   /**
    * The NodePackageImporter has an optional `entryPointPath` option, which is
    * the path where the Node Package Importer should start when resolving `pkg:`
-   * URLs. This will be used as the `parentURL` in the [Node Module
+   * URLs in sources other than files on disk. This will be used as the
+   * `parentURL` in the [Node Module
    * Resolution](https://nodejs.org/api/esm.html#resolution-algorithm-specification)
    * algorithm.
    *

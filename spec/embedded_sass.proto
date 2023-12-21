@@ -99,8 +99,8 @@ message InboundMessage {
         // registered for this compilation.
         uint32 file_importer_id = 3;
 
-        // The [Node.js package importer], which is a built-in Package Importer,
-        // with an associated `entry_point_url`, that resolves `pkg:` URLs using
+        // The [Node.js package importer], which is a built-in Package Importer
+        // with an associated `entry_point_url` that resolves `pkg:` URLs using
         // the standards and conventions of the Node ecosystem.
         //
         // [Node.js package importer]: https://github.com/sass/sass/tree/main/spec/modules.md#node-package-importer
