@@ -4,6 +4,7 @@
 import {Logger} from '../logger';
 import {LegacyImporter} from './importer';
 import {LegacyFunction} from './function';
+import {NodePackageImporter} from '../importer';
 ```
 
 ## Table of Contents
@@ -176,29 +177,15 @@ logger?: Logger;
 
 #### `pkgImporter`
 
-If set, the compiler will use the specified built-in [package importer] to
-resolve any URL with the `pkg:` scheme. This importer will be checked
-immediately before the existing legacy importer logic, and if it returns `null`,
-the legacy importer logic will be invoked.
+If set to an instance of [NodePackageImporter], the compiler will use it as the
+specified built-in package importer to resolve any URL with the `pkg:` scheme.
+This importer will be checked immediately before the existing legacy importer
+logic, and if it returns `null`, the legacy importer logic will be invoked.
 
-[package importer]: ../importer.d.ts.md
+[NodePackageImporter]: ../importer.d.ts.md#nodepackageimporter
 
 ```ts
-pkgImporter?: {
-  /**
-   * A constant specifying which package importer to use. Currently, the only
-   * available package importer is `node`, which follows Node resolution logic
-   * to locate Sass files.
-   */
-  type: 'node';
-
-  /**
-   * An optional `entryPointPath` path can be passed to provide
-   * a starting `parentURL` for the Node package resolution algorithm.
-   * If not set, the default value is `require.main.filename`.
-   */
-  entryPointPath?: string;
-};
+pkgImporter?: NodePackageImporter;
 ```
 
 ```ts

@@ -1,7 +1,7 @@
 import {Logger} from '../logger';
 import {LegacyImporter} from './importer';
 import {LegacyFunction} from './function';
-import {NodePackageImporter} from '../../spec/js-api';
+import {NodePackageImporter} from '../importer';
 
 /**
  * Options for {@link render} and {@link renderSync} that are shared between
