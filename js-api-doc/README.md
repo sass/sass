@@ -9,14 +9,13 @@ The [`sass-embedded` package] on npm is a JavaScript wrapper around a Native
 Dart executable, and in general is faster than `sass`.
 
 Both `sass` and `sass-embedded` provide the same JavaScript API
-using the same underlying [Dart Sass] implementation, but have [speed] and
+using the same underlying [Dart Sass] implementation, but have speed and
 platform tradeoffs.
 
 [`sass` package]: https://www.npmjs.com/package/sass
 [Dart Sass]: https://sass-lang.com/dart-sass
 [command-line interface]: https://sass-lang.com/documentation/cli/dart-sass
 [`sass-embedded` package]: https://www.npmjs.com/package/sass-embedded
-[speed]: #md:speed
 
 ## Usage
 
