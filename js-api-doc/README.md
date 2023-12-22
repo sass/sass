@@ -145,7 +145,7 @@ main thread.
 The {@link Compiler} and {@link AsyncCompiler} classes provide significant
 improvements when using the `sass-embedded` package. We are able to persist and
 reuse a process across multiple compilations, avoiding the need to repeatedly
-start up and tear down a process. 
+start up and tear down a process.
 
 When compiling a single file using `sass-embedded`, there is not much difference
 between the synchronous and asynchronous methods. When compiling multiple times,
