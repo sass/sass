@@ -74,8 +74,8 @@ export class Compiler {
 
   /**
    * Ends the lifespan of this Compiler instance. After this is invoked, all
-   * calls to the Compiler instance's {@link compile} or {@link compileString} methods will
-   * result in an error.
+   * calls to the Compiler instance's {@link compile} or {@link compileString}
+   * methods will result in an error.
    */
   dispose(): void;
 }
@@ -274,11 +274,11 @@ export function compileStringAsync(
 ): Promise<CompileResult>;
 
 /**
- * Creates an instance of a synchronous {@link Compiler}. Each compiler instance
- * exposes the {@link compile} and {@link compileString} methods within the
- * lifespan of the Compiler. Given identical input, these methods will return
- * results identical to their counterparts exposed at the module root. To use
- * asynchronous compilation, use {@link initAsyncCompiler}.
+ * Creates a synchronous {@link Compiler}. Each compiler instance exposes the
+ * {@link compile} and {@link compileString} methods within the lifespan of the
+ * Compiler. Given identical input, these methods will return results identical
+ * to their counterparts exposed at the module root. To use asynchronous
+ * compilation, use {@link initAsyncCompiler}.
  *
  * When calling the compile functions multiple times, using a compiler instance
  * with the [sass-embedded] npm package is much faster than using the top-level
@@ -308,7 +308,7 @@ export function compileStringAsync(
 export function initCompiler(): Compiler;
 
 /**
- * Creates an instance of an asynchronous {@link AsyncCompiler}. Each compiler
+ * Creates an asynchronous {@link AsyncCompiler}. Each compiler
  * instance exposes the {@link compileAsync} and {@link compileStringAsync}
  * methods within the lifespan of the Compiler. Given identical input, these
  * methods will return results identical to their counterparts exposed at the
