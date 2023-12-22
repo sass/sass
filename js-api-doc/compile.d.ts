@@ -148,8 +148,8 @@ export class AsyncCompiler {
  * with worker threads and concurrent compilations being blocked on main thread.
  *
  * If you are running multiple compilations with the [sass-embedded] npm
- * package, using either an {@link AsyncCompiler} or a {@link Compiler} will be
- * much faster on average.
+ * package, using a {@link Compiler} will provide some speed improvements over
+ * the module-level methods, and an {@link AsyncCompiler} will be much faster.
  *
  * [sass-embedded]: https://www.npmjs.com/package/sass-embedded
  *
@@ -210,8 +210,8 @@ export function compileAsync(
  * main thread.
  *
  * If you are running multiple compilations with the [sass-embedded] npm
- * package, using either an {@link AsyncCompiler} or a {@link Compiler} will be
- * much faster on average.
+ * package, using a {@link Compiler} will provide some speed improvements over
+ * the module-level methods, and an {@link AsyncCompiler} will be much faster.
  *
  * [sass-embedded]: https://www.npmjs.com/package/sass-embedded
  *
