@@ -235,7 +235,6 @@ import {FileImporter, Importer} from '../spec/js-api/importer';
 
 ```ts
 export class NodePackageImporter {
-  entryPointPath?: string;
   constructor(entryPointPath?: string);
 }
 ```
@@ -302,10 +301,7 @@ Defaults to undefined.
 ```ts
 declare module '../spec/js-api/legacy/options' {
   export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
-    pkgImporter?: {
-      type: 'node';
-      entryPointPath?: string;
-    };
+    pkgImporter?: NodePackageImporter;
   }
 }
 ```
