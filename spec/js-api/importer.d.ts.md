@@ -166,8 +166,6 @@ nonCanonicalScheme?: string | string[];
 
 ```ts
 export class NodePackageImporter {
-  entryPointPath?: string;
-
   constructor(entryPointPath?: string);
 }
 ```

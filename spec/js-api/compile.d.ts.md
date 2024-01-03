@@ -40,24 +40,24 @@ export interface CompileResult {
 
 Compiles the Sass file at `path`:
 
-* If any object in `options.importers` contains the key `pkgImporter` with the
-  value `node`:
+* If any item in `options.importers` is an instance of the `NodePackageImporter`
+  class:
 
   * If no filesystem is available, throw an error.
 
     > This primarily refers to a browser environment, but applies to other
     > sandboxed JavaScript environments as well.
 
-  * Let `entryPointPath` be the value of the object's `entryPointPath` key if
-    set, resolved relative to the current working directory, and
-    otherwise the value of `require.main.filename`.
-
+  * Let `entryPointPath` be the class's `entryPointPath` value if set, resolved
+    relative to the current working directory, and otherwise the value of
+    `require.main.filename`.
+  
   * Let `pkgImporter` be a [Node Package Importer] with an associated
     `entryPointURL` of the absolute file URL for`entryPointPath`.
 
     [Node Package Importer]: ../modules.md#node-package-importer
 
-  * Replace the object with `pkgImporter` in a copy of `options.importers`.
+  * Replace the item with `pkgImporter` in a copy of `options.importers`.
 
 * If any object in `options.importers` has both `findFileUrl` and `canonicalize`
   fields, throw an error.
@@ -110,20 +110,22 @@ export function compileAsync(
 
 Compiles the Sass `source`:
 
-* If any object in `options.importers` is exactly equal to the object
-  `nodePackageImporter`:
+* If any item in `options.importers` is an instance of the `NodePackageImporter`
+  class:
 
   * If no filesystem is available, throw an error.
 
     > This primarily refers to a browser environment, but applies to other
     > sandboxed JavaScript environments as well.
 
+  * Let `entryPointPath` be the class's `entryPointPath` value if set, resolved
+    relative to the current working directory, and otherwise the value of
+    `require.main.filename`.
+  
   * Let `pkgImporter` be a [Node Package Importer] with an associated
-    `entryPointURL` of `options.url` if it is a `file:` URL or the current
-    working directory otherwise.
+    `entryPointURL` of the absolute file URL for`entryPointPath`.
 
-  * Replace `nodePackageImporter` with `pkgImporter` in a copy of
-    `options.importers`.
+  * Replace the item with `pkgImporter` in a copy of `options.importers`.
 
 * If `options.importer` or any object in `options.importers` has both
   `findFileUrl` and `canonicalize` fields, throw an error.

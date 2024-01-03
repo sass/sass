@@ -434,8 +434,6 @@ export class NodePackageImporter {
    * If a path is not provided, the default value of `require.main.filename`
    * will be used.
    */
-  entryPointPath?: string;
-
   constructor(entryPointPath?: string);
 }
 
