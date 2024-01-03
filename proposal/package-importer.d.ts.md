@@ -1,4 +1,4 @@
-# Package Importer: Draft 1.3
+# Package Importer: Draft 1.4
 
 *([Issue](https://github.com/sass/sass/issues/2739))*
 
@@ -19,7 +19,7 @@ Importer.
     * [Available in legacy API](#available-in-legacy-api)
     * [Node Resolution Decisions](#node-resolution-decisions)
 * [Types](#types)
-  * [`nodePackageImporter`](#nodepackageimporter)
+  * [`NodePackageImporter`](#nodepackageimporter)
   * [Updated `importers` option](#updated-importers-option)
   * [Legacy API `pkgImporter`](#legacy-api-pkgimporter)
 * [Semantics](#semantics)
@@ -216,19 +216,27 @@ using symlinks if this behavior is desired.
 
 [ECMAScript modules]: https://nodejs.org/api/esm.html#no-node_path
 
+The [Node resolution algorithm] requires a `parentURL`, used for determining
+where in the file system to start searching for a module if a `pkg:` URL is
+being resolved in a source somewhere other than a file on disk. For instance,
+when compiling a string like `compileString('@use "pkg:bootstrap";')`, we don't
+know where to start looking for the Bootstrap module. We considered
+`require.main.filename` and the current working directory, but found that
+neither would allow for all use cases. We decided to allow users to specify an
+entry point path, defaulting to `require.main.filename`.
+
 ## Types
 
 ```ts
 import {FileImporter, Importer} from '../spec/js-api/importer';
 ```
 
-### `nodePackageImporter`
+### `NodePackageImporter`
 
 ```ts
-export type NodePackageImporter = {
-  _NodePackageImporterBrand: unknown;
-};
-export declare const nodePackageImporter: NodePackageImporter;
+export class NodePackageImporter {
+  constructor(entryPointPath?: string);
+}
 ```
 
 ### Updated `importers` option
@@ -253,19 +261,22 @@ declare module '../spec/js-api/options' {
 Before the first bullet points in [`compile`] and [`compileString`] in the
 Javascript Compile API, insert:
 
-* If any object in `options.importers` is exactly equal to the object
-  `nodePackageImporter`:
+* If any item in `options.importers` is an instance of the `NodePackageImporter`
+  class:
 
   * If no filesystem is available, throw an error.
 
     > This primarily refers to a browser environment, but applies to other
     > sandboxed JavaScript environments as well.
 
+  * Let `entryPointPath` be the class's `entryPointPath` value if set, resolved
+    relative to the current working directory, and otherwise the value of
+    `require.main.filename`.
+  
   * Let `pkgImporter` be a [Node Package Importer] with an associated
-    `entryPointURL` of `require.main.filename`.
+    `entryPointURL` of the absolute file URL for`entryPointPath`.
 
-  * Replace `nodePackageImporter` with `pkgImporter` in a copy of
-    `options.importers`.
+  * Replace the item with `pkgImporter` in a copy of `options.importers`.
 
 [`compile`]: ../spec/js-api/compile.d.ts.md#compile
 [`compileString`]: ../spec/js-api/compile.d.ts.md#compilestring
@@ -281,12 +292,16 @@ the legacy importer logic will be invoked.
 Currently, the only available package importer is `node`, which follows Node
 resolution logic to locate Sass files.
 
+An optional `entryPointPath` path can be passed to provide a starting
+`parentURL` for the Node package resolution algorithm. If not set, the default
+value is `require.main.filename`.
+
 Defaults to undefined.
 
 ```ts
 declare module '../spec/js-api/legacy/options' {
   export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
-    pkgImporter?: 'node';
+    pkgImporter?: NodePackageImporter;
   }
 }
 ```
@@ -531,11 +546,12 @@ potential subpaths, resolving for partials and file extensions.
 ## Embedded Protocol
 
 An Importer that resolves `pkg:` URLs using the [Node resolution algorithm]. It
-is instantiated with an associated `entry_point_url`.
+is instantiated with an associated `entry_point_path`, which is either absolute
+or will be resolved relative to the current working directory.
 
 ```proto
 message NodePackageImporter {
-  string entry_point_url = 1;
+  string entry_point_path = 1;
 }
 ```
 
