@@ -1,3 +1,9 @@
+## Draft 1.4
+
+* Allow NodePackageImporter to accept an entry point path.
+
+* Change Embedded protocol entry point to a path.
+
 ## Draft 1.3
 
 * Handle empty subpath in "Resolving package exports" subprocedure.
