@@ -376,7 +376,7 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
  * Note that while library users can rely on the importer to resolve
  * [partials](https://sass-lang.com/documentation/at-rules/use#partials), [index
  * files](https://sass-lang.com/documentation/at-rules/use#index-files), and
- * extensions, library authors must specify the entire file path in exports.
+ * extensions, library authors must specify the entire file path in `exports`.
  *
  * In addition to the `sass` condition, the `style` condition is also
  * acceptable. Sass will match the `default` condition if it's a relevant file
