@@ -1073,10 +1073,8 @@ enum CalculationOperator {
 // enables a `pkg:` URL scheme for usage with `@use` that directs an
 // implementation to resolve a URL within a dependency. 
 message NodePackageImporter {
-  // The path to associate with the Node Package Importer, with semantics
-  // identical to the [entryPointPath option] in the JavaScript API. It can
-  // either be an absolute path, or a relative path that will be resolved
-  // relative to the current working directory.
+  // The absolute path to associate with the Node Package Importer, with
+  // semantics identical to the [entryPointPath option] in the JavaScript API.
   //
   // [entryPointPath option]: https://sass-lang.com/documentation/js-api/classes/NodePackageImporter.html#constructor
   string entry_point_path = 1;
