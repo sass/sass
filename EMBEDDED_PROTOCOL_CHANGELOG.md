@@ -1,7 +1,7 @@
-## 3.0.0-dev
+## 2.4.0
 
 * Add `NodePackageImporter` as a built-in Package Importer, resolving `pkg:`
-  URLs using the standards and conventions of the Node ecosystem.  
+  URLs using the standards and conventions of the Node ecosystem.
 
 ## 2.1.0
 

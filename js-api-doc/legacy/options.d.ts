@@ -511,16 +511,16 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
   logger?: Logger;
 
   /**
-   * If this option is set to `'node'`, Sass will use the built-in Node.js
-   * package importer to resolve Sass files with a `pkg:` URL scheme. Details
-   * for library authors and users can be found in the
-   * {@link NodePackageImporter} documentation.
+   * If this option is set to an instance of `NodePackageImporter`, Sass will
+   * use the built-in Node.js package importer to resolve Sass files with a
+   * `pkg:` URL scheme. Details for library authors and users can be found in
+   * the {@link NodePackageImporter} documentation.
    *
    * @example
    * ```js
    * sass.renderSync({
    *   data: '@use "pkg:vuetify";',
-   *   pkgImporter: {type: 'node'}
+   *   pkgImporter: new sass.NodePackageImporter()
    * });
    * ```
    * @category Plugins

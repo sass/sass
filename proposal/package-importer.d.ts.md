@@ -272,7 +272,7 @@ Javascript Compile API, insert:
   * Let `entryPointPath` be the class's `entryPointPath` value if set, resolved
     relative to the current working directory, and otherwise the value of
     `require.main.filename`.
-  
+
   * Let `pkgImporter` be a [Node Package Importer] with an associated
     `entryPointURL` of the absolute file URL for`entryPointPath`.
 
@@ -289,12 +289,12 @@ any URL with the `pkg:` scheme. This step will be inserted immediately before
 the existing legacy importer logic, and if the package importer returns `null`,
 the legacy importer logic will be invoked.
 
-Currently, the only available package importer is `node`, which follows Node
-resolution logic to locate Sass files.
+Currently, the only available package importer is `NodePackageImporter`, which
+follows Node resolution logic to locate Sass files.
 
-An optional `entryPointPath` path can be passed to provide a starting
-`parentURL` for the Node package resolution algorithm. If not set, the default
-value is `require.main.filename`.
+An optional `entryPointPath` path can be passed to the `NodePackageImporter` to
+provide a starting `parentURL` for the Node package resolution algorithm. If not
+set, the default value is `require.main.filename`.
 
 Defaults to undefined.
 
