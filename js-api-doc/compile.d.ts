@@ -298,7 +298,7 @@ export function compileStringAsync(
  *   const result2 = compiler.compileString('a {b: c}').css;
  *   compiler.dispose();
  *
- *   //throws error
+ *   // throws error
  *   const result3 = sass.compileString('a {b: c}').css;
  * }
  * ```
@@ -330,9 +330,9 @@ export function initCompiler(): Compiler;
  *   const compiler = await sass.initAsyncCompiler();
  *   const result1 = await compiler.compileStringAsync('a {b: c}').css;
  *   const result2 = await compiler.compileStringAsync('a {b: c}').css;
- *   compiler.dispose();
+ *   await compiler.dispose();
  *
- *   //throws error
+ *   // throws error
  *   const result3 = await sass.compileStringAsync('a {b: c}').css;
  * }
  * ```

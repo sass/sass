@@ -47,7 +47,7 @@ If the class is directly constructed (as opposed to the Compiler being created
 via `initCompiler`), throw an error.
 
 Only synchronous compilation methods [`compile()`] and [`compileString()`] must
-be included, and must have with identical semantics to the [Sass interface].
+be included, and must have identical semantics to the [Sass interface].
 
 [`initCompiler()`]: #initcompiler
 [`compile()`]: #compile
@@ -81,8 +81,8 @@ The object returned by creating an asynchronous compiler with
 AsyncCompiler being created via `initAsyncCompiler`), throw an error.
 
 Only asynchronous compilation methods [`compileAsync()`] and
-[`compileStringAsync()`] must be included, and must have with identical
-semantics to the [Sass interface].
+[`compileStringAsync()`] must be included, and must have identical semantics to
+the [Sass interface].
 
 [`initAsyncCompiler()`]: #initasynccompiler
 [`compileasync()`]: #compileasync
