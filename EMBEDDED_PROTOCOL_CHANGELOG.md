@@ -1,3 +1,7 @@
+## 2.4.0
+
+* Add `CompileRequest.silent` option that suppresses all `LogEvent`s.
+
 ## 2.1.0
 
 * Use the Java package `com.sass_lang.embedded_protocol` and generate multiple
