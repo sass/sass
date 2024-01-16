@@ -2,6 +2,15 @@
 
 * Add `CompileRequest.silent` option that suppresses all `LogEvent`s.
 
+## 2.3.0
+
+* Add a `Value.CompilerMixin` value type to represent first-class mixins.
+
+## 2.2.0
+
+* Deprecate the `Value.Calculation.CalculationValue.value.interpolation` option,
+  and change how it's interpreted by the compiler.
+
 ## 2.1.0
 
 * Use the Java package `com.sass_lang.embedded_protocol` and generate multiple
