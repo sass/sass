@@ -25,7 +25,7 @@ New Sass features essentially fall into one of three categories:
 1. New built-in functions or mixins, which are easy to detect using other
    `sass:meta` functions.
 2. Language-level features which are relatively easy to detect on their own
-   (for example, first-class calc can be detected with calc(1 + 1) == 2).
+   (for example, first-class calc can be detected with `calc(1 + 1) == 2)`.
 3. New syntax which can't even be parsed in implementations that don't support
    it, for which feature detection isn't particularly useful anyway.
 
