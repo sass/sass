@@ -148,6 +148,9 @@ message InboundMessage {
 
     // Whether to emit a `@charset`/BOM for non-ASCII stylesheets.
     bool charset = 13;
+
+    // Whether to silently suppresses all `LogEvent`s.
+    bool silent = 14;
   }
 
   // A response indicating the result of canonicalizing an imported URL.
