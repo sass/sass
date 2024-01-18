@@ -3,11 +3,15 @@
 // implementations.
 
 export {
+  AsyncCompiler,
   CompileResult,
+  Compiler,
   compile,
   compileAsync,
   compileString,
   compileStringAsync,
+  initCompiler,
+  initAsyncCompiler,
 } from './compile';
 export {Exception} from './exception';
 export {
