@@ -12,11 +12,17 @@ import {Options, StringOptions} from './options';
 
 * [Types](#types)
   * [`CompileResult`](#compileresult)
+  * [`Compiler`](#compiler)
+    * [`dispose()`](#dispose)
+  * [`AsyncCompiler`](#asynccompiler)
+    * [`dispose()`](#dispose-1)
 * [Functions](#functions)
   * [`compile`](#compile)
   * [`compileAsync`](#compileasync)
   * [`compileString`](#compilestring)
   * [`compileStringAsync`](#compilestringasync)
+  * [`initCompiler`](#initcompiler)
+  * [`initAsyncCompiler`](#initasynccompiler)
 
 ## Types
 
@@ -31,6 +37,86 @@ export interface CompileResult {
   loadedUrls: URL[];
 
   sourceMap?: RawSourceMap;
+}
+```
+
+### `Compiler`
+
+The class returned by creating a synchronous compiler with [`initCompiler()`].
+If the class is directly constructed (as opposed to the Compiler being created
+via `initCompiler`), throw an error.
+
+Only synchronous compilation methods [`compile()`] and [`compileString()`] must
+be included, and must have identical semantics to the [Sass interface].
+
+[`initCompiler()`]: #initcompiler
+[`compile()`]: #compile
+[`compilestring()`]: #compilestring
+[Sass interface]: ./index.d.ts.md
+
+```ts
+export class Compiler {
+  private constructor();
+  compile(path: string, options?: Options<'sync'>): CompileResult;
+
+  compileString(source: string, options?: StringOptions<'sync'>): CompileResult;
+```
+
+#### `dispose()`
+
+When `dispose` is invoked on a Compiler:
+
+* Any subsequent invocations of `compile` and `compileString` must throw an
+  error.
+
+```ts
+  dispose(): void;
+}
+```
+
+### `AsyncCompiler`
+
+The object returned by creating an asynchronous compiler with
+[`initAsyncCompiler()`]. If the class is directly constructed (as opposed to the
+AsyncCompiler being created via `initAsyncCompiler`), throw an error.
+
+Only asynchronous compilation methods [`compileAsync()`] and
+[`compileStringAsync()`] must be included, and must have identical semantics to
+the [Sass interface].
+
+[`initAsyncCompiler()`]: #initasynccompiler
+[`compileasync()`]: #compileasync
+[`compilestringasync()`]: #compilestringasync
+
+```ts
+export class AsyncCompiler {
+  private constructor();
+  compileAsync(
+    path: string,
+    options?: Options<'async'>
+  ): Promise<CompileResult>;
+
+  compileStringAsync(
+    source: string,
+    options?: StringOptions<'async'>
+  ): Promise<CompileResult>;
+```
+
+#### `dispose()`
+
+When `dispose` is invoked on an Async Compiler:
+
+* Any subsequent invocations of `compileAsync` and `compileStringAsync` must
+  throw an error.
+
+* Any compilations that have not yet been settled must be allowed to settle, and
+  not be cancelled.
+
+* Resolves a Promise when all compilations have been settled, and disposal is
+  complete.
+
+```ts
+  dispose(): Promise<void>;
 }
 ```
 
@@ -145,4 +231,24 @@ export function compileStringAsync(
   source: string,
   options?: StringOptions<'async'>
 ): Promise<CompileResult>;
+```
+
+### `initCompiler`
+
+Returns a synchronous [Compiler].
+
+[Compiler]: #compiler
+
+```ts
+export function initCompiler(): Compiler;
+```
+
+### `initAsyncCompiler`
+
+Resolves with an [Async Compiler].
+
+[Async Compiler]: #asynccompiler
+
+```ts
+export function initAsyncCompiler(): Promise<AsyncCompiler>;
 ```
