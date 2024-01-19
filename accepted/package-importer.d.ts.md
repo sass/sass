@@ -1,4 +1,4 @@
-# Package Importer: Draft 1.4
+# Package Importer: Draft 1.5
 
 *([Issue](https://github.com/sass/sass/issues/2739))*
 
@@ -329,6 +329,10 @@ Package Importers must reject the following patterns:
 
 * A URL whose path begins with `/`.
 * A URL with non-empty/null username, password, host, port, query, or fragment.
+
+If the conventions or specifications for an environment disallow any other URL
+patterns, the Package Importer must not reject, and instead return `null`. This
+allows subsequent Package Importers to attempt to resolve with their conventions.
 
 [importer]: ../spec/modules.md#importer
 
