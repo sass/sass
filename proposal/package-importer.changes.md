@@ -1,3 +1,8 @@
+## Draft 1.5
+
+* Specify that Package Importers must not reject URL patterns that other Package
+  Importers may be able to canonicalize.
+
 ## Draft 1.4
 
 * Allow NodePackageImporter to accept an entry point path.
