@@ -3,6 +3,9 @@
 * Specify that Package Importers must not reject URL patterns that other Package
   Importers may be able to canonicalize.
 
+* Specify that the Node Package Importer throws if `entryPointPath` is not
+    passed and `require.main.filename` is not available.
+
 ## Draft 1.4
 
 * Allow NodePackageImporter to accept an entry point path.
