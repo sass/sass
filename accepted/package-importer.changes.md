@@ -4,7 +4,7 @@
   Importers may be able to canonicalize.
 
 * Specify that the Node Package Importer throws if `entryPointPath` is not
-    passed and `require.main.filename` is not available.
+  passed and `require.main.filename` is not available.
 
 ## Draft 1.4
 
