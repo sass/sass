@@ -1,4 +1,4 @@
-# Package Importer: Draft 1.4
+# Package Importer: Draft 1.5
 
 *([Issue](https://github.com/sass/sass/issues/2739))*
 
@@ -271,7 +271,8 @@ Javascript Compile API, insert:
 
   * Let `entryPointPath` be the class's `entryPointPath` value if set, resolved
     relative to the current working directory, and otherwise the value of
-    `require.main.filename`.
+    `require.main.filename`. If `entryPointPath` is not passed and
+    `require.main.filename` is not available, throw an error.
   
   * Let `pkgImporter` be a [Node Package Importer] with an associated
     `entryPointURL` of the absolute file URL for`entryPointPath`.
@@ -329,6 +330,11 @@ Package Importers must reject the following patterns:
 
 * A URL whose path begins with `/`.
 * A URL with non-empty/null username, password, host, port, query, or fragment.
+
+If the conventions or specifications for an environment disallow any other URL
+patterns, the Package Importer must return null rather than throwing an error.
+This allows subsequent Package Importers to attempt to resolve with their
+conventions.
 
 [importer]: ../spec/modules.md#importer
 
