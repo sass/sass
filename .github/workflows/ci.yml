@@ -72,7 +72,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: bufbuild/buf-setup-action@v1.28.1
+      - uses: bufbuild/buf-setup-action@v1.29.0
         with: {github_token: "${{ github.token }}"}
       - name: Generate protobuf code
         run: buf generate
