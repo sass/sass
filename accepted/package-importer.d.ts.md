@@ -1,4 +1,4 @@
-# Package Importer: Draft 1.5
+# Package Importer: Draft 1.6
 
 *([Issue](https://github.com/sass/sass/issues/2739))*
 
@@ -223,7 +223,8 @@ when compiling a string like `compileString('@use "pkg:bootstrap";')`, we don't
 know where to start looking for the Bootstrap module. We considered
 `require.main.filename` and the current working directory, but found that
 neither would allow for all use cases. We decided to allow users to specify an
-entry point path, defaulting to `require.main.filename`.
+entry point directory, defaulting to the parent directory of
+`require.main.filename`.
 
 ## Types
 
@@ -235,7 +236,7 @@ import {FileImporter, Importer} from '../spec/js-api/importer';
 
 ```ts
 export class NodePackageImporter {
-  constructor(entryPointPath?: string);
+  constructor(entryPointDirectory?: string);
 }
 ```
 
@@ -269,13 +270,13 @@ Javascript Compile API, insert:
     > This primarily refers to a browser environment, but applies to other
     > sandboxed JavaScript environments as well.
 
-  * Let `entryPointPath` be the class's `entryPointPath` value if set, resolved
-    relative to the current working directory, and otherwise the value of
-    `require.main.filename`. If `entryPointPath` is not passed and
-    `require.main.filename` is not available, throw an error.
+  * Let `entryPointDirectory` be the class's `entryPointDirectory` value if set,
+    resolved relative to the current working directory, and otherwise the parent
+    directory of `require.main.filename`. If `entryPointDirectory` is not passed
+    and `require.main.filename` is not available, throw an error.
 
   * Let `pkgImporter` be a [Node Package Importer] with an associated
-    `entryPointURL` of the absolute file URL for`entryPointPath`.
+    `entryPointURL` of the absolute file URL for`entryPointDirectory`.
 
   * Replace the item with `pkgImporter` in a copy of `options.importers`.
 
@@ -293,9 +294,10 @@ the legacy importer logic will be invoked.
 Currently, the only available package importer is `NodePackageImporter`, which
 follows Node resolution logic to locate Sass files.
 
-An optional `entryPointPath` path can be passed to the `NodePackageImporter` to
-provide a starting `parentURL` for the Node package resolution algorithm. If not
-set, the default value is `require.main.filename`.
+An optional `entryPointDirectory` path can be passed to the
+`NodePackageImporter` to provide a starting `parentURL` for the Node package
+resolution algorithm. If not set, the default value is the parent directory of
+`require.main.filename`.
 
 Defaults to undefined.
 
@@ -552,12 +554,12 @@ potential subpaths, resolving for partials and file extensions.
 ## Embedded Protocol
 
 An Importer that resolves `pkg:` URLs using the [Node resolution algorithm]. It
-is instantiated with an associated `entry_point_path`, which is either absolute
-or will be resolved relative to the current working directory.
+is instantiated with an associated `entry_point_directory`, which is either
+absolute or will be resolved relative to the current working directory.
 
 ```proto
 message NodePackageImporter {
-  string entry_point_path = 1;
+  string entry_point_directory = 1;
 }
 ```
 

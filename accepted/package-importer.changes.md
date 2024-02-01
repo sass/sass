@@ -1,3 +1,7 @@
+## Draft 1.6
+
+* Change from an entry point path to entry point directory.
+
 ## Draft 1.5
 
 * Specify that Package Importers must not reject URL patterns that other Package
