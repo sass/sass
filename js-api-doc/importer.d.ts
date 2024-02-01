@@ -418,23 +418,22 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
  */
 export class NodePackageImporter {
   /**
-   * The NodePackageImporter has an optional `entryPointPath` option, which is
-   * the path where the Node Package Importer should start when resolving `pkg:`
-   * URLs in sources other than files on disk. This will be used as the
-   * `parentURL` in the [Node Module
+   * The NodePackageImporter has an optional `entryPointDirectory` option, which
+   * is the directory where the Node Package Importer should start when
+   * resolving `pkg:` URLs in sources other than files on disk. This will be
+   * used as the `parentURL` in the [Node Module
    * Resolution](https://nodejs.org/api/esm.html#resolution-algorithm-specification)
    * algorithm.
    *
    * In order to be found by the Node Package Importer, a package will need to
-   * be inside a node_modules folder located in the directory containing the
-   * `entryPointPath`, or one of its parent directories, up to the filesystem
-   * root.
+   * be inside a node_modules folder located in the `entryPointDirectory`, or
+   * one of its parent directories, up to the filesystem root.
    *
    * Relative paths will be resolved relative to the current working directory.
    * If a path is not provided, the default value of `require.main.filename`
    * will be used.
    */
-  constructor(entryPointPath?: string);
+  constructor(entryPointDirectory?: string);
 }
 
 /**
