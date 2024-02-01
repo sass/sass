@@ -4,8 +4,7 @@
 
 This proposal introduces the semantics for a Package Importer and defines the
 `pkg:` URL scheme to indicate Sass package imports in an implementation-agnostic
-format. It also defines the semantics for a new built-in Node Package
-Importer.
+format. It also defines the semantics for a new built-in Node Package Importer.
 
 ## Table of Contents
 
@@ -123,9 +122,9 @@ the reader where to find the file.
 
 While the Dart Sass implementation allows for the use of the `package:` URL
 scheme, a similar standard doesn't exist in Node. We chose the `pkg:` URL scheme
-as it clearly communicates to both the user and compiler that the specified files
-are from a dependency. The `pkg:` URL scheme also does not have known conflicts
-in the ecosystem.
+as it clearly communicates to both the user and compiler that the specified
+files are from a dependency. The `pkg:` URL scheme also does not have known
+conflicts in the ecosystem.
 
 #### No built-in `pkg:` resolver for browsers
 
@@ -188,13 +187,14 @@ use the CSS exports exposed through `"style"`. While in practice, `"style"`
 tends to be used solely for `css` files, we will support `scss`, `sass` and
 `css` files for either `"sass"` or `"style"`.
 
-While conditional exports allows package authors to define specific aliases to internal
-files, we will still use the Sass conventions for resolving file paths with
-partials, extensions and indices to discover the intended export alias. However,
-we will not apply that logic to the destination, and will expect library authors
-to map the export to the correct place. In other words, given a `package.json`
-with `exports` as below, The Node package importer will resolve a
-`@use "pkg:pkgName/variables";` to the destination of the `_variables.scss` export.
+While conditional exports allows package authors to define specific aliases to
+internal files, we will still use the Sass conventions for resolving file paths
+with partials, extensions and indices to discover the intended export alias.
+However, we will not apply that logic to the destination, and will expect
+library authors to map the export to the correct place. In other words, given a
+`package.json` with `exports` as below, The Node package importer will resolve a
+`@use "pkg:pkgName/variables";` to the destination of the `_variables.scss`
+export.
 
 ```json
 {
@@ -315,7 +315,8 @@ declare module '../spec/js-api/legacy/options' {
 
 This proposal defines the requirements for Package Importers written by users or
 provided by implementations. It is a type of [Importer] and, in addition to the
-standard requirements for importers, it must handle only non-canonical URLs that:
+standard requirements for importers, it must handle only non-canonical URLs
+that:
 
 * have the scheme `pkg`, and
 * whose path begins with a package name, and
@@ -367,8 +368,8 @@ When the Node Package Importer is invoked with a string named `string`:
 
 * Otherwise, let `baseURL` be `entryPointURL`.
 
-* Let `resolved` be the result of [resolving a `pkg:` URL as Node] with `url` and
-  `baseURL`.
+* Let `resolved` be the result of [resolving a `pkg:` URL as Node] with `url`
+  and `baseURL`.
 
 * If `resolved` is null, return null.
 
@@ -438,8 +439,8 @@ It returns a canonical `file:` URL or null.
 This algorithm takes a string, `path`, and returns the portion that identifies
 the Node package.
 
-* If `path` starts with `@`, it is a scoped package. Return the first 2 [URL path
-  segments], including the separating `/`.
+* If `path` starts with `@`, it is a scoped package. Return the first 2 [URL
+  path segments], including the separating `/`.
 
 * Otherwise, return the first URL path segment.
 
@@ -483,7 +484,8 @@ This algorithm takes a package.json value `packageManifest`, a directory URL
 
 * Let `subpathIndex` be `subpath` + `"/index"`.
 
-* Let `subpathIndexVariants` be the result of [Export load paths] with `subpathIndex`.
+* Let `subpathIndexVariants` be the result of [Export load paths] with
+  `subpathIndex`.
 
 * Let `resolvedIndexPaths` be a list of the results of calling
   `PACKAGE_EXPORTS_RESOLVE(packageRoot, subpathVariant, exports, ["sass",
