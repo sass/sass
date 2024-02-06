@@ -420,7 +420,7 @@ declare const nodePackageImporterKey: unique symbol;
  */
 export class NodePackageImporter {
   /** Used to distinguish this type from any arbitrary object. */
-  private static readonly [nodePackageImporterKey]: true;
+  private readonly [nodePackageImporterKey]: true;
 
   /**
    * The NodePackageImporter has an optional `entryPointDirectory` option, which
