@@ -126,6 +126,26 @@ When `dispose` is invoked on an Async Compiler:
 
 Compiles the Sass file at `path`:
 
+* If any item in `options.importers` is an instance of the `NodePackageImporter`
+  class:
+
+  * If no filesystem is available, throw an error.
+
+    > This primarily refers to a browser environment, but applies to other
+    > sandboxed JavaScript environments as well.
+
+  * Let `entryPointDirectory` be the class's `entryPointDirectory` value if set,
+    resolved relative to the current working directory, and otherwise the parent
+    directory of `require.main.filename`. If `entryPointDirectory` is not passed
+    and `require.main.filename` is not available, throw an error.
+
+  * Let `pkgImporter` be a [Node Package Importer] with an associated
+    `entryPointURL` of the absolute file URL for`entryPointDirectory`.
+
+    [Node Package Importer]: ../modules.md#node-package-importer
+
+  * Replace the item with `pkgImporter` in a copy of `options.importers`.
+
 * If any object in `options.importers` has both `findFileUrl` and `canonicalize`
   fields, throw an error.
 
@@ -176,6 +196,24 @@ export function compileAsync(
 ### `compileString`
 
 Compiles the Sass `source`:
+
+* If any item in `options.importers` is an instance of the `NodePackageImporter`
+  class:
+
+  * If no filesystem is available, throw an error.
+
+    > This primarily refers to a browser environment, but applies to other
+    > sandboxed JavaScript environments as well.
+
+  * Let `entryPointDirectory` be the class's `entryPointDirectory` value if set,
+    resolved relative to the current working directory, and otherwise the parent
+    directory of `require.main.filename`. If `entryPointDirectory` is not passed
+    and `require.main.filename` is not available, throw an error.
+
+  * Let `pkgImporter` be a [Node Package Importer] with an associated
+    `entryPointURL` of the absolute file URL for`entryPointDirectory`.
+
+  * Replace the item with `pkgImporter` in a copy of `options.importers`.
 
 * If `options.importer` or any object in `options.importers` has both
   `findFileUrl` and `canonicalize` fields, throw an error.

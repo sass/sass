@@ -1,4 +1,4 @@
-import {FileImporter, Importer} from './importer';
+import {FileImporter, Importer, NodePackageImporter} from './importer';
 import {Logger} from './logger';
 import {Value} from './value';
 import {PromiseOr} from './util/promise_or';
@@ -208,8 +208,8 @@ export interface Options<sync extends 'sync' | 'async'> {
    * - The importer that was used to load the current stylesheet, with the
    *   loaded URL resolved relative to the current stylesheet's canonical URL.
    *
-   * - Each {@link Importer} or {@link FileImporter} in {@link importers}, in
-   *   order.
+   * - Each {@link Importer}, {@link FileImporter}, or
+   *   {@link NodePackageImporter} in {@link importers}, in order.
    *
    * - Each load path in {@link loadPaths}, in order.
    *
@@ -218,7 +218,7 @@ export interface Options<sync extends 'sync' | 'async'> {
    *
    * @category Plugins
    */
-  importers?: (Importer<sync> | FileImporter<sync>)[];
+  importers?: (Importer<sync> | FileImporter<sync> | NodePackageImporter)[];
 
   /**
    * Paths in which to look for stylesheets loaded by rules like
