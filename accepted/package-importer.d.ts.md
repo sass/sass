@@ -457,9 +457,13 @@ This algorithm takes a string, `packageName`, and an absolute URL `baseURL`, and
 returns an absolute URL to the root directory for the most proximate installed
 `packageName`.
 
-* Return the result of `PACKAGE_RESOLVE(packageName, baseURL)` as defined in
-  the [Node resolution algorithm specification].
+* Let `baseDirectory` be `baseURL` appended with a [single-dot URL path
+  segment].
 
+* Return the result of `PACKAGE_RESOLVE(packageName, baseDirectory)` as defined
+  in the [Node resolution algorithm specification].
+
+[single-dot URL path segment]: https://url.spec.whatwg.org/#single-dot-path-segment
 [Node resolution algorithm specification]: https://nodejs.org/api/esm.html#resolution-algorithm-specification
 
 ### Resolving package exports
