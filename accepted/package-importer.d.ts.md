@@ -281,7 +281,7 @@ Javascript Compile API, insert:
     and `require.main.filename` is not available, throw an error.
 
   * Let `pkgImporter` be a [Node Package Importer] with an associated
-    `entryPointURL` of the absolute file URL for`entryPointDirectory`.
+    `entryPointURL` of the absolute file URL for `entryPointDirectory`.
 
   * Replace the item with `pkgImporter` in a copy of `options.importers`.
 
