@@ -4,6 +4,7 @@
 import {Logger} from '../logger';
 import {LegacyImporter} from './importer';
 import {LegacyFunction} from './function';
+import {NodePackageImporter} from '../importer';
 ```
 
 ## Table of Contents
@@ -27,6 +28,7 @@ import {LegacyFunction} from './function';
     * [`quietDeps`](#quietdeps)
     * [`verbose`](#verbose)
     * [`logger`](#logger)
+    * [`pkgImporter`](#pkgimporter)
   * [`LegacyFileOptions`](#legacyfileoptions)
   * [`LegacyStringOptions`](#legacystringoptions)
   * [`LegacyOptions`](#legacyoptions)
@@ -171,6 +173,19 @@ doesn't have `warn` or `debug` fields.
 
 ```ts
 logger?: Logger;
+```
+
+#### `pkgImporter`
+
+If set to an instance of [NodePackageImporter], the compiler will use it as the
+specified built-in package importer to resolve any URL with the `pkg:` scheme.
+This importer will be checked immediately before the existing legacy importer
+logic, and if it returns `null`, the legacy importer logic will be invoked.
+
+[NodePackageImporter]: ../importer.d.ts.md#nodepackageimporter
+
+```ts
+pkgImporter?: NodePackageImporter;
 ```
 
 ```ts

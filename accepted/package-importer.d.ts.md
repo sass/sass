@@ -1,11 +1,10 @@
-# Package Importer: Draft 1.5
+# Package Importer: Draft 1.6
 
 *([Issue](https://github.com/sass/sass/issues/2739))*
 
 This proposal introduces the semantics for a Package Importer and defines the
 `pkg:` URL scheme to indicate Sass package imports in an implementation-agnostic
-format. It also defines the semantics for a new built-in Node Package
-Importer.
+format. It also defines the semantics for a new built-in Node Package Importer.
 
 ## Table of Contents
 
@@ -123,9 +122,9 @@ the reader where to find the file.
 
 While the Dart Sass implementation allows for the use of the `package:` URL
 scheme, a similar standard doesn't exist in Node. We chose the `pkg:` URL scheme
-as it clearly communicates to both the user and compiler that the specified files
-are from a dependency. The `pkg:` URL scheme also does not have known conflicts
-in the ecosystem.
+as it clearly communicates to both the user and compiler that the specified
+files are from a dependency. The `pkg:` URL scheme also does not have known
+conflicts in the ecosystem.
 
 #### No built-in `pkg:` resolver for browsers
 
@@ -188,13 +187,14 @@ use the CSS exports exposed through `"style"`. While in practice, `"style"`
 tends to be used solely for `css` files, we will support `scss`, `sass` and
 `css` files for either `"sass"` or `"style"`.
 
-While conditional exports allows package authors to define specific aliases to internal
-files, we will still use the Sass conventions for resolving file paths with
-partials, extensions and indices to discover the intended export alias. However,
-we will not apply that logic to the destination, and will expect library authors
-to map the export to the correct place. In other words, given a `package.json`
-with `exports` as below, The Node package importer will resolve a
-`@use "pkg:pkgName/variables";` to the destination of the `_variables.scss` export.
+While conditional exports allows package authors to define specific aliases to
+internal files, we will still use the Sass conventions for resolving file paths
+with partials, extensions and indices to discover the intended export alias.
+However, we will not apply that logic to the destination, and will expect
+library authors to map the export to the correct place. In other words, given a
+`package.json` with `exports` as below, The Node package importer will resolve a
+`@use "pkg:pkgName/variables";` to the destination of the `_variables.scss`
+export.
 
 ```json
 {
@@ -223,7 +223,8 @@ when compiling a string like `compileString('@use "pkg:bootstrap";')`, we don't
 know where to start looking for the Bootstrap module. We considered
 `require.main.filename` and the current working directory, but found that
 neither would allow for all use cases. We decided to allow users to specify an
-entry point path, defaulting to `require.main.filename`.
+entry point directory, defaulting to the parent directory of
+`require.main.filename`.
 
 ## Types
 
@@ -234,8 +235,13 @@ import {FileImporter, Importer} from '../spec/js-api/importer';
 ### `NodePackageImporter`
 
 ```ts
+declare const nodePackageImporterKey: unique symbol;
+
 export class NodePackageImporter {
-  constructor(entryPointPath?: string);
+  /** Used to distinguish this type from any arbitrary object. */
+  private readonly [nodePackageImporterKey]: true;
+
+  constructor(entryPointDirectory?: string);
 }
 ```
 
@@ -269,13 +275,13 @@ Javascript Compile API, insert:
     > This primarily refers to a browser environment, but applies to other
     > sandboxed JavaScript environments as well.
 
-  * Let `entryPointPath` be the class's `entryPointPath` value if set, resolved
-    relative to the current working directory, and otherwise the value of
-    `require.main.filename`. If `entryPointPath` is not passed and
-    `require.main.filename` is not available, throw an error.
-  
+  * Let `entryPointDirectory` be the class's `entryPointDirectory` value if set,
+    resolved relative to the current working directory, and otherwise the parent
+    directory of `require.main.filename`. If `entryPointDirectory` is not passed
+    and `require.main.filename` is not available, throw an error.
+
   * Let `pkgImporter` be a [Node Package Importer] with an associated
-    `entryPointURL` of the absolute file URL for`entryPointPath`.
+    `entryPointURL` of the absolute file URL for `entryPointDirectory`.
 
   * Replace the item with `pkgImporter` in a copy of `options.importers`.
 
@@ -290,19 +296,22 @@ any URL with the `pkg:` scheme. This step will be inserted immediately before
 the existing legacy importer logic, and if the package importer returns `null`,
 the legacy importer logic will be invoked.
 
-Currently, the only available package importer is `node`, which follows Node
-resolution logic to locate Sass files.
+Currently, the only available package importer is `NodePackageImporter`, which
+follows Node resolution logic to locate Sass files.
 
-An optional `entryPointPath` path can be passed to provide a starting
-`parentURL` for the Node package resolution algorithm. If not set, the default
-value is `require.main.filename`.
+An optional `entryPointDirectory` path can be passed to the
+`NodePackageImporter` to provide a starting `parentURL` for the Node package
+resolution algorithm. If not set, the default value is the parent directory of
+`require.main.filename`.
 
 Defaults to undefined.
 
 ```ts
+import {NodePackageImporter as BaseNodePackageImporter} from '../spec/js-api/importer';
+
 declare module '../spec/js-api/legacy/options' {
   export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
-    pkgImporter?: NodePackageImporter;
+    pkgImporter?: BaseNodePackageImporter;
   }
 }
 ```
@@ -313,7 +322,8 @@ declare module '../spec/js-api/legacy/options' {
 
 This proposal defines the requirements for Package Importers written by users or
 provided by implementations. It is a type of [Importer] and, in addition to the
-standard requirements for importers, it must handle only non-canonical URLs that:
+standard requirements for importers, it must handle only non-canonical URLs
+that:
 
 * have the scheme `pkg`, and
 * whose path begins with a package name, and
@@ -365,8 +375,8 @@ When the Node Package Importer is invoked with a string named `string`:
 
 * Otherwise, let `baseURL` be `entryPointURL`.
 
-* Let `resolved` be the result of [resolving a `pkg:` URL as Node] with `url` and
-  `baseURL`.
+* Let `resolved` be the result of [resolving a `pkg:` URL as Node] with `url`
+  and `baseURL`.
 
 * If `resolved` is null, return null.
 
@@ -436,8 +446,8 @@ It returns a canonical `file:` URL or null.
 This algorithm takes a string, `path`, and returns the portion that identifies
 the Node package.
 
-* If `path` starts with `@`, it is a scoped package. Return the first 2 [URL path
-  segments], including the separating `/`.
+* If `path` starts with `@`, it is a scoped package. Return the first 2 [URL
+  path segments], including the separating `/`.
 
 * Otherwise, return the first URL path segment.
 
@@ -447,9 +457,13 @@ This algorithm takes a string, `packageName`, and an absolute URL `baseURL`, and
 returns an absolute URL to the root directory for the most proximate installed
 `packageName`.
 
-* Return the result of `PACKAGE_RESOLVE(packageName, baseURL)` as defined in
-  the [Node resolution algorithm specification].
+* Let `baseDirectory` be `baseURL` appended with a [single-dot URL path
+  segment].
 
+* Return the result of `PACKAGE_RESOLVE(packageName, baseDirectory)` as defined
+  in the [Node resolution algorithm specification].
+
+[single-dot URL path segment]: https://url.spec.whatwg.org/#single-dot-path-segment
 [Node resolution algorithm specification]: https://nodejs.org/api/esm.html#resolution-algorithm-specification
 
 ### Resolving package exports
@@ -481,7 +495,8 @@ This algorithm takes a package.json value `packageManifest`, a directory URL
 
 * Let `subpathIndex` be `subpath` + `"/index"`.
 
-* Let `subpathIndexVariants` be the result of [Export load paths] with `subpathIndex`.
+* Let `subpathIndexVariants` be the result of [Export load paths] with
+  `subpathIndex`.
 
 * Let `resolvedIndexPaths` be a list of the results of calling
   `PACKAGE_EXPORTS_RESOLVE(packageRoot, subpathVariant, exports, ["sass",
@@ -552,12 +567,12 @@ potential subpaths, resolving for partials and file extensions.
 ## Embedded Protocol
 
 An Importer that resolves `pkg:` URLs using the [Node resolution algorithm]. It
-is instantiated with an associated `entry_point_path`, which is either absolute
-or will be resolved relative to the current working directory.
+is instantiated with an associated `entry_point_directory`, which is either
+absolute or will be resolved relative to the current working directory.
 
 ```proto
 message NodePackageImporter {
-  string entry_point_path = 1;
+  string entry_point_directory = 1;
 }
 ```
 

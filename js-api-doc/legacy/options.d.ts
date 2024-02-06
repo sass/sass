@@ -1,6 +1,7 @@
 import {Logger} from '../logger';
 import {LegacyImporter} from './importer';
 import {LegacyFunction} from './function';
+import {NodePackageImporter} from '../importer';
 
 /**
  * Options for {@link render} and {@link renderSync} that are shared between
@@ -508,6 +509,24 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    * @compatibility dart: "1.43.0", node: false
    */
   logger?: Logger;
+
+  /**
+   * If this option is set to an instance of `NodePackageImporter`, Sass will
+   * use the built-in Node.js package importer to resolve Sass files with a
+   * `pkg:` URL scheme. Details for library authors and users can be found in
+   * the {@link NodePackageImporter} documentation.
+   *
+   * @example
+   * ```js
+   * sass.renderSync({
+   *   data: '@use "pkg:vuetify";',
+   *   pkgImporter: new sass.NodePackageImporter()
+   * });
+   * ```
+   * @category Plugins
+   * @compatibility dart: "2.0", node: false
+   */
+  pkgImporter?: NodePackageImporter;
 }
 
 /**
