@@ -307,9 +307,11 @@ resolution algorithm. If not set, the default value is the parent directory of
 Defaults to undefined.
 
 ```ts
+import {NodePackageImporter as BaseNodePackageImporter} from '../spec/js-api/importer';
+
 declare module '../spec/js-api/legacy/options' {
   export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
-    pkgImporter?: NodePackageImporter;
+    pkgImporter?: BaseNodePackageImporter;
   }
 }
 ```
