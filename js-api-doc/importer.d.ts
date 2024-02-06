@@ -308,6 +308,8 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
   nonCanonicalScheme?: string | string[];
 }
 
+declare const nodePackageImporterKey: unique symbol;
+
 /**
  * The built-in Node.js package importer. This loads pkg: URLs from node_modules
  * according to the standard Node.js resolution algorithm.
@@ -417,6 +419,9 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
  * @category Importer
  */
 export class NodePackageImporter {
+  /** Used to distinguish this type from any arbitrary object. */
+  private static readonly [nodePackageImporterKey]: true;
+
   /**
    * The NodePackageImporter has an optional `entryPointDirectory` option, which
    * is the directory where the Node Package Importer should start when

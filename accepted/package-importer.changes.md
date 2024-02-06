@@ -2,6 +2,9 @@
 
 * Change from an entry point path to entry point directory.
 
+* Add a private readonly symbol key to `NodePackageImporter` type to
+  distinguish it from arbitrary objects.
+
 ## Draft 1.5
 
 * Specify that Package Importers must not reject URL patterns that other Package

@@ -235,7 +235,12 @@ import {FileImporter, Importer} from '../spec/js-api/importer';
 ### `NodePackageImporter`
 
 ```ts
+declare const nodePackageImporterKey: unique symbol;
+
 export class NodePackageImporter {
+  /** Used to distinguish this type from any arbitrary object. */
+  private readonly [nodePackageImporterKey]: true;
+
   constructor(entryPointDirectory?: string);
 }
 ```
