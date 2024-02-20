@@ -16,6 +16,8 @@ import {PromiseOr} from './util/promise_or';
   * [`Importer`](#importer)
     * [`nonCanonicalScheme`](#noncanonicalscheme)
   * [`NodePackageImporter`](#nodepackageimporter)
+    * [`entryPointDirectory`](#entrypointdirectory)
+    * [Constructor](#constructor)
   * [`ImporterResult`](#importerresult)
 
 ## Types
