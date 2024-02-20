@@ -415,7 +415,7 @@ declare const nodePackageImporterKey: unique symbol;
  * package, a user can import that file using `@use
  * "pkg:uicomponents/src/sass/colors";`.
  *
- * @compatibility dart: "2.0", node: false
+ * @compatibility dart: "1.71.0", node: false
  * @category Importer
  */
 export class NodePackageImporter {
