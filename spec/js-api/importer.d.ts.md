@@ -170,9 +170,46 @@ declare const nodePackageImporterKey: unique symbol;
 export class NodePackageImporter {
   /** Used to distinguish this type from any arbitrary object. */
   private readonly [nodePackageImporterKey]: true;
+```
 
+#### `entryPointDirectory`
+
+This is a private, spec-only string property that's used to determine the value
+of the `parentURL` parameter to `PACKAGE_RESOLVE` function from the [Node.js
+Resolution Algorithm].
+
+[Node.js Resolution Algorithm]: https://nodejs.org/api/esm.html#resolution-algorithm-specification
+
+#### Constructor
+
+Creates a `NodePackageImporter`:
+
+* If no filesystem is available, throw an error.
+
+  > This primarily refers to a browser environment, but applies to other
+  > sandboxed JavaScript environments as well.
+
+* If `entryPointDirectory` is not `undefined`, set the `entryPointDirectory`
+  property to its value.
+
+* Otherwise, if the path to the first JavaScript file that was loaded from the
+  filesystem exists, set the `entryPointDirectory` property to the directory
+  containing that path.
+
+  > In Node.js, this can be accessed using `require.main.filename` if the
+  > entrypoint is CommonJS, but otherwise must be determined using
+  > `process.argv[1]`. See nodejs/node#49440.
+
+* Otherwise, throw an error.
+
+* Return `this`.
+
+```ts
   constructor(entryPointDirectory?: string);
-}
+```
+
+```ts
+} // NodePackageImporter
 ```
 
 ### `ImporterResult`
