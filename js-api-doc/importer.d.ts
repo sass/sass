@@ -435,8 +435,8 @@ export class NodePackageImporter {
    * one of its parent directories, up to the filesystem root.
    *
    * Relative paths will be resolved relative to the current working directory.
-   * If a path is not provided, the default value of `require.main.filename`
-   * will be used.
+   * If a path is not provided, this defaults to the parent directory of the
+   * Node.js entrypoint. If that's not available, this will throw an error.
    */
   constructor(entryPointDirectory?: string);
 }
