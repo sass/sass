@@ -134,15 +134,12 @@ Compiles the Sass file at `path`:
     > This primarily refers to a browser environment, but applies to other
     > sandboxed JavaScript environments as well.
 
-  * Let `entryPointDirectory` be the class's `entryPointDirectory` value if set,
-    resolved relative to the current working directory, and otherwise the parent
-    directory of `require.main.filename`. If `entryPointDirectory` is not passed
-    and `require.main.filename` is not available, throw an error.
-
   * Let `pkgImporter` be a [Node Package Importer] with an associated
-    `entryPointURL` of the absolute file URL for`entryPointDirectory`.
+    `entryPointURL` of the absolute file URL for the object's
+    [`entryPointDirectory`].
 
     [Node Package Importer]: ../modules.md#node-package-importer
+    [`entryPointDirectory`]: importer.d.ts.md#constructor
 
   * Replace the item with `pkgImporter` in a copy of `options.importers`.
 
@@ -205,13 +202,9 @@ Compiles the Sass `source`:
     > This primarily refers to a browser environment, but applies to other
     > sandboxed JavaScript environments as well.
 
-  * Let `entryPointDirectory` be the class's `entryPointDirectory` value if set,
-    resolved relative to the current working directory, and otherwise the parent
-    directory of `require.main.filename`. If `entryPointDirectory` is not passed
-    and `require.main.filename` is not available, throw an error.
-
   * Let `pkgImporter` be a [Node Package Importer] with an associated
-    `entryPointURL` of the absolute file URL for`entryPointDirectory`.
+    `entryPointURL` of the absolute file URL for the object's
+    [`entryPointDirectory`].
 
   * Replace the item with `pkgImporter` in a copy of `options.importers`.
 
