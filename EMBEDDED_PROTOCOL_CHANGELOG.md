@@ -1,3 +1,10 @@
+## 2.6.0
+
+* Add `fatal_deprecation`, `silence_deprecation`, and `future_deprecation`
+  fields to `CompileRequest`, implementing the [deprecations API][].
+
+[deprecations API][accepted/deprecations-api.d.ts.md]
+
 ## 2.5.0
 
 * Add `NodePackageImporter` as a built-in Package Importer, resolving `pkg:`

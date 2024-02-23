@@ -6,6 +6,7 @@
 > [compile API]: compile.d.ts.md
 
 ```ts
+import {DeprecationOrId, Version} from './deprecations';
 import {FileImporter, Importer, NodePackageImporter} from './importer';
 import {Logger} from './logger';
 import {Value} from './value';
@@ -119,6 +120,31 @@ Defaults to true.
 charset?: boolean;
 ```
 
+#### `fatalDeprecations`
+
+A set of deprecations to treat as fatal.
+
+If a deprecation warning of any provided type is encountered during compilation,
+the compiler must error instead.
+
+The compiler should convert any string passed here to a `Deprecation` by
+indexing `deprecations`. If an invalid deprecation ID is passed here, the
+compiler must emit a warning. If a version is passed here, it should be treated
+equivalently to passing all active deprecations whose `deprecatedIn` version is
+less than or equal to it.
+
+The compiler must emit a warning if a future deprecation that's not also
+included in `futureDeprecations` or any obsolete deprecation is included here.
+
+If a deprecation is passed both here and to `silenceDeprecations`, a warning
+must be emitted, but making the deprecation fatal must take precedence.
+
+```ts
+fatalDeprecations?: (DeprecationOrId | Version)[];
+```
+
+[`Version`]: ./deprecations.d.ts.md#version
+
 #### `functions`
 
 Before beginning compilation:
@@ -162,6 +188,23 @@ Before beginning compilation:
 ```ts
 functions?: Record<string, CustomFunction<sync>>;
 ```
+
+#### `futureDeprecations`
+
+A set of future deprecations to opt into early.
+
+For each future deprecation provided here, the compiler must treat that
+deprecation as if it is active, emitting warnings as necessary (subject to
+`fatalDeprecations` and `silenceDeprecations`).
+
+The compiler should convert any string passed here to a `Deprecation` by
+indexing `Deprecations`. If an invalid deprecation ID is passed here, the
+compiler must emit a warning.
+
+The compiler must emit a warning if a non-future deprecation is included here.
+
+```ts
+fatalDeprecations?: DeprecationOrId[];
 
 #### `importers`
 
@@ -207,6 +250,24 @@ Defaults to false.
 ```ts
 quietDeps?: boolean;
 ```
+
+#### `silenceDeprecations`
+
+A set of active deprecations to ignore.
+
+If a deprecation warning of any provided type is encountered during compilation,
+the compiler must ignore it.
+
+The compiler should convert any string passed here to a `Deprecation` by
+indexing `Deprecations`. If an invalid deprecation ID is passed here, the
+compiler must emit a warning.
+
+The compiler must emit a warning if any non-active deprecation is included here.
+If a future deprecation is included both here and in `futureDeprecations`, then
+silencing it takes precedence.
+
+```ts
+silenceDeprecations?: DeprecationOrId[];
 
 #### `sourceMap`
 

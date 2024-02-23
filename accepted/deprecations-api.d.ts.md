@@ -589,7 +589,7 @@ following is true:
   (making it fatal takes precedence)
 
 ```proto
-repeated string fatal_deprecation = 14;
+repeated string fatal_deprecation = 15;
 ```
 
 #### `silence_deprecation`
@@ -606,7 +606,7 @@ If a future deprecation ID is passed both here and to `future_deprecation`, then
 silencing it takes precedence.
 
 ```proto
-repeated string silence_deprecation = 15;
+repeated string silence_deprecation = 16;
 ```
 
 #### `future_deprecation`
@@ -621,5 +621,5 @@ The compiler must emit an event of type `LogEventType.WARNING` if an invalid
 deprecation ID or any non-future deprecation ID is passed here.
 
 ```proto
-repeated string future_deprecation = 16;
+repeated string future_deprecation = 17;
 ```
