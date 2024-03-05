@@ -291,7 +291,8 @@ plain CSS function named `"rgb"` that function is named `"rgba"` instead.
     * Call `rgb()` with `red`, `green`, `blue`, and `alpha` as arguments and
       return the result.
 
-  * If `$channels` is not an unbracketed space-separated list, throw an error.
+  * Otherwise, if `$channels` is not an unbracketed space-separated list, throw
+    an error.
 
   * If the first element of `$channels` is an unquoted string which is
     case-insensitively equal to `from`, return a plain CSS function string
@@ -425,7 +426,8 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
     * Call `hsl()` with `hue`, `saturation`, `lightness`, and `alpha` as
       arguments and return the result.
 
-  * If `$channels` is not an unbracketed space-separated list, throw an error.
+  * Otherwise, if `$channels` is not an unbracketed space-separated list, throw
+    an error.
 
   * If the first element of `$channels` is an unquoted string which is
     case-insensitively equal to `from`, return a plain CSS function string

@@ -447,24 +447,54 @@ This function is also available as a global function named `hue()`.
   hwb($channels)
   ```
 
-  * If `$channels` is not an unbracketed space-separated list, throw an error.
+  * If `$channels` is an unbracketed slash-separated list:
 
-  * If `$channels` does not includes exactly three elements, throw an error.
+    * If `$channels` doesn't have exactly two elements, throw an error.
+      Otherwise, let `hwb` be the first element and `alpha` the second element.
 
-  * Let `hue` and `whiteness` be the first two elements of `$channels`
+    * If either `hwb` or `alpha` is a [special variable string], return a plain
+      CSS function string with the name `"hwb"` and the argument `$channels`.
 
-  * If the third element of `$channels` has preserved its status as
-    two slash-separated numbers:
+      [special variable string]: #special-variable-string
 
-    * Let `blackness` be the number before the slash and `alpha` the number
-      after the slash.
+    * If `hwb` is not an unbracketed space-separated list, throw an error.
 
-  * Otherwise:
+    * If the first element of `hwb` is an unquoted string which is
+      case-insensitively equal to `from`, return a plain CSS function string
+      with the name `"hwb"` and the argument `$channels`.
 
-    * Let `blackness` be the third element of `$channels`.
+    * If `hwb` has more than three elements, throw an error.
 
-  * Call `hwb()` with `hue`, `whiteness`, `blackness`, and `alpha` (if it's
-    defined) as arguments and return the result.
+    * If `hwb` has fewer than three elements:
+
+      * If any element of `hwb` is a special variable string, return a plain
+        CSS function string with the name `"hwb"` and the argument `$channels`.
+
+      * Otherwise, throw an error.
+
+    * Let `hue`, `whiteness`, and `blackness` be the three elements of `hwb`.
+
+    * Call `hwb()` with `hue`, `whiteness`, `blackness`, and `alpha` as
+      arguments and return the result.
+
+  * Otherwise, If `$channels` is not an unbracketed space-separated list, throw an error.
+
+    * If `$channels` does not includes exactly three elements, throw an error.
+
+    * Let `hue` and `whiteness` be the first two elements of `$channels`
+
+    * If the third element of `$channels` has preserved its status as
+      two slash-separated numbers:
+
+      * Let `blackness` be the number before the slash and `alpha` the number
+        after the slash.
+
+    * Otherwise:
+
+      * Let `blackness` be the third element of `$channels`.
+
+    * Call `hwb()` with `hue`, `whiteness`, `blackness`, and `alpha` (if it's
+      defined) as arguments and return the result.
 
 ### `ie-hex-str()`
 
