@@ -5,12 +5,13 @@
 * [Definitions](#definitions)
   * [Source File](#source-file)
   * [Vendor Prefix](#vendor-prefix)
-* [Grammar](#grammar)
+* [Syntax](#syntax-1)
   * [`InterpolatedIdentifier`](#interpolatedidentifier)
   * [`InterpolatedUrl`](#interpolatedurl)
   * [`Name`](#name)
   * [`SpecialFunctionExpression`](#specialfunctionexpression)
   * [`PseudoSelector`](#pseudoselector)
+  * [`ProductExpression`](#productexpression)
 * [Procedures](#procedures)
   * [Parsing Text](#parsing-text)
   * [Parsing Text as CSS](#parsing-text-as-css)
@@ -53,7 +54,7 @@ representation of the intermediate production.
 >
 > Parsing `"ident*"` creates an AST that contains a `Foo` that contains a `Bar`.
 > But parsing `"ident"` alone creates an AST that only contains a `Bar`—the
-> `Foo` wrapper is removed. (The `Bar` wrapper is _not_ removed because
+> `Foo` wrapper is removed. (The `Bar` wrapper is *not* removed because
 > `<ident-token>` is a CSS production, not a Sass production.)
 
 ### `InterpolatedIdentifier`
@@ -136,7 +137,6 @@ followed by a parenthesis, it must be parsed as a `SelectorPseudo` or an
 
 No whitespace is allowed anywhere in a `PseudoSelector` except within
 parentheses.
-
 
 ### `ProductExpression`
 

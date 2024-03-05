@@ -6,6 +6,9 @@
   * [List](#list)
   * [List Value](#list-value)
   * [Index](#index)
+* [Syntax](#syntax)
+* [Semantics](#semantics)
+  * [`SlashListExpression`](#slashlistexpression)
 
 ## Definitions
 
@@ -72,5 +75,3 @@ absolute value is larger than the length of that list.
 
 To evaluate a `SlashListExpression`, evaluate each of its `SpaceListExpression`s
 and return a slash-separated list that contains each of the results in order.
-
-

@@ -455,8 +455,6 @@ This function is also available as a global function named `hue()`.
     * If either `hwb` or `alpha` is a [special variable string], return a plain
       CSS function string with the name `"hwb"` and the argument `$channels`.
 
-      [special variable string]: #special-variable-string
-
     * If `hwb` is not an unbracketed space-separated list, throw an error.
 
     * If the first element of `hwb` is an unquoted string which is
@@ -495,6 +493,8 @@ This function is also available as a global function named `hue()`.
 
     * Call `hwb()` with `hue`, `whiteness`, `blackness`, and `alpha` (if it's
       defined) as arguments and return the result.
+
+[special variable string]: #special-variable-string
 
 ### `ie-hex-str()`
 
