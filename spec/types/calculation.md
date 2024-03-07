@@ -13,12 +13,14 @@
     * [`Number`](#number)
 * [Procedures](#procedures)
   * [Evaluating a `FunctionCall` as a Calculation](#evaluating-a-functioncall-as-a-calculation)
+  * [Adjusting Slash Precedence](#adjusting-slash-precedence)
   * [Evaluating an Expression as a Calculation Value](#evaluating-an-expression-as-a-calculation-value)
   * [Simplifying a Calculation](#simplifying-a-calculation)
   * [Simplifying a `CalculationValue`](#simplifying-a-calculationvalue)
 * [Semantics](#semantics)
   * [`FunctionExpression` and `Variable`](#functionexpression-and-variable)
   * [`SumExpression` and `ProductExpression`](#sumexpression-and-productexpression)
+  * [`SlashListExpression`](#slashlistexpression)
   * [`SpaceListExpression`](#spacelistexpression)
   * [`ParenthesizedExpression`](#parenthesizedexpression)
   * [`InterpolatedIdentifier`](#interpolatedidentifier)
@@ -32,13 +34,13 @@ An expression is "calculation-safe" if it is one of:
 * A [`FunctionExpression`].
 * A `ParenthesizedExpression` whose contents is calculation-safe.
 * A `SumExpression` whose operands are calculation-safe.
-* A `ProductExpression` whose operator is `*` or `/` and whose operands are
+* A `ProductExpression` whose operator is `*` and whose operands are
   calculation-safe.
 * A `Number`.
 * A `Variable`.
 * An `InterpolatedIdentifier`.
-* An unbracketed `SpaceListExpression` with more than one element, whose
-  elements are all calculation-safe.
+* An unbracketed `SpaceListExpression` or `SlashListExpression` with more than
+  one element, whose elements are all calculation-safe.
 
 [`FunctionExpression`]: ../functions.md#syntax
 
@@ -152,12 +154,70 @@ and returns a number or a calculation.
   one or more `RestArgument`s, throw an error.
 
 * Let `calc` be a calculation whose name is the lower-case value of `call`'s
-  name and whose arguments are the result of evaluating each `Expression` in
-  `call`'s `ArgumentInvocation` [as a calculation value].
+  name and whose arguments are the result of "[adjusting slash precedence] in
+  and then evaluating each `Expression`" in `call`'s `ArgumentInvocation` [as a
+  calculation value].
 
+  [adjusting slash precedence]: #adjusting-slash-precedence
   [as a calculation value]: #evaluating-an-expression-as-a-calculation-value
 
 * Return the result of [simplifying](#simplifying-a-calculation) `calc`.
+
+### Adjusting Slash Precedence
+
+This algorithm takes a calculation-safe expression `expression` and returns
+another calculation-safe expression with the precedence of
+[`SlashListExpression`]s adjusted to match division precedence.
+
+[`SlashListExpression`]: list.md#slashlistexpression
+
+* Return a copy of `expression` except, for each `SlashListExpression`:
+
+  * Let `left` be the first element of the list.
+
+  * For each remaining element `right`:
+
+    * If `left` and `right` are both `SumExpression`s:
+
+      * Let `last-left` be the last operand of `left` and `first-right` the
+        first operand of `right`.
+
+      * Set `left` to a `SumExpression` that begins with all operands and
+        operators of `left` except `last-left`, followed by a
+        `SlashListExpression` with elements `last-left` and `first-right`,
+        followed by all operators and operands of `right` except `first-right`.
+
+        > For example, `slash-list(1 + 2, 3 + 4)` becomes `1 + (2 / 3) + 4`.
+
+    * Otherwise, if `left` is a `SumExpression`:
+
+      * Let `last-left` be the last operand of `left`.
+
+      * Set `left` to a `SumExpression` that begins with all operands and
+        operators of `left` except `last-left`, followed by a
+        `SlashListExpression` with elements `last-left` and `right`.
+
+        > For example, `slash-list(1 + 2, 3)` becomes `1 + (2 / 3)`.
+
+    * Otherwise, if `right` is a `SumExpression` or a `ProductExpression`:
+
+      * Let `first-right` be the first operand of `right`.
+
+      * Set `left` to an expression of the same type as `right` that begins a
+        `SlashListExpression` with elements `left` and `first-right`, followed
+        by operators and operands of `right` except `first-right`.
+
+        > For example, `slash-list(1, 2 * 3)` becomes `(1 / 2) * 3`.
+
+    * Otherwise, if `left` is a slash-separated list, add `right` to the end.
+
+    * Otherwise, set `left` to a slash-separated list containing `left` and
+      `right`.
+
+  * Replace each element in `left` with the result of adjusting slash precedence
+    in that element.
+
+  * Replace the `SlashListExpression` with `left` in the returned expression.
 
 ### Evaluating an Expression as a Calculation Value
 
@@ -494,6 +554,21 @@ To evaluate a `SumExpresssion` or a `ProductExpression` as a calculation value:
   * Let `right` be the result of evaluating `operand` as a calculation value.
 
   * Set `left` to a `CalcOperation` with `operator`, `left`, and `right`.
+
+* Return `left`.
+
+### `SlashListExpression`
+
+To evaluate a `SlashListExpression` as a calculation value:
+
+* Let `left` be the result of evaluating the first element of the list as a
+  calculation value.
+
+* For each remaining element `element`:
+
+  * Let `right` be the result of evaluating `element` as a calculation value.
+
+  * Set `left` to a `CalcOperation` with operator `"/"`, `left`, and `right`.
 
 * Return `left`.
 
