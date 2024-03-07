@@ -5,12 +5,13 @@
 * [Definitions](#definitions)
   * [Source File](#source-file)
   * [Vendor Prefix](#vendor-prefix)
-* [Grammar](#grammar)
+* [Syntax](#syntax-1)
   * [`InterpolatedIdentifier`](#interpolatedidentifier)
   * [`InterpolatedUrl`](#interpolatedurl)
   * [`Name`](#name)
   * [`SpecialFunctionExpression`](#specialfunctionexpression)
   * [`PseudoSelector`](#pseudoselector)
+  * [`ProductExpression`](#productexpression)
 * [Procedures](#procedures)
   * [Parsing Text](#parsing-text)
   * [Parsing Text as CSS](#parsing-text-as-css)
@@ -38,7 +39,23 @@ points followed by another U+002D. An identifier only has a vendor prefix if the
 final U+002D is followed by additional text. This additional text is referred to
 as the *unprefixed identifier*.
 
-## Grammar
+## Syntax
+
+Unless otherwise specified, if a grammar production's value is parsed as a
+single other named Sass production, then the AST does not contain a
+representation of the intermediate production.
+
+> For example, suppose we have the productions:
+>
+> <x><pre>
+> **Foo** ::= Bar '*'?
+> **Bar** ::= \<ident-token>
+> </pre></x>
+>
+> Parsing `"ident*"` creates an AST that contains a `Foo` that contains a `Bar`.
+> But parsing `"ident"` alone creates an AST that only contains a `Bar`—the
+> `Foo` wrapper is removed. (The `Bar` wrapper is *not* removed because
+> `<ident-token>` is a CSS production, not a Sass production.)
 
 ### `InterpolatedIdentifier`
 
@@ -120,6 +137,12 @@ followed by a parenthesis, it must be parsed as a `SelectorPseudo` or an
 
 No whitespace is allowed anywhere in a `PseudoSelector` except within
 parentheses.
+
+### `ProductExpression`
+
+<x><pre>
+**ProductExpression** ::= (ProductExpression ('*' | '%'))? UnaryPlusExpression
+</pre></x>
 
 ## Procedures
 
@@ -219,7 +242,6 @@ modifications. The following productions should produce errors:
 
 * All SassScript operations *except for*:
 
-  * `/`
   * `not`
   * `or`
   * `and`
@@ -248,11 +270,6 @@ SCSS:
 
 * The tokens `not`, `or`, `and`, and `null` should be parsed as unquoted
   strings.
-
-  > The `/` operation should be parsed as normal. Because variables,
-  > parentheses, functions that return numbers, and all other arithmetic
-  > expressions are disallowed, it will always compile to slash-separated values
-  > rather than performing division.
 
 ### Consuming an Identifier
 
