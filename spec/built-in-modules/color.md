@@ -494,7 +494,7 @@ This function is also available as a global function named `hue()`.
     * Call `hwb()` with `hue`, `whiteness`, `blackness`, and `alpha` (if it's
       defined) as arguments and return the result.
 
-[special variable string]: #special-variable-string
+[special variable string]: ../functions.md#special-variable-string
 
 ### `ie-hex-str()`
 
