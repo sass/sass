@@ -359,10 +359,10 @@ declare const nodePackageImporterKey: unique symbol;
  *     ".": {
  *       "sass": "./src/scss/index.scss",
  *     },
- *     "./colors": {
+ *     "./colors.scss": {
  *       "sass": "./src/scss/_colors.scss",
  *     },
- *     "./theme/*": {
+ *     "./theme/*.scss": {
  *       "sass": "./src/scss/theme/*.scss",
  *     },
  *   }
