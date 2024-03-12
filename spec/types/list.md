@@ -54,9 +54,12 @@ absolute value is larger than the length of that list.
 **BracketedListExpression** ::= '[' ContainedListExpression ']'
 **ContainedListExpression** ::= CommaListExpression ','?
 **CommaListExpression**     ::= SlashListExpression (',' SlashListExpression)*
-**SlashListExpression**     ::= SpaceListExpression ('/' SpaceListExpression)*
+**SlashListExpression**     ::= SpaceListExpression (('/' SpaceListExpression?)* '/' SpaceListExpression)?
 **SpaceListExpression**     ::= SumExpression+
 </pre></x>
+
+Every pair of adjacent `/`s in a `SlashListExpression` must be separated by
+whitespace or comments, unless the stylesheet is being parsed as CSS.
 
 > Note that `/` may *not* be used in single-element lists the way `,` is. That
 > is, `(foo,)` is valid, but `(foo/)` is not.
@@ -74,4 +77,6 @@ absolute value is larger than the length of that list.
 ### `SlashListExpression`
 
 To evaluate a `SlashListExpression`, evaluate each of its `SpaceListExpression`s
-and return a slash-separated list that contains each of the results in order.
+and return a slash-separated list that contains each of the results in order. If
+any `/` isn't followed by a `SpaceListExpression`, use an empty unquoted string
+as its value instead.

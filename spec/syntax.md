@@ -257,7 +257,7 @@ modifications. The following productions should produce errors:
 
 * Uses or declarations of Sass variables.
 
-* `//`-style ("silent") comments.
+* `//`-style ("silent") comments outside of an expression context.
 
 In addition, some productions should be parsed differently than they would be in
 SCSS:
@@ -270,6 +270,10 @@ SCSS:
 
 * The tokens `not`, `or`, `and`, and `null` should be parsed as unquoted
   strings.
+
+* In an expression context, `//` is not parsed as a silent comment. Instead, two
+  adjacent `/`s in a [`SlashListExpression`] may have no whitespace between
+  them, so `//` is parsed as two slash separators in a slash-separated list.
 
 ### Consuming an Identifier
 
