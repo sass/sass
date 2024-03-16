@@ -1,6 +1,6 @@
 ## Draft 1.2
 
-* Trigger plain CSS nesting behavior based on the type of _the parent_ rule's
+* Trigger plain CSS nesting behavior based on the type of *the parent* rule's
   stylesheet, so that we don't unexpectedly generate plain-CSS nesting for
   previously un-nested `@import` and `meta.load-css()` rules.
 
