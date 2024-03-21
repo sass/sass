@@ -120,10 +120,7 @@ a string.
 
 * Let `url` be the absolute `file:` URL corresponding to `path`.
 
-* Let `importer` be a [filesystem importer] with an arbitrary `base`.
-
-  > This importer will only ever be passed absolute URLs, so its base won't
-  > matter.
+* Let `importer` be a [filesystem importer] with a null `base`.
 
 * Return the result of [compiling](#compiling-a-string) `text` with `syntax`,
   `url`, `importer`, `importers`, and `load-paths`.

@@ -193,9 +193,11 @@ contract:
 
 ### Filesystem Importer
 
-A *filesystem importer* is an [importer](#importer) with an associated absolute
-`file:` URL named `base`. When a filesystem importer is invoked with a string
-named `string`:
+A *filesystem importer* is an [importer](#importer) with an optional associated
+absolute `file:` URL named `base`. When a filesystem importer is invoked with a
+string named `string`:
+
+* If `base` is null and `url` doesn't begin with `"file:"`, return null.
 
 * Let `url` be the result of [parsing `string` as a URL][parsing a URL] with
   `base` as the base URL. If this returns a failure, throw that failure.
