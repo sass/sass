@@ -268,3 +268,13 @@ static parse(version: string): Version;
 ```ts
 } // Version
 ```
+
+## Top-Level Members
+
+### `deprecations`
+
+An object containing all of the deprecations.
+
+```ts
+export const deprecations: Deprecations;
+```

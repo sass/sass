@@ -1,3 +1,4 @@
+import {Deprecation} from '../deprecations';
 import {SourceSpan} from './source_span';
 
 export {SourceLocation} from './source_location';
@@ -43,6 +44,8 @@ export interface Logger {
    *
    * @param message - The warning message.
    * @param options.deprecation - Whether this is a deprecation warning.
+   * @param options.dperecationType - The type of deprecation this warning is
+   * for, if any.
    * @param options.span - The location in the Sass source code that generated this
    * warning.
    * @param options.stack - The Sass stack trace at the point the warning was issued.
@@ -51,6 +54,7 @@ export interface Logger {
     message: string,
     options: {
       deprecation: boolean;
+      deprecationType?: Deprecation;
       span?: SourceSpan;
       stack?: string;
     }
