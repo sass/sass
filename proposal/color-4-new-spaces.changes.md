@@ -1,3 +1,8 @@
+## Draft 1.13
+
+* Remove definitions of powerless channels that are no longer present in CSS
+  Color 4.
+
 ## Draft 1.12
 
 * Explicitly indicate which channels are clamped, and apply this clamping only

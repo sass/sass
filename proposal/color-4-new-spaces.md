@@ -1,4 +1,4 @@
-# CSS Color Level 4, New Color Spaces: Draft 1.12
+# CSS Color Level 4, New Color Spaces: Draft 1.13
 
 *([Issue](https://github.com/sass/sass/issues/2831))*
 
@@ -785,25 +785,14 @@ in certain circumstances.
 
   * If the `saturation` value is `0%`, then the `hue` channel is powerless.
 
-  * If the `lightness` value is either `0%` or `100%`, then both the `hue` and
-    `saturation` values are powerless.
-
 * `hwb`:
 
   * If the combined `whiteness` and `blackness` values (after normalization)
     are equal to `100%`, then the `hue` channel is powerless.
 
-* `lab`/`oklab`:
-
-  * If the `lightness` value is either `0%` or `100%`, then both the `a` and
-  `b` channels are powerless.
-
 * `lch`/`oklch`:
 
   * If the `chroma` value is 0%, then the `hue` channel is powerless.
-
-  * If the `lightness` value is either `0%` or `100%`, then both the `hue` and
-    `chroma` channels are powerless.
 
 ### Color Interpolation Method
 
