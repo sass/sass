@@ -735,6 +735,18 @@ The known color spaces and their channels are:
     * associated unit: `deg`
     * degrees: polar angle
 
+If a color with negative saturation or chroma would be created in the `hsl`,
+`lch`, or `oklch` spaces by any means, instead create a color with the absolute
+value of that saturation or chroma and the hue rotated by 180deg.
+
+> This is an equivalent color, and in fact passing channels with negative
+> saturation/chroma through conversion to other color spaces and back will
+> produce this same result. This helps ensure that identical colors are
+> represented uniformly.
+>
+> Note that this conversion happens *after* any clipping, so `hsl(0deg -50%
+> 50%)` returns `hsl(0deg 0% 50%)`, not `hsl(180deg 50% 50%)`.
+
 ### Predefined Color Spaces
 
 > 'Predefined color spaces' can be described using the `color()` function.

@@ -5,6 +5,9 @@
 
 * Add channel clamping to `color.adjust()`.
 
+* Convert negative saturation/chroma polar colors to their positive equivalents
+  on creation.
+
 * Give implementations more flexibility in how they serialize out-of-gamut
   clamped colors.
 
