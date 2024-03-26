@@ -5,6 +5,9 @@
 
 * Add channel clamping to `color.adjust()`.
 
+* Give implementations more flexibility in how they serialize out-of-gamut
+  clamped colors.
+
 * Clarify that an error is thrown when passing conflicting legacy channels to
   `color.change()`, `color.adjust()`, and `color.scale()`.
 

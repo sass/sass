@@ -834,17 +834,28 @@ To serialize a non-legacy color `color`:
 
 * Let `space-name` be an unquoted lowercase string of `color`'s space name.
 
-* If `color` has a clamped channel whose value is out-of-bounds:
+* If `color` has a clamped channel whose value is out-of-bounds, emit a CSS
+  [`<color>`] expression that evaluates to `color`'s value, then return.
 
-  * Let `xyz` be the result of [converting] `color` into the `xyz` color space.
-
-  * Emit "color-mix(in ", followed by `space-name`, ", ", the result of
-    serializing `xyz`, and then " 100%, black)".
-
-  > This syntax effectively converts the `xyz` color back into the original
-  > color space. The second argument to `color-mix()` is irrelevant when the
-  > first color has weight 100%, so implementations are free to change it (for
-  > example, an implementation might use "red" instead to minimize bytes).
+  > The specific syntax here is left up to implementations, based on the
+  > specifics of the color in question and the realities of browser support.
+  > Two options include:
+  >
+  > * `color-mix()`. For example, `color-mix(in lab, color(xyz 1 1 1) 100%,
+  >   black)` will losslessly convert `color(xyz 1 1 1)` into `lab` where the
+  >   native `lab` syntax would clamp the lightness at `100%`.
+  >
+  > * [Relative color syntax], which per spec is never clamped. For example,
+  >   while the lightness in `lab(200 50 50)` is clamped, the lightness in
+  >   `lab(from black 200 50 50)` is not.
+  >
+  > At the time of writing, browser support is patchy for these syntaxes and no
+  > browser correctly avoids clipping in all the cases we're relying on.
+  > Although we have no way of ensuring that all color values representable in
+  > Sass can be correctly loaded by browsers, this spec aims to ensure that Sass
+  > generates the correct value according to the CSS spec and that
+  > implementations have enough flexibility within that to target the shifting
+  > landscape of what browsers actually support.
 
 * Let `known-space` be the result of [looking up a known color space] with a
   `name` of `space-name`.
@@ -882,6 +893,7 @@ To serialize a non-legacy color `color`:
 * Otherwise, emit "color(", followed by `space-name`, " ", `components`, and
   then ")".
 
+[`<color>`]: https://drafts.csswg.org/css-color-5/#typedef-color
 [predefined color space]: #predefined-color-spaces
 
 ### Serialization of Out-of-Gamut RGB Colors
