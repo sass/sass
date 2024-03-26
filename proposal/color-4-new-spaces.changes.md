@@ -5,6 +5,9 @@
 
 * Add channel clamping to `color.adjust()`.
 
+* Clarify that an error is thrown when passing conflicting legacy channels to
+  `color.change()`, `color.adjust()`, and `color.scale()`.
+
 ## Draft 1.12
 
 * Explicitly indicate which channels are clamped, and apply this clamping only

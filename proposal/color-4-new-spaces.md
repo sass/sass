@@ -1804,21 +1804,20 @@ This function is also available as a global function named `change-color()`.
 
     * If `color` is not a [legacy color], throw an error.
 
-    * If `key` is one of `red`, `green`, or `blue`:
+    * If `key` is one of `red`, `green`, or `blue`, set `space` to `rgb`.
 
-      * Let `legacy-color` be the result of [converting] `color` to `rgb`.
+    * Otherwise, if `key` is one of `saturation` or `lightness`, or if `key` is
+      `hue` and the only other keywords in `channel-args` are `saturation` or
+      `lightness`, set `space` to `hsl`.
 
-    * Otherwise, if `key` is one of `hue`, `saturation`, or `lightness`:
-
-      * Let `legacy-color` be the result of [converting] `color` to `hsl`.
-
-    * Otherwise, if `key` is one of `whiteness`, or `blackness`:
-
-      * Let `legacy-color` be the result of [converting] `color` to `hwb`.
+    * Otherwise, if `key` is one of `whiteness` or `blackness`, or if `key` is
+      `hue` and the only other keywords in `channel-args` are `whiteness` or
+      `blackness`, set `space` to `hwb`.
 
     * Otherwise, throw an error.
 
-    * Set `channels` to be a list of `legacy-color`'s channels.
+    * Set `channels` to be a list of the channels in `color` [converted] to
+      `space`.
 
   * Set the corresponding `key` value in `channels` to `new`.
 
@@ -1883,21 +1882,20 @@ This function is also available as a global function named `adjust-color()`.
 
     * If `color` is not a [legacy color], throw an error.
 
-    * If `key` is one of `red`, `green`, or `blue`:
+    * If `key` is one of `red`, `green`, or `blue`, set `space` to `rgb`.
 
-      * Let `legacy-color` be the result of [converting] `color` to `rgb`.
+    * Otherwise, if `key` is one of `saturation` or `lightness`, or if `key` is
+      `hue` and the only other keywords in `channel-args` are `saturation` or
+      `lightness`, set `space` to `hsl`.
 
-    * Otherwise, if `key` is one of `hue`, `saturation`, or `lightness`:
-
-      * Let `legacy-color` be the result of [converting] `color` to `hsl`.
-
-    * Otherwise, if `key` is one of `whiteness`, or `blackness`:
-
-      * Let `legacy-color` be the result of [converting] `color` to `hwb`.
+    * Otherwise, if `key` is one of `whiteness` or `blackness`, or if `key` is
+      `hue` and the only other keywords in `channel-args` are `whiteness` or
+      `blackness`, set `space` to `hwb`.
 
     * Otherwise, throw an error.
 
-    * Set `channels` to be a list of `legacy-color`'s channels.
+    * Set `channels` to be a list of the channels in `color` [converted] to
+      `space`.
 
   * Let `value` be the value of the channel named `key` in `channels`.
 
@@ -1952,6 +1950,8 @@ This function is also available as a global function named `adjust-color()`.
 
 * Return the result of [converting] `new` into `origin-space`.
 
+[converted]: #converting-a-color
+
 ### `color.scale()`
 
 ```
@@ -2004,17 +2004,13 @@ This function is also available as a global function named `scale-color()`.
 
     * If `color` is not a [legacy color], throw an error.
 
-    * If `scale` is one of `red`, `green`, or `blue`:
+    * If `scale` is one of `red`, `green`, or `blue`, set `space` to `rgb`.
 
-      * Let `legacy-color` be the result of [converting] `color` to `rgb`.
+    * Otherwise, if `scale` is one of `saturation`, or `lightness`, set `space`
+      to `hsl`.
 
-    * Otherwise, if `scale` is one of `saturation`, or `lightness`:
-
-      * Let `legacy-color` be the result of [converting] `color` to `hsl`.
-
-    * Otherwise, if `scale` is one of `whiteness`, or `blackness`:
-
-      * Let `legacy-color` be the result of [converting] `color` to `hwb`.
+    * Otherwise, if `scale` is one of `whiteness`, or `blackness`, set `space`
+      to `hwb`.
 
     * Otherwise, throw an error.
 
