@@ -1196,8 +1196,8 @@ normalized channel value otherwise.
 
 * Otherwise:
 
-  * Let `valid` be the corresponding channel defined by the [known color space]
-    `space` with a name of `key`.
+  * Let `valid` be the corresponding channel named `key` defined by the [known
+    color space] `space`.
 
   * If `valid` is a polar-angle `hue`:
 
@@ -1677,7 +1677,7 @@ is-missing($color, $channel)
 
   * If `channel` is not the name of a channel in `$color`, throw an error.
 
-  * Let `value` be the channel value in `color` with name of `channel`.
+  * Let `value` be the channel value named `channel` in `color`.
 
 * Return `true` if `value == null`, and `false` otherwise.
 
@@ -1899,9 +1899,11 @@ This function is also available as a global function named `adjust-color()`.
 
     * Set `channels` to be a list of `legacy-color`'s channels.
 
-  * Let `channel` be the value of the channel in `channels` with name of `key`.
+  * Let `value` be the value of the channel named `key` in `channels`.
 
-  * Let `valid` be the channel in by `known-space` with a name of `key`.
+  * Let `original` be `value`.
+
+  * Let `channel` be the channel named `key` in `known-space`.
 
   * If `channel == none`, throw an error.
 
@@ -1911,19 +1913,37 @@ This function is also available as a global function named `adjust-color()`.
 
   * If `adjust` has the unit `%`:
 
-    * If `valid` requires a percentage, set `channel` to the result of appending
-      `%` units to `channel`.
+    * If `channel` requires a percentage, set `value` to the result of appending
+      `%` units to `value`.
 
-    * Otherwise, if `valid` allows percentage mapping, set `adjust` to the
+    * Otherwise, if `channel` allows percentage mapping, set `adjust` to the
       result of [percent-converting] `adjust` with a `max` given by the maximum
-      of `valid`'s gamut range.
+      of `channel`'s gamut range.
 
     * Otherwise, throw an error.
 
-  * Set `channel` to `channel + adjust`.
+  * Set `value` to `value + adjust`.
 
     > Once percentage/number conversions have been normalized, this will throw
-    > an error if `adjust` and `channel` are not compatible.
+    > an error if `adjust` and `value` are not compatible.
+
+  * If `channel`'s upper bound `bound` is clamped and `value > bound`:
+
+    * If `original > bound`, set `value` to `math.min(original, value)`.
+
+    * Otherwise, set `value` to `bound`.
+
+  * Otherwise, if `channel`'s lower bound `bound` is clamped and `value < bound`:
+
+    * If `original < bound`, set `value` to `math.max(original, value)`.
+
+    * Otherwise, set `value` to `bound`.
+
+  > This ensures that adjustment won't ever make a color go out-of-bounds, which
+  > preserves the historical clamping behavior (which is particularly important
+  > because negative saturation behaves *very* strangely) while still ensuring
+  > that adjustment works rationally for channels that are already
+  > out-of-bounds.
 
 * Set `channels` to the result of [normalizing] `channels` in `known-space`.
 

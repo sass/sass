@@ -3,6 +3,8 @@
 * Remove definitions of powerless channels that are no longer present in CSS
   Color 4.
 
+* Add channel clamping to `color.adjust()`.
+
 ## Draft 1.12
 
 * Explicitly indicate which channels are clamped, and apply this clamping only
