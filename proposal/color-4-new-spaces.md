@@ -451,6 +451,8 @@ required major changes to the way Sass handles colors:
 Per the CSS specs, certain channels are clamped at parse time [but *not* in
 interpolation] for specific color functions:
 
+[but *not* in interpolation]: https://github.com/w3c/csswg-drafts/issues/9484
+
 * All channels of the `rgb()` and `rgba()` functions.
 * The lightness channel of the `lab()`, `lch()`, `oklab()`, and `oklch()`
   functions.
@@ -465,8 +467,6 @@ through color functions, so writing `lab(110% 0 0)` will return `lab(100% 0 0)`.
 On the other hand, to preserve colors on a round trip between spaces, we need to
 allow the internal representation of these colors to go out-of-gamut.
 
-[but *not* in interpolation]: https://github.com/w3c/csswg-drafts/issues/9484
-
 The question remains as to how to handle cases that don't directly correspond to
 CSS, such as the `color.change()` function. Because out-of-gamut clamped
 channels are meaningful in CSS, we've chosen the design principle of preserving
@@ -475,15 +475,15 @@ addition, to ensure that that the colors represent the same values in CSS that
 they do in Sass, they'll be serialized to special formats that preserves their
 out-of-gamut values:
 
-* Out-of-gamut RGB colors are serialized to `hsl()`, which per spec is not
-  clamped at parse-time (although in practice browsers do clamp it at time of
-  writing). This ensures that older browsers will still handle these colors
-  correctly while still preserving the unclamped value for modern browsers (once
-  they work per spec).
+* Out-of-gamut RGB colors are serialized to `hsl()`, the lightness channel and
+  saturation upper bound of which per spec are not clamped at parse-time
+  (although in practice browsers do clamp them at time of writing). This ensures
+  that older browsers will still handle these colors somewhat correctly while
+  preserving the unclamped value for modern browsers (once they work per spec).
 
 * Out-of-gamut Lab, LCH, OKLab, and OKLCH colors are serialized to `color-mix(in
   ..., color(xyz ...) 100%, black)` to preserve both the original color space
-  and the unclamped value.
+  and the unclamped value in conformant browsers.
 
 #### Changing Color Spaces
 
@@ -648,7 +648,7 @@ The known color spaces and their channels are:
     * associated unit: `deg`
     * degrees: polar angle
   * `saturation`:
-    * gamut: bounded
+    * gamut: bounded, clamped (lower bound only)
     * associated unit: `%`
     * percentage: `[0%,100%]`
   * `lightness`:
@@ -1239,7 +1239,7 @@ normalized channel value otherwise.
 
 [normalizing]: #normalizing-color-channels
 
-This process accepts a list of `channels` to validate, a [known color space]
+This process accepts a list of `channels` to validate and a [known color space]
 `space` to normalize against. It throws an error if any channel is invalid for
 the color space, or returns a normalized list of valid channels otherwise.
 
