@@ -1,3 +1,11 @@
+## Draft 1.12
+
+* Explicitly indicate which channels are clamped, and apply this clamping only
+  when constructing colors from global functions.
+
+* Serialize colors with out-of-bounds clamped channels so that they parse as the
+  correct out-of-gamut value *and* the correct color space, per the spec.
+
 ## Draft 1.11
 
 * Add support for the relative color syntax in the algorithm parsing color
