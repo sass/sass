@@ -40,11 +40,15 @@ proposals.
 
 ```ts
 export {
+  AsyncCompiler,
   CompileResult,
+  Compiler,
   compile,
   compileAsync,
   compileString,
   compileStringAsync,
+  initCompiler,
+  initAsyncCompiler,
 } from './compile';
 export {Exception} from './exception';
 export {
@@ -52,6 +56,7 @@ export {
   FileImporter,
   Importer,
   ImporterResult,
+  NodePackageImporter,
 } from './importer';
 export {Logger, SourceSpan, SourceLocation} from './logger';
 export {

@@ -72,6 +72,7 @@ This function is also available as a global function named `list-separator()`.
 slash($elements...)
 ```
 
+* Emit a deprecation warning.
 * If `$elements` contains zero or one values, throw an error.
 * Return an unbracketed slash-separated list containing `$elements`.
 

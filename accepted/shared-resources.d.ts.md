@@ -1,4 +1,4 @@
-# Shared Resources in JavaScript API: Draft 1.1
+# Shared Resources in JavaScript API: Draft 1.3
 
 *([Issue](https://github.com/sass/sass/issues/3296))*
 
@@ -97,7 +97,7 @@ function setup() {
   compiler.dispose();
 
   // throws error
-  const result3 = sass.compileString('a {b: c}').css;
+  const result3 = compiler.compileString('a {b: c}').css;
 }
 ```
 
@@ -109,10 +109,10 @@ async function setup() {
   const compiler = await sass.initAsyncCompiler();
   const result1 = await compiler.compileStringAsync('a {b: c}').css;
   const result2 = await compiler.compileStringAsync('a {b: c}').css;
-  compiler.dispose();
+  await compiler.dispose();
 
   // throws error
-  const result3 = sass.compileStringAsync('a {b: c}').css;
+  const result3 = await compiler.compileStringAsync('a {b: c}').css;
 }
 ```
 
@@ -150,7 +150,14 @@ export function initAsyncCompiler(): Promise<AsyncCompiler>;
 An instance of the synchronous Compiler.
 
 ```ts
-export interface Compiler {
+export class Compiler {
+```
+
+If the Compiler is directly constructed (as opposed to the Compiler being
+created via `initCompiler`), throw an error.
+
+```ts
+private constructor();
 ```
 
 ##### `compile()` and `compileString()`
@@ -184,7 +191,14 @@ When `dispose` is invoked on a Compiler:
 An instance of the asynchronous Compiler.
 
 ```ts
-export interface AsyncCompiler {
+export class AsyncCompiler {
+```
+
+If the AsyncCompiler is directly constructed (as opposed to the Compiler being
+created via `initAsyncCompiler`), throw an error.
+
+```ts
+private constructor();
 ```
 
 ##### `compileAsync()` and `compileStringAsync()`

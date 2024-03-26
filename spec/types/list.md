@@ -6,6 +6,9 @@
   * [List](#list)
   * [List Value](#list-value)
   * [Index](#index)
+* [Syntax](#syntax)
+* [Semantics](#semantics)
+  * [`SlashListExpression`](#slashlistexpression)
 
 ## Definitions
 
@@ -44,3 +47,36 @@ absolute value is larger than the length of that list.
 > * `"c"`: 3, -1
 
 [integer]: number.md#integer
+
+## Syntax
+
+<x><pre>
+**BracketedListExpression** ::= '[' ContainedListExpression ']'
+**ContainedListExpression** ::= CommaListExpression ','?
+**CommaListExpression**     ::= SlashListExpression (',' SlashListExpression)*
+**SlashListExpression**     ::= SpaceListExpression (('/' SpaceListExpression?)* '/' SpaceListExpression)?
+**SpaceListExpression**     ::= SumExpression+
+</pre></x>
+
+Every pair of adjacent `/`s in a `SlashListExpression` must be separated by
+whitespace or comments, unless the stylesheet is being parsed as CSS.
+
+> Note that `/` may *not* be used in single-element lists the way `,` is. That
+> is, `(foo,)` is valid, but `(foo/)` is not.
+>
+> This defines `/` to bind tighter than `,` but looser than space-separated
+> lists. This was chosen because most common uses of `/` in CSS conceptually
+> bind looser than space-separated values. The only exception is the [`font`
+> shorthand syntax], which is used much more rarely will still work (albeit with
+> an unintuitive SassScript representation) with a loose-binding `/`.
+>
+> [`font` shorthand syntax]: https://developer.mozilla.org/en-US/docs/Web/CSS/font
+
+## Semantics
+
+### `SlashListExpression`
+
+To evaluate a `SlashListExpression`, evaluate each of its `SpaceListExpression`s
+and return a slash-separated list that contains each of the results in order. If
+any `/` isn't followed by a `SpaceListExpression`, use an empty unquoted string
+as its value instead.

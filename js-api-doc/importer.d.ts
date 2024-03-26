@@ -308,6 +308,139 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
   nonCanonicalScheme?: string | string[];
 }
 
+declare const nodePackageImporterKey: unique symbol;
+
+/**
+ * The built-in Node.js package importer. This loads pkg: URLs from node_modules
+ * according to the standard Node.js resolution algorithm.
+ *
+ * A Node.js package importer is exposed as a class that can be added to the
+ * `importers` option.
+ *
+ *```js
+ * const sass = require('sass');
+ * sass.compileString('@use "pkg:vuetify', {
+ *   importers: [new sass.NodePackageImporter()]
+ * });
+ *```
+ *
+ * ## Writing Sass packages
+ *
+ * Package authors can control what is exposed to their users through their
+ * `package.json` manifest. The recommended method is to add a `sass`
+ * conditional export to `package.json`.
+ *
+ * ```json
+ * // node_modules/uicomponents/package.json
+ * {
+ *   "exports": {
+ *     ".": {
+ *       "sass": "./src/scss/index.scss",
+ *       "import": "./dist/js/index.mjs",
+ *       "default": "./dist/js/index.js"
+ *     }
+ *   }
+ * }
+ * ```
+ *
+ * This allows a package user to write `@use "pkg:uicomponents"` to load the
+ * file at `node_modules/uicomponents/src/scss/index.scss`.
+ *
+ * The Node.js package importer supports the variety of formats supported by
+ * Node.js [package entry points], allowing authors to expose multiple subpaths.
+ *
+ * [package entry points]:
+ * https://nodejs.org/api/packages.html#package-entry-points
+ *
+ * ```json
+ * // node_modules/uicomponents/package.json
+ * {
+ *   "exports": {
+ *     ".": {
+ *       "sass": "./src/scss/index.scss",
+ *     },
+ *     "./colors.scss": {
+ *       "sass": "./src/scss/_colors.scss",
+ *     },
+ *     "./theme/*.scss": {
+ *       "sass": "./src/scss/theme/*.scss",
+ *     },
+ *   }
+ * }
+ * ```
+ *
+ * This allows a package user to write:
+ *
+ * - `@use "pkg:uicomponents";` to import the root export.
+ * - `@use "pkg:uicomponents/colors";` to import the colors partial.
+ * - `@use "pkg:uicomponents/theme/purple";` to import a purple theme.
+ *
+ * Note that while library users can rely on the importer to resolve
+ * [partials](https://sass-lang.com/documentation/at-rules/use#partials), [index
+ * files](https://sass-lang.com/documentation/at-rules/use#index-files), and
+ * extensions, library authors must specify the entire file path in `exports`.
+ *
+ * In addition to the `sass` condition, the `style` condition is also
+ * acceptable. Sass will match the `default` condition if it's a relevant file
+ * type, but authors are discouraged from relying on this. Notably, the key
+ * order matters, and the importer will resolve to the first value with a key
+ * that is `sass`, `style`, or `default`, so you should always put `default`
+ * last.
+ *
+ * To help package authors who haven't transitioned to package entry points
+ * using the `exports` field, the Node.js package importer provides several
+ * fallback options. If the `pkg:` URL does not have a subpath, the Node.js
+ * package importer will look for a `sass` or `style` key at the root of
+ * `package.json`.
+ *
+ * ```json
+ * // node_modules/uicomponents/package.json
+ * {
+ *   "sass": "./src/scss/index.scss",
+ * }
+ * ```
+ *
+ * This allows a user to write `@use "pkg:uicomponents";` to import the
+ * `index.scss` file.
+ *
+ * Finally, the Node.js package importer will look for an `index` file at the
+ * package root, resolving partials and extensions. For example, if the file
+ * `_index.scss` exists in the package root of `uicomponents`, a user can import
+ * that with `@use "pkg:uicomponents";`.
+ *
+ * If a `pkg:` URL includes a subpath that doesn't have a match in package entry
+ * points, the Node.js importer will attempt to find that file relative to the
+ * package root, resolving for file extensions, partials and index files. For
+ * example, if the file `src/sass/_colors.scss` exists in the `uicomponents`
+ * package, a user can import that file using `@use
+ * "pkg:uicomponents/src/sass/colors";`.
+ *
+ * @compatibility dart: "1.71.0", node: false
+ * @category Importer
+ */
+export class NodePackageImporter {
+  /** Used to distinguish this type from any arbitrary object. */
+  private readonly [nodePackageImporterKey]: true;
+
+  /**
+   * The NodePackageImporter has an optional `entryPointDirectory` option, which
+   * is the directory where the Node Package Importer should start when
+   * resolving `pkg:` URLs in sources other than files on disk. This will be
+   * used as the `parentURL` in the [Node Module
+   * Resolution](https://nodejs.org/api/esm.html#resolution-algorithm-specification)
+   * algorithm.
+   *
+   * In order to be found by the Node Package Importer, a package will need to
+   * be inside a node_modules folder located in the `entryPointDirectory`, or
+   * one of its parent directories, up to the filesystem root.
+   *
+   * Relative paths will be resolved relative to the current working directory.
+   * If a path is not provided, this defaults to the parent directory of the
+   * Node.js entrypoint. If that's not available, this will throw an error.
+   */
+  constructor(entryPointDirectory?: string);
+}
+
 /**
  * The result of successfully loading a stylesheet with an {@link Importer}.
  *

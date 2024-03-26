@@ -172,7 +172,7 @@ A number has *known units* unless it has unit `%`.
 Replace [the definition of `Potentially Slash-Separated Number`] with the
 following:
 
-[the definition of `Potentially Slash-Separated Number`]: ../spec/types/number.md#potentially-slash-separated-number
+[the definition of `Potentially Slash-Separated Number`]: slash-separator.md#existing-behavior
 
 A Sass number may be *potentially slash-separated*. If it is, it is associated
 with two additional Sass numbers, the *original numerator* and the *original

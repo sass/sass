@@ -106,6 +106,8 @@ function runLinkCheck(
             {pattern: /^https?:\/\/blogs\.msdn\.microsoft\.com(\/|$)/},
             // Link consistently fails within CI
             {pattern: /^https:\/\/runtime-keys\.proposal\.wintercg\.org(\/|$)/},
+            // Stackoverflow links can get rate-limited on GitHub Actions
+            {pattern: /^https:\/\/stackoverflow\.com(\/|$)/},
           ],
         },
         (error, results) => {
