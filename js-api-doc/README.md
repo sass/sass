@@ -1,13 +1,21 @@
-The [`sass` package] on npm is a pure-JavaScript package built from the [Dart
-Sass] implementation. In addition to Dart Sass's [command-line interface], it
-provides a JavaScript API that can be used to drive Sass compilations from
+The Sass JavaScript API can be used to to drive Sass Compilations from
 JavaScript. It even allows an application to control {@link Options.importers |
 how stylesheets are loaded} and {@link Options.functions | define custom
 functions}.
 
+The [`sass` package] on npm is a pure-JavaScript package built from the [Dart
+Sass] implementation, and includes Dart Sass's [command-line interface].
+
+The [`sass-embedded` package] on npm is a JavaScript wrapper around a native
+Dart executable, and in general is faster than `sass`.
+
+Both `sass` and `sass-embedded` provide the same JavaScript API using the same
+underlying [Dart Sass] implementation, but have speed and platform tradeoffs.
+
 [`sass` package]: https://www.npmjs.com/package/sass
 [Dart Sass]: https://sass-lang.com/dart-sass
 [command-line interface]: https://sass-lang.com/documentation/cli/dart-sass
+[`sass-embedded` package]: https://www.npmjs.com/package/sass-embedded
 
 ## Usage
 
@@ -112,3 +120,38 @@ of Sass code by passing in a {@link LegacyStringOptions}.
     }
   });
   ```
+
+## Speed
+
+While multiple factors go into how long Sass compilations take, there are
+general speed trends that can help you minimize your compilation time.
+
+### With the `sass` package
+
+With the `sass` package, the synchronous calls will be faster than asynchronous
+calls due to the overhead of making the entire evaluation process asynchronous.
+While the {@link Compiler} and {@link AsyncCompiler} class are available, they
+aren't faster than than the module-level compilation methods when using `sass`.
+
+### With the `sass-embedded` package
+
+The `sass-embedded` package provides significant speed improvements in certain
+situations, and is generally faster than `sass` for large or frequent
+compilations. When using the module-level compilation methods, asynchronous
+calls are generally faster than synchronous ones due to the overhead of
+emulating synchronous messaging with worker threads and concurrent compilations
+being blocked on the main thread.
+
+The {@link Compiler} and {@link AsyncCompiler} classes provide significant
+improvements when using the `sass-embedded` package. These classes persist and
+reuse a single Dart process across multiple compilations, avoiding the need to
+repeatedly start up and tear down a process.
+
+When compiling a single file using `sass-embedded`, there is not much difference
+between the synchronous and asynchronous methods. When running multiple
+compilations at the same time, an {@link AsyncCompiler} will be considerably
+faster than a synchronous {@link Compiler}.
+
+Other factors like {@link Functions}, {@link Importers} and the complexity of
+your Sass files may also impact what compilation methods work best for your
+particular use case.

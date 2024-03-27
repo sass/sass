@@ -325,7 +325,7 @@ numbers.
 Add `CalcExpression`s, `ClampExpression`s, `CssMinMax`es to the list of operands
 of the `/` operator that can create a [potentially slash-separated number].
 
-[potentially slash-separated number]: ../spec/types/number.md#potentially-slash-separated-number
+[potentially slash-separated number]: slash-separator.md#existing-behavior
 
 ## Syntax
 
