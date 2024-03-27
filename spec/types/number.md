@@ -14,7 +14,6 @@
   * [Exact Equality](#exact-equality)
   * [Fuzzy Equality](#fuzzy-equality)
   * [Integer](#integer)
-  * [Potentially Slash-Separated Number](#potentially-slash-separated-number)
 * [Types](#types)
   * [Operations](#operations)
     * [Equality](#equality)
@@ -209,37 +208,6 @@ If `m` exists, we say that `n`'s *integer value* is the double that represents
 
 > To avoid ambiguity, specification text will generally use the term
 > "mathematical integer" when referring to the abstract mathematical objects.
-
-### Potentially Slash-Separated Number
-
-A Sass number may be *potentially slash-separated*. If it is, it is associated
-with two additional Sass numbers, the *original numerator* and the *original
-denominator*. A number that is not potentially slash-separated is known as
-*slash-free*.
-
-A potentially slash-separated number is created when a `ProductExpression` with
-a `/` operator is evaluated and each operand is *syntactically* one of the
-following:
-
-* a `Number`,
-* a [`FunctionCall`], or
-* a `ProductExpression` that can itself create potentially slash-separated
-  numbers.
-  
-[`FunctionCall`]: ../functions.md#functioncall
-
-If the result of evaluating the `ProductExpression` is a number, that number is
-potentially slash-separated if all of the following are true:
-
-* the results of evaluating both operands were numbers, and
-* if either operand was a `FunctionCall`, it was [evaluated as a calculation]
-  and its name was not `"abs"`, `"max"`, `"min"`, or `"round"`.
-
-  [evaluated as a calculation]: calculation.md#evaluating-a-functioncall-as-a-calculation
-
-If both of these are true, the first operand is the original numerator of the
-potentially slash-separated number returned by the `/` operator, and the second
-is the original denominator.
 
 ## Types
 

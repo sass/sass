@@ -12,6 +12,8 @@
   * [Built-In Module](#built-in-module)
   * [Importer](#importer)
   * [Filesystem Importer](#filesystem-importer)
+  * [Package Importers](#package-importers)
+  * [Node Package Importer](#node-package-importer)
   * [Global Importer List](#global-importer-list)
   * [Basename](#basename)
   * [Dirname](#dirname)
@@ -23,6 +25,13 @@
   * [Resolving a `file:` URL for Extensions](#resolving-a-file-url-for-extensions)
   * [Resolving a `file:` URL for Partials](#resolving-a-file-url-for-partials)
   * [Resolving a Member](#resolving-a-member)
+  * [Node Package Importer Semantics](#node-package-importer-semantics)
+    * [Node Algorithm for Resolving a `pkg:` URL](#node-algorithm-for-resolving-a-pkg-url)
+    * [Resolving a package name](#resolving-a-package-name)
+    * [Resolving the root directory for a package](#resolving-the-root-directory-for-a-package)
+    * [Resolving package exports](#resolving-package-exports)
+    * [Resolving package root values](#resolving-package-root-values)
+    * [Export Load Paths](#export-load-paths)
 
 ## Definitions
 
@@ -211,6 +220,81 @@ named `string`:
 
 [parsing a URL]: https://url.spec.whatwg.org/#concept-url-parser
 
+### Package Importers
+
+This proposal defines the requirements for Package Importers written by users or
+provided by implementations. It is a type of [Importer] and, in addition to the
+standard requirements for importers, it must handle only non-canonical URLs that:
+
+* have the scheme `pkg`, and
+* whose path begins with a package name, and
+* optionally followed by a path, with path segments separated with a forward
+  slash.
+
+The package name will often be the first path segment, but the importer may take
+into account any conventions in the environment. For instance, Node supports
+scoped package names, which start with `@` followed by 2 path segments. Note
+that package names that contain non-alphanumeric characters may be less portable
+across different package importers.
+
+Package Importers must reject the following patterns:
+
+* A URL whose path begins with `/`.
+* A URL with non-empty/null username, password, host, port, query, or fragment.
+
+[importer]: #importer
+
+### Node Package Importer
+
+The Node Package Importer is an implementation of a [Package Importer] using the
+standards and conventions of the Node ecosystem. It has an associated absolute
+`file:` URL named `entryPointURL`.
+
+When the Node Package Importer is invoked with a string named `string`:
+
+* If `string` is a relative URL, return null.
+
+* Let `url` be the result of [parsing `string` as a URL][parsing a URL]. If this
+  returns a failure, throw that failure.
+
+* If `url`'s scheme is not `pkg:`, return null.
+
+* If `url`'s path begins with a `/` or is empty, throw an error.
+
+* If `url` contains a username, password, host, port, query, or fragment, throw
+  an error.
+
+* Let `sourceFile` be the canonical URL of the [current source file] that
+  contained the load.
+
+* If `sourceFile`'s scheme is `file:`, let `baseURL` be `sourceFile`.
+
+* Otherwise, let `baseURL` be `entryPointURL`.
+
+* Let `resolved` be the result of [resolving a `pkg:` URL as Node] with `url` and
+  `baseURL`.
+
+* If `resolved` is null, return null.
+
+* Let `text` be the contents of the file at `resolved`.
+
+* Let `syntax` be:
+
+  * "scss" if `resolved` ends in `.scss`.
+
+  * "indented" if `resolved` ends in `.sass`.
+
+  * "css" if `resolved` ends in `.css`.
+
+  > The algorithm for [resolving a `pkg:` URL as Node] guarantees that
+  > `resolved` will have one of these extensions.
+
+* Return `text`, `syntax`, and `resolved`.
+
+[Package Importer]: #package-importers
+[current source file]: ./spec.md#current-source-file
+[resolving a `pkg:` URL as Node]: #node-algorithm-for-resolving-a-pkg-url
+
 ### Global Importer List
 
 The *global importer list* is a list of importers that's set for the entire
@@ -322,7 +406,6 @@ null.
 
 * Return null.
 
-[current source file]: spec.md#current-source-file
 [parsing]: syntax.md#parsing-text
 
 ### Resolving a `file:` URL
@@ -506,3 +589,160 @@ and returns a member of type `type` or null.
   > implementation's host language API.
 
 * Otherwise, return null.
+
+### Node Package Importer Semantics
+
+#### Node Algorithm for Resolving a `pkg:` URL
+
+This algorithm takes a URL with scheme `pkg:` named `url`, and a URL `baseURL`.
+It returns a canonical `file:` URL or null.
+
+* Let `fullPath` be `url`'s path.
+
+* Let `packageName` be the result of [resolving a package name] with `fullPath`,
+  and `subpath` be `fullPath` without the `packageName`.
+
+* Let `packageRoot` be the result of [resolving the root directory for a
+  package] with `packageName` and `baseURL`.
+
+* If a `package.json` file does not exist at `packageRoot`, throw an error.
+
+* Let `packageManifest` be the result of parsing the `package.json` file at
+  `packageRoot` as [JSON].
+
+* Let `resolved` be the result of [resolving package exports] with
+  `packageRoot`, `subpath`, and `packageManifest`.
+
+* If `resolved` has the scheme `file:` and an extension of `sass`, `scss` or
+  `css`, return it.
+
+* Otherwise, if `resolved` is not null, throw an error.
+
+* If `subpath` is empty, return the result of [resolving package root values].
+
+* Let `resolved` be `subpath` resolved relative to `packageRoot`.
+
+* Return the result of [resolving a `file:` URL] with `resolved`.
+
+[Resolving package exports]: #resolving-package-exports
+[resolving package root values]: #resolving-package-root-values
+[resolving a package name]: #resolving-a-package-name
+[JSON]: https://datatracker.ietf.org/doc/html/rfc8259
+[resolving the root directory for a package]: #resolving-the-root-directory-for-a-package
+[resolving a `file:` URL]: #resolving-a-file-url
+
+#### Resolving a package name
+
+This algorithm takes a string, `path`, and returns the portion that identifies
+the Node package.
+
+* If `path` starts with `@`, it is a scoped package. Return the first 2 [URL path
+  segments], including the separating `/`.
+
+* Otherwise, return the first URL path segment.
+
+#### Resolving the root directory for a package
+
+This algorithm takes a string, `packageName`, and an absolute URL `baseURL`, and
+returns an absolute URL to the root directory for the most proximate installed
+`packageName`.
+
+* Return the result of `PACKAGE_RESOLVE(packageName, baseURL)` as defined in
+  the [Node resolution algorithm specification].
+
+[Node resolution algorithm specification]: https://nodejs.org/api/esm.html#resolution-algorithm-specification
+
+#### Resolving package exports
+
+This algorithm takes a package.json value `packageManifest`, a directory URL
+`packageRoot` and a relative URL path `subpath`. It returns a file URL or null.
+
+* Let `exports` be the value of `packageManifest.exports`.
+
+* If `exports` is undefined, return null.
+
+* Let `subpathVariants` be the result of [Export load paths] with `subpath`.
+
+* Let `resolvedPaths` be a list of the results of calling
+  `PACKAGE_EXPORTS_RESOLVE(packageRoot, subpathVariant, exports, ["sass",
+  "style"])` as defined in the [Node resolution algorithm specification], with
+  each `subpathVariants` as `subpathVariant`.
+
+  > The PACKAGE_EXPORTS_RESOLVE algorithm always includes a `default` condition,
+  > so one does not have to be passed here.
+
+* If `resolvedPaths` contains more than one resolved URL, throw an error.
+
+* If `resolvedPaths` contains exactly one resolved URL, return it.
+
+* If `subpath` has an extension, return null.
+
+* Let `subpathIndex` be `subpath` + `"/index"`.
+
+* Let `subpathIndexVariants` be the result of [Export load paths] with `subpathIndex`.
+
+* Let `resolvedIndexPaths` be a list of the results of calling
+  `PACKAGE_EXPORTS_RESOLVE(packageRoot, subpathVariant, exports, ["sass",
+  "style"])` as defined in the [Node resolution algorithm specification], with
+  each `subpathIndexVariants` as `subpathVariant`.
+
+* If `resolvedIndexPaths` contains more than one resolved URL, throw an error.
+
+* If `resolvedIndexPaths` contains exactly one resolved URL, return it.
+
+* Return null.
+
+> Where possible in Node, implementations can use [resolve.exports] which
+> exposes the Node resolution algorithm, allowing for per-path custom
+> conditions, and without needing filesystem access.
+
+[Export load paths]: #export-load-paths
+[resolve.exports]: https://github.com/lukeed/resolve.exports
+
+#### Resolving package root values
+
+This algorithm takes a string `packagePath`, which is the root directory for a
+package, and `packageManifest`, which is the contents of that package's
+`package.json` file, and returns a file URL.
+
+* Let `sassValue` be the value of `sass` in `packageManifest`.
+
+* If `sassValue` is a relative path with an extension of `sass`, `scss` or
+  `css`:
+
+  * Return the canonicalized `file:` URL for `${packagePath}/${sassValue}`.
+
+* Let `styleValue` be the value of `style` in `packageManifest`.
+
+* If `styleValue` is a relative path with an extension of `sass`, `scss` or
+  `css`:
+
+  * Return the canonicalized `file:` URL for `${packagePath}/${styleValue}`.
+
+* Otherwise return the result of [resolving a `file:` URL for extensions] with
+  `packagePath + "/index"`.
+
+[resolving a `file:` URL for extensions]: #resolving-a-file-url-for-extensions
+
+[URL path segments]: https://url.spec.whatwg.org/#url-path-segment
+
+#### Export Load Paths
+
+This algorithm takes a relative URL path `subpath` and returns a list of
+potential subpaths, resolving for partials and file extensions.
+
+* Let `paths` be a list.
+
+* If `subpath` ends in `.scss`, `.sass`, or `.css`:
+
+  * Add `subpath` to `paths`.
+
+* Otherwise, add `subpath`, `subpath` + `.scss`, `subpath` + `.sass`, and
+  `subpath` + `.css` to `paths`.
+
+* If `subpath`'s [basename] does not start with `_`, for each `item` in
+  `paths`, prepend `"_"` to the basename, and add to `paths`.
+
+* Return `paths`.
+
+[basename]: #basename
