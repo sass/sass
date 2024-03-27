@@ -1,4 +1,4 @@
-# CSS Color Level 4, New Color Spaces: Draft 1.11
+# CSS Color Level 4, New Color Spaces: Draft 1.12
 
 *([Issue](https://github.com/sass/sass/issues/2831))*
 
