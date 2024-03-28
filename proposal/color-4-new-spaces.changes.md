@@ -1,3 +1,7 @@
+## Draft 1.14
+
+* Update the definition of powerless for HWB to match the latest CSS spec.
+
 ## Draft 1.13
 
 * Remove definitions of powerless channels that are no longer present in CSS
