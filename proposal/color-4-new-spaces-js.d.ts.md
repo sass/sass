@@ -1,4 +1,4 @@
-# CSS Color Level 4, New Color Spaces JavaScript API: Draft 1.6
+# CSS Color Level 4, New Color Spaces JavaScript API: Draft 1.7
 
 *([Issue](https://github.com/sass/sass/issues/2831),
 [Changelog](color-4-new-spaces-js.changes.md))*
@@ -394,9 +394,6 @@ as the result of changing some of [`internal`]'s components.
 * If `options.alpha` is set, and isn't either null or a number between 0 and 1
   (inclusive and fuzzy), throw an error.
 
-* If `options.lightness` is set, and isn't either null or a number between 0 and
-  the maximum channel value for the space (inclusive and fuzzy), throw an error.
-
 * Let `color` be the result of [`this.toSpace(space)`].
 
 * Let `changedValue` be a function that takes a string argument for `channel`
@@ -624,8 +621,8 @@ Create a new SassColor in a color space with Lab channels—`lab` and `oklab`.
 * If `options.space` equals `lab`, let `maximum` be `100`. Otherwise, let
   `maximum` be `1`.
 
-* Let `lightness` be the result of [parsing a clamped channel value] with
-  `value` of `options.lightness`, `minimum` of `0`, and `maximum` of `maximum`.
+* Let `lightness` be the result of [parsing a channel value] with `value` of
+  `options.lightness`, `minimum` of `0`, and `maximum` of `maximum`.
 
 * Let `a` be the result of [parsing a channel value] with value `options.a`.
 
@@ -663,8 +660,8 @@ Create a new SassColor in a color space with LCH channels—`lch` and `oklch`.
 * If `options.space` equals `lch`, let `maximum` be `100`. Otherwise, let
   `maximum` be `1`.
 
-* Let `lightness` be the result of [parsing a clamped channel value] with
-  `value` of `options.lightness`, `minimum` of `0`, and `maximum` of `maximum`.
+* Let `lightness` be the result of [parsing a channel value] with `value` of
+  `options.lightness`, `minimum` of `0`, and `maximum` of `maximum`.
 
 * Let `c` be the result of [parsing a channel value] with value `options.c`.
 
@@ -777,8 +774,8 @@ Create a new SassColor in the `hsl` color space.
 * Let `saturation` be the result of [parsing a channel value] with value
   `options.saturation`.
 
-* Let `lightness` be the result of [parsing a clamped channel value] with
-  `value` of `options.lightness`, `minimum` of `0`, and `maximum` of `100`.
+* Let `lightness` be the result of [parsing a channel value] with `value` of
+  `options.lightness`, `minimum` of `0`, and `maximum` of `100`.
 
 * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
   the result of [parsing a clamped channel value] with `value` of
