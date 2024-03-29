@@ -1,3 +1,27 @@
+## Draft 1.13
+
+* Remove definitions of powerless channels that are no longer present in CSS
+  Color 4.
+
+* Add channel clamping to `color.adjust()`.
+
+* Convert negative saturation/chroma polar colors to their positive equivalents
+  on creation.
+
+* Give implementations more flexibility in how they serialize out-of-gamut
+  clamped colors.
+
+* Clarify that an error is thrown when passing conflicting legacy channels to
+  `color.change()`, `color.adjust()`, and `color.scale()`.
+
+## Draft 1.12
+
+* Explicitly indicate which channels are clamped, and apply this clamping only
+  when constructing colors from global functions.
+
+* Serialize colors with out-of-bounds clamped channels so that they parse as the
+  correct out-of-gamut value *and* the correct color space, per the spec.
+
 ## Draft 1.11
 
 * Add support for the relative color syntax in the algorithm parsing color
