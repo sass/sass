@@ -1,4 +1,4 @@
-# CSS Color Level 4, New Color Spaces: Draft 1.11
+# CSS Color Level 4, New Color Spaces: Draft 1.13
 
 *([Issue](https://github.com/sass/sass/issues/2831))*
 
@@ -735,6 +735,18 @@ The known color spaces and their channels are:
     * associated unit: `deg`
     * degrees: polar angle
 
+If a color with negative saturation or chroma would be created in the `hsl`,
+`lch`, or `oklch` spaces by any means, instead create a color with the absolute
+value of that saturation or chroma and the hue rotated by 180deg.
+
+> This is an equivalent color, and in fact passing channels with negative
+> saturation/chroma through conversion to other color spaces and back will
+> produce this same result. This helps ensure that identical colors are
+> represented uniformly.
+>
+> Note that this conversion happens *after* any clipping, so `hsl(0deg -50%
+> 50%)` returns `hsl(0deg 0% 50%)`, not `hsl(180deg 50% 50%)`.
+
 ### Predefined Color Spaces
 
 > 'Predefined color spaces' can be described using the `color()` function.
@@ -785,25 +797,14 @@ in certain circumstances.
 
   * If the `saturation` value is `0%`, then the `hue` channel is powerless.
 
-  * If the `lightness` value is either `0%` or `100%`, then both the `hue` and
-    `saturation` values are powerless.
-
 * `hwb`:
 
   * If the combined `whiteness` and `blackness` values (after normalization)
     are equal to `100%`, then the `hue` channel is powerless.
 
-* `lab`/`oklab`:
-
-  * If the `lightness` value is either `0%` or `100%`, then both the `a` and
-  `b` channels are powerless.
-
 * `lch`/`oklch`:
 
   * If the `chroma` value is 0%, then the `hue` channel is powerless.
-
-  * If the `lightness` value is either `0%` or `100%`, then both the `hue` and
-    `chroma` channels are powerless.
 
 ### Color Interpolation Method
 
@@ -845,17 +846,28 @@ To serialize a non-legacy color `color`:
 
 * Let `space-name` be an unquoted lowercase string of `color`'s space name.
 
-* If `color` has a clamped channel whose value is out-of-bounds:
+* If `color` has a clamped channel whose value is out-of-bounds, emit a CSS
+  [`<color>`] expression that evaluates to `color`'s value, then return.
 
-  * Let `xyz` be the result of [converting] `color` into the `xyz` color space.
-
-  * Emit "color-mix(in ", followed by `space-name`, ", ", the result of
-    serializing `xyz`, and then " 100%, black)".
-
-  > This syntax effectively converts the `xyz` color back into the original
-  > color space. The second argument to `color-mix()` is irrelevant when the
-  > first color has weight 100%, so implementations are free to change it (for
-  > example, an implementation might use "red" instead to minimize bytes).
+  > The specific syntax here is left up to implementations, based on the
+  > specifics of the color in question and the realities of browser support.
+  > Two options include:
+  >
+  > * `color-mix()`. For example, `color-mix(in lab, color(xyz 1 1 1) 100%,
+  >   black)` will losslessly convert `color(xyz 1 1 1)` into `lab` where the
+  >   native `lab` syntax would clamp the lightness at `100%`.
+  >
+  > * [Relative color syntax], which per spec is never clamped. For example,
+  >   while the lightness in `lab(200 50 50)` is clamped, the lightness in
+  >   `lab(from black 200 50 50)` is not.
+  >
+  > At the time of writing, browser support is patchy for these syntaxes and no
+  > browser correctly avoids clipping in all the cases we're relying on.
+  > Although we have no way of ensuring that all color values representable in
+  > Sass can be correctly loaded by browsers, this spec aims to ensure that Sass
+  > generates the correct value according to the CSS spec and that
+  > implementations have enough flexibility within that to target the shifting
+  > landscape of what browsers actually support.
 
 * Let `known-space` be the result of [looking up a known color space] with a
   `name` of `space-name`.
@@ -893,6 +905,7 @@ To serialize a non-legacy color `color`:
 * Otherwise, emit "color(", followed by `space-name`, " ", `components`, and
   then ")".
 
+[`<color>`]: https://drafts.csswg.org/css-color-5/#typedef-color
 [predefined color space]: #predefined-color-spaces
 
 ### Serialization of Out-of-Gamut RGB Colors
@@ -1207,8 +1220,8 @@ normalized channel value otherwise.
 
 * Otherwise:
 
-  * Let `valid` be the corresponding channel defined by the [known color space]
-    `space` with a name of `key`.
+  * Let `valid` be the corresponding channel named `key` defined by the [known
+    color space] `space`.
 
   * If `valid` is a polar-angle `hue`:
 
@@ -1688,7 +1701,7 @@ is-missing($color, $channel)
 
   * If `channel` is not the name of a channel in `$color`, throw an error.
 
-  * Let `value` be the channel value in `color` with name of `channel`.
+  * Let `value` be the channel value named `channel` in `color`.
 
 * Return `true` if `value == null`, and `false` otherwise.
 
@@ -1815,21 +1828,20 @@ This function is also available as a global function named `change-color()`.
 
     * If `color` is not a [legacy color], throw an error.
 
-    * If `key` is one of `red`, `green`, or `blue`:
+    * If `key` is one of `red`, `green`, or `blue`, set `space` to `rgb`.
 
-      * Let `legacy-color` be the result of [converting] `color` to `rgb`.
+    * Otherwise, if `key` is one of `saturation` or `lightness`, or if `key` is
+      `hue` and the only other keywords in `channel-args` are `saturation` or
+      `lightness`, set `space` to `hsl`.
 
-    * Otherwise, if `key` is one of `hue`, `saturation`, or `lightness`:
-
-      * Let `legacy-color` be the result of [converting] `color` to `hsl`.
-
-    * Otherwise, if `key` is one of `whiteness`, or `blackness`:
-
-      * Let `legacy-color` be the result of [converting] `color` to `hwb`.
+    * Otherwise, if `key` is one of `whiteness` or `blackness`, or if `key` is
+      `hue` and the only other keywords in `channel-args` are `whiteness` or
+      `blackness`, set `space` to `hwb`.
 
     * Otherwise, throw an error.
 
-    * Set `channels` to be a list of `legacy-color`'s channels.
+    * Set `channels` to be a list of the channels in `color` [converted] to
+      `space`.
 
   * Set the corresponding `key` value in `channels` to `new`.
 
@@ -1894,25 +1906,26 @@ This function is also available as a global function named `adjust-color()`.
 
     * If `color` is not a [legacy color], throw an error.
 
-    * If `key` is one of `red`, `green`, or `blue`:
+    * If `key` is one of `red`, `green`, or `blue`, set `space` to `rgb`.
 
-      * Let `legacy-color` be the result of [converting] `color` to `rgb`.
+    * Otherwise, if `key` is one of `saturation` or `lightness`, or if `key` is
+      `hue` and the only other keywords in `channel-args` are `saturation` or
+      `lightness`, set `space` to `hsl`.
 
-    * Otherwise, if `key` is one of `hue`, `saturation`, or `lightness`:
-
-      * Let `legacy-color` be the result of [converting] `color` to `hsl`.
-
-    * Otherwise, if `key` is one of `whiteness`, or `blackness`:
-
-      * Let `legacy-color` be the result of [converting] `color` to `hwb`.
+    * Otherwise, if `key` is one of `whiteness` or `blackness`, or if `key` is
+      `hue` and the only other keywords in `channel-args` are `whiteness` or
+      `blackness`, set `space` to `hwb`.
 
     * Otherwise, throw an error.
 
-    * Set `channels` to be a list of `legacy-color`'s channels.
+    * Set `channels` to be a list of the channels in `color` [converted] to
+      `space`.
 
-  * Let `channel` be the value of the channel in `channels` with name of `key`.
+  * Let `value` be the value of the channel named `key` in `channels`.
 
-  * Let `valid` be the channel in by `known-space` with a name of `key`.
+  * Let `original` be `value`.
+
+  * Let `channel` be the channel named `key` in `known-space`.
 
   * If `channel == none`, throw an error.
 
@@ -1922,19 +1935,37 @@ This function is also available as a global function named `adjust-color()`.
 
   * If `adjust` has the unit `%`:
 
-    * If `valid` requires a percentage, set `channel` to the result of appending
-      `%` units to `channel`.
+    * If `channel` requires a percentage, set `value` to the result of appending
+      `%` units to `value`.
 
-    * Otherwise, if `valid` allows percentage mapping, set `adjust` to the
+    * Otherwise, if `channel` allows percentage mapping, set `adjust` to the
       result of [percent-converting] `adjust` with a `max` given by the maximum
-      of `valid`'s gamut range.
+      of `channel`'s gamut range.
 
     * Otherwise, throw an error.
 
-  * Set `channel` to `channel + adjust`.
+  * Set `value` to `value + adjust`.
 
     > Once percentage/number conversions have been normalized, this will throw
-    > an error if `adjust` and `channel` are not compatible.
+    > an error if `adjust` and `value` are not compatible.
+
+  * If `channel`'s upper bound `bound` is clamped and `value > bound`:
+
+    * If `original > bound`, set `value` to `math.min(original, value)`.
+
+    * Otherwise, set `value` to `bound`.
+
+  * Otherwise, if `channel`'s lower bound `bound` is clamped and `value < bound`:
+
+    * If `original < bound`, set `value` to `math.max(original, value)`.
+
+    * Otherwise, set `value` to `bound`.
+
+  > This ensures that adjustment won't ever make a color go out-of-bounds, which
+  > preserves the historical clamping behavior (which is particularly important
+  > because negative saturation behaves *very* strangely) while still ensuring
+  > that adjustment works rationally for channels that are already
+  > out-of-bounds.
 
 * Set `channels` to the result of [normalizing] `channels` in `known-space`.
 
@@ -1942,6 +1973,8 @@ This function is also available as a global function named `adjust-color()`.
   and an alpha of `alpha`.
 
 * Return the result of [converting] `new` into `origin-space`.
+
+[converted]: #converting-a-color
 
 ### `color.scale()`
 
@@ -1995,17 +2028,13 @@ This function is also available as a global function named `scale-color()`.
 
     * If `color` is not a [legacy color], throw an error.
 
-    * If `scale` is one of `red`, `green`, or `blue`:
+    * If `scale` is one of `red`, `green`, or `blue`, set `space` to `rgb`.
 
-      * Let `legacy-color` be the result of [converting] `color` to `rgb`.
+    * Otherwise, if `scale` is one of `saturation`, or `lightness`, set `space`
+      to `hsl`.
 
-    * Otherwise, if `scale` is one of `saturation`, or `lightness`:
-
-      * Let `legacy-color` be the result of [converting] `color` to `hsl`.
-
-    * Otherwise, if `scale` is one of `whiteness`, or `blackness`:
-
-      * Let `legacy-color` be the result of [converting] `color` to `hwb`.
+    * Otherwise, if `scale` is one of `whiteness`, or `blackness`, set `space`
+      to `hwb`.
 
     * Otherwise, throw an error.
 
