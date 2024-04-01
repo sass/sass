@@ -623,3 +623,14 @@ deprecation ID or any non-future deprecation ID is passed here.
 ```proto
 repeated string future_deprecation = 17;
 ```
+
+### LogEvent
+
+#### `deprecation_type`
+
+The deprecation ID for this warning, if type is
+`LogEventType.DEPRECATION_WARNING`.
+
+```proto
+optional string deprecation_type = 7;
+```

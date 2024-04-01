@@ -1,3 +1,7 @@
+## Draft 3.2
+
+* Add an optional `deprecation_type` field to `LogEventType`.
+
 ## Draft 3.1
 
 * Update IDs for new embedded protocol fields.

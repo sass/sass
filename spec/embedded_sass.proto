@@ -399,6 +399,9 @@ message OutboundMessage {
     // available), and trace (if available). The format of this string is not
     // specified and is likely to be inconsistent between implementations.
     string formatted = 6;
+
+    // The deprecation ID for this warning, if type is DEPRECATION_WARNING.
+    optional string deprecation_type = 7;
   }
 
   // A request for a custom importer to convert an imported URL to its canonical
