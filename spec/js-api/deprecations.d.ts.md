@@ -5,6 +5,40 @@
 
 ## Table of Contents
 
+* [Types](#types)
+  * [`Deprecations`](#deprecations)
+    * [`call-string`](#call-string)
+    * [`elseif`](#elseif)
+    * [`moz-document`](#moz-document)
+    * [`relative-canonical`](#relative-canonical)
+    * [`new-global`](#new-global)
+    * [`color-module-compat`](#color-module-compat)
+    * [`slash-div`](#slash-div)
+    * [`bogus-combinators`](#bogus-combinators)
+    * [`strict-unary`](#strict-unary)
+    * [`function-units`](#function-units)
+    * [`duplicate-var-flags`](#duplicate-var-flags)
+    * [`null-alpha`](#null-alpha)
+    * [`abs-percent`](#abs-percent)
+    * [`fs-importer-cwd`](#fs-importer-cwd)
+    * [`import`](#import)
+    * [`user-authored`](#user-authored)
+  * [`DeprecationOrId`](#deprecationorid)
+  * [`DeprecationStatus`](#deprecationstatus)
+  * [`Deprecation`](#deprecation)
+    * [`id`](#id)
+    * [`description`](#description)
+    * [`deprecatedIn`](#deprecatedin)
+    * [`obsoleteIn`](#obsoletein)
+  * [`Version`](#version)
+    * [Constructor](#constructor)
+    * [`major`](#major)
+    * [`minor`](#minor)
+    * [`patch`](#patch)
+    * [`parse`](#parse)
+* [Top-Level Members](#top-level-members)
+  * [`deprecations`](#deprecations)
+
 ## Types
 
 ### `Deprecations`

@@ -213,7 +213,6 @@ export interface Options<sync extends 'sync' | 'async'> {
    */
   functions?: Record<string, CustomFunction<sync>>;
 
-
   /**
    * A set of future deprecations to opt into early.
    *
@@ -302,7 +301,6 @@ export interface Options<sync extends 'sync' | 'async'> {
    * @category Messages
    */
   quietDeps?: boolean;
-
 
   /**
    * A set of active deprecations to ignore.

@@ -23,11 +23,14 @@ import {PromiseOr} from './util/promise_or';
   * [`alertAscii`](#alertascii)
   * [`alertColor`](#alertcolor)
   * [`charset`](#charset)
+  * [`fatalDeprecations`](#fataldeprecations)
   * [`functions`](#functions)
+  * [`futureDeprecations`](#futuredeprecations)
   * [`importers`](#importers)
   * [`loadPaths`](#loadpaths)
   * [`logger`](#logger)
   * [`quietDeps`](#quietdeps)
+  * [`silenceDeprecations`](#silencedeprecations)
   * [`sourceMap`](#sourcemap)
   * [`sourceMapIncludeSources`](#sourcemapincludesources)
   * [`style`](#style)
@@ -143,8 +146,6 @@ must be emitted, but making the deprecation fatal must take precedence.
 fatalDeprecations?: (DeprecationOrId | Version)[];
 ```
 
-[`Version`]: ./deprecations.d.ts.md#version
-
 #### `functions`
 
 Before beginning compilation:
@@ -204,7 +205,7 @@ compiler must emit a warning.
 The compiler must emit a warning if a non-future deprecation is included here.
 
 ```ts
-fatalDeprecations?: DeprecationOrId[];
+futureDeprecations?: DeprecationOrId[];
 ```
 
 #### `importers`
@@ -269,6 +270,7 @@ silencing it takes precedence.
 
 ```ts
 silenceDeprecations?: DeprecationOrId[];
+```
 
 #### `sourceMap`
 

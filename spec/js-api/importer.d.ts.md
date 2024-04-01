@@ -207,7 +207,7 @@ Creates a `NodePackageImporter`:
 * Return `this`.
 
 ```ts
-  constructor(entryPointDirectory?: string);
+constructor(entryPointDirectory?: string);
 ```
 
 ```ts

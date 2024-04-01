@@ -2,9 +2,9 @@
 
 * Add `fatal_deprecation`, `silence_deprecation`, and `future_deprecation`
   fields to `CompileRequest` and `deprecation_type` to `LogEvent`, implementing
-  the [deprecations API][].
+  the [deprecations API].
 
-[deprecations API][accepted/deprecations-api.d.ts.md]
+[deprecations API]: accepted/deprecations-api.d.ts.md
 
 ## 2.5.0
 
