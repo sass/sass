@@ -1,4 +1,4 @@
-# Deprecations API: Draft 3
+# Deprecations API: Draft 3.1
 
 *([Issue](https://github.com/sass/sass/issues/3520),
 [Changelog](deprecations-api.changes.md))*
