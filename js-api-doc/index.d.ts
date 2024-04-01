@@ -3,6 +3,13 @@
 // implementations.
 
 export {
+  deprecations,
+  Deprecation,
+  DeprecationOrId,
+  DeprecationStatus,
+  Version,
+} from './deprecations';
+export {
   AsyncCompiler,
   CompileResult,
   Compiler,
