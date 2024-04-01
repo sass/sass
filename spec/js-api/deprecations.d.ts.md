@@ -103,6 +103,30 @@ variable.
 'duplicate-var-flags': Deprecation<'duplicate-var-flags'>;
 ```
 
+#### `null-alpha`
+
+Deprecation for passing null as alpha in the JS API.
+
+```ts
+'null-alpha': Deprecation<'null-alpha'>;
+```
+
+#### `abs-percent`
+
+Deprecation for passing null as alpha in the JS API.
+
+```ts
+'abs-percent': Deprecation<'abs-percent'>;
+```
+
+#### `fs-importer-cwd`
+
+Deprecation for passing null as alpha in the JS API.
+
+```ts
+'fs-importer-cwd': Deprecation<'fs-importer-cwd'>;
+```
+
 #### `import`
 
 Deprecation for `@import` rules.
