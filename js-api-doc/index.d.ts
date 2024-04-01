@@ -16,6 +16,7 @@ export {
 export {
   deprecations,
   Deprecation,
+  Deprecations,
   DeprecationOrId,
   DeprecationStatus,
   Version,

@@ -1,4 +1,10 @@
-interface Deprecations {
+/**
+ * All of the deprecation types currently used by Sass.
+ *
+ * Any of these IDs or the deprecation objects they point to can be passed to
+ * `fatalDeprecations`, `futureDeprecations`, or `silenceDeprecations`.
+ */
+export interface Deprecations {
   /**
    * Deprecation for passing a string to `call` instead of using `get-function`.
    *

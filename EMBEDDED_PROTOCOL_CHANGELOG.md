@@ -4,7 +4,7 @@
   fields to `CompileRequest` and `deprecation_type` to `LogEvent`, implementing
   the [deprecations API].
 
-[deprecations API]: accepted/deprecations-api.d.ts.md
+[deprecations API]: accepted/deprecations-api.md
 
 ## 2.5.0
 

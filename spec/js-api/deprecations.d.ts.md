@@ -44,7 +44,7 @@
 ### `Deprecations`
 
 ```ts
-interface Deprecations {
+export interface Deprecations {
 ```
 
 #### `call-string`
