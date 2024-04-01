@@ -53,6 +53,8 @@
     * [`fatal_deprecation`](#fatal_deprecation)
     * [`silence_deprecation`](#silence_deprecation)
     * [`future_deprecation`](#future_deprecation)
+  * [LogEvent](#logevent)
+    * [`deprecation_type`](#deprecation_type)
 
 ## Background
 

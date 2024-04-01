@@ -205,6 +205,7 @@ The compiler must emit a warning if a non-future deprecation is included here.
 
 ```ts
 fatalDeprecations?: DeprecationOrId[];
+```
 
 #### `importers`
 
