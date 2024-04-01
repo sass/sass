@@ -3,13 +3,6 @@
 // implementations.
 
 export {
-  deprecations,
-  Deprecation,
-  DeprecationOrId,
-  DeprecationStatus,
-  Version,
-} from './deprecations';
-export {
   AsyncCompiler,
   CompileResult,
   Compiler,
@@ -20,6 +13,13 @@ export {
   initCompiler,
   initAsyncCompiler,
 } from './compile';
+export {
+  deprecations,
+  Deprecation,
+  DeprecationOrId,
+  DeprecationStatus,
+  Version,
+} from './deprecations';
 export {Exception} from './exception';
 export {
   CanonicalizeContext,
