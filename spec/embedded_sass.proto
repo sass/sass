@@ -158,6 +158,15 @@ message InboundMessage {
 
     // Whether to silently suppresses all `LogEvent`s.
     bool silent = 14;
+
+    // Deprecation IDs to treat as fatal.
+    repeated string fatal_deprecation = 15;
+
+    // Deprecation IDs to ignore.
+    repeated string silence_deprecation = 16;
+
+    // Deprecation IDs to opt into early.
+    repeated string future_deprecation = 17;
   }
 
   // A response indicating the result of canonicalizing an imported URL.
@@ -390,6 +399,9 @@ message OutboundMessage {
     // available), and trace (if available). The format of this string is not
     // specified and is likely to be inconsistent between implementations.
     string formatted = 6;
+
+    // The deprecation ID for this warning, if type is DEPRECATION_WARNING.
+    optional string deprecation_type = 7;
   }
 
   // A request for a custom importer to convert an imported URL to its canonical
@@ -1074,7 +1086,7 @@ enum CalculationOperator {
 // The built-in Node.js Package Importer, which is a Package Importer that
 // resolves using the standards and conventions of the Node.js ecosystem. It
 // enables a `pkg:` URL scheme for usage with `@use` that directs an
-// implementation to resolve a URL within a dependency. 
+// implementation to resolve a URL within a dependency.
 message NodePackageImporter {
   // The absolute path to associate with the Node Package Importer, with
   // semantics identical to the [entryPointDirectory option] in the JavaScript

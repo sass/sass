@@ -1,3 +1,4 @@
+import {DeprecationOrId, Version} from './deprecations';
 import {FileImporter, Importer, NodePackageImporter} from './importer';
 import {Logger} from './logger';
 import {Value} from './value';
@@ -123,6 +124,20 @@ export interface Options<sync extends 'sync' | 'async'> {
   charset?: boolean;
 
   /**
+   * A set of deprecations to treat as fatal.
+   *
+   * If a deprecation warning of any provided type is encountered during
+   * compilation, the compiler will error instead.
+   *
+   * If a `Version` is provided, then all deprecations that were active in that
+   * compiler version will be treated as fatal.
+   *
+   * @category Messages
+   * @compatiblity dart: "1.74.0", node: false
+   */
+  fatalDeprecations?: (DeprecationOrId | Version)[];
+
+  /**
    * Additional built-in Sass functions that are available in all stylesheets.
    * This option takes an object whose keys are Sass function signatures like
    * you'd write for the [`@function
@@ -197,6 +212,17 @@ export interface Options<sync extends 'sync' | 'async'> {
    * @category Plugins
    */
   functions?: Record<string, CustomFunction<sync>>;
+
+  /**
+   * A set of future deprecations to opt into early.
+   *
+   * Future deprecations passed here will be treated as active by the compiler,
+   * emitting warnings as necessary.
+   *
+   * @category Messages
+   * @compatiblity dart: "1.74.0", node: false
+   */
+  futureDeprecations?: DeprecationOrId[];
 
   /**
    * Custom importers that control how Sass resolves loads from rules like
@@ -275,6 +301,20 @@ export interface Options<sync extends 'sync' | 'async'> {
    * @category Messages
    */
   quietDeps?: boolean;
+
+  /**
+   * A set of active deprecations to ignore.
+   *
+   * If a deprecation warning of any provided type is encountered during
+   * compilation, the compiler will ignore it instead.
+   *
+   * **Heads up!** The deprecated functionality you're depending on will
+   * eventually break.
+   *
+   * @category Messages
+   * @compatiblity dart: "1.74.0", node: false
+   */
+  silenceDeprecations?: DeprecationOrId[];
 
   /**
    * Whether or not Sass should generate a source map. If it does, the source
