@@ -45,108 +45,23 @@
 
 ```ts
 export interface Deprecations {
-```
-
-#### `call-string`
-
-```ts
-'call-string': Deprecation<'call-string'>;
-```
-
-#### `elseif`
-
-```ts
-elseif: Deprecation<'elseif'>;
-```
-
-#### `moz-document`
-
-```ts
-'moz-document': Deprecation<'moz-document'>;
-```
-
-#### `relative-canonical`
-
-```ts
-'relative-canonical': Deprecation<'relative-canonical'>;
-```
-
-#### `new-global`
-
-```ts
-'new-global': Deprecation<'new-global'>;
-```
-
-#### `color-module-compat`
-
-```ts
-'color-module-compat': Deprecation<'color-module-compat'>;
-```
-
-#### `slash-div`
-
-```ts
-'slash-div': Deprecation<'slash-div'>;
-```
-
-#### `bogus-combinators`
-
-```ts
-'bogus-combinators': Deprecation<'bogus-combinators'>;
-```
-
-#### `strict-unary`
-
-```ts
-'strict-unary': Deprecation<'strict-unary'>;
-```
-
-#### `function-units`
-
-```ts
-'function-units': Deprecation<'function-units'>;
-```
-
-#### `duplicate-var-flags`
-
-```ts
-'duplicate-var-flags': Deprecation<'duplicate-var-flags'>;
-```
-
-#### `null-alpha`
-
-```ts
-'null-alpha': Deprecation<'null-alpha'>;
-```
-
-#### `abs-percent`
-
-```ts
-'abs-percent': Deprecation<'abs-percent'>;
-```
-
-#### `fs-importer-cwd`
-
-```ts
-'fs-importer-cwd': Deprecation<'fs-importer-cwd'>;
-```
-
-#### `import`
-
-```ts
-import: Deprecation<'import'>;
-```
-
-#### `user-authored`
-
-Used for deprecations coming from user-authored code.
-
-```ts
-'user-authored': Deprecation<'user-authored', 'user'>;
-```
-
-```ts
-} // Deprecations
+  'call-string': Deprecation<'call-string'>;
+  elseif: Deprecation<'elseif'>;
+  'moz-document': Deprecation<'moz-document'>;
+  'relative-canonical': Deprecation<'relative-canonical'>;
+  'new-global': Deprecation<'new-global'>;
+  'color-module-compat': Deprecation<'color-module-compat'>;
+  'slash-div': Deprecation<'slash-div'>;
+  'bogus-combinators': Deprecation<'bogus-combinators'>;
+  'strict-unary': Deprecation<'strict-unary'>;
+  'function-units': Deprecation<'function-units'>;
+  'duplicate-var-flags': Deprecation<'duplicate-var-flags'>;
+  'null-alpha': Deprecation<'null-alpha'>;
+  'abs-percent': Deprecation<'abs-percent'>;
+  'fs-importer-cwd': Deprecation<'fs-importer-cwd'>;
+  import: Deprecation<'import'>;
+  'user-authored': Deprecation<'user-authored', 'user'>;
+}
 ```
 
 ### `DeprecationOrId`
@@ -183,6 +98,8 @@ A kebab-case ID for this deprecation.
 ```ts
 id: id;
 ```
+
+#### `status`
 
 The status of this deprecation.
 
