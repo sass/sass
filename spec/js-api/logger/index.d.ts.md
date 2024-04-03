@@ -55,7 +55,7 @@ circumstances:
   * If this warning is caused by behavior that used to be allowed but will be
     disallowed in the future, set `options.deprecation` to `true` and set
     `options.deprecationType` to the relevant `Deprecation`. Otherwise, set
-    `options.deprecation` to `false`and leave `options.deprecationType`
+    `options.deprecation` to `false` and leave `options.deprecationType`
     undefined.
   * If this warning is associated with a specific span of a Sass stylesheet, set
     `options.span` to a `SourceSpan` that covers that span.
@@ -69,13 +69,15 @@ other than inkoving `warn`.
 ```ts
 warn?(
   message: string,
-  options: {
-    deprecation: boolean;
-    deprecationType?: Deprecation;
-    span?: SourceSpan;
-    stack?: string;
-  }
+  options: (
+    | {
+        deprecation: true;
+        deprecationType: Deprecation;
+      }
+    | {deprecation: false}
+  ) & {span?: SourceSpan; stack?: string}
 ): void;
+
 ```
 
 #### `debug`
