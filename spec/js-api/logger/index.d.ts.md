@@ -77,7 +77,6 @@ warn?(
     | {deprecation: false}
   ) & {span?: SourceSpan; stack?: string}
 ): void;
-
 ```
 
 #### `debug`
