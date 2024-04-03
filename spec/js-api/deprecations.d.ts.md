@@ -1,7 +1,7 @@
 # Deprecations API
 
-> Interfaces for user-declared importers that customize how Sass loads
-> stylesheet dependencies.
+> The APIs specifying the various deprecation types recognized by the
+> `fatalDeprecations`, `futureDeprecations`, and `silenceDeprecations` options.
 
 ## Table of Contents
 
@@ -49,15 +49,11 @@ export interface Deprecations {
 
 #### `call-string`
 
-Deprecation for passing a string to `call` instead of `get-function`.
-
 ```ts
 'call-string': Deprecation<'call-string'>;
 ```
 
 #### `elseif`
-
-Deprecation for `@elseif`.
 
 ```ts
 elseif: Deprecation<'elseif'>;
@@ -65,15 +61,11 @@ elseif: Deprecation<'elseif'>;
 
 #### `moz-document`
 
-Deprecation for parsing `@-moz-document`.
-
 ```ts
 'moz-document': Deprecation<'moz-document'>;
 ```
 
 #### `relative-canonical`
-
-Deprecation for importers using relative canonical URLs.
 
 ```ts
 'relative-canonical': Deprecation<'relative-canonical'>;
@@ -81,16 +73,11 @@ Deprecation for importers using relative canonical URLs.
 
 #### `new-global`
 
-Deprecation for declaring new variables with `!global`.
-
 ```ts
 'new-global': Deprecation<'new-global'>;
 ```
 
 #### `color-module-compat`
-
-Deprecation for certain functions in the color module matching the
-behavior of their global counterparts for compatibility reasons.
 
 ```ts
 'color-module-compat': Deprecation<'color-module-compat'>;
@@ -98,15 +85,11 @@ behavior of their global counterparts for compatibility reasons.
 
 #### `slash-div`
 
-Deprecation for treating `/` as division.
-
 ```ts
 'slash-div': Deprecation<'slash-div'>;
 ```
 
 #### `bogus-combinators`
-
-Deprecation for leading, trailing, and repeated combinators.
 
 ```ts
 'bogus-combinators': Deprecation<'bogus-combinators'>;
@@ -114,15 +97,11 @@ Deprecation for leading, trailing, and repeated combinators.
 
 #### `strict-unary`
 
-Deprecation for ambiguous `+` and `-` operators.
-
 ```ts
 'strict-unary': Deprecation<'strict-unary'>;
 ```
 
 #### `function-units`
-
-Deprecation for passing invalid units to certain built-in functions.
 
 ```ts
 'function-units': Deprecation<'function-units'>;
@@ -130,16 +109,11 @@ Deprecation for passing invalid units to certain built-in functions.
 
 #### `duplicate-var-flags`
 
-Deprecation for using multiple `!global` or `!default` flags on a single
-variable.
-
 ```ts
 'duplicate-var-flags': Deprecation<'duplicate-var-flags'>;
 ```
 
 #### `null-alpha`
-
-Deprecation for passing null as alpha in the JS API.
 
 ```ts
 'null-alpha': Deprecation<'null-alpha'>;
@@ -147,23 +121,17 @@ Deprecation for passing null as alpha in the JS API.
 
 #### `abs-percent`
 
-Deprecation for passing null as alpha in the JS API.
-
 ```ts
 'abs-percent': Deprecation<'abs-percent'>;
 ```
 
 #### `fs-importer-cwd`
 
-Deprecation for passing null as alpha in the JS API.
-
 ```ts
 'fs-importer-cwd': Deprecation<'fs-importer-cwd'>;
 ```
 
 #### `import`
-
-Deprecation for `@import` rules.
 
 ```ts
 import: Deprecation<'import'>;
@@ -256,7 +224,9 @@ deprecatedIn: status extends 'future' | 'user' ? null : Version;
 The compiler version this feature was fully removed in, making the deprecation
 obsolete.
 
-This is null for active and future deprecations.
+This is implementation-dependent, so versions are not guaranteed to be
+consistent between different compilers. This is null for active and future
+deprecations.
 
 ```ts
 obsoleteIn: status extends 'obsolete' ? Version : null;
@@ -281,6 +251,9 @@ export class Version {
 Creates a new `Version` with its `major`, `minor`, and `patch` fields set to the
 corresponding arguments.
 
+All of `major`, `minor`, and `patch` must be non-negative integers, or else
+the compiler must throw an error.
+
 ```ts
 constructor(major: number, minor: number, patch: number);
 ```
@@ -289,7 +262,7 @@ constructor(major: number, minor: number, patch: number);
 
 The major version.
 
-This must be a non-negative integer.
+This will always be a non-negative integer.
 
 ```ts
 readonly major: number;
@@ -299,7 +272,7 @@ readonly major: number;
 
 The minor version.
 
-This must be a non-negative integer.
+This will always be a non-negative integer.
 
 ```ts
 readonly minor: number;
@@ -309,7 +282,7 @@ readonly minor: number;
 
 The patch version.
 
-This must be a non-negative integer.
+This will always be a non-negative integer.
 
 ```ts
 readonly patch: number;
@@ -318,6 +291,9 @@ readonly patch: number;
 #### `parse`
 
 Parses a string in the form "major.minor.patch" into a `Version`.
+
+The compiler must throw an error when `version` cannot be parsed into a valid
+`Version`.
 
 ```ts
 static parse(version: string): Version;

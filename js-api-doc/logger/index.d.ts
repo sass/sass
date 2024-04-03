@@ -44,7 +44,7 @@ export interface Logger {
    *
    * @param message - The warning message.
    * @param options.deprecation - Whether this is a deprecation warning.
-   * @param options.dperecationType - The type of deprecation this warning is
+   * @param options.deprecationType - The type of deprecation this warning is
    * for, if any.
    * @param options.span - The location in the Sass source code that generated this
    * warning.
@@ -52,12 +52,13 @@ export interface Logger {
    */
   warn?(
     message: string,
-    options: {
-      deprecation: boolean;
-      deprecationType?: Deprecation;
-      span?: SourceSpan;
-      stack?: string;
-    }
+    options: (
+      | {
+          deprecation: true;
+          deprecationType: Deprecation;
+        }
+      | {deprecation: false}
+    ) & {span?: SourceSpan; stack?: string}
   ): void;
 
   /**

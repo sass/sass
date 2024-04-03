@@ -193,6 +193,8 @@ export class Version {
   /**
    * Parses a version from a string.
    *
+   * This throws an error if a valid version can't be parsed.
+   *
    * @param version - A string in the form "major.minor.patch".
    */
   static parse(version: string): Version;

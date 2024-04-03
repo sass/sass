@@ -309,7 +309,7 @@ export interface Options<sync extends 'sync' | 'async'> {
    * compilation, the compiler will ignore it instead.
    *
    * **Heads up!** The deprecated functionality you're depending on will
-   * eventually break
+   * eventually break.
    *
    * @category Messages
    * @compatiblity dart: "1.74.0", node: false
