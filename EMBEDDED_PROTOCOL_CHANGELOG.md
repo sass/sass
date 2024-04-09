@@ -1,11 +1,3 @@
-## 2.6.1
-
-* Clarify that passing an `importer` without a `url` to
-  `CompileRequest.StringInput` is an error. This was previously only implicit
-  from the rest of the spec, and was not enforced by the Dart Sass embedded
-  compiler. For compatibility, this will produce a deprecation named
-  `importer-without-url` until Dart Sass 2.0.0.
-
 ## 2.6.0
 
 * Add `fatal_deprecation`, `silence_deprecation`, and `future_deprecation`

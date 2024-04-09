@@ -45,16 +45,13 @@ message InboundMessage {
       // The location from which `source` was loaded. If this is empty, it
       // indicates that the URL is unknown.
       //
-      // This must be a canonical URL. If `importer` is passed, this must be a
-      // canonical URL recognized by `importer` specifically.
+      // This must be a canonical URL recognized by `importer`, if it's passed.
       string url = 2;
 
       // The syntax to use to parse `source`.
       Syntax syntax = 3;
 
-      // The importer to use to resolve imports relative to `url`. If this is
-      // passed, `url` must be passed as well, and must be a canonical URL
-      // recognized by this importer.
+      // The importer to use to resolve imports relative to `url`.
       Importer importer = 4;
     }
 

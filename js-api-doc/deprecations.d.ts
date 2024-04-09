@@ -107,14 +107,6 @@ export interface Deprecations {
   'fs-importer-cwd': Deprecation<'fs-importer-cwd'>;
 
   /**
-   * Deprecation for passing an `importer` argument without a corresponding
-   * `url` to `compileString()` or `compileStringAsync()`.
-   *
-   * This deprecation became active in Dart Sass 1.75.0.
-   */
-  'importer-without-url': Deprecation<'importer-without-url'>;
-
-  /**
    * Deprecation for `@import` rules.
    *
    * This deprecation is not yet active, but will be soon.
