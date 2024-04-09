@@ -44,6 +44,7 @@ export interface Deprecations {
   'null-alpha': Deprecation<'null-alpha'>;
   'abs-percent': Deprecation<'abs-percent'>;
   'fs-importer-cwd': Deprecation<'fs-importer-cwd'>;
+  'importer-without-url': Deprecation<'importer-without-url'>;
   import: Deprecation<'import'>;
   'user-authored': Deprecation<'user-authored', 'user'>;
 }

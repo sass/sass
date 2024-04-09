@@ -377,10 +377,15 @@ This algorithm takes a string `argument` and [configuration](#configuration)
 This algorithm takes a string, `argument`, and returns either a [source file] or
 null.
 
-* If `argument` is a relative URL:
+* If `argument` is a relative URL and the [current source file] has an importer
+  `importer`:
 
   * Let `resolved` be the result of [parsing `argument` as a URL][parsing a URL]
-    with the [current source file]'s canonical URL as the base URL.
+    with the current source file's canonical URL as the base URL.
+
+    > This will produce an error if the current source file has no base URL,
+    > since the WHATWG URL-parsing algorithm requires either an absolute URL or
+    > a base URL.
 
   * Let `result` be the result of passing `resolved` to the current source
     file's [importer](#importer).
