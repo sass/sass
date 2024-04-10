@@ -302,8 +302,8 @@ constructor(options: {
   * Let `saturation` be the result of [parsing a channel value] with value
     `options.saturation`.
 
-  * Let `lightness` be the result of [parsing a clamped channel value] with
-    `value` of `options.lightness`, `minimum` of `0`, and `maximum` of `100`.
+  * Let `lightness` be the result of [parsing a channel value] with `value` of
+    `options.lightness`, `minimum` of `0`, and `maximum` of `100`.
 
   * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
     the result of [parsing a clamped channel value] with `value` of
@@ -368,9 +368,8 @@ constructor(options: {
   * If `options.space` equals `lab`, let `maximum` be `100`. Otherwise, let
     `maximum` be `1`.
 
-  * Let `lightness` be the result of [parsing a clamped channel value] with
-    `value` of `options.lightness`, `minimum` of `0`, and `maximum` of
-    `maximum`.
+  * Let `lightness` be the result of [parsing a channel value] with `value` of
+    `options.lightness`, `minimum` of `0`, and `maximum` of `maximum`.
 
   * Let `a` be the result of [parsing a channel value] with value `options.a`.
 
@@ -408,9 +407,8 @@ constructor(options: {
   * If `options.space` equals `lch`, let `maximum` be `100`. Otherwise, let
     `maximum` be `1`.
 
-  * Let `lightness` be the result of [parsing a clamped channel value] with
-    `value` of `options.lightness`, `minimum` of `0`, and `maximum` of
-    `maximum`.
+  * Let `lightness` be the result of [parsing a channel value] with `value` of
+    `options.lightness`, `minimum` of `0`, and `maximum` of `maximum`.
 
   * Let `c` be the result of [parsing a channel value] with value `options.c`.
 
@@ -772,9 +770,6 @@ as the result of changing some of [`internal`]'s components.
 
 * If `options.alpha` is set, and isn't either null or a number between 0 and 1
   (inclusive and fuzzy), throw an error.
-
-* If `options.lightness` is set, and isn't either null or a number between 0 and
-  the maximum channel value for the space (inclusive and fuzzy), throw an error.
 
 * Let `color` be the result of [`this.toSpace(space)`].
 

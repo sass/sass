@@ -129,8 +129,6 @@ export class SassColor extends Value {
    *
    * @throws `Error` if `alpha` is set and isn't `null` or a number between `0`
    * and `1`.
-   * @throws `Error` if `lightness` isn't `null` or a number between between `0`
-   * and `100`.
    */
   constructor(options: {
     hue: number | null;
@@ -177,8 +175,6 @@ export class SassColor extends Value {
    *
    * @throws `Error` if `alpha` is set and isn't `null` or a number between `0`
    * and `1`.
-   * @throws `Error` if `lightness` isn't `null` or a number between `0` and the
-   * maximum channel value for `space`—`100` for Lab or `1` for Oklab.
    */
   constructor(options: {
     lightness: number | null;
@@ -200,8 +196,6 @@ export class SassColor extends Value {
    *
    * @throws `Error` if `alpha` is set and isn't `null` or a number between `0`
    * and `1`.
-   * @throws `Error` if `lightness` isn't `null` or a number between `0` and the
-   * maximum channel value for `space`—`100` for LCH or `1` for Oklch.
    */
   constructor(options: {
     lightness: number | null;
@@ -402,8 +396,6 @@ export class SassColor extends Value {
    * color space (`rgb`, `hsl`, or `hwb`).
    * @throws `Error` if `alpha` is set and isn't `null` or a number between `0`
    * and `1`.
-   * @throws `Error` if `lightness` is set and isn't `null` or a number between
-   * `0` and `100`.
    */
   change(
     options: {
@@ -438,9 +430,6 @@ export class SassColor extends Value {
    * Oklab color spaces.
    * @throws `Error` if `alpha` is set and isn't `null` or a number between `0`
    * and `1`.
-   * @throws `Error` if `lightness` is set and isn't `null` or a number between
-   * `0` and the maximum channel value for `space` (or this color's color space,
-   * if `space` is missing)—`100` for Lab or `1` for Oklab.
    */
   change(
     options: {
@@ -458,9 +447,6 @@ export class SassColor extends Value {
    * Oklch color spaces.
    * @throws `Error` if `alpha` is set and isn't `null` or a number between `0`
    * and `1`.
-   * @throws `Error` if `lightness` is set and isn't `null` or a number between
-   * `0` and the maximum channel value for `space` (or this color's color space,
-   * if `space` is missing)—`100` for LCH or `1` for Oklch.
    */
   change(
     options: {
@@ -505,56 +491,56 @@ export class SassColor extends Value {
   ): SassColor;
 
   /**
-   * This color's red channel in the RGB color space, between `0` and `255`.
+   * This color's red channel in the RGB color space.
    *
    * @deprecated Use {@link channel} instead.
    */
   get red(): number;
 
   /**
-   * This color's green channel in the RGB color space, between `0` and `255`.
+   * This color's green channel in the RGB color space.
    *
    * @deprecated Use {@link channel} instead.
    */
   get green(): number;
 
   /**
-   * This color's blue channel in the RGB color space, between `0` and `255`.
+   * This color's blue channel in the RGB color space.
    *
    * @deprecated Use {@link channel} instead.
    */
   get blue(): number;
 
   /**
-   * This color's hue in the HSL color space, between `0` and `360`.
+   * This color's hue in the HSL color space.
    *
    * @deprecated Use {@link channel} instead.
    */
   get hue(): number;
 
   /**
-   * This color's saturation in the HSL color space, between `0` and `100`.
+   * This color's saturation in the HSL color space.
    *
    * @deprecated Use {@link channel} instead.
    */
   get saturation(): number;
 
   /**
-   * This color's lightness in the HSL color space, between `0` and `100`.
+   * This color's lightness in the HSL color space.
    *
    * @deprecated Use {@link channel} instead.
    */
   get lightness(): number;
 
   /**
-   * This color's whiteness in the HWB color space, between `0` and `100`.
+   * This color's whiteness in the HWB color space.
    *
    * @deprecated Use {@link channel} instead.
    */
   get whiteness(): number;
 
   /**
-   * This color's blackness in the HWB color space, between `0` and `100`.
+   * This color's blackness in the HWB color space.
    *
    * @deprecated Use {@link channel} instead.
    */

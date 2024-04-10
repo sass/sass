@@ -1,3 +1,10 @@
+## Draft 1.14
+
+* Update the definition of powerless for HWB to match [the latest CSS
+  spec][color-4-changes-20221101].
+
+[color-4-changes-20221101]: https://drafts.csswg.org/css-color-4/#changes-from-20221101
+
 ## Draft 1.13
 
 * Remove definitions of powerless channels that are no longer present in CSS
