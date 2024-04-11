@@ -292,10 +292,10 @@ export interface Options<sync extends 'sync' | 'async'> {
    * so that they can get fixed as soon as possible!
    *
    * **Heads up!** If {@link compileString} or {@link compileStringAsync} is
-   * called without {@link StringOptionsWithoutImporter.url}, <em>all</em>
-   * stylesheets it loads will be considered dependencies. Since it doesn’t have
-   * a path of its own, everything it loads is coming from a load path rather
-   * than a relative import.
+   * called without {@link StringOptions.url}, <em>all</em> stylesheets it loads
+   * will be considered dependencies. Since it doesn’t have a path of its own,
+   * everything it loads is coming from a load path rather than a relative
+   * import.
    *
    * @defaultValue `false`
    * @category Messages
@@ -388,9 +388,10 @@ export interface Options<sync extends 'sync' | 'async'> {
  * Options that can be passed to {@link compileString} or {@link
  * compileStringAsync}.
  *
- * If the {@link StringOptionsWithImporter.importer} field isn't passed, the
- * entrypoint file can load files relative to itself if a `file://` URL is
- * passed to the {@link url} field.
+ * If the {@link StringOptions.importer} field isn't passed, the entrypoint file
+ * can load files relative to itself if a `file://` URL is passed to the {@link
+ * url} field. If it is passed, the entrypoint file uses it to load files
+ * relative to itself.
  *
  * @typeParam sync - This lets the TypeScript checker verify that asynchronous
  * {@link Importer}s, {@link FileImporter}s, and {@link CustomFunction}s aren't
@@ -398,7 +399,7 @@ export interface Options<sync extends 'sync' | 'async'> {
  *
  * @category Options
  */
-export interface StringOptionsWithoutImporter<sync extends 'sync' | 'async'>
+export interface StringOptions<sync extends 'sync' | 'async'>
   extends Options<sync> {
   /**
    * The {@link Syntax} to use to parse the entrypoint stylesheet.
@@ -410,6 +411,19 @@ export interface StringOptionsWithoutImporter<sync extends 'sync' | 'async'>
   syntax?: Syntax;
 
   /**
+   * The importer to use to handle loads that are relative to the entrypoint
+   * stylesheet.
+   *
+   * A relative load's URL is first resolved relative to {@link url}, then
+   * passed to {@link importer}. (It's passed as-is if {@link url} isn't
+   * passed.) If the importer doesn't recognize it, it's then passed to {@link
+   * importers} and {@link loadPaths}.
+   *
+   * @category Input
+   */
+  importer?: Importer<sync> | FileImporter<sync>;
+
+  /**
    * The canonical URL of the entrypoint stylesheet.
    *
    * A relative load's URL is first resolved relative to {@link url}, then
@@ -418,62 +432,24 @@ export interface StringOptionsWithoutImporter<sync extends 'sync' | 'async'>
    * loadPaths}.
    *
    * @category Input
+   * @compatibility feature: "Undefined URL with importer", dart: "1.75.0", node: false
+   *
+   * Earlier versions of Dart Sass required {@link url} to be defined when
+   * passing {@link StringOptions.importer}.
    */
   url?: URL;
 }
 
 /**
- * Options that can be passed to {@link compileString} or {@link
- * compileStringAsync}.
- *
- * If the {@link StringOptionsWithImporter.importer} field is passed, the
- * entrypoint file uses it to load files relative to itself and the {@link url}
- * field is mandatory.
- *
- * @typeParam sync - This lets the TypeScript checker verify that asynchronous
- * {@link Importer}s, {@link FileImporter}s, and {@link CustomFunction}s aren't
- * passed to {@link compile} or {@link compileString}.
- *
  * @category Options
+ * @deprecated Use {@link StringOptions} instead.
  */
-export interface StringOptionsWithImporter<sync extends 'sync' | 'async'>
-  extends StringOptionsWithoutImporter<sync> {
-  /**
-   * The importer to use to handle loads that are relative to the entrypoint
-   * stylesheet.
-   *
-   * A relative load's URL is first resolved relative to {@link url}, then
-   * passed to {@link importer}. If the importer doesn't recognize it, it's then
-   * passed to {@link importers} and {@link loadPaths}.
-   *
-   * @category Input
-   */
-  importer: Importer<sync> | FileImporter<sync>;
-
-  /**
-   * The canonical URL of the entrypoint stylesheet. If this is passed along
-   * with {@link importer}, it's used to resolve relative loads in the
-   * entrypoint stylesheet.
-   *
-   * @category Input
-   */
-  url: URL;
-}
+type StringOptionsWithoutImporter<sync extends 'sync' | 'async'> =
+  StringOptions<sync>;
 
 /**
- * Options that can be passed to {@link compileString} or {@link
- * compileStringAsync}.
- *
- * This is a {@link StringOptionsWithImporter} if it has a {@link
- * StringOptionsWithImporter.importer} field, and a {@link
- * StringOptionsWithoutImporter} otherwise.
- *
- * @typeParam sync - This lets the TypeScript checker verify that asynchronous
- * {@link Importer}s, {@link FileImporter}s, and {@link CustomFunction}s aren't
- * passed to {@link compile} or {@link compileString}.
- *
  * @category Options
+ * @deprecated Use {@link StringOptions} instead.
  */
-export type StringOptions<sync extends 'sync' | 'async'> =
-  | StringOptionsWithImporter<sync>
-  | StringOptionsWithoutImporter<sync>;
+type StringOptionsWithImporter<sync extends 'sync' | 'async'> =
+  StringOptions<sync>;
