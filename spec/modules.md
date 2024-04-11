@@ -381,7 +381,7 @@ null.
   [importer] `importer`:
 
   * If the current source file has a canonical URL `canonical`, let `url` be the
-    result of [parsing `argument` as a URL][parsing a URL] with `canonical`
+    result of [parsing `argument` as a URL][parsing a URL] with `canonical` as
     the base URL. Otherwise, let `url` be `argument`.
 
     > Allowing `url` to remain relative here in the absence of a canonical URL
