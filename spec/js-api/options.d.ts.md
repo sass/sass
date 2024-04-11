@@ -6,6 +6,7 @@
 > [compile API]: compile.d.ts.md
 
 ```ts
+import {DeprecationOrId, Version} from './deprecations';
 import {FileImporter, Importer, NodePackageImporter} from './importer';
 import {Logger} from './logger';
 import {Value} from './value';
@@ -22,22 +23,24 @@ import {PromiseOr} from './util/promise_or';
   * [`alertAscii`](#alertascii)
   * [`alertColor`](#alertcolor)
   * [`charset`](#charset)
+  * [`fatalDeprecations`](#fataldeprecations)
   * [`functions`](#functions)
+  * [`futureDeprecations`](#futuredeprecations)
   * [`importers`](#importers)
   * [`loadPaths`](#loadpaths)
   * [`logger`](#logger)
   * [`quietDeps`](#quietdeps)
+  * [`silenceDeprecations`](#silencedeprecations)
   * [`sourceMap`](#sourcemap)
   * [`sourceMapIncludeSources`](#sourcemapincludesources)
   * [`style`](#style)
   * [`verbose`](#verbose)
-* [`StringOptionsWithoutImporter`](#stringoptionswithoutimporter)
-  * [`syntax`](#syntax)
-  * [`url`](#url)
-* [`StringOptionsWithImporter`](#stringoptionswithimporter)
-  * [`importer`](#importer)
-  * [`url`](#url-1)
 * [`StringOptions`](#stringoptions)
+  * [`syntax`](#syntax)
+  * [`importer`](#importer)
+  * [`url`](#url)
+* [`StringOptionsWithoutImporter`](#stringoptionswithoutimporter)
+* [`StringOptionsWithImporter`](#stringoptionswithimporter)
 
 ## Types
 
@@ -119,6 +122,29 @@ Defaults to true.
 charset?: boolean;
 ```
 
+#### `fatalDeprecations`
+
+A set of deprecations to treat as fatal.
+
+If a deprecation warning of any provided type is encountered during compilation,
+the compiler must error instead.
+
+The compiler should convert any string passed here to a `Deprecation` by
+indexing `deprecations`. If an invalid deprecation ID is passed here, the
+compiler must emit a warning. If a version is passed here, it should be treated
+equivalently to passing all active deprecations whose `deprecatedIn` version is
+less than or equal to it.
+
+The compiler must emit a warning if a future deprecation that's not also
+included in `futureDeprecations` or any obsolete deprecation is included here.
+
+If a deprecation is passed both here and to `silenceDeprecations`, a warning
+must be emitted, but making the deprecation fatal must take precedence.
+
+```ts
+fatalDeprecations?: (DeprecationOrId | Version)[];
+```
+
 #### `functions`
 
 Before beginning compilation:
@@ -161,6 +187,24 @@ Before beginning compilation:
 
 ```ts
 functions?: Record<string, CustomFunction<sync>>;
+```
+
+#### `futureDeprecations`
+
+A set of future deprecations to opt into early.
+
+For each future deprecation provided here, the compiler must treat that
+deprecation as if it is active, emitting warnings as necessary (subject to
+`fatalDeprecations` and `silenceDeprecations`).
+
+The compiler should convert any string passed here to a `Deprecation` by
+indexing `Deprecations`. If an invalid deprecation ID is passed here, the
+compiler must emit a warning.
+
+The compiler must emit a warning if a non-future deprecation is included here.
+
+```ts
+futureDeprecations?: DeprecationOrId[];
 ```
 
 #### `importers`
@@ -206,6 +250,25 @@ Defaults to false.
 
 ```ts
 quietDeps?: boolean;
+```
+
+#### `silenceDeprecations`
+
+A set of active deprecations to ignore.
+
+If a deprecation warning of any provided type is encountered during compilation,
+the compiler must ignore it.
+
+The compiler should convert any string passed here to a `Deprecation` by
+indexing `Deprecations`. If an invalid deprecation ID is passed here, the
+compiler must emit a warning.
+
+The compiler must emit a warning if any non-active deprecation is included here.
+If a future deprecation is included both here and in `futureDeprecations`, then
+silencing it takes precedence.
+
+```ts
+silenceDeprecations?: DeprecationOrId[];
 ```
 
 #### `sourceMap`
@@ -274,17 +337,16 @@ verbose?: boolean;
 } // Options
 ```
 
-### `StringOptionsWithoutImporter`
+### `StringOptions`
 
 > This interface is used for calls to [`compileString()`] and
-> [`compileStringAsync()`] that don't pass the `importer` parameter, and so
-> don't support relative imports.
+> [`compileStringAsync()`].
 >
 > [`compileString()`]: compile.d.ts.md#compilestring
 > [`compileStringAsync()`]: compile.d.ts.md#compilestringasync
 
 ```ts
-export interface StringOptionsWithoutImporter<sync extends 'sync' | 'async'>
+export interface StringOptions<sync extends 'sync' | 'async'>
   extends Options<sync> {
 ```
 
@@ -296,61 +358,61 @@ The compiler must parse `source` using this syntax. Defaults to `'scss'`.
 syntax?: Syntax;
 ```
 
-#### `url`
-
-The URL of the stylesheet being parsed.
-
-> When `importer` isn't passed, this is purely advisory and only used for error
-> reporting.
-
-```ts
-url?: URL;
-```
-
-```ts
-} // StringOptionsWithoutImporter
-```
-
-### `StringOptionsWithImporter`
-
-> This interface is used for calls to [`compileString()`] and
-> [`compileStringAsync()`] that *do* pass the `importer` parameter, and so *do*
-> support relative imports.
-
-```ts
-export interface StringOptionsWithImporter<sync extends 'sync' | 'async'>
-  extends StringOptionsWithoutImporter<sync> {
-```
-
 #### `importer`
 
 The [importer] to use to resolve relative imports in the entrypoint.
 
 [importer]: importer.d.ts.md
 
+> Relative entrypoint imports are resolved differently depending on whether the
+> `url` parameter is also passed:
+>
+> * If `url` *is* passed, relative URLs are first resolved relative to that URL
+>   and then passed to `importer`. This is the same behavior that's used when
+>   resolving relative URLs in any other Sass file.
+>
+> * If `url` *is not* passed, relative URLs are passed directly to `importer`
+>   without being resolved. This is a bit of a hack that relies on the fact that
+>   some importers work like "load paths", resolving relative URLs based on some
+>   implicit base URL. It's useful for situations like evaluating a stylesheet
+>   passed via stdin and giving it access to relative loads in the working
+>   directory without *also* giving it a fake canonical URL that would show up
+>   in error messages and source maps.
+
 ```ts
-importer: Importer<sync> | FileImporter<sync>;
+importer?: Importer<sync> | FileImporter<sync>;
 ```
 
 #### `url`
 
-The canonical URL of the entrypoint.
+The canonical URL of the stylesheet being parsed.
 
-> This *must* be passed when `importer` is passed, since otherwise there's
-> nothing to resolve relative URLs relative to.
+> When `importer` isn't passed, this is purely advisory and only used for error
+> reporting. When it is, it's used as the base URL of the relative imports
+> within the entrypoint.
 
 ```ts
-url: URL;
+url?: URL;
 ```
 
 ```ts
-} // StringOptionsWithImporter
+} // StringOptions
 ```
 
-### `StringOptions`
+### `StringOptionsWithoutImporter`
+
+> This alias exists for backwards-compatibility only.
 
 ```ts
-export type StringOptions<sync extends 'sync' | 'async'> =
-  | StringOptionsWithImporter<sync>
-  | StringOptionsWithoutImporter<sync>;
+type StringOptionsWithoutImporter<sync extends 'sync' | 'async'> =
+  StringOptions<sync>;
+```
+
+### `StringOptionsWithImporter`
+
+> This alias exists for backwards-compatibility only.
+
+```ts
+type StringOptionsWithImporter<sync extends 'sync' | 'async'> =
+  StringOptions<sync>;
 ```

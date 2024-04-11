@@ -266,7 +266,7 @@ channels and alpha channels equal rounded to the nearest 1e-11.
 Two non-legacy colors are equal if they are in the same color space and their
 channel and alpha values are equal rounded to the nearest 1e-11.
 
-[legacy colors]: ../proposal/color-4-new-spaces.md#legacy-color
+[legacy colors]: ../accepted/color-4-new-spaces.md#legacy-color
 
 ### Lists
 

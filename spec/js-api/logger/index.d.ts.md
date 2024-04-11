@@ -1,6 +1,7 @@
 # Logger API
 
 ```ts
+import {Deprecation} from '../deprecations';
 import {SourceSpan} from './source_span';
 
 export {SourceLocation} from './source_location';
@@ -52,8 +53,10 @@ circumstances:
 
   * Let `options` be an empty object.
   * If this warning is caused by behavior that used to be allowed but will be
-    disallowed in the future, set `options.deprecation` to `true`. Otherwise,
-    set `options.deprecation` to `false`.
+    disallowed in the future, set `options.deprecation` to `true` and set
+    `options.deprecationType` to the relevant `Deprecation`. Otherwise, set
+    `options.deprecation` to `false` and leave `options.deprecationType`
+    undefined.
   * If this warning is associated with a specific span of a Sass stylesheet, set
     `options.span` to a `SourceSpan` that covers that span.
   * If this warning occurred during execution of a stylesheet, set
@@ -66,11 +69,13 @@ other than inkoving `warn`.
 ```ts
 warn?(
   message: string,
-  options: {
-    deprecation: boolean;
-    span?: SourceSpan;
-    stack?: string;
-  }
+  options: (
+    | {
+        deprecation: true;
+        deprecationType: Deprecation;
+      }
+    | {deprecation: false}
+  ) & {span?: SourceSpan; stack?: string}
 ): void;
 ```
 

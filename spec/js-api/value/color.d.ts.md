@@ -349,7 +349,7 @@ constructor(options: {
 
   * Return `this`.
 
-[`hwb(hue whiteness blackness / alpha)`]: ../../../proposal/color-4-new-spaces.md#hwb-1
+[`hwb(hue whiteness blackness / alpha)`]: ../../../accepted/color-4-new-spaces.md#hwb-1
 
 ```ts
 constructor(options: {
@@ -387,8 +387,8 @@ constructor(options: {
 
   * Return `this`.
 
-[`lab(lightness a b / alpha)`]: ../../../proposal/color-4-new-spaces.md#lab
-[`oklab(lightness a b / alpha)`]: ../../../proposal/color-4-new-spaces.md#oklab
+[`lab(lightness a b / alpha)`]: ../../../accepted/color-4-new-spaces.md#lab
+[`oklab(lightness a b / alpha)`]: ../../../accepted/color-4-new-spaces.md#oklab
 
 ```ts
 constructor(options: {
@@ -426,8 +426,8 @@ constructor(options: {
 
   * Return `this`.
 
-[`lch(lightness a b / alpha)`]: ../../../proposal/color-4-new-spaces.md#lch
-[`oklch(lightness a b / alpha)`]: ../../../proposal/color-4-new-spaces.md#oklch
+[`lch(lightness a b / alpha)`]: ../../../accepted/color-4-new-spaces.md#lch
+[`oklch(lightness a b / alpha)`]: ../../../accepted/color-4-new-spaces.md#oklch
 
 ```ts
 constructor(options: {
@@ -463,7 +463,7 @@ constructor(options: {
 
   * Return `this`.
 
-[`color(space red green blue / alpha)`]: ../../../proposal/color-4-new-spaces.md#color-1
+[`color(space red green blue / alpha)`]: ../../../accepted/color-4-new-spaces.md#color-1
 
 ```ts
 constructor(options: {
@@ -495,7 +495,7 @@ constructor(options: {
 
   * Return `this`.
 
-[`color(space x y z / alpha)`]: ../../../proposal/color-4-new-spaces.md#color-1
+[`color(space x y z / alpha)`]: ../../../accepted/color-4-new-spaces.md#color-1
 
 ```ts
 constructor(options: {
@@ -526,7 +526,7 @@ get space(): KnownColorSpace;
 toSpace(space: KnownColorSpace): SassColor;
 ```
 
-[Converting a Color]: ../../../proposal/color-4-new-spaces.md#converting-a-color
+[Converting a Color]: ../../../accepted/color-4-new-spaces.md#converting-a-color
 
 #### `isLegacy`
 
@@ -537,7 +537,7 @@ Returns whether [`internal`] is in a [legacy color space] (`rgb`, `hsl`, or
 get isLegacy(): boolean;
 ```
 
-[legacy color space]: ../../../proposal/color-4-new-spaces.md#legacy-color
+[legacy color space]: ../../../accepted/color-4-new-spaces.md#legacy-color
 
 #### `isInGamut`
 
@@ -548,7 +548,7 @@ boolean.
 isInGamut(space?: KnownColorSpace): boolean;
 ```
 
-[`color.is-in-gamut(internal, space)`]: ../../../proposal/color-4-new-spaces.md#coloris-in-gamut
+[`color.is-in-gamut(internal, space)`]: ../../../accepted/color-4-new-spaces.md#coloris-in-gamut
 
 #### `toGamut`
 
@@ -558,7 +558,7 @@ Returns the result of [`color.to-gamut(internal, space)`].
 toGamut(space?: KnownColorSpace): SassColor;
 ```
 
-[`color.to-gamut(internal, space)`]: ../../../proposal/color-4-new-spaces.md#colorto-gamut-1
+[`color.to-gamut(internal, space)`]: ../../../accepted/color-4-new-spaces.md#colorto-gamut-1
 
 #### `channelsOrNull`
 
@@ -585,7 +585,7 @@ Returns a list of channel values (excluding alpha) for [`internal`], with
 get channelsOrNull(): List<number | null>;
 ```
 
-[missing components]: ../../../proposal/color-4-new-spaces.md#missing-components
+[missing components]: ../../../accepted/color-4-new-spaces.md#missing-components
 [`this.space`]: #space
 
 #### `channels`
@@ -659,14 +659,14 @@ channel)`][color.is-missing()] as a JavaScript boolean.
 isChannelMissing(channel: ChannelName): boolean;
 ```
 
-[color.is-missing()]: ../../../proposal/color-4-new-spaces.md#coloris-missing-1
+[color.is-missing()]: ../../../accepted/color-4-new-spaces.md#coloris-missing-1
 
 #### `isChannelPowerless`
 
 Returns the result of [`color.is-powerless(internal, channel, space)`] as a
 JavaScript boolean.
 
-[`color.is-powerless(internal, channel, space)`]: ../../../proposal/color-4-new-spaces.md#coloris-powerless-1
+[`color.is-powerless(internal, channel, space)`]: ../../../accepted/color-4-new-spaces.md#coloris-powerless-1
 
 ```ts
 isChannelPowerless(channel: ChannelName): boolean;
@@ -722,7 +722,7 @@ interpolate(
 ): SassColor;
 ```
 
-[`color.mix()`]: ../../../proposal/color-4-new-spaces.md#colormix-1
+[`color.mix()`]: ../../../accepted/color-4-new-spaces.md#colormix-1
 
 #### `change`
 

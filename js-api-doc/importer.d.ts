@@ -42,7 +42,7 @@ export interface CanonicalizeContext {
  * Like all importers, this implements custom Sass loading logic for [`@use`
  * rules](https://sass-lang.com/documentation/at-rules/use) and [`@import`
  * rules](https://sass-lang.com/documentation/at-rules/import). It can be passed
- * to {@link Options.importers} or {@link StringOptionsWithImporter.importer}.
+ * to {@link Options.importers} or {@link StringOptions.importer}.
  *
  * @typeParam sync - A `FileImporter<'sync'>`'s {@link findFileUrl} must return
  * synchronously, but in return it can be passed to {@link compile} and {@link
@@ -122,7 +122,7 @@ export interface FileImporter<
  * An object that implements custom Sass loading logic for [`@use`
  * rules](https://sass-lang.com/documentation/at-rules/use) and [`@import`
  * rules](https://sass-lang.com/documentation/at-rules/import). It can be passed
- * to {@link Options.importers} or {@link StringOptionsWithImporter.importer}.
+ * to {@link Options.importers} or {@link StringOptions.importer}.
  *
  * Importers that simply redirect to files on disk are encouraged to use the
  * {@link FileImporter} interface instead.
