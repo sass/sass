@@ -192,6 +192,15 @@ message InboundMessage {
       // `null` instead.
       string error = 3;
     }
+
+    // Whether `containing_url` in `CanonicalizeRequest` is unused.
+    //
+    // The compiler can cache the `CanonicalizeResponse` if the `containing_url`
+    // is unused.
+    //
+    // The default value is `false`, thus when the value is not set by the host,
+    // the `CanonicalizeResponse` will not be cached by the compiler.
+    bool containing_url_unused = 4;
   }
 
   // A response indicating the result of importing a canonical URL.
@@ -257,6 +266,15 @@ message InboundMessage {
       // An error message explaining why the URL could not be loaded.
       string error = 3;
     }
+
+    // Whether `containing_url` in `FileImportRequest` is unused.
+    //
+    // The compiler can cache the `FileImportResponse` if the `containing_url`
+    // is unused.
+    //
+    // The default value is `false`, thus when the value is not set by the host,
+    // the `FileImportResponse` will not be cached by the compiler.
+    bool containing_url_unused = 4;
   }
 
   // A response indicating the result of calling a custom Sass function defined
