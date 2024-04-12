@@ -4,6 +4,14 @@
 
 * Remove `RgbColor`, `HslColor` and `HwbColor` SassScript values.
 
+## 2.6.0
+
+* Add `fatal_deprecation`, `silence_deprecation`, and `future_deprecation`
+  fields to `CompileRequest` and `deprecation_type` to `LogEvent`, implementing
+  the [deprecations API].
+
+[deprecations API]: accepted/deprecations-api.md
+
 ## 2.5.0
 
 * Add `NodePackageImporter` as a built-in Package Importer, resolving `pkg:`
