@@ -1,3 +1,10 @@
+## Draft 1.14
+
+* Add a mandatory `$method` parameter to `color.to-gamut()` for
+  forwards-compatibility with better gamut-mapping algorithms.
+
+* Add `clip` as a gamut-mapping algorithm.
+
 ## Draft 1.13
 
 * Remove definitions of powerless channels that are no longer present in CSS
