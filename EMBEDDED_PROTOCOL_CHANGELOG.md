@@ -1,3 +1,8 @@
+## 2.7.0
+
+* Add `containing_url_unused` field to `CanonicalizeResponse` and
+  `FileImportResponse`.
+
 ## 2.6.0
 
 * Add `fatal_deprecation`, `silence_deprecation`, and `future_deprecation`
