@@ -37,6 +37,7 @@ export {
   ColorSpaceXyz,
   ChannelNameXyz,
   ChannelName,
+  GamutMapMethod,
   KnownColorSpace,
   PolarColorSpace,
   RectangularColorSpace,
