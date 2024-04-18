@@ -570,7 +570,7 @@ toGamut(options: {
 }): SassColor;
 ```
 
-[`color.to-gamut(internal, space, method)`]: ./color-4-new-spaces.md#colorto-gamut-1
+[`color.to-gamut(internal, space, method)`]: ../../../accepted/color-4-new-spaces.md#colorto-gamut-1
 
 #### `channelsOrNull`
 

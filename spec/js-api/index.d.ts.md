@@ -95,6 +95,7 @@ export {
   ColorSpaceLab,
   ColorSpaceRgb,
   ColorSpaceXyz,
+  GamutMapMethod,
   HueInterpolationMethod,
   KnownColorSpace,
   ListSeparator,
