@@ -552,13 +552,16 @@ isInGamut(space?: KnownColorSpace): boolean;
 
 #### `toGamut`
 
-Returns the result of [`color.to-gamut(internal, space)`].
+Returns the result of [`color.to-gamut(internal, space, method)`].
 
 ```ts
-toGamut(space?: KnownColorSpace): SassColor;
+toGamut(options: {
+  space?: KnownColorSpace;
+  method: 'clip' | 'local-minde';
+}): SassColor;
 ```
 
-[`color.to-gamut(internal, space)`]: ../../../accepted/color-4-new-spaces.md#colorto-gamut-1
+[`color.to-gamut(internal, space, method)`]: ./color-4-new-spaces.md#colorto-gamut-1
 
 #### `channelsOrNull`
 

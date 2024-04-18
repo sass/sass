@@ -1,4 +1,4 @@
-# CSS Color Level 4, New Color Spaces JavaScript API: Draft 1.7
+# CSS Color Level 4, New Color Spaces JavaScript API: Draft 1.8
 
 *([Issue](https://github.com/sass/sass/issues/2831),
 [Changelog](color-4-new-spaces-js.changes.md))*
@@ -171,13 +171,16 @@ isInGamut(space?: KnownColorSpace): boolean;
 
 #### `toGamut`
 
-Returns the result of [`color.to-gamut(internal, space)`].
+Returns the result of [`color.to-gamut(internal, space, method)`].
 
 ```ts
-toGamut(space?: KnownColorSpace): SassColor;
+toGamut(options: {
+  space?: KnownColorSpace;
+  method: 'clip' | 'local-minde';
+}): SassColor;
 ```
 
-[`color.to-gamut(internal, space)`]: ./color-4-new-spaces.md#colorto-gamut-1
+[`color.to-gamut(internal, space, method)`]: ./color-4-new-spaces.md#colorto-gamut-1
 
 #### `channelsOrNull`
 

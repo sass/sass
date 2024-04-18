@@ -269,14 +269,26 @@ export class SassColor extends Value {
 
   /**
    * Returns a copy of this color, modified so it is in-gamut for the specified
-   * `space`—or the current color space if `space` is not specified—using the
-   * recommended [CSS Gamut Mapping Algorithm][css-mapping] to map out-of-gamut
-   * colors into the desired gamut with as little perceptual change as possible.
+   * `space`—or the current color space if `space` is not specified—using one of
+   * the following methods to map out-of-gamut colors into the desired gamut:
    *
-   * [css-mapping]:
-   * https://www.w3.org/TR/css-color-4/#css-gamut-mapping-algorithm
+   * * `local-minde`: The algorithm specified in [the original Color Level 4
+   *   candidate recommendation]. This maps in the Oklch color space, using the
+   *   [deltaEOK] color difference formula and the [local-MINDE] improvement.
+   *
+   * * `clip`: Clamp each color channel that's outside the gamut to the minimum
+   *   or maximum value for that channel. This algorithm will produce poor
+   *   visual results, but it may be useful to match the behavior of other
+   *   situations in which a color can be clipped.
+   *
+   * [the original Color Level 4 candidate recommendation]: https://www.w3.org/TR/2024/CRD-css-color-4-20240213/#css-gamut-mapping
+   * [the original Color Level 4 candidate recommendation]: https://www.w3.org/TR/2024/CRD-css-color-4-20240213/#color-difference-OK
+   * [local-MINDE]: https://www.w3.org/TR/2024/CRD-css-color-4-20240213/#GM-chroma-local-MINDE
    */
-  toGamut(space?: KnownColorSpace): SassColor;
+  toGamut(options: {
+    space?: KnownColorSpace;
+    method: 'clip' | 'local-minde';
+  }): SassColor;
 
   /**
    * A list of this color's channel values (excluding alpha), with [missing
