@@ -107,6 +107,21 @@ export interface Deprecations {
   'fs-importer-cwd': Deprecation<'fs-importer-cwd'>;
 
   /**
+   * Deprecation for certain uses of built-in `sass:color` functions.
+   *
+   * This deprecation became active in Dart Sass 1.76.0.
+   */
+  'color-4-api': Deprecation<'color-4-api'>;
+
+  /**
+   * Deprecation for using global color functions instead of loading them from
+   * `sass:color`.
+   *
+   * This deprecation became active in Dart Sass 1.76.0.
+   */
+  'color-functions': Deprecation<'color-functions'>;
+
+  /**
    * Deprecation for `@import` rules.
    *
    * This deprecation is not yet active, but will be soon.

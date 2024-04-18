@@ -1,3 +1,7 @@
+## Draft 1.7
+
+* Don't throw errors for out-of-gamut lightness values.
+
 ## Draft 1.6
 
 * Simplify the type definition for `interpolate`, and make `options` argument

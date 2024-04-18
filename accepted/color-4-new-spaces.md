@@ -1,4 +1,4 @@
-# CSS Color Level 4, New Color Spaces: Draft 1.14
+# CSS Color Level 4, New Color Spaces: Draft 1.15
 
 *([Issue](https://github.com/sass/sass/issues/2831))*
 
@@ -814,8 +814,8 @@ in certain circumstances.
 
 * `hwb`:
 
-  * If the combined `whiteness` and `blackness` values (after normalization)
-    are equal to `100%`, then the `hue` channel is powerless.
+  * If `whiteness + blackness` is greater than or equal to `100%`, then the
+    `hue` channel is powerless.
 
 * `lch`/`oklch`:
 
