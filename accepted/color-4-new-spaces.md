@@ -327,11 +327,12 @@ one or more of its channels out of bounds, like `rgb(300 0 0)`).
 
 #### `color.to-gamut()`
 
-This function returns a color that is in the given gamut, using the current CSS
-Color 4's `local-minde` algorithm to 'map' out-of-gamut colors into the desired
-gamut with as little perceptual change as possible. In many cases this can be
-more reliable for generating fallback values, rather than the 'channel clipping'
-approach used by current browsers.
+This function returns a color that is in the given gamut, using the given
+mapping algorithm to convert out-of-gamut colors into the desired gamut with as
+little perceptual change as possible. The current recommended algorithm is
+`local-minde`, which is defined in the current candidate recommendation of CSS
+Color 4, which can in many cases be more reliable for generating fallback values
+than the "channel clipping" approach used by current browsers.
 
 ```scss
 $green: oklch(0.8 2 150);
