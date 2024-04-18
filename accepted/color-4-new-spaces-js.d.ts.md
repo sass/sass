@@ -116,6 +116,8 @@ export type HueInterpolationMethod =
   | 'increasing'
   | 'longer'
   | 'shorter';
+
+export type GamutMapMethod = 'clip' | 'local-minde';
 ```
 
 ### New Color Functions

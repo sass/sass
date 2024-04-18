@@ -80,6 +80,25 @@ export type HueInterpolationMethod =
   | 'shorter';
 
 /**
+ * Methods by which colors in bounded spaces can be mapped to within their
+ * gamut.
+ *
+ * * `local-minde`: The algorithm specified in [the original Color Level 4
+ *   candidate recommendation]. This maps in the Oklch color space, using the
+ *   [deltaEOK] color difference formula and the [local-MINDE] improvement.
+ *
+ * * `clip`: Clamp each color channel that's outside the gamut to the minimum or
+ *   maximum value for that channel. This algorithm will produce poor visual
+ *   results, but it may be useful to match the behavior of other situations in
+ *   which a color can be clipped.
+ *
+ * [the original Color Level 4 candidate recommendation]: https://www.w3.org/TR/2024/CRD-css-color-4-20240213/#css-gamut-mapping
+ * [the original Color Level 4 candidate recommendation]: https://www.w3.org/TR/2024/CRD-css-color-4-20240213/#color-difference-OK
+ * [local-MINDE]: https://www.w3.org/TR/2024/CRD-css-color-4-20240213/#GM-chroma-local-MINDE
+ */
+export type GamutMapMethod = 'clip' | 'local-minde';
+
+/**
  * Sass's [color type](https://sass-lang.com/documentation/values/colors).
  *
  * No matter what representation was originally used to create this color, all
@@ -269,25 +288,12 @@ export class SassColor extends Value {
 
   /**
    * Returns a copy of this color, modified so it is in-gamut for the specified
-   * `space`—or the current color space if `space` is not specified—using one of
-   * the following methods to map out-of-gamut colors into the desired gamut:
-   *
-   * * `local-minde`: The algorithm specified in [the original Color Level 4
-   *   candidate recommendation]. This maps in the Oklch color space, using the
-   *   [deltaEOK] color difference formula and the [local-MINDE] improvement.
-   *
-   * * `clip`: Clamp each color channel that's outside the gamut to the minimum
-   *   or maximum value for that channel. This algorithm will produce poor
-   *   visual results, but it may be useful to match the behavior of other
-   *   situations in which a color can be clipped.
-   *
-   * [the original Color Level 4 candidate recommendation]: https://www.w3.org/TR/2024/CRD-css-color-4-20240213/#css-gamut-mapping
-   * [the original Color Level 4 candidate recommendation]: https://www.w3.org/TR/2024/CRD-css-color-4-20240213/#color-difference-OK
-   * [local-MINDE]: https://www.w3.org/TR/2024/CRD-css-color-4-20240213/#GM-chroma-local-MINDE
+   * `space`—or the current color space if `space` is not specified—using
+   * `method` to map out-of-gamut colors into the desired gamut.
    */
   toGamut(options: {
     space?: KnownColorSpace;
-    method: 'clip' | 'local-minde';
+    method: GamutMapMethod;
   }): SassColor;
 
   /**
