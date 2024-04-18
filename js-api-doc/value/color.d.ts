@@ -93,7 +93,7 @@ export type HueInterpolationMethod =
  *   which a color can be clipped.
  *
  * [the original Color Level 4 candidate recommendation]: https://www.w3.org/TR/2024/CRD-css-color-4-20240213/#css-gamut-mapping
- * [deltaEok]: https://www.w3.org/TR/2024/CRD-css-color-4-20240213/#color-difference-OK
+ * [deltaEOK]: https://www.w3.org/TR/2024/CRD-css-color-4-20240213/#color-difference-OK
  * [local-MINDE]: https://www.w3.org/TR/2024/CRD-css-color-4-20240213/#GM-chroma-local-MINDE
  */
 export type GamutMapMethod = 'clip' | 'local-minde';
