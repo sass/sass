@@ -218,10 +218,14 @@ that includes CSS for *all* modules transitively used or forwarded by
     `domestic`'s CSS tree that contains only comments and [initial rules], *and*
     that ends with an initial rule.
 
-  * Otherwise, if `initial` contains a `@layer` rule `layer`:
+  * If `initial` contains a `@layer` rule `layer`:
 
     * If `css` already contains a `@layer` rule without children, throw an
       error.
+
+    * Otherwise, if `layer` is preceded only by comments, remove those comment
+      and `layer` from `initial` and insert a copy of them at the beginning of
+      `css` after any existing comments.
 
     * Otherwise, remove `layer` from `initial` and insert a copy of it at the
       beginning of `css` after any comments.
