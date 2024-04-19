@@ -23,11 +23,11 @@ To execute a style rule `rule`:
 * Let `parent` by the [current style rule] or current at-rule if one exists, or
   the innermost if both exist.
 
-  [current style rule]: ../spec/style-rules.md#current-style-rule
+  [current style rule]: #current-style-rule
 
 * If `parent` is a style rule whose stylesheet wasn't [parsed as CSS]:
 
-  [parsed as CSS]: ../spec/syntax.md#parsing-text-as-css
+  [parsed as CSS]: #parsing-text-as-css
 
   > Checking whether `rule`'s stylesheet is CSS ensures that the plain CSS
   > behavior occurs even when plain CSS is evaluated in a Sass context, such as
@@ -51,7 +51,7 @@ To execute a style rule `rule`:
 
 * If `css` contains any children and `selector` is [bogus], throw an error.
 
-  [bogus]: ../spec/selectors.md#bogus-selector
+  [bogus]: selectors.md#bogus-selector
 
 * Remove any [complex selectors][] containing a placeholder selector that
   begins with `-` or `_` from `css`'s selector.
@@ -69,4 +69,4 @@ To execute a style rule `rule`:
 
   * Otherwise, append `css` to [the current module]'s CSS.
 
-  [the current module]: ../spec/spec.md#current-module
+  [the current module]: spec.md#current-module
