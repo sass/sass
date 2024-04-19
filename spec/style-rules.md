@@ -27,7 +27,7 @@ To execute a style rule `rule`:
 
 * If `parent` is a style rule whose stylesheet wasn't [parsed as CSS]:
 
-  [parsed as CSS]: #parsing-text-as-css
+  [parsed as CSS]: syntax.md#parsing-text-as-css
 
   > Checking whether `rule`'s stylesheet is CSS ensures that the plain CSS
   > behavior occurs even when plain CSS is evaluated in a Sass context, such as
