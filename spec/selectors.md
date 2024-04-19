@@ -10,6 +10,8 @@
   * [Bogus Selector](#bogus-selector)
 * [Syntax](#syntax)
   * [`ComplexSelector`](#complexselector)
+* [Serialization](#serialization)
+  * [Parent Selector](#parent-selector)
 
 ## Definitions
 
@@ -67,3 +69,12 @@ A selector list is *bogus* if any of its complex selectors are bogus.
 </pre></x>
 
 [\<combinator>]: https://drafts.csswg.org/selectors-4/#typedef-combinator
+
+## Serialization
+
+### Parent Selector
+
+To serialize a parent selector, emit the character `&`.
+
+> A parent selector can only appear in a serialized selector if it was parsed
+> from plain CSS, which doesn't allow it to have a suffix.
