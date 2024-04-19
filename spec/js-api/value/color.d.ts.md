@@ -26,6 +26,7 @@ import {Value} from './index';
   * [`PolarColorSpace`](#polarcolorspace)
   * [`RectangularColorSpace`](#rectangularcolorspace)
   * [`HueInterpolationMethod`](#hueinterpolationmethod)
+  * [`GamutMapMethod`](#gamutmapmethod)
   * [`SassColor`](#sasscolor)
     * [`internal`](#internal)
     * [Constructor](#constructor)
@@ -222,6 +223,14 @@ export type HueInterpolationMethod =
   | 'increasing'
   | 'longer'
   | 'shorter';
+```
+
+### `GamutMapMethod`
+
+Methods by which colors in bounded spaces can be mapped to within their gamut.
+
+```ts
+export type GamutMapMethod = 'clip' | 'local-minde';
 ```
 
 ### `SassColor`
@@ -552,13 +561,16 @@ isInGamut(space?: KnownColorSpace): boolean;
 
 #### `toGamut`
 
-Returns the result of [`color.to-gamut(internal, space)`].
+Returns the result of [`color.to-gamut(internal, space, method)`].
 
 ```ts
-toGamut(space?: KnownColorSpace): SassColor;
+toGamut(options: {
+  space?: KnownColorSpace;
+  method: GamutMapMethod;
+}): SassColor;
 ```
 
-[`color.to-gamut(internal, space)`]: ../../../accepted/color-4-new-spaces.md#colorto-gamut-1
+[`color.to-gamut(internal, space, method)`]: ../../../accepted/color-4-new-spaces.md#colorto-gamut-1
 
 #### `channelsOrNull`
 

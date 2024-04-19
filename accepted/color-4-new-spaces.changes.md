@@ -1,3 +1,10 @@
+## Draft 1.15
+
+* Add a mandatory `$method` parameter to `color.to-gamut()` for
+  forwards-compatibility with better gamut-mapping algorithms.
+
+* Add `clip` as a gamut-mapping algorithm.
+
 ## Draft 1.14
 
 * Update the definition of powerless for HWB to match [the latest CSS

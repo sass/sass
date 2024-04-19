@@ -1,4 +1,4 @@
-# CSS Color Level 4, New Color Spaces: Draft 1.14
+# CSS Color Level 4, New Color Spaces: Draft 1.15
 
 *([Issue](https://github.com/sass/sass/issues/2831))*
 
@@ -54,6 +54,8 @@ colors outside the sRGB gamut.
   * [Converting a Color](#converting-a-color)
   * [CSS-Converting a Color Space](#css-converting-a-color-space)
   * [Gamut Mapping](#gamut-mapping-1)
+    * [`local-minde`](#local-minde)
+    * [`clip`](#clip)
   * [Parsing Color Components](#parsing-color-components)
   * [Percent-Converting a Number](#percent-converting-a-number)
   * [Validating a Color Channel](#validating-a-color-channel)
@@ -325,20 +327,21 @@ one or more of its channels out of bounds, like `rgb(300 0 0)`).
 
 #### `color.to-gamut()`
 
-This function returns a color that is in the given gamut, using the recommended
-[CSS Gamut Mapping Algorithm][css-mapping] to 'map' out-of-gamut colors into
-the desired gamut with as little perceptual change as possible. In many cases
-this can be more reliable for generating fallback values, rather than the
-'channel clipping' approach used by current browsers.
+This function returns a color that is in the given gamut, using the given
+mapping algorithm to convert out-of-gamut colors into the desired gamut with as
+little perceptual change as possible. The current recommended algorithm is
+`local-minde`, which is defined in the current candidate recommendation of CSS
+Color 4, which can in many cases be more reliable for generating fallback values
+than the "channel clipping" approach used by current browsers.
 
 ```scss
 $green: oklch(0.8 2 150);
 
 // oklch(0.91 0.14 164)
-$rgb: color.to-gamut($green, "srgb");
+$rgb: color.to-gamut($green, "srgb", $method: local-minde);
 
 // oklch(0.91 0.16 163)
-$p3: color.to-gamut($green, "display-p3");
+$p3: color.to-gamut($green, "display-p3", $method: local-minde);
 ```
 
 #### `color.is-powerless()`
@@ -508,14 +511,27 @@ and mapping in Sass color functions:
 
 #### Gamut Mapping
 
-Browsers currently use channel-clipping rather than the proposed
-[css gamut mapping algorithm][css-mapping] to handle colors that cannot be
-shown correctly on a given display. We've decided to provide `color.to-gamut()`
-as a way for authors to opt-into the proposed behavior, aware that browsers
-may eventually choose to provide a different algorithm. If that happens, we
-will consider adding an additional algorithm-selection argument. However, the
-primary goal of this function is not to match CSS behavior, but to provide a
-better mapping than the default channel-clipping.
+Browsers currently use channel-clipping rather than the proposed [css gamut
+mapping algorithm][css-mapping] to handle colors that cannot be shown correctly
+on a given display. Moreover, there is still active discussion among the CSS
+working group and browser vendors about what the best gamut mapping algorithm
+is, with the currently-specified algorithm widely considered to be sub-optimal.
+As such, we want to avoid baking it in as the default for Sass such that any
+change would require a deprecation period.
+
+At the same time, we expect gamut-mapping to be very useful for Sass authors
+working with wide-gamut color spaces, enough so that we want it to be available
+without needing to wait on the CSSWG to come to a consensus on the best
+algorithm. To that end, we've decided to provide `color.to-gamut()` but
+*require* a `$method` argument for forwards-compatibility with better gamut
+mapping algorithms.
+
+Initially, there will only be two available arguments for `$method`:
+`local-minde`, the gamut mapping algorithm specified in Color 4 at the time this
+spec is written, and `clip` which will just clip any channel values that are
+out-of-range for a given color space. However, we expect to expand this to
+additional algorithms in the future, and to eventually make it optional and have
+its default match the behavior of CSS.
 
 #### CSS Color 5
 
@@ -1016,28 +1032,48 @@ The individual conversion algorithms are:
 > available 'in-gamut' color. Gamut mapping is the process of finding an
 > in-gamut color with the least objectionable change in visual appearance.
 
-Gamut mapping in Sass follows the [CSS gamut mapping algorithm][css-mapping].
-This procedure accepts a color `origin`, and a [known color space]
-`destination`. It returns the result of a [CSS gamut map][css-map] procedure,
-converted back into the original color space.
+Gamut mapping color `origin`, a [known color space] `destination`, and an
+unquoted string `method`. It returns a color in `origin`'s color space.
 
 * Let `origin-space` be `origin`'s color space.
 
 * If either `origin-space` or `destination` is not a [known color space], throw
   an error.
 
-* Let `mapped` be the result of [CSS gamut mapping][css-mapping] `origin`
-  color, with an origin color space of `origin-space`, and destination of
-  `destination`.
+* Let `color` be the result of [converting] `origin` into `destination`.
+
+* If `method` is not one of the methods defined below, throw an error.
+
+* Let `mapped` be the result of running the method defined below whose name
+  matches `method`. If no such method matches, throw an error.
 
 * Return the result of [converting] `mapped` into `origin-space`.
 
-> This algorithm implements a relative colorimetric intent, and colors inside
-> the destination gamut are unchanged. Since the process is lossy, authors
-> should be encouraged to let the browser handle gamut mapping when possible.
+#### `local-minde`
 
-[css-mapping]: https://www.w3.org/TR/css-color-4/#css-gamut-mapping-algorithm
-[css-map]: https://www.w3.org/TR/css-color-4/#css-gamut-map
+The `local-minde` gamut mapping procedure in Sass follows the 13 February 2024
+draft of CSS Color Module Level 4. It returns the result of [CSS gamut
+mapping][css-mapping] `origin` with an origin color space of `origin-space` and
+destination of `destination`.
+
+[css-mapping]: https://www.w3.org/TR/2024/CRD-css-color-4-20240213/#css-gamut-mapping-algorithm
+
+> This algorithm implements a relative colorimetric intent, and colors inside
+> the destination gamut are unchanged.
+
+#### `clip`
+
+The `clip` gamut mapping procedure is not expected to produce good-looking
+results, but it can be useful to match the current behavior of browsers.
+
+* Let `new-color` be a copy of `color`.
+
+* For each `channel` in `destination`:
+
+  * If `channel` is bounded, set `new-color`'s `channel` value to the result of
+    clamping the original value within `channel`'s minimum and maximum values.
+
+* Return `new-color`.
 
 ### Parsing Color Components
 
@@ -1626,10 +1662,13 @@ is-in-gamut($color, $space: null)
 ### `color.to-gamut()`
 
 ```
-to-gamut($color, $space: null)
+to-gamut($color, $space: null, $method: null)
 ```
 
 * If `$color` is not a color, throw an error.
+
+* If `$method` is not an unquoted string whose value is either `local-minde` or
+  `clip`, throw an error.
 
 * If `$space` is null:
 
@@ -1641,8 +1680,8 @@ to-gamut($color, $space: null)
 * Otherwise, let `target-space` be the result of [looking up a known color
   space] named `$space`.
 
-* Return the result of [gamut mapping] `$color` with a `target-space`
-  destination.
+* Return the result of [gamut mapping] `$color` with destination `target-space`
+  and method `$method`.
 
 [gamut mapping]: #gamut-mapping
 
