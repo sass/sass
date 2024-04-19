@@ -12,6 +12,7 @@ many interacting layers and a lot of intricate case analysis.
   * [Extension](#extension)
   * [Extendee](#extendee)
   * [The `extend()` Function](#the-extend-function)
+  * [Initial Rule](#initial-rule)
 * [Semantics](#semantics)
   * [Executing an `@extend` Rule](#executing-an-extend-rule)
   * [Resolving a Module's Extensions](#resolving-a-modules-extensions)
