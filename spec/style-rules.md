@@ -20,7 +20,7 @@ To execute a style rule `rule`:
 * Let `selector` be the result of evaluating all interpolation in `rule`'s
   selector and parsing the result as a selector list.
 
-* Let `parent` by the [current style rule] or current at-rule if one exists, or
+* Let `parent` be the [current style rule] or current at-rule if one exists, or
   the innermost if both exist.
 
   [current style rule]: #current-style-rule
