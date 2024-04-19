@@ -242,11 +242,12 @@ that includes CSS for *all* modules transitively used or forwarded by
       * If `css` already contains a `@layer` rule without children, throw an
         error.
 
-      * Otherwise, insert a copy of `statement` at the beginning of `css`.
+      * Otherwise, insert a copy of `statement` at the beginning of `css` after
+        any comments.
 
     * Otherwise, If `statement` is an `@import` rule, insert a copy of
       `statement` in `css` after the last initial rule, or at the beginning of
-      `css` if it doesn't contain any initial rules.
+      `css` after any comments if it doesn't contain any initial rules.
 
     * Otherwise, add a copy of `statement` to the end of `css`, with any style
       rules' selectors replaced with the corresponding selectors in
