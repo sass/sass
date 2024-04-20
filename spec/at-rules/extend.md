@@ -203,7 +203,13 @@ that includes CSS for *all* modules transitively used or forwarded by
 
   * If `domestic` has already been traversed, do nothing.
 
-  * Otherwise, traverse every module in `domestic`'s dependencies.
+  * For each module `upstream` in `domestic`'s dependencies:
+
+    * For each unmarked comment in `domestic`'s CSS, if that comment originally
+      appeared before the `@use` or `@forward` rule that loaded `upstream`, add
+      a copy of that comment to `css` and then mark it.
+
+    * Traverse `upstream`.
 
     > Because this traverses modules depth-first, it emits CSS in reverse
     > topological order.
@@ -212,15 +218,17 @@ that includes CSS for *all* modules transitively used or forwarded by
     statements in `domestic`'s CSS tree that contains only comments and
     `@import` rules *and* that ends with an `@import` rule.
 
-  * Insert a copy of `initial-imports` in `css` after the last `@import` rule, or
-    at the beginning of `css` if it doesn't contain any `@import` rules.
+  * Insert a copy of `initial-imports` in `css` after the longest initial
+    subsequence of comments and `@import` rules in `css`.
+
+    > If there are no comments or `@import` rules in `css`, this initial
+    > subsequence is empty and `initial-imports` is inserted at the beginning of
+    > `css`.
 
   * For each top-level statement `statement` in `domestic`'s CSS tree after
     `initial-imports`:
 
-    * If `statement` is an `@import` rule, insert a copy of `statement` in `css`
-      after the last `@import` rule, or at the beginning of `css` if it doesn't
-      contain any `@import` rules.
+    * If `statement` is a marked comment, ignore it.
 
     * Otherwise, add a copy of `statement` to the end of `css`, with any style
       rules' selectors replaced with the corresponding selectors in

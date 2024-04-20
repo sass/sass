@@ -109,8 +109,8 @@ To execute an `@import` rule `rule`:
         > `ImportMedia` is a subset of the valid syntax of `MediaQueryList`, so
         > this will always work.
 
-    * Add an `@import` with the evaluated modifiers to [the current module]'s
-      CSS AST.
+      * Add an `@import` with the evaluated modifiers to [the current module]'s CSS
+        AST after the longest initial subsequence of comments and `@import` rules.
 
   * Otherwise, let `file` be the result of [loading the file][] with
     `argument`'s URL string. If this returns null, throw an error.
