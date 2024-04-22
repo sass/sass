@@ -12,6 +12,7 @@ many interacting layers and a lot of intricate case analysis.
   * [Extension](#extension)
   * [Extendee](#extendee)
   * [The `extend()` Function](#the-extend-function)
+  * [Initial Rule](#initial-rule)
 * [Semantics](#semantics)
   * [Executing an `@extend` Rule](#executing-an-extend-rule)
   * [Resolving a Module's Extensions](#resolving-a-modules-extensions)
@@ -85,6 +86,11 @@ shorthands:
   extension.extender)`.
 * `extend(extendee, extensions)` for iteratively running `extendee =
   extend(extendee, extension)` for each `extension` in `extensions`.
+
+### Initial Rule
+
+An "initial rule" is a CSS at-rule that is either an `@import` or a `@layer`
+rule with no children.
 
 ## Semantics
 
@@ -208,25 +214,48 @@ that includes CSS for *all* modules transitively used or forwarded by
     > Because this traverses modules depth-first, it emits CSS in reverse
     > topological order.
 
-  * Let `initial-imports` be the longest initial subsequence of top-level
-    statements in `domestic`'s CSS tree that contains only comments and
-    `@import` rules *and* that ends with an `@import` rule.
+  * Let `initial` be the longest initial subsequence of top-level statements in
+    `domestic`'s CSS tree that contains only comments and [initial rules], *and*
+    that ends with an initial rule.
 
-  * Insert a copy of `initial-imports` in `css` after the last `@import` rule, or
-    at the beginning of `css` if it doesn't contain any `@import` rules.
+  * If `initial` contains a `@layer` rule `layer`:
+
+    * If `css` already contains a `@layer` rule without children, throw an
+      error.
+
+    * Otherwise, if `layer` is preceded only by comments, remove those comment
+      and `layer` from `initial` and insert a copy of them at the beginning of
+      `css` after any existing comments.
+
+    * Otherwise, remove `layer` from `initial` and insert a copy of it at the
+      beginning of `css` after any comments.
+
+  * Insert a copy of `initial` in `css` after the last initial rule, or at the
+    beginning of `css` after any comments if it doesn't contain any initial
+    rules.
 
   * For each top-level statement `statement` in `domestic`'s CSS tree after
-    `initial-imports`:
+    `initial`:
 
-    * If `statement` is an `@import` rule, insert a copy of `statement` in `css`
-      after the last `@import` rule, or at the beginning of `css` if it doesn't
-      contain any `@import` rules.
+    * If `statement` is a `@layer` rule without children:
+
+      * If `css` already contains a `@layer` rule without children, throw an
+        error.
+
+      * Otherwise, insert a copy of `statement` at the beginning of `css` after
+        any comments.
+
+    * Otherwise, If `statement` is an `@import` rule, insert a copy of
+      `statement` in `css` after the last initial rule, or at the beginning of
+      `css` after any comments if it doesn't contain any initial rules.
 
     * Otherwise, add a copy of `statement` to the end of `css`, with any style
       rules' selectors replaced with the corresponding selectors in
       `new-selectors`.
 
 * Return `css`.
+
+[initial rules]: #initial-rule
 
 ### Extending a Selector
 
