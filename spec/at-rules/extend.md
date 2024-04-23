@@ -160,7 +160,13 @@ that includes CSS for *all* modules transitively used or forwarded by
 
     * Let `selector` be `extend(rule's selector, domestic's extensions)`.
 
-    * Let `selector-lists` be an empty set of selector lists.
+    * Remove from `selector` any [complex selectors] containing a placeholder
+      selector that begins with `-` or `_` from `css`'s selector.
+
+    * If `selector` is empty, move on to the next `rule`.
+
+    * Let `selector-lists` be a set of selector lists containing only
+      `selector`.
 
     * For each module `foreign` in `downstream`:
 
@@ -171,7 +177,7 @@ that includes CSS for *all* modules transitively used or forwarded by
         > means that `foreign`'s own extensions will already have been resolved
         > by the time we start working on modules upstream of it.
 
-      * Add `selector` to `selector-lists`.
+      * Add `extended-selector` to `selector-lists`.
 
     * Set `new-selectors[rule]` to a selector that matches the union of all
       elements matched by selectors in `selector-lists`. This selector must obey
@@ -187,6 +193,12 @@ that includes CSS for *all* modules transitively used or forwarded by
       > selector. The new complex selectors in `selector` generated from
       > `domestic`'s extensions don't count as "original", and may be optimized
       > away.
+
+      If none of the selectors in `selector-lists` match any elements, add
+      nothing to `new-selectors`.
+
+      > This may occur if `selector-lists` contains placeholder selectors that
+      > haven't been extended.
 
     * For every extension `extension` whose extender appears in `rule`'s
       selector:
@@ -224,9 +236,15 @@ that includes CSS for *all* modules transitively used or forwarded by
 
     * Otherwise, add a copy of `statement` to the end of `css`, with any style
       rules' selectors replaced with the corresponding selectors in
-      `new-selectors`.
+      `new-selectors`. Omit any style rules that don't have corresponding
+      selectors in `new-selectors`.
+
+      > This will omit style rules that contain un-extended placeholder
+      > selectors.
 
 * Return `css`.
+
+[complex selectors]: https://drafts.csswg.org/selectors-4/#complex
 
 ### Extending a Selector
 
