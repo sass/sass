@@ -1,4 +1,4 @@
-# CSS Color Level 4, New Color Spaces: Draft 1.15
+# CSS Color Level 4, New Color Spaces: Draft 1.16
 
 *([Issue](https://github.com/sass/sass/issues/2831))*
 
@@ -33,6 +33,7 @@ colors outside the sRGB gamut.
   * [Design Decisions](#design-decisions)
     * [Unclamped Channels](#unclamped-channels)
     * [Clamped Channels](#clamped-channels)
+    * [Conventions for Channels and Space Names](#conventions-for-channels-and-space-names)
     * [Changing Color Spaces](#changing-color-spaces)
     * [Gamut Mapping](#gamut-mapping)
     * [CSS Color 5](#css-color-5)
@@ -488,6 +489,33 @@ out-of-gamut values:
   ..., color(xyz ...) 100%, black)` to preserve both the original color space
   and the unclamped value in conformant browsers.
 
+#### Conventions for Channels and Space Names
+
+This proposal uses different conventions for referring to the names of color
+spaces as it does for referring to the names of individual channels within those
+spaces. Specifically:
+
+* Color space names are required to be unquoted and matched case-insensitively.
+
+* Color channels are required to be matched case-sensitively, and to be quoted
+  unless they're used as keyword arguments.
+
+This is motivated by the fact that color space names are a CSS-native construct
+which are used in the `color()` and `color-mix()` functions, and in those
+contexts are unquoted and case-insensitive; while the channel names, although
+*informed* by CSS's color space definitions, are ultimately Sass-specific and
+follow the more common Sass API conventions. Even when CSS does refer to
+channels, such as in the [relative color syntax] of CSS Color 5, it universally
+refers to them as single characters rather than full names. We wish to avoid
+these single-character names both for readability and for
+backwards-compatibility with older Sass APIs.
+
+[relative color syntax]: https://drafts.csswg.org/css-color-5/#relative-colors
+
+In addition, requiring that channel names be quoted avoids the issue where
+unquoted `red`, `green`, and `blue` channels of many colors would be parsed by
+Sass as color values rather than unquoted strings.
+
 #### Changing Color Spaces
 
 Different color spaces often represent different color-gamuts, which can present
@@ -549,7 +577,6 @@ provides us with the most flexibility to change our behavior in the future.
 
 [open issue in CSS]: https://github.com/w3c/csswg-drafts/issues/7771
 [color-5]: https://www.w3.org/TR/css-color-5/
-[relative color syntax]: https://drafts.csswg.org/css-color-5/#relative-colors
 
 #### Special Thanks
 
@@ -1632,7 +1659,8 @@ is-powerless($color, $channel, $space: null)
 
 * Let `channels` be a list of the `color`'s channels.
 
-* If `$channel` is not the name of a channel in `channels`, throw an error.
+* If `$channel` is not the (case sensitive) name of a channel in `channels`,
+  throw an error.
 
 * Return `true` if the channel `$channel` is [powerless] in `color`,
   otherwise return `false`.
@@ -1699,16 +1727,15 @@ channel($color, $channel, $space: null)
 
 * If `$channel` is not a quoted string, throw an error.
 
-* If `$channel == 'alpha'` (ignoring case), let `value` be the alpha value of
-  `$color`.
+* If `$channel == 'alpha'`, let `value` be the alpha value of `$color`.
 
 * Otherwise:
 
   * Let `color` be `$color` if `$space` is null, and the result of calling
     `color.to-space($color, $space)` otherwise.
 
-  * Let `channel` be the channel in `color`'s space named `$channel`. Throw an
-    error if no such channel exists.
+  * Let `channel` be the channel in `color`'s space (case sensitively) named
+    `$channel`. Throw an error if no such channel exists.
 
   * Let `value` be `channel`'s value in `color`, or `0` if the channel's value
     is missing.
@@ -1733,12 +1760,12 @@ is-missing($color, $channel)
 
 * If `$channel` is not a quoted string, throw an error.
 
-* If `$channel == alpha` (ignoring case), let `value` be the alpha value of
-  `$color`.
+* If `$channel == alpha`, let `value` be the alpha value of `$color`.
 
 * Otherwise:
 
-  * If `channel` is not the name of a channel in `$color`, throw an error.
+  * If `$channel` is not the (case-sensitive) name of a channel in `$color`,
+    throw an error.
 
   * Let `value` be the channel value named `channel` in `color`.
 
@@ -1861,7 +1888,7 @@ This function is also available as a global function named `change-color()`.
     > This basic restriction can be applied to all spaces. Further channel
     > restrictions are enforced by the normalization step for known spaces.
 
-  * If `key` is not the name of a channel in `channels`:
+  * If `key` is not the (case-sensitive) name of a channel in `channels`:
 
     * If `$space` is specified, throw an error.
 
@@ -1939,7 +1966,7 @@ This function is also available as a global function named `adjust-color()`.
 
 * For each keyword `key` and value `adjust` in `channel-args`:
 
-  * If `key` is not the name of a channel in `channels`:
+  * If `key` is not the (case-sensitive) name of a channel in `channels`:
 
     * If `$space` is specified, throw an error.
 
@@ -2061,7 +2088,8 @@ This function is also available as a global function named `scale-color()`.
 
 * For each keyword `scale`, `factor` in `channel-args`:
 
-  * If `scale` is not the name of a [scalable] channel in `channels`:
+  * If `scale` is not the (case-sensitive) name of a [scalable] channel in
+    `channels`:
 
     * If `$space` is specified, throw an error.
 
