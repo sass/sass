@@ -1,3 +1,7 @@
+## Draft 1.16
+
+* Explicitly require case-sensitivity for channel names in Sass functions.
+
 ## Draft 1.15
 
 * Add a mandatory `$method` parameter to `color.to-gamut()` for
