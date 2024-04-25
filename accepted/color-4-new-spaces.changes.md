@@ -1,3 +1,7 @@
+## Draft 1.17
+
+* Treat colors with missing channels as the same as 0 for `color.same()`.
+
 ## Draft 1.16
 
 * Explicitly require case-sensitivity for channel names in Sass functions.
