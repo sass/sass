@@ -80,18 +80,47 @@ Change the definition of the [current style rule][old] to:
 > Differences are highlighted in bold.
 
 The *current style rule* is the CSS style rule that was created by the innermost
-[execution of a style rule], `@media` rule, `@supports` rule, unknown at-rule,
-**or [declaration]**.
+[execution of a style rule], `@media` rule, `@supports` rule, unknown at-rule.
+**This may be overridden by the [execution of a declaration].**
 
 [execution of a style rule]: ../spec/style-rules.md#semantics
-[declaration]: #semantics
+[execution of a declaration]: #semantics
+
+### Current Style Rule
+
+Change the definition of the [current style rule][old style] to:
+
+[old style]: ../spec/style-rules.md#current-style-rule
+
+> Differences are highlighted in bold.
+
+The *current style rule* is the CSS style rule that was created by the innermost
+[execution of a style rule], `@media` rule, `@supports` rule, unknown at-rule.
+**This may be overridden by the [execution of a declaration].**
+
+[execution of a style rule]: ../spec/style-rules.md#semantics
+[execution of a declaration]: #semantics
+
+### Current Keyframe Block
+
+Change the definition of the [current keyframe block][old keyframe] to:
+
+[old keyframe]: ../spec/style-rules.md#current-keyframe-block
+
+> Differences are highlighted in bold.
+
+The *current keyframe block* is the CSS keyframe block that was created by the
+innermost [execution of a style rule]. **This may be overridden by the
+[execution of a declaration].**
 
 ## Declarations
 
 ### Semantics
 
-Add the following to the semantics for executing a declaration `declaration`
+Add the following to the semantics for [executing a declaration] `declaration`
 before "Append `css` to `parent`":
+
+[executing a declaration]: ../spec/declarations.md#semantics
 
 * If `parent` isn't the last statement in its parent:
 
@@ -99,7 +128,13 @@ before "Append `css` to `parent`":
 
   * Append `copy` to `parent`'s parent.
 
+  * Set the [current style rule], [keyframe block], or at-rule (according to
+    `copy`'s type) to `copy`, for the remaining duration of its previous value.
+
   * Set `parent` to `copy`.
+
+[current style rule]: #current-style-rule
+[keyframe block]: #current-keyframe-block
 
 ## Unknown At-Rules
 
