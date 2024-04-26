@@ -47,11 +47,12 @@ To execute an unknown at-rule `rule`:
 
     * Otherwise:
 
-      * Let `copy` by a copy of `parent` without any children.
+      * Append `css` to `parent`'s parent.
 
-      * Append `copy` to `parent`'s parent.
+      * Append a copy of `parent` without any children to `css`.
 
-      * Append `css` to `copy`.
+        > This copy is now the [current style rule] until `rule` is done being
+        > executed.
 
   * Otherwise, append `css` to `parent`.
 
