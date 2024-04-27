@@ -8,6 +8,8 @@
 * [Summary](#summary)
 * [Definitions](#definitions)
   * [Current Style Rule](#current-style-rule)
+  * [Current Style Rule](#current-style-rule-1)
+  * [Current Keyframe Block](#current-keyframe-block)
 * [Declarations](#declarations)
   * [Semantics](#semantics)
 * [Unknown At-Rules](#unknown-at-rules)
@@ -97,9 +99,6 @@ Change the definition of the [current style rule][old style] to:
 The *current style rule* is the CSS style rule that was created by the innermost
 [execution of a style rule], `@media` rule, `@supports` rule, unknown at-rule.
 **This may be overridden by the [execution of a declaration].**
-
-[execution of a style rule]: ../spec/style-rules.md#semantics
-[execution of a declaration]: #semantics
 
 ### Current Keyframe Block
 
