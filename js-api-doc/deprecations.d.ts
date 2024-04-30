@@ -107,6 +107,13 @@ export interface Deprecations {
   'fs-importer-cwd': Deprecation<'fs-importer-cwd'>;
 
   /**
+   * Deprecation for function and mixin names beginning with `--`.
+   *
+   * This deprecation became active in Dart Sass 1.76.0.
+   */
+  'css-function-mixin': Deprecation<'css-function-mixin'>;
+
+  /**
    * Deprecation for `@import` rules.
    *
    * This deprecation is not yet active, but will be soon.

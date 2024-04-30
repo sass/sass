@@ -22,6 +22,8 @@ To execute a `@function` rule `rule`:
 
 * Let `name` be the value of `rule`'s `Identifier`.
 
+* If `name` begins with `--`, throw an error.
+
 * If `name` is `calc`, `element`, `expression`, `url`, `and`, `or`, or `not`, or
   if `name` has a [vendor prefix] and the unprefixed identifier is one of those
   strings, throw an error.

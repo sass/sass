@@ -31,6 +31,8 @@ To execute a `@mixin` rule `rule`:
 
 * Let `name` be the value of `rule`'s `Identifier`.
 
+* If `name` begins with `--`, throw an error.
+
 * Let `parent` be the [current scope].
 
   [current scope]: ../spec.md#scope
