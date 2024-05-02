@@ -1,3 +1,7 @@
+## Draft 1.18
+
+* Convert missing channels to 0 before color conversion for `color.same()`.
+
 ## Draft 1.17
 
 * Treat colors with missing channels as the same as 0 for `color.same()`.

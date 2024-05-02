@@ -1,4 +1,4 @@
-# CSS Color Level 4, New Color Spaces: Draft 1.16
+# CSS Color Level 4, New Color Spaces: Draft 1.18
 
 *([Issue](https://github.com/sass/sass/issues/2831))*
 
@@ -1782,12 +1782,20 @@ is-missing($color, $channel)
 same($color1, $color2)
 ```
 
-* Let `color1` and `color2` be the result of [converting] `$color1` and
-  `$color2` into `xyz` color space, respectively.
+* Let `color1` and `color2` be `$color1` and `$color2`, respectively, with any
+  [missing] components replaced with 0.
 
-* Replace any [missing] components in `color1` and `color2` with 0.
+  > This is necessary to ensure that `same()` actually matches visual rendering.
+  > For example, `rgb(100 200 0)` and `rgb(100 200 none)` are rendered
+  > identically, but the former converts to `color(xyz 0.2590878471 0.4401656621
+  > 0.0713080481)` while the latter converts to `color(xyz 0.2590878471
+  > 0.4401656621 none)`, which are *not* equivalent if we convert missing
+  > channels to zero after XYZ conversion.
 
-* Return `color1 == color2`.
+* Let `xyz1` and `xyz2` be the result of [converting] `color1` and `color2` into
+  `xyz` color space, respectively.
+
+* Return `xyz1 == xyz2`.
 
 ## Modified Color Module Functions
 
