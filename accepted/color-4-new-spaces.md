@@ -631,20 +631,22 @@ Legacy colors that have [missing] components are
 
 ### Color Equality
 
-For determining *equality* between two colors:
+For determining *equality* between two colors `color1` and `color2`:
 
-* If both colors are [legacy colors](#legacy-color):
+* If both colors are [legacy colors](#legacy-color) in different spaces, return
+  `color.to-space(color1, rgb) == color.to-space(color2, rgb)`.
 
-  * Set each color to the result of [converting] the color into `rgb` space.
+* If the colors are not in the same color space, return false.
 
-  * Colors are only equal if their channel and alpha values are fuzzy-equal.
+* If either color has a channel (including alpha) marked as [missing] that the
+  other does not, return false.
 
-    > Since this definition no longer involves rounding channels, it is
-    > potentially a breaking change. Moving forward,
-    > `rgb(0 0 0.6) != rgb(0 0 1)`.
+* Return whether each matching pair of non-missing channel values (including
+  alpha) is fuzzy-equal.
 
-* Otherwise, colors are only equal when they're in the same color space and
-  their channel and alpha values are fuzzy-equal.
+  > Since this definition no longer involves rounding channels for the legacy
+  > RGB space, it is potentially a breaking change. Moving forward, `rgb(0 0
+  > 0.6) != rgb(0 0 1)`.
 
 ### Known Color Space
 

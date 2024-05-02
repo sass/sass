@@ -1,4 +1,6 @@
-## Draft 1.18
+## Draft 1.19
+
+* Treat missing channels as distinct from 0 for `==`-equality for colors.
 
 * Convert missing channels to 0 before color conversion for `color.same()`.
 
