@@ -1782,18 +1782,10 @@ is-missing($color, $channel)
 same($color1, $color2)
 ```
 
-* If either `$color1` or `$color2` is not a color in a [known color space]:
+* Let `color1` and `color2` be the result of [converting] `$color1` and
+  `$color2` into `xyz` color space, respectively.
 
-  * Let `color1` be `$color1`, and let `color2` be `$color2`.
-
-  > We can compare, but we can't do conversion. The color space remains
-  > relevant to equality. While this is technically the same as using `==`,
-  > it makes the function more robust to allow comparison of all colors.
-
-* Otherwise:
-
-  * Let `color1` and `color2` be the result of [converting] `$color1` and
-    `$color2` into `xyz` color space, respectively.
+* Replace any [missing] components in `color1` and `color2` with 0.
 
 * Return `color1 == color2`.
 
