@@ -8,7 +8,6 @@
 * [Summary](#summary)
 * [Definitions](#definitions)
   * [Current Style Rule](#current-style-rule)
-  * [Current Style Rule](#current-style-rule-1)
   * [Current Keyframe Block](#current-keyframe-block)
 * [Declarations](#declarations)
   * [Semantics](#semantics)
@@ -87,18 +86,6 @@ The *current style rule* is the CSS style rule that was created by the innermost
 
 [execution of a style rule]: ../spec/style-rules.md#semantics
 [execution of a declaration]: #semantics
-
-### Current Style Rule
-
-Change the definition of the [current style rule][old style] to:
-
-[old style]: ../spec/style-rules.md#current-style-rule
-
-> Differences are highlighted in bold.
-
-The *current style rule* is the CSS style rule that was created by the innermost
-[execution of a style rule], `@media` rule, `@supports` rule, unknown at-rule.
-**This may be overridden by the [execution of a declaration].**
 
 ### Current Keyframe Block
 
