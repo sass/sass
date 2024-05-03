@@ -1212,13 +1212,13 @@ The procedure is:
 
 * If `alpha` is null, let `alpha` be `1`.
 
-* Otherwise, If `alpha` is not a [special number]:
+* Otherwise, If `alpha` is neither a [special number] nor an unquoted string
+  that's case-insensitively equal to 'none':
 
-  * If `alpha` is a number, set `alpha` to the result of
-    [percent-converting] `alpha` with a max of 1, and then clamping the value
-    between 0 and 1, inclusive.
+  * If `alpha` is not a number, throw an error.
 
-  * Otherwise, throw an error.
+  * Set `alpha` to the result of [percent-converting] `alpha` with a max of 1,
+    and then clamping the value between 0 and 1, inclusive.
 
 * If `channels` is a [special variable string], or if `alpha` is a [special
   number], return an unquoted string with the value of `input`.
@@ -1874,8 +1874,11 @@ This function is also available as a global function named `change-color()`.
 
 * If the keyword argument `$alpha` is specified in `$args`:
 
-  * Set `alpha` to the result of [percent-converting] `$alpha` with a `max` of
-    1, and clamping it between 0 and 1 (inclusive).
+  * If `alpha` isn't a number or an unquoted string that's case-insensitively
+    equal to 'none', throw an error.
+
+  * If `alpha` is a number, set `alpha` to the result of [percent-converting]
+    `$alpha` with a `max` of 1, and clamping it between 0 and 1 (inclusive).
 
 * Let `channel-args` be the remaining keyword arguments in `$args`, not
   including `$space` or `$alpha` arguments.
@@ -1916,7 +1919,7 @@ This function is also available as a global function named `change-color()`.
 * Set `channels` to the result of [normalizing] `channels` in `known-space`.
 
 * Let `new` be a color in color space `known-space`, with `channels` channels,
-  and an alpha of `alpha`.
+  and an alpha of `alpha`, or a missing alpha if `alpha` is a string.
 
 * Return the result of [converting] `new` into `origin-space`.
 
@@ -1950,14 +1953,20 @@ This function is also available as a global function named `adjust-color()`.
 
 * If the keyword argument `$alpha` is specified in `$args`:
 
-  * If `alpha == none`, throw an error.
+  * If `color`'s alpha channel is missing, throw an error.
 
-    > This is not the ideal solution for handling `none`, but we want to
-    > match CSS relative color syntax if possible. Throwing an error for now
-    > means we can adjust to match the CSS behavior once it is defined.
+    > This is not the ideal solution for handling `none`, but we want to match
+    > CSS relative color syntax if possible. Throwing an error for now means we
+    > can adjust to match the CSS behavior once it is defined. See the following
+    > issues for details:
+    >
+    > * [w3c/csswg-drafts#10151](https://github.com/w3c/csswg-drafts/issues/10151)
+    > * [w3c/csswg-drafts#10211](https://github.com/w3c/csswg-drafts/issues/10211)
 
-  * Let `new-alpha` be the result of [percent-converting] `$alpha` with a `max`
-    of 1.
+  * If `$alpha` isn't a number, throw an error.
+
+  * Let `new-alpha` be the result of [percent-converting] `$alpha` with a
+    `max` of 1.
 
   * Set `alpha` to the value of `new-alpha + alpha` clamped between 0 and 1.
 
@@ -1995,11 +2004,15 @@ This function is also available as a global function named `adjust-color()`.
 
   * Let `channel` be the channel named `key` in `known-space`.
 
-  * If `channel == none`, throw an error.
+  * If `channel` is missing in `color`, throw an error.
 
-    > This is not the ideal solution for handling `none`, but we want to
-    > match CSS relative color syntax if possible. Throwing an error for now
-    > means we can adjust to match the CSS behavior once it is defined.
+    > This is not the ideal solution for handling `none`, but we want to match
+    > CSS relative color syntax if possible. Throwing an error for now means we
+    > can adjust to match the CSS behavior once it is defined. See the following
+    > issues for details:
+    >
+    > * [w3c/csswg-drafts#10151](https://github.com/w3c/csswg-drafts/issues/10151)
+    > * [w3c/csswg-drafts#10211](https://github.com/w3c/csswg-drafts/issues/10211)
 
   * If `adjust` has the unit `%`:
 
@@ -2075,11 +2088,17 @@ This function is also available as a global function named `scale-color()`.
 
 * If the keyword argument `$alpha` is specified in `$args`:
 
-  * If `alpha == none`, throw an error.
+  * If `color`'s alpha channel is missing, throw an error.
 
-    > This is not the ideal solution for handling `none`, but we want to
-    > match CSS relative color syntax if possible. Throwing an error for now
-    > means we can adjust to match the CSS behavior once it is defined.
+    > This is not the ideal solution for handling `none`, but we want to match
+    > CSS relative color syntax if possible. Throwing an error for now means we
+    > can adjust to match the CSS behavior once it is defined. See the following
+    > issues for details:
+    >
+    > * [w3c/csswg-drafts#10151](https://github.com/w3c/csswg-drafts/issues/10151)
+    > * [w3c/csswg-drafts#10211](https://github.com/w3c/csswg-drafts/issues/10211)
+
+  * If `$alpha` isn't a number, throw an error.
 
   * Set `alpha` to the result of [scaling] `alpha` by `$alpha` with `max` 1.
 
@@ -2112,11 +2131,15 @@ This function is also available as a global function named `scale-color()`.
   * Let `channel` be the corresponding `channel` in `channels` with a name
     matching `scale`.
 
-  * If `channel == none`, throw an error.
+  * If `channel` is missing in `color`, throw an error.
 
-    > This is not the ideal solution for handling `none`, but we want to
-    > match CSS relative color syntax if possible. Throwing an error for now
-    > means we can adjust to match the CSS behavior once it is defined.
+    > This is not the ideal solution for handling `none`, but we want to match
+    > CSS relative color syntax if possible. Throwing an error for now means we
+    > can adjust to match the CSS behavior once it is defined. See the following
+    > issues for details:
+    >
+    > * [w3c/csswg-drafts#10151](https://github.com/w3c/csswg-drafts/issues/10151)
+    > * [w3c/csswg-drafts#10211](https://github.com/w3c/csswg-drafts/issues/10211)
 
   * Let `channel-max` be the upper boundary of `channel` in `space`.
 

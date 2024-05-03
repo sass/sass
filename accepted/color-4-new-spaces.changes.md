@@ -1,8 +1,14 @@
-## Draft 1.19
+## Draft 1.18
 
 * Treat missing channels as distinct from 0 for `==`-equality for colors.
 
 * Convert missing channels to 0 before color conversion for `color.same()`.
+
+* Explicitly support `none` values for `alpha` in Parsing Color Components and
+  `color.change()`,
+
+* Clarify how to handle existing missing components in `color.adjust()` and
+  `color.scale()`.
 
 ## Draft 1.17
 
