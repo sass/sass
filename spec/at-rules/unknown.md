@@ -34,8 +34,6 @@ To execute an unknown at-rule `rule`:
   [current style rule]: ../style-rules.md#current-style-rule
   [keyframe block]: ../style-rules.md#current-style-rule
 
-* If `parent` is a keyframe block, throw an error.
-
 * If `rule` has `Statements`:
 
   * If `parent` isn't set, append `css` to [the current module]'s CSS.
