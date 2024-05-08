@@ -13,6 +13,9 @@
 * Remove language misleadingly indicating that the scaling a number algorithm
   was guaranteed to return an in-gamut number.
 
+* Ensure that `color.invert()` and `color.grayscale()` always return colors in
+  the original color's space.
+
 ## Draft 1.17
 
 * Treat colors with missing channels as the same as 0 for `color.same()`.

@@ -2259,9 +2259,12 @@ This function is also available as a global function named `invert()`.
 
     * Set the corresponding channel of `invert` to be `new`.
 
-* If `$weight == 100%`, return the value of `invert`.
+* If `$weight == 100%`, let `result` be `invert`.
 
-* Return the result of calling `color.mix(invert, color, $weight, mix-space)`.
+* Otherwise, let `result` be the result of calling `color.mix(invert, color,
+  $weight, mix-space)`.
+
+* Return the result of [converting] `result` to `$color`'s space.
 
 ### `color.grayscale()`
 
@@ -2275,19 +2278,13 @@ This function is also available as a global function named `grayscale()`.
 
 * If `$color` is not a color, throw an error.
 
-* If `$color` is a legacy color:
+* If `$color` is a legacy color, let `result` be the result of [converting]
+  `$color` to `hsl`, and changing the 'saturation' channel to 0.
 
-  * Return the result of [converting] `$color` to `hsl`, and changing the
-    'saturation' channel to 0.
+* Otherwise, let `result` be the result of [converting] `$color` to `oklch`, and
+  setting the `chroma` channel to 0.
 
-* Otherwise:
-
-  * Let `origin` be `$color`'s color space.
-
-  * Let `color` be the result of [converting] `$color` to `oklch`, and
-    setting the `chroma` channel to 0.
-
-  * Return the result of [converting] `color` to `origin`.
+* Return the result of [converting] `color` to `$color`'s space.
 
 ### `color.ie-hex-str()`
 
