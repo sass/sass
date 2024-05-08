@@ -2202,6 +2202,8 @@ This function is also available as a global function named `invert()`.
 
 * If `$color` is not a color, throw an error.
 
+* If `$weight` is neither null nor a number with unit `%`, throw an error.
+
 * If `$space` is null:
 
   * If `$color` is a legacy color, let `space` be `rgb`, and let `mix-space`
@@ -2215,8 +2217,6 @@ This function is also available as a global function named `invert()`.
 
   * Let `space` be the result of [looking up a known color space] named
     `$space`.
-
-  * If `space` is not a [known color space], throw an error.
 
   * Let `mix-space` be `space`.
 

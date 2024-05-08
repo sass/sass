@@ -16,6 +16,8 @@
 * Ensure that `color.invert()` and `color.grayscale()` always return colors in
   the original color's space.
 
+* Make `color.invert()` throw an error for an invalid `$weight`.
+
 ## Draft 1.17
 
 * Treat colors with missing channels as the same as 0 for `color.same()`.
