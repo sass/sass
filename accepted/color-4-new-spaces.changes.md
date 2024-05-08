@@ -10,6 +10,9 @@
 * Clarify how to handle existing missing components in `color.adjust()` and
   `color.scale()`.
 
+* Remove language misleadingly indicating that the scaling a number algorithm
+  was guaranteed to return an in-gamut number.
+
 ## Draft 1.17
 
 * Treat colors with missing channels as the same as 0 for `color.same()`.

@@ -1557,15 +1557,15 @@ in [CSS Color Level 4][color-4].
 
 ### Scaling a Number
 
-This algorithm takes a number `number`, a value `factor`, a number `max`, and
-an optional number `min`. It's written "scale `<number>` by `<factor>` with a
-`max` of `<max>` and a `min` of `<min>`". It returns a number with a value
-between `min` (or 0) and `max` and the same units as `number`.
+This algorithm takes a number `number`, a value `factor`, a number `max`, and an
+optional number `min`. It's written "scale `<number>` by `<factor>` with a `max`
+of `<max>` and a `min` of `<min>`". It returns a number with the same units as
+`number`.
 
-> Note that this no longer assumes the original `number` is in a range of
-> 0 to `max`. We now allow scaling up negative numbers, and scaling down
-> numbers above the `max` value. The inverse operations return the `number`
-> unchanged, since that's the asymptotic scale behavior approaching boundaries.
+> Note that this no longer assumes the original `number` is in a range of `min`
+> to `max`. We now allow scaling up negative numbers, and scaling down numbers
+> above the `max` value. The inverse operations return the `number` unchanged,
+> since that's the asymptotic scale behavior approaching boundaries.
 
 * If `factor` isn't a number with unit `%` between `-100%` and `100%`
   (inclusive), throw an error.
