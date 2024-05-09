@@ -1,3 +1,28 @@
+## Draft 1.18
+
+* Treat missing channels as distinct from 0 for `==`-equality for colors.
+
+* Convert missing channels to 0 before color conversion for `color.same()`.
+
+* Explicitly support `none` values for `alpha` in Parsing Color Components and
+  `color.change()`,
+
+* Clarify how to handle existing missing components in `color.adjust()` and
+  `color.scale()`.
+
+* Remove language misleadingly indicating that the scaling a number algorithm
+  was guaranteed to return an in-gamut number.
+
+* Ensure that `color.invert()` and `color.grayscale()` always return colors in
+  the original color's space.
+
+* Make `color.invert()` throw an error for an invalid `$weight`.
+
+* Include CSS-compatibility behavior for `color.invert()` and
+  `color.grayscale()`.
+
+* Explicitly mandate `local-minde` gamut-mapping for `ie-hex-str()`.
+
 ## Draft 1.17
 
 * Treat colors with missing channels as the same as 0 for `color.same()`.

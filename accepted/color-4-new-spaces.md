@@ -1,4 +1,4 @@
-# CSS Color Level 4, New Color Spaces: Draft 1.16
+# CSS Color Level 4, New Color Spaces: Draft 1.18
 
 *([Issue](https://github.com/sass/sass/issues/2831))*
 
@@ -631,20 +631,22 @@ Legacy colors that have [missing] components are
 
 ### Color Equality
 
-For determining *equality* between two colors:
+For determining *equality* between two colors `color1` and `color2`:
 
-* If both colors are [legacy colors](#legacy-color):
+* If both colors are [legacy colors](#legacy-color) in different spaces, return
+  `color.to-space(color1, rgb) == color.to-space(color2, rgb)`.
 
-  * Set each color to the result of [converting] the color into `rgb` space.
+* If the colors are not in the same color space, return false.
 
-  * Colors are only equal if their channel and alpha values are fuzzy-equal.
+* If either color has a channel (including alpha) marked as [missing] that the
+  other does not, return false.
 
-    > Since this definition no longer involves rounding channels, it is
-    > potentially a breaking change. Moving forward,
-    > `rgb(0 0 0.6) != rgb(0 0 1)`.
+* Return whether each matching pair of non-missing channel values (including
+  alpha) is fuzzy-equal.
 
-* Otherwise, colors are only equal when they're in the same color space and
-  their channel and alpha values are fuzzy-equal.
+  > Since this definition no longer involves rounding channels for the legacy
+  > RGB space, it is potentially a breaking change. Moving forward, `rgb(0 0
+  > 0.6) != rgb(0 0 1)`.
 
 ### Known Color Space
 
@@ -1210,13 +1212,13 @@ The procedure is:
 
 * If `alpha` is null, let `alpha` be `1`.
 
-* Otherwise, If `alpha` is not a [special number]:
+* Otherwise, If `alpha` is neither a [special number] nor an unquoted string
+  that's case-insensitively equal to 'none':
 
-  * If `alpha` is a number, set `alpha` to the result of
-    [percent-converting] `alpha` with a max of 1, and then clamping the value
-    between 0 and 1, inclusive.
+  * If `alpha` is not a number, throw an error.
 
-  * Otherwise, throw an error.
+  * Set `alpha` to the result of [percent-converting] `alpha` with a max of 1,
+    and then clamping the value between 0 and 1, inclusive.
 
 * If `channels` is a [special variable string], or if `alpha` is a [special
   number], return an unquoted string with the value of `input`.
@@ -1555,15 +1557,15 @@ in [CSS Color Level 4][color-4].
 
 ### Scaling a Number
 
-This algorithm takes a number `number`, a value `factor`, a number `max`, and
-an optional number `min`. It's written "scale `<number>` by `<factor>` with a
-`max` of `<max>` and a `min` of `<min>`". It returns a number with a value
-between `min` (or 0) and `max` and the same units as `number`.
+This algorithm takes a number `number`, a value `factor`, a number `max`, and an
+optional number `min`. It's written "scale `<number>` by `<factor>` with a `max`
+of `<max>` and a `min` of `<min>`". It returns a number with the same units as
+`number`.
 
-> Note that this no longer assumes the original `number` is in a range of
-> 0 to `max`. We now allow scaling up negative numbers, and scaling down
-> numbers above the `max` value. The inverse operations return the `number`
-> unchanged, since that's the asymptotic scale behavior approaching boundaries.
+> Note that this no longer assumes the original `number` is in a range of `min`
+> to `max`. We now allow scaling up negative numbers, and scaling down numbers
+> above the `max` value. The inverse operations return the `number` unchanged,
+> since that's the asymptotic scale behavior approaching boundaries.
 
 * If `factor` isn't a number with unit `%` between `-100%` and `100%`
   (inclusive), throw an error.
@@ -1782,12 +1784,20 @@ is-missing($color, $channel)
 same($color1, $color2)
 ```
 
-* Let `color1` and `color2` be the result of [converting] `$color1` and
-  `$color2` into `xyz` color space, respectively.
+* Let `color1` and `color2` be `$color1` and `$color2`, respectively, with any
+  [missing] components replaced with 0.
 
-* Replace any [missing] components in `color1` and `color2` with 0.
+  > This is necessary to ensure that `same()` actually matches visual rendering.
+  > For example, `rgb(100 200 0)` and `rgb(100 200 none)` are rendered
+  > identically, but the former converts to `color(xyz 0.2590878471 0.4401656621
+  > 0.0713080481)` while the latter converts to `color(xyz 0.2590878471
+  > 0.4401656621 none)`, which are *not* equivalent if we convert missing
+  > channels to zero after XYZ conversion.
 
-* Return `color1 == color2`.
+* Let `xyz1` and `xyz2` be the result of [converting] `color1` and `color2` into
+  `xyz` color space, respectively.
+
+* Return `xyz1 == xyz2`.
 
 ## Modified Color Module Functions
 
@@ -1864,8 +1874,11 @@ This function is also available as a global function named `change-color()`.
 
 * If the keyword argument `$alpha` is specified in `$args`:
 
-  * Set `alpha` to the result of [percent-converting] `$alpha` with a `max` of
-    1, and clamping it between 0 and 1 (inclusive).
+  * If `alpha` isn't a number or an unquoted string that's case-insensitively
+    equal to 'none', throw an error.
+
+  * If `alpha` is a number, set `alpha` to the result of [percent-converting]
+    `$alpha` with a `max` of 1, and clamping it between 0 and 1 (inclusive).
 
 * Let `channel-args` be the remaining keyword arguments in `$args`, not
   including `$space` or `$alpha` arguments.
@@ -1906,7 +1919,7 @@ This function is also available as a global function named `change-color()`.
 * Set `channels` to the result of [normalizing] `channels` in `known-space`.
 
 * Let `new` be a color in color space `known-space`, with `channels` channels,
-  and an alpha of `alpha`.
+  and an alpha of `alpha`, or a missing alpha if `alpha` is a string.
 
 * Return the result of [converting] `new` into `origin-space`.
 
@@ -1940,14 +1953,20 @@ This function is also available as a global function named `adjust-color()`.
 
 * If the keyword argument `$alpha` is specified in `$args`:
 
-  * If `alpha == none`, throw an error.
+  * If `color`'s alpha channel is missing, throw an error.
 
-    > This is not the ideal solution for handling `none`, but we want to
-    > match CSS relative color syntax if possible. Throwing an error for now
-    > means we can adjust to match the CSS behavior once it is defined.
+    > This is not the ideal solution for handling `none`, but we want to match
+    > CSS relative color syntax if possible. Throwing an error for now means we
+    > can adjust to match the CSS behavior once it is defined. See the following
+    > issues for details:
+    >
+    > * [w3c/csswg-drafts#10151](https://github.com/w3c/csswg-drafts/issues/10151)
+    > * [w3c/csswg-drafts#10211](https://github.com/w3c/csswg-drafts/issues/10211)
 
-  * Let `new-alpha` be the result of [percent-converting] `$alpha` with a `max`
-    of 1.
+  * If `$alpha` isn't a number, throw an error.
+
+  * Let `new-alpha` be the result of [percent-converting] `$alpha` with a
+    `max` of 1.
 
   * Set `alpha` to the value of `new-alpha + alpha` clamped between 0 and 1.
 
@@ -1985,11 +2004,15 @@ This function is also available as a global function named `adjust-color()`.
 
   * Let `channel` be the channel named `key` in `known-space`.
 
-  * If `channel == none`, throw an error.
+  * If `channel` is missing in `color`, throw an error.
 
-    > This is not the ideal solution for handling `none`, but we want to
-    > match CSS relative color syntax if possible. Throwing an error for now
-    > means we can adjust to match the CSS behavior once it is defined.
+    > This is not the ideal solution for handling `none`, but we want to match
+    > CSS relative color syntax if possible. Throwing an error for now means we
+    > can adjust to match the CSS behavior once it is defined. See the following
+    > issues for details:
+    >
+    > * [w3c/csswg-drafts#10151](https://github.com/w3c/csswg-drafts/issues/10151)
+    > * [w3c/csswg-drafts#10211](https://github.com/w3c/csswg-drafts/issues/10211)
 
   * If `adjust` has the unit `%`:
 
@@ -2065,11 +2088,17 @@ This function is also available as a global function named `scale-color()`.
 
 * If the keyword argument `$alpha` is specified in `$args`:
 
-  * If `alpha == none`, throw an error.
+  * If `color`'s alpha channel is missing, throw an error.
 
-    > This is not the ideal solution for handling `none`, but we want to
-    > match CSS relative color syntax if possible. Throwing an error for now
-    > means we can adjust to match the CSS behavior once it is defined.
+    > This is not the ideal solution for handling `none`, but we want to match
+    > CSS relative color syntax if possible. Throwing an error for now means we
+    > can adjust to match the CSS behavior once it is defined. See the following
+    > issues for details:
+    >
+    > * [w3c/csswg-drafts#10151](https://github.com/w3c/csswg-drafts/issues/10151)
+    > * [w3c/csswg-drafts#10211](https://github.com/w3c/csswg-drafts/issues/10211)
+
+  * If `$alpha` isn't a number, throw an error.
 
   * Set `alpha` to the result of [scaling] `alpha` by `$alpha` with `max` 1.
 
@@ -2102,11 +2131,15 @@ This function is also available as a global function named `scale-color()`.
   * Let `channel` be the corresponding `channel` in `channels` with a name
     matching `scale`.
 
-  * If `channel == none`, throw an error.
+  * If `channel` is missing in `color`, throw an error.
 
-    > This is not the ideal solution for handling `none`, but we want to
-    > match CSS relative color syntax if possible. Throwing an error for now
-    > means we can adjust to match the CSS behavior once it is defined.
+    > This is not the ideal solution for handling `none`, but we want to match
+    > CSS relative color syntax if possible. Throwing an error for now means we
+    > can adjust to match the CSS behavior once it is defined. See the following
+    > issues for details:
+    >
+    > * [w3c/csswg-drafts#10151](https://github.com/w3c/csswg-drafts/issues/10151)
+    > * [w3c/csswg-drafts#10211](https://github.com/w3c/csswg-drafts/issues/10211)
 
   * Let `channel-max` be the upper boundary of `channel` in `space`.
 
@@ -2167,7 +2200,14 @@ invert($color,
 
 This function is also available as a global function named `invert()`.
 
+* If `invert()` was called as a global function, `$color` is either a number or
+  a [special number], `$weight == 100%`, and `$space` is null, return an
+  unquoted string representing a CSS function call with name "invert" and
+  argument `$color`.
+
 * If `$color` is not a color, throw an error.
+
+* If `$weight` is neither null nor a number with unit `%`, throw an error.
 
 * If `$space` is null:
 
@@ -2182,8 +2222,6 @@ This function is also available as a global function named `invert()`.
 
   * Let `space` be the result of [looking up a known color space] named
     `$space`.
-
-  * If `space` is not a [known color space], throw an error.
 
   * Let `mix-space` be `space`.
 
@@ -2226,9 +2264,12 @@ This function is also available as a global function named `invert()`.
 
     * Set the corresponding channel of `invert` to be `new`.
 
-* If `$weight == 100%`, return the value of `invert`.
+* If `$weight == 100%`, let `result` be `invert`.
 
-* Return the result of calling `color.mix(invert, color, $weight, mix-space)`.
+* Otherwise, let `result` be the result of calling `color.mix(invert, color,
+  $weight, mix-space)`.
+
+* Return the result of [converting] `result` to `$color`'s space.
 
 ### `color.grayscale()`
 
@@ -2240,21 +2281,19 @@ grayscale($color)
 
 This function is also available as a global function named `grayscale()`.
 
+* If `grayscale()` was called as a global function and `$color` is either a
+  number or a [special number], return an unquoted string representing a CSS
+  function call with name "invert" and argument `$color`.
+
 * If `$color` is not a color, throw an error.
 
-* If `$color` is a legacy color:
+* If `$color` is a legacy color, let `result` be the result of [converting]
+  `$color` to `hsl`, and changing the 'saturation' channel to 0.
 
-  * Return the result of [converting] `$color` to `hsl`, and changing the
-    'saturation' channel to 0.
+* Otherwise, let `result` be the result of [converting] `$color` to `oklch`, and
+  setting the `chroma` channel to 0.
 
-* Otherwise:
-
-  * Let `origin` be `$color`'s color space.
-
-  * Let `color` be the result of [converting] `$color` to `oklch`, and
-    setting the `chroma` channel to 0.
-
-  * Return the result of [converting] `color` to `origin`.
+* Return the result of [converting] `color` to `$color`'s space.
 
 ### `color.ie-hex-str()`
 
@@ -2267,7 +2306,8 @@ ie-hex-str($color)
 
 * If `$color` is not a color, throw an error.
 
-* Let `rgb` be the result of [converting] and [gamut mapping] `$color` to `rgb`.
+* Let `rgb` be the result of [converting] and [gamut mapping] `$color` to `rgb`
+  with method `local-minde`.
 
 * Let `hex-list` be an empty list.
 
