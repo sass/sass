@@ -2306,7 +2306,8 @@ ie-hex-str($color)
 
 * If `$color` is not a color, throw an error.
 
-* Let `rgb` be the result of [converting] and [gamut mapping] `$color` to `rgb`.
+* Let `rgb` be the result of [converting] and [gamut mapping] `$color` to `rgb`
+  with method `local-minde`.
 
 * Let `hex-list` be an empty list.
 

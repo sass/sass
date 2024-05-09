@@ -21,6 +21,8 @@
 * Include CSS-compatibility behavior for `color.invert()` and
   `color.grayscale()`.
 
+* Explicitly mandate `local-minde` gamut-mapping for `ie-hex-str()`.
+
 ## Draft 1.17
 
 * Treat colors with missing channels as the same as 0 for `color.same()`.
