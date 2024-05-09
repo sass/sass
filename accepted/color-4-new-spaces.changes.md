@@ -18,6 +18,9 @@
 
 * Make `color.invert()` throw an error for an invalid `$weight`.
 
+* Include CSS-compatibility behavior for `color.invert()` and
+  `color.grayscale()`.
+
 ## Draft 1.17
 
 * Treat colors with missing channels as the same as 0 for `color.same()`.
