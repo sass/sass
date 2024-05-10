@@ -1138,14 +1138,19 @@ The procedure is:
 
   * If the last element of `input` is an unquoted string that contains `/`:
 
-    * Let `split-last` be the result calling `string.split()` with the last
-      element of `input` as the string to split, and `/` as the separator.
-
-    * If `split-last` doesn't have exactly two items, throw an error.
-
     > This solves for a legacy handling of `/` in Sass that would produce an
     > unquoted string when the alpha value is a CSS function such as `var()`,
     > when either value is `none`, or when using relative color syntax.
+
+    * Let `split-last` be the result calling `string.split()` with the last
+      element of `input` as the string to split, and `/` as the separator.
+
+    * If `split-last` doesn't have exactly two items, return an unquoted string
+      with the value of `input`.
+
+      > This ensures that `rgb(1 2 3 calc(var(--a) / var(--b)) / var(--c))` is
+      > handled correctly after the final expresssion is fully converted to a
+      > string due to legacy `/` behavior.
 
     * If either item in `split-last` can be coerced to a number, replace
       the current value of the item with the resulting number value.
