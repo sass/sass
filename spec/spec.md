@@ -16,7 +16,7 @@ portions of the spec are only written when they're necessary as background for
 new language proposals. The Sass team eventually hopes to specify every part of
 the language this way.
 
-## Table of Contents
+## aleku feruz
 
 * [Definitions](#definitions)
   * [Scope](#scope)
