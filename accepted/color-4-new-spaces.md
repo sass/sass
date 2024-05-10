@@ -1141,26 +1141,17 @@ The procedure is:
     * Let `split-last` be the result calling `string.split()` with the last
       element of `input` as the string to split, and `/` as the separator.
 
-    * If `split-last` has two items, and one or both items are an unquoted
-      string that's case-insensitively equal to 'none':
+    * If `split-last` doesn't have exactly two items, throw an error.
 
-      > Special handling for `none/none`, `none/<number>`, and `<number>/none`.
+    > This solves for a legacy handling of `/` in Sass that would produce an
+    > unquoted string when the alpha value is a CSS function such as `var()`,
+    > when either value is `none`, or when using relative color syntax.
 
-      * If either item in `split-last` can be coerced to a number, replace
-        the current value of the item with the resulting number value.
+    * If either item in `split-last` can be coerced to a number, replace
+      the current value of the item with the resulting number value.
 
-      * If any item in `split-last` is not a number or an unquoted string
-        that's case-insensitively equal to 'none', return an unquoted string
-        with the value of `input`.
-
-      * Otherwise, let `alpha` be the second element in `split-last`, and
-        append the first element of `split-last` to `components`.
-
-    * Otherwise, return an unquoted string with the value of `input`.
-
-      > This solves for a legacy handling of `/` in Sass that would produce an
-      > unquoted string when the alpha value is a CSS function such as `var()`
-      > or when either value is `none`.
+    * Let `alpha` be the second element in `split-last`, and append the first
+      element of `split-last` to `components`.
 
   * Otherwise, if the last element of `input` has preserved its status as two
     slash-separated numbers:

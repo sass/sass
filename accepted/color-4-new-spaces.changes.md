@@ -1,3 +1,8 @@
+## Draft 1.19
+
+* Be stricter about which colors are allowed with slash-separated strings at the
+  end.
+
 ## Draft 1.18
 
 * Treat missing channels as distinct from 0 for `==`-equality for colors.
