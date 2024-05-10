@@ -1148,7 +1148,7 @@ The procedure is:
     * If `split-last` doesn't have exactly two items, return an unquoted string
       with the value of `input`.
 
-      > This ensures that `rgb(1 2 3 calc(var(--a) / var(--b)) / var(--c))` is
+      > This ensures that `rgb(1 2 calc(var(--a) / var(--b)) / var(--c))` is
       > handled correctly after the final expresssion is fully converted to a
       > string due to legacy `/` behavior.
 
