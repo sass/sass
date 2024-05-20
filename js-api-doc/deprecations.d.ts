@@ -114,6 +114,13 @@ export interface Deprecations {
   'css-function-mixin': Deprecation<'css-function-mixin'>;
 
   /**
+   * Deprecation for `meta.feature-exists()`.
+   *
+   * This deprecation became active in Dart Sass 1.78.0.
+   */
+  'feature-exists': Deprecation<'feature-exists'>;
+
+  /**
    * Deprecation for `@import` rules.
    *
    * This deprecation is not yet active, but will be soon.

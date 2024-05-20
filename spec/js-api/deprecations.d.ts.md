@@ -45,6 +45,7 @@ export interface Deprecations {
   'abs-percent': Deprecation<'abs-percent'>;
   'fs-importer-cwd': Deprecation<'fs-importer-cwd'>;
   'css-function-mixin': Deprecation<'css-function-mixin'>;
+  'feature-exists': Deprecation<'feature-exists'>;
   import: Deprecation<'import'>;
   'user-authored': Deprecation<'user-authored', 'user'>;
 }
