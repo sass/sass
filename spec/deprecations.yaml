@@ -1,0 +1,112 @@
+# This file specifies the status of all of Sass's deprecations in a
+# machine-readable way. After updating this file, run
+# `npm run sync-deprecations` to update the JS API spec and docs in this repo.
+#
+# The Dart Sass compiler and the Node embedded host use this file to generate
+# their lists of deprecations. Other embedded hosts should do the same if they
+# expose the list of deprecations in their APIs.
+#
+# example-id:
+#   description: One-line description of this deprecation.
+#   dart-sass:
+#      # Status of this deprecation in Dart Sass
+#      status: future | active | obsolete
+#      # Dart Sass version that deprecated this feature.
+#      deprecated: 1.0.0
+#      # Dart Sass version that obsoleted this deprecation.
+#      obsolete: 2.0.0
+
+call-string:
+  description: Passing a string directly to meta.call().
+  dart-sass:
+    status: active
+    deprecated: 0.0.0
+
+elseif:
+  description: "@elseif."
+  dart-sass:
+    status: active
+    deprecated: 1.3.2
+
+moz-document:
+  description: "@-moz-document."
+  dart-sass:
+    status: active
+    deprecated: 1.7.2
+
+relative-canonical:
+  description: Imports using relative canonical URLs.
+  dart-sass:
+    status: active
+    deprecated: 1.14.2
+
+new-global:
+  description: Declaring new variables with !global.
+  dart-sass:
+    status: active
+    deprecated: 1.17.2
+
+color-module-compat:
+  description: Using color module functions in place of plain CSS functions.
+  dart-sass:
+    status: active
+    deprecated: 1.23.0
+
+slash-div:
+  description: / operator for division.
+  dart-sass:
+    status: active
+    deprecated: 1.33.0
+
+bogus-combinators:
+  description: Leading, trailing, and repeated combinators.
+  dart-sass:
+    status: active
+    deprecated: 1.54.0
+
+strict-unary:
+  description: Ambiguous + and - operators.
+  dart-sass:
+    status: active
+    deprecated: 1.55.0
+
+function-units:
+  description: Passing invalid units to built-in functions.
+  dart-sass:
+    status: active
+    deprecated: 1.56.0
+
+duplicate-var-flags:
+  description: Using !default or !global multiple times for one variable.
+  dart-sass:
+    status: active
+    deprecated: 1.62.0
+
+null-alpha:
+  description: Passing null as alpha in the $PLATFORM API.
+  dart-sass:
+    status: active
+    deprecated: 1.62.3
+
+abs-percent:
+  description: Passing percentages to the Sass abs() function.
+  dart-sass:
+    status: active
+    deprecated: 1.65.0
+
+fs-importer-cwd:
+  description: Using the current working directory as an implicit load path.
+  dart-sass:
+    status: active
+    deprecated: 1.73.0
+
+css-function-mixin:
+  description: Function and mixin names beginning with --.
+  dart-sass:
+    status: active
+    deprecated: 1.76.0
+
+import:
+  description: "@import rules."
+  dart-sass:
+    status: future
