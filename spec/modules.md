@@ -15,6 +15,7 @@
   * [Package Importers](#package-importers)
   * [Node Package Importer](#node-package-importer)
   * [Global Importer List](#global-importer-list)
+  * [Underscore-Insensitive](#underscore-insensitive)
   * [Basename](#basename)
   * [Dirname](#dirname)
 * [Syntax](#syntax)
@@ -70,7 +71,10 @@ A new *configuration* ID is unique unless otherwise specified.
 A *module* is a collection of various properties:
 
 * A set of [members](#member) that contains at most one member of any given type
-  and name.
+  and [underscore-insensitive] name. All lookups in this set are
+  underscore-insensitive unless explicitly specified otherwise.
+
+  [underscore-insensitive]: #underscore-insensitive
 
   > For example, a module may not have two variables named `$name`, although it
   > may contain a function and a mixin with the same name or two functions with
@@ -299,6 +303,16 @@ When the Node Package Importer is invoked with a string named `string`:
 
 The *global importer list* is a list of importers that's set for the entire
 duration of a Sass compilation.
+
+### Underscore-Insensitive
+
+If a name comparison is *underscore-insensitive*, it considers the characters
+U+002D HYPHEN-MINUS and U+005F LOW LINE to be equal to one another.
+
+> Long ago, Sass only supported underscores as separators for Sass identifiers.
+> When support for hyphens was added to match CSS, they were made equivalent to
+> underscores for backwards-compatibility. This insensitivity is generally only
+> used for Sass member names, not any other identifiers.
 
 ### Basename
 

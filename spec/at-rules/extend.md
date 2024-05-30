@@ -160,7 +160,13 @@ that includes CSS for *all* modules transitively used or forwarded by
 
     * Let `selector` be `extend(rule's selector, domestic's extensions)`.
 
-    * Let `selector-lists` be an empty set of selector lists.
+    * Remove from `selector` any [complex selectors] containing a placeholder
+      selector that begins with `-` or `_` from `css`'s selector.
+
+    * If `selector` is empty, move on to the next `rule`.
+
+    * Let `selector-lists` be a set of selector lists containing only
+      `selector`.
 
     * For each module `foreign` in `downstream`:
 
@@ -171,7 +177,7 @@ that includes CSS for *all* modules transitively used or forwarded by
         > means that `foreign`'s own extensions will already have been resolved
         > by the time we start working on modules upstream of it.
 
-      * Add `selector` to `selector-lists`.
+      * Add `extended-selector` to `selector-lists`.
 
     * Set `new-selectors[rule]` to a selector that matches the union of all
       elements matched by selectors in `selector-lists`. This selector must obey
@@ -188,6 +194,12 @@ that includes CSS for *all* modules transitively used or forwarded by
       > `domestic`'s extensions don't count as "original", and may be optimized
       > away.
 
+      If none of the selectors in `selector-lists` match any elements, add
+      nothing to `new-selectors`.
+
+      > This may occur if `selector-lists` contains placeholder selectors that
+      > haven't been extended.
+
     * For every extension `extension` whose extender appears in `rule`'s
       selector:
 
@@ -203,7 +215,13 @@ that includes CSS for *all* modules transitively used or forwarded by
 
   * If `domestic` has already been traversed, do nothing.
 
-  * Otherwise, traverse every module in `domestic`'s dependencies.
+  * For each module `upstream` in `domestic`'s dependencies:
+
+    * For each unmarked comment in `domestic`'s CSS, if that comment originally
+      appeared before the `@use` or `@forward` rule that loaded `upstream`, add
+      a copy of that comment to `css` and then mark it.
+
+    * Traverse `upstream`.
 
     > Because this traverses modules depth-first, it emits CSS in reverse
     > topological order.
@@ -212,21 +230,29 @@ that includes CSS for *all* modules transitively used or forwarded by
     statements in `domestic`'s CSS tree that contains only comments and
     `@import` rules *and* that ends with an `@import` rule.
 
-  * Insert a copy of `initial-imports` in `css` after the last `@import` rule, or
-    at the beginning of `css` if it doesn't contain any `@import` rules.
+  * Insert a copy of `initial-imports` in `css` after the longest initial
+    subsequence of comments and `@import` rules in `css`.
+
+    > If there are no comments or `@import` rules in `css`, this initial
+    > subsequence is empty and `initial-imports` is inserted at the beginning of
+    > `css`.
 
   * For each top-level statement `statement` in `domestic`'s CSS tree after
     `initial-imports`:
 
-    * If `statement` is an `@import` rule, insert a copy of `statement` in `css`
-      after the last `@import` rule, or at the beginning of `css` if it doesn't
-      contain any `@import` rules.
+    * If `statement` is a marked comment, ignore it.
 
     * Otherwise, add a copy of `statement` to the end of `css`, with any style
       rules' selectors replaced with the corresponding selectors in
-      `new-selectors`.
+      `new-selectors`. Omit any style rules that don't have corresponding
+      selectors in `new-selectors`.
+
+      > This will omit style rules that contain un-extended placeholder
+      > selectors.
 
 * Return `css`.
+
+[complex selectors]: https://drafts.csswg.org/selectors-4/#complex
 
 ### Extending a Selector
 
