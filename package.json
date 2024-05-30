@@ -13,12 +13,14 @@
     "toc-check": "npx ts-node test/toc-check.ts",
     "update-toc": "npx ts-node tool/update-toc.ts",
     "js-api-doc-check": "npm run tangle && npx ts-node test/js-api-doc-check.ts",
+    "deprecations-check": "npx ts-node test/deprecations-check.ts",
     "typedoc": "npm run tangle && npx typedoc --treatWarningsAsErrors js-api-doc/index.d.ts",
     "tangle": "npx ts-node tool/tangle.ts",
     "untangle": "npx ts-node tool/untangle.ts",
+    "sync-deprecations": "npx ts-node tool/sync-deprecations.ts",
     "markdownlint": "npx markdownlint-cli2 '**/*.md' '*.md' --ignore 'node_modules/**'",
-    "fix": "npm run update-toc && npm run markdownlint -- --fix && npm run tangle && gts fix && npm run untangle",
-    "test": "npm run tangle && gts lint && tsc --noEmit && npm run toc-check && npm run link-check && npm run js-api-doc-check && npm run typedoc"
+    "fix": "npm run sync-deprecations && npm run update-toc && npm run markdownlint -- --fix && npm run tangle && gts fix && npm run untangle",
+    "test": "npm run deprecations-check && npm run tangle && gts lint && tsc --noEmit && npm run toc-check && npm run link-check && npm run js-api-doc-check && npm run typedoc"
   },
   "dependencies": {
     "@types/diff": "^5.0.1",
@@ -41,6 +43,7 @@
     "ts-dedent": "^2.2.0",
     "ts-node": "^10.2.1",
     "typedoc": "^0.24.7",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "yaml": "^2.2.1"
   }
 }

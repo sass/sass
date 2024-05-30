@@ -210,9 +210,9 @@ modifications. The following productions should produce errors:
 
 * A declaration followed by an open curly brace (that is, a nested declaration).
 
-* A style rule appearing within another style rule.
+* The parent selector `&` in a declaration value.
 
-* The parent selector `&`, either in a selector or a declaration value.
+* A style rule whose selector contains a trailing combinator.
 
 * Placeholder selectors.
 
@@ -274,6 +274,11 @@ SCSS:
 * In an expression context, `//` is not parsed as a silent comment. Instead, two
   adjacent `/`s in a [`SlashListExpression`] may have no whitespace between
   them, so `//` is parsed as two slash separators in a slash-separated list.
+
+* A `ParentSelector` may appear anywhere in a `CompoundSelector`, rather than
+  just as the first `SimpleSelector`.
+
+* A `ParentSelector` may not have a `suffix`.
 
 ### Consuming an Identifier
 

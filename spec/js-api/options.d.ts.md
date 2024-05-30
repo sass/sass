@@ -156,8 +156,9 @@ Before beginning compilation:
 
   * Let `name` be `signature`'s <ident-token>.
 
-  * If there's already a global function whose name is underscore-insensitively
-    equal to `name`, continue to the next key/value pair.
+  * If there's already a global function whose name is
+    [underscore-insensitively] equal to `name`, continue to the next key/value
+    pair.
 
   * Otherwise, add a global function whose signature is `signature`. When this
     function is called:
@@ -182,6 +183,7 @@ Before beginning compilation:
       replaced with the result of [simplifying] those calculations.
 
 [<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
+[underscore-insensitively]: ../modules.md#underscore-insensitive
 [`SassFunction`]: value/function.d.ts.md
 [simplifying]: https://github.com/sass/sass/tree/main/spec/types/calculation.md#simplifying-a-calculation
 
