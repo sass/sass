@@ -159,7 +159,7 @@ message InboundMessage {
     // Whether to silently suppresses all `LogEvent`s.
     bool silent = 14;
 
-    // Deprecation IDs to treat as fatal.
+    // Deprecation IDs or versions to treat as fatal.
     repeated string fatal_deprecation = 15;
 
     // Deprecation IDs to ignore.
