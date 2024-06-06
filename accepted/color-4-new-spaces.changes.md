@@ -1,3 +1,21 @@
+## Draft 1.20
+
+* Many small wording and consistency changes.
+
+* Remove outdated references to the possibility of unknown color spaces.
+
+* Remove an outdated reference to the `specified` hue interpolation method.
+
+* Make `color.complement()` and `color.invert()` produce errors when color
+  channels are missing, for forwards-compatibility.
+
+* When passing a legacy color to a color manipulation function that operates in
+  another space, ensure that channels aren't marked as `none` in the conversion
+  back to the legacy color.
+
+* Properly include alpha as the *first* channel in `color.ie-hex-str()` rather
+  than the last.
+
 ## Draft 1.19
 
 * Be stricter about which colors are allowed with slash-separated strings at the
