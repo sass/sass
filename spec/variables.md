@@ -9,9 +9,11 @@
 
 ## Syntax
 
+<!-- Escape the first `$` here due to DavidAnson/markdownlint#1262 -->
+
 <x><pre>
 **Variable**            ::= PlainVariable | NamespacedVariable
-**PlainVariable**       ::= '$' [\<ident-token>][]
+**PlainVariable**       ::= '\$' [\<ident-token>][]
 **NamespacedVariable**  ::= [\<ident-token>][] '.$' [PublicIdentifier][]
 **VariableDeclaration** ::= Variable ':' Expression ('!global' | '!default')*
 </pre></x>

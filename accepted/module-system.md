@@ -1552,7 +1552,7 @@ The built-in functions will be organized as follows:
 | `unquote`                |           | sass:string   |   | `type-of`                |                    | sass:meta     |
 | `quote`                  |           | sass:string   |   | `call`                   |                    | sass:meta     |
 | `str-length`             | `length`  | sass:string   |   | `content-exists`         |                    | sass:meta     |
-| `str-insert`             | `insert`  | sass:string   |   | `keywords`               |                    | sass:meta
+| `str-insert`             | `insert`  | sass:string   |   | `keywords`               |                    | sass:meta     |
 | `str-index`              | `index`   | sass:string   |   |                          | `module-variables` | sass:meta     |
 | `str-slice`              | `slice`   | sass:string   |   |                          | `module-functions` | sass:meta     |
 | `to-upper-case`          |           | sass:string   |   |                          |                    |               |
