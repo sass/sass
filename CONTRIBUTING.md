@@ -3,7 +3,7 @@
 When we add a new feature to Sass, we want to make sure the feature is
 well-designed, clearly specified, feasible to implement, and that it meets the
 use-cases it's designed for. Although most features should follow the [full
-process][], very small features can follow the [fast-track process][] instead.
+process], very small features can follow the [fast-track process] instead.
 
 [full process]: #process
 [fast-track process]: #fast-track
@@ -22,10 +22,10 @@ process][], very small features can follow the [fast-track process][] instead.
 
 The process for adding a new feature works as follows:
 
-1. The feature is informally discussed on [the issue tracker][]. Most new
-   features come directly from use-cases brought up by Sass users, or new CSS
-   syntax that Sass needs to support. Once the Sass team has agreed that a
-   feature is desirable, it's marked as [Planned][] and can move to step 2.
+1. The feature is informally discussed on [the issue tracker]. Most new features
+   come directly from use-cases brought up by Sass users, or new CSS syntax that
+   Sass needs to support. Once the Sass team has agreed that a feature is
+   desirable, it's marked as [Planned] and can move to step 2.
 
    [the issue tracker]: https://github.com/sass/sass/issues
    [Planned]: https://github.com/sass/sass/labels/Planned
@@ -38,21 +38,21 @@ The process for adding a new feature works as follows:
 
    Step 2 is also where issues are opened for each individual implementation to
    add the feature. These issues should link to the feature's main issue in the
-   [sass/sass][] issue tracker, and that issue should link back to the
+   [sass/sass] issue tracker, and that issue should link back to the
    implementation issues.
 
    [sass/sass]: https://github.com/sass/sass
 
 3. Public comments are solicited for the feature, usually via a tweet from
-   [@SassCSS][]. If the feature is big enough, a blog post soliciting feedback
-   may also be written. Then we await comments and iterate on feedback for an
-   amount of time that varies based on the size of the feature and the amount of
+   [@SassCSS]. If the feature is big enough, a blog post soliciting feedback may
+   also be written. Then we await comments and iterate on feedback for an amount
+   of time that varies based on the size of the feature and the amount of
    feedback received.
 
    [@SassCSS]: https://twitter.com/SassCSS
 
    As the proposal is updated based on feedback, its draft number should be
-   increased according to the [versioning policy][] and changes should be logged
+   increased according to the [versioning policy] and changes should be logged
    in a changelog file named `<proposal>.changes.md`. Once enough time has
    elapsed and the Sass team is satisfied that all feedback is addressed, the
    feature moves to step 4.
@@ -123,11 +123,11 @@ their sections.
 
 Everything in sections that aren't explicitly marked as non-normative should be
 construed as part of the specification of the feature. Non-normative notes can
-be included inline in normative sections using [blockquotes][].
+be included inline in normative sections using [blockquotes].
 
 [blockquotes]: https://daringfireball.net/projects/markdown/syntax#blockquote
 
-See [the `accepted/` directory][] for examples of proposals that have been
+See [the `accepted/` directory] for examples of proposals that have been
 accepted.
 
 * **Background**
@@ -149,7 +149,7 @@ accepted.
   corner of the feature, it just needs to give users an idea of how it works and
   what use-cases it addresses. Code examples are encouraged.
 
-  See [Escapes in Identifiers][] for a good example of a Summary section.
+  See [Escapes in Identifiers] for a good example of a Summary section.
 
   [Escapes in Identifiers]: accepted/identifier-escapes.md#summary
 
@@ -167,7 +167,7 @@ accepted.
 * **Syntax**
 
   This section describes the syntax of the feature being added, if it adds new
-  syntax to the language. The syntax should be written in [Backus-Naur form][],
+  syntax to the language. The syntax should be written in [Backus-Naur form],
   with regular expression-style operators and the convention that nonterminals
   are written in capitalized camel-case form. For example:
 
@@ -187,7 +187,7 @@ accepted.
   Syntax definitions can also refer to productions from CSS specs. The proposal
   should link to the specs in question.
 
-  See [Range-Context Media Features][] for an good example of a Syntax section.
+  See [Range-Context Media Features] for an good example of a Syntax section.
 
   [Range-Context Media Features]: accepted/media-ranges.md
 
@@ -205,7 +205,7 @@ accepted.
 * **Deprecation Process**
 
   All backwards-incompatible features should go through a deprecation process if
-  at all possible (see [Dart Sass's compatibility policy][]). This section
+  at all possible (see [Dart Sass's compatibility policy]). This section
   describes the details of that process, including what code will produce
   deprecation warnings and how those warnings will indicate what the user should
   do to make their stylesheet forwards-compatible.
@@ -293,13 +293,13 @@ process, it must be moved so that it can have a full discussion.
 
 The fast-track process works as follows:
 
-1. The feature is informally discussed on [the issue tracker][]. Once the Sass
-   team has agreed that a feature is desirable, it's marked as [Planned][] and
-   can move to step 2.
+1. The feature is informally discussed on [the issue tracker]. Once the Sass
+   team has agreed that a feature is desirable, it's marked as [Planned] and can
+   move to step 2.
 
 2. Issues are opened for each individual implementation to add the feature.
-   These issues should link to the feature's main issue in the [sass/sass][]
-   issue tracker, and that issue should link back to the implementation issues.
+   These issues should link to the feature's main issue in the [sass/sass] issue
+   tracker, and that issue should link back to the implementation issues.
 
    Three pull requests are sent out concurrently.
 
@@ -308,7 +308,7 @@ The fast-track process works as follows:
       author. *Unlike the full proposal process*, this pull request directly
       modifies the appropriate spec in `specs/`.
 
-   2. A pull request is sent to [sass-spec][] that adds or updates specs for the
+   2. A pull request is sent to [sass-spec] that adds or updates specs for the
       new feature. The new specs should have an `options.yml` file that marks
       them as ignored for LibSass. For example:
 
@@ -322,7 +322,7 @@ The fast-track process works as follows:
       cause it not to run Dart Sass tests, which would otherwise fail because
       the implementation of the new feature hasn't landed yet.
 
-   3. A pull request is sent to [Dart Sass][] that implements the new feature.
+   3. A pull request is sent to [Dart Sass] that implements the new feature.
       This pull request's message should link to the sass-spec pull request (for
       example, `See sass/sass-spec#1293`). This will cause it to run against the
       specs in that pull request and so test your new feature.

@@ -43,8 +43,8 @@ to CSS. The other, the *host*, is responsible for telling the compiler what to
 compile and for providing implementations of custom importers and functions.
 
 Messages are sent between the host and the compiler in the form of [protocol
-buffers][], using a custom RPC system [defined below][]. The messages and
-services that comprise this protocol are defined in [the `.proto` file][]
+buffers], using a custom RPC system [defined below]. The messages and
+services that comprise this protocol are defined in [the `.proto` file]
 included in this repository. Most messages are *requests* which require the
 other endpoint to produce a *response*, but some are *events* which require no
 response.
@@ -92,7 +92,7 @@ For a length-delimited stream, each packet has the following structure:
 ### Type Definitions
 
 All RPCs are wrapped in an outer message that indicates the RPC's type using [a
-oneof field][]. There are two wrapper messages:
+oneof field]. There are two wrapper messages:
 
 [a oneof field]: https://developers.google.com/protocol-buffers/docs/proto3#oneof
 
@@ -193,7 +193,7 @@ functions can be written in the host language. In order to ensure that custom
 functions will behave consistently with built-in Sass functions, the host
 language should provide APIs that meet the following guidelines.
 
-The [Dart `Value` API][] is a good example of an object-oriented API that
+The [Dart `Value` API] is a good example of an object-oriented API that
 follows these guidelines.
 
 [Dart `Value` API]: https://pub.dartlang.org/documentation/sass/latest/sass/Value-class.html
@@ -213,7 +213,7 @@ or a number's units) should match that of the original object.
 
 SassScript values use index 1 to refer to the first element and -1 to refer to
 the final element. The index 0 is invalid. Furthermore, indexes in Sass strings
-refer to [Unicode code points][], not bytes or UTF-16 code units. The API should
+refer to [Unicode code points], not bytes or UTF-16 code units. The API should
 provide a means to convert between Sass's indexing scheme and the host
 language's indexing scheme, and should encourage authors to treat any indexes
 they're passed as Sass-style indexes rather than host-language-style indexes.
@@ -240,7 +240,7 @@ is quoted or not.
 The API should provide additional assertions for numbers:
 
 * that the number doesn't have any units;
-* that the number's units are [compatible][] with given expected units;
+* that the number's units are [compatible] with given expected units;
 * that the number is an integer, which for the purposes of Sass numbers means
   that its numeric value is within 1e-11 of an integer;
 * that the number is in a given range, where being within 1e-11 of the top or
@@ -252,7 +252,7 @@ The API should also provide means of converting a number to the equivalent
 number with different-but-compatible units, and for returning it as the host
 language's integer type if it is an integer.
 
-Two numbers are equal if they have [compatible][] units, and if their numerical
+Two numbers are equal if they have [compatible] units, and if their numerical
 value (with normalized units) are within 1e-11 of one another. A hash code with
 the same equality semantics can be generated for a number `x` by rounding
 `x * 1e11` to the nearest integer and taking the hash code of the result.

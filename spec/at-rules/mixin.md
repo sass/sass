@@ -17,7 +17,7 @@
 ### Syntax
 
 <x><pre>
-**MixinRule** ::= '@mixin' [\<ident-token>][] ArgumentDeclaration? '{' Statements '}'
+**MixinRule** ::= '@mixin' [\<ident-token>] ArgumentDeclaration? '{' Statements '}'
 </pre></x>
 
 [\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
@@ -73,7 +73,7 @@ To execute a `@mixin` rule `rule`:
 ### Syntax
 
 <x><pre>
-**IncludeRule**      ::= '@include' [NamespacedIdentifier][] ArgumentInvocation?
+**IncludeRule**      ::= '@include' [NamespacedIdentifier] ArgumentInvocation?
 &#32;                    ContentBlock?
 **ContentBlock**     ::= UsingDeclaration? '{' Statements '}'
 **UsingDeclaration** ::= 'using' ArgumentDeclaration

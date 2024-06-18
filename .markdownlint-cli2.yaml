@@ -28,3 +28,4 @@ config:
     shortcut_syntax: true
 
   first-line-heading: false
+  link-image-style: {collapsed: false}

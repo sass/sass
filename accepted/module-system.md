@@ -525,7 +525,7 @@ file](#source-file) identified by the module's canonical URL with a
 ### Module Graph
 
 Modules also track their `@use` and `@forward` at-rules, which point to other
-modules. In this sense, modules can be construed as a [directed acyclic graph][]
+modules. In this sense, modules can be construed as a [directed acyclic graph]
 where the vertices are modules and the edges are `@use` rules and/or `@forward`
 rules. We call this the *module graph*.
 
@@ -592,7 +592,7 @@ The new at-rule will be called `@use`. The grammar for this rule is as follows:
 
 `@use` rules must be at the top level of the document, and must come before any
 rules other than `@charset` or `@forward`. The `QuotedString`'s contents, known
-as the rule's *URL*, must be a [valid URL string][] (for non-[special][special
+as the rule's *URL*, must be a [valid URL string] (for non-[special][special
 URL scheme] base URL). No whitespace is allowed after `$` in `KeywordArgument`.
 
 [valid URL string]: https://url.spec.whatwg.org/#valid-url-string
@@ -637,7 +637,7 @@ grammar for this rule is as follows:
 
 `@forward` rules must be at the top level of the document, and must come before
 any rules other than `@charset` or `@use`. If they have a `QuotedString`, its
-contents, known as the rule's *URL*, must be a [valid URL string][] (for
+contents, known as the rule's *URL*, must be a [valid URL string] (for
 non-[special][special URL scheme] base URL). No whitespace is allowed after `$`
 in `MemberName`, or before `*` in `AsClause`.
 
@@ -648,7 +648,7 @@ mixins, this update affects only calls, not definitions. Variables, on the other
 hand, may use this syntax for either assignment or reference.
 
 <x><pre>
-**PublicIdentifier**     ::= [\<ident-token>][] that doesn't begin with '-' or '_'
+**PublicIdentifier**     ::= [\<ident-token>] that doesn't begin with '-' or '_'
 **Variable**             ::= '$' Identifier | Identifier '.$' PublicIdentifier
 **NamespacedIdentifier** ::= Identifier | Identifier '.' PublicIdentifier
 **FunctionCall**         ::= NamespacedIdentifier ArgumentInvocation
@@ -800,7 +800,7 @@ CSS for *all* modules transitively used or forwarded by `starting-module`.
 * Let `extended` be the subgraph of the [module graph](#module-graph) containing
   modules that are transitively reachable from `starting-module`.
 
-* For each module `domestic` in `extended`, in reverse [topological][] order:
+* For each module `domestic` in `extended`, in reverse [topological] order:
 
   * Let `downstream` be the set of modules that use or forward `domestic`.
 
@@ -832,7 +832,7 @@ CSS for *all* modules transitively used or forwarded by `starting-module`.
 
     * Set `new-selectors[rule]` to a selector that matches the union of all
       elements matched by selectors in `selector-lists`. This selector must obey
-      [the specificity laws of extend][] relative to the selectors from which it
+      [the specificity laws of extend] relative to the selectors from which it
       was generated. For the purposes of the first law of extend, "the original
       extendee" is considered only to refer to selectors that appear in
       `domestic`'s CSS, *not* selectors that were added by other modules'
@@ -891,7 +891,7 @@ CSS for *all* modules transitively used or forwarded by `starting-module`.
 
 ### Resolving a `file:` URL
 
-This algorithm is intended to replace [the existing algorithm][] for resolving a
+This algorithm is intended to replace [the existing algorithm] for resolving a
 `file:` URL to add support for `@import`-only files, and to allow imports that
 include a literal `.css` extension. This algorithm takes a URL, `url`, whose
 scheme must be `file` and returns either another URL that's guaranteed to point
@@ -1092,7 +1092,7 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
 
   * Let `css` be the result of executing the rule as normal.
 
-  * Remove any [complex selectors][] containing a placeholder selector that
+  * Remove any [complex selectors] containing a placeholder selector that
     begins with `-` or `_` from `css`.
 
   * Remove any style rules that now have no selector from `css`.
@@ -1180,7 +1180,7 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
     >
     > without needing to use `!global`.
 
-  * Otherwise, if no block containing `declaration` has a [scope][] with a
+  * Otherwise, if no block containing `declaration` has a [scope] with a
     variable named `name`, set the innermost block's scope's variable `name` to
     `value`.
 
@@ -1204,7 +1204,7 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
 
 * When a member use `member` is encountered:
 
-  * Let `scope` be the [scope][] of the innermost block containing `member` such
+  * Let `scope` be the [scope] of the innermost block containing `member` such
     that `scope` has a member of `member`'s name and type, or `null` if no such
     scope exists.
 
@@ -1223,14 +1223,14 @@ Given a source file `file`, a [configuration](#configuration) `config`, and an
       yet in `module`, set `variable` to `null` in `module`.
 
       > This isn't necessary for implementations that follow the most recent
-      > [variables spec][] and don't allow `!global` assignments to variables
+      > [variables spec] and don't allow `!global` assignments to variables
       > that don't yet exist. However, at time of writing, all existing
       > implementations are in the process of deprecating the old `!global`
       > behavior, which allowed `!global` declarations to create new
       > variables.
       >
       > Setting all `!global` variables to `null` if they weren't otherwise set
-      > guarantees [static analysis][] by ensuring that the set of variables a
+      > guarantees [static analysis] by ensuring that the set of variables a
       > module exposes doesn't depend on how it was executed.
 
   * Return `module`. Its functions, mixins, and CSS are now immutable.
@@ -1476,7 +1476,7 @@ context](#import-context) `import`, and a mutable [module](#module) `module`.
 * Add `imported`'s [extensions](#extension) to `module`.
 
 * If the `@import` rule is nested within at-rules and/or style rules, add each
-  member in `imported` to the local [scope][].
+  member in `imported` to the local [scope].
 
 * Otherwise, add each member in `imported` to `import` and `module`.
 

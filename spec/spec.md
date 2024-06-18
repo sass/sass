@@ -6,7 +6,7 @@ Sass is a *living specification*, which means that it's actively updated over
 time without having distinctions between numbered versions. Different
 implementations may support different subsets of the specification, although all
 implementations are expected to work towards full support. The *reference
-implementation* (currently [Dart Sass][]) will generally support as close to the
+implementation* (currently [Dart Sass]) will generally support as close to the
 full spec as possible.
 
 [Dart Sass]: https://sass-lang.com/dart-sass
@@ -53,7 +53,7 @@ has no parent.
 
 ### Current Source File
 
-The *current source file* is the [source file][] that was passed to the
+The *current source file* is the [source file] that was passed to the
 innermost active invocation of [Executing a File](#executing-a-file).
 
 [source file]: syntax.md#source-file
@@ -63,21 +63,21 @@ invocation of Executing a File.
 
 ### Current Configuration
 
-The *current configuration* is the [configuration][] that was passed to the
+The *current configuration* is the [configuration] that was passed to the
 innermost active invocation of [Executing a File](#executing-a-file).
 
 [configuration]: modules.md#configuration
 
 ### Current Import Context
 
-The *current import context* is the [import context][] that was passed to the
+The *current import context* is the [import context] that was passed to the
 innermost active invocation of [Executing a File](#executing-a-file).
 
 [import context]: modules.md#import-context
 
 ### Current Module
 
-The *current module* is the [module][] that was created by the innermost active
+The *current module* is the [module] that was created by the innermost active
 invocation of [Executing a File](#executing-a-file).
 
 [module]: modules.md#module
@@ -179,12 +179,12 @@ It runs as follows:
   * If `url` is not a `file:` URL, set `importer` to be a function that always
     returns null.
 
-* Let `file` be the [source file][] with `ast`, canonical URL `url`, and
+* Let `file` be the [source file] with `ast`, canonical URL `url`, and
   importer `importer`.
 
 * Let `module` be the result of [executing](#executing-a-file) `file`.
 
-* Let `css` be the result of [resolving `module`'s extensions][].
+* Let `css` be the result of [resolving `module`'s extensions].
 
   [resolving `module`'s extensions]: at-rules/extend.md#resolving-a-modules-extensions
 
@@ -196,8 +196,8 @@ It runs as follows:
 
 ### Executing a File
 
-This algorithm takes a [source file][] `file`, a [configuration][] `config`, an
-[import context][] `import`, and returns a [module][].
+This algorithm takes a [source file] `file`, a [configuration] `config`, an
+[import context] `import`, and returns a [module].
 
 * Let `module` be an empty module with source file `file`.
 
@@ -216,7 +216,7 @@ This algorithm takes a [source file][] `file`, a [configuration][] `config`, an
     yet in `module`, set `variable` to `null` in `module`.
 
     > This isn't necessary for implementations that follow the most recent
-    > [variables spec][] and don't allow `!global` assignments to variables
+    > [variables spec] and don't allow `!global` assignments to variables
     > that don't yet exist. However, at time of writing, all existing
     > implementations are in the process of deprecating the old `!global`
     > behavior, which allowed `!global` declarations to create new

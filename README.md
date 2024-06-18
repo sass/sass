@@ -47,14 +47,13 @@ nav {
 ## Install Sass
 
 You can install Sass on Windows, Mac, or Linux by downloading the package for
-your operating system [from GitHub][] and [adding it to your `PATH`][PATH].
-That's all—there are no external dependencies and nothing else you need to
-install.
+your operating system [from GitHub] and [adding it to your `PATH`][PATH]. That's
+all—there are no external dependencies and nothing else you need to install.
 
 [from GitHub]: https://github.com/sass/dart-sass/releases
 [PATH]: https://katiek2.github.io/path-doc/
 
-If you use Node.js, you can also install Sass using [npm][] by running
+If you use Node.js, you can also install Sass using [npm] by running
 
 [npm]: https://www.npmjs.com/
 
@@ -85,16 +84,16 @@ learn Sass!
 ## This Repository
 
 This repository isn't an implementation of Sass. Those live in
-[`sass/dart-sass`][] and [`sass/libsass`][]. Instead, it contains:
+[`sass/dart-sass`] and [`sass/libsass`]. Instead, it contains:
 
 [`sass/dart-sass`]: https://github.com/sass/dart-sass
 [`sass/libsass`]: https://github.com/sass/libsass
 
-* [`spec/`][], which contains specifications for language features.
-* [`proposal/`][], which contains in-progress proposals for changes to the
+* [`spec/`], which contains specifications for language features.
+* [`proposal/`], which contains in-progress proposals for changes to the
   language.
-* [`accepted/`][], which contains proposals that have been accepted and are
-  either implemented or in the process of being implemented.
+* [`accepted/`], which contains proposals that have been accepted and are either
+  implemented or in the process of being implemented.
 
 [`spec/`]: https://github.com/sass/sass/tree/main/spec
 [`proposal/`]: https://github.com/sass/sass/tree/main/proposal

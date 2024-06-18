@@ -163,10 +163,10 @@ meta.get-mixin($name, $module: null)
 
   * If `$module` is not a string, throw an error.
 
-  * Let `use` be the `@use` rule in [the current source file][] whose
+  * Let `use` be the `@use` rule in [the current source file] whose
     namespace is equal to `$module`. If no such rule exists, throw an error.
 
-  * Return [`use`'s module][]'s mixin named `$name`, or throw an error if no
+  * Return [`use`'s module]'s mixin named `$name`, or throw an error if no
     such mixin exists.
 
   [the current source file]: ../spec/spec.md#current-source-file
@@ -182,11 +182,11 @@ meta.module-mixins($module)
 
 * If `$module` is not a string, throw an error.
 
-* Let `use` be the `@use` rule in [the current source file][] whose namespace is
+* Let `use` be the `@use` rule in [the current source file] whose namespace is
   equal to `$module`. If no such rule exists, throw an error.
 
 * Return a map whose keys are the quoted string names of mixins in
-  [`use`'s module][] and whose values are the corresponding mixins.
+  [`use`'s module] and whose values are the corresponding mixins.
 
 ### `meta.accepts-content()`
 

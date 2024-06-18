@@ -41,7 +41,7 @@ of the root module, without removing that option for end-users.
 
 Sass will add a `with` clause to `@forward`. The `@forward ... with` syntax is
 based on the `@use ... with` syntax, but allows the addition of `!default` flags
-similar to a [variable declaration][]. Unlike `@use ... with`, unconfigured
+similar to a [variable declaration]. Unlike `@use ... with`, unconfigured
 origin variables, and variables configured with a `!default` flag, will remain
 configurable by any file importing the combined module. For example:
 
@@ -133,7 +133,7 @@ The new `WithClause` extends `@forward` to the follow grammar:
 ## Semantics
 
 The `@forward ... with` semantics builds on the existing proposal for
-[Executing Files][], and should be understood as modifying and expanding upon
+[Executing Files], and should be understood as modifying and expanding upon
 the existing execution process rather than being a comprehensive replacement.
 
 [Executing Files]: ../accepted/module-system.md#executing-files
@@ -143,7 +143,7 @@ Given a source file `file`, a configuration `config`, and an import context
 
 * Let `module` be an empty module with the same URL as `file`.
 
-* Let `uses` be an empty map from `@use` rules to [modules][].
+* Let `uses` be an empty map from `@use` rules to [modules].
 
 * When a `@use` rule `rule` is encountered:
 
@@ -161,7 +161,7 @@ Given a source file `file`, a configuration `config`, and an import context
       * Add a variable to `rule-config` with the same name as `argument`'s
         identifier and with `value` as its value.
 
-  * Let `module` be the result of [loading][] the module with `rule`'s URL
+  * Let `module` be the result of [loading] the module with `rule`'s URL
     and `rule-config`.
 
   * If `rule` has a `WithClause` that contains any variables that aren't part of
@@ -200,7 +200,7 @@ Given a source file `file`, a configuration `config`, and an import context
       * Add a variable to `rule-config` with the same name as `argument`'s
         identifier, and with `value` as its value.
 
-  * Let `forwarded` be the result of [loading][] the module with `rule`'s URL
+  * Let `forwarded` be the result of [loading] the module with `rule`'s URL
     and `rule-config`.
 
   * If `rule` has a `WithClause` that contains any variables that aren't part of

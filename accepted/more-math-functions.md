@@ -44,7 +44,7 @@ available on the global namespace.
 > This section is non-normative.
 
 This proposal defines Sassified versions of all the mathematical functions in
-the [CSS Values and Units 4 Draft][], as well as logarithms and the constants
+the [CSS Values and Units 4 Draft], as well as logarithms and the constants
 `e` and `pi`. Each function is basically equivalent to its mathematical form,
 with stricter unit handling. Proper unit handling prevents these functions from
 creating meaningless units. For instance, consider `(1px)^(1/3)`—what does
@@ -56,7 +56,7 @@ To avoid issues like this, the exponential functions—`log()`, `pow()`, `sqrt()
 accept only a unitless number as input, and output a unitless number.
 
 The trig functions—`cos()`, `sin()`, `tan()`—accept a SassScript number with a
-unit, as long as that unit is an [angle][] type. If the input is a unitless
+unit, as long as that unit is an [angle] type. If the input is a unitless
 number, it is treated as though it were in `rad`. These functions output a
 unitless number.
 
@@ -66,7 +66,7 @@ The inverse trig functions—`acos()`, `asin()`, `atan()`—accept a unitless nu
 and output a SassScript number in `deg`. `atan2()` is similar, but it accepts
 two unitless numbers.
 
-`clamp()` accepts three SassScript numbers with [compatible][] units: the
+`clamp()` accepts three SassScript numbers with [compatible] units: the
 minimum value, preferred value, and maximum value. This function "clamps" the
 preferred value in between the minimum and maximum values, while preserving
 their units appropriately. For example, `clamp(1in, 15cm, 12in)` outputs `15cm`,
@@ -84,8 +84,8 @@ of the first input.
 ### Built-in Module Variables
 
 Variables defined in built-in modules are not modifiable. As such, this proposal
-modifies the semantics of [Executing a Variable Declaration][] within the
-[Variables spec][] to read as follows:
+modifies the semantics of [Executing a Variable Declaration] within the
+[Variables spec] to read as follows:
 
 [Executing a Variable Declaration]: ../spec/variables.md#executing-a-variable-declaration
 [Variables spec]: ../spec/variables.md
@@ -96,7 +96,7 @@ To execute a `VariableDeclaration` `declaration`:
 
 * Let `name` be `declaration`'s `Variable`.
 
-* **Let `resolved` be the result of [resolving a variable][] named `name`.**
+* **Let `resolved` be the result of [resolving a variable] named `name`.**
 
 [resolving a variable]: ../spec/modules.md#resolving-a-member
 
@@ -109,7 +109,7 @@ To execute a `VariableDeclaration` `declaration`:
 * Otherwise, if `declaration` is outside of any block of statements, *or*
   `declaration` has a `!global` flag, *or* `name` is a `NamespacedVariable`:
 
-  * ~~Let `resolved` be the result of [resolving a variable][] named `name` using
+  * ~~Let `resolved` be the result of [resolving a variable] named `name` using
     `file`, `uses`, and `import`.~~
 
   (...)
@@ -117,11 +117,11 @@ To execute a `VariableDeclaration` `declaration`:
 * Otherwise, if `declaration` is within one or more blocks associated with
   `@if`, `@each`, `@for`, and/or `@while` rules *and no other blocks*:
 
-  * ~~Let `resolved` be the result of [resolving a variable][] named `name`.~~
+  * ~~Let `resolved` be the result of [resolving a variable] named `name`.~~
 
   (...)
 
-* ~~Otherwise, if no block containing `declaration` has a [scope][] with a
+* ~~Otherwise, if no block containing `declaration` has a [scope] with a
   variable named `name`, set the innermost block's scope's variable `name` to
   `value`.~~
 
@@ -189,7 +189,7 @@ log($number, $base: null)
   * If `$number < 0`, return `NaN` as a unitless number.
   * If `$number == 0`, return `-Infinity` as a unitless number.
   * If `$number == Infinity`, return `Infinity` as a unitless number.
-  * Return the [natural log][] of `$number`, as a unitless number.
+  * Return the [natural log] of `$number`, as a unitless number.
 * Otherwise, return the natural log of `$number` divided by the natural log of
   `$base`, as a unitless number.
 
@@ -259,7 +259,7 @@ cos($number)
 * If `$number` is unitless, treat it as though its unit were `rad`.
 * If `$number == Infinity` or `$number == -Infinity`, return `NaN` as a unitless
   number.
-* Return the [cosine][] of `$number`, as a unitless number.
+* Return the [cosine] of `$number`, as a unitless number.
 
 [cosine]: https://en.wikipedia.org/wiki/Trigonometric_functions#Right-angled_triangle_definitions
 
@@ -275,7 +275,7 @@ sin($number)
   number.
 * If `$number == -0`, return `-0` as a unitless number.
 * If `$number == 0`, return `0` as a unitless number.
-* Return the [sine][] of `$number`, as a unitless number.
+* Return the [sine] of `$number`, as a unitless number.
 
 [sine]: https://en.wikipedia.org/wiki/Trigonometric_functions#Right-angled_triangle_definitions
 
@@ -295,7 +295,7 @@ tan($number)
   integer, return `Infinity` as a unitless number.
 * If `$number` is equivalent to `-90deg +/- 360deg * n`, where `n` is any
   integer, return `-Infinity` as a unitless number.
-* Return the [tangent][] of `$number`, as a unitless number.
+* Return the [tangent] of `$number`, as a unitless number.
 
 [tangent]: https://en.wikipedia.org/wiki/Trigonometric_functions#Right-angled_triangle_definitions
 
@@ -308,7 +308,7 @@ acos($number)
 * If `$number` has units, throw an error.
 * If `$number < -1` or `$number > 1`, return `NaN` as a number in `deg`.
 * If `$number == 1`, return `0deg`.
-* Return the [arccosine][] of `$number`, as a number in `deg`.
+* Return the [arccosine] of `$number`, as a number in `deg`.
 
 [arccosine]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions#Basic_properties
 
@@ -322,7 +322,7 @@ asin($number)
 * If `$number < -1` or `$number > 1`, return `NaN` as a number in `deg`.
 * If `$number == -0`, return `-0deg`.
 * If `$number == 0`, return `0deg`.
-* Return the [arcsine][] of `$number`, as a number in `deg`.
+* Return the [arcsine] of `$number`, as a number in `deg`.
 
 [arcsine]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions#Basic_properties
 
@@ -337,7 +337,7 @@ atan($number)
 * If `$number == 0`, return `0deg`.
 * If `$number == -Infinity`, return `-90deg`.
 * If `$number == Infinity`, return `90deg`.
-* Return the [arctangent][] of `$number`, as a number in `deg`.
+* Return the [arctangent] of `$number`, as a number in `deg`.
 
 [arctangent]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions#Basic_properties
 
@@ -355,7 +355,7 @@ atan2($y, $x)
 * If `$y` and `$x` are not compatible, throw an error.
 * If `$y` has units and `$x` does not, or vice-versa, throw an error.
 * If the inputs match one of the following edge cases, return the provided
-  number. Otherwise, return the [2-argument arctangent][] of `$y` and `$x`, as a
+  number. Otherwise, return the [2-argument arctangent] of `$y` and `$x`, as a
   number in `deg`.
 
 [2-argument arctangent]: https://en.wikipedia.org/wiki/Atan2
