@@ -143,6 +143,8 @@ since they're not specific to any individual compilation.
 The compilation ID and normal request `id` `4294967295` is reserved for [error
 handling]. (This is the maximum number representable by a `uint32`.)
 
+[error handling]: #error-handling
+
 ### Optional and Mandatory Fields
 
 If a field is not optional, the the endpoint that sends that message must

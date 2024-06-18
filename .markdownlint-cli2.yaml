@@ -1,4 +1,4 @@
-# globs: ["**.md"]
+globs: ["**.md"]
 ignores: ["node_modules/**"]
 config:
   # BNF syntax examples can go over length, and there's no way to exempt them
@@ -23,5 +23,8 @@ config:
 
   # We use spaces in code formatting because spaces are relevant in Sass.
   no-space-in-code: false
+
+  reference-links-images:
+    shortcut_syntax: true
 
   first-line-heading: false

@@ -1239,8 +1239,8 @@ normalized channel value otherwise.
   * Otherwise, set `channel` to the result of [percent-converting] `channel`
     with a `min` and `max` defined by the `valid` channel range.
 
-  * If this was (transitively) invoked from the global [`rgb()`, `lab()`,
-    `lch()`, `oklab()`, `oklch()`, or `color()`] function and `valid` is a
+  * If this was (transitively) invoked from the global `rgb()`, `lab()`,
+    `lch()`, `oklab()`, `oklch()`, or `color()` function and `valid` is a
     clamped channel, return the result of clamping `channel` to its native
     range.
 

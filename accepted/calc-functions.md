@@ -816,6 +816,8 @@ compiler.
 
 A private property like [`Value.internal`] that refers to a Sass string.
 
+[`Value.internal`]: ../spec/js-api/value/index.d.ts.md#internal
+
 ##### Constructor
 
 Creates a `CalculationInterpolation` with its `internal` set to an unquoted Sass

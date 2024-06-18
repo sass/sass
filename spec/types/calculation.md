@@ -150,6 +150,8 @@ To serialize a `Number` within a `CalculationExpression`:
 This algorithm takes a [`FunctionCall`] `call` whose name is a plain identifier
 and returns a number or a calculation.
 
+[`FunctionCall`]: ../functions.md#functioncall
+
 * If `call`'s `ArgumentInvocation` contains one or more `KeywordArgument`s or
   one or more `RestArgument`s, throw an error.
 
@@ -225,6 +227,8 @@ This algorithm takes an expression `expression` and returns a
 `CalculationValue`.
 
 * If `expression` isn't [calculation-safe], throw an error.
+
+  [calculation-safe]: #calculation-safe-expression
 
 * Otherwise, evaluate `expression` using the semantics defined in the
   [Semantics] section if available, or the standard semantics otherwise.
@@ -416,7 +420,9 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
         * If `strategy`'s value is `"to-zero"`, return whichever of `upper` and
           `lower` has the smallest absolute difference from 0.
 
+  [exactly equal]: number.md#exact-equality
   [special variable string]: ../functions.md#special-variable-string
+  [matching units]: number.md#matching-two-numbers-units
 
 * If `calc`'s name is `"clamp"`:
 

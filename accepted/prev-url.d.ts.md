@@ -41,6 +41,8 @@ to access the URL of the stylesheet that contained the load, known in the legacy
 API as the "previous URL". This was an intentional design choice which enforced
 the invariant that the same canonical URL always refers to the same file.
 
+[new importer API]: new-js-importer.d.ts.md
+
 However, this restriction makes it difficult for importers to work as expected
 in certain contexts. For example, in the Node.js ecosystem JS loads depend on
 the structure of the `node_modules` directory closest to the containing file.

@@ -275,6 +275,8 @@ SCSS:
   adjacent `/`s in a [`SlashListExpression`] may have no whitespace between
   them, so `//` is parsed as two slash separators in a slash-separated list.
 
+  [`SlashListExpression`]: types/list.md#SlashListExpression
+
 * A `ParentSelector` may appear anywhere in a `CompoundSelector`, rather than
   just as the first `SimpleSelector`.
 

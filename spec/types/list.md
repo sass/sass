@@ -51,7 +51,7 @@ absolute value is larger than the length of that list.
 ## Syntax
 
 <x><pre>
-**BracketedListExpression** ::= '[' ContainedListExpression ']'
+**BracketedListExpression** ::= '\[' ContainedListExpression ']'
 **ContainedListExpression** ::= CommaListExpression ','?
 **CommaListExpression**     ::= SlashListExpression (',' SlashListExpression)*
 **SlashListExpression**     ::= SpaceListExpression (('/' SpaceListExpression?)* '/' SpaceListExpression)?
