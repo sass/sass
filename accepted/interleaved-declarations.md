@@ -1,6 +1,7 @@
 # Interleaved Declarations: Draft 1
 
-*([Issue](https://github.com/sass/sass/issues/3846))*
+*([Issue](https://github.com/sass/sass/issues/3846),
+[Changelog](interleaved-declarations.changes.md))*
 
 ## Table of Contents
 
@@ -11,9 +12,11 @@
   * [Current Keyframe Block](#current-keyframe-block)
 * [Declarations](#declarations)
   * [Semantics](#semantics)
-* [Unknown At-Rules](#unknown-at-rules)
+* [`@nest` Rule](#nest-rule)
+  * [Syntax](#syntax)
   * [Semantics](#semantics-1)
 * [Deprecation Process](#deprecation-process)
+  * [`@nest` Rule](#nest-rule-1)
 
 ## Background
 
@@ -122,27 +125,71 @@ before "Append `css` to `parent`":
 [current style rule]: #current-style-rule
 [keyframe block]: #current-keyframe-block
 
-## Unknown At-Rules
+## `@nest` Rule
+
+Add special semantics for the `@nest` rule. Although this rule is primarily
+intended to give the CSSOM a consistent representation for interleaved
+declarations and is never required to be written explicitly, it *is* valid CSS
+and Sass must ensure that its use preserves the existing CSS semantics.
+
+> This is also provides an explicit way for Sass authors to write styles that
+> are consistent with CSS semantics during the deprecation period for
+> interleaved declarations.
+
+### Syntax
+
+<x><pre>
+**NestRule** ::= '@nest'¹ '{' Statements '}'
+</pre></x>
+
+1: This is case-insensitive.
 
 ### Semantics
 
-Add the following to the semantics for executing an unknown at-rule `rule` after
-"If `rule`'s name is 'font-face', or if its unprefixed name is 'keyframes',
-append `css` to the current module's CSS":
+To execute a `@nest` rule `rule`:
 
-* If `rule`'s name is case-insensitively equal to "nest", append `css` to
-  `parent`.
+* If there's a [current keyframe block], throw an error.
+
+  [current keyframe block]: #current-keyframe-block
+
+* If there's a [current style rule], evaluate each child in `rule`'s
+  `Statement`s.
+
+* Otherwise, [evaluate `rule` as an unknown at-rule] with
+  `InterpolatedIdentifier` "nest", no `InterpolatedValue`, and the same
+  `Statements`.
+
+  [evaluate `rule` as an unknown at-rule]: ../spec/at-rules/unknown.md
 
 ## Deprecation Process
 
 This proposal's change to the semantics of interleaved declarations is
 backwards-incompatible. Before changing to the new semantics, an implementation
 should have a period of deprecation in which it emits a deprecation warning for
-a declaration whose `parent` is not the last statement in [the current module]'s
-CSS without changing the existing behavior.
-
-[the current module]: ../spec/spec.md#current-module
+a declaration whose `parent` is not the last statement in its parent without
+changing the existing behavior.
 
 > Authors can move interleaved declarations before any nested rules to preserve
 > existing behavior, or nest them in `& { ... }` style rules to anticipate the
 > new behavior.
+
+### `@nest` Rule
+
+During the deprecation period, use the `@nest` syntax specified above but the
+following semantics:
+
+* If there's a [current keyframe block], throw an error.
+
+* If there's a [current style rule] `style-rule`:
+
+  * If `style-rule`'s stylesheet was [parsed as CSS], evaluate each child in
+    `rule`'s `Statement`s.
+
+  * Otherwise, [evaluate `rule` as a style rule with `SelectorList` "&" and the
+    same `Statements`.
+
+* Otherwise, [evaluate `rule` as an unknown at-rule] with
+  `InterpolatedIdentifier` "nest", no `InterpolatedValue`, and the same
+  `Statements`.
+
+[parsed as CSS]: ../spec/syntax.md#parsing-text-as-css

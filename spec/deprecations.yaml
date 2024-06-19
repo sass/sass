@@ -106,7 +106,7 @@ css-function-mixin:
     status: active
     deprecated: 1.76.0
 
-interleaved-decls:
+mixed-decls:
   description: Declarations after or between nested rules.
   dart-sass:
     status: active
