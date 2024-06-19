@@ -43,6 +43,9 @@ To execute an unknown at-rule `rule`:
     * If `rule`'s name is "font-face", or if its [unprefixed] name is
       "keyframes", append `css` to [the current module]'s CSS.
 
+    * Otherwise, if `rule`'s name is case-insensitively equal to "nest", append
+      `css` to `parent`.
+
     * Otherwise:
 
       * Append `css` to `parent`'s parent.
