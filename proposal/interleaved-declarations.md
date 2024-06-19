@@ -141,6 +141,8 @@ should have a period of deprecation in which it emits a deprecation warning for
 a declaration whose `parent` is not the last statement in [the current module]'s
 CSS without changing the existing behavior.
 
+[the current module]: ../spec/spec.md#current-module
+
 > Authors can move interleaved declarations before any nested rules to preserve
 > existing behavior, or nest them in `& { ... }` style rules to anticipate the
 > new behavior.

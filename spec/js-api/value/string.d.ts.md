@@ -48,6 +48,8 @@ Creates a Sass string:
 * Set [`internal`] to a Sass string with contents set to `text` and quoted set
   to `quotes`.
 
+  [`internal`]: #internal
+
 * Return `this`.
 
 ```ts

@@ -276,6 +276,8 @@ Returns `this` interpreted as a map.
 
 * If `this` is a [`SassMap`], return `this`.
 
+  [`SassMap`]: map.d.ts.md
+
 * Otherwise, if [`internal`] is an empty Sass list, return a `SassMap` with its
   `internal` set to an empty map.
 

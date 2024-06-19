@@ -28,12 +28,12 @@ members that are behind a `@forward` rule.
 This makes it difficult for libraries with configurable variables to migrate to
 the module system without breaking downstream users that haven't migrated yet.
 This is especially true if the library removed a manual prefix from its members
-during migration. When the [migrator][] does this, it creates an import-only file
+during migration. When the [migrator] does this, it creates an import-only file
 that forwards the regular stylesheet with the prefix added back, but that
 `@forward` rule means configuration doesn't work.
 
 Because it is nearly impossible to migrate these cases incrementally, this
-violates the module system's [backwards compatibility goal][]. Libraries with
+violates the module system's [backwards compatibility goal]. Libraries with
 prefixes and configuration variables are common, and without an incremental
 migration solution, these libraries may be slow to start using the module
 system, limiting its adoption by the ecosystem as a whole.
@@ -49,8 +49,8 @@ This proposal modifies the semantics for configuring a module when `@import` is
 involved to ensure that most downstream users of a library are not broken when
 the library migrates to the module system.
 
-When a file is loaded by an `@import` rule, a [configuration][] is created that
-includes all variables declared in the current [import context][]. This
+When a file is loaded by an `@import` rule, a [configuration] is created that
+includes all variables declared in the current [import context]. This
 implicitly created configuration is a special type that can be distinguished
 from other, explicitly created configurations.
 
@@ -78,7 +78,7 @@ We considered a few alternatives in designing this proposal.
 
 One alternative did not involve any language changes at all, instead
 recommending that library authors add `@use` rules explicitly configuring their
-variables to their [import-only files][] when migrating. For example:
+variables to their [import-only files] when migrating. For example:
 
 ```scss
 // app.scss
@@ -118,7 +118,7 @@ configuration between the two imports, the change will be ignored. However,
 this is an edge case that is (a) probably not intended by the user, (b)
 relatively easy to fix by moving all declared configuration variables before
 all library imports, and (c) very difficult to support for a library using the
-module system without compromising the module system's [import once goal][], as
+module system without compromising the module system's [import once goal], as
 handling this case would require modules in the library to be executed twice.
 
 [import-only files]: ../accepted/module-system.md#import-compatibility
@@ -126,8 +126,8 @@ handling this case would require modules in the library to be executed twice.
 
 ## Definitions
 
-This proposal modifies the definition of a [configuration][] within the
-[module system spec][] to add the following:
+This proposal modifies the definition of a [configuration] within the
+[module system spec] to add the following:
 
 A configuration is either *explicit* or *implicit*. When a configuration is
 created, if the type is not specified, it is considered *explicit*.
@@ -136,10 +136,10 @@ created, if the type is not specified, it is considered *explicit*.
 
 ## Procedures
 
-This proposal modifies the fourth bullet of the [Loading Modules][] procedure
-within the [module system spec][] to read as follows:
+This proposal modifies the fourth bullet of the [Loading Modules] procedure
+within the [module system spec] to read as follows:
 
-* If `file` has already been [executed][]:
+* If `file` has already been [executed]:
 
   * If `config` is **explicit and** not empty, throw an error.
 
@@ -152,8 +152,8 @@ within the [module system spec][] to read as follows:
 
 ### Executing Files
 
-This proposal modifies the first bullet of the semantics of [Executing Files][]
-within the [module system spec][] to read as follows:
+This proposal modifies the first bullet of the semantics of [Executing Files]
+within the [module system spec] to read as follows:
 
 * If this file isn't being executed for a `@forward` **or `@import`** rule:
 
@@ -183,10 +183,10 @@ This proposal also modifies the fifth bullet to read as follows:
 
   * Otherwise, let `rule-config` be `config`.
 
-  * Let `forwarded` be the result of [loading][] the module with `rule`'s URL
+  * Let `forwarded` be the result of [loading] the module with `rule`'s URL
     and `rule-config`.
 
-  * [Forward `forwarded`][] with `file` through `module`.
+  * [Forward `forwarded`] with `file` through `module`.
 
 [Executing Files]: ../accepted/module-system.md#executing-files
 [loading]: ../accepted/module-system.md#loading-modules
@@ -194,11 +194,11 @@ This proposal also modifies the fifth bullet to read as follows:
 
 ### Importing Files
 
-This proposal modifies the semantics for [Importing Files][] within the
-[module system spec][] to read as follows:
+This proposal modifies the semantics for [Importing Files] within the
+[module system spec] to read as follows:
 
-This algorithm takes a [source file][] `file`, an [import context][] `import`,
-and a mutable [module][] `module`.
+This algorithm takes a [source file] `file`, an [import context] `import`,
+and a mutable [module] `module`.
 
 * If `file` is currently being executed, throw an error.
 
@@ -209,19 +209,19 @@ and a mutable [module][] `module`.
   > used, so implementations may wish to skip this step and use the empty
   > configuration instead in that case for performance reasons.
 
-* Let `imported` be the result of [executing][] `file` with ~~the empty
+* Let `imported` be the result of [executing] `file` with ~~the empty
   configuration~~ **`config` as its configuration** and `import` as
   its import context, except that if the `@import` rule is nested within
   at-rules and/or style rules, that context is preserved when executing `file`.
 
-* Let `css` be the result of [resolving extensions][] for
+* Let `css` be the result of [resolving extensions] for
   `imported`, except that if the `@import` rule is nested within at-rules and/or
   style rules, that context is added to CSS that comes from modules loaded by
   `imported`.
 
 * Add `css` to `module`'s CSS.
 
-* Add `imported`'s [extensions][] to `module`.
+* Add `imported`'s [extensions] to `module`.
 
 * Add each member in `imported` to `import` and `module`.
 

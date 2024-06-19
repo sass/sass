@@ -39,6 +39,8 @@ import {Value, SassNumber, SassString} from './index';
 
 The type of values that can be arguments to a [`SassCalculation`].
 
+[`SassCalculation`]: #sasscalculation
+
 ```ts
 export type CalculationValue =
   | SassNumber
@@ -160,6 +162,8 @@ export type CalculationOperator = '+' | '-' | '*' | '/';
 ### `CalculationOperation`
 
 The JS API representation of a Sass [`CalculationOperation`].
+
+[`CalculationOperation`]: #calculationoperation
 
 ```ts
 export class CalculationOperation implements ValueObject {

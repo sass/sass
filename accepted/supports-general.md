@@ -3,7 +3,7 @@
 *([Issue](https://github.com/sass/sass/issues/2780), [Changelog](supports-general.changes.md))*
 
 This proposal defines how Sass parses supports queries that use the
-[`<general-enclosed>`][] production.
+[`<general-enclosed>`] production.
 
 [`<general-enclosed>`]: https://drafts.csswg.org/mediaqueries-4/#typedef-general-enclosed
 
@@ -24,13 +24,13 @@ This proposal defines how Sass parses supports queries that use the
 > This section is non-normative.
 
 Historically, Sass has supported the `@supports` condition syntax as defined in
-[the April 2013 CSS Conditional Rules Level 3 Candidate Recommendation][], with
+[the April 2013 CSS Conditional Rules Level 3 Candidate Recommendation], with
 the addition of supporting raw SassScript expressions in the declaration syntax.
-The [Editor's Draft][] (as published October 2019) expands this syntax with a
+The [Editor's Draft] (as published October 2019) expands this syntax with a
 `<general-enclosed>` production to ensure parser forwards-compatibility with
-future CSS, which Sass does not yet support. The [Level 4 Editor's Draft][] (as
+future CSS, which Sass does not yet support. The [Level 4 Editor's Draft] (as
 of March 2019) further adds a `selector()` function syntax (which is covered by
-`<general-enclosed>`), which is [supported by Firefox][] as of version 69.
+`<general-enclosed>`), which is [supported by Firefox] as of version 69.
 
 [the April 2013 CSS Conditional Rules Level 3 Candidate Recommendation]: https://www.w3.org/TR/2013/CR-css3-conditional-20130404/#at-supports
 [Editor's Draft]: https://drafts.csswg.org/css-conditional-3/#at-supports
@@ -93,10 +93,10 @@ expression. If not, Sass must continually update its syntax to support new CSS
 constructs.
 
 We've been burned by this in the past. Both this proposal and the [media ranges
-proposal][] would have been unnecessary (or at least much simpler) if the rules
+proposal] would have been unnecessary (or at least much simpler) if the rules
 in questions had only allowed SassScript via interpolation in the first place.
 And it's likely that this syntax *will* evolve in ways that aren't
-SassScript-compatible, as with the `selector()` function [mentioned above][].
+SassScript-compatible, as with the `selector()` function [mentioned above].
 
 [media ranges proposal]: ../accepted/media-ranges.md
 [mentioned above]: #background
@@ -139,8 +139,8 @@ ambiguous with a declaration and thus with raw SassScript.
 **SupportsInParens**    ::= '(' (SupportsCondition | SupportsDeclaration | SupportsAnything) ')'
 &#32;                     | SupportsFunction | Interpolation
 **SupportsDeclaration** ::= Expression¹ ':' Expression
-**SupportsAnything**    ::= [InterpolatedIdentifier][]² [InterpolatedAnyValue][]³?
-**SupportsFunction**    ::= [InterpolatedIdentifier][]⁴ '(' [InterpolatedAnyValue][]? ')'
+**SupportsAnything**    ::= [InterpolatedIdentifier]² [InterpolatedAnyValue]³?
+**SupportsFunction**    ::= [InterpolatedIdentifier]⁴ '(' [InterpolatedAnyValue]? ')'
 </pre></x>
 
 [InterpolatedIdentifier]: ../spec/syntax.md#interpolatedidentifier
@@ -168,7 +168,7 @@ the purposes of this production.
 
 ### `InterpolatedAnyValue`
 
-The `InterpolatedAnyValue` production is identical to CSS's [`<any-value>`][]
+The `InterpolatedAnyValue` production is identical to CSS's [`<any-value>`]
 except that after it parses `"#{"`, it parses an `Expression` which must be
 followed by `"}"`.
 

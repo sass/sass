@@ -86,7 +86,7 @@ A *module* is a collection of various properties:
   > member names and signatures regardless of the context in which those modules
   > are loaded.
 
-* A set of [extensions][].
+* A set of [extensions].
 
   [extensions]: at-rules/extend.md#extension
 
@@ -97,7 +97,7 @@ A *module* is a collection of various properties:
   > any plain CSS rules.
 
 * A list of references to other modules, known as the module's *dependencies*,
-  in the same order as their [`@use` rules][] and/or [`@forward` rules][] appear
+  in the same order as their [`@use` rules] and/or [`@forward` rules] appear
   in the module's source file. If a dependency is referred to from multiple
   rules, its order is determined by the first such rule.
 
@@ -107,7 +107,7 @@ A *module* is a collection of various properties:
   [`@use` rules]: at-rules/use.md
   [`@forward` rules]: at-rules/forward.md
 
-* An optional [source file][].
+* An optional [source file].
 
   > Note that [built-in modules](#built-in-module) *do not* have source files
   > associated with them.
@@ -117,7 +117,7 @@ A *module* is a collection of various properties:
 * An absolute URL, known as the module's *canonical URL*. If the module has a
   source file, this must be the same as the source file's canonical URL.
 
-Once a user-defined module has been returned by [Executing a File][], it is
+Once a user-defined module has been returned by [Executing a File], it is
 immutable except for its variable values. [Built-in modules](#built-in-module)
 are always immutable.
 
@@ -126,8 +126,8 @@ are always immutable.
 ### Module Graph
 
 The set of [modules](#module) loaded in the course of processing a stylesheet
-can be construed as a [directed acyclic graph][] where the vertices are modules
-and the edges are [`@use` rules][] and/or [`@forward` rules][]. We call this the
+can be construed as a [directed acyclic graph] where the vertices are modules
+and the edges are [`@use` rules] and/or [`@forward` rules]. We call this the
 *module graph*.
 
 [directed acyclic graph]: https://en.wikipedia.org/wiki/Directed_acyclic_graph
@@ -135,7 +135,7 @@ and the edges are [`@use` rules][] and/or [`@forward` rules][]. We call this the
 The module graph is not allowed to contain cycles because they make it
 impossible to guarantee that all dependencies of a module are available before
 that module is loaded. Although the names and APIs of a dependency's members can
-be determined without [executing][] it, Sass allows code to be executed during
+be determined without [executing] it, Sass allows code to be executed during
 load, so those members may not behave correctly when invoked before the
 dependency is executed.
 
@@ -146,10 +146,10 @@ dependency is executed.
 An *import context* is a set of [members](#member) that contains at most one
 member of any given type and name. It's always mutable.
 
-> Import contexts serve as glue between the old [`@import` rule][] and the
+> Import contexts serve as glue between the old [`@import` rule] and the
 > module system. It serves as a shared global namespace for stylesheets loaded
 > using `@import` rules, while also preventing global names from leaking into or
-> out of stylesheets loaded using [`@use` rules][] and/or [`@forward` rules][].
+> out of stylesheets loaded using [`@use` rules] and/or [`@forward` rules].
 
 [`@import` rule]: at-rules/import.md
 
@@ -158,7 +158,7 @@ member of any given type and name. It's always mutable.
 A *built-in module* is a module defined either by the Sass specification or by
 the host environment of the Sass compilation in some implementation-specific
 way. Modules defined by the Sass specification all have the scheme `sass:` and
-are all described in [the `built-in-modules` directory][]. Modules defined
+are all described in [the `built-in-modules` directory]. Modules defined
 outside the Sass compilation may not use the scheme `sass:`.
 
 [the `built-in-modules` directory]: built-in-modules
@@ -329,8 +329,8 @@ The module system defines the following syntax for referring to names from other
 modules:
 
 <x><pre>
-**PublicIdentifier**     ::= [\<ident-token>][] that doesn't begin with '-' or '_'
-**NamespacedIdentifier** ::= [\<ident-token>][] | [\<ident-token>][] '.' PublicIdentifier
+**PublicIdentifier**     ::= [\<ident-token>] that doesn't begin with '-' or '_'
+**NamespacedIdentifier** ::= [\<ident-token>] | [\<ident-token>] '.' PublicIdentifier
 </pre></x>
 
 [\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
@@ -379,7 +379,7 @@ This algorithm takes a string `argument` and [configuration](#configuration)
   > This disallows circular `@use`s, which ensures that modules can't be used
   > until they're fully initialized.
 
-* Otherwise, return the result of [executing][] `file` with `config` and a new
+* Otherwise, return the result of [executing] `file` with `config` and a new
   [import context](#import-context).
 
   > For simplicity, the spec creates an import context for every module.
@@ -538,11 +538,11 @@ and returns a member of type `type` or null.
   [current scope]: spec.md#scope
 
 * If `name` is a [`NamespacedIdentifier`](#syntax) of the form
-  `namespace.raw-name` or a [`Variable`][] of the form `namespace.$raw-name`:
+  `namespace.raw-name` or a [`Variable`] of the form `namespace.$raw-name`:
 
   [`Variable`]: variables.md#syntax
 
-  * Let `use` be the [`@use` rule][] in the [current source file][] whose
+  * Let `use` be the [`@use` rule] in the [current source file] whose
     namespace is `namespace`. If there isn't exactly one such rule, throw an
     error.
 
@@ -551,7 +551,7 @@ and returns a member of type `type` or null.
 
   * If `use` hasn't been executed yet, throw an error.
 
-  * Otherwise, let `module` be [`use`'s module][].
+  * Otherwise, let `module` be [`use`'s module].
 
   * Return the member of `module` with type `type` and name `raw-name`. If there
     is no such member, throw an error.
@@ -568,7 +568,7 @@ and returns a member of type `type` or null.
   > variable definition will set the module's variable value rather than
   > defining a new variable local to this module.
 
-  * If the [current import context][] contains a member `member` of type `type`
+  * If the [current import context] contains a member `member` of type `type`
     named `name`, return it.
 
     > This includes member definitions within the current module.
@@ -581,8 +581,8 @@ and returns a member of type `type` or null.
 
   [current import context]: spec.md#current-import-context
 
-* Let `members` be the set of [unique][] members of type `type` named `name` in
-  [modules of][] the global `@use` rules.
+* Let `members` be the set of [unique] members of type `type` named `name` in
+  [modules of] the global `@use` rules.
 
   [unique]: #member
   [modules of]: at-rules/use.md#a-use-rules-module

@@ -203,7 +203,7 @@
   the current stylesheet.
 
 * Removed the low-level "using CSS files" goal, since this is now covered by
-  [the CSS Imports proposal][].
+  [the CSS Imports proposal].
 
   [the CSS Imports proposal]: ../accepted/css-imports.md
 
@@ -224,7 +224,7 @@
 
 * Refer to "namespaces" rather than "prefixes".
 
-* Refer to "URLs" rather than "URIs", per [the URL spec][].
+* Refer to "URLs" rather than "URIs", per [the URL spec].
 
   [the URL spec]: https://url.spec.whatwg.org/#goals
 

@@ -3,7 +3,7 @@
 *([Issue](https://github.com/sass/sass/issues/1864), [Changelog](media-ranges.changes.md))*
 
 This proposal defines how Sass handles media queries with features written in a
-[range context][].
+[range context].
 
 [range context]: https://www.w3.org/TR/mediaqueries-4/#mq-range-context
 
@@ -34,7 +34,7 @@ complexity to media merging, for very limited benefits in terms of output size
 and readability.
 
 The values of media features with the "range" type are heterogeneous, including
-a [`<ratio>`][] type value type that Sass has no existing knowledge of. If Sass
+a [`<ratio>`] type value type that Sass has no existing knowledge of. If Sass
 were to support intelligent merging of these features, it would need to keep
 abreast of any new value types supported by "range"-type media features. This
 would violate Sass's general design principle of knowing as little about CSS as
@@ -54,7 +54,7 @@ plain CSS.
 This proposal defines a new syntax for media queries in Sass stylesheets. It is
 intended to replace the existing syntax.
 
-> Other than support for the [range context][] syntax, this syntax is designed
+> Other than support for the [range context] syntax, this syntax is designed
 > to represent the current behavior of all Sass implementations.
 
 <x><pre>
@@ -76,13 +76,13 @@ operators `=`, `>`, `>=`, `<`, or `<=`, except within parentheses (including
 function calls and map literals) and square brackets.
 
 The `<mf-comparison>`, `<mf-lt>`, and `<mf-gt>` productions are defined in
-[Media Queries Level 4][].
+[Media Queries Level 4].
 
 [Media Queries Level 4]: https://drafts.csswg.org/mediaqueries-4/#mq-syntax
 
 > Note that Sass currently doesn't support parsing full media conditions
 > according to the level 4 specification, since no browsers support it yet. See
-> [sass/sass#2538][] for details.
+> [sass/sass#2538] for details.
 
 [sass/sass#2538]: https://github.com/sass/sass/issues/2538
 
@@ -105,7 +105,7 @@ Plain CSS media queries are parsed using the following syntax:
 The `<ident-token>` production matches the [railroad diagram][ident-token]
 listed in CSS Syntax Level 3. The `<declaration-value>` production uses
 [the definition][declaration-value] from CSS Syntax Level 3,
-[consuming tokens][] only as needed until the production terminates.
+[consuming tokens] only as needed until the production terminates.
 
 [ident-token]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
 [declaration-value]: https://drafts.csswg.org/css-syntax-3/#typedef-declaration-value

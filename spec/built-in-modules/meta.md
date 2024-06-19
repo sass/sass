@@ -114,18 +114,18 @@ This function is also available as a global function named `function-exists()`.
 
 * If `$module` is null:
 
-  * Return whether [resolving a function][] named `$name` returns null.
+  * Return whether [resolving a function] named `$name` returns null.
   
   [resolving a function]: ../modules.md#resolving-a-member
 
 * Otherwise, if `$module` isn't a string, throw an error.
 
-* Otherwise, let `use` be the `@use` rule in [the current source file][] whose
+* Otherwise, let `use` be the `@use` rule in [the current source file] whose
   namespace is equal to `$module`. If no such rule exists, throw an error.
 
   [the current source file]: ../spec.md#current-source-file
 
-* Return whether [`use`'s module][] contains a function named `$name`.
+* Return whether [`use`'s module] contains a function named `$name`.
 
   [`use`'s module]: ../at-rules/use.md#a-use-rules-module
 
@@ -145,7 +145,7 @@ This function is also available as a global function named `get-function()`.
 
   * If `$css` is falsey:
 
-    * Return the result of [resolving a function][] named `$name`. If this
+    * Return the result of [resolving a function] named `$name`. If this
       returns null, throw an error.
 
   * Otherwise, return a function object that takes arguments `($args...)`. When
@@ -162,10 +162,10 @@ This function is also available as a global function named `get-function()`.
 
   * If `$css` is truthy, throw an error.
 
-  * Let `use` be the `@use` rule in [the current source file][] whose
+  * Let `use` be the `@use` rule in [the current source file] whose
     namespace is equal to `$module`. If no such rule exists, throw an error.
 
-  * Return [`use`'s module][]'s function named `$name`, or throw an error if no
+  * Return [`use`'s module]'s function named `$name`, or throw an error if no
     such function exists.
 
 ### `get-mixin()`
@@ -211,19 +211,19 @@ This function is also available as a global function named `global-variable-exis
 
 * If `$module` is null:
 
-  * Return whether [resolving a variable][] named `$name`, ignoring local
+  * Return whether [resolving a variable] named `$name`, ignoring local
     scopes, returns null.
   
   [resolving a variable]: ../modules.md#resolving-a-member
 
 * Otherwise, if `$module` isn't a string, throw an error.
 
-* Otherwise, let `use` be the `@use` rule in the [current source file][] whose
+* Otherwise, let `use` be the `@use` rule in the [current source file] whose
   namespace is equal to `$module`. If no such rule exists, throw an error.
 
   [current source file]: ../spec.md#current-source-file
 
-* Return whether [`use`'s module][] contains a function named `$name`.
+* Return whether [`use`'s module] contains a function named `$name`.
 
 ### `inspect()`
 
@@ -274,10 +274,10 @@ This function is also available as a global function named `module-functions()`.
 
 * If `$module` is not a string, throw an error.
 
-* Let `use` be the `@use` rule in [the current source file][] whose namespace is
+* Let `use` be the `@use` rule in [the current source file] whose namespace is
   equal to `$module`. If no such rule exists, throw an error.
 
-* Return a map whose keys are the names of functions in [`use`'s module][] and
+* Return a map whose keys are the names of functions in [`use`'s module] and
   whose values are the corresponding functions.
 
 ### `module-mixins()`
@@ -306,11 +306,11 @@ This function is also available as a global function named `module-variables()`.
 
 * If `$module` is not a string, throw an error.
 
-* Let `use` be the `@use` rule in [the current source file][] whose namespace is
+* Let `use` be the `@use` rule in [the current source file] whose namespace is
   equal to `$module`. If no such rule exists, throw an error.
 
 * Return a map whose keys are the names (without `$`) of variables in [`use`'s
-  module][] and whose values are the corresponding values.
+  module] and whose values are the corresponding values.
 
 ### `type-of()`
 
@@ -351,14 +351,14 @@ This function is also available as a global function named `variable-exists()`.
 
 * If `$module` is null:
 
-  * Return whether [resolving a variable][] named `$name` returns null.
+  * Return whether [resolving a variable] named `$name` returns null.
 
 * Otherwise, if `$module` isn't a string, throw an error.
 
-* Otherwise, let `use` be the `@use` rule in [the current source file][] whose
+* Otherwise, let `use` be the `@use` rule in [the current source file] whose
   namespace is equal to `$module`. If no such rule exists, throw an error.
 
-* Return whether [`use`'s module][] contains a mixin named `$name`.
+* Return whether [`use`'s module] contains a mixin named `$name`.
 
 ## Mixins
 
@@ -391,11 +391,11 @@ load-css($url, $with: null)
 * Let `config` be a configuration whose variable names and values are given by
   `$with` if `$with` isn't null, or the empty configuration otherwise.
 
-* Let `module` be the result of [loading][] `$url` with `config`.
+* Let `module` be the result of [loading] `$url` with `config`.
 
   [loading]: ../modules.md#loading-a-module
 
-* Let `css` be the result of [resolving `module`'s extensions][].
+* Let `css` be the result of [resolving `module`'s extensions].
 
   [resolving `module`'s extensions]: ../at-rules/extend.md#resolving-a-modules-extensions
 

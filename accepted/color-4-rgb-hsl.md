@@ -3,7 +3,7 @@
 *([Issue](https://github.com/sass/sass/issues/2564), [Changelog](color-4-rgb-hsl.changes.md))*
 
 This proposal expands Sass's built-in `rgb()`, `rgba()`, `hsl()`, and `hsla()`
-functions to support the new terse syntax defined in [CSS Color Level 4][].
+functions to support the new terse syntax defined in [CSS Color Level 4].
 
 [CSS Color Level 4]: https://drafts.csswg.org/css-color/
 
@@ -22,7 +22,7 @@ functions to support the new terse syntax defined in [CSS Color Level 4][].
 Sass's `rgb()` and `hsl()` functions will add support for the Color Level 4
 syntax, so `rgb(179 115 153)`, `rgb(70% 45% 60%)`, and `hsl(324deg 29% 57%)`
 will all return the same color. They'll also support the slash-separated alpha
-syntax using [the normal rules][] for distinguishing between division and `/`,
+syntax using [the normal rules] for distinguishing between division and `/`,
 so `rgb(179 115 153 / 50%)` will return a 50%-opacity color but
 `rgb(179 115 $blue / 50%)` will not.
 
@@ -58,7 +58,7 @@ case-insensitive.
 
 ### Special Variable String
 
-A *special variable string* is [special number string][] that begins with
+A *special variable string* is [special number string] that begins with
 `var(`. This matching is case-insensitive.
 
 [special number string]: #special-number-string
@@ -78,7 +78,7 @@ functions:
   rgb($channels)
   ```
   
-  * If `$channels` is a [special variable string][], return a plain CSS function
+  * If `$channels` is a [special variable string], return a plain CSS function
     string with the name `"rgb"` and the argument `$channels`.
 
   * If `$channels` is not an unbracketed space-separated list, throw an error.
@@ -87,7 +87,7 @@ functions:
 
   * If `$channels` has fewer than three elements:
 
-    * If any element of `$channels` is a [special variable string][], return a
+    * If any element of `$channels` is a [special variable string], return a
       plain CSS function string with the name `"rgb"` and the argument
       `$channels`.
 
@@ -131,7 +131,7 @@ functions:
   rgb($color, $alpha)
   ```
 
-  * If either argument is a [special variable string][], return a plain CSS
+  * If either argument is a [special variable string], return a plain CSS
     function string with the name `"rgb"` and the same arguments.
 
   * Call `rgba()` with the same arguments and return the result.
@@ -140,7 +140,7 @@ functions:
   hsl($channels)
   ```
 
-  * If `$channels` is a [special variable string][], return a plain CSS function
+  * If `$channels` is a [special variable string], return a plain CSS function
     string with the name `"hsl"` and the argument `$channels`.
 
   * If `$channels` is not an unbracketed space-separated list, throw an error.
@@ -149,7 +149,7 @@ functions:
 
   * If `$channels` has fewer than three elements:
 
-    * If any element of `$channels` is a [special variable string][], return a
+    * If any element of `$channels` is a [special variable string], return a
       plain CSS function string with the name `"hsl"` and the argument
       `$channels`.
 
