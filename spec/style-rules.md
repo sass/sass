@@ -13,12 +13,15 @@
 
 The *current style rule* is the CSS style rule that was created by the innermost
 [execution of a style rule](#semantics), `@media` rule, `@supports` rule, or
-unknown at-rule.
+unknown at-rule. This may be overridden by the [execution of a declaration].
+
+[execution of a declaration]: declarations.md#semantics
 
 ### Current Keyframe Block
 
 The *current keyframe block* is the CSS keyframe block that was created by the
-innermost [execution of a style rule](#semantics).
+innermost [execution of a style rule](#semantics). This may be overridden by the
+[execution of a declaration].
 
 ## Semantics
 
