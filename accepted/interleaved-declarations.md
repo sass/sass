@@ -1,4 +1,4 @@
-# Interleaved Declarations: Draft 1
+# Interleaved Declarations: Draft 1.1
 
 *([Issue](https://github.com/sass/sass/issues/3846),
 [Changelog](interleaved-declarations.changes.md))*
@@ -12,11 +12,7 @@
   * [Current Keyframe Block](#current-keyframe-block)
 * [Declarations](#declarations)
   * [Semantics](#semantics)
-* [`@nest` Rule](#nest-rule)
-  * [Syntax](#syntax)
-  * [Semantics](#semantics-1)
 * [Deprecation Process](#deprecation-process)
-  * [`@nest` Rule](#nest-rule-1)
 
 ## Background
 
@@ -125,42 +121,6 @@ before "Append `css` to `parent`":
 [current style rule]: #current-style-rule
 [keyframe block]: #current-keyframe-block
 
-## `@nest` Rule
-
-Add special semantics for the `@nest` rule. Although this rule is primarily
-intended to give the CSSOM a consistent representation for interleaved
-declarations and is never required to be written explicitly, it *is* valid CSS
-and Sass must ensure that its use preserves the existing CSS semantics.
-
-> This is also provides an explicit way for Sass authors to write styles that
-> are consistent with CSS semantics during the deprecation period for
-> interleaved declarations.
-
-### Syntax
-
-<x><pre>
-**NestRule** ::= '@nest'¹ '{' Statements '}'
-</pre></x>
-
-1: This is case-insensitive.
-
-### Semantics
-
-To execute a `@nest` rule `rule`:
-
-* If there's a [current keyframe block], throw an error.
-
-  [current keyframe block]: #current-keyframe-block
-
-* If there's a [current style rule], evaluate each child in `rule`'s
-  `Statement`s.
-
-* Otherwise, [evaluate `rule` as an unknown at-rule] with
-  `InterpolatedIdentifier` "nest", no `InterpolatedValue`, and the same
-  `Statements`.
-
-  [evaluate `rule` as an unknown at-rule]: ../spec/at-rules/unknown.md
-
 ## Deprecation Process
 
 This proposal's change to the semantics of interleaved declarations is
@@ -172,24 +132,3 @@ changing the existing behavior.
 > Authors can move interleaved declarations before any nested rules to preserve
 > existing behavior, or nest them in `& { ... }` style rules to anticipate the
 > new behavior.
-
-### `@nest` Rule
-
-During the deprecation period, use the `@nest` syntax specified above but the
-following semantics:
-
-* If there's a [current keyframe block], throw an error.
-
-* If there's a [current style rule] `style-rule`:
-
-  * If `style-rule`'s stylesheet was [parsed as CSS], evaluate each child in
-    `rule`'s `Statement`s.
-
-  * Otherwise, [evaluate `rule` as a style rule with `SelectorList` "&" and the
-    same `Statements`.
-
-* Otherwise, [evaluate `rule` as an unknown at-rule] with
-  `InterpolatedIdentifier` "nest", no `InterpolatedValue`, and the same
-  `Statements`.
-
-[parsed as CSS]: ../spec/syntax.md#parsing-text-as-css
