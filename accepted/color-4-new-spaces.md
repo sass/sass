@@ -928,15 +928,16 @@ To serialize a non-legacy color `color`:
 
   * Otherwise:
 
-    * Append `channel`'s value as a string to `components`.
+    * Let `channel-number` be a number with the same value as `channel` and unit
+      given by `channel`'s associated unit, if it has one.
 
-    * If `channel` has an associated unit, append that unit as a string to
-      `components`.
+    * Append the result of serializing `channel-number` to `components`.
 
   * If `channel` isn't the last channel, append a space to `components`.
 
 * If `color`'s alpha value isn't `1`, append the unquoted string " / " followed
-  by `color`'s alpha value as a string to `components`.
+  by the result of serializing a unitless number whose value is `color`'s alpha
+  value to `components`.
 
 * Let `space-name` be `color`'s space name as an unquoted lowercase string.
 
@@ -1273,8 +1274,6 @@ normalized channel value otherwise.
 
 * If `value` is not a number or an unquoted string that's case-insensitively
   equal to "none", throw an error.
-
-* If `value` is a number whose value is NaN, throw an error.
 
 * If `value` is an unquoted string that's case-insensitively equal to "none",
   return `value`.
