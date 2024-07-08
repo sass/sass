@@ -995,7 +995,7 @@ color space] or a SassScript value, and returns a color `color` in
 * If `target-space` is a SassScript value, set it to the result of [looking up a
   known color space] named `target-space`.
 
-* Let `origin-color`'s space is already `target-space`, return `origin-color`.
+* If `origin-color`'s space is already `target-space`, return `origin-color`.
 
   > CSS doesn't perform conversions unless they are required.
 
@@ -1233,7 +1233,7 @@ The procedure is:
     > Doing this late in the process allows us to throw any obvious syntax
     > errors, even for colors that can't be fully resolved during compilation.
 
-* If the length of `channels` is not equal 3, throw an error.
+* If the length of `channels` is not 3, throw an error.
 
   > Once special values have been handled, any colors remaining should have
   > exactly the expected number of channels.
@@ -1629,7 +1629,7 @@ is-in-gamut($color, $space: null)
   `$color` to `$space` otherwise.
 
 * For all bounded channels in `color`'s space, if the associated channel value
-  in `$color` fuzzy greater-than the bounded maximum, or fuzzy less-than the
+  in `$color` is fuzzy greater-than the bounded maximum or fuzzy less-than the
   bounded minimum, return `false`.
 
 * Otherwise, return `true`.
