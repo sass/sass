@@ -1,6 +1,7 @@
-# Interleaved Declarations: Draft 1
+# Interleaved Declarations: Draft 1.1
 
-*([Issue](https://github.com/sass/sass/issues/3846))*
+*([Issue](https://github.com/sass/sass/issues/3846),
+[Changelog](interleaved-declarations.changes.md))*
 
 ## Table of Contents
 
@@ -11,8 +12,6 @@
   * [Current Keyframe Block](#current-keyframe-block)
 * [Declarations](#declarations)
   * [Semantics](#semantics)
-* [Unknown At-Rules](#unknown-at-rules)
-  * [Semantics](#semantics-1)
 * [Deprecation Process](#deprecation-process)
 
 ## Background
@@ -122,26 +121,13 @@ before "Append `css` to `parent`":
 [current style rule]: #current-style-rule
 [keyframe block]: #current-keyframe-block
 
-## Unknown At-Rules
-
-### Semantics
-
-Add the following to the semantics for executing an unknown at-rule `rule` after
-"If `rule`'s name is 'font-face', or if its unprefixed name is 'keyframes',
-append `css` to the current module's CSS":
-
-* If `rule`'s name is case-insensitively equal to "nest", append `css` to
-  `parent`.
-
 ## Deprecation Process
 
 This proposal's change to the semantics of interleaved declarations is
 backwards-incompatible. Before changing to the new semantics, an implementation
 should have a period of deprecation in which it emits a deprecation warning for
-a declaration whose `parent` is not the last statement in [the current module]'s
-CSS without changing the existing behavior.
-
-[the current module]: ../spec/spec.md#current-module
+a declaration whose `parent` is not the last statement in its parent without
+changing the existing behavior.
 
 > Authors can move interleaved declarations before any nested rules to preserve
 > existing behavior, or nest them in `& { ... }` style rules to anticipate the
