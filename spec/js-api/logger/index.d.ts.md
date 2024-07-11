@@ -11,6 +11,7 @@ export {SourceSpan} from './source_span';
 ## Table of Contents
 
 * [Types](#types)
+  * [`LoggerWarnOptions`](#loggerwarnoptions)
   * [`Logger`](#logger)
     * [`warn`](#warn)
     * [`debug`](#debug)
@@ -19,6 +20,25 @@ export {SourceSpan} from './source_span';
     * [`silent`](#silent)
 
 ## Types
+
+### `LoggerWarnOptions`
+
+The options passed to `Logger.warn`. These are split out for documentation
+purposes.
+
+```ts
+type LoggerWarnDeprecationOptions =
+  | {
+      deprecation: true;
+      deprecationType: Deprecation;
+    }
+  | {deprecation: false};
+
+interface LoggerWarnOptions extends LoggerWarnDeprecationOptions {
+  span?: SourceSpan;
+  stack?: string;
+}
+```
 
 ### `Logger`
 
@@ -67,16 +87,7 @@ If this field is defined, the compiler must not surface warnings in any way
 other than inkoving `warn`.
 
 ```ts
-warn?(
-  message: string,
-  options: (
-    | {
-        deprecation: true;
-        deprecationType: Deprecation;
-      }
-    | {deprecation: false}
-  ) & {span?: SourceSpan; stack?: string}
-): void;
+warn?(message: string, options: LoggerWarnOptions): void;
 ```
 
 #### `debug`

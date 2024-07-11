@@ -5,6 +5,39 @@ export {SourceLocation} from './source_location';
 export {SourceSpan} from './source_span';
 
 /**
+ * The deprecation options passed to {@link Logger.warn}.
+ *
+ * If the warning isn't a deprecation, `deprecation` is `false` and the
+ * `deprecationType` isn't set. If it is a deprecation, `deprecation` is `true`
+ * and `deprecation` is a {@link Deprecation}.
+ */
+type LoggerWarnDeprecationOptions =
+  | {
+      deprecation: true;
+      deprecationType: Deprecation;
+    }
+  | {deprecation: false};
+
+/** The options passed to {@link Logger.warn}. */
+interface LoggerWarnOptions extends LoggerWarnDeprecationOptions {
+  /**
+   * The location in the Sass source code that generated this warning.
+   *
+   * This may be unset if the warning didn't come from Sass source, for example
+   * if it's from a deprecated JavaScript option.
+   */
+  span?: SourceSpan;
+
+  /**
+   * The Sass stack trace at the point the warning was issued.
+   *
+   * This may be unset if the warning didn't come from Sass source, for example
+   * if it's from a deprecated JavaScript option.
+   */
+  stack?: string;
+}
+
+/**
  * An object that can be passed to {@link LegacySharedOptions.logger} to control
  * how Sass emits warnings and debug messages.
  *
@@ -42,24 +75,11 @@ export interface Logger {
    *
    * If this is `undefined`, Sass will print warnings to standard error.
    *
+   * `options` may contain the following fields:
+   *
    * @param message - The warning message.
-   * @param options.deprecation - Whether this is a deprecation warning.
-   * @param options.deprecationType - The type of deprecation this warning is
-   * for, if any.
-   * @param options.span - The location in the Sass source code that generated this
-   * warning.
-   * @param options.stack - The Sass stack trace at the point the warning was issued.
    */
-  warn?(
-    message: string,
-    options: (
-      | {
-          deprecation: true;
-          deprecationType: Deprecation;
-        }
-      | {deprecation: false}
-    ) & {span?: SourceSpan; stack?: string}
-  ): void;
+  warn?(message: string, options: LoggerWarnOptions): void;
 
   /**
    * This method is called when Sass emits a debug message due to a [`@debug`
