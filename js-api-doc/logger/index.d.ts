@@ -5,21 +5,14 @@ export {SourceLocation} from './source_location';
 export {SourceSpan} from './source_span';
 
 /**
- * The deprecation options passed to {@link Logger.warn}.
+ * Options passed to {@link Logger.warn}.
  *
- * If the warning isn't a deprecation, `deprecation` is `false` and the
- * `deprecationType` isn't set. If it is a deprecation, `deprecation` is `true`
- * and `deprecation` is a {@link Deprecation}.
+ * This is separate from {@link LoggerWarnOptions} in order to represent in
+ * TypeScript that the {@link LoggerWarnDeprecationOptions.deprecationType}
+ * option is only available if {@link LoggerWarnDeprecationOptions.deprecation}
+ * is `true`.
  */
-type LoggerWarnDeprecationOptions =
-  | {
-      deprecation: true;
-      deprecationType: Deprecation;
-    }
-  | {deprecation: false};
-
-/** The options passed to {@link Logger.warn}. */
-interface LoggerWarnOptions extends LoggerWarnDeprecationOptions {
+interface LoggerWarnBaseOptions {
   /**
    * The location in the Sass source code that generated this warning.
    *
@@ -36,6 +29,31 @@ interface LoggerWarnOptions extends LoggerWarnDeprecationOptions {
    */
   stack?: string;
 }
+
+/**
+ * Options passed to {@link Logger.warn} specifically for deprecation warnings.
+ */
+interface LoggerWarnDeprecationOptions extends LoggerWarnBaseOptions {
+  /** Whether this is a deprecation warning or not. */
+  deprecation: true;
+
+  /** The deprecation type this warning represents. */
+  deprecationType: Deprecation;
+}
+
+/**
+ * Options passed to {@link Logger.warn} specifically for warnings that are not
+ * for deprecations.
+ */
+interface LoggerWarnNonDeprecationOptions extends LoggerWarnBaseOptions {
+  /** Whether this is a deprecation warning or not. */
+  deprecation: false;
+}
+
+/** The options passed to {@link Logger.warn}. */
+export type LoggerWarnOptions =
+  | LoggerWarnDeprecationOptions
+  | LoggerWarnNonDeprecationOptions;
 
 /**
  * An object that can be passed to {@link LegacySharedOptions.logger} to control
