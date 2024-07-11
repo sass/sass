@@ -5,55 +5,31 @@ export {SourceLocation} from './source_location';
 export {SourceSpan} from './source_span';
 
 /**
- * Options passed to {@link Logger.warn}.
+ * The options passed to {@link Logger.warn}.
  *
- * This is separate from {@link LoggerWarnOptions} in order to represent in
- * TypeScript that the {@link LoggerWarnDeprecationOptions.deprecationType}
- * option is only available if {@link LoggerWarnDeprecationOptions.deprecation}
- * is `true`.
+ * * `deprecation`: Whether this is a deprecation warning.
+ *
+ * * `deprecationType`: The type of deprecation. Only set if `deprecation` is
+ *   true.
+ *
+ * * `span`: The location in the Sass source code that generated this warning.
+ *   This may be unset if the warning didn't come from Sass source, for
+ *   example if it's from a deprecated JavaScript option.
+ *
+ * * `stack`: The Sass stack trace at the point the warning was issued. This may
+ *   be unset if the warning didn't come from Sass source, for example if it's
+ *   from a deprecated JavaScript option.
  */
-interface LoggerWarnBaseOptions {
-  /**
-   * The location in the Sass source code that generated this warning.
-   *
-   * This may be unset if the warning didn't come from Sass source, for example
-   * if it's from a deprecated JavaScript option.
-   */
+export type LoggerWarnOptions = (
+  | {
+      deprecation: true;
+      deprecationType: Deprecation;
+    }
+  | {deprecation: false}
+) & {
   span?: SourceSpan;
-
-  /**
-   * The Sass stack trace at the point the warning was issued.
-   *
-   * This may be unset if the warning didn't come from Sass source, for example
-   * if it's from a deprecated JavaScript option.
-   */
   stack?: string;
-}
-
-/**
- * Options passed to {@link Logger.warn} specifically for deprecation warnings.
- */
-interface LoggerWarnDeprecationOptions extends LoggerWarnBaseOptions {
-  /** Whether this is a deprecation warning or not. */
-  deprecation: true;
-
-  /** The deprecation type this warning represents. */
-  deprecationType: Deprecation;
-}
-
-/**
- * Options passed to {@link Logger.warn} specifically for warnings that are not
- * for deprecations.
- */
-interface LoggerWarnNonDeprecationOptions extends LoggerWarnBaseOptions {
-  /** Whether this is a deprecation warning or not. */
-  deprecation: false;
-}
-
-/** The options passed to {@link Logger.warn}. */
-export type LoggerWarnOptions =
-  | LoggerWarnDeprecationOptions
-  | LoggerWarnNonDeprecationOptions;
+};
 
 /**
  * An object that can be passed to {@link LegacySharedOptions.logger} to control

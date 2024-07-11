@@ -27,24 +27,16 @@ The options passed to `Logger.warn`. These are split out for documentation
 purposes.
 
 ```ts
-
-interface LoggerWarnBaseOptions {
+export type LoggerWarnOptions = (
+  | {
+      deprecation: true;
+      deprecationType: Deprecation;
+    }
+  | {deprecation: false}
+) & {
   span?: SourceSpan;
   stack?: string;
-}
-
-interface LoggerWarnDeprecationOptions extends LoggerWarnBaseOptions {
-  deprecation: true;
-  deprecationType: Deprecation;
-}
-
-interface LoggerWarnNonDeprecationOptions extends LoggerWarnBaseOptions {
-  deprecation: false;
-}
-
-export type LoggerWarnOptions =
-  | LoggerWarnDeprecationOptions
-  | LoggerWarnNonDeprecationOptions;
+};
 ```
 
 ### `Logger`
