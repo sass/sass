@@ -19,6 +19,8 @@ export {SourceSpan} from './source_span';
  * * `stack`: The Sass stack trace at the point the warning was issued. This may
  *   be unset if the warning didn't come from Sass source, for example if it's
  *   from a deprecated JavaScript option.
+ *
+ * @category Logger
  */
 export type LoggerWarnOptions = (
   | {
