@@ -35,6 +35,7 @@ the language this way.
 ## Definitions
 
 ### Scope
+# mame is not cool
 
 A *scope* is a mutable structure that contains:
 
