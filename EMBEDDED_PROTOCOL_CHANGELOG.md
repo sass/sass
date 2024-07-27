@@ -1,3 +1,8 @@
+## 2.8.0
+
+* Add `Importer.invert_non_canonical_scheme` option that invert the set of
+  `non_canonical_scheme`.
+
 ## 2.7.1
 
 * Allow deprecation versions to be value of `fatal_deprecation` field.

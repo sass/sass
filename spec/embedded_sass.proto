@@ -114,6 +114,10 @@ message InboundMessage {
       // ASCII letter, an ASCII numeral, U+002B (`+`), U+002D (`-`), or U+002E
       // (`.`), the compiler must treat the compilation as failed.
       repeated string non_canonical_scheme = 4;
+
+      // Invert the set of non_canonical_schemem and treat schemes within the
+      // set as *canonical* and everything else as non-canonical.
+      bool invert_non_canonical_scheme = 6;
     }
 
     // Importers (including load paths on the filesystem) to use when resolving
