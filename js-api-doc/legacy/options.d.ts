@@ -1,3 +1,4 @@
+import {DeprecationOrId, Version} from '../deprecations';
 import {Logger} from '../logger';
 import {LegacyImporter} from './importer';
 import {LegacyFunction} from './function';
@@ -482,6 +483,45 @@ export interface LegacySharedOptions<sync extends 'sync' | 'async'> {
    * @compatibility dart: "1.35.0", node: false
    */
   quietDeps?: boolean;
+
+  /**
+   * A set of deprecations to treat as fatal.
+   *
+   * If a deprecation warning of any provided type is encountered during
+   * compilation, the compiler will error instead.
+   *
+   * If a `Version` is provided, then all deprecations that were active in that
+   * compiler version will be treated as fatal.
+   *
+   * @category Messages
+   * @compatiblity dart: "1.78.0", node: false
+   */
+  fatalDeprecations?: (DeprecationOrId | Version)[];
+
+  /**
+   * A set of future deprecations to opt into early.
+   *
+   * Future deprecations passed here will be treated as active by the compiler,
+   * emitting warnings as necessary.
+   *
+   * @category Messages
+   * @compatiblity dart: "1.78.0", node: false
+   */
+  futureDeprecations?: DeprecationOrId[];
+
+  /**
+   * A set of active deprecations to ignore.
+   *
+   * If a deprecation warning of any provided type is encountered during
+   * compilation, the compiler will ignore it instead.
+   *
+   * **Heads up!** The deprecated functionality you're depending on will
+   * eventually break.
+   *
+   * @category Messages
+   * @compatiblity dart: "1.78.0", node: false
+   */
+  silenceDeprecations?: DeprecationOrId[];
 
   /**
    * By default, Dart Sass will print only five instances of the same
