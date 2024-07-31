@@ -115,4 +115,11 @@ mixed-decls:
 import:
   description: "@import rules."
   dart-sass:
-    status: future
+    status: active
+    deprecated: 1.78.0
+
+global-builtin:
+  description: "Global built-in functions that are available in sass: modules."
+  dart-sass:
+    status: active
+    deprecated: 1.78.0
