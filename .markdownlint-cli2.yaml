@@ -1,6 +1,17 @@
 globs: ["**.md"]
 ignores: ["node_modules/**"]
 config:
+  code-block-style: {style: fenced}
+  code-fence-style: {style: backtick}
+  emphasis-style: {style: asterisk}
+  heading-style: {style: atx}
+  hr-style: {style: "---"}
+  link-image-style: {collapsed: false}
+  reference-links-images: {shortcut_syntax: true}
+  strong-style: {style: asterisk}
+  table-pipe-style: {style: leading_and_trailing}
+  ul-style: {style: asterisk}
+
   # BNF syntax examples can go over length, and there's no way to exempt them
   # specifically.
   line-length: false
@@ -10,9 +21,6 @@ config:
 
   # We use untagged code blocks for function definitions.
   fenced-code-language: false
-
-  emphasis-style:
-    style: asterisk
 
   # We often have to have duplicate subheadings for different parents.
   no-duplicate-heading: false

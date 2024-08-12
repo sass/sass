@@ -142,7 +142,7 @@ This function is also available as a global function named `adjust-color()`.
   * If `$lightness` isn't null, set `lightness` to `lightness + $lightness`
     clamped between 0% and 100%.
 
-  * Return the result of calling [`hsl()`][] with `hue`, `saturation`,
+  * Return the result of calling [`hsl()`] with `hue`, `saturation`,
     `lightness`, and `alpha`.
 
 * Otherwise, if either `$hue`, `$whiteness`, or `$blackness` aren't null:
@@ -189,7 +189,7 @@ alpha($color)
 This function is also available as a global function named `opacity()`.
 
 > There is also a global function named `alpha()`, but it supports an additional
-> overload with different behavior that's defined with the [global functions][].
+> overload with different behavior that's defined with the [global functions].
 >
 > [global functions]: ../functions.md#alpha
 
@@ -297,7 +297,7 @@ This function is also available as a global function named `change-color()`.
   * Let `lightness` be the result of calling `lightness($color)` if
     `$lightness` is null, or `$lightness` otherwise.
 
-  * Return the result of calling [`hsl()`][] with `hue`, `saturation`,
+  * Return the result of calling [`hsl()`] with `hue`, `saturation`,
     `lightness`, and `alpha`.
 
 * Otherwise, if either `$hue`, `$whiteness`, or `$blackness` aren't null:
@@ -430,12 +430,12 @@ This function is also available as a global function named `hue()`.
     * Set `blackness` to `blackness / (whiteness + blackness)`.
 
   * Let `red`, `green`, and `blue` be the result of converting `hue`,
-    `whiteness`, and `blackness` [to RGB][].
+    `whiteness`, and `blackness` [to RGB].
 
   * Set `red`, `green`, and `blue` to their existing values multiplied by 255
     and rounded to the nearest integers.
 
-  * Let `alpha` be the result of [percent-converting][] `$alpha` with a `max` of 1.
+  * Let `alpha` be the result of [percent-converting] `$alpha` with a `max` of 1.
 
   * Return a color with the given `red`, `green`, `blue`, and `alpha` channels.
 
@@ -670,7 +670,7 @@ This function is also available as a global function named `scale-color()`.
 
 * Let `alpha` be `$color`'s alpha channel.
 
-* If `$alpha` isn't null, set `alpha` to the result of [scaling][] `alpha` by
+* If `$alpha` isn't null, set `alpha` to the result of [scaling] `alpha` by
   `$alpha` with `max` 1.
 
   [scaling]: #scaling-a-number
@@ -682,13 +682,13 @@ This function is also available as a global function named `scale-color()`.
 
   * Let `red`, `green`, and `blue` be `$color`'s red, green, and blue channels.
 
-  * If `$red` isn't null, set `red` to the result of [scaling][] `red` by `$red`
+  * If `$red` isn't null, set `red` to the result of [scaling] `red` by `$red`
     with `max` 255.
 
-  * If `$green` isn't null, set `green` to the result of [scaling][] `green` by
+  * If `$green` isn't null, set `green` to the result of [scaling] `green` by
     `$green` with `max` 255.
 
-  * If `$blue` isn't null, set `blue` to the result of [scaling][] `blue` by `$blue`
+  * If `$blue` isn't null, set `blue` to the result of [scaling] `blue` by `$blue`
     with `max` 255.
 
   * Return a color with `red`, `green`, `blue`, and `alpha` as the red, green,
@@ -701,13 +701,13 @@ This function is also available as a global function named `scale-color()`.
   * Let `hue`, `saturation`, and `lightness` be the result of calling
     `hue($color)`, `saturation($color)`, and `lightness($color)` respectively.
 
-  * If `$saturation` isn't null, set `saturation` to the result of [scaling][]
+  * If `$saturation` isn't null, set `saturation` to the result of [scaling]
     `saturation` by `$saturation` with `max` `100%`.
 
-  * If `$lightness` isn't null, set `lightness` to the result of [scaling][]
+  * If `$lightness` isn't null, set `lightness` to the result of [scaling]
     `lightness` by `$lightness` with `max` `100%`.
 
-  * Return the result of calling [`hsl()`][] with `hue`, `saturation`,
+  * Return the result of calling [`hsl()`] with `hue`, `saturation`,
     `lightness`, and `alpha`.
 
 * Otherwise, if either `$hue`, `$whiteness`, or `$blackness` aren't null:
@@ -715,10 +715,10 @@ This function is also available as a global function named `scale-color()`.
   * Let `hue`, `whiteness`, and `blackness` be the result of calling
     `hue($color)`, `whiteness($color)`, and `blackness($color)` respectively.
 
-  * If `$whiteness` isn't null, set `whiteness` to the result of [scaling][]
+  * If `$whiteness` isn't null, set `whiteness` to the result of [scaling]
     `whiteness` by `$whiteness` with `max` `100%`.
 
-  * If `$blackness` isn't null, set `blackness` to the result of [scaling][]
+  * If `$blackness` isn't null, set `blackness` to the result of [scaling]
     `blackness` by `$blackness` with `max` `100%`.
 
   * Return the result of calling `hwb()` with `hue`, `whiteness`, `blackness`,

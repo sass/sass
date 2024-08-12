@@ -8,7 +8,7 @@
 ## Syntax
 
 <x><pre>
-**ForRule**            ::= '@for' [PlainVariable][] FromDeclaration
+**ForRule**            ::= '@for' [PlainVariable] FromDeclaration
 &#32;                      (ToDeclaration | ThroughDeclaration) ForBlock
 **FromDeclaration**    ::= 'from' Expression
 **ToDeclaration**      ::= 'to' Expression

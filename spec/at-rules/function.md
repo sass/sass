@@ -8,7 +8,7 @@
 ## Syntax
 
 <x><pre>
-**FunctionRule** ::= '@function' [\<ident-token>][] ArgumentDeclaration '{' Statements '}'
+**FunctionRule** ::= '@function' [\<ident-token>] ArgumentDeclaration '{' Statements '}'
 </pre></x>
 
 [\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
@@ -52,7 +52,7 @@ To execute a `@function` rule `rule`:
 
 * If `rule` is outside of any block of statements:
 
-  * If `name` *doesn't* begin with `-` or `_`, set [the current module][]'s
+  * If `name` *doesn't* begin with `-` or `_`, set [the current module]'s
     function `name` to `function`.
 
     > This overrides the previous definition, if one exists.

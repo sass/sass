@@ -2,7 +2,7 @@
 
 *([Issue](https://github.com/sass/sass/issues/1778))*
 
-Spurred by [#1774][], I started thinking about how messy interpolation is in
+Spurred by [#1774], I started thinking about how messy interpolation is in
 SassScript at the moment and how to clean it up. This issue is the result of
 that thought process.
 

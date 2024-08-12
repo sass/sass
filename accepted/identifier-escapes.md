@@ -24,7 +24,7 @@ CSS handles escapes.
 At time of writing, while Sass recognizes escaped code points in identifiers and
 other names, it doesn't resolve them into the code points they represent. This
 means that, for example, Sass considers the selector `.\!foo` and the selector
-`.\21 foo` to be distinct. This is contrary to the [CSS Syntax Level 3][], which
+`.\21 foo` to be distinct. This is contrary to the [CSS Syntax Level 3], which
 [says that][css: consume name] the value of an escaped code point should be
 included in the name rather than the syntax of the escape.
 
@@ -94,12 +94,12 @@ intended to replace the existing algorithms.
 
 ### Consuming an Identifier
 
-This algorithm consumes input from a stream of [code points][] and returns a
+This algorithm consumes input from a stream of [code points] and returns a
 string.
 
 [code points]: https://infra.spec.whatwg.org/#code-point
 
-This production has the same grammar as [`<ident-token>`][].
+This production has the same grammar as [`<ident-token>`].
 
 [`<ident-token>`]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
 
@@ -111,10 +111,10 @@ This production has the same grammar as [`<ident-token>`][].
 
   * If the stream starts with `-`, consume it and append it to `string`.
 
-  * If the stream starts with `\`, [consume an escaped code point][] with the
+  * If the stream starts with `\`, [consume an escaped code point] with the
     `start` flag set and append it to `string`.
 
-  * Otherwise, if the stream starts with a [name-start code point][], consume it
+  * Otherwise, if the stream starts with a [name-start code point], consume it
     and append it to `string`.
 
   * Otherwise, throw an error.
@@ -128,7 +128,7 @@ This production has the same grammar as [`<ident-token>`][].
 
 ### Consuming an Interpolated Identifier
 
-This algorithm consumes input from a stream of [code points][] and returns a
+This algorithm consumes input from a stream of [code points] and returns a
 sequence of strings and/or expressions.
 
 The grammar for this production is:
@@ -152,7 +152,7 @@ No whitespace is allowed between components of an `InterpolatedIdentifier`.
 * Otherwise, [consume an identifier](#consuming-an-identifier) and add its string
   to `components`.
 
-* While the input starts with `#{`, a [name code point][], or `\`:
+* While the input starts with `#{`, a [name code point], or `\`:
 
   [name code point]: https://drafts.csswg.org/css-syntax-3/#name-code-point
 
@@ -166,52 +166,52 @@ No whitespace is allowed between components of an `InterpolatedIdentifier`.
 
 ### Consuming a Name
 
-This algorithm consumes input from a stream of [code points][] and returns a
+This algorithm consumes input from a stream of [code points] and returns a
 string.
 
 The grammar for this production is:
 
 <x><pre>
-**Name** ::= ([name code point][] | [escape][])+
+**Name** ::= ([name code point] | [escape])+
 </pre></x>
 
 * Let `string` be an empty string.
 
-* While the input starts with a [name code point][] or `\`:
+* While the input starts with a [name code point] or `\`:
 
-  * If the input starts with a [name code point][], consume it and append it to
+  * If the input starts with a [name code point], consume it and append it to
     `string`.
 
-  * Otherwise, [consume an escaped code point][] and append it to `string`.
+  * Otherwise, [consume an escaped code point] and append it to `string`.
 
 * Return `string`.
 
 ### Consuming an Escaped Code Point
 
-This algorithm consumes input from a stream of [code points][]. It takes an
+This algorithm consumes input from a stream of [code points]. It takes an
 optional boolean flag, `start`, which indicates whether it's at the beginning of
 an identifier and defaults to false. It returns a string.
 
 This production has the same grammar as [`escape`][escape] in CSS Syntax Level 3.
 
-* If the stream doesn't [start with a valid escape][], throw an error.
+* If the stream doesn't [start with a valid escape], throw an error.
 
   [start with a valid escape]: https://drafts.csswg.org/css-syntax-3/#starts-with-a-valid-escape
 
-* Let `codepoint` be the result of [consuming an escaped code point][].
+* Let `codepoint` be the result of [consuming an escaped code point].
 
   [consuming an escaped code point]: https://drafts.csswg.org/css-syntax-3/#consume-escaped-code-point
 
 * Let `character` be the string containing only `codepoint`.
 
-* If `codepoint` is a [name-start code point][], return `character`.
+* If `codepoint` is a [name-start code point], return `character`.
 
-* Otherwise, if `codepoint` is a [name code point][] and the `start` flag is
+* Otherwise, if `codepoint` is a [name code point] and the `start` flag is
   not set, return `character`.
 
-* Otherwise, if `codepoint` is a [non-printable code point][], U+000A LINE FEED,
+* Otherwise, if `codepoint` is a [non-printable code point], U+000A LINE FEED,
   U+000D CARRIAGE RETURN, or U+000C FORM FEED; *or* if `codepoint` is a
-  [digit][] and the `start` flag is set:
+  [digit] and the `start` flag is set:
 
   [non-printable code point]: https://drafts.csswg.org/css-syntax-3/#non-printable-code-point
   [digit]: https://drafts.csswg.org/css-syntax-3/#digit

@@ -126,7 +126,7 @@ To execute a style rule `rule`:
 
   [bogus]: ../spec/selectors.md#bogus-selector
 
-* Remove any [complex selectors][] containing a placeholder selector that
+* Remove any [complex selectors] containing a placeholder selector that
   begins with `-` or `_` from `css`'s selector.
   
   [complex selectors]: https://drafts.csswg.org/selectors-4/#complex

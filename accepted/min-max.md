@@ -3,7 +3,7 @@
 *([Issue](https://github.com/sass/sass/issues/2378), [Changelog](min-max.changes.md))*
 
 This proposal defines how Sass handles CSS's `min()` and `max()`
-[math functions][].
+[math functions].
 
 [math functions]: https://drafts.csswg.org/css-values/#math-function
 
@@ -20,7 +20,7 @@ This proposal defines how Sass handles CSS's `min()` and `max()`
 
 Since Ruby Sass 3.2, Sass has provided `min()` and `max()` functions that return
 the minimum or maximum values among a set of SassScript numbers. Later, CSS
-Values and Units Level 4 added support for additional [math functions][] with
+Values and Units Level 4 added support for additional [math functions] with
 special syntax like that in `calc()`, among which were `min()` and `max()`.
 
 This presents a problem for Sass: to retain backwards-compatibility with
@@ -29,7 +29,7 @@ functions. However, to provide compatibility with CSS, it must also support them
 as math functions with special syntax.
 
 Support for CSS's `min()` and `max()` has landed in real browsers and
-[Sass users want to use it][], so this should be solved with some urgency.
+[Sass users want to use it], so this should be solved with some urgency.
 
 [Sass users want to use it]: https://github.com/sass/sass/issues/2378#issuecomment-367490840
 

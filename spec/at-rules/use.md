@@ -1,6 +1,6 @@
 # `@use`
 
-The `@use` rule loads a [module][] from a URL, makes its members available to
+The `@use` rule loads a [module] from a URL, makes its members available to
 the current stylesheet, and includes its CSS in the compilation output.
 
 [module]: ../modules.md#module
@@ -18,7 +18,7 @@ the current stylesheet, and includes its CSS in the compilation output.
 
 ### A `@use` Rule's Module
 
-A `@use` rule's *module* is a [module][] associated with a `@use` rule. This
+A `@use` rule's *module* is a [module] associated with a `@use` rule. This
 module is only associated once the rule has been [executed](#semantics).
 
 ## Syntax
@@ -27,24 +27,24 @@ The grammar for the `@use` rule is as follows:
 
 <x><pre>
 **UseRule**         ::= '@use' QuotedString AsClause? WithClause?
-**AsClause**        ::= 'as' ('\*' | [\<ident-token>][])
+**AsClause**        ::= 'as' ('\*' | [\<ident-token>])
 **WithClause**      ::= 'with' '('
 &#32;                     KeywordArgument (',' KeywordArgument)\* ','?
 &#32;                   ')'
-**KeywordArgument** ::= '$' [\<ident-token>][] ':' Expression
+**KeywordArgument** ::= '$' [\<ident-token>] ':' Expression
 </pre></x>
 
 [\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
 
 `@use` rules must be at the top level of the document, and must come before any
 rules other than `@charset` or `@forward`. The `QuotedString`'s contents, known
-as the rule's *URL*, must be a [valid URL string][] (for non-[special][] base
+as the rule's *URL*, must be a [valid URL string] (for non-[special] base
 URL). No whitespace is allowed after `$` in `KeywordArgument`.
 
 [valid URL string]: https://url.spec.whatwg.org/#valid-url-string
 [special]: https://url.spec.whatwg.org/#special-scheme
 
-> Because each `@use` rule affects the namespace of the entire [source file][]
+> Because each `@use` rule affects the namespace of the entire [source file]
 > that contains it, whereas most other Sass constructs are purely imperative,
 > keeping it at the top of the file helps reduce confusion.
 >
@@ -68,7 +68,7 @@ A `@use` rule's *namespace* is determined using [this
 algorithm](#determining-a-use-rules-namespace). If the algorithm for determining
 a namespace fails for a `@use` rule, that rule is invalid. If it returns `null`,
 that rule is called *global*. A namespace is used to identify the used
-[module][]'s members within the current [source file][].
+[module]'s members within the current [source file].
 
 ## Procedures
 
@@ -108,7 +108,7 @@ This algorithm takes a `@use` rule `rule`, and returns either an identifier or
 To execute a `@use` rule `rule`:
 
 * If `rule` has a namespace that's the same as another `@use` rule's namespace
-  in [the current source file][], throw an error.
+  in [the current source file], throw an error.
 
   [the current source file]: ../spec.md#current-source-file
 
@@ -123,7 +123,7 @@ To execute a `@use` rule `rule`:
     * Add a variable to `rule-config` with the same name as `argument`'s identifier
       and with `value` as its value.
 
-* Let `module` be the result of [loading the module][] with `rule`'s URL string
+* Let `module` be the result of [loading the module] with `rule`'s URL string
   and `rule-config`.
 
   [loading the module]: ../modules.md#loading-a-module

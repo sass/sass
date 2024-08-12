@@ -1301,6 +1301,7 @@ normalized channel value otherwise.
   * Return `value`.
 
 [number-to-unit]: https://github.com/sass/sass/blob/main/spec/types/number.md#converting-a-number-to-a-unit
+[`rgb()`, `lab()`, `lch()`, `oklab()`, `oklch()`, or `color()`]: #new-global-functions
 
 ### Normalizing Color Channels
 

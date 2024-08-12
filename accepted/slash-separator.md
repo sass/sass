@@ -44,13 +44,13 @@ Early on in Sass's history, the decision was made to use `/` as a division
 operator, since that was (and is) by far the most common representation across
 programming languages. The `/` character was used in very few plain CSS
 properties, and for those it was an optional shorthand. So Sass defined [a set
-of heuristics][] that defined when `/` would be rendered as a literal slash
+of heuristics] that defined when `/` would be rendered as a literal slash
 versus treated as an operator.
 
 [a set of heuristics]: https://sass-lang.com/documentation/operators/numeric#slash-separated-values
 
 For a long time, these heuristics worked pretty well. In recent years, however,
-new additions to CSS such as [CSS Grid][] and [CSS Color Level 4][] have been
+new additions to CSS such as [CSS Grid] and [CSS Color Level 4] have been
 using `/` as a separator increasingly often. Using the same character for both
 division and slash-separation is becoming more and more annoying to users, and
 will likely eventually become untenable.
@@ -124,7 +124,7 @@ efficient to write than a function call for many Sass users.
 We eventually want to add native Sass support for parsing `calc()` expressions,
 resolving them at compile-time if possible, and producing a new Sass value that
 can have arithmetic performed on it if necessary. This is known as [first-class
-`calc()`][], and it would mean that division could be written unambiguously
+`calc()`], and it would mean that division could be written unambiguously
 using `/` in the context of a `calc()` expression. For example, `$width / 2`
 would be instead written `calc($width / 2)`.
 
@@ -132,7 +132,7 @@ would be instead written `calc($width / 2)`.
 
 However, first-class `calc()` is likely to be a very complex feature to design
 and implement. Most of the resources available for large-scale language features
-are currently focused on [the new module system][], so it's likely that a full
+are currently focused on [the new module system], so it's likely that a full
 implementation of first-class `calc()` won't land until mid-to-late 2020. And
 the full implementation is a prerequisite for even *beginning* the deprecation
 cycle for `/`-as-division, which means we probably wouldn't fully support
@@ -236,7 +236,7 @@ support for slash-separated lists. The new grammar for this production is:
 > This defines `/` to bind tighter than `,` but looser than space-separated
 > lists. This was chosen because most common uses of `/` in CSS conceptually
 > bind looser than space-separated values. The only exception is the [`font`
-> shorthand syntax][], which is used much more rarely will still work (albeit
+> shorthand syntax], which is used much more rarely will still work (albeit
 > with an unintuitive SassScript representation) with a loose-binding `/`.
 >
 > [`font` shorthand syntax]: https://developer.mozilla.org/en-US/docs/Web/CSS/font
@@ -374,7 +374,7 @@ overload to be the following:
 
 [old rgb]: ../spec/functions.md#rgb-and-rgba
 
-* If `$channels` is a [special variable string][], return a plain CSS function
+* If `$channels` is a [special variable string], return a plain CSS function
   string with the name `"rgb"` and the argument `$channels`.
 
   [special variable string]: ../spec/functions.md#special-variable-string
@@ -393,7 +393,7 @@ overload to be the following:
 
   * If `rgb` has fewer than three elements:
 
-    * If any element of `rgb` is a [special variable string][], return a
+    * If any element of `rgb` is a [special variable string], return a
       plain CSS function string with the name `"rgb"` and the argument
       `$channels`.
 
@@ -418,7 +418,7 @@ overload to be the following:
 
 [old hsl]: ../spec/functions.md#hsl-and-hsla
 
-* If `$channels` is a [special variable string][], return a plain CSS function
+* If `$channels` is a [special variable string], return a plain CSS function
   string with the name `"hsl"` and the argument `$channels`.
 
 * If `$channels` is an unbracketed slash-separated list:
@@ -435,7 +435,7 @@ overload to be the following:
 
   * If `hsl` has fewer than three elements:
 
-    * If any element of `hsl` is a [special variable string][], return a
+    * If any element of `hsl` is a [special variable string], return a
       plain CSS function string with the name `"hsl"` and the argument
       `$channels`.
 
@@ -451,7 +451,7 @@ overload to be the following:
 ### Selector Functions
 
 This proposal modifies [the "Parse a Selector From a SassScript Object"
-procedure][] to throw an error whenever it encounters a slash-separated list.
+procedure] to throw an error whenever it encounters a slash-separated list.
 
 [the "Parse a Selector From a SassScript Object" procedure]: ../spec/built-in-modules/selector.md#parse-a-selector-from-a-sassscript-object
 
@@ -531,7 +531,7 @@ described above (so `math.div()` will only accept numbers). In phase 2, the
 `list.slash()` function will emit a deprecation warning whenever it's called.
 
 > It's recommended that implementations increment their major version numbers
-> with the release of phase 2, in accordance with [semantic versioning][].
+> with the release of phase 2, in accordance with [semantic versioning].
 >
 > [semantic versioning]: https://semver.org/
 

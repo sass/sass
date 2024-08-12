@@ -1,6 +1,6 @@
 # `@forward`
 
-The `@forward` rule loads a [module][] from a URL and adds its members to the
+The `@forward` rule loads a [module] from a URL and adds its members to the
 public API of the current module without making them available to use within the
 current stylesheet.
 
@@ -17,21 +17,21 @@ The grammar for the `@forward` rule is as follows:
 
 <x><pre>
 **ForwardRule**         ::= '@forward' QuotedString AsClause? (ShowClause | HideClause)?  WithClause?
-**AsClause**            ::= 'as' [\<ident-token>][] '\*'
+**AsClause**            ::= 'as' [\<ident-token>] '\*'
 **ShowClause**          ::= 'show' MemberName (',' MemberName)\*
 **HideClause**          ::= 'hide' MemberName (',' MemberName)\*
 **WithClause**          ::= 'with' '('
 &#32;                     ForwardWithArgument (',' ForwardWithArgument)\* ','?
 &#32;                   ')'
 **ForwardWithArgument** ::= '$' Identifier ':' Expression '!default'?
-**MemberName**          ::= '$'? [\<ident-token>][]
+**MemberName**          ::= '$'? [\<ident-token>]
 </pre></x>
 
 [\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
 
 `@forward` rules must be at the top level of the document, and must come before
 any rules other than `@charset` or `@use`. The `QuotedString`'s contents, known
-as the rule's *URL*, must be a [valid URL string][] (for non-[special][] base
+as the rule's *URL*, must be a [valid URL string] (for non-[special] base
 URL). No whitespace is allowed after `$` in `MemberName`, or before `*` in
 `AsClause`.
 
@@ -80,7 +80,7 @@ To execute a `@forward` rule `rule`:
     * Add a variable to `rule-config` with the same name as `argument`'s
       identifier, and with `value` as its value.
 
-* Let `forwarded` be the result of [loading the module][] with `rule`'s URL
+* Let `forwarded` be the result of [loading the module] with `rule`'s URL
   string and `rule-config`.
 
   [loading the module]: ../modules.md#loading-a-module
@@ -101,7 +101,7 @@ To execute a `@forward` rule `rule`:
   * If `rule` has an `AsClause` `as`, prepend `as`'s identifier to `name` (after
     the `$` if `member` is a variable).
 
-  * If there's a member defined at the top level of [the current source file][]
+  * If there's a member defined at the top level of [the current source file]
     named `name` with the same type as `member`, do nothing.
 
   * Otherwise, if `rule` has a `show` clause that doesn't include `name`
@@ -116,11 +116,11 @@ To execute a `@forward` rule `rule`:
   * If another `@forward` rule's module has a member named `name` with the same
     type as `member`:
 
-    * If the other member is [identical to][] `member`, do nothing.
+    * If the other member is [identical to] `member`, do nothing.
 
     * Otherwise, throw an error.
 
-  * Otherwise, add `member` to [the current module][] with the name `name`.
+  * Otherwise, add `member` to [the current module] with the name `name`.
 
     > It's possible for the same member to be added to a given module multiple
     > times if it's forwarded with different prefixes. All of these names refer

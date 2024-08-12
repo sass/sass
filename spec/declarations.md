@@ -75,5 +75,16 @@ To execute a declaration `declaration`:
   * Let `css` be a CSS declaration with name `name` and value `value`.
 
   * Append `css` to `parent`.
+  
+  * If `parent` isn't the last statement in its parent:
+
+    * Let `copy` by a copy of `parent` without any children.
+
+    * Append `copy` to `parent`'s parent.
+
+    * Set the [current style rule], [keyframe block], or at-rule (according to
+      `copy`'s type) to `copy`, for the remaining duration of its previous value.
+
+    * Set `parent` to `copy`.
 
 * Evaluate each child in `declaration`'s `Statements` if it exists.

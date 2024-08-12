@@ -69,7 +69,7 @@ matching is case-insensitive.
 [`SpecialFunctionName`]: syntax.md#specialfunctionexpression
 
 <x><pre>
-**FunctionCall** ::= [NamespacedIdentifier][] ArgumentInvocation
+**FunctionCall** ::= [NamespacedIdentifier] ArgumentInvocation
 </pre></x>
 
 No whitespace is allowed between the `NamespacedIdentifier` and the
@@ -99,7 +99,7 @@ To evaluate a `FunctionCall` `call`:
 
 * Let `name` be `call`'s `NamespacedIdentifier`.
 
-* Let `function` be the result of [resolving a function][] named `name`.
+* Let `function` be the result of [resolving a function] named `name`.
 
 * If `function` is null and `name` is not a plain `Identifier`, throw an error.
 
@@ -145,7 +145,7 @@ To evaluate a `FunctionCall` `call`:
 
 ## Global Functions
 
-> While most built-in Sass functions are defined in [built-in modules][], a few
+> While most built-in Sass functions are defined in [built-in modules], a few
 > are globally available with no `@use` necessary. These are mostly functions
 > that expand upon the behavior of plain CSS functions.
 >
@@ -192,7 +192,7 @@ adjust-hue($color, $degrees)
   ```
 
   > This overload exists to support Microsoft's proprietary [`alpha()`
-  > function][].
+  > function].
 
   [`alpha()` function]: https://blogs.msdn.microsoft.com/ie/2010/08/17/ie9-opacity-and-alpha/
 
@@ -223,7 +223,7 @@ plain CSS function named `"rgb"` that function is named `"rgba"` instead.
   * If any of `$red`, `$green`, `$blue`, or `$alpha` aren't numbers, throw an
     error.
 
-  * Let `red`, `green`, and `blue` be the result of [percent-converting][]
+  * Let `red`, `green`, and `blue` be the result of [percent-converting]
     `$red`, `$green`, and `$blue`, respectively, with a `max` of 255.
 
   * Let `alpha` be the result of percent-converting `$alpha` with a `max` of 1.
@@ -246,7 +246,7 @@ plain CSS function named `"rgb"` that function is named `"rgba"` instead.
   rgb($color, $alpha)
   ```
 
-  * If either argument is a [special variable string][], return a plain CSS
+  * If either argument is a [special variable string], return a plain CSS
     function string with the name `"rgb"` and the same arguments.
 
   * If `$color` isn't a color, throw an error.
@@ -259,7 +259,7 @@ plain CSS function named `"rgb"` that function is named `"rgba"` instead.
   rgb($channels)
   ```
 
-  * If `$channels` is a [special variable string][], return a plain CSS function
+  * If `$channels` is a [special variable string], return a plain CSS function
     string with the name `"rgb"` and the argument `$channels`.
 
   * If `$channels` is an unbracketed slash-separated list:
@@ -280,7 +280,7 @@ plain CSS function named `"rgb"` that function is named `"rgba"` instead.
 
     * If `rgb` has fewer than three elements:
 
-      * If any element of `rgb` is a [special variable string][], return a
+      * If any element of `rgb` is a [special variable string], return a
         plain CSS function string with the name `"rgb"` and the argument
         `$channels`.
 
@@ -302,7 +302,7 @@ plain CSS function named `"rgb"` that function is named `"rgba"` instead.
 
   * If `$channels` has fewer than three elements:
 
-    * If any element of `$channels` is a [special variable string][], return a
+    * If any element of `$channels` is a [special variable string], return a
       plain CSS function string with the name `"rgb"` and the argument
       `$channels`.
 
@@ -358,12 +358,12 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
     `$lightness`, respectively, between `0%` and `100%` and dividing by `100%`.
 
   * Let `red`, `green`, and `blue` be the result of converting `hue`,
-    `saturation`, and `lightness` [to RGB][].
+    `saturation`, and `lightness` [to RGB].
 
   * Set `red`, `green`, and `blue` to their existing values multiplied by 255
     and rounded to the nearest integers.
 
-  * Let `alpha` be the result of [percent-converting][] `$alpha` with a `max` of 1.
+  * Let `alpha` be the result of [percent-converting] `$alpha` with a `max` of 1.
 
   * Return a color with the given `red`, `green`, `blue`, and `alpha` channels.
 
@@ -385,7 +385,7 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
   hsl($hue, $saturation)
   ```
 
-  * If either argument is a [special variable string][], return a plain CSS
+  * If either argument is a [special variable string], return a plain CSS
     function string with the name `"hsl"` and the same arguments.
 
   * Otherwise, throw an error.
@@ -394,7 +394,7 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
   hsl($channels)
   ```
 
-  * If `$channels` is a [special variable string][], return a plain CSS function
+  * If `$channels` is a [special variable string], return a plain CSS function
     string with the name `"hsl"` and the argument `$channels`.
 
   * If `$channels` is an unbracketed slash-separated list:
@@ -415,7 +415,7 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
 
     * If `hsl` has fewer than three elements:
 
-      * If any element of `hsl` is a [special variable string][], return a
+      * If any element of `hsl` is a [special variable string], return a
         plain CSS function string with the name `"hsl"` and the argument
         `$channels`.
 
@@ -437,7 +437,7 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
 
   * If `$channels` has fewer than three elements:
 
-    * If any element of `$channels` is a [special variable string][], return a
+    * If any element of `$channels` is a [special variable string], return a
       plain CSS function string with the name `"hsl"` and the argument
       `$channels`.
 

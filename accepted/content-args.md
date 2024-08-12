@@ -67,7 +67,7 @@ We decided to use `using` as opposed to another word because it's relatively
 terse while still being clear. We considered `as` instead, but decided the
 meaning of the word didn't match the semantics; and we considered `with`, but
 decided that it was both semantically ambiguous and confusing because the
-[module system proposal][] uses to declare an argument *invocation* rather than
+[module system proposal] uses to declare an argument *invocation* rather than
 an argument *declaration*.
 
 [module system proposal]: module-system.md

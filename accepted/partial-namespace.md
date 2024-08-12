@@ -14,7 +14,7 @@
 
 > This section is non-normative.
 
-In the new Sass [module system][] as written, the implicit namespace of a `@use`
+In the new Sass [module system] as written, the implicit namespace of a `@use`
 rule that loads a partial with an explicit leading underscore contains that
 underscore. This was unintended and confusing, making the namespace look like a
 private identifier and making it different than the same file's namespace
@@ -34,7 +34,7 @@ have the implicit namespace `styles` rather than `_styles`.
 ### Determining a `@use` Rule's Namespace
 
 This modifies the existing algorithm for [Determining a `@use` Rule's
-Namespace][] to read as follows (new text in bold):
+Namespace] to read as follows (new text in bold):
 
 [Determining a `@use` Rule's Namespace]: ../spec/at-rules/use.md#determining-a-use-rules-namespace
 
