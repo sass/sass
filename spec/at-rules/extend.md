@@ -41,14 +41,14 @@ use of `@extend`:
 
 ### Extender
 
-An `@extend` rule's *extender* is the [selector list][] for the style rule in
+An `@extend` rule's *extender* is the [selector list] for the style rule in
 which the `@extend` rule appears.
 
 [selector list]: https://drafts.csswg.org/selectors-4/#selector-list
 
 ### Target
 
-An `@extend` rule's *target* is the [simple selector][] that's used as an
+An `@extend` rule's *target* is the [simple selector] that's used as an
 argument to `@extend`.
 
 [simple selector]: https://drafts.csswg.org/selectors-4/#simple
@@ -61,8 +61,8 @@ An *extension* is a collection of various properties.
 > an `@extend` rule. As such, all `@extend` rules define extensions, but not all
 > extensions directly correspond to `@extend` rules.
 
-* The *extender*, a [selector list][].
-* The *target*, a [simple selector][].
+* The *extender*, a [selector list].
+* The *target*, a [simple selector].
 
 ### Extendee
 
@@ -103,7 +103,7 @@ that module's transitive dependencies.
 
 To execute an `@extend` rule `rule`:
 
-* If there is no [current style rule][], throw an error.
+* If there is no [current style rule], throw an error.
 
   [current style rule]: ../style-rules.md#current-style-rule
 
@@ -119,7 +119,7 @@ To execute an `@extend` rule `rule`:
 * Let `extension` be an [extension](#extension) whose extender is the current
   style rule's selector and whose target is `target`.
 
-* Add `extension` to [the current module][]'s extensions.
+* Add `extension` to [the current module]'s extensions.
 
   [the current module]: ../spec.md#current-module
 
@@ -129,7 +129,7 @@ To execute an `@extend` rule `rule`:
 
 ### Resolving a Module's Extensions
 
-This algorithm takes a [module][] `starting-module` and returns a [CSS tree][]
+This algorithm takes a [module] `starting-module` and returns a [CSS tree]
 that includes CSS for *all* modules transitively used or forwarded by
 `starting-module`.
 
@@ -144,12 +144,12 @@ that includes CSS for *all* modules transitively used or forwarded by
 * Let `new-extensions` be an empty map from modules to sets of
   [extensions](#extension).
 
-* Let `extended` be the subgraph of the [module graph][] containing
+* Let `extended` be the subgraph of the [module graph] containing
   modules that are transitively reachable from `starting-module`.
 
   [module graph]: ../modules.md#module-graph
 
-* For each module `domestic` in `extended`, in reverse [topological][] order:
+* For each module `domestic` in `extended`, in reverse [topological] order:
 
   [topological]: https://en.wikipedia.org/wiki/Topological_sorting
 

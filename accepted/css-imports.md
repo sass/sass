@@ -4,7 +4,7 @@
 
 This proposal covers a long-awaited Sass feature: the ability to import plain
 CSS files from Sass. Although the original plan was to wait on this support
-until the [module system][] was in place and support CSS imports only with
+until the [module system] was in place and support CSS imports only with
 `@use`, it has become desirable to support them sooner in order to have
 compatibility with the existing LibSass implementation. See
 [Background](#background) for more details.
@@ -33,7 +33,7 @@ compatibility with the existing LibSass implementation. See
 Historically, the reference implementations of Sass—first Ruby Sass, then Dart
 Sass—only supported importing other Sass files. However, LibSass supported
 importing CSS files as well, interpreting them as though they were SCSS.
-Although this technically violated the [implementation guide][]'s prohibition on
+Although this technically violated the [implementation guide]'s prohibition on
 unilaterally extending the language, these CSS imports were useful and were
 widely adopted in the Node.js community.
 
@@ -162,7 +162,7 @@ To evaluate an `@import` rule:
 
     If this returns null, throw an error.
 
-  * If an AST with the same [canonical URL][] as `stylesheet` is currently being
+  * If an AST with the same [canonical URL] as `stylesheet` is currently being
     evaluated, throw an error.
 
   * Evaluate `stylesheet` in the global scope.
@@ -173,7 +173,7 @@ To evaluate an `@import` rule:
 
 This algorithm takes a string, `argument`, and returns a Sass stylesheet.
 
-* Let `root` be the current stylesheet's [canonical URL][] if its scheme is
+* Let `root` be the current stylesheet's [canonical URL] if its scheme is
   `file`, otherwise null.
 
 * Let `bases` be a list beginning with `root` if it's non-null, followed by the
@@ -181,7 +181,7 @@ This algorithm takes a string, `argument`, and returns a Sass stylesheet.
 
 * For each `base` in `bases`:
 
-  * Let `url` be the result of [parsing `argument` as a URL][] with `base` as
+  * Let `url` be the result of [parsing `argument` as a URL] with `base` as
     the base URL.
 
     If this returns a failure, throw that failure.
@@ -213,7 +213,7 @@ This algorithm takes a string, `argument`, and returns a Sass stylesheet.
     > The algorithm for [resolving a `file:` URL](#resolving-a-file-url)
     > guarantees that `resolved` will have one of these extensions.
 
-  * Return `ast` with the [canonical URL][] `resolved`.
+  * Return `ast` with the [canonical URL] `resolved`.
 
   [parsing `argument` as a URL]: https://url.spec.whatwg.org/#concept-url-parser
 
@@ -400,7 +400,7 @@ It returns a Sass stylesheet.
   > The algorithm for [resolving a `file:` URL](#resolving-a-file-url)
   > guarantees that `resolved` will have one of these extensions.
 
-* Return `ast` with the [canonical URL][] `url`.
+* Return `ast` with the [canonical URL] `url`.
 
 ## Deprecation process
 

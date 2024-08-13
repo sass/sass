@@ -111,12 +111,12 @@ One optimization that we've been doing for a long time is
 `extend(a.foo, .foo, a) = a`, as discussed above. This violates the first law,
 since `a != a.foo`.
 
-Another optimization added in [8f4869e][] is `extend(a, a, a.foo) = a`. This
+Another optimization added in [8f4869e] is `extend(a, a, a.foo) = a`. This
 violates the second law, since `spec(a) < spec(a.foo)`.
 
 [8f4869e]: https://github.com/sass/ruby-sass/commit/8f4869e608e70d7f468bb463ebfe7a939d834e27
 
-However, many of the optimizations added in [8f4869e][] do still work. For
+However, many of the optimizations added in [8f4869e] do still work. For
 example, `extend(.bar a, a, a.foo) = .bar a` works because
 `spec(.bar a) = spec(a.foo)`.
 

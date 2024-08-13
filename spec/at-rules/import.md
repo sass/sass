@@ -1,7 +1,7 @@
 # Import
 
 The `@import` rule is the legacy way of splitting styles across multiple files
-in Sass. The [`@use` rule][] should generally be used instead, but `@import` is
+in Sass. The [`@use` rule] should generally be used instead, but `@import` is
 still supported for backwards-compatibility.
 
 [`@use` rule]: use.md
@@ -23,7 +23,7 @@ still supported for backwards-compatibility.
 &#32;                       | InterpolatedIdentifier (',' [MediaQueryList])\*
 **ImportSupports**        ::= 'supports(' SupportsDeclaration ')'
 **ImportFunction**        ::= [InterpolatedIdentifier]¹ '(' InterpolatedDeclarationValue? ')'
-**ImportUrl**             ::= QuotedString | [InterpolatedUrl][]
+**ImportUrl**             ::= QuotedString | [InterpolatedUrl]
 </pre></x>
 
 [InterpolatedIdentifier]: ../syntax.md#interpolatedidentifier
@@ -112,20 +112,20 @@ To execute an `@import` rule `rule`:
       * Add an `@import` with the evaluated modifiers to [the current module]'s CSS
         AST after the longest initial subsequence of comments and `@import` rules.
 
-  * Otherwise, let `file` be the result of [loading the file][] with
+  * Otherwise, let `file` be the result of [loading the file] with
     `argument`'s URL string. If this returns null, throw an error.
 
   * If `file`'s canonical URL is the same as that of any other [current source
-    file][], throw an error.
+    file], throw an error.
 
-  * Let `imported` be the result of [executing][] `file` with the empty
-    configuration and the [current import context][], except that if
+  * Let `imported` be the result of [executing] `file` with the empty
+    configuration and the [current import context], except that if
     `rule` is nested within at-rules and/or style rules, that context is
     preserved when executing `file`.
 
     > Note that this execution can mutate `import`.
 
-  * Let `css` be the result of [resolving `imported`'s extensions][], except
+  * Let `css` be the result of [resolving `imported`'s extensions], except
     that if `rule` is nested within at-rules and/or style rules, that context is
     added to CSS that comes from modules loaded by `imported`.
 
@@ -135,7 +135,7 @@ To execute an `@import` rule `rule`:
 
   * Add `css` to the current module's CSS.
 
-  * Add `imported`'s [extensions][] to the current module.
+  * Add `imported`'s [extensions] to the current module.
 
   * If the `@import` rule is nested within at-rules and/or style rules, add each
     member in `imported` to the [current scope].

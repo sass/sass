@@ -9,10 +9,12 @@
 
 ## Syntax
 
+<!-- Escape the first `$` here due to DavidAnson/markdownlint#1262 -->
+
 <x><pre>
 **Variable**            ::= PlainVariable | NamespacedVariable
-**PlainVariable**       ::= '$' [\<ident-token>][]
-**NamespacedVariable**  ::= [\<ident-token>][] '.$' [PublicIdentifier][]
+**PlainVariable**       ::= '\$' [\<ident-token>]
+**NamespacedVariable**  ::= [\<ident-token>] '.$' [PublicIdentifier]
 **VariableDeclaration** ::= Variable ':' Expression ('!global' | '!default')*
 </pre></x>
 
@@ -34,7 +36,7 @@ To execute a `VariableDeclaration` `declaration`:
 
 * Let `name` be `declaration`'s `Variable`.
 
-* Let `resolved` be the result of [resolving a variable][] named `name`.
+* Let `resolved` be the result of [resolving a variable] named `name`.
 
   [resolving a variable]: modules.md#resolving-a-member
 
@@ -103,7 +105,7 @@ To execute a `VariableDeclaration` `declaration`:
 
 To evaluate a `Variable` `variable`:
 
-* Let `definition` be the result of [resolving a variable][] named `variable`.
+* Let `definition` be the result of [resolving a variable] named `variable`.
   If this returns null, throw an error.
 
 * Return `definition`'s value.

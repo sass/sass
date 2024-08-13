@@ -4,6 +4,10 @@
 
 * Remove `RgbColor`, `HslColor` and `HwbColor` SassScript values.
 
+## 2.7.1
+
+* Allow deprecation versions to be value of `fatal_deprecation` field.
+
 ## 2.7.0
 
 * Add `containing_url_unused` field to `CanonicalizeResponse` and

@@ -5,6 +5,35 @@ export {SourceLocation} from './source_location';
 export {SourceSpan} from './source_span';
 
 /**
+ * The options passed to {@link Logger.warn}.
+ *
+ * * `deprecation`: Whether this is a deprecation warning.
+ *
+ * * `deprecationType`: The type of deprecation. Only set if `deprecation` is
+ *   true.
+ *
+ * * `span`: The location in the Sass source code that generated this warning.
+ *   This may be unset if the warning didn't come from Sass source, for
+ *   example if it's from a deprecated JavaScript option.
+ *
+ * * `stack`: The Sass stack trace at the point the warning was issued. This may
+ *   be unset if the warning didn't come from Sass source, for example if it's
+ *   from a deprecated JavaScript option.
+ *
+ * @category Logger
+ */
+export type LoggerWarnOptions = (
+  | {
+      deprecation: true;
+      deprecationType: Deprecation;
+    }
+  | {deprecation: false}
+) & {
+  span?: SourceSpan;
+  stack?: string;
+};
+
+/**
  * An object that can be passed to {@link LegacySharedOptions.logger} to control
  * how Sass emits warnings and debug messages.
  *
@@ -42,24 +71,11 @@ export interface Logger {
    *
    * If this is `undefined`, Sass will print warnings to standard error.
    *
+   * `options` may contain the following fields:
+   *
    * @param message - The warning message.
-   * @param options.deprecation - Whether this is a deprecation warning.
-   * @param options.deprecationType - The type of deprecation this warning is
-   * for, if any.
-   * @param options.span - The location in the Sass source code that generated this
-   * warning.
-   * @param options.stack - The Sass stack trace at the point the warning was issued.
    */
-  warn?(
-    message: string,
-    options: (
-      | {
-          deprecation: true;
-          deprecationType: Deprecation;
-        }
-      | {deprecation: false}
-    ) & {span?: SourceSpan; stack?: string}
-  ): void;
+  warn?(message: string, options: LoggerWarnOptions): void;
 
   /**
    * This method is called when Sass emits a debug message due to a [`@debug`

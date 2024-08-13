@@ -29,7 +29,7 @@ export {
   ImporterResult,
   NodePackageImporter,
 } from './importer';
-export {Logger, SourceSpan, SourceLocation} from './logger';
+export {Logger, LoggerWarnOptions, SourceSpan, SourceLocation} from './logger';
 export {
   CustomFunction,
   Options,
