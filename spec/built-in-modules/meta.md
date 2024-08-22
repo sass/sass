@@ -106,6 +106,8 @@ function-exists($name, $module: null)
 
 This function is also available as a global function named `function-exists()`.
 
+* Emit a deprecation warning named `feature-exists`.
+
 * If `$name` is not a string, throw an error.
 
 * If `$name` is not an [`<ident-token>`], return false.
@@ -115,7 +117,7 @@ This function is also available as a global function named `function-exists()`.
 * If `$module` is null:
 
   * Return whether [resolving a function] named `$name` returns null.
-  
+
   [resolving a function]: ../modules.md#resolving-a-member
 
 * Otherwise, if `$module` isn't a string, throw an error.
@@ -213,7 +215,7 @@ This function is also available as a global function named `global-variable-exis
 
   * Return whether [resolving a variable] named `$name`, ignoring local
     scopes, returns null.
-  
+
   [resolving a variable]: ../modules.md#resolving-a-member
 
 * Otherwise, if `$module` isn't a string, throw an error.
