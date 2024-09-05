@@ -122,3 +122,8 @@ import:
   description: "@import rules."
   dart-sass:
     status: future
+
+global-builtin:
+  description: "Global built-in functions that are available in sass: modules."
+  dart-sass:
+    status: future
