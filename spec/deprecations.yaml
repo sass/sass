@@ -112,6 +112,12 @@ mixed-decls:
     status: active
     deprecated: 1.77.7
 
+feature-exists:
+  description: meta.feature-exists
+  dart-sass:
+    status: active
+    deprecated: 1.78.0
+
 color-4-api:
   description: Certain uses of built-in sass:color functions.
   dart-sass:
@@ -126,5 +132,10 @@ color-functions:
 
 import:
   description: "@import rules."
+  dart-sass:
+    status: future
+
+global-builtin:
+  description: "Global built-in functions that are available in sass: modules."
   dart-sass:
     status: future
