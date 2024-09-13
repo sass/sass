@@ -19,7 +19,27 @@ export {
   CalculationOperation,
   CalculationInterpolation,
 } from './calculation';
-export {SassColor} from './color';
+export {
+  SassColor,
+  ColorSpaceHsl,
+  ChannelNameHsl,
+  ColorSpaceHwb,
+  ChannelNameHwb,
+  ColorSpaceLab,
+  ChannelNameLab,
+  ColorSpaceLch,
+  ChannelNameLch,
+  ColorSpaceRgb,
+  ChannelNameRgb,
+  ColorSpaceXyz,
+  ChannelNameXyz,
+  ChannelName,
+  GamutMapMethod,
+  KnownColorSpace,
+  PolarColorSpace,
+  RectangularColorSpace,
+  HueInterpolationMethod,
+} from './color';
 export {SassFunction} from './function';
 export {SassList, ListSeparator} from './list';
 export {SassMap} from './map';

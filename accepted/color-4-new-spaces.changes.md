@@ -1,3 +1,73 @@
+## Draft 1.20
+
+* Many small wording and consistency changes.
+
+* Remove outdated references to the possibility of unknown color spaces.
+
+* Remove an outdated reference to the `specified` hue interpolation method.
+
+* Make `color.complement()` and `color.invert()` produce errors when color
+  channels are missing, for forwards-compatibility.
+
+* When passing a legacy color to a color manipulation function that operates in
+  another space, ensure that channels aren't marked as `none` in the conversion
+  back to the legacy color.
+
+* Properly include alpha as the *first* channel in `color.ie-hex-str()` rather
+  than the last.
+
+## Draft 1.19
+
+* Be stricter about which colors are allowed with slash-separated strings at the
+  end.
+
+## Draft 1.18
+
+* Treat missing channels as distinct from 0 for `==`-equality for colors.
+
+* Convert missing channels to 0 before color conversion for `color.same()`.
+
+* Explicitly support `none` values for `alpha` in Parsing Color Components and
+  `color.change()`,
+
+* Clarify how to handle existing missing components in `color.adjust()` and
+  `color.scale()`.
+
+* Remove language misleadingly indicating that the scaling a number algorithm
+  was guaranteed to return an in-gamut number.
+
+* Ensure that `color.invert()` and `color.grayscale()` always return colors in
+  the original color's space.
+
+* Make `color.invert()` throw an error for an invalid `$weight`.
+
+* Include CSS-compatibility behavior for `color.invert()` and
+  `color.grayscale()`.
+
+* Explicitly mandate `local-minde` gamut-mapping for `ie-hex-str()`.
+
+## Draft 1.17
+
+* Treat colors with missing channels as the same as 0 for `color.same()`.
+
+## Draft 1.16
+
+* Explicitly require case-sensitivity for channel names in Sass functions.
+
+## Draft 1.15
+
+* Add a mandatory `$method` parameter to `color.to-gamut()` for
+  forwards-compatibility with better gamut-mapping algorithms.
+
+* Add `clip` as a gamut-mapping algorithm.
+
+## Draft 1.14
+
+* Update the definition of powerless for HWB to match [the latest CSS
+  spec][color-4-changes-20221101].
+
+[color-4-changes-20221101]: https://drafts.csswg.org/css-color-4/#changes-from-20221101
+
 ## Draft 1.13
 
 * Remove definitions of powerless channels that are no longer present in CSS

@@ -1,3 +1,9 @@
+## 3.0.0
+
+* Add `Color` SassScript value.
+
+* Remove `RgbColor`, `HslColor` and `HwbColor` SassScript values.
+
 ## 2.7.1
 
 * Allow deprecation versions to be value of `fatal_deprecation` field.
@@ -53,7 +59,7 @@
   * The `CompileRequest.id`, `CompileResponse.id`, `LogEvent.compilation_id`,
     `CanonicalizeRequest.compilation_id`, `ImportRequest.compilation_id`,
     `FileImportRequest.compilation_id`, and `FunctionCallRequest.compilation_id`
-    fields  have been removed.
+    fields have been removed.
 
 * The following fields are now explicitly declared as proto3 `optional` fields:
   `ImportSuccess.source_map_url`, `LogEvent.span`, `SourceSpan.end`. These

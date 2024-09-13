@@ -118,6 +118,18 @@ feature-exists:
     status: active
     deprecated: 1.78.0
 
+color-4-api:
+  description: Certain uses of built-in sass:color functions.
+  dart-sass:
+    status: active
+    deprecated: 1.79.0
+
+color-functions:
+  description: Using global color functions instead of sass:color.
+  dart-sass:
+    status: active
+    deprecated: 1.79.0
+
 import:
   description: "@import rules."
   dart-sass:
