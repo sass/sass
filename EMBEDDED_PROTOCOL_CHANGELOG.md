@@ -1,3 +1,7 @@
+## 3.1.0
+
+* Add the `EvaluateRequest` and `EvaluateResponse` messages.
+
 ## 3.0.0
 
 * Add `Color` SassScript value.

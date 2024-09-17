@@ -169,6 +169,20 @@ message InboundMessage {
     repeated string future_deprecation = 17;
   }
 
+  message EvaluateRequest {
+    // This evaluate request's id.
+    uint32 id = 1;
+
+    // The values of bind variables for the expression.
+    map<string, Value> variables = 2;
+
+    // The statements to evaluate before final expression.
+    repeated string statements = 3;
+
+    // The expression to evaluate.
+    string expression = 4;
+  }
+
   // A response indicating the result of canonicalizing an imported URL.
   message CanonicalizeResponse {
     uint32 id = 1;
@@ -306,6 +320,7 @@ message InboundMessage {
     FileImportResponse file_import_response = 5;
     FunctionCallResponse function_call_response = 6;
     VersionRequest version_request = 7;
+    EvaluateRequest evaluate_request = 8;
   }
 }
 
@@ -392,6 +407,21 @@ message OutboundMessage {
     // `CompileRequest.input.path` or `CompileRequest.StringInput.url` was
     // passed.
     repeated string loaded_urls = 4;
+  }
+
+  // A response that contains the result of an evalutation.
+  message EvaluateResponse {
+    // This version request's id.
+    uint32 id = 1;
+
+    // The success or failure result of the evaluation. Mandatory.
+    oneof result {
+      // The result value of a successful evaluation.
+      Value value = 2;
+
+      // The error message of a failed evaluation.
+      string error = 3;
+    }
   }
 
   // An event indicating that a message should be displayed to the user.
@@ -657,6 +687,7 @@ message OutboundMessage {
     FileImportRequest file_import_request = 6;
     FunctionCallRequest function_call_request = 7;
     VersionResponse version_response = 8;
+    EvaluateResponse evaluate_response = 9;
   }
 }
 
