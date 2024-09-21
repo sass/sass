@@ -12,9 +12,15 @@
 * [Global Functions](#global-functions)
   * [`adjust-hue()`](#adjust-hue)
   * [`alpha()`](#alpha)
-  * [`rgb()` and `rgba()`](#rgb-and-rgba)
+  * [`color()`](#color)
   * [`hsl()` and `hsla()`](#hsl-and-hsla)
+  * [`hwb()`](#hwb)
   * [`if()`](#if)
+  * [`lab()`](#lab)
+  * [`lch()`](#lch)
+  * [`oklab()`](#oklab)
+  * [`oklch()`](#oklch)
+  * [`rgb()` and `rgba()`](#rgb-and-rgba)
 
 ## Definitions
 
@@ -207,186 +213,71 @@ adjust-hue($color, $degrees)
   * Return a plain CSS function string with the name `"alpha"` and the arguments
     `$args`.
 
-### `rgb()` and `rgba()`
-
-The `rgba()` function is identical to `rgb()`, except that if it would return a
-plain CSS function named `"rgb"` that function is named `"rgba"` instead.
+### `color()`
 
 * ```
-  rgb($red, $green, $blue, $alpha)
+  color($description)
   ```
 
-  * If any argument is a [special number], return a plain CSS function
-    string with the name `"rgb"` and the arguments `$red`, `$green`, `$blue`,
-    and `$alpha`.
+  * Let `parsed` be the result of [parsing] `$description` without a space.
 
-  * If any of `$red`, `$green`, `$blue`, or `$alpha` aren't numbers, throw an
-    error.
+  * If `parsed` is a string, return a plain CSS function string with the name
+    "color" and the argument `parsed`.
 
-  * Let `red`, `green`, and `blue` be the result of [percent-converting]
-    `$red`, `$green`, and `$blue`, respectively, with a `max` of 255.
+  * Let `space` be the color space, `channels` the channel list, and `alpha`
+    the alpha value of `parsed`.
 
-  * Let `alpha` be the result of percent-converting `$alpha` with a `max` of 1.
-
-  * Return a color with the given `red`, `green`, `blue`, and `alpha` channels.
-
-  [percent-converting]: built-in-modules/color.md#percent-converting-a-number
-
-* ```
-  rgb($red, $green, $blue)
-  ```
-
-  * If any argument is a [special number], return a plain CSS function string
-    with the name `"rgb"` and the arguments `$red`, `$green`, and `$blue`.
-
-  * Otherwise, return the result of calling `rgb()` with `$red`, `$green`,
-    `$blue`, and `1`.
-
-* ```
-  rgb($color, $alpha)
-  ```
-
-  * If either argument is a [special variable string], return a plain CSS
-    function string with the name `"rgb"` and the same arguments.
-
-  * If `$color` isn't a color, throw an error.
-
-  * Call `rgb()` with `$color`'s red, green, and blue channels as unitless
-    number arguments, and with `$alpha` as the final argument. Return the
-    result.
-
-* ```
-  rgb($channels)
-  ```
-
-  * If `$channels` is a [special variable string], return a plain CSS function
-    string with the name `"rgb"` and the argument `$channels`.
-
-  * If `$channels` is an unbracketed slash-separated list:
-
-    * If `$channels` doesn't have exactly two elements, throw an error.
-      Otherwise, let `rgb` be the first element and `alpha` the second element.
-
-    * If either `rgb` or `alpha` is a special variable string, return a plain
-      CSS function string with the name `"rgb"` and the argument `$channels`.
-
-    * If `rgb` is not an unbracketed space-separated list, throw an error.
-
-    * If the first element of `rgb` is an unquoted string which is
-      case-insensitively equal to `from`, return a plain CSS function string
-      with the name `"rgb"` and the argument `$channels`.
-
-    * If `rgb` has more than three elements, throw an error.
-
-    * If `rgb` has fewer than three elements:
-
-      * If any element of `rgb` is a [special variable string], return a
-        plain CSS function string with the name `"rgb"` and the argument
-        `$channels`.
-
-      * Otherwise, throw an error.
-
-    * Let `red`, `green`, and `blue` be the three elements of `rgb`.
-
-    * Call `rgb()` with `red`, `green`, `blue`, and `alpha` as arguments and
-      return the result.
-
-  * Otherwise, if `$channels` is not an unbracketed space-separated list, throw
-    an error.
-
-  * If the first element of `$channels` is an unquoted string which is
-    case-insensitively equal to `from`, return a plain CSS function string
-    with the name `"rgb"` and the argument `$channels`.
-
-  * If `$channels` has more than three elements, throw an error.
-
-  * If `$channels` has fewer than three elements:
-
-    * If any element of `$channels` is a [special variable string], return a
-      plain CSS function string with the name `"rgb"` and the argument
-      `$channels`.
-
-    * If the last element of `$channels` is an unquoted string that begins with
-      `var(` and contains `/`, return a plain CSS function string with the name
-      `"rgb"` and the argument `$channels`.
-
-    * Otherwise, throw an error.
-
-  * Let `red` and `green` be the first two elements of `$channels`.
-
-  * If the third element of `$channels` is an unquoted string that contains `/`:
-
-    * Return a plain CSS function string with the name `"rgb"` and the argument
-      `$channels`.
-
-  * Otherwise, if the third element of `$channels` has preserved its status as
-    two slash-separated numbers:
-
-    * Let `blue` be the number before the slash and `alpha` the number after the
-      slash.
-
-  * Otherwise:
-
-    * Let `blue` be the third element of `$channels`.
-
-  * Call `rgb()` with `red`, `green`, `blue`, and `alpha` (if it's defined) as
-    arguments and return the result.
-
-  [special variable string]: #special-variable-string
+  * Return a color in `space`, with the given `channels` and `alpha` value.
 
 ### `hsl()` and `hsla()`
 
 The `hsla()` function is identical to `hsl()`, except that if it would return a
-plain CSS function named `"hsl"` that function is named `"hsla"` instead.
+plain CSS function named "hsl" that function is named "hsla" instead.
 
 * ```
   hsl($hue, $saturation, $lightness, $alpha: 1)
   ```
 
-  * If any argument is a [special number], return a plain CSS function
-    string with the name `"hsl"` and the arguments `$hue`, `$saturation`,
-    `$lightness`, and `$alpha`.
+  * If any argument is an unquoted string that's case-insensitively equal to
+    "none", throw an error.
 
-  * If any of `$hue`, `$saturation`, `$lightness`, or `$alpha` aren't numbers,
-    throw an error.
+    > Missing channels are not allowed in legacy syntax.
 
-  * Let `hue` be the result of [converting] `$hue` to `deg` allowing unitless.
+  * If any argument is a [special number], return a plain CSS function string
+    with the name "hsl" and the arguments `$hue`, `$saturation`, `$lightness`,
+    and `$alpha`.
 
-  * If `$saturation` and `$lightness` don't have unit `%`, throw an error.
+  * If `$alpha` is not a number, throw an error.
 
-  * Let `saturation` and `lightness` be the result of clamping `$saturation` and
-    `$lightness`, respectively, between `0%` and `100%` and dividing by `100%`.
+  * Let `alpha` be the result of [percent-converting] `alpha` with a max of 1,
+    and then clamping the value between 0 and 1, inclusive.
 
-  * Let `red`, `green`, and `blue` be the result of converting `hue`,
-    `saturation`, and `lightness` [to RGB].
+  * Let `hue`, `saturation`, and `lightness` be the three elements returned
+    by [normalizing] `($hue, $saturation, $lightness)` in the
+    [known color space] named `hsl`.
 
-  * Set `red`, `green`, and `blue` to their existing values multiplied by 255
-    and rounded to the nearest integers.
+  > Conversion to rgb has been removed.
 
-  * Let `alpha` be the result of [percent-converting] `$alpha` with a `max` of 1.
-
-  * Return a color with the given `red`, `green`, `blue`, and `alpha` channels.
-
-  [converting]: types/number.md#converting-a-number-to-a-unit
-  [to RGB]: https://www.w3.org/TR/css-color-4/#hsl-to-rgb
+  * Return an `hsl` color with the given `hue`, `saturation`, and `lightness`
+    channels, and `alpha` value.
 
 * ```
   hsl($hue, $saturation, $lightness)
   ```
 
   * If any argument is a [special number], return a plain CSS function string
-    with the name `"hsl"` and the arguments `$hue`, `$saturation`, and
+    with the name "hsl" and the arguments `$hue`, `$saturation`, and
     `$lightness`.
 
-  * Otherwise, return the result of calling `hsl()` with `$hue`, `$saturation`,
-    `$lightness`, and `1`.
+  * Otherwise, return the result of calling `hsl($hue, $saturation, $lightness,
+    1)`.
 
 * ```
   hsl($hue, $saturation)
   ```
 
   * If either argument is a [special variable string], return a plain CSS
-    function string with the name `"hsl"` and the same arguments.
+    function string with the name "hsl" and the same arguments.
 
   * Otherwise, throw an error.
 
@@ -394,81 +285,182 @@ plain CSS function named `"hsl"` that function is named `"hsla"` instead.
   hsl($channels)
   ```
 
-  * If `$channels` is a [special variable string], return a plain CSS function
-    string with the name `"hsl"` and the argument `$channels`.
+  * Let `parsed` be the result of [parsing] `$channels` in `hsl` space.
 
-  * If `$channels` is an unbracketed slash-separated list:
+    > Normalization and clamping is handled as part of the [parsing] process.
 
-    * If `$channels` doesn't have exactly two elements, throw an error.
-      Otherwise, let `hsl` be the first element and `alpha` the second element.
+  * If `parsed` is a string, return a plain CSS function string with the name
+    "hsl" and the argument `parsed`.
 
-    * If either `hsl` or `alpha` is a special variable string, return a plain
-      CSS function string with the name `"hsl"` and the argument `$channels`.
+  * Let `channels` be the channel list, and `alpha` the alpha value of `parsed`.
 
-    * If `hsl` is not an unbracketed space-separated list, throw an error.
+  * Let `hue`, `saturation`, and `lightness` be the three elements of `channels`.
 
-    * If the first element of `hsl` is an unquoted string which is
-      case-insensitively equal to `from`, return a plain CSS function string
-      with the name `"hsl"` and the argument `$channels`.
+  * Return an `hsl` color with the given `hue`, `saturation`, and `lightness`
+    channels, and `alpha` value.
 
-    * If `hsl` has more than three elements, throw an error.
+### `hwb()`
 
-    * If `hsl` has fewer than three elements:
+* ```
+  hwb($channels)
+  ```
 
-      * If any element of `hsl` is a [special variable string], return a
-        plain CSS function string with the name `"hsl"` and the argument
-        `$channels`.
+  * Let `parsed` be the result of [parsing] `$channels` in `hwb` space.
 
-      * Otherwise, throw an error.
+    > Normalization and clamping is handled as part of the [parsing] process.
 
-    * Let `hue`, `saturation`, and `lightness` be the three elements of `hsl`.
+  * If `parsed` is a string, return a plain CSS function string with the name
+    "hwb" and the argument `parsed`.
 
-    * Call `hsl()` with `hue`, `saturation`, `lightness`, and `alpha` as
-      arguments and return the result.
+  * Let `channels` be the channel list, and `alpha` the alpha value of `parsed`.
 
-  * Otherwise, if `$channels` is not an unbracketed space-separated list, throw
-    an error.
+  * Let `hue`, `whiteness`, and `blackness` be the three elements of `channels`.
 
-  * If the first element of `$channels` is an unquoted string which is
-    case-insensitively equal to `from`, return a plain CSS function string
-    with the name `"hsl"` and the argument `$channels`.
+  * Return an `hwb` color with the given `hue`, `whiteness`, and `blackness`
+    channels, and `alpha` value.
 
-  * If `$channels` has more than three elements, throw an error.
-
-  * If `$channels` has fewer than three elements:
-
-    * If any element of `$channels` is a [special variable string], return a
-      plain CSS function string with the name `"hsl"` and the argument
-      `$channels`.
-
-    * If the last element of `$channels` is an unquoted string that begins with
-      `var(` and contains `/`, return a plain CSS function string with the name
-      `"hsl"` and the argument `$channels`.
-
-    * Otherwise, throw an error.
-
-  * Let `hue` and `saturation` be the first two elements of `$channels`.
-
-  * If the third element of `$channels` is an unquoted string that contains `/`:
-
-    * Return a plain CSS function string with the name `"rgb"` and the argument
-      `$channels`.
-
-  * Otherwise, if the third element of `$channels` has preserved its status as
-    two slash-separated numbers:
-
-    * Let `lightness` be the number before the slash and `alpha` the number
-      after the slash.
-
-  * Otherwise:
-
-    * Let `lightness` be the third element of `$channels`.
-
-  * Call `hsl()` with `hue`, `saturation`, `lightness`, and `alpha` (if it's
-    defined) as arguments and return the result.
+[parsing]: built-in-modules/color.md#parsing-color-components
 
 ### `if()`
 
 ```
 if($condition, $if-true, $if-false)
 ```
+
+### `lab()`
+
+* ```
+  lab($channels)
+  ```
+
+  * Let `parsed` be the result of [parsing] `$channels` in `lab` space.
+
+  * If `parsed` is a string, return a plain CSS function string with the name
+    "lab" and the argument `parsed`.
+
+  * Let `channels` be the channel list, and `alpha` the alpha value of `parsed`.
+
+  * Let `lightness`, `a`, and `b` be the three elements of `channels`.
+
+  * Return a `lab` color with the given `lightness`, `a`, and `b` channels, and
+    `alpha` value.
+
+### `lch()`
+
+* ```
+  lch($channels)
+  ```
+
+  * Let `parsed` be the result of [parsing] `$channels` in `lch` space.
+
+  * If `parsed` is a string, return a plain CSS function string with the name
+    "lch" and the argument `parsed`.
+
+  * Let `channels` be the channel list, and `alpha` the alpha value of `parsed`.
+
+  * Let `lightness`, `chroma`, and `hue` be the three elements of `channels`.
+
+  * Return an `lch` color with the given `lightness`, `chroma`, and `hue`
+    channels, and `alpha` value.
+
+### `oklab()`
+
+* ```
+  oklab($channels)
+  ```
+
+  * Let `parsed` be the result of [parsing] `$channels` in `oklab` space.
+
+  * If `parsed` is a string, return a plain CSS function string with the name
+    "oklab" and the argument `parsed`.
+
+  * Let `channels` be the channel list, and `alpha` the alpha value of `parsed`.
+
+  * Let `lightness`, `a`, and `b` be the three elements of `channels`.
+
+  * Return an `oklab` color with the given `lightness`, `a`, and `b` channels,
+    and `alpha` value.
+
+### `oklch()`
+
+* ```
+  oklch($channels)
+  ```
+
+  * Let `parsed` be the result of [parsing] `$channels` in `oklch` space.
+
+  * If `parsed` is a string, return a plain CSS function string with the name
+    "oklch" and the argument `parsed`.
+
+  * Let `channels` be the channel list, and `alpha` the alpha value of `parsed`.
+
+  * Let `lightness`, `chroma`, and `hue` be the three elements of `channels`.
+
+  * Return an `oklch` color with the given `lightness`, `chroma`, and `hue`
+    channels, and `alpha` value.
+
+
+### `rgb()` and `rgba()`
+
+The `rgba()` function is identical to `rgb()`, except that if it would return a
+plain CSS function named "rgb" that function is named "rgba" instead.
+
+* ```
+  rgb($red, $green, $blue, $alpha: 1)
+  ```
+
+  * If any argument is an unquoted string that's case-insensitively equal to
+    "none", throw an error.
+
+    > Missing channels are not allowed in legacy syntax.
+
+  * If any argument is a [special number], return a plain CSS function
+    string with the name "rgb" and the arguments `$red`, `$green`, `$blue`,
+    and `$alpha`.
+
+  * If `$alpha` is not a number, throw an error.
+
+  * Let `alpha` be the result of [percent-converting] `alpha` with a max of 1,
+    and then clamping the value between 0 and 1, inclusive.
+
+  * Let `red`, `green`, and `blue` be the three elements returned by
+    [normalizing] `($red, $green, $blue)` in `rgb` space.
+
+  * Return an `rgb` color with the given `red`, `green`, and `blue` channels,
+    and `alpha` value.
+
+* ```
+  rgb($red, $green, $blue)
+  ```
+
+  * If any argument is a [special number], return a plain CSS function string
+    with the name "rgb" and the arguments `$red`, `$green`, and `$blue`.
+
+  * Otherwise, return the result of calling `rgb($red, $green, $blue, 1)`.
+
+* ```
+  rgb($channels)
+  ```
+
+  * Let `parsed` be the result of [parsing] `$channels` in `rgb` space.
+
+  * If `parsed` is a string, return a plain CSS function string with the name
+    "rgb" and the argument `parsed`.
+
+  * Let `channels` be the channel list, and `alpha` the alpha value of `parsed`.
+
+  * Let `red`, `green`, and `blue` be the three elements of `channels`.
+
+  * Return the result of calling `rgb(red, green, blue, alpha)`.
+
+* ```
+  rgb($color, $alpha)
+  ```
+
+  * If either argument is a [special variable string], return a plain CSS
+    function string with the name "rgb" and the same arguments.
+
+  * If `$color` is not a [legacy color], throw an error.
+
+  * Return the result of calling `rgb()` with `$color`'s red, green, and blue
+    channels as unitless number arguments, and `$alpha` as the final argument.
