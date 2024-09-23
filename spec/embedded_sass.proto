@@ -808,17 +808,29 @@ message Value {
     // The name of a known color space.
     string space = 1;
 
-    // The value of the first channel associated with `space`.
-    double channel1 = 2;
+    // The value of the first channel associated with `space`. A [missing]
+    // channel is represented by an unset value.
+    //
+    // [missing]: types/color.md#missing-components
+    optional double channel1 = 2;
 
-    // The value of the second channel associated with `space`.
-    double channel2 = 3;
+    // The value of the second channel associated with `space`. A [missing]
+    // channel is represented by an unset value.
+    //
+    // [missing]: types/color.md#missing-components
+    optional double channel2 = 3;
 
-    // The value of the third channel associated with `space`.
-    double channel3 = 4;
+    // The value of the third channel associated with `space`. A [missing]
+    // channel is represented by an unset value.
+    //
+    // [missing]: types/color.md#missing-components
+    optional double channel3 = 4;
 
     // The color's alpha channel. Mandatory. Must be between 0 and 1, inclusive.
-    double alpha = 5;
+    // A [missing] channel is represented by an unset value.
+    //
+    // [missing]: types/color.md#missing-components
+    optional double alpha = 5;
   }
 
   // A SassScript list value.
