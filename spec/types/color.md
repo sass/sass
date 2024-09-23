@@ -21,8 +21,6 @@
 
 ### Legacy Color
 
-[legacy color]: #legacy-color
-
 > Both Sass and CSS have similar legacy behavior that relies on all colors
 > being interchangeable as part of a shared `srgb` color space. While the new
 > color spaces will opt users into new default behavior, some legacy color
@@ -35,6 +33,8 @@ behavior when manipulating legacy colors.
 
 Legacy colors that have [missing] components are
 [serialized as non-legacy colors](#serialization-of-non-legacy-colors).
+
+[missing]: #missing-components
 
 > This includes colors defined using the CSS color names, hex syntax, `rgb()`,
 > `rgba()`, `hsl()`, `hsla()`, or `hwb()` -- along with colors that are
@@ -210,6 +210,8 @@ as though they had the value `0`.
 For the sake of [interpolating] between colors with missing components, the
 following *analogous components* are defined by [CSS Color Level 4][color-4]:
 
+[color-4]: https://www.w3.org/TR/css-color-4/
+
 | Category      | Components          |
 | ------------- | ------------------- |
 | Reds          | red, x              |
@@ -346,6 +348,7 @@ To serialize a non-legacy color `color`:
   then ")".
 
 [`<color>`]: https://drafts.csswg.org/css-color-5/#typedef-color
+[Relative color syntax]: https://drafts.csswg.org/css-color-5/#relative-colors
 [predefined color space]: #predefined-color-spaces
 
 #### Serialization of Out-of-Gamut RGB Colors
@@ -356,3 +359,4 @@ To serialize an out-of-gamut color `color` in the `rgb` space:
 
 * Return the result of serializing `hsl`.
 
+[converting]: ../built-in-modules/color.md#converting-a-color

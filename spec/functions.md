@@ -179,6 +179,7 @@ adjust-hue($color, $degrees)
 * Return the result of calling [`hsl()`] with `degree`, `saturation`,
   `lightness`, and `$color`'s alpha channel.
 
+[converting]: types/number.md#converting-a-number-to-a-unit
 [`hsl()`]: #hsl-and-hsla
 [`color.saturation($color)`]: built-in-modules/color.md#saturation
 [`color.lightness($color)`]: built-in-modules/color.md#lightness
@@ -319,6 +320,10 @@ plain CSS function named "hsl" that function is named "hsla" instead.
   * Return an `hwb` color with the given `hue`, `whiteness`, and `blackness`
     channels, and `alpha` value.
 
+[percent-converting]: built-in-modules/color.md#percent-converting-a-number
+[normalizing]: built-in-modules/color.md#normalizing-color-channels
+[known color space]: types/color.md#known-color-space
+[special variable string]: #special-variable-string
 [parsing]: built-in-modules/color.md#parsing-color-components
 
 ### `if()`
@@ -399,7 +404,6 @@ if($condition, $if-true, $if-false)
   * Return an `oklch` color with the given `lightness`, `chroma`, and `hue`
     channels, and `alpha` value.
 
-
 ### `rgb()` and `rgba()`
 
 The `rgba()` function is identical to `rgb()`, except that if it would return a
@@ -464,3 +468,5 @@ plain CSS function named "rgb" that function is named "rgba" instead.
 
   * Return the result of calling `rgb()` with `$color`'s red, green, and blue
     channels as unitless number arguments, and `$alpha` as the final argument.
+
+[legacy color]: types/color.md#legacy-color

@@ -95,6 +95,7 @@ is the result of [looking up a known color space] named by either the
 > specification provides [additional guidance][default-space] for determining
 > appropriate defaults.
 
+[color-4]: https://www.w3.org/TR/css-color-4/
 [default-space]: https://www.w3.org/TR/css-color-4/#interpolation-space
 [color interpolation method]: #color-interpolation-method
 
@@ -156,6 +157,7 @@ color space] or a SassScript value, and returns a color `color` in
 
 * Return `color`.
 
+[legacy color]: ../types/color.md#legacy-color
 [missing]: ../types/color.md#missing-components
 [powerless]: ../types/color.md#powerless-components
 
@@ -382,6 +384,7 @@ The procedure is:
 * Return `space-name`, `channels` channels, and `alpha` alpha value.
 
 [special variable string]: ../functions.md#special-variable-string
+[predefined color space]: ../types/color.md#predefined-color-spaces
 [special number]: ../functions.md#special-number
 [percent-converting]: #percent-converting-a-number
 
@@ -476,6 +479,8 @@ the color space, or returns a normalized list of valid channels otherwise.
 
 * Return `unitless`.
 
+[double]: ../types/number.md#double
+
 ### Interpolating Legacy Colors
 
 > This procedure is based on the legacy behavior of the `color.mix()` function,
@@ -484,6 +489,8 @@ the color space, or returns a normalized list of valid channels otherwise.
 This procedure accepts two [legacy colors] (`color1` and `color2`), and an
 optional percentage `weight` for `color1` in the mix. It returns a new color
 `mix` that represents the appropriate mix of input colors.
+
+[legacy colors]: ../types/color.md#legacy-color
 
 * Let `origin-space` be `color1`'s color space.
 
@@ -1103,8 +1110,6 @@ hue($color)
   * Return the result of calling the global function
     `hwb(list.slash($hue $whiteness $blackness, $alpha))`.
 
-[parsing]: #parsing-color-components
-
 ### `ie-hex-str()`
 
 ```
@@ -1298,7 +1303,6 @@ is-powerless($color, $channel, $space: null)
 
 * Return `true` if `channel` is [powerless] in `color`, or `false` otherwise.
 
-
 ### `lighten()`
 
 ```
@@ -1346,6 +1350,9 @@ mix($color1, $color2,
 
 * Return the result of [interpolating] between `$color1` and
   `$color2` with the specified `$weight` and `$method`.
+
+[color-5]: https://www.w3.org/TR/css-color-5/
+[interpolating]: #interpolating-colors
 
 ### `opacify()`
 
@@ -1418,6 +1425,7 @@ saturation($color)
   > function](#adjust) instead.
 
 ### `scale()`
+
 ```
 scale($color, $args...)
 ```
