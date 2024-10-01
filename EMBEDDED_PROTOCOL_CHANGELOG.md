@@ -1,3 +1,8 @@
+## 3.1.0
+
+* Mark `Color.channel1`, `Color.channel2`, `Color.channel3`, and `Color.alpha`
+  as optional so they can represent missing channels.
+
 ## 3.0.0
 
 * Add `Color` SassScript value.
