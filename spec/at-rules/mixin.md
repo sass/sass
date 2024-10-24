@@ -17,11 +17,10 @@
 ### Syntax
 
 <x><pre>
-**MixinRule** ::= '@mixin' [\<ident-token>] [ArgumentDeclaration]? [Block]
+**MixinRule** ::= '@mixin' [\<ident-token>] ArgumentDeclaration? [Block]
 </pre></x>
 
 [\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
-[ArgumentDeclaration]: ../syntax.md#argumentdeclaration
 [Block]: ../statement.md#block
 
 No whitespace is allowed between the `Identifier` and the `ArgumentDeclaration`
