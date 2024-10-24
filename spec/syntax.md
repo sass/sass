@@ -95,12 +95,13 @@ No whitespace is allowed between components of an `InterpolatedUnquotedUrlConten
 > a normal SassScript expression.
 
 <x><pre>
-**SpecialFunctionExpression** ::= SpecialFunctionName InterpolatedDeclarationValue ')'
+**SpecialFunctionExpression** ::= SpecialFunctionName [InterpolatedDeclarationValue] ')'
 **SpecialFunctionName**¹      ::= VendorPrefix? ('element(' | 'expression(')
 &#32;                           | VendorPrefix 'calc('
 **VendorPrefix**¹             ::= '-' ([identifier-start code point] | [digit]) '-'
 </pre></x>
 
+[InterpolatedDeclarationValue]: ./declarations.md#syntax
 [digit]: https://drafts.csswg.org/css-syntax-3/#digit
 
 1: Both `SpecialFunctionName` and `VendorPrefix` are matched case-insensitively,
@@ -148,8 +149,8 @@ parentheses.
 
 ### Parsing Text
 
-This algorithm takes a string `text` and a syntax `syntax` ("indented", "scss",
-or "sass"), and returns a Sass abstract syntax tree.
+This algorithm takes a string `text` and a syntax `syntax` ("indented", "css",
+or "scss"), and returns a Sass abstract syntax tree.
 
 * If `syntax` is "indented", return the result of parsing `text` as the indented
   syntax.

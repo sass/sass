@@ -8,10 +8,11 @@
 
 <x><pre>
 **UnknownAtRule** ::= '@' [InterpolatedIdentifier] InterpolatedValue?
-&#32;                   ('{' Statements '}')?
+&#32;                   [Block]?
 </pre></x>
 
 [InterpolatedIdentifier]: ../syntax.md#interpolatedidentifier
+[Block]: ../statement.md#block
 
 No whitespace is allowed after `@`. As with all statements, an `UnknownAtRule`
 without a block must be separated from other statements with a semicolon.
