@@ -22,12 +22,11 @@ still supported for backwards-compatibility.
 **ImportMedia**           ::= [MediaFeatureInParens] (',' [MediaQueryList])\*
 &#32;                       | InterpolatedIdentifier (',' [MediaQueryList])\*
 **ImportSupports**        ::= 'supports(' SupportsDeclaration ')'
-**ImportFunction**        ::= [InterpolatedIdentifier]¹ '(' [InterpolatedDeclarationValue]? ')'
+**ImportFunction**        ::= [InterpolatedIdentifier]¹ '(' InterpolatedDeclarationValue? ')'
 **ImportUrl**             ::= QuotedString | [InterpolatedUrl]
 </pre></x>
 
 [InterpolatedIdentifier]: ../syntax.md#interpolatedidentifier
-[InterpolatedDeclarationValue]: ../declarations.md#syntax
 [InterpolatedUrl]: ../syntax.md#interpolatedurl
 [MediaFeatureInParens]: media.md#syntax
 [MediaQueryList]: media.md#syntax

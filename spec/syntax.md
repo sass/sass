@@ -95,13 +95,12 @@ No whitespace is allowed between components of an `InterpolatedUnquotedUrlConten
 > a normal SassScript expression.
 
 <x><pre>
-**SpecialFunctionExpression** ::= SpecialFunctionName [InterpolatedDeclarationValue] ')'
+**SpecialFunctionExpression** ::= SpecialFunctionName InterpolatedDeclarationValue ')'
 **SpecialFunctionName**¹      ::= VendorPrefix? ('element(' | 'expression(')
 &#32;                           | VendorPrefix 'calc('
 **VendorPrefix**¹             ::= '-' ([identifier-start code point] | [digit]) '-'
 </pre></x>
 
-[InterpolatedDeclarationValue]: ./declarations.md#syntax
 [digit]: https://drafts.csswg.org/css-syntax-3/#digit
 
 1: Both `SpecialFunctionName` and `VendorPrefix` are matched case-insensitively,
