@@ -10,10 +10,9 @@
 ## Syntax
 
 <x><pre>
-**Declaration**              ::= StandardDeclaration | CustomDeclaration
-**StandardDeclaration**      ::= [InterpolatedIdentifier]¹ ':' (Value | Value? Block )
-**CustomDeclaration**        ::= [InterpolatedIdentifier]² ':' InterpolatedDeclarationValue
-InterpolatedDeclarationValue ::= (Interpolation | String)+
+**Declaration**         ::= StandardDeclaration | CustomDeclaration
+**StandardDeclaration** ::= [InterpolatedIdentifier]¹ ':' (Value | Value? Block )
+**CustomDeclaration**   ::= [InterpolatedIdentifier]² ':' InterpolatedDeclarationValue
 </pre></x>
 
 1. This may not begin with "--".

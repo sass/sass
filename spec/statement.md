@@ -19,35 +19,36 @@
 
 The `current indentation level` is the count of the [`documentation indentation
 character`] between a new line and any non-whitespace characters of the last
-consumed line.
+consumed statement. Lines that only contain whitespace or do not start a
+statement do not impact the `current indentation level`.
 
 A document parsed in the indented syntax may not begin with whitespace, and the
 initial `current indentation level` for any document is `0`.
 
-Changes in the indentation level are used by the indented syntax to start and
-end blocks of statements.
+> Changes in the indentation level are used by the indented syntax to start and
+> end blocks of statements.
 
 [`documentation indentation character`]: #document-indentation-character
 
 ### Document indentation character
 
-The `document indentation character` is the character used for calculating the
-[`current indentation level`], and is either a space or tab character.
+The `document indentation character` is defined as the first tab or space
+character used as an [`IndentMore`] production in a document.
+
+[`IndentMore`]: #indentation
+
+> The `document indentation character` is the character used for calculating the
+> [`current indentation level`]. In the indented syntax, no character other than
+> the `document indentation character` may be used for indentation.
 
 [`current indentation level`]: #current-indentation-level
-
-It is defined as the first tab or space character used as an [IndentMore]
-production in a document.
-
-In the indented syntax, no character other than the `document indentation
-character` may be used for indentation.
 
 ## Syntax
 
 ### ScssStatements
 
 <x><pre>
-**ScssStatements**      ::= (Statement ';'?¹)*Statement?
+**ScssStatements**      ::= (Statement ';'?¹)* Statement?
 </pre></x>
 
 1: This production is mandatory unless the previous `Statement` is a
@@ -75,13 +76,13 @@ If a `WhitespaceComment` would be ambiguous with a `Statement` in the
 ### Statements
 
 <x><pre>
-**Statements**          ::= [ScssStatements] | [IndentedStatements]¹
+**Statements**¹          ::= [ScssStatements] | [IndentedStatements]
 </pre></x>
 
 [ScssStatements]: #scssstatements
 [IndentedStatements]: #indentedstatements
 
-Only the production for the current syntax is valid.
+1. Only the production for the current syntax is valid.
 
 ### Block
 
@@ -119,9 +120,9 @@ Only the production for the current syntax is valid.
 [LineBreak]: #whitespace
 [IndentCharacter]: #whitespace
 
-The [IndentCharacter] must be the [Document indentation character].
+The [IndentCharacter] must be the [document indentation character].
 
-[Document indentation character]: #document-indentation-character
+[document indentation character]: #document-indentation-character
 
 `Current` is the [current indentation level] for a document. After consuming an
 `IndentSame`, `IndentLess`, or `IndentMore` production, the [current indentation
