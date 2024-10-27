@@ -23,7 +23,7 @@ import {LegacyPluginThis} from './plugin_this';
  *   }
  * });
  * ```
- *
+ * @amir mesfin seid
  * @param args - One argument for each argument that's declared in the signature
  * that's passed to {@link LegacySharedOptions.functions}. If the signature
  * [takes arbitrary
