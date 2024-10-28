@@ -52,9 +52,7 @@ character used as an [`IndentMore`] production in a document.
 </pre></x>
 
 1: This production is mandatory unless the previous `Statement` is a
-`LoudComment` or `SilentComment`, or after the final production in a
-`ScssStatements` production, which is either at the end of a `Block` or the end
-of the document.
+`LoudComment`, `SilentComment`, or ends in a `Block`.
 
 If a `WhitespaceComment` would be ambiguous with a `Statement` in the
 `ScssStatements` rule, parse it preferentially as a `Statement`.
@@ -62,21 +60,13 @@ If a `WhitespaceComment` would be ambiguous with a `Statement` in the
 ### IndentedStatements
 
 <x><pre>
-**IndentedStatements**  ::= (Statement IndentedSame?¹)* Statement?
+**IndentedStatements**  ::= (Statement IndentedSame)* Statement
 </pre></x>
-
-1: This production is mandatory unless the previous `Statement` is a
-`LoudComment` or `SilentComment`, or after the final production in a
-`IndentedStatements` production, which is either at the end of a `Block` or the
-end of the document.
-
-If a `WhitespaceComment` would be ambiguous with a `Statement` in the
-`IndentedStatements` rule, parse it preferentially as a `Statement`.
 
 ### Statements
 
 <x><pre>
-**Statements**¹          ::= [ScssStatements] | [IndentedStatements]
+**Statements**          ::= ([ScssStatements] | [IndentedStatements])¹
 </pre></x>
 
 [ScssStatements]: #scssstatements
@@ -89,11 +79,46 @@ If a `WhitespaceComment` would be ambiguous with a `Statement` in the
 <x><pre>
 **ScssBlock**      ::= '{' [ScssStatements] '}'
 **IndentedBlock**  ::= [IndentMore] [IndentedStatements] [IndentLess]
-**Block**          ::= ScssBlock | IndentedBlock¹
+**Block**          ::= (ScssBlock | IndentedBlock)¹
 </pre></x>
 
 [IndentMore]: #indentation
 [IndentLess]: #indentation
+
+1: Only the production for the current syntax is valid.
+
+### Comments
+
+#### LoudComment
+
+<x><pre>
+**ScssLoudComment**          ::= '/*' '!'? (.* | Interpolation)* '*/'
+**IndentedLoudComment**      ::= '/*' '!'? ([^IndentedLess] | Interpolation)*
+**LoudComment**              ::= (ScssLoudComment | IndentedLoudComment)¹
+</pre></x>
+
+> TODO: Wildcard and character set regex syntax conflict with markdown.
+
+1: Only the production for the current syntax is valid.
+
+#### SilentComment
+
+<x><pre>
+**ScssSilentComment**          ::= '//' [^LineBreak]*
+**IndentedSilentComment**      ::= '//' [^IndentedLess]*
+**SilentComment**              ::= (ScssSilentComment | IndentedSilentComment)¹
+</pre></x>
+
+1: Only the production for the current syntax is valid.
+
+#### WhitespaceComment
+
+<x><pre>
+**ScssWhitespaceComment**          ::= '//' .* '//' | '/*' .* '*/'
+**IndentedWhitespaceComment**      ::= '/*' .* '*/'
+**WhitespaceComment*¹              ::= ScssWhitespaceComment 
+&#32;                                | IndentedWhitespaceComment
+</pre></x>
 
 1: Only the production for the current syntax is valid.
 
@@ -106,7 +131,13 @@ If a `WhitespaceComment` would be ambiguous with a `Statement` in the
 **LineBreak**               ::= CarriageReturn | LineFeed | FormFeed
 **ScssWhitespace**          ::= LineBreak | Space | Tab
 **IndentedWhitespace**      ::= Space | Tab
+**Whitespace**              ::= (ScssWhitespace | IndentedWhitespace)¹ 
+&#32;                         | [WhitespaceComment]
 </pre></x>
+
+1: Only the production for the current syntax is valid.
+
+[WhitespaceComment]: #whitespacecomment
 
 ### Indentation
 
