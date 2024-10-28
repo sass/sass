@@ -146,9 +146,9 @@ If a `WhitespaceComment` would be ambiguous with a `Statement` in the
 <x><pre>
 **WhitespaceOnlyLine**          ::= IndentSame (Whitespace)*
 **IndentCharacter**             ::= Space | Tab
-**IndentSame**                  ::= [WhitespaceOnlyLine]* [LineBreak]
+**IndentSame**                  ::= WhitespaceOnlyLine* [LineBreak]
 &#32;                               [IndentCharacter]{ Current }
-**IndentMore**                  ::= [WhitespaceOnlyLine]* [LineBreak]
+**IndentMore**                  ::= WhitespaceOnlyLine* [LineBreak]
 &#32;                               [IndentCharacter]{ Current + 1, }
 </pre></x>
 
