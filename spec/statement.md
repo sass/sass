@@ -10,6 +10,10 @@
   * [IndentedStatements](#indentedstatements)
   * [Statements](#statements)
   * [Block](#block)
+  * [Comments](#comments)
+    * [LoudComment](#loudcomment)
+    * [SilentComment](#silentcomment)
+    * [WhitespaceComment](#whitespacecomment)
   * [Whitespace](#whitespace)
   * [Indentation](#indentation)
 
@@ -60,8 +64,10 @@ If a `WhitespaceComment` would be ambiguous with a `Statement` in the
 ### IndentedStatements
 
 <x><pre>
-**IndentedStatements**  ::= (Statement IndentedSame)* Statement
+**IndentedStatements**  ::= (Statement [IndentSame])* Statement
 </pre></x>
+
+[IndentSame]: #indentation
 
 ### Statements
 
@@ -78,12 +84,11 @@ If a `WhitespaceComment` would be ambiguous with a `Statement` in the
 
 <x><pre>
 **ScssBlock**      ::= '{' [ScssStatements] '}'
-**IndentedBlock**  ::= [IndentMore] [IndentedStatements] [IndentLess]
+**IndentedBlock**  ::= [IndentMore] [IndentedStatements]
 **Block**          ::= (ScssBlock | IndentedBlock)¹
 </pre></x>
 
 [IndentMore]: #indentation
-[IndentLess]: #indentation
 
 1: Only the production for the current syntax is valid.
 
@@ -92,8 +97,8 @@ If a `WhitespaceComment` would be ambiguous with a `Statement` in the
 #### LoudComment
 
 <x><pre>
-**ScssLoudComment**          ::= '/*' '!'? (.* | Interpolation)* '*/'
-**IndentedLoudComment**      ::= '/*' '!'? ([^IndentedLess] | Interpolation)*
+**ScssLoudComment**          ::= '/*' '!'? (.* | Interpolation)*'*/'
+**IndentedLoudComment**      ::= '/*' '!'? (.* | Interpolation)*
 **LoudComment**              ::= (ScssLoudComment | IndentedLoudComment)¹
 </pre></x>
 
@@ -104,8 +109,8 @@ If a `WhitespaceComment` would be ambiguous with a `Statement` in the
 #### SilentComment
 
 <x><pre>
-**ScssSilentComment**          ::= '//' [^LineBreak]*
-**IndentedSilentComment**      ::= '//' [^IndentedLess]*
+**ScssSilentComment**          ::= '//' .*
+**IndentedSilentComment**      ::= '//' .*
 **SilentComment**              ::= (ScssSilentComment | IndentedSilentComment)¹
 </pre></x>
 
@@ -114,9 +119,9 @@ If a `WhitespaceComment` would be ambiguous with a `Statement` in the
 #### WhitespaceComment
 
 <x><pre>
-**ScssWhitespaceComment**          ::= '//' .* '//' | '/*' .* '*/'
+**ScssWhitespaceComment**          ::= '//' .*'//' | '/*' .*'*/'
 **IndentedWhitespaceComment**      ::= '/*' .* '*/'
-**WhitespaceComment*¹              ::= ScssWhitespaceComment 
+**WhitespaceComment*¹              ::= ScssWhitespaceComment
 &#32;                                | IndentedWhitespaceComment
 </pre></x>
 
@@ -124,14 +129,11 @@ If a `WhitespaceComment` would be ambiguous with a `Statement` in the
 
 ### Whitespace
 
-> Whitespace separates productions inside a statement when disambiguation is
-> necessary. The Whitespace productions do not separate Statements.
-
 <x><pre>
 **LineBreak**               ::= CarriageReturn | LineFeed | FormFeed
 **ScssWhitespace**          ::= LineBreak | Space | Tab
 **IndentedWhitespace**      ::= Space | Tab
-**Whitespace**              ::= (ScssWhitespace | IndentedWhitespace)¹ 
+**Whitespace**              ::= (ScssWhitespace | IndentedWhitespace)¹
 &#32;                         | [WhitespaceComment]
 </pre></x>
 
@@ -142,10 +144,12 @@ If a `WhitespaceComment` would be ambiguous with a `Statement` in the
 ### Indentation
 
 <x><pre>
-**IndentCharacter**         ::= Space | Tab
-**IndentSame**              ::= [LineBreak] [IndentCharacter]{ Current }
-**IndentLess**              ::= [LineBreak] [IndentCharacter]{ 0, Current - 1 }
-**IndentMore**              ::= [LineBreak] [IndentCharacter]{ Current + 1, }
+**WhitespaceOnlyLine**          ::= IndentSame (Whitespace)*
+**IndentCharacter**             ::= Space | Tab
+**IndentSame**                  ::= [WhitespaceOnlyLine]* [LineBreak]
+&#32;                               [IndentCharacter]{ Current }
+**IndentMore**                  ::= [WhitespaceOnlyLine]* [LineBreak]
+&#32;                               [IndentCharacter]{ Current + 1, }
 </pre></x>
 
 [LineBreak]: #whitespace
@@ -156,8 +160,7 @@ The [IndentCharacter] must be the [document indentation character].
 [document indentation character]: #document-indentation-character
 
 `Current` is the [current indentation level] for a document. After consuming an
-`IndentSame`, `IndentLess`, or `IndentMore` production, the [current indentation
-level] is set to the number of [IndentCharacter]s found. At the end of a
-document, the [current indentation level] is set to 0.
+`IndentSame` or `IndentMore` production, the [current indentation level] is set
+to the number of [IndentCharacter]s found.
 
 [current indentation level]: #current-indentation-level
