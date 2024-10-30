@@ -8,7 +8,7 @@
 * [Syntax](#syntax)
   * [ScssStatements](#scssstatements)
   * [IndentedStatements](#indentedstatements)
-  * [Statements](#statements)
+  * [Stylesheet](#stylesheet)
   * [Block](#block)
   * [Comments](#comments)
     * [LoudComment](#loudcomment)
@@ -37,7 +37,7 @@ initial `current indentation level` for any document is `0`.
 ### Document indentation character
 
 The `document indentation character` is defined as the first tab or space
-character used as an [`IndentMore`] production in a document.
+character used in an [`IndentMore`] production in a document.
 
 [`IndentMore`]: #indentation
 
@@ -55,7 +55,7 @@ character used as an [`IndentMore`] production in a document.
 **ScssStatements**      ::= (Statement ';'?¹)* Statement?
 </pre></x>
 
-1: This production is mandatory unless the previous `Statement` is a
+1. This production is mandatory unless the previous `Statement` is a
 `LoudComment`, `SilentComment`, or ends in a `Block`.
 
 If a `WhitespaceComment` would be ambiguous with a `Statement` in the
@@ -69,10 +69,13 @@ If a `WhitespaceComment` would be ambiguous with a `Statement` in the
 
 [IndentSame]: #indentation
 
-### Statements
+The `Statement` productions may not include newlines outside of `IndentSame`
+productions.
+
+### Stylesheet
 
 <x><pre>
-**Statements**          ::= ([ScssStatements] | [IndentedStatements])¹
+**Stylesheet**          ::= U+FEFF? ([ScssStatements] | [IndentedStatements])¹
 </pre></x>
 
 [ScssStatements]: #scssstatements
@@ -90,42 +93,49 @@ If a `WhitespaceComment` would be ambiguous with a `Statement` in the
 
 [IndentMore]: #indentation
 
-1: Only the production for the current syntax is valid.
+1. Only the production for the current syntax is valid.
 
 ### Comments
 
 #### LoudComment
 
 <x><pre>
-**ScssLoudComment**          ::= '/*' '!'? (.* | Interpolation)*'*/'
-**IndentedLoudComment**      ::= '/*' '!'? (.* | Interpolation)*
-**LoudComment**              ::= (ScssLoudComment | IndentedLoudComment)¹
+**ScssLoudComment**          ::= '/\*' (.\*¹ | Interpolation)*'\*/'
+**IndentedLoudCommentNest**  ::= [IndentMore] ((.\*² | Interpolation)*
+&#32;                            [IndentSame])*(.\*² | Interpolation)*
+**IndentedLoudComment**      ::= '/\*' (.\*² | Interpolation)*
+&#32;                            IndentedLoudCommentNest?
+**LoudComment**              ::= (ScssLoudComment | IndentedLoudComment)³
 </pre></x>
 
-> TODO: Wildcard and character set regex syntax conflict with markdown.
-
-1: Only the production for the current syntax is valid.
+1. This may not contain `#{` or `*/`.
+2. This may not contain `#{` or newlines.
+3. Only the production for the current syntax is valid.
 
 #### SilentComment
 
 <x><pre>
-**ScssSilentComment**          ::= '//' .*
-**IndentedSilentComment**      ::= '//' .*
-**SilentComment**              ::= (ScssSilentComment | IndentedSilentComment)¹
+**ScssSilentComment**          ::= '//' .\*¹
+**IndentedSilentComment**      ::= '//' .\*²
+**SilentComment**              ::= (ScssSilentComment | IndentedSilentComment)³
 </pre></x>
 
-1: Only the production for the current syntax is valid.
+1. This may not contain newlines.
+2. This may not contain newlines outside of [IndentSame] productions.
+3. Only the production for the current syntax is valid.
 
 #### WhitespaceComment
 
 <x><pre>
-**ScssWhitespaceComment**          ::= '//' .*'//' | '/*' .*'*/'
-**IndentedWhitespaceComment**      ::= '/*' .* '*/'
-**WhitespaceComment*¹              ::= ScssWhitespaceComment
+**ScssWhitespaceComment**          ::= '//' .\*¹ | '/\*' .\*² '\*/'
+**IndentedWhitespaceComment**      ::= '/\*' .\*² '\*/'
+**WhitespaceComment**³             ::= ScssWhitespaceComment
 &#32;                                | IndentedWhitespaceComment
 </pre></x>
 
-1: Only the production for the current syntax is valid.
+1. This may not contain newlines.
+2. This may not contain `*/`.
+3. Only the production for the current syntax is valid.
 
 ### Whitespace
 
@@ -137,19 +147,19 @@ If a `WhitespaceComment` would be ambiguous with a `Statement` in the
 &#32;                         | [WhitespaceComment]
 </pre></x>
 
-1: Only the production for the current syntax is valid.
+1. Only the production for the current syntax is valid.
 
 [WhitespaceComment]: #whitespacecomment
 
 ### Indentation
 
 <x><pre>
-**WhitespaceOnlyLine**          ::= IndentSame (Whitespace)*
+**WhitespaceOnlyLine**          ::= IndentSame? (Whitespace)* [LineBreak]
 **IndentCharacter**             ::= Space | Tab
-**IndentSame**                  ::= WhitespaceOnlyLine* [LineBreak]
+**IndentSame**                  ::= [LineBreak] WhitespaceOnlyLine*
 &#32;                               [IndentCharacter]{ Current }
 **IndentMore**                  ::= WhitespaceOnlyLine* [LineBreak]
-&#32;                               [IndentCharacter]{ Current + 1, }
+&#32;                               [IndentCharacter]{ ≥ Current + 1 }
 </pre></x>
 
 [LineBreak]: #whitespace
