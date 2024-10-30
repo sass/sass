@@ -100,10 +100,10 @@ productions.
 #### LoudComment
 
 <x><pre>
-**ScssLoudComment**          ::= '/\*' (.\*¹ | Interpolation)*'\*/'
-**IndentedLoudCommentNest**  ::= [IndentMore] ((.\*² | Interpolation)*
-&#32;                            [IndentSame])*(.\*² | Interpolation)*
-**IndentedLoudComment**      ::= '/\*' (.\*² | Interpolation)*
+**ScssLoudComment**          ::= '/\*' (.\*¹ | Interpolation)\* '\*/'
+**IndentedLoudCommentNest**  ::= [IndentMore] ((.\*² | Interpolation)\*
+&#32;                            [IndentSame])\* (.\*² | Interpolation)\*
+**IndentedLoudComment**      ::= '/\*' (.\*² | Interpolation)\*
 &#32;                            IndentedLoudCommentNest?
 **LoudComment**              ::= (ScssLoudComment | IndentedLoudComment)³
 </pre></x>
