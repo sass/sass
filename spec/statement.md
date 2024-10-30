@@ -154,11 +154,11 @@ productions.
 ### Indentation
 
 <x><pre>
-**WhitespaceOnlyLine**          ::= IndentSame? (Whitespace)* [LineBreak]
-**IndentCharacter**             ::= Space | Tab
-**IndentSame**                  ::= [LineBreak] WhitespaceOnlyLine*
+**WhitespaceOnlyLine**          ::= IndentSame? Whitespace\* [LineBreak]
+**IndentSame**                  ::= [LineBreak] WhitespaceOnlyLine\*
 &#32;                               [IndentCharacter]{ Current }
-**IndentMore**                  ::= WhitespaceOnlyLine* [LineBreak]
+**IndentCharacter**             ::= Space | Tab
+**IndentMore**                  ::= WhitespaceOnlyLine\* [LineBreak]
 &#32;                               [IndentCharacter]{ ≥ Current + 1 }
 </pre></x>
 
