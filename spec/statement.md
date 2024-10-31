@@ -146,8 +146,7 @@ productions.
 **Whitespace** ::= LineBreak¹ | Space | Tab | [WhitespaceComment]
 </pre></x>
 
-1. This is not allowed in the indented syntax.
-2. Only the production for the current syntax is valid.
+1: This is not allowed in the indented syntax.
 
 [WhitespaceComment]: #whitespacecomment
 
