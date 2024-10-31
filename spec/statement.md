@@ -132,13 +132,13 @@ productions.
 
 <x><pre>
 **ScssWhitespaceComment**          ::= '//' .\*¹ | '/\*' .\*² '\*/'
-**IndentedWhitespaceComment**      ::= ('/\*' .\*² '\*/') | ('//' .\*¹)
+**IndentedWhitespaceComment**      ::= ('/\*' .\*¹˒² '\*/') | ('//' .\*¹)
 **WhitespaceComment**³             ::= ScssWhitespaceComment
 &#32;                                | IndentedWhitespaceComment
 </pre></x>
 
 1. This may not contain newlines.
-2. This may not contain `*/` or newlines.
+2. This may not contain `*/`.
 3. Only the production for the current syntax is valid.
 
 ### Whitespace
