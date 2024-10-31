@@ -11,9 +11,11 @@
 
 <x><pre>
 **Declaration**         ::= StandardDeclaration | CustomDeclaration
-**StandardDeclaration** ::= [InterpolatedIdentifier]¹ ':' (Value | Value? Block )
+**StandardDeclaration** ::= [InterpolatedIdentifier]¹ ':' (Value | Value? [Block] )
 **CustomDeclaration**   ::= [InterpolatedIdentifier]² ':' InterpolatedDeclarationValue
 </pre></x>
+
+[Block]: statement.md#block
 
 1. This may not begin with "--".
 2. This *must* begin with "--".

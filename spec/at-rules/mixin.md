@@ -76,7 +76,7 @@ To execute a `@mixin` rule `rule`:
 <x><pre>
 **IncludeRule**      ::= '@include' [NamespacedIdentifier] ArgumentInvocation?
 &#32;                    ContentBlock?
-**ContentBlock**     ::= UsingDeclaration? Block
+**ContentBlock**     ::= UsingDeclaration? [Block]
 **UsingDeclaration** ::= 'using' ArgumentDeclaration
 </pre></x>
 
