@@ -138,7 +138,6 @@ productions.
 2. This may not contain `*/`. In the indented syntax, this may not contain
    newlines.
 
-
 ### Whitespace
 
 <x><pre>
