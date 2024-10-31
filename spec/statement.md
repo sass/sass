@@ -153,16 +153,16 @@ productions.
 ### Indentation
 
 <x><pre>
-**WhitespaceOnlyLine**          ::= IndentSame? Whitespace\* [LineBreak]
+**WhitespaceOnlyLine**          ::= IndentSame? [Whitespace]\* [LineBreak]
 **IndentSame**                  ::= [LineBreak] WhitespaceOnlyLine\*
-&#32;                               [IndentCharacter]{ Current }
+&#32;                               IndentCharacter{ Current }
 **IndentCharacter**             ::= Space | Tab
 **IndentMore**                  ::= WhitespaceOnlyLine\* [LineBreak]
-&#32;                               [IndentCharacter]{ ≥ Current + 1 }
+&#32;                               IndentCharacter{ ≥ Current + 1 }
 </pre></x>
 
+[Whitespace]: #whitespace
 [LineBreak]: #whitespace
-[IndentCharacter]: #whitespace
 
 The [IndentCharacter] must be the [document indentation character].
 
