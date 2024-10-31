@@ -117,7 +117,10 @@ productions.
 
 <x><pre>
 **ScssSilentComment**          ::= '//' .\*¹
-**IndentedSilentComment**      ::= '//' .\*²
+**CommentText**                ::= .\*²
+**IndentedSilentChildren**     ::= (CommentText [IndentSame])\* CommentText
+**IndentedSilentComment**      ::= '//' CommentText ([IndentMore]
+&#32;                              IndentedSilentChildren)?
 **SilentComment**              ::= (ScssSilentComment | IndentedSilentComment)³
 </pre></x>
 
@@ -129,13 +132,13 @@ productions.
 
 <x><pre>
 **ScssWhitespaceComment**          ::= '//' .\*¹ | '/\*' .\*² '\*/'
-**IndentedWhitespaceComment**      ::= '/\*' .\*² '\*/'
+**IndentedWhitespaceComment**      ::= ('/\*' .\*² '\*/') | ('//' .\*¹)
 **WhitespaceComment**³             ::= ScssWhitespaceComment
 &#32;                                | IndentedWhitespaceComment
 </pre></x>
 
 1. This may not contain newlines.
-2. This may not contain `*/`.
+2. This may not contain `*/` or newlines.
 3. Only the production for the current syntax is valid.
 
 ### Whitespace
