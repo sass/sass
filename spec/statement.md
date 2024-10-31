@@ -163,7 +163,7 @@ productions.
 [Whitespace]: #whitespace
 [LineBreak]: #whitespace
 
-The [IndentCharacter] must be the [document indentation character].
+The IndentCharacter must be the [document indentation character].
 
 [document indentation character]: #document-indentation-character
 
