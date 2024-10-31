@@ -169,6 +169,6 @@ The IndentCharacter must be the [document indentation character].
 
 `Current` is the [current indentation level] for a document. After consuming an
 `IndentSame` or `IndentMore` production, the [current indentation level] is set
-to the number of [IndentCharacter]s found.
+to the number of IndentCharacters found.
 
 [current indentation level]: #current-indentation-level
