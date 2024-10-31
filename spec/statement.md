@@ -55,7 +55,7 @@ character used in an [`IndentMore`] production in a document.
 **ScssStatements**      ::= (Statement ';'?¹)* Statement?
 </pre></x>
 
-1. This production is mandatory unless the previous `Statement` is a
+1: This production is mandatory unless the previous `Statement` is a
 `LoudComment`, `SilentComment`, or ends in a `Block`.
 
 If a `WhitespaceComment` would be ambiguous with a `Statement` in the
@@ -81,7 +81,7 @@ productions.
 [ScssStatements]: #scssstatements
 [IndentedStatements]: #indentedstatements
 
-1. Only the production for the current syntax is valid.
+1: Only the production for the current syntax is valid.
 
 ### Block
 
@@ -93,7 +93,7 @@ productions.
 
 [IndentMore]: #indentation
 
-1. Only the production for the current syntax is valid.
+1: Only the production for the current syntax is valid.
 
 ### Comments
 
@@ -101,10 +101,11 @@ productions.
 
 <x><pre>
 **ScssLoudComment**          ::= '/\*' (.\*¹ | Interpolation)\* '\*/'
-**IndentedLoudCommentNest**  ::= [IndentMore] ((.\*² | Interpolation)\*
-&#32;                            [IndentSame])\* (.\*² | Interpolation)\*
-**IndentedLoudComment**      ::= '/\*' (.\*² | Interpolation)\*
-&#32;                            IndentedLoudCommentNest?
+**InterpolatedCommentText**  ::= (.\*² | Interpolation)\*
+**IndentedLoudChildren**     ::= (InterpolatedCommentText [IndentSame])\*
+&#32;                            InterpolatedCommentText
+**IndentedLoudComment**      ::= '/\*' InterpolatedCommentText
+&#32;                            ([IndentMore] IndentedLoudChildren)?
 **LoudComment**              ::= (ScssLoudComment | IndentedLoudComment)³
 </pre></x>
 
@@ -140,14 +141,12 @@ productions.
 ### Whitespace
 
 <x><pre>
-**LineBreak**               ::= CarriageReturn | LineFeed | FormFeed
-**ScssWhitespace**          ::= LineBreak | Space | Tab
-**IndentedWhitespace**      ::= Space | Tab
-**Whitespace**              ::= (ScssWhitespace | IndentedWhitespace)¹
-&#32;                         | [WhitespaceComment]
+**LineBreak**  ::= CarriageReturn | LineFeed | FormFeed
+**Whitespace** ::= LineBreak¹ | Space | Tab | [WhitespaceComment]
 </pre></x>
 
-1. Only the production for the current syntax is valid.
+1: This is not allowed in the indented syntax.
+1: Only the production for the current syntax is valid.
 
 [WhitespaceComment]: #whitespacecomment
 
