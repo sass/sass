@@ -109,9 +109,11 @@ productions.
 **LoudComment**              ::= (ScssLoudComment | IndentedLoudComment)³
 </pre></x>
 
-1. This may not contain `#{` or `*/`.
-2. This may not contain `#{` or newlines.
-3. Only the production for the current syntax is valid.
+1: This may not contain `#{` or `*/`.
+
+2: This may not contain `#{` or newlines.
+
+3: Only the production for the current syntax is valid.
 
 #### SilentComment
 
@@ -124,9 +126,11 @@ productions.
 **SilentComment**              ::= (ScssSilentComment | IndentedSilentComment)³
 </pre></x>
 
-1. This may not contain newlines.
-2. This may not contain newlines outside of [WhitespaceOnlyLine] productions.
-3. Only the production for the current syntax is valid.
+1: This may not contain newlines.
+
+2: This may not contain newlines outside of [WhitespaceOnlyLine] productions.
+
+3: Only the production for the current syntax is valid.
 
 [WhitespaceOnlyLine]: #indentation
 
@@ -136,8 +140,9 @@ productions.
 **WhitespaceComment**              ::= ('//' .\*¹) | ('/\*' .\*² '\*/')
 </pre></x>
 
-1. This may not contain newlines.
-2. This may not contain `*/`. In the indented syntax, this may not contain
+1: This may not contain newlines.
+
+2: This may not contain `*/`. In the indented syntax, this may not contain
    newlines.
 
 ### Whitespace
