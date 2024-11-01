@@ -133,7 +133,7 @@ productions.
 #### WhitespaceComment
 
 <x><pre>
-**WhitespaceComment**³             ::= ('//' .\*¹) | ('/\*' .\*² '\*/')
+**WhitespaceComment**              ::= ('//' .\*¹) | ('/\*' .\*² '\*/')
 </pre></x>
 
 1. This may not contain newlines.
