@@ -7,8 +7,7 @@
 > structures it allows.
 
 <x><pre>
-**UnknownAtRule** ::= '@' [InterpolatedIdentifier] InterpolatedValue?
-&#32;                   [Block]?
+**UnknownAtRule** ::= '@' [InterpolatedIdentifier] InterpolatedValue? [Block]?
 </pre></x>
 
 [InterpolatedIdentifier]: ../syntax.md#interpolatedidentifier

@@ -21,50 +21,52 @@
 
 ### Current indentation level
 
-The `current indentation level` is the count of the [`documentation indentation
-character`] between a new line and any non-whitespace characters of the last
-consumed statement. Lines that only contain whitespace or do not start a
-statement do not impact the `current indentation level`.
+The *current indentation level* is the number of [documentation indentation
+characters] before the first non-whitespace character of the last consumed
+statement. The initial current indentation level for any document is 0.
 
-A document parsed in the indented syntax may not begin with whitespace, and the
-initial `current indentation level` for any document is `0`.
+> Lines that only contain whitespace or do not start a statement do not impact
+> the current indentation level. Changes in the indentation level are used by
+> the indented syntax to start and end blocks of statements.
 
-> Changes in the indentation level are used by the indented syntax to start and
-> end blocks of statements.
-
-[`documentation indentation character`]: #document-indentation-character
+[documentation indentation characters]: #document-indentation-character
 
 ### Document indentation character
 
-The `document indentation character` is defined as the first tab or space
-character used in an [`IndentMore`] production in a document.
+The *document indentation character* is the first tab or space character used in
+an [`IndentMore`] production in a document.
 
 [`IndentMore`]: #indentation
 
-> The `document indentation character` is the character used for calculating the
-> [`current indentation level`]. In the indented syntax, no character other than
-> the `document indentation character` may be used for indentation.
+> This is the character used for calculating the [current indentation level]. In
+> the indented syntax, no character other than the document indentation
+> character may be used for indentation.
 
-[`current indentation level`]: #current-indentation-level
+[current indentation level]: #current-indentation-level
 
 ## Syntax
 
 ### ScssStatements
 
 <x><pre>
-**ScssStatements**      ::= (Statement ';'?¹)* Statement?
+**ScssStatements** ::= (Statement ';'?¹)* Statement?
 </pre></x>
 
 1: This production is mandatory unless the previous `Statement` is a
-`LoudComment`, `SilentComment`, or ends in a `Block`.
+[`LoudComment`], [`SilentComment`], or ends in a `Block`.
 
-If a `WhitespaceComment` would be ambiguous with a `Statement` in the
+[`LoudComment`]: #loudcomment
+[`SilentComment`]: #silentcomment
+
+If a [`WhitespaceComment`] would be ambiguous with a `Statement` in the
 `ScssStatements` rule, parse it preferentially as a `Statement`.
+
+[`WhitespaceComment`]: #whitespacecomment
 
 ### IndentedStatements
 
 <x><pre>
-**IndentedStatements**  ::= (Statement [IndentSame])* Statement
+**IndentedStatements** ::= (Statement [IndentSame])* Statement
 </pre></x>
 
 [IndentSame]: #indentation
@@ -75,7 +77,7 @@ productions.
 ### Stylesheet
 
 <x><pre>
-**Stylesheet**          ::= U+FEFF? ([ScssStatements] | [IndentedStatements])¹
+**Stylesheet** ::= U+FEFF? ([ScssStatements] | [IndentedStatements])¹
 </pre></x>
 
 [ScssStatements]: #scssstatements
@@ -86,9 +88,9 @@ productions.
 ### Block
 
 <x><pre>
-**ScssBlock**      ::= '{' [ScssStatements] '}'
-**IndentedBlock**  ::= [IndentMore] [IndentedStatements]
-**Block**          ::= (ScssBlock | IndentedBlock)¹
+**ScssBlock**     ::= '{' [ScssStatements] '}'
+**IndentedBlock** ::= [IndentMore] [IndentedStatements]
+**Block**         ::= (ScssBlock | IndentedBlock)¹
 </pre></x>
 
 [IndentMore]: #indentation
@@ -100,13 +102,13 @@ productions.
 #### LoudComment
 
 <x><pre>
-**ScssLoudComment**          ::= '/\*' (.\*¹ | Interpolation)\* '\*/'
-**InterpolatedCommentText**  ::= (.\*² | Interpolation)\*
-**IndentedLoudChildren**     ::= (InterpolatedCommentText [IndentSame])\*
-&#32;                            InterpolatedCommentText
-**IndentedLoudComment**      ::= '/\*' InterpolatedCommentText
-&#32;                            ([IndentMore] IndentedLoudChildren)?
-**LoudComment**              ::= (ScssLoudComment | IndentedLoudComment)³
+**ScssLoudComment**         ::= '/\*' (.\*¹ | Interpolation)\* '\*/'
+**InterpolatedCommentText** ::= (.\*² | Interpolation)\*
+**IndentedLoudChildren**    ::= (InterpolatedCommentText [IndentSame])\*
+&#32;                           InterpolatedCommentText
+**IndentedLoudComment**     ::= '/\*' InterpolatedCommentText
+&#32;                           ([IndentMore] IndentedLoudChildren)?
+**LoudComment**             ::= (ScssLoudComment | IndentedLoudComment)³
 </pre></x>
 
 1: This may not contain `#{` or `*/`.
@@ -118,12 +120,12 @@ productions.
 #### SilentComment
 
 <x><pre>
-**ScssSilentComment**          ::= '//' .\*¹
-**CommentText**                ::= .\*¹
-**IndentedSilentChildren**     ::= (CommentText [IndentSame])\* CommentText
-**IndentedSilentComment**      ::= '//' CommentText
-&#32;                              ([IndentMore] IndentedSilentChildren)?
-**SilentComment**              ::= (ScssSilentComment | IndentedSilentComment)²
+**ScssSilentComment**      ::= '//' .\*¹
+**CommentText**            ::= .\*¹
+**IndentedSilentChildren** ::= (CommentText [IndentSame])\* CommentText
+**IndentedSilentComment**  ::= '//' CommentText
+&#32;                          ([IndentMore] IndentedSilentChildren)?
+**SilentComment**          ::= (ScssSilentComment | IndentedSilentComment)²
 </pre></x>
 
 1: This may not contain newlines.
@@ -133,7 +135,7 @@ productions.
 #### WhitespaceComment
 
 <x><pre>
-**WhitespaceComment**              ::= ('//' .\*¹) | ('/\*' .\*² '\*/')
+**WhitespaceComment** ::= ('//' .\*¹) | ('/\*' .\*² '\*/')
 </pre></x>
 
 1: This may not contain newlines.
@@ -155,12 +157,12 @@ productions.
 ### Indentation
 
 <x><pre>
-**WhitespaceOnlyLine**          ::= [Whitespace]\* [LineBreak]
-**IndentSame**                  ::= [LineBreak] WhitespaceOnlyLine\*
-&#32;                               IndentCharacter{ Current }
-**IndentCharacter**             ::= Space | Tab
-**IndentMore**                  ::= WhitespaceOnlyLine\* [LineBreak]
-&#32;                               IndentCharacter{ ≥ Current + 1 }
+**WhitespaceOnlyLine** ::= [Whitespace]\* [LineBreak]
+**IndentSame**         ::= [LineBreak] WhitespaceOnlyLine\*
+&#32;                      IndentCharacter{ Current }
+**IndentCharacter**    ::= Space | Tab
+**IndentMore**         ::= WhitespaceOnlyLine\* [LineBreak]
+&#32;                      IndentCharacter{ ≥ Current + 1 }
 </pre></x>
 
 [Whitespace]: #whitespace
@@ -173,5 +175,3 @@ The IndentCharacter must be the [document indentation character].
 `Current` is the [current indentation level] for a document. After consuming an
 `IndentSame` or `IndentMore` production, the [current indentation level] is set
 to the number of IndentCharacters found.
-
-[current indentation level]: #current-indentation-level
