@@ -119,20 +119,16 @@ productions.
 
 <x><pre>
 **ScssSilentComment**          ::= '//' .\*¹
-**CommentText**                ::= .\*²
+**CommentText**                ::= .\*¹
 **IndentedSilentChildren**     ::= (CommentText [IndentSame])\* CommentText
 **IndentedSilentComment**      ::= '//' CommentText
 &#32;                              ([IndentMore] IndentedSilentChildren)?
-**SilentComment**              ::= (ScssSilentComment | IndentedSilentComment)³
+**SilentComment**              ::= (ScssSilentComment | IndentedSilentComment)²
 </pre></x>
 
 1: This may not contain newlines.
 
-2: This may not contain newlines outside of [WhitespaceOnlyLine] productions.
-
-3: Only the production for the current syntax is valid.
-
-[WhitespaceOnlyLine]: #indentation
+2: Only the production for the current syntax is valid.
 
 #### WhitespaceComment
 
@@ -159,7 +155,7 @@ productions.
 ### Indentation
 
 <x><pre>
-**WhitespaceOnlyLine**          ::= IndentSame? [Whitespace]\* [LineBreak]
+**WhitespaceOnlyLine**          ::= [Whitespace]\* [LineBreak]
 **IndentSame**                  ::= [LineBreak] WhitespaceOnlyLine\*
 &#32;                               IndentCharacter{ Current }
 **IndentCharacter**             ::= Space | Tab
