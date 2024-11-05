@@ -148,8 +148,8 @@ parentheses.
 
 ### Parsing Text
 
-This algorithm takes a string `text` and a syntax `syntax` ("indented", "scss",
-or "sass"), and returns a Sass abstract syntax tree.
+This algorithm takes a string `text` and a syntax `syntax` ("indented", "css",
+or "scss"), and returns a Sass abstract syntax tree.
 
 * If `syntax` is "indented", return the result of parsing `text` as the indented
   syntax.

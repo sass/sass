@@ -9,14 +9,14 @@
 
 <x><pre>
 **ForRule**            ::= '@for' [PlainVariable] FromDeclaration
-&#32;                      (ToDeclaration | ThroughDeclaration) ForBlock
+&#32;                      (ToDeclaration | ThroughDeclaration) [Block]
 **FromDeclaration**    ::= 'from' Expression
 **ToDeclaration**      ::= 'to' Expression
 **ThroughDeclaration** ::= 'through' Expression
-**ForBlock**           ::= '{' Statements '}'
 </pre></x>
 
 [PlainVariable]: ../variables.md#syntax
+[Block]: ../statement.md#block
 
 ## Semantics
 
