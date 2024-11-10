@@ -1,4 +1,4 @@
-version: v1
+version: v1.2.4
 plugins:
 - plugin: buf.build/bufbuild/es
   out: gen
