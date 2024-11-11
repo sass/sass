@@ -208,7 +208,8 @@ In the indented syntax, this may not contain newlines.
 Replace footnote 1 with:
 
 1. In the indented syntax, `LineBreak` is not whitespace in the `IncludeAtRule`,
-   `SupportsAtRule`, [`MediaAtRule`], `KeyframesAtRule` or [`UnknownAtRule`].
+   `SupportsAtRule`, [`MediaAtRule`], `KeyframesAtRule`, [`UnknownAtRule`], or
+   in any position where the semantics of a `Statement` define a possible end.
 
 [`MediaAtRule`]: ../spec/at-rules/media.md
 [`UnknownAtRule`]: ../spec/at-rules/unknown.md
