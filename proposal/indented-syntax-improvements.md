@@ -9,8 +9,10 @@ expressions, semicolons, and curly braces.
 
 * [Background](#background)
 * [Summary](#summary)
+  * [Line breaks](#line-breaks)
+  * [Semicolons](#semicolons)
+  * [SCSS-in-Sass](#scss-in-sass)
   * [Ending statements](#ending-statements)
-  * [Places where a line break must create a statement break](#places-where-a-line-break-must-create-a-statement-break)
     * [After a SassScript value](#after-a-sassscript-value)
     * [After a non-enclosed list begins](#after-a-non-enclosed-list-begins)
     * [At-rules](#at-rules)
@@ -33,17 +35,34 @@ it presents authoring challenges, specifically around long lists.
 
 > This section is non-normative.
 
+This proposal changes where line breaks cause statement breaks, allows the use
+of semicolons, and adds a method to opt-in to SCSS formatting to the indented
+syntax.
+
+### Line breaks
+
 In the Sass indented syntax, line breaks always end a statement, which limits
 how authors can format their code. However, the parser can tell from context
 whether a statement can end at a given point. This document proposes that line
 breaks only end statements when a statement can end, and in any other case, a
 line break is treated as continuing white space.
 
-In addition, this proposal adds semicolons to the indented syntax as explicit
-statement ends, and allows curly braces to wrap blocks.
+In this example, statements can not end after `in`, inside the interpolation, or
+after the multiplication operator, so those line breaks will not end the
+statement.
 
-This proposal will make it possible to include line breaks by wrapping the
-expression in parentheses.
+```sass
+@each $item in 
+  1 2 3
+    .item-#{
+      $item
+    }
+      content: $item *
+        10
+````
+
+It will also be possible to include line breaks by wrapping the expression in
+parentheses.
 
 ```sass
 @font-face
@@ -56,8 +75,23 @@ expression in parentheses.
   )
 ```
 
+### Semicolons
+
+In the indented syntax outside of curly braces, authors can use a semicolon to
+explicitly end a statement. Subsequent lines in the same block still must have
+the same level of indentation. This means that the indented format won't support
+multiple statements on a single line, even if they are separated by a semicolon.
+
+```sass
+$font-stack: Helvetica, sans-serif;
+// or
+$primary-color: #333
+```
+
+### SCSS-in-Sass
+
 Alternatively, authors can use SCSS block syntax with braces and semicolons
-within the indented document.
+within an indented document.
 
 ```sass
 a
@@ -71,12 +105,26 @@ a
 }
 ```
 
+The braces essentially let authors opt in to SCSS format for part of the
+document. This means that authors must use semicolons to separate statements
+inside that block. Indentation rules do not apply and multiple statements can be
+on a single line, separated by semicolons.
+
+```sass
+$font-stack: Helvetica, sans-serif
+$primary-color: #333
+body {
+  font: 100% $font-stack;
+  color: $primary-color; background: blue;
+}
+```
+
 ### Ending statements
 
-Semicolons will always cause a statement break. If one occurs in a context where
-a statement can not end, an error will be thrown.
-
-### Places where a line break must create a statement break
+When line breaks do not end statements, the line breaks are treated as white
+space, and do not have any requirements about the amount of indentation. The
+next statement's indentation is compared to the indentation at the start of the
+current statement to determine nesting or block closure.
 
 By design, line breaks are ignored as meaningless white space except in
 contexts where the semantics define that a statement may end. When an author
@@ -141,46 +189,14 @@ We considered borrowing alternate syntax from other languages, such as a leading
 novel to Sass, and we instead opted to borrow syntax from the SCSS format. It
 also could introduce incompatibilities with future CSS features.
 
-These changes also allow authors using the indented syntax to add more explicit
-blocks with curly braces and line breaks with semicolons. While this introduces
-the changes for all authors, authors will still be able choose to limit the
-syntax with linters.
+This proposal introduces the changes for all authors using the indented syntax,
+as opposed to introducing a separate syntax or compiler flag. As the proposal is
+addititive to existing syntax, authors can choose to not use the new syntax, and
+can choose to limit the syntax with linters.
 
-In the indented syntax, authors can use curly braces to explicitly wrap a block
-of statements, but must use semicolons to separate statements inside that block.
-The braces essentially let authors opt in to SCSS format for part of the
-document. This means indentation rules do not apply and multiple statements can
-be on a single line, separated by semicolons. We opted to require semicolons
-inside of curly braces to prevent issues with multiple nested formats. 
-
-```sass
-$font-stack: Helvetica, sans-serif
-$primary-color: #333
-body {
-  font: 100% $font-stack;
-  color: $primary-color; background: blue;
-}
-```
-
-In the indented syntax outside of curly braces, authors can use a semicolon to
-explicitly end a statement. Subsequent lines in the same block still must have
-the same level of indentation. This means that the indented format won't support
-multiple statements on a single line, even if they are separated by a semicolon.
-
-```sass
-$font-stack: Helvetica, sans-serif;
-// or
-$primary-color: #333
-```
-
-When line breaks do not end statements, the line breaks are treated as white
-space, and do not have any requirements about the amount of indentation. The
-next statement's indentation is compared to the indentation at the start of the
-current statement to determine nesting or block closure.
-
-Line breaks that do not end statements are purely aesthetic and possible in a
-wide range of syntaxes, so it is up to the author to determine how to format
-their stylesheet.
+Instead of just allowing optional curly braces around indented syntax, we opted
+to require SCSS syntax inside of the braces. This is intentionally
+unidirectional to prevent issues with multiple nested formats.
 
 ## Syntax
 
