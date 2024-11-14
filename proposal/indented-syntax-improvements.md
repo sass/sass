@@ -237,7 +237,6 @@ Replace footnote 1 with:
    [`IndentMore`].
 
 [`MediaAtRule`]: ../spec/at-rules/media.md
-[`UnknownAtRule`]: ../spec/at-rules/unknown.md
 [`LineBreak`]: ../spec/statement.md#whitespace
 [`Whitespace`]: ../spec/statement.md#whitespace
 [`IndentSame`]: ../spec/statement.md#indentation
