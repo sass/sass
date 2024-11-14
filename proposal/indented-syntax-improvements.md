@@ -35,8 +35,8 @@ it presents authoring challenges, specifically around long lists.
 
 > This section is non-normative.
 
-This proposal changes where line breaks cause statement breaks, allows the use
-of semicolons, and adds a method to opt-in to SCSS formatting to the indented
+This proposal adds support for multiline statements, allows the use of
+semicolons, and adds a method to opt-in to SCSS formatting to the indented
 syntax.
 
 ### Line breaks
@@ -45,7 +45,7 @@ In the Sass indented syntax, line breaks always end a statement, which limits
 how authors can format their code. However, the parser can tell from context
 whether a statement can end at a given point. This document proposes that line
 breaks only end statements when a statement can end, and in any other case, a
-line break is treated as continuing white space.
+line break is treated as non-meaningful white space.
 
 In this example, statements can not end after `in`, inside the interpolation, or
 after the multiplication operator, so those line breaks will not end the
@@ -53,11 +53,11 @@ statement.
 
 ```sass
 @each $item in 
-  1 2 3
-    .item-#{
-      $item
-    }
-      content: $item *
+    1 2 3
+  .item-#{
+    $item
+  }
+    content: $item *
         10
 ````
 
@@ -77,10 +77,11 @@ parentheses.
 
 ### Semicolons
 
-In the indented syntax outside of curly braces, authors can use a semicolon to
-explicitly end a statement. Subsequent lines in the same block still must have
-the same level of indentation. This means that the indented format won't support
-multiple statements on a single line, even if they are separated by a semicolon.
+In the indented syntax, authors can use a semicolon to explicitly end a
+statement. Subsequent lines in the same block still must have the same level of
+indentation. This means that the indented format won't support multiple
+statements on a single line outside of curly braces, even if they are separated
+by a semicolon.
 
 ```sass
 $font-stack: Helvetica, sans-serif;
@@ -148,15 +149,14 @@ statement after `$a`, but `@if ($a \n and $b)` can be parsed.
 
 #### After a non-enclosed list begins
 
-A line break in a list that is not in a `BracketedListExpression` or enclosed in
-`()` must cause a statement break.
+A line break in a list that is not enclosed in `[]` or `()` must cause a
+statement break.
 
 `$var: 1 2\n3` and `$var: 1, 2\n, 3` can not be parsed to determine when the
 statement has ended. Alternates `$var: (1 2\n3)`, `$var: [1 2\n3]`, and `$var:
 (1, 2,\n 3)` can be parsed.
 
-Existing syntax allows for trailing commas in Sass lists. However, comma
-separated lists can not use a trailing comma to signify that a list will
+Comma separated lists can not use a trailing comma to signify that a list will
 continue after the line break, as this would break existing stylesheets with
 trailing commas.
 
@@ -230,11 +230,11 @@ In the indented syntax, this may not contain newlines.
 Replace footnote 1 with:
 
 1. In the indented syntax, [`LineBreak`] is not whitespace in the
-   `ImportAtRule`, `SupportsAtRule`, [`MediaAtRule`], `KeyframesAtRule`, or
-   [`UnknownAtRule`], except inside of parentheses or square brackets as defined
-   by CSS syntax. If a [`LineBreak`] in [`Whitespace`] would cause it to be
-   ambiguous with an [`IndentSame`] or [`IndentMore`] production, parse it
-   preferentially as [`IndentSame`] or [`IndentMore`].
+   `ImportAtRule`, `SupportsAtRule` or [`MediaAtRule`], except inside of
+   parentheses or square brackets as defined by CSS syntax. If a [`LineBreak`]
+   in [`Whitespace`] would cause it to be ambiguous with an [`IndentSame`] or
+   [`IndentMore`] production, parse it preferentially as [`IndentSame`] or
+   [`IndentMore`].
 
 [`MediaAtRule`]: ../spec/at-rules/media.md
 [`UnknownAtRule`]: ../spec/at-rules/unknown.md
