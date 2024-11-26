@@ -36,7 +36,7 @@ it presents authoring challenges, specifically around long lists.
 > This section is non-normative.
 
 This proposal adds support for multiline statements, allows the use of
-semicolons, and adds a method to opt-in to SCSS formatting to the indented
+semicolons, and adds a method to opt in to SCSS formatting to the indented
 syntax.
 
 ### Line breaks
@@ -153,12 +153,12 @@ A line break in a list that is not enclosed in `[]` or `()` must cause a
 statement break.
 
 `$var: 1 2\n3` and `$var: 1, 2\n, 3` can not be parsed to determine when the
-statement has ended. Alternates `$var: (1 2\n3)`, `$var: [1 2\n3]`, and `$var:
+statement has ended. Alternatives `$var: (1 2\n3)`, `$var: [1 2\n3]`, and `$var:
 (1, 2,\n 3)` can be parsed.
 
 Comma separated lists can not use a trailing comma to signify that a list will
-continue after the line break, as this would break existing stylesheets with
-trailing commas.
+continue after the line break. Trailing commas are allowed in Sass lists, so
+this would break existing stylesheets with trailing commas.
 
 Because arguments to functions and mixins are already wrapped in `()`, line
 breaks in arguments do not need to cause a statement break. Interpolations are
@@ -168,9 +168,8 @@ wrapped in `#{}` so line breaks do not need to end statements.
 
 For any at-rule that is supported by native CSS, line breaks after the `@` and
 before a block or statement are not supported. An exception is that line breaks
-are supported inside parentheses. This includes
-`@import`, (which overlaps with Sass), `@supports`, `@media`, `@keyframes` and
-any unknown at-rule.
+are supported inside parentheses. This includes `@import`, (which overlaps with
+Sass), `@supports`, `@media`, `@keyframes` and any unknown at-rule.
 
 These rules should be emitted as is, with no special handling from Sass,
 including all parentheses.
