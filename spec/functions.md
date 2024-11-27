@@ -125,8 +125,8 @@ To evaluate a `FunctionCall` `call`:
 
 * If `function` is null and `name` is case-insensitively equal to `"calc"`,
   `"clamp"`, `"hypot"`, `"sin"`, `"cos"`, `"tan"`, `"asin"`, `"acos"`, `"atan"`,
-  `"sqrt"`, `"exp"`, `"sign"`, `"mod"`, `"rem"`, `"atan2"`, `"pow"`, or `"log"`,
-  return the result of evaluating `call` [as a calculation].
+  `"sqrt"`, `"exp"`, `"sign"`, `"mod"`, `"rem"`, `"atan2"`, `"pow"`, `"log"`, or
+  `"calc-size"`, return the result of evaluating `call` [as a calculation].
 
 * If `function` is null, set it to the [global function](#global-functions)
   named `name`.
