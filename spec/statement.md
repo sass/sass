@@ -21,7 +21,7 @@
 
 ### Current indentation level
 
-The *current indentation level* is the number of [documentation indentation
+The *current indentation level* is the number of [document indentation
 characters] before the first non-whitespace character of the last consumed
 statement. The initial current indentation level for any document is 0.
 
@@ -29,7 +29,7 @@ statement. The initial current indentation level for any document is 0.
 > the current indentation level. Changes in the indentation level are used by
 > the indented syntax to start and end blocks of statements.
 
-[documentation indentation characters]: #document-indentation-character
+[document indentation characters]: #document-indentation-character
 
 ### Document indentation character
 
