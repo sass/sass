@@ -8,13 +8,14 @@
 ## Syntax
 
 <x><pre>
-**FunctionRule** ::= '@function' [\<ident-token>] ArgumentDeclaration '{' Statements '}'
+**FunctionRule** ::= '@function' [\<ident-token>] [ParameterList] '{' Statements '}'
 </pre></x>
 
+[ParameterList]: ../syntax.md#parameterlist
 [\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
 
-No whitespace is allowed between the `Identifier` and the `ArgumentDeclaration`
-in `FunctionRule`.
+No whitespace is allowed between the `Identifier` and the `ParameterList` in
+`FunctionRule`.
 
 ## Semantics
 
@@ -41,7 +42,7 @@ To execute a `@function` rule `rule`:
 
   * With the current scope set to an empty [scope] with `parent` as its parent:
 
-    * Evaluate `args` with `rule`'s `ArgumentDeclaration`.
+    * Evaluate `args` with `rule`'s `ParameterList`.
 
     * Execute each statement in `rule`.
 
