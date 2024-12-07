@@ -9,9 +9,11 @@
 
 ## Types
 
-The value type known as a "mixin" is a procedure that takes an
-`ArgumentInvocation` `args` and returns nothing. Each mixin has a string name
-and a boolean that indicates whether or not it accepts a content block.
+The value type known as a "mixin" is a procedure that takes an [`ArgumentList`]
+`args` and returns nothing. Each mixin has a string name and a boolean that
+indicates whether or not it accepts a content block.
+
+[`ArgumentList`]: ../syntax.md#argumentlist
 
 > The specific details of executing this procedure differ depending on where and
 > how the mixin is defined. A mixin will typically add nodes to the CSS
