@@ -375,12 +375,14 @@ apply($mixin, $args...)
 * If the current `@include` rule has a `ContentBlock` and `$mixin` doesn't
   accept a block, throw an error.
 
-* Execute `$mixin` with the `ArgumentInvocation` `(...$args)`. Treat the
+* Execute `$mixin` with the [`ArgumentList`] `(...$args)`. Treat the
   `@include` rule that invoked `apply` as the `@include` rule that invoked
   `$mixin`.
 
   > This ensures that any `@content` rules in `$mixin` will use `apply()`'s
   > `ContentBlock`.
+
+[`ArgumentList`]: ../syntax.md#argumentlist
 
 ### `load-css()`
 

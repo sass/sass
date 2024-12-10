@@ -17,13 +17,14 @@
 ### Syntax
 
 <x><pre>
-**MixinRule** ::= '@mixin' [\<ident-token>] ArgumentDeclaration? [Block]
+**MixinRule** ::= '@mixin' [\<ident-token>] [ParameterList]? [Block]
 </pre></x>
 
 [\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
+[ParameterList]: ../syntax.md#parameterlist
 [Block]: ../statement.md#block
 
-No whitespace is allowed between the `Identifier` and the `ArgumentDeclaration`
+No whitespace is allowed between the `Identifier` and the `ParameterList`
 in `MixinRule`.
 
 ### Semantics
@@ -45,7 +46,7 @@ To execute a `@mixin` rule `rule`:
 
   * With the current scope set to an empty [scope] with `parent` as its parent:
 
-    * Evaluate `args` with `rule`'s `ArgumentDeclaration`.
+    * Evaluate `args` with `rule`'s `ParameterList`.
 
     * Execute each statement in `rule`.
 
@@ -74,16 +75,17 @@ To execute a `@mixin` rule `rule`:
 ### Syntax
 
 <x><pre>
-**IncludeRule**      ::= '@include' [NamespacedIdentifier] ArgumentInvocation?
+**IncludeRule**      ::= '@include' [NamespacedIdentifier] [ArgumentList]?
 &#32;                    ContentBlock?
 **ContentBlock**     ::= UsingDeclaration? [Block]
-**UsingDeclaration** ::= 'using' ArgumentDeclaration
+**UsingDeclaration** ::= 'using' [ParameterList]
 </pre></x>
 
 [NamespacedIdentifier]: ../modules.md#syntax
+[ArgumentList]: ../syntax.md#argumentlist
 
 No whitespace is allowed between the `NamespacedIdentifier` and the
-`ArgumentInvocation` in `IncludeRule`.
+`ArgumentList` in `IncludeRule`.
 
 ### Semantics
 
@@ -96,7 +98,7 @@ To execute an `@include` rule `rule`:
 
   [resolving a mixin]: ../modules.md#resolving-a-member
 
-* Execute `mixin` with `rule`'s `ArgumentInvocation`.
+* Execute `mixin` with `rule`'s `ArgumentList`.
 
 ## `@content`
 
@@ -106,7 +108,7 @@ current mixin.
 ### Syntax
 
 <x><pre>
-**ContentRule** ::= '@content' ArgumentInvocation?
+**ContentRule** ::= '@content' [ArgumentList]?
 </pre></x>
 
 As with all statements, a `ContentRule` must be separated from other statements
@@ -121,12 +123,12 @@ an `@include` rule `include`:
 > and mixins must be invoked using `@include`, so `include` is guaranted to
 > exist.
 
-* Let `invocation` be `content`'s `ArgumentInvocation`, or an invocation with no
-  arguments if `content` has no `ArgumentInvocation`.
+* Let `invocation` be `content`'s `ArgumentList`, or an invocation with no
+  arguments if `content` has no `ArgumentList`.
 
   > This means that `@content` and `@content()` are interpreted identically.
 
-* Let `declaration` be `include`'s `UsingDeclaration`'s `ArgumentDeclaration`,
+* Let `declaration` be `include`'s `UsingDeclaration`'s `ParameterList`,
   or a declaration with no arguments if `include` has no `UsingDeclaration`.
 
   > This means that `@include foo { ... }` and `@include foo using () { ... }`
