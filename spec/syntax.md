@@ -107,8 +107,8 @@ No whitespace is allowed between components of an `InterpolatedUnquotedUrlConten
 
 <x><pre>
 **ParameterList** ::= '(' Parameter (',' Parameter)\* ','? ')'
-&#32;               | '(' Parameter (',' Parameter)\* (',' RestParameter)? ')'
-&#32;               | '(' RestParameter ')'
+&#32;               | '(' Parameter (',' Parameter)\* (',' RestParameter)? ','? ')'
+&#32;               | '(' RestParameter ','? ')'
 &#32;               | '(' ')'
 **Parameter**     ::= [PlainVariable] (':' Expression)?
 **RestParameter** ::= [PlainVariable] '...'
