@@ -57,11 +57,12 @@ matching is case-insensitive.
 &#32;                     | EmptyFallbackVar
 &#32;                     | FunctionCall
 **EmptyFallbackVar**²   ::= 'var(' Expression ',' ')'
-**FunctionCall**⁴       ::= [NamespacedIdentifier] ArgumentInvocation
+**FunctionCall**⁴       ::= [NamespacedIdentifier] [ArgumentList]
 </pre></x>
 
 [SpecialFunctionExpression]: syntax.md#specialfunctionexpression
 [NamespacedIdentifier]: modules.md#syntax
+[ArgumentList]: syntax.md#argumentlist
 
 1: Both `CssMinMax` and `EmptyFallbackVar` take precedence over `FunctionCall`
    if either could be consumed.
@@ -69,17 +70,17 @@ matching is case-insensitive.
 2: `'var('` is matched case-insensitively.
 
 4: `FunctionCall` may not have any whitespace between the `NamespacedIdentifier`
-   and the `ArgumentInvocation`. It may not start with [`SpecialFunctionName`],
+   and the `ArgumentList`. It may not start with [`SpecialFunctionName`],
    `'calc('`, or `'clamp('` (case-insensitively).
 
 [`SpecialFunctionName`]: syntax.md#specialfunctionexpression
 
 <x><pre>
-**FunctionCall** ::= [NamespacedIdentifier] ArgumentInvocation
+**FunctionCall** ::= [NamespacedIdentifier] [ArgumentList]
 </pre></x>
 
 No whitespace is allowed between the `NamespacedIdentifier` and the
-`ArgumentInvocation` in `FunctionCall`.
+`ArgumentList` in `FunctionCall`.
 
 ## Semantics
 
@@ -110,9 +111,9 @@ To evaluate a `FunctionCall` `call`:
 * If `function` is null and `name` is not a plain `Identifier`, throw an error.
 
 * If `function` is null; `name` is case-insensitively equal to `"min"`, `"max"`,
-  `"round"`, or `"abs"`; `call`'s `ArgumentInvocation` doesn't have any
+  `"round"`, or `"abs"`; `call`'s `ArgumentList` doesn't have any
   `KeywordArgument`s or `RestArgument`s; and all arguments in `call`'s
-  `ArgumentInvocation` are [calculation-safe], return the result of evaluating
+  `ArgumentList` are [calculation-safe], return the result of evaluating
   `call` [as a calculation].
 
   [calculation-safe]: types/calculation.md#calculation-safe-expression
@@ -133,14 +134,14 @@ To evaluate a `FunctionCall` `call`:
 
 * If `function` is still null:
 
-  * Let `list` be the result of evaluating `call`'s `ArgumentInvocation`.
+  * Let `list` be the result of evaluating `call`'s `ArgumentList`.
 
   * If `list` has keywords, throw an error.
 
   * Return an unquoted string representing a CSS function call with name `name`
     and arguments `list`.
 
-* Execute `call`'s `ArgumentInvocation` with `function`'s `ArgumentDeclaration`
+* Execute `call`'s `ArgumentList` with `function`'s [`ParameterList`]
   in `function`'s scope.
 
 * Execute each statement in `function` until a `ReturnRule` `return` that's
@@ -148,6 +149,8 @@ To evaluate a `FunctionCall` `call`:
   statement is encountered, throw an error.
 
 * Evaluate `return`'s `Expression` and return the result.
+
+[`ParameterList`]: syntax.md#parameterlist
 
 ## Global Functions
 

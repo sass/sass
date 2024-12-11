@@ -12,10 +12,11 @@ Each function and mixin defined in a built-in modules is specified with a
 signature of the form
 
 <x><pre>
-[\<ident-token>] ArgumentDeclaration
+[\<ident-token>] [ParameterList]
 </pre></x>
 
 [\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
+[ParameterList]: syntax.md#parameterlist
 
 followed by a procedure. It's available as a member (either function or mixin)
 in the module whose name is the value of the `<ident-token>`. When it's executed
@@ -25,7 +26,7 @@ with `args`:
 
   [current scope]: spec.md#scope
 
-  * Evaluate `args` with the signature's `ArgumentDeclaration`.
+  * Evaluate `args` with the signature's `ParameterList`.
 
   * Run the procedure, and return its result if this is a function.
 
