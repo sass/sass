@@ -1,7 +1,6 @@
 # Indented Syntax Improvements: Draft 1.1
 
-*([Issue](https://github.com/sass/sass/issues/216))*
-*([Changelog](./indented-syntax-improvements.changes.md))
+*([Issue](https://github.com/sass/sass/issues/216), [Changelog](./indented-syntax-improvements.changes.md))*
 
 This proposal improves the indented syntax format, allowing multiline
 expressions and semicolons.
