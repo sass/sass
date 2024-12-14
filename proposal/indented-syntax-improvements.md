@@ -1,9 +1,9 @@
-# Indented Syntax Improvements
+# Indented Syntax Improvements: Draft 1.1
 
-*([Issue](https://github.com/sass/sass/issues/216))*
+*([Issue](https://github.com/sass/sass/issues/216), [Changelog](./indented-syntax-improvements.changes.md))*
 
 This proposal improves the indented syntax format, allowing multiline
-expressions, semicolons, and curly braces.
+expressions and semicolons.
 
 ## Table of Contents
 
@@ -11,7 +11,6 @@ expressions, semicolons, and curly braces.
 * [Summary](#summary)
   * [Line breaks](#line-breaks)
   * [Semicolons](#semicolons)
-  * [SCSS-in-Sass](#scss-in-sass)
   * [Ending statements](#ending-statements)
     * [After a SassScript value](#after-a-sassscript-value)
     * [After a non-enclosed list begins](#after-a-non-enclosed-list-begins)
@@ -19,7 +18,6 @@ expressions, semicolons, and curly braces.
   * [Design Decisions](#design-decisions)
 * [Syntax](#syntax)
   * [IndentedStatements](#indentedstatements)
-  * [Block](#block)
   * [WhitespaceComment](#whitespacecomment)
   * [Whitespace](#whitespace)
 
@@ -35,8 +33,7 @@ it presents authoring challenges, specifically around long lists.
 
 > This section is non-normative.
 
-This proposal adds support for multiline statements, allows the use of
-semicolons, and adds a method to opt in to SCSS formatting to the indented
+This proposal adds support for multiline statements semicolons in the indented
 syntax.
 
 ### Line breaks
@@ -80,44 +77,12 @@ parentheses.
 In the indented syntax, authors can use a semicolon to explicitly end a
 statement. Subsequent lines in the same block still must have the same level of
 indentation. This means that the indented format won't support multiple
-statements on a single line outside of curly braces, even if they are separated
-by a semicolon.
+statements on a single line, even if they are separated by a semicolon.
 
 ```sass
 $font-stack: Helvetica, sans-serif;
 // or
 $primary-color: #333
-```
-
-### SCSS-in-Sass
-
-Alternatively, authors can use SCSS block syntax with braces and semicolons
-within an indented document.
-
-```sass
-a
-  color: blue
-
-.grid {
-  display: grid;
-  grid-template:
-    'logo title copy' auto
-    'alert alert alert' minmax(0, auto) / 1fr 1fr 1fr;
-}
-```
-
-The braces essentially let authors opt in to SCSS format for part of the
-document. This means that authors must use semicolons to separate statements
-inside that block. Indentation rules do not apply and multiple statements can be
-on a single line, separated by semicolons.
-
-```sass
-$font-stack: Helvetica, sans-serif
-$primary-color: #333
-body {
-  font: 100% $font-stack;
-  color: $primary-color; background: blue;
-}
 ```
 
 ### Ending statements
@@ -193,9 +158,10 @@ as opposed to introducing a separate syntax or compiler flag. As the proposal is
 addititive to existing syntax, authors can choose to not use the new syntax, and
 can choose to limit the syntax with linters.
 
-Instead of just allowing optional curly braces around indented syntax, we opted
-to require SCSS syntax inside of the braces. This is intentionally
-unidirectional to prevent issues with multiple nested formats.
+The initial draft of this proposal included a SCSS-in-Sass syntax, where rules
+inside curly braces in the indented syntax would be parsed with the SCSS syntax.
+This was removed due to feedback from tooling authors in
+[#3991](https://github.com/sass/sass/issues/3991).
 
 ## Syntax
 
@@ -211,12 +177,6 @@ Remove the following prose:
 
 The `Statement` productions may not include newlines outside of `IndentSame`
 productions.
-
-### Block
-
-Replace footnote 1 with:
-
-1: In the SCSS syntax, only the `ScssBlock` production is valid.
 
 ### WhitespaceComment
 
