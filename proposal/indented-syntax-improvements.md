@@ -1,4 +1,4 @@
-# Indented Syntax Improvements: Draft 1.1
+# Indented Syntax Improvements: Draft 1.2
 
 *([Issue](https://github.com/sass/sass/issues/216), [Changelog](./indented-syntax-improvements.changes.md))*
 
@@ -20,6 +20,8 @@ expressions and semicolons.
   * [IndentedStatements](#indentedstatements)
   * [WhitespaceComment](#whitespacecomment)
   * [Whitespace](#whitespace)
+  * [Unknown At-Rules](#unknown-at-rules)
+  * [Declarations](#declarations)
 
 ## Background
 
@@ -200,3 +202,22 @@ Replace footnote 1 with:
 [`Whitespace`]: ../spec/statement.md#whitespace
 [`IndentSame`]: ../spec/statement.md#indentation
 [`IndentMore`]: ../spec/statement.md#indentation
+
+### Unknown At-Rules
+
+Replace the first sentence of prose in [Unknown At-Rules Syntax] with:
+
+[Unknown At-Rules Syntax]: ../spec/at-rules/unknown.md#syntax
+
+No whitespace is allowed after `@`, and in the indented syntax, [`LineBreak`] is
+not whitespace following `InterpolatedIdentifier`.
+
+### Declarations
+
+Replace footnote 1 of [Declarations Syntax] with:
+
+[Declarations Syntax]: ../spec/declarations.md#syntax
+
+1. This may not begin with "--". In the indented syntax, [`LineBreak`] is not
+whitespace, even in contexts where selectors are not allowed, to avoid different
+behavior across contexts.
