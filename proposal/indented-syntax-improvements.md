@@ -219,5 +219,5 @@ Replace footnote 1 of [Declarations Syntax] with:
 [Declarations Syntax]: ../spec/declarations.md#syntax
 
 1. This may not begin with "--". In the indented syntax, [`LineBreak`] is not
-whitespace, even in contexts where selectors are not allowed, to avoid different
-behavior across contexts.
+   whitespace, even in contexts where selectors are not allowed, to avoid
+   different behavior across contexts.
