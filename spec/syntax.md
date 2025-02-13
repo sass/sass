@@ -13,6 +13,7 @@
   * [`ParameterList`](#parameterlist)
   * [`ProductExpression`](#productexpression)
   * [`PseudoSelector`](#pseudoselector)
+  * [`SingleExpression`](#singleexpression)
   * [`SpecialFunctionExpression`](#specialfunctionexpression)
 * [Procedures](#procedures)
   * [Parsing Text](#parsing-text)
@@ -119,7 +120,7 @@ No whitespace is allowed between components of an `InterpolatedUnquotedUrlConten
 ### `ProductExpression`
 
 <x><pre>
-**ProductExpression** ::= (ProductExpression ('*' | '%'))? UnaryPlusExpression
+**ProductExpression** ::= (ProductExpression ('*' | '%'))? SingleExpression
 </pre></x>
 
 ### `PseudoSelector`
@@ -153,6 +154,35 @@ followed by a parenthesis, it must be parsed as a `SelectorPseudo` or an
 
 No whitespace is allowed anywhere in a `PseudoSelector` except within
 parentheses.
+
+### `SingleExpression`
+
+<x><pre>
+**SingleExpression** ::= '(' [ContainedListExpression] ')'
+&#32;                  | Important
+&#32;                  | Boolean
+&#32;                  | [BracketedListExpression]
+&#32;                  | ColorLiteral
+&#32;                  | FunctionExpression
+&#32;                  | IDName¹
+&#32;                  | Null
+&#32;                  | Number
+&#32;                  | ParentExpression
+&#32;                  | String²
+&#32;                  | UnaryExpression
+&#32;                  | UnicodeRange
+&#32;                  | [Variable]
+</pre></x>
+
+[BracketedListExpression]: types/list.md#syntax
+[ContainedListExpression]: types/list.md#syntax
+[Variable]: variables.md#syntax
+
+1: If this is ambiguous with `ColorLiteral`, it should be parsed as
+   `ColorLiteral` preferentially.
+
+2: If this is ambiguous with any other production, parse the other production
+   preferentially.
 
 ### `SpecialFunctionExpression`
 
