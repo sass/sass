@@ -1,6 +1,7 @@
-# Attr Type: Draft 1
+# Attr Type: Draft 1.1
 
-*([Issue](https://github.com/sass/sass/issues/4030))*
+*([Issue](https://github.com/sass/sass/issues/4030),
+[Changelog](attr-type.changes.md))*
 
 ## Table of Contents
 
@@ -12,6 +13,10 @@
   * [`Percent`](#percent)
 * [Semantics](#semantics)
   * [`Percent`](#percent-1)
+  * [`@function`](#function)
+* [Deprecation Process](#deprecation-process)
+  * [Phase 1](#phase-1)
+  * [Phase 2](#phase-2)
 
 ## Background
 
@@ -98,3 +103,37 @@ preferentially".
 ### `Percent`
 
 To evaluate a `Percent`, return an unquoted string with the value `%`.
+
+### `@function`
+
+In the [semantics for `@function`], add a bullet point below the second:
+
+[semantics for `@function`]: ../spec/at-rules/function.md#semantics
+
+* If `name` is `type`, throw an error.
+
+> Unlike other forbidden function names, this doesn't cover vendor prefixes.
+> This is for two reasons: first, we don't expect to add special parsing for
+> `type()` with vendor prefixes. Second, "type" is a relatively common word, so
+> it's likely for private function names to end with `-type` in a way that could
+> be indistinguishable from a vendor prefix.
+
+## Deprecation Process
+
+The deprecation process will be divided into two phases:
+
+### Phase 1
+
+> This phase adds no breaking changes. Its purpose is to notify users of the
+> upcoming changes to behavior and give them a chance to move towards passing
+> future-proof units.
+
+Phase 1 does not change the syntax for `SpecialFunctionName` or the semantics
+for `@function`. Instead, if a function is defined with the name `type`, emit a
+deprecation warning named `type-function`.
+
+### Phase 2
+
+Phase 2 implements the full changes described above. Per the Dart Sass
+compatibility policy, it won't be released until at least three months after the
+first release with the deprecation warning.
