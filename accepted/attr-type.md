@@ -35,8 +35,8 @@ and as such which aren't currently valid SassScript. Specifically:
 [The `<syntax>` production]: https://drafts.csswg.org/css-values-5/#typedef-syntax
 [The `<attr-unit>` production]: https://drafts.csswg.org/css-values-5/#typedef-attr-unit
 
-This is further complicated by the fact that the `attr()` function in which the
-`<attr-type>` production appears has been supported in browsers for a number of
+This is further complicated by the fact that the `attr()` function (in which the
+`<attr-type>` production appears) has been supported in browsers for a number of
 years with a more constrained syntax, so changing it to use a substantially
 different parsing schema would be a breaking change.
 
