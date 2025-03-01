@@ -33,6 +33,7 @@ moz-document:
   dart-sass:
     status: active
     deprecated: 1.7.2
+    obsolete: 2.0.0
 
 relative-canonical:
   description: Imports using relative canonical URLs.
@@ -63,6 +64,7 @@ bogus-combinators:
   dart-sass:
     status: active
     deprecated: 1.54.0
+    obsolete: 2.0.0
 
 strict-unary:
   description: Ambiguous + and - operators.
