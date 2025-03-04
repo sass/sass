@@ -243,7 +243,7 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
 > to the input.
 
 * If `calc` was parsed from an expression within a `SupportsDeclaration`'s
-  `Expression`, but outside any interpolation, return a `calc` as-is.
+  `Expression`, but outside any interpolation, return `calc` as-is.
 
 * Let `arguments` be the result of [simplifying] each of `calc`'s arguments.
 
@@ -252,17 +252,27 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
 * If `calc`'s name is `"calc"` and `arguments` contains exactly a single number
   or calculation, return it.
 
-* If `calc`'s name is `"mod"`, `"rem"`, `"atan2"`, or `"pow"`; `arguments` has
-  fewer than two elements; and none of those are unquoted strings, throw an
-  error.
+* If `calc`'s name is `"calc"`, `"sin"`, `"cos"`, `"tan"`, `"asin"`, `"acos"`,
+  `"atan`", `"sqrt"`, `"log"`, `"exp"`, `"sign"` and `arguments` has more than
+  one element, throw an error.
 
-  > It's valid to write `pow(var(--two-args))` or `pow(#{"2, 3"})`, but
-  > otherwise calculations' arguments must match the expected number.
+* If `calc`'s name is `"mod"`, `"rem"`, `"atan2"`, `"pow"`, or `"calc-size"`:
+
+  * If `arguments` has fewer than two elements; and none of those are unquoted
+    strings, throw an error.
+
+    > It's valid to write `pow(var(--two-args))` or `pow(#{"2, 3"})`, but
+    > otherwise calculations' arguments must match the expected number.
+
+  * If `arguments` has more than two elements, throw an error.
+
+* If `calc`'s name is `"round"` or `"clamp"` and `arguments` has more than three
+  elements, throw an error.
 
 * If `calc`'s name is `"sin"`, `"cos"`, `"tan"`, `"asin"`, `"acos"`, `"atan"`,
-  `"sqrt"`, `"log"`, or `"round"` and `arguments` contains exactly a single
-  number, return the result of passing that number to the function in
-  [`sass:math`] whose name matches `calc`'s.
+  `"sqrt"`, or `"log"` and `arguments` contains exactly a single number, return
+  the result of passing that number to the function in [`sass:math`] whose name
+  matches `calc`'s.
 
   [`sass:math`]: ../built-in-modules/math.md
 
@@ -365,7 +375,15 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
     * Otherwise, set `number` and `step` to the two arguments respectively and
       `strategy` to an unquoted string with value `"nearest"`.
 
-  * Otherwise, if the single argument isn't an unquoted string, throw an error.
+  * Otherwise, if the single argument is a number:
+
+    * Set `number` to that argument.
+
+    * If `number` has units, return the result of calling [`math.round()`] with
+      `number`.
+
+    * Otherwise, set `strategy` to an unquoted string with value `"nearest"` and
+      `step` to `1`.
 
   * If `strategy`, `number`, and `step` are set:
 
@@ -420,6 +438,7 @@ This algorithm takes a calculation `calc` and returns a number or a calculation.
         * If `strategy`'s value is `"to-zero"`, return whichever of `upper` and
           `lower` has the smallest absolute difference from 0.
 
+  [`math.round()`]: ../built-in-modules/math.md#round
   [exactly equal]: number.md#exact-equality
   [special variable string]: ../functions.md#special-variable-string
   [matching units]: number.md#matching-two-numbers-units

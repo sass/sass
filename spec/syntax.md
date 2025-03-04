@@ -6,12 +6,15 @@
   * [Source File](#source-file)
   * [Vendor Prefix](#vendor-prefix)
 * [Syntax](#syntax-1)
+  * [`ArgumentList`](#argumentlist)
   * [`InterpolatedIdentifier`](#interpolatedidentifier)
   * [`InterpolatedUrl`](#interpolatedurl)
   * [`Name`](#name)
-  * [`SpecialFunctionExpression`](#specialfunctionexpression)
-  * [`PseudoSelector`](#pseudoselector)
+  * [`ParameterList`](#parameterlist)
   * [`ProductExpression`](#productexpression)
+  * [`PseudoSelector`](#pseudoselector)
+  * [`SingleExpression`](#singleexpression)
+  * [`SpecialFunctionExpression`](#specialfunctionexpression)
 * [Procedures](#procedures)
   * [Parsing Text](#parsing-text)
   * [Parsing Text as CSS](#parsing-text-as-css)
@@ -57,6 +60,19 @@ representation of the intermediate production.
 > `Foo` wrapper is removed. (The `Bar` wrapper is *not* removed because
 > `<ident-token>` is a CSS production, not a Sass production.)
 
+### `ArgumentList`
+
+<x><pre>
+**ArgumentList**  ::= '(' Expression (',' Expression)\*
+&#32;                 (',' NamedArgument)\* (',' RestArgument){0,2} ','? ')'
+&#32;               | '(' NamedArgument (',' NamedArgument)\*
+&#32;                 (',' RestArgument){0,2} ','? ')'
+&#32;               | '(' RestArgument (',' RestArgument)? ','? ')'
+&#32;               | '(' ')'
+**NamedArgument** ::= [PlainVariable] ':' Expression
+**RestArgument**  ::= Expression '...'
+</pre></x>
+
 ### `InterpolatedIdentifier`
 
 <x><pre>
@@ -88,23 +104,24 @@ No whitespace is allowed between components of an `InterpolatedUnquotedUrlConten
 [identifier code point]: https://drafts.csswg.org/css-syntax-3/#identifier-code-point
 [escape]: https://drafts.csswg.org/css-syntax-3/#escape-diagram
 
-### `SpecialFunctionExpression`
-
-> These functions are "special" in the sense that their arguments don't use the
-> normal CSS expression-level syntax, and so have to be parsed more broadly than
-> a normal SassScript expression.
+### `ParameterList`
 
 <x><pre>
-**SpecialFunctionExpression** ::= SpecialFunctionName InterpolatedDeclarationValue ')'
-**SpecialFunctionName**¹      ::= VendorPrefix? ('element(' | 'expression(')
-&#32;                           | VendorPrefix 'calc('
-**VendorPrefix**¹             ::= '-' ([identifier-start code point] | [digit]) '-'
+**ParameterList** ::= '(' Parameter (',' Parameter)\* ','? ')'
+&#32;               | '(' Parameter (',' Parameter)\* (',' RestParameter)? ','? ')'
+&#32;               | '(' RestParameter ','? ')'
+&#32;               | '(' ')'
+**Parameter**     ::= [PlainVariable] (':' Expression)?
+**RestParameter** ::= [PlainVariable] '...'
 </pre></x>
 
-[digit]: https://drafts.csswg.org/css-syntax-3/#digit
+[PlainVariable]: variables.md#syntax
 
-1: Both `SpecialFunctionName` and `VendorPrefix` are matched case-insensitively,
-   and neither may contain whitespace.
+### `ProductExpression`
+
+<x><pre>
+**ProductExpression** ::= (ProductExpression ('*' | '%'))? SingleExpression
+</pre></x>
 
 ### `PseudoSelector`
 
@@ -138,11 +155,52 @@ followed by a parenthesis, it must be parsed as a `SelectorPseudo` or an
 No whitespace is allowed anywhere in a `PseudoSelector` except within
 parentheses.
 
-### `ProductExpression`
+### `SingleExpression`
 
 <x><pre>
-**ProductExpression** ::= (ProductExpression ('*' | '%'))? UnaryPlusExpression
+**SingleExpression** ::= '(' [ContainedListExpression] ')'
+&#32;                  | Important
+&#32;                  | Boolean
+&#32;                  | [BracketedListExpression]
+&#32;                  | ColorLiteral
+&#32;                  | FunctionExpression
+&#32;                  | IDName¹
+&#32;                  | Null
+&#32;                  | Number
+&#32;                  | ParentExpression
+&#32;                  | String²
+&#32;                  | UnaryExpression
+&#32;                  | UnicodeRange
+&#32;                  | [Variable]
 </pre></x>
+
+[BracketedListExpression]: types/list.md#syntax
+[ContainedListExpression]: types/list.md#syntax
+[Variable]: variables.md#syntax
+
+1: If this is ambiguous with `ColorLiteral`, it should be parsed as
+   `ColorLiteral` preferentially.
+
+2: If this is ambiguous with any other production, parse the other production
+   preferentially.
+
+### `SpecialFunctionExpression`
+
+> These functions are "special" in the sense that their arguments don't use the
+> normal CSS expression-level syntax, and so have to be parsed more broadly than
+> a normal SassScript expression.
+
+<x><pre>
+**SpecialFunctionExpression** ::= SpecialFunctionName InterpolatedDeclarationValue ')'
+**SpecialFunctionName**¹      ::= VendorPrefix? ('element(' | 'expression(')
+&#32;                           | VendorPrefix 'calc('
+**VendorPrefix**¹             ::= '-' ([identifier-start code point] | [digit]) '-'
+</pre></x>
+
+[digit]: https://drafts.csswg.org/css-syntax-3/#digit
+
+1: Both `SpecialFunctionName` and `VendorPrefix` are matched case-insensitively,
+   and neither may contain whitespace.
 
 ## Procedures
 

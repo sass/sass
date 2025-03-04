@@ -151,8 +151,8 @@ Before beginning compilation:
 
 * For each key/value pair `signature`/`function` in this record:
 
-  * If `signature` isn't an [<ident-token>] followed immediately by an
-    `ArgumentDeclaration`, throw an error.
+  * If `signature` isn't an [<ident-token>] followed immediately by a
+    [`ParameterList`], throw an error.
 
   * Let `name` be `signature`'s <ident-token>.
 
@@ -182,6 +182,7 @@ Before beginning compilation:
       contains (including the return value itself if it's a calculation)
       replaced with the result of [simplifying] those calculations.
 
+[`ParameterList`]: ../syntax.md#parameterlist
 [<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
 [underscore-insensitively]: ../modules.md#underscore-insensitive
 [`SassFunction`]: value/function.d.ts.md
