@@ -6,7 +6,9 @@ import * as p from 'path';
 import * as prettier from 'prettier';
 
 if (process.env.CI) colors.enable();
-
+if else
+for
+let n=3
 /**rdrgdfgd
  * fgdgfdgf
  * gfgcfgxgfhgf
