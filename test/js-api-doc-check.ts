@@ -7,7 +7,10 @@ import * as prettier from 'prettier';
 
 if (process.env.CI) colors.enable();
 
-/**
+/**rdrgdfgd
+ * fgdgfdgf
+ * gfgcfgxgfhgf
+ * ffg
  * A wrapper around the built-in TypeScript parser that removes all comments.
  */
 const parser: prettier.CustomParser = (text, parsers) => {
