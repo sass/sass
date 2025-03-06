@@ -126,16 +126,17 @@ No whitespace is allowed between components of an `InterpolatedUnquotedUrlConten
 ### `PseudoSelector`
 
 <x><pre>
-**PseudoSelector** ::= NormalPseudoSelector
-&#32;                | SelectorPseudo
-&#32;                | NthSelectorPseudo
-**NormalPseudoSelector** ::= ':' ':'? VendorPrefix? [\<ident-token>]
-&#32;                        ('(' [\<declaration-value>] ')')?
-**SelectorPseudo** ::= SelectorPseudoName '(' Selector ')'
-**NthSelectorPseudo** ::= NthSelectorPseudoName '(' [\<an+b>] 'of'¹ Selector ')'
-**SelectorPseudoName** ::= ':' ('not' | 'matches' | 'any' | 'current' | 'has' | 'host' | 'host-context')
-&#32;                    | '::slotted'
-**NthSelectorPseudoName** ::= ':' ('nth-child' | 'nth-last-child')
+**PseudoSelector**          ::= NormalPseudoSelector
+&#32;                         | SelectorPseudo
+&#32;                         | NthSelectorPseudo
+**NormalPseudoSelector**    ::= ':' ':'? VendorPrefix? [\<ident-token>]
+&#32;                           ('(' [\<declaration-value>] ')')?
+**SelectorPseudo**          ::= SelectorPseudoName '(' Selector ')'
+**NthSelectorPseudo**       ::= NthSelectorPseudoName '(' [\<an+b>] 'of'¹ Selector ')'
+**SelectorPseudoPrefix**    ::= ':' SelectorPseudoClassName | '::slotted'
+**SelectorPseudoClassName** ::= 'not' | 'is' | 'matches' | 'where' | 'any'
+&#32;                         | 'current' | 'has' | 'host' | 'host-context'
+**NthSelectorPseudoName**   ::= ':' ('nth-child' | 'nth-last-child')
 </pre></x>
 
 [\<declaration-value>]: https://www.w3.org/TR/css-syntax-3/#typedef-declaration-value
