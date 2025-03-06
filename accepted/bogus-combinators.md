@@ -1,4 +1,4 @@
-# Bogus Combinators: Draft 3
+# Bogus Combinators: Draft 4
 
 *([Issue](https://github.com/sass/sass/issues/3340), [Changelog](bogus-combinators.changes.md))*
 
@@ -22,10 +22,14 @@ use of leading combinators (such as `> a`) and trailing combinators (such as `a
   * [Bogus Selector](#bogus-selector)
 * [Syntax](#syntax)
   * [`ComplexSelector`](#complexselector)
+  * [`PseudoSelector`](#pseudoselector)
+  * [`ExtendRule`](#extendrule)
 * [Semantics](#semantics)
   * [Evaluating a Style Rule](#evaluating-a-style-rule)
   * [Executing an Extend Rule](#executing-an-extend-rule)
 * [Functions](#functions)
+  * [`selector.is-superselector()`](#selectoris-superselector)
+  * [`selector.extend()`, `selector.replace()`, and `selector.unify()`](#selectorextend-selectorreplace-and-selectorunify)
 * [Deprecation Process](#deprecation-process)
   * [Phase 1](#phase-1)
   * [Phase 2](#phase-2)
@@ -148,10 +152,7 @@ descendant combinator, the complex selector doesn't have a trailing combinator.
 
 ### Bogus Selector
 
-A [complex selector] is *bogus* if it has a leading or [trailing combinator], or
-if any of the simple selectors it transitively contains is a selector pseudo
-with a bogus selector, except that `:has()` may contain complex selectors with
-leading combinators.
+A [complex selector] is *bogus* if it has a leading or [trailing combinator].
 
 A selector list is *bogus* if any of its complex selectors are bogus.
 
@@ -179,6 +180,26 @@ This proposal modifies the existing `ComplexSelector` and
 
 [\<combinator>]: https://drafts.csswg.org/selectors-4/#typedef-combinator
 
+### `PseudoSelector`
+
+This proposal adds the following annotation to [the `SelectorPseudo` and
+`NthSelectorPseudo` productions]:
+
+[the `SelectorPseudo` and `NthSelectorPseudo` productions]: ../spec/syntax.md#pseudoselector
+
+None of the `ComplexSelector`s in the `Selector` production may end with a
+[`<combinator>`]. None of them may begin with a [`<combinator>`] either, except
+for a `SelectorPseudo` whose `SelectorPseudoName` is case-insensitively equal to
+":has".
+
+[`<combinator>`]: https://drafts.csswg.org/selectors-4/#typedef-combinator
+
+### `ExtendRule`
+
+This proposal adds the following annotation to the `ExtendRule` production:
+
+None of the `ComplexSelector`s in the `Selector` production may be [bogus].
+
 ## Semantics
 
 ### Evaluating a Style Rule
@@ -203,10 +224,6 @@ for a current style rule:
 
 ## Functions
 
-For the `selector.extend()`, `selector.is-superselector()`,
-`selector.replace()`, and `selector.unify()` functions, after parsing their
-selector arguments, throw an error if any of the parsed selectors are [bogus].
-
 > `selector.append()`, `selector.nest()`, and `selector.parse()` are still
 > allowed to take bogus selectors because these functions are syntactic rather
 > than semantic. This means on one hand that there aren't ambiguities about how
@@ -215,6 +232,20 @@ selector arguments, throw an error if any of the parsed selectors are [bogus].
 >
 > Note that `selector.append()` already forbids selectors with leading or
 > trailing combinators from being passed in between selectors.
+
+### `selector.is-superselector()`
+
+After parsing the selector arguments, throw an error if any of the parsed
+selectors are [bogus].
+
+### `selector.extend()`, `selector.replace()`, and `selector.unify()`
+
+After parsing the selector arguments, throw an argument if the `$selector`
+argument has a [trailing combinator], or if any other parsed selector is
+[bogus].
+
+> We allow selectors with leading combinators to be extended because they can
+> appear in a nested context in plain CSS.
 
 ## Deprecation Process
 
@@ -230,7 +261,8 @@ In particular:
 * A complex selector is instead considered [bogus] if it would be bogus in Phase
   2 *or* if it can be parsed in Phase 1 but not in Phase 2.
 
-* The newly-added errors produce deprecation warnings instead.
+* The newly-added errors and forbidden syntax produces deprecation warnings
+  instead.
 
 * In [Evaluating a Style Rule], remove any complex selectors from `css`'s
   selectors that are [bogus], except those that have a single leading combinator
