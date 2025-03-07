@@ -44,6 +44,17 @@ jobs:
     - run: npm ci
     - run: npm run link-check
 
+  deprecations:
+    name: Deprecations
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with: {node-version: '${{ env.NODE_VERSION }}'}
+    - run: npm ci
+    - run: npm run deprecations-check
+
   js_api_mirroring:
     name: JS API mirroring
     runs-on: ubuntu-latest
