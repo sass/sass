@@ -31,7 +31,7 @@ elseif:
 moz-document:
   description: "@-moz-document."
   dart-sass:
-    status: active
+    status: obsolete
     deprecated: 1.7.2
     obsolete: 2.0.0
 
