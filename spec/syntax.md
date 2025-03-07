@@ -173,6 +173,8 @@ parentheses.
 &#32;                  | UnaryExpression
 &#32;                  | UnicodeRange
 &#32;                  | [Variable]
+&#32;                  | Percent³
+**Percent**          ::= '%'
 </pre></x>
 
 [BracketedListExpression]: types/list.md#syntax
@@ -185,6 +187,9 @@ parentheses.
 2: If this is ambiguous with any other production, parse the other production
    preferentially.
 
+3: If this is ambiguous with part of `ProductExpression`, parse
+   `ProductExpression` preferentially.
+
 ### `SpecialFunctionExpression`
 
 > These functions are "special" in the sense that their arguments don't use the
@@ -195,8 +200,13 @@ parentheses.
 **SpecialFunctionExpression** ::= SpecialFunctionName InterpolatedDeclarationValue ')'
 **SpecialFunctionName**¹      ::= VendorPrefix? ('element(' | 'expression(')
 &#32;                           | VendorPrefix 'calc('
+&#32;                           | 'type('
 **VendorPrefix**¹             ::= '-' ([identifier-start code point] | [digit]) '-'
 </pre></x>
+
+> No browser has yet supported `type()` with a vendor prefix, nor are they
+> likely to do so in the future given that vendor prefixes are largely unpopular
+> now.
 
 [digit]: https://drafts.csswg.org/css-syntax-3/#digit
 
@@ -477,3 +487,10 @@ SassScript expression.
 * Return an unquoted interpolated string expression that would be identical to
   the source text according to CSS semantics for all possible interpolated
   strings.
+  
+## Semantics
+
+### `Percent`
+
+To evaluate a `Percent`, return an unquoted string with the value `%`.
+
