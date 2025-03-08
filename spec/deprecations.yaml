@@ -62,7 +62,7 @@ slash-div:
 bogus-combinators:
   description: Leading, trailing, and repeated combinators.
   dart-sass:
-    status: active
+    status: obsolete
     deprecated: 1.54.0
     obsolete: 2.0.0
 
