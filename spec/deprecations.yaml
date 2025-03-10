@@ -148,13 +148,13 @@ global-builtin:
     status: active
     deprecated: 1.80.0
 
-private-identifier-module-config:
-  description: Private identifiers as configuration keys in `@use`, `@forward`, or `load-css()` are deprecated.
+private-variable-module-config:
+  description: Private variables as configuration keys in `@use`, `@forward`, or `load-css()` are deprecated.
   dart-sass:
     status: active
     deprecated: 1.85.2
 
-private-default-variable:
+private-variable-default:
   description: Using `!default` with private variables is deprecated.
   dart-sass:
     status: active
