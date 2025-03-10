@@ -147,3 +147,9 @@ global-builtin:
   dart-sass:
     status: active
     deprecated: 1.80.0
+
+private-identifier-module-config:
+  description: Private identifiers as configuration keys in `@use`, `@forward`, or `load-css()` are deprecated.
+  dart-sass:
+    status: active
+    deprecated: 1.85.2
