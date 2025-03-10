@@ -153,3 +153,9 @@ private-identifier-module-config:
   dart-sass:
     status: active
     deprecated: 1.85.2
+
+private-default-variable:
+  description: Using `!default` with private variables is deprecated.
+  dart-sass:
+    status: active
+    deprecated: 1.85.2
