@@ -31,8 +31,8 @@ A *special number* is either:
 * a [calculation], or
 * an unquoted string that CSS will recognize as a function that may return a
   number. For the purposes of Sass, this is any unquoted string that begins with
-  `calc(`, `var(`, `env(`, `clamp(`, `min(`, or `max(`. This matching is
-  case-insensitive.
+  `calc(`, `var(`, `env(`, `attr(`, `clamp(`, `min(`, or `max(`. This matching
+  is case-insensitive.
 
 [calculation]: types/calculation.md
 

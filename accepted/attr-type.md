@@ -1,4 +1,4 @@
-# Attr Type: Draft 1.1
+# Attr Type: Draft 2.0
 
 *([Issue](https://github.com/sass/sass/issues/4030),
 [Changelog](attr-type.changes.md))*
@@ -7,6 +7,8 @@
 
 * [Background](#background)
 * [Summary](#summary)
+* [Definitions](#definitions)
+  * [Special Number](#special-number)
 * [Syntax](#syntax)
   * [`SpecialFunctionExpression`](#specialfunctionexpression)
   * [`SingleExpression`](#singleexpression)
@@ -62,6 +64,15 @@ anticipate that a single `%` will be widely used in other contexts, so we don't
 plan to deprecate the modulo operator, although that path is open in the future
 if CSS starts using this value more widely.
 
+## Definitions
+
+### Special Number
+
+Add `attr(` to the list of unquoted string prefixes that qualify as [special
+numbers].
+
+[special numbers]: ../spec/functions.md#special-number
+
 ## Syntax
 
 ### `SpecialFunctionExpression`
@@ -82,15 +93,28 @@ Change [the `SpecialFunctionName` production] to be:
 
 ### `SingleExpression`
 
-Add `Percent` as a production to [`SingleExpression`] with the annotation "If
-this is ambiguous with part of `ProductExpression`, parse `ProductExpression`
-preferentially".
+Add `Percent` as a production to [`SingleExpression`] with the following
+annotation:
 
 [`SingleExpression`]: ../spec/syntax.md#singleexpression
 
+If this is ambiguous with part of `ProductExpression`, parse `ProductExpression`
+preferentially. If this is followed by a [`Whitespace`] that contains a
+[`LineBreak`], do not parse that `Whitespace` as part of an [`IndentSame`] or
+[`IndentMore`] production.
+
+[`Whitespace`]: ../spec/statement.md#whitespace
+[`LineBreak`]: ../spec/statement.md#whitespace
+[`IndentSame`]: ../spec/statement.md#indentation
+[`IndentMore`]: ../spec/statement.md#indentation
+
 > This effectively means that the unquoted string `%` is allowed everywhere
 > *except* in a middle element of a space-separated list, since that would be
-> ambiguous with a modulo operation.
+> ambiguous with a modulo operation. The whitespace clause ensures that a `%` at
+> the end of a line in the indented syntax always looks at the next token, for
+> backwards-compatibility with parsing it as an operator and so that whether the
+> statement ends on that line or not doesn't depend on the first token of the
+> next line.
 
 ### `Percent`
 
@@ -110,7 +134,7 @@ In the [semantics for `@function`], add a bullet point below the second:
 
 [semantics for `@function`]: ../spec/at-rules/function.md#semantics
 
-* If `name` is `type`, throw an error.
+* If `name` is case-insensitively equal to `type`, throw an error.
 
 > Unlike other forbidden function names, this doesn't cover vendor prefixes.
 > This is for two reasons: first, we don't expect to add special parsing for
