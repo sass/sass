@@ -1,6 +1,7 @@
-# Disallow `!default` on Private Variables: Draft 1.0
+# Disallow `!default` on Private Variables: Draft 1.1
 
-*([Issue](https://github.com/sass/sass/issues/4034))*
+*([Issue](https://github.com/sass/sass/issues/4034)),
+[Changelog](default-on-private-variables.changes.md)*
 
 ## Table of Contents
 
@@ -64,4 +65,8 @@ emit a deprecation warning named `private-variable-default`.
 
 Phase 2 implements the full changes described above. Per the Dart Sass
 compatibility policy, it won't be released until at least three months after the
-first release with the deprecation warning.
+first release with the deprecation warning. However, the implementation of Phase
+2 is contingent upon the complete removal of `@import`. Waiting for `@import` to
+be removed is necessary because it works by loading the imported Sass file in
+place, and all identifiers, including private variables, declared in the loaded
+Sass file work as if they were declared in the importing file.
