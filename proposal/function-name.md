@@ -87,8 +87,8 @@ The deprecation process will be divided into two phases:
 ### Phase 1
 
 > This phase adds no breaking changes. Its purpose is to notify users of the
-> upcoming changes to behavior and give them a chance to move towards passing
-> future-proof units.
+> upcoming changes to behavior and give them a chance to move towards
+> future-proof function names.
 
 Phase 1 does not throw an error for function names that match case-insensitively
 *but not* case-sensitively. Instead, it produces a deprecation warning named
