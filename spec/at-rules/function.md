@@ -23,6 +23,14 @@ To execute a `@function` rule `rule`:
 
 * Let `name` be the value of `rule`'s `Identifier`.
 
+* If `name` is case-insensitively equal to `type`, throw an error.
+
+  > Unlike other forbidden function names, this doesn't cover vendor prefixes.
+  > This is for two reasons: first, we don't expect to add special parsing for
+  > `type()` with vendor prefixes. Second, "type" is a relatively common word,
+  > so it's likely for private function names to end with `-type` in a way that
+  > could be indistinguishable from a vendor prefix.
+
 * If `name` begins with `--`, throw an error.
 
 * If `name` is `calc`, `element`, `expression`, `url`, `and`, `or`, or `not`, or
