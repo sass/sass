@@ -1,3 +1,21 @@
+## Draft 4
+
+* In Phase 1:
+
+  * Forbid bogus selectors in selector pseudos at the syntactic level, rather
+    than including them in the definition of "bogus".
+
+  * Forbid bogus extend targets at the syntactic level.
+
+  * Allow leading combinators for `selector.extend()`, `selector.replace()`, and
+    `selector.unify()`. Extending these selectors is required to support plain
+    CSS nesting.
+
+* In Phase 2:
+
+  * Explicitly produce deprecation warnings for syntax that is manually declared
+    as forbidden.
+
 ## Draft 3
 
 * In Phase 1:

@@ -149,3 +149,9 @@ global-builtin:
   dart-sass:
     status: active
     deprecated: 1.80.0
+
+type-function:
+  description: 'Functions named "type".'
+  dart-sass:
+    status: active
+    deprecated: 1.86.0

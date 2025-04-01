@@ -108,6 +108,8 @@ function runLinkCheck(
             {pattern: /^https:\/\/runtime-keys\.proposal\.wintercg\.org(\/|$)/},
             // Stackoverflow links can get rate-limited on GitHub Actions
             {pattern: /^https:\/\/stackoverflow\.com(\/|$)/},
+            // W3C links started failing in March 2025
+            {pattern: /^https:\/\/(drafts\.)?csswg\.org(\/|$)/},
           ],
         },
         (error, results) => {
