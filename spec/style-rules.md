@@ -59,11 +59,15 @@ To execute a style rule `rule`:
   > through a nested `@import` or a `meta.load-css()` call.
 
   * If `selector` contains one or more parent selectors and `rule`'s stylesheet
-    wasn't [parsed as CSS], replace those parent selectors with the current
-    style rule's selector and set `selector` to the result.
+    wasn't [parsed as CSS], replace each of those parent selectors with the
+    current style rule's selector and set `selector` to the result.
 
-  * Otherwise, nest `selector` within the current style rule's selector using
-    the [descendant combinator] and set `selector` to the result.
+  * Otherwise, if `selector` contains no parent selectors, nest `selector`
+    within the current style rule's selector using the [descendant combinator]
+    and set `selector` to the result.
+
+    > If `rule` comes from plain CSS *and* contains parent selectors, we nest it
+    > within `parent` using plain CSS nesting below.
 
   [descendant combinator]: https://www.w3.org/TR/selectors-3/#descendant-combinators
 
@@ -72,8 +76,13 @@ To execute a style rule `rule`:
 
 * Let `css` be a CSS style rule with selector `selector`.
 
-* If `parent` is set and its stylesheet was [parsed as CSS], append `css` to
-  `parent`.
+* If `parent` is set and its stylesheet was [parsed as CSS], or if its
+  stylesheet wasn't parsed as CSS but `selector` contains a parent selector,
+  append `css` to `parent`.
+
+  > `selector` can only contain a parent selector at this point if it comes from
+  > plain CSS and has a top-level nesting selector. In that case we want to
+  > append it directly as plain CSS nesting.
 
 * Otherwise, if there is a current at-rule, append `css` to its children.
 
