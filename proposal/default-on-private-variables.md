@@ -78,6 +78,7 @@ with:
   * Add a variable to `rule-config` with the same name as `argument`'s
     identifier, and with `value` as its value.
 
+[`ForwardWithArgument`]: ../spec/at-rules/forward.md#semantics
 
 ## Deprecation Process
 
