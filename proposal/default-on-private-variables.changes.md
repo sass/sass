@@ -1,8 +1,9 @@
-## Draft 1.1
+## Draft 2.0
 
-* Update "Deprecation Process > Phase 2" to indicate that removal of `!default`
-  on private variables is contingent on removing `@import`.
+* Instead of prohibiting the use of `!default` in private variables, we now
+  prohibit the use of private identifiers within `with` clauses. This is because
+  there are valid use-cases for `!default` in private variables.
 
-## Draft 1
+## Draft 1.0
 
 * Initial draft.
