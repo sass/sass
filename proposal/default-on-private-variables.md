@@ -1,4 +1,4 @@
-# Disallow `!default` on Private Variables: Draft 2.0
+# Disallow Private Variables Identifiers In `with` Clauses: Draft 2.0
 
 *([Issue](https://github.com/sass/sass/issues/4034)),
 [Changelog](default-on-private-variables.changes.md)*
