@@ -233,6 +233,9 @@ export interface Options<sync extends 'sync' | 'async'> {
    *
    * - The importer that was used to load the current stylesheet, with the
    *   loaded URL resolved relative to the current stylesheet's canonical URL.
+   *   With {@link compileString} or {@link compileStringAsync}, relative loads
+   *   in the entrypoint stylesheet are resolved relative to {@link
+   *   StringOptions.url} and loaded with {@link StringOptions.importer}.
    *
    * - Each {@link Importer}, {@link FileImporter}, or
    *   {@link NodePackageImporter} in {@link importers}, in order.
@@ -390,8 +393,8 @@ export interface Options<sync extends 'sync' | 'async'> {
  *
  * If the {@link StringOptions.importer} field isn't passed, the entrypoint file
  * can load files relative to itself if a `file://` URL is passed to the {@link
- * url} field. If it is passed, the entrypoint file uses it to load files
- * relative to itself.
+ * url} field. If `importer` is passed, the entrypoint file uses that importer
+ * to load files relative to itself.
  *
  * @typeParam sync - This lets the TypeScript checker verify that asynchronous
  * {@link Importer}s, {@link FileImporter}s, and {@link CustomFunction}s aren't
@@ -418,6 +421,11 @@ export interface StringOptions<sync extends 'sync' | 'async'>
    * passed to {@link importer}. (It's passed as-is if {@link url} isn't
    * passed.) If the importer doesn't recognize it, it's then passed to {@link
    * importers} and {@link loadPaths}.
+   *
+   * In most cases, if `importer` is passed, {@link url} should be passed as
+   * well, since any situation in which relative loads are meaningful is
+   * expected to be a situation in which the entrypoint has a location for those
+   * loads to be relative to.
    *
    * @category Input
    */

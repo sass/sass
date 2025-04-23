@@ -226,12 +226,13 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
    * the same result. Calling {@link canonicalize} with a URL returned by a
    * previous call to {@link canonicalize} must return that URL.
    *
-   * Relative loads in stylesheets loaded from an importer are handled by
-   * resolving the loaded URL relative to the canonical URL of the stylesheet
-   * that contains it, and passing that URL back to the importer's {@link
-   * canonicalize} method. For example, suppose the "Resolving a Load" example
-   * {@link Importer | above} returned a stylesheet that contained `@use
-   * "mixins"`:
+   * #### Relative URLs
+   *
+   * Relative loads in stylesheets loaded from an importer are first resolved
+   * relative to the canonical URL of the stylesheet that contains it and passed
+   * back to the {@link canonicalize} method for the local importer that loaded
+   * that stylesheet. For example, suppose the "Resolving a Load" example {@link
+   * Importer | above} returned a stylesheet that contained `@use "mixins"`:
    *
    * - The compiler resolves the URL `mixins` relative to the current
    *   stylesheet's canonical URL `db:foo/bar/baz/_index.scss` to get
@@ -242,6 +243,11 @@ export interface Importer<sync extends 'sync' | 'async' = 'sync' | 'async'> {
    * Because of this, {@link canonicalize} must return a meaningful result when
    * called with a URL relative to one returned by an earlier call to {@link
    * canonicalize}.
+   *
+   * If the local importer's `canonicalize` method returns `null`, the relative
+   * URL is then passed to each of {@link Options.importers}' `canonicalize()`
+   * methods in turn until one returns a canonical URL. If none of them do, the
+   * load fails.
    *
    * @param url - The loaded URL. Since this might be relative, it's represented
    * as a string rather than a {@link URL} object.
