@@ -158,16 +158,6 @@ It runs as follows:
 
 * Let `ast` be the result of [parsing] `text` as `syntax`.
 
-* If `url` is null:
-
-  * If `importer` is not null, throw an error.
-
-  * Set `url` to a unique value.
-
-    > This ensures that all source files have a valid URL. When displaying this
-    > value, implementations should help users understand the source of the string
-    > if possible.
-
 * If `importer` is null:
 
   * If `url` is a `file:` URL, set `importer` to be a [filesystem importer] with an
