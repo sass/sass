@@ -75,8 +75,8 @@ The deprecation process will be divided into two phases:
 > future-proof units.
 
 Phase 1 does not change the semantics of `with` clauses. However, we will emit a
-deprecation warning named `with-private` when a `with` clause privacy of Sass
-modules.
+deprecation warning named `with-private` when a `with` clause configures a
+private variable.
 
 ### Phase 2
 
