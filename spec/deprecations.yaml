@@ -153,3 +153,9 @@ type-function:
   dart-sass:
     status: active
     deprecated: 1.86.0
+
+compile-string-relative-url:
+  description: 'Passing a relative url to compileString().'
+  dart-sass:
+    status: active
+    deprecated: 1.88.0
