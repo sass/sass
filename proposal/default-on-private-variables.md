@@ -44,7 +44,8 @@ prevent unexpected overrides of internal module states.
 
 ### `@use`
 
-Add the following step before evaluating each [`KeywordArgument`]'s expression in a `WithClause`:
+Add the following step before evaluating each [`KeywordArgument`]'s expression
+in a `WithClause`:
 
 * If the `argument`'s identifier name begins with `-`, throw an error.
 
@@ -54,7 +55,8 @@ Add the following step before evaluating each [`KeywordArgument`]'s expression i
 
 ### `@forward`
 
-Add the following step before evaluating each [`ForwardWithArgument`] in a `WithClause`:
+Add the following step before evaluating each [`ForwardWithArgument`] in a
+`WithClause`:
 
 * If the `argument`'s identifier name begins with `-`, throw an error.
 
@@ -73,8 +75,8 @@ The deprecation process will be divided into two phases:
 > future-proof units.
 
 Phase 1 does not change the semantics of `with` clauses. However, we will emit a
-deprecation warning named `with-private` when a `with` clause
-privacy of Sass modules.
+deprecation warning named `with-private` when a `with` clause privacy of Sass
+modules.
 
 ### Phase 2
 
