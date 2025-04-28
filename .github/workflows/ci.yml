@@ -91,6 +91,17 @@ jobs:
             echo "spec/EMBEDDED_PROTOCOL_VERSION file doesn't match EMBEDDED_PROTOCOL_CHANGELOG version."
           fi
 
+  deprecations:
+    name: Validate deprecations
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with: {node-version: '${{ env.NODE_VERSION }}'}
+    - run: npm ci
+    - run: npm run deprecations-check
+
   embedded_protocol_tag:
     name: "Tag Embedded Protocol release"
     runs-on: "ubuntu-latest"
