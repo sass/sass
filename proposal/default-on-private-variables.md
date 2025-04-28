@@ -44,39 +44,21 @@ prevent unexpected overrides of internal module states.
 
 ### `@use`
 
-Replace way each [`KeywordArgument`] in a `WithClause` is processed with:
+Add the following step before evaluating each [`KeywordArgument`]'s expression in a `WithClause`:
 
-* For each `KeywordArgument` `argument` in this clause:
+* If the `argument`'s identifier name begins with `-`, throw an error.
 
-  * If the `argument`'s identifier name begins with `-`, throw an error.
-
-    > Sass treats `_` and `-` as equivalent in identifiers.
-
-  * Otherwise, let `value` be the result of evaluating `argument`'s expression.
-
-  * Add a variable to `rule-config` with the same name as `argument`'s
-    identifier and with `value` as its value.
+  > Sass treats `_` and `-` as equivalent in identifiers.
 
 [`KeywordArgument`]: ../spec/at-rules/use.md#semantics
 
 ### `@forward`
 
-Replace the way each [`ForwardWithArgument`] in a `WithClause` is processed
-with:
+Add the following step before evaluating each [`ForwardWithArgument`] in a `WithClause`:
 
-* For each `ForwardWithArgument` `argument` in this clause:
+* If the `argument`'s identifier name begins with `-`, throw an error.
 
-  * If the `argument`'s identifier name begins with `-`, throw an error.
-
-    > Sass treats `_` and `-` as equivalent in identifiers.
-
-  * Otherwise, if `argument` has a `!default` flag and a variable exists in
-    `rule-config` with the same name as `argument`'s identifier, do nothing.
-
-  * Otherwise, let `value` be the result of evaluating `argument`'s expression.
-
-  * Add a variable to `rule-config` with the same name as `argument`'s
-    identifier, and with `value` as its value.
+  > Sass treats `_` and `-` as equivalent in identifiers.
 
 [`ForwardWithArgument`]: ../spec/at-rules/forward.md#semantics
 
@@ -91,7 +73,7 @@ The deprecation process will be divided into two phases:
 > future-proof units.
 
 Phase 1 does not change the semantics of `with` clauses. However, we will emit a
-deprecation warning named `with-clause-private-variable` when a `with` clause
+deprecation warning named `with-private` when a `with` clause
 privacy of Sass modules.
 
 ### Phase 2

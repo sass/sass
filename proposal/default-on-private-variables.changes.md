@@ -5,6 +5,8 @@
   there are valid use-cases for `!default` in private variables. The proposal
   title was updated as well.
 
+* Updated deprecation warning name to `with-private`.
+
 ## Draft 1.0
 
 * Initial draft.
