@@ -707,9 +707,10 @@ This algorithm takes a package.json value `packageManifest`, a directory URL
   "style"])` as defined in the [Node resolution algorithm specification], with
   each `subpathIndexVariants` as `subpathVariant`.
 
-* If `resolvedIndexPaths` contains more than one resolved URL, throw an error.
+* If `resolvedIndexPaths` contains more than one distinct resolved URL (compared
+  using string equality), throw an error.
 
-* If `resolvedIndexPaths` contains exactly one resolved URL, return it.
+* If `resolvedIndexPaths` contains exactly one distinct resolved URL, return it.
 
 * Return null.
 
