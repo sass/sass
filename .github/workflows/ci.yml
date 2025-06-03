@@ -149,7 +149,7 @@ jobs:
 
     - name: Find changed files in js-api-doc
       id: changed-files
-      uses: tj-actions/changed-files@480f49412651059a414a6a5c96887abb1877de8a
+      uses: tj-actions/changed-files@115870536a85eaf050e369291c7895748ff12aea
       with: {files: js-api-doc}
 
     - name: Deploy
