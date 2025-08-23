@@ -159,3 +159,9 @@ compile-string-relative-url:
   dart-sass:
     status: active
     deprecated: 1.88.0
+
+misplaced-rest:
+  description: 'A rest parameter before a positional or named parameter.'
+  dart-sass:
+    status: active
+    deprecated: 1.91.0
