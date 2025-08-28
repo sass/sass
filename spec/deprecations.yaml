@@ -152,8 +152,9 @@ global-builtin:
 type-function:
   description: 'Functions named "type".'
   dart-sass:
-    status: active
+    status: obsolete
     deprecated: 1.86.0
+    obsolete: 1.92.0
 
 compile-string-relative-url:
   description: 'Passing a relative url to compileString().'
