@@ -28,13 +28,13 @@ To execute an unknown at-rule `rule`:
 * Let `css` be a CSS unknown at-rule with name `name`, value `value`, and with
   an empty list of children if `rule` has `Statements`.
 
-* Let `parent` be the [current style rule], [keyframe block], or at-rule if one
-  exists; or the innermost if multiple exist.
-
-  [current style rule]: ../style-rules.md#current-style-rule
-  [keyframe block]: ../style-rules.md#current-style-rule
-
 * If `rule` has `Statements`:
+
+  * Let `parent` be the [current style rule], [keyframe block], or at-rule if
+    one exists; or the innermost if multiple exist.
+
+    [current style rule]: ../style-rules.md#current-style-rule
+    [keyframe block]: ../style-rules.md#current-style-rule
 
   * If `parent` isn't set, append `css` to [the current module]'s CSS.
 
@@ -57,6 +57,10 @@ To execute an unknown at-rule `rule`:
   * Evaluate each child in `rule`'s `Statement`s.
 
 * Otherwise:
+
+  * Let `parent` be the result of [splitting the current parent if necessary].
+
+    [splitting the current parent if necessary]: ../stylesheet.md#splitting-the-current-parent-if-necessary
 
   * Append `css` to `parent` if it's set, or to [the current module]'s CSS
     otherwise.

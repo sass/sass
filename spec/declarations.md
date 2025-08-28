@@ -64,29 +64,16 @@ To execute a declaration `declaration`:
 
     > Note that `value` being only whitespace is allowed, including `--foo: ;`.
 
-* Let `parent` be the [current style rule], [keyframe block], or at-rule; or
-  the innermost if multiple exist.
-
-  [current style rule]: style-rules.md#current-style-rule
-  [keyframe block]: style-rules.md#current-style-rule
-
-  > Parsing guarantees that a declaration will have at least one parent.
-
 * If `value` is set, and it's neither null nor an empty unquoted string:
 
   * Let `css` be a CSS declaration with name `name` and value `value`.
 
+  * Let `parent` be the result of [splitting the current parent if necessary].
+
+    [splitting the current parent if necessary]: stylesheet.md#splitting-the-current-parent-if-necessary
+
+    > Parsing guarantees that a declaration will have at least one parent.
+
   * Append `css` to `parent`.
-  
-  * If `parent` isn't the last statement in its parent:
-
-    * Let `copy` by a copy of `parent` without any children.
-
-    * Append `copy` to `parent`'s parent.
-
-    * Set the [current style rule], [keyframe block], or at-rule (according to
-      `copy`'s type) to `copy`, for the remaining duration of its previous value.
-
-    * Set `parent` to `copy`.
 
 * Evaluate each child in `declaration`'s `Statements` if it exists.
