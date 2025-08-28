@@ -64,7 +64,7 @@ const docRegex =
       ? 'This deprecation was active in the first version of Dart Sass.'
       : `This deprecation became active in Dart Sass ${dartSass.deprecated}.`;
     const obsoleteText = dartSass.obsolete
-      ? `\nIt became obsolete in Dart Sass ${dartSass.obsolete}.`
+      ? `\n   * It became obsolete in Dart Sass ${dartSass.obsolete}.`
       : '';
     docList += `  /**
    * Deprecation for ${lowercase.replace(/\$PLATFORM/g, 'JS')}

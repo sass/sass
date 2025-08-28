@@ -1,4 +1,4 @@
-# Interleaved Declarations: Draft 1.1
+# Interleaved Declarations: Draft 2.0
 
 *([Issue](https://github.com/sass/sass/issues/3846),
 [Changelog](interleaved-declarations.changes.md))*
@@ -10,6 +10,8 @@
 * [Definitions](#definitions)
   * [Current Style Rule](#current-style-rule)
   * [Current Keyframe Block](#current-keyframe-block)
+* [Procedures](#procedures)
+  * [Splitting the Current Parent If Necessary](#splitting-the-current-parent-if-necessary)
 * [Declarations](#declarations)
   * [Semantics](#semantics)
 * [Deprecation Process](#deprecation-process)
@@ -98,16 +100,24 @@ The *current keyframe block* is the CSS keyframe block that was created by the
 innermost [execution of a style rule]. **This may be overridden by the
 [execution of a declaration].**
 
-## Declarations
+## Procedures
 
-### Semantics
+### Splitting the Current Parent If Necessary
 
-Add the following to the semantics for [executing a declaration] `declaration`
-before "Append `css` to `parent`":
+This procedure accepts no arguments and returns a style rule, keyframe block,
+at-rule, or null.
 
-[executing a declaration]: ../spec/declarations.md#semantics
+* Let `parent` be the [current style rule], [keyframe block], or at-rule if one
+  exists; or the innermost if multiple exist.
 
-* If `parent` isn't the last statement in its parent:
+  [current style rule]: ../spec/style-rules.md#current-style-rule
+  [keyframe block]: ../spec/style-rules.md#current-style-rule
+
+* If `parent` is null, return null.
+
+* Otherwise, if `parent` is the last statement in its parent, return `parent`.
+
+* Otherwise:
 
   * Let `copy` by a copy of `parent` without any children.
 
@@ -116,10 +126,22 @@ before "Append `css` to `parent`":
   * Set the [current style rule], [keyframe block], or at-rule (according to
     `copy`'s type) to `copy`, for the remaining duration of its previous value.
 
-  * Set `parent` to `copy`.
+  * Return `copy`.
 
-[current style rule]: #current-style-rule
-[keyframe block]: #current-keyframe-block
+## Declarations
+
+### Semantics
+
+In the semantics for [executing a declaration], [executing an unknown at-rule],
+and executing a comment, before "Append `css` to `parent`", assign `parent` to
+the result of [splitting the current parent if necessary] rather than whatever
+it was assigned to before.
+
+[executing a declaration]: ../spec/declarations.md#semantics
+[executing an unknown at-rule]: ../spec/at-rules/unknown.md#semantics
+[splitting the current parent if necessary]: #splitting-the-current-parent-if-necessary
+
+* Split `parent` if necessary.
 
 ## Deprecation Process
 
