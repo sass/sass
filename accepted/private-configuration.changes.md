@@ -1,3 +1,9 @@
+## Draft 2.1
+
+* Explicitly forbid configuring private variables with `meta.load-css()`.
+
+* Rename the proposal to "Private Configuration".
+
 ## Draft 2.0
 
 * Instead of prohibiting the use of `!default` in private variables, we now
