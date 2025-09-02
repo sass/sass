@@ -1,12 +1,15 @@
-# Disallow `!default` on Private Variables: Draft 1.0
+# Disallow Private Variables Identifiers In `with` Clauses: Draft 2.0
 
-*([Issue](https://github.com/sass/sass/issues/4034))*
+*([Issue](https://github.com/sass/sass/issues/4034)),
+[Changelog](default-on-private-variables.changes.md)*
 
 ## Table of Contents
 
 * [Background](#background)
 * [Summary](#summary)
 * [Semantics](#semantics)
+  * [`@use`](#use)
+  * [`@forward`](#forward)
 * [Deprecation Process](#deprecation-process)
   * [Phase 1](#phase-1)
   * [Phase 2](#phase-2)
@@ -15,36 +18,51 @@
 
 > This section is non-normative.
 
-By using [`!default`], a module's variable value becomes overridable by any file
-that loads the module. The primary use case is to allow module authors to
-provide default values for variables that can be overridden by users when
-importing the module.
+By using [`!default`], module authors can define a module variable with a
+default value. This variable can be overridden by any file that loads the module
+by setting a new value in the [`with`] clause. Additionally, `!default` allows
+conditionally assigning a value to a variable only when it has a `null` value,
+similar to the null-coalescing operator in other programming languages.
 
 [`!default`]: ../accepted/module-system.md#configuring-libraries
+[`with`]: ../accepted/module-system.md#configuring-libraries
 
-However, the current behavior unintentionally allows !default to affect private
-variables. This is inconsistent with the expected privacy of Sass modules.
+However, the current behavior unintentionally allows the `with` clause to modify
+the value of a private variable. This is inconsistent with the expected privacy
+of Sass modules.
 
 ## Summary
 
 > This section is non-normative.
 
 This proposal seeks to rectify the unintended behavior of the `!default` flag
-affecting private variables in Sass modules. By disallowing `!default` on
-private variables, we reinforce module encapsulation and prevent unexpected
-overrides of internal module states.
+affecting private variables in Sass modules. By disallowing private variables
+from being overridden in a `with` clause, we reinforce module encapsulation and
+prevent unexpected overrides of internal module states.
 
 ## Semantics
 
-Add the following to [the Semantics for "Executing a Variable Declaration"]
-after validating that `resolved` is not a variable from a built-in module:
+### `@use`
 
-[the Semantics for "Executing a Variable Declaration"]: ../spec/variables.md#executing-a-variable-declaration
+Add the following step before evaluating each [`KeywordArgument`]'s expression
+in a `WithClause`:
 
-* Otherwise, if `name` begins with `-` and `declaration` has a
-  `!default` flag, throw an error.
+* If the `argument`'s identifier name begins with `-`, throw an error.
 
-  > Sass treats `_` and `-` as equivalent in variable names.
+  > Sass treats `_` and `-` as equivalent in identifiers.
+
+[`KeywordArgument`]: ../spec/at-rules/use.md#semantics
+
+### `@forward`
+
+Add the following step before evaluating each [`ForwardWithArgument`] in a
+`WithClause`:
+
+* If the `argument`'s identifier name begins with `-`, throw an error.
+
+  > Sass treats `_` and `-` as equivalent in identifiers.
+
+[`ForwardWithArgument`]: ../spec/at-rules/forward.md#semantics
 
 ## Deprecation Process
 
@@ -56,9 +74,9 @@ The deprecation process will be divided into two phases:
 > upcoming changes to behavior and give them a chance to move towards passing
 > future-proof units.
 
-Phase 1 does not change the semantics of variable declarations. However, if a
-private variable (one whose name starts with `_` or `-`) has a `!default` flag,
-emit a deprecation warning named `private-variable-default`.
+Phase 1 does not change the semantics of `with` clauses. However, we will emit a
+deprecation warning named `with-private` when a `with` clause configures a
+private variable.
 
 ### Phase 2
 

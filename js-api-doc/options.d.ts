@@ -231,8 +231,25 @@ export interface Options<sync extends 'sync' | 'async'> {
    *
    * Loads are resolved by trying, in order:
    *
-   * - The importer that was used to load the current stylesheet, with the
-   *   loaded URL resolved relative to the current stylesheet's canonical URL.
+   * - **For relative URLs only:** the URL resolved relative to the current
+   *   stylesheet's canonical URL, passed to the importer that loaded the current
+   *   stylesheet.
+   *
+   *   When calling {@link compileString} or {@link compileStringAsync}, the
+   *   entrypoint file isn't "loaded" in the same sense as other files. In that
+   *   case:
+   *
+   *   - {@link StringOptions.url} is the canonical URL and {@link
+   *     StringOptions.importer} is the importer that loaded it.
+   *
+   *   - If {@link StringOptions.importer} isn't passed and {@link
+   *     StringOptions.url} is a `file:` URL, the URL is loaded from the
+   *     filesystem by default. (You can disable this by passing `{canonicalize:
+   *     url => null}` as {@link StringOptions.importer}.)
+   *
+   *   - If {@link StringOptions.url} isn't passed but {@link
+   *     StringOptions.importer} is, the relative URL is passed to {@link
+   *     StringOptions.importer} as-is.
    *
    * - Each {@link Importer}, {@link FileImporter}, or
    *   {@link NodePackageImporter} in {@link importers}, in order.
@@ -390,8 +407,8 @@ export interface Options<sync extends 'sync' | 'async'> {
  *
  * If the {@link StringOptions.importer} field isn't passed, the entrypoint file
  * can load files relative to itself if a `file://` URL is passed to the {@link
- * url} field. If it is passed, the entrypoint file uses it to load files
- * relative to itself.
+ * url} field. If `importer` is passed, the entrypoint file uses that importer
+ * to load files relative to itself.
  *
  * @typeParam sync - This lets the TypeScript checker verify that asynchronous
  * {@link Importer}s, {@link FileImporter}s, and {@link CustomFunction}s aren't
@@ -411,13 +428,11 @@ export interface StringOptions<sync extends 'sync' | 'async'>
   syntax?: Syntax;
 
   /**
-   * The importer to use to handle loads that are relative to the entrypoint
-   * stylesheet.
+   * The importer to use to handle relative URL loads in the entrypoint
+   * stylesheet and stylesheets loaded relative to the entrypoint stylesheet.
    *
-   * A relative load's URL is first resolved relative to {@link url}, then
-   * passed to {@link importer}. (It's passed as-is if {@link url} isn't
-   * passed.) If the importer doesn't recognize it, it's then passed to {@link
-   * importers} and {@link loadPaths}.
+   * See {@link Options.importers} for details on how loads are resolved for the
+   * entrypoint stylesheet.
    *
    * @category Input
    */
@@ -426,10 +441,8 @@ export interface StringOptions<sync extends 'sync' | 'async'>
   /**
    * The canonical URL of the entrypoint stylesheet.
    *
-   * A relative load's URL is first resolved relative to {@link url}, then
-   * resolved to a file on disk if it's a `file://` URL. If it can't be resolved
-   * to a file on disk, it's then passed to {@link importers} and {@link
-   * loadPaths}.
+   * See {@link Options.importers} for details on how loads are resolved for the
+   * entrypoint stylesheet.
    *
    * @category Input
    * @compatibility feature: "Undefined URL with importer", dart: "1.75.0", node: false

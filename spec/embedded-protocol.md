@@ -33,6 +33,7 @@ and [`embedded_sass.proto`] for the compiler endpoint.
   * [Null](#null)
   * [Calculations](#calculations)
   * [Functions](#functions)
+  * [Mixins](#mixins)
 * [Versioning](#versioning)
 
 ## Overview
@@ -346,8 +347,23 @@ types as much as possible, but it may refuse to allow host-defined functions to
 be invoked on the host, since doing so correctly would require parsing those
 functions' signatures.
 
-Two first-class functions are equal if they have the same ID and they're either
-both `CompilerFunction`s or both `HostFunction`s.
+Because `CompilerFunction`s are not serializable, they are only represented by
+unique ids scoped under each running compliation at protocol level. Passing a
+`CompilerFunction` from its originating compilation to another compilation is
+forbidden. The host should keep track of the originating compilation for each
+`CompilerFunction`. If the host is about to send a `CompilerFunction` with its
+originating compilation different from the current compilation as part
+of `FunctionCallResponse.success`, it should replace the message with
+`FunctionCallResponse.error` instead, indicating a violation has occured.
+
+Two first-class functions are equal if they belong to the same compilation,
+have the same ID and they're either both `CompilerFunction`s or both
+`HostFunction`s.
+
+### Mixins
+
+The requirements described above for `CompilerFunction` also apply to
+`CompilerMixin`.
 
 ## Versioning
 

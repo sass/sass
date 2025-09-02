@@ -1,3 +1,7 @@
+## 3.2.0
+
+* Explicitly forbid passing `CompilerFunction`s across different compilations.
+
 ## 3.1.0
 
 * Mark `Color.channel1`, `Color.channel2`, `Color.channel3`, and `Color.alpha`
