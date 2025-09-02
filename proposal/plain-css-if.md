@@ -49,7 +49,7 @@ functions remained in the global scope. This was for a few reasons:
 
 2. `if()` is part of the core language infrastructure (like a ternary expression
    in other languages) and so requiring a module to be loaded to use it would
-   was more onerous than we wanted to impose on users.
+   have been more onerous than we wanted to impose on users.
 
 3. It didn't fit cleanly into any of the core modules. `sass:meta` was the
    closest as sort of a grab-bag of functions that did things with odd
