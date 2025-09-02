@@ -89,6 +89,10 @@ To execute a `@forward` rule `rule`:
 
   * For each `ForwardWithArgument` `argument` in this clause:
 
+    * If `argument`'s identifier begins with `-`, throw an error.
+
+      > Sass treats `_` and `-` as equivalent in identifiers.
+
     * Let `variable` be the variable in `module` with the same name as
       `argument`'s identifier. If no such variable exists, throw an error.
 

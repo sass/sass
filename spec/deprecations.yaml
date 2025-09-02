@@ -167,3 +167,9 @@ misplaced-rest:
   dart-sass:
     status: active
     deprecated: 1.91.0
+
+with-private:
+  description: Configuring private variables in @use, @forward, or load-css().
+  dart-sass:
+    status: active
+    deprecated: 1.92.0
