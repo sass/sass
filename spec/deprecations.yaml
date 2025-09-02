@@ -45,8 +45,9 @@ relative-canonical:
 new-global:
   description: Declaring new variables with !global.
   dart-sass:
-    status: active
+    status: obsolete
     deprecated: 1.17.2
+    obsolete: 2.0.0
 
 color-module-compat:
   description: Using color module functions in place of plain CSS functions.
