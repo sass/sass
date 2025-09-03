@@ -78,5 +78,8 @@ whitespace or comments, unless the stylesheet is being parsed as CSS.
 
 To evaluate a `SlashListExpression`, evaluate each of its `SpaceListExpression`s
 and return a slash-separated list that contains each of the results in order. If
-any `/` isn't followed by a `SpaceListExpression`, use an empty unquoted string
-as its value instead.
+any `/` isn't followed by a `SpaceListExpression`, use an unquoted string whose
+contents is a single U+0020 SPACE as its value instead.
+
+> A space is used instead of an empty string to avoid the list element being
+> considered "blank" and automatically omitted during serialization.

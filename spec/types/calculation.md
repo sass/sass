@@ -175,6 +175,8 @@ another calculation-safe expression with the precedence of
 
 * Return a copy of `expression` except, for each `SlashListExpression`:
 
+  * If any `/` isn't followed by a `SpaceListExpression`, throw an error.
+
   * Let `left` be the first element of the list.
 
   * For each remaining element `right`:
@@ -189,7 +191,7 @@ another calculation-safe expression with the precedence of
         `SlashListExpression` with elements `last-left` and `first-right`,
         followed by all operators and operands of `right` except `first-right`.
 
-        > For example, `slash-list(1 + 2, 3 + 4)` becomes `1 + (2 / 3) + 4`.
+        > For example, `1 + 2 / 3 + 4)` becomes `1 + (2 / 3) + 4`.
 
     * Otherwise, if `left` is a `SumExpression`:
 
@@ -199,7 +201,7 @@ another calculation-safe expression with the precedence of
         operators of `left` except `last-left`, followed by a
         `SlashListExpression` with elements `last-left` and `right`.
 
-        > For example, `slash-list(1 + 2, 3)` becomes `1 + (2 / 3)`.
+        > For example, `1 + 2 / 3` becomes `1 + (2 / 3)`.
 
     * Otherwise, if `right` is a `SumExpression` or a `ProductExpression`:
 
@@ -209,7 +211,7 @@ another calculation-safe expression with the precedence of
         `SlashListExpression` with elements `left` and `first-right`, followed
         by operators and operands of `right` except `first-right`.
 
-        > For example, `slash-list(1, 2 * 3)` becomes `(1 / 2) * 3`.
+        > For example, `1 / 2 * 3` becomes `(1 / 2) * 3`.
 
     * Otherwise, if `left` is a slash-separated list, add `right` to the end.
 

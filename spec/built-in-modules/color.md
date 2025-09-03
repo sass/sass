@@ -277,34 +277,6 @@ The procedure is:
   * Let `components` be an unbracketed space separated list of all except the
     last element of `input`.
 
-  * If the last element of `input` is an unquoted string that contains `/`:
-
-    > This solves for a legacy handling of `/` in Sass that would produce an
-    > unquoted string when the alpha value is a CSS function such as `var()`,
-    > when either value is `none`, or when using relative color syntax.
-
-    * Let `split-last` be the result calling `string.split()` with the last
-      element of `input` as the string to split, and `/` as the separator.
-
-    * If `split-last` doesn't have exactly two items, return an unquoted string
-      with the value of `input`.
-
-      > This ensures that `rgb(1 2 calc(var(--a) / var(--b)) / var(--c))` is
-      > handled correctly after the final expresssion is fully converted to a
-      > string due to legacy `/` behavior.
-
-    * If either item in `split-last` can be parsed as a number, replace the
-      current value of the item with the resulting number value.
-
-    * Let `alpha` be the second element in `split-last`, and append the first
-      element of `split-last` to `components`.
-
-  * Otherwise, if the last element of `input` has preserved its status as two
-    slash-separated numbers:
-
-    * Let `alpha` be the number after the slash, and append the number before
-      the slash to `components`.
-
   * Otherwise, append the last element of `input` to `components`.
 
 * If `components` is an empty list, throw an error.
@@ -1108,7 +1080,7 @@ hue($color)
   ```
 
   * Return the result of calling the global function
-    `hwb(list.slash($hue $whiteness $blackness, $alpha))`.
+    `hwb($hue $whiteness $blackness / $alpha))`.
 
 ### `ie-hex-str()`
 
