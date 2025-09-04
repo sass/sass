@@ -35,7 +35,7 @@ structure, at the expense of other important information. YAML and JSON are not
 design languages, and do not understand fundamental CSS concepts like color or
 length.
 
-[Style Dictionary]: https://amzn.github.io/style-dictionary
+[Style Dictionary]: https://style-dictionary.github.io/style-dictionary
 
 With Sass, we don't have to make that tradeoff. We already support nestable map
 structures, and the ability to interact with them programmatically -- adding or

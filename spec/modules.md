@@ -362,11 +362,17 @@ This algorithm takes a string `argument` and [configuration](#configuration)
 
   [executed]: spec.md#executing-a-file
 
-  * If `config` is not empty and has a different ID than the configuration that
-    was passed the first time `file` was executed by the [Loading a Module]
-    procedure, throw an error.
+  * If `config` has a different ID than the configuration that was passed the
+    first time `file` was executed by the [Loading a Module] procedure and
+    `module` contains at least one variable with a `!default` flag whose name
+    appears in `config`, throw an error.
 
-    > An ID may be reused in a new configuration via [`@forward ... with`].
+    > An ID may be reused in a new configuration via [`@forward ... with`]. It's
+    > valid to load a module with a configuration it doesn't use, but all module
+    > loads (`@use`, `@forward`, and `meta.load-css()`) verify that all
+    > configured variables are used, so in practice this only avoids errors for
+    > `@forward`ed modules that happen to have configurations passed "past"
+    > them.
 
   * Otherwise, return the module that execution produced.
 
@@ -707,9 +713,10 @@ This algorithm takes a package.json value `packageManifest`, a directory URL
   "style"])` as defined in the [Node resolution algorithm specification], with
   each `subpathIndexVariants` as `subpathVariant`.
 
-* If `resolvedIndexPaths` contains more than one resolved URL, throw an error.
+* If `resolvedIndexPaths` contains more than one distinct resolved URL (compared
+  using string equality), throw an error.
 
-* If `resolvedIndexPaths` contains exactly one resolved URL, return it.
+* If `resolvedIndexPaths` contains exactly one distinct resolved URL, return it.
 
 * Return null.
 

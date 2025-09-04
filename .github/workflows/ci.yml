@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - uses: actions/setup-node@v4
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - uses: actions/setup-node@v4
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
@@ -38,29 +38,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - uses: actions/setup-node@v4
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
     - run: npm run link-check
-
-  deprecations:
-    name: Deprecations
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with: {node-version: '${{ env.NODE_VERSION }}'}
-    - run: npm ci
-    - run: npm run deprecations-check
 
   js_api_mirroring:
     name: JS API mirroring
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - uses: actions/setup-node@v4
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
@@ -71,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - uses: actions/setup-node@v4
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
@@ -82,7 +71,7 @@ jobs:
     runs-on: "ubuntu-latest"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: bufbuild/buf-setup-action@v1.50.0
         with: {github_token: "${{ github.token }}"}
       - name: Generate protobuf code
@@ -93,7 +82,7 @@ jobs:
     runs-on: "ubuntu-latest"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Check versions match
         run: |
           if ! (grep -q '\-dev$' spec/EMBEDDED_PROTOCOL_VERSION ||
@@ -101,6 +90,17 @@ jobs:
                  "## $(cat spec/EMBEDDED_PROTOCOL_VERSION)" ]]); then
             echo "spec/EMBEDDED_PROTOCOL_VERSION file doesn't match EMBEDDED_PROTOCOL_CHANGELOG version."
           fi
+
+  deprecations:
+    name: Validate deprecations
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v5
+    - uses: actions/setup-node@v4
+      with: {node-version: '${{ env.NODE_VERSION }}'}
+    - run: npm ci
+    - run: npm run deprecations-check
 
   embedded_protocol_tag:
     name: "Tag Embedded Protocol release"
@@ -111,7 +111,7 @@ jobs:
           github.ref == 'refs/heads/main'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 2
 
@@ -144,12 +144,12 @@ jobs:
       github.ref == 'refs/heads/main'
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with: {fetch-depth: 0}
 
     - name: Find changed files in js-api-doc
       id: changed-files
-      uses: tj-actions/changed-files@27ae6b33eaed7bf87272fdeb9f1c54f9facc9d99
+      uses: tj-actions/changed-files@3b04099b21072562f07469c10deb182b24236ca9
       with: {files: js-api-doc}
 
     - name: Deploy
