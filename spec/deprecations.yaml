@@ -167,3 +167,9 @@ misplaced-rest:
   dart-sass:
     status: active
     deprecated: 1.91.0
+    
+case-insensitive-function-names:
+  description: 'Functions whose names differ from reserved names only by case are now deprecated. These cannot be invoked normally and will be disallowed in a future release.'
+  dart-sass:
+    status: active
+    deprecated: 1.91.0
