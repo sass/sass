@@ -7,6 +7,7 @@
   * [Vendor Prefix](#vendor-prefix)
 * [Syntax](#syntax-1)
   * [`ArgumentList`](#argumentlist)
+  * [`InterpolatedAnyValue`](#interpolatedanyvalue)
   * [`InterpolatedIdentifier`](#interpolatedidentifier)
   * [`InterpolatedUrl`](#interpolatedurl)
   * [`Name`](#name)
@@ -74,6 +75,14 @@ representation of the intermediate production.
 **NamedArgument** ::= [PlainVariable] ':' Expression
 **RestArgument**  ::= Expression '...'
 </pre></x>
+
+### `InterpolatedAnyValue`
+
+The `InterpolatedAnyValue` production is identical to CSS's [`<any-value>`]
+except that after it parses `"#{"`, it parses an `Expression` which must be
+followed by `"}"`.
+
+[`<any-value>`]: https://drafts.csswg.org/css-syntax-3/#typedef-any-value
 
 ### `InterpolatedIdentifier`
 

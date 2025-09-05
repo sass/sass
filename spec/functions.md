@@ -42,7 +42,7 @@ A *special number* is either:
 
 ### Special Variable String
 
-A *special variable string* is [special number] that begins with `var(`. This
+A *special variable string* is a [special number] that begins with `var(`. This
 matching is case-insensitive.
 
 [special number]: #special-number
