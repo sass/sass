@@ -82,8 +82,9 @@ function-units:
 duplicate-var-flags:
   description: Using !default or !global multiple times for one variable.
   dart-sass:
-    status: active
+    status: obsolete
     deprecated: 1.62.0
+    obsolete: 2.0.0
 
 null-alpha:
   description: Passing null as alpha in the $PLATFORM API.
