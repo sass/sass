@@ -280,21 +280,25 @@ modifications. The following productions should produce errors:
   writing, this means:
 
   * `@at-root`
-  * `@content`
+  * `@content`¹
   * `@debug`
   * `@each`
   * `@error`
   * `@extend`
   * `@for`
   * `@forward`
-  * `@function`
+  * `@function`¹
   * `@if`
   * `@include`
-  * `@mixin`
+  * `@mixin`¹
   * `@return`
   * `@use`
   * `@warn`
   * `@while`
+  
+  1: If these are parsed as [`UnknownAtRule`]s, they don't produce errors.
+
+  [`UnknownAtRule`]: at-rules/unknown.md
 
 * An `@import` that contains interpolation in the `url()` or any of its
   `ImportModifier`s.
