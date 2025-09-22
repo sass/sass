@@ -49,11 +49,8 @@ To execute a style rule `rule`:
 
   * Cease evaluating `rule`.
 
-* Let `in-css-mixin` be a boolean indicating whether an unknown at-rule whose
-  name is case-insensitively equal to `@mixin` is currently being executed.
-
-* Otherwise, if `parent` is a style rule whose stylesheet wasn't [parsed as CSS]
-  and `in-css-mixin` is false:
+* Otherwise, if `parent` is a style rule whose stylesheet wasn't [parsed as
+  CSS]:
 
   [parsed as CSS]: syntax.md#parsing-text-as-css
 
@@ -74,20 +71,18 @@ To execute a style rule `rule`:
 
   [descendant combinator]: https://www.w3.org/TR/selectors-3/#descendant-combinators
 
-* Otherwise, if `selector` contains one or more parent selectors, `rule`'s
-  stylesheet wasn't [parsed as CSS], and `in-css-mixin` is false, throw an
-  error.
+* Otherwise, if `selector` contains one or more parent selectors and `rule`'s
+  stylesheet wasn't [parsed as CSS], throw an error.
 
 * Let `css` be a CSS style rule with selector `selector`.
 
-* If `parent` is set and its stylesheet was [parsed as CSS], if its stylesheet
-  wasn't parsed as CSS but `selector` contains a parent selector, or if
-  `in-css-mixin` is true, append `css` to `parent`.
+* If `parent` is set and its stylesheet was [parsed as CSS], or if its
+  stylesheet wasn't parsed as CSS but `selector` contains a parent selector,
+  append `css` to `parent`.
 
   > `selector` can only contain a parent selector at this point if it comes from
-  > plain CSS and has a top-level nesting selector or if it was defined in a
-  > plain-CSS mixin. In that case we want to append it directly as plain CSS
-  > nesting.
+  > plain CSS and has a top-level nesting selector. In that case we want to
+  > append it directly as plain CSS nesting.
 
 * Otherwise, if there is a current at-rule, append `css` to its children.
 

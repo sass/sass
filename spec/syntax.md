@@ -280,7 +280,7 @@ modifications. The following productions should produce errors:
   writing, this means:
 
   * `@at-root`
-  * `@content`¹
+  * `@content`
   * `@debug`
   * `@each`
   * `@error`
@@ -290,13 +290,13 @@ modifications. The following productions should produce errors:
   * `@function`¹
   * `@if`
   * `@include`
-  * `@mixin`¹
+  * `@mixin`
   * `@return`
   * `@use`
   * `@warn`
   * `@while`
   
-  1: If these are parsed as [`UnknownAtRule`]s, they don't produce errors.
+  1: If this is parsed as an [`UnknownAtRule`], it doesn't produce an error.
 
   [`UnknownAtRule`]: at-rules/unknown.md
 
