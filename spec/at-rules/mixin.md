@@ -17,14 +17,12 @@
 ### Syntax
 
 <x><pre>
-**MixinRule** ::= '@mixin' [\<ident-token>]¹ [ParameterList]? [Block]
+**MixinRule** ::= '@mixin' [\<ident-token>] [ParameterList]? [Block]
 </pre></x>
 
 [\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
 [ParameterList]: ../syntax.md#parameterlist
 [Block]: ../statement.md#block
-
-1: This may not begin with `--`.
 
 No whitespace is allowed between the `Identifier` and the `ParameterList`
 in `MixinRule`.
@@ -34,6 +32,8 @@ in `MixinRule`.
 To execute a `@mixin` rule `rule`:
 
 * Let `name` be the value of `rule`'s `Identifier`.
+
+* If `name` begins with `--`, throw an error.
 
 * Let `parent` be the [current scope].
 
@@ -113,16 +113,6 @@ current mixin.
 
 As with all statements, a `ContentRule` must be separated from other statements
 with a semicolon.
-
-This at-rule is not allowed within an [`UnknownAtRule`] whose name is
-case-insensitively equal to `@mixin` unless it's _also_ within a `MixinRule`.
-
-[`UnknownAtRule`]: unknown.md
-
-> This means that, if a plain CSS `@mixin` is defined within a Sass `@mixin`,
-> `@content` will be interpreted as Sass. This allows for maximum user power to
-> dynamically define mixins, while also allowing users to explicitly write
-> plain-CSS `@content` using `@#{content}` or `@Content`.
 
 ### Semantics
 
