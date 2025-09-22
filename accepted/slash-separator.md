@@ -1,4 +1,4 @@
-# Forward Slash as a Separator: Draft 3.1
+# Forward Slash as a Separator: Draft 3.2
 
 *([Issue](https://github.com/sass/sass/issues/2565), [Changelog](slash-separator.changes.md))*
 
@@ -24,6 +24,7 @@ operator.
   * [`SlashListExpression`](#slashlistexpression)
 * [Semantics](#semantics)
   * [Slash-Separated Lists](#slash-separated-lists)
+  * [`SlashListExpression`](#slashlistexpression-1)
   * [`math.div()` Function](#mathdiv-function)
   * [`list.slash()` Function](#listslash-function)
   * [`rgb()` Function](#rgb-function)
@@ -226,9 +227,12 @@ support for slash-separated lists. The new grammar for this production is:
 
 <x><pre>
 ~~**CommaListExpression** ::= SpaceListExpression (',' SpaceListExpression)*~~
-**CommaListExpression** ::= SlashListExpression (',' SlashListExpression)*
-**SlashListExpression** ::= SpaceListExpression ('/' SpaceListExpression)*
+**CommaListExpression**   ::= SlashListExpression (',' SlashListExpression)*
+**SlashListExpression**   ::= SpaceListExpression (('/' SpaceListExpression?)* '/' SpaceListExpression)?
 </pre></x>
+
+Every pair of adjacent `/`s in a `SlashListExpression` must be separated by
+whitespace or comments, unless the stylesheet is being parsed as CSS.
 
 > Note that `/` may *not* be used in single-element lists the way `,` is. That
 > is, `(foo,)` is valid, but `(foo/)` is not.
@@ -249,10 +253,6 @@ operator. The new grammar for this production is:
 **ProductExpression** ::= (ProductExpression ('*' | '%'))? UnaryPlusExpression
 </pre></x>
 
-When a `SlashListExpression` with one or more `/`s is evaluated, it produces a
-list object whose contents are the values of its constituent
-`SpaceListExpression`s and whose separator is "slash".
-
 ## Procedures
 
 ### Evaluating a `FunctionCall` as a Calculation
@@ -271,6 +271,8 @@ another calculation-safe expression with the precedence of
 `SlashListExpression`s adjusted to match division precedence.
 
 * Return a copy of `expression` except, for each `SlashListExpression`:
+
+  * If any `/` isn't followed by a `SpaceListExpression`, throw an error.
 
   * Let `left` be the first element of the list.
 
@@ -344,6 +346,16 @@ must have exactly one `/` between each adjacent pair of elements.
 
 > Although CSS doesn't currently make use of this syntax, there's nothing
 > stopping a list from being both bracketed and slash-separated.
+
+### `SlashListExpression`
+
+To evaluate a `SlashListExpression`, evaluate each of its `SpaceListExpression`s
+and return a slash-separated list that contains each of the results in order. If
+any `/` isn't followed by a `SpaceListExpression`, use an unquoted string whose
+contents is a single U+0020 SPACE as its value instead.
+
+> A space is used instead of an empty string to avoid the list element being
+> considered "blank" and automatically omitted during serialization.
 
 ### `math.div()` Function
 

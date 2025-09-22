@@ -1,3 +1,7 @@
+## Draft 3.2
+
+* Support slash-separated lists with missing elements.
+
 ## Draft 3.1
 
 * Update to accommodate new calculation parsing logic.

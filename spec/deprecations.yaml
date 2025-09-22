@@ -58,8 +58,9 @@ color-module-compat:
 slash-div:
   description: / operator for division.
   dart-sass:
-    status: active
+    status: obsolete
     deprecated: 1.33.0
+    obsolete: 2.0.0
 
 bogus-combinators:
   description: Leading, trailing, and repeated combinators.
@@ -172,3 +173,9 @@ misplaced-rest:
   dart-sass:
     status: active
     deprecated: 1.91.0
+
+list-slash:
+  description: 'The list.slash() function.'
+  dart-sass:
+    status: active
+    deprecated: 2.0.0
