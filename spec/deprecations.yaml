@@ -78,8 +78,9 @@ strict-unary:
 function-units:
   description: Passing invalid units to built-in functions.
   dart-sass:
-    status: active
+    status: obsolete
     deprecated: 1.56.0
+    obsolete: 2.0.0
 
 duplicate-var-flags:
   description: Using !default or !global multiple times for one variable.
