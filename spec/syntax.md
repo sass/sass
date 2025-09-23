@@ -287,7 +287,7 @@ modifications. The following productions should produce errors:
   * `@extend`
   * `@for`
   * `@forward`
-  * `@function`
+  * `@function`¹
   * `@if`
   * `@include`
   * `@mixin`
@@ -295,6 +295,10 @@ modifications. The following productions should produce errors:
   * `@use`
   * `@warn`
   * `@while`
+  
+  1: If this is parsed as an [`UnknownAtRule`], it doesn't produce an error.
+
+  [`UnknownAtRule`]: at-rules/unknown.md
 
 * An `@import` that contains interpolation in the `url()` or any of its
   `ImportModifier`s.

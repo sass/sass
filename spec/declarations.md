@@ -12,15 +12,20 @@
 <x><pre>
 **Declaration**         ::= StandardDeclaration | CustomDeclaration
 **StandardDeclaration** ::= [InterpolatedIdentifier]¹ ':' (Value | Value? [Block] )
-**CustomDeclaration**   ::= [InterpolatedIdentifier]² ':' InterpolatedDeclarationValue
+**CustomDeclaration**   ::= ([InterpolatedIdentifier]² | 'result'³) ':' InterpolatedDeclarationValue
 </pre></x>
 
 [Block]: statement.md#block
-
-1. This may not begin with "--".
-2. This *must* begin with "--".
-
 [InterpolatedIdentifier]: syntax.md#interpolatedidentifier
+
+1: This may not begin with "--".
+
+2: This *must* begin with "--".
+
+3: This is matched case-insensitively, and only allowed within an
+[`UnknownAtRule`] whose name is case-insensitively equal to `@function`.
+
+[`UnknownAtRule`]: at-rules/unknown.md
 
 ## Definitions
 
@@ -56,6 +61,8 @@ To execute a declaration `declaration`:
   * Let `value` be the result of evaluating that `Value`.
 
 * Otherwise, if `declaration` is a `CustomDeclaration`:
+
+  * If `parent-name` is set, throw an error.
 
   * Let `value` be an unquoted string whose value is the result of evaluating
     `declaration`'s `InterpolatedDeclarationValue`.
