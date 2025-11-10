@@ -8,11 +8,13 @@
 ## Syntax
 
 <x><pre>
-**FunctionRule** ::= '@function' [\<ident-token>] [ParameterList] '{' Statements '}'
+**FunctionRule** ::= '@function' [\<ident-token>]¹ [ParameterList] '{' Statements '}'
 </pre></x>
 
 [ParameterList]: ../syntax.md#parameterlist
 [\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
+
+1: This may not begin with `--`.
 
 No whitespace is allowed between the `Identifier` and the `ParameterList` in
 `FunctionRule`.
@@ -30,8 +32,6 @@ To execute a `@function` rule `rule`:
   > `type()` with vendor prefixes. Second, "type" is a relatively common word,
   > so it's likely for private function names to end with `-type` in a way that
   > could be indistinguishable from a vendor prefix.
-
-* If `name` begins with `--`, throw an error.
 
 * If `name` is `calc`, `element`, `expression`, `url`, `and`, `or`, or `not`, or
   if `name` has a [vendor prefix] and the unprefixed identifier is one of those

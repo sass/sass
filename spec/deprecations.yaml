@@ -105,6 +105,7 @@ css-function-mixin:
   dart-sass:
     status: active
     deprecated: 1.76.0
+    obsolete: 1.94.0
 
 mixed-decls:
   description: Declarations after or between nested rules.
