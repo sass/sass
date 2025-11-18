@@ -174,3 +174,9 @@ with-private:
   dart-sass:
     status: active
     deprecated: 1.92.0
+
+if-function:
+  description: The Sass if($condition, $if-true, $if-false) function.
+  dart-sass:
+    status: active
+    deprecated: 1.95.0

@@ -15,7 +15,6 @@
   * [`color()`](#color)
   * [`hsl()` and `hsla()`](#hsl-and-hsla)
   * [`hwb()`](#hwb)
-  * [`if()`](#if)
   * [`lab()`](#lab)
   * [`lch()`](#lch)
   * [`oklab()`](#oklab)
@@ -26,13 +25,17 @@
 
 ### Special Number
 
-A *special number* is either:
+A *special number* is any of:
 
-* a [calculation], or
-* an unquoted string that CSS will recognize as a function that may return a
-  number. For the purposes of Sass, this is any unquoted string that begins with
-  `calc(`, `var(`, `env(`, `attr(`, `clamp(`, `min(`, or `max(`. This matching
-  is case-insensitive.
+* a [calculation],
+* a [special variable string],
+* an unquoted string that begins with `calc(`, `env(`, `clamp(`, `min(`, or
+  `max(`. This matching is case-insensitive.
+
+  > This final category is a historical artifact from when Sass compiled
+  > calculations to strings rather than first-class calculation objects. It
+  > should not be expanded with new entries, and may be deprecated in the
+  > future.
 
 [calculation]: types/calculation.md
 
@@ -42,10 +45,12 @@ A *special number* is either:
 
 ### Special Variable String
 
-A *special variable string* is a [special number] that begins with `var(`. This
-matching is case-insensitive.
+A *special variable string* is an unquoted string that CSS will recognize as an
+[arbitrary substitution function]. For the purposes of Sass, this is any
+unquoted string that begins with `var(`, `attr(`, or `if(`. This matching is
+case-insensitive.
 
-[special number]: #special-number
+[arbitrary substitution function]: https://drafts.csswg.org/css-values-5/#arbitrary-substitution-function
 
 > Unlike other special numbers, variables can expand into multiple arguments to
 > a single function.
@@ -60,7 +65,7 @@ matching is case-insensitive.
 **FunctionCall**⁴       ::= [NamespacedIdentifier] [ArgumentList]
 </pre></x>
 
-[SpecialFunctionExpression]: syntax.md#specialfunctionexpression
+[SpecialFunctionExpression]: expressions.md#specialfunctionexpression
 [NamespacedIdentifier]: modules.md#syntax
 [ArgumentList]: syntax.md#argumentlist
 
@@ -73,7 +78,7 @@ matching is case-insensitive.
    and the `ArgumentList`. It may not start with [`SpecialFunctionName`],
    `'calc('`, or `'clamp('` (case-insensitively).
 
-[`SpecialFunctionName`]: syntax.md#specialfunctionexpression
+[`SpecialFunctionName`]: expressions.md#specialfunctionexpression
 
 <x><pre>
 **FunctionCall** ::= [NamespacedIdentifier] [ArgumentList]
@@ -251,6 +256,8 @@ plain CSS function named "hsl" that function is named "hsla" instead.
     with the name "hsl" and the arguments `$hue`, `$saturation`, `$lightness`,
     and `$alpha`.
 
+    [special number]: #special-number
+
   * If `$alpha` is not a number, throw an error.
 
   * Let `alpha` be the result of [percent-converting] `alpha` with a max of 1,
@@ -328,12 +335,6 @@ plain CSS function named "hsl" that function is named "hsla" instead.
 [known color space]: types/color.md#known-color-space
 [special variable string]: #special-variable-string
 [parsing]: built-in-modules/color.md#parsing-color-components
-
-### `if()`
-
-```
-if($condition, $if-true, $if-false)
-```
 
 ### `lab()`
 

@@ -1,6 +1,6 @@
-# Plain CSS If: Draft 1.0
+# Plain CSS If: Draft 1.1
 
-*([Issue](https://github.com/sass/sass/issues/3886))*
+*([Issue](https://github.com/sass/sass/issues/3886), [Changelog](plain-css-if.changes.md)*
 
 ## Table of Contents
 
@@ -13,11 +13,13 @@
   * [Special Variable String](#special-variable-string)
   * [Special Number](#special-number)
 * [Syntax](#syntax)
+  * [`InterpolatedIdentifier`](#interpolatedidentifier)
   * [`ArbitrarySubstitution`](#arbitrarysubstitution)
   * [`IfExpression`](#ifexpression)
 * [Procedures](#procedures)
   * [Evaluating an `IfCondition`](#evaluating-an-ifcondition)
   * [Evaluating an `IfGroup`](#evaluating-an-ifgroup)
+  * [Parsing Text as CSS](#parsing-text-as-css)
 * [Semantics](#semantics)
   * [`IfExpression`](#ifexpression-1)
 * [Functions](#functions)
@@ -133,7 +135,7 @@ A much simpler approach that we strongly considered was to treat the plain-CSS
 highly bespoke syntax. If we took this path, existing users of Sass's `if()`
 would have been moved towards a module system solution like `meta.if()`.
 
-[special function]: ../spec/syntax.md#specialfunctionexpression
+[special function]: ../spec/expressions.md#specialfunctionexpression
 
 We ultimately decided to go with the more complex solution because it's much
 nicer from a user's perspective. Authors don't need to track multiple different
@@ -212,6 +214,11 @@ There are a couple other ways we could have handled this:
   difficult to produce accurate source spans for, and difficult to implement. We
   would like to avoid adding any new such cases if at all possible.
 
+We avoid parsing these functions as full SassScript, even in cases like nested
+`if()` expressions, to match the general principle that SassScript is not
+supported in `if()` conditions except within interpolation and the `sass()`
+function.
+
 ## Definitions
 
 ### Special Variable String
@@ -244,14 +251,32 @@ A *special number* is any of:
 
 * a [calculation],
 * a [special variable string],
-* an unquoted string that CSS will recognize as a function that may return a
-  number. For the purposes of Sass, this is any unquoted string that begins with
-  `calc(`, `env(`, `clamp(`, `min(`, or `max(`. This matching is
-  case-insensitive.
+* an unquoted string that begins with `calc(`, `env(`, `clamp(`, `min(`, or
+  `max(`. This matching is case-insensitive.
+
+  > This final category is a historical artifact from when Sass compiled
+  > calculations to strings rather than first-class calculation objects. It
+  > should not be expanded with new entries, and may be deprecated in the
+  > future.
 
 [calculation]: ../spec/types/calculation.md
 
 ## Syntax
+
+### `InterpolatedIdentifier`
+
+Add the following production alongside [`InterpolatedIdentifier`]:
+
+[`InterpolatedIdentifier`]: ../spec/syntax.md#interpolatedidentifier
+
+<x><pre>
+**InterpolatedCustomIdentifier** ::= '--' ([Name] | Interpolation)+
+</pre></x>
+
+[Name]: ../spec/syntax.md#name
+
+No whitespace is allowed between components of an
+`InterpolatedCustomIdentifier`.
 
 ### `ArbitrarySubstitution`
 
@@ -260,9 +285,12 @@ Add the following new grammar:
 <x><pre>
 **ArbitrarySubstitution**         ::= Interpolation | ArbitrarySubstitutionFunction
 **ArbitrarySubstitutionFunction** ::= ('if(' | 'var(' | 'attr(')¹ [InterpolatedAnyValue] ')'
+&#32;                               | InterpolatedCustomIdentifier² '(' [InterpolatedAnyValue] ')'
 </pre></x>
 
 1: This is matched case-insensitively.
+
+2: No whitespace is allowed between this and the following `(`.
 
 [InterpolatedAnyValue]: ../spec/syntax.md#interpolatedanyvalue
 
@@ -271,31 +299,63 @@ Add the following new grammar:
 Replace the grammar for `IfExpression` with the following:
 
 <x><pre>
-**IfExpression**   ::= 'if('¹ (IfBranch ';')* IfBranch ';'? ')'
-**IfBranch**       ::= IfCondition ':' Expression
-**IfCondition**    ::= IfExpression | 'else'¹
-**IfExpression**   ::= 'not'¹? IfGroup
-&#32;                | IfGroup ('and'¹ IfGroup)+
-&#32;                | IfGroup ('or'¹ IfGroup)+
-&#32;                | IfGroup² (('and' | ArbitrarySubstitution)³ IfGroup²)+
-&#32;                | IfGroup² (('or' | ArbitrarySubstitution)³ IfGroup²)+
-**IfGroup**        ::= Interpolation
-&#32;                | [InterpolatedIdentifier]⁴ '(' [InterpolatedAnyValue] ')'
-&#32;                | '(' IfExpression ')'
-&#32;                | SassCondition
-**SassCondition**  ::= 'sass(' Expression ')'
+**IfExpression**          ::= 'if('¹ (IfBranch ';')* IfBranch ';'? ')'
+**IfBranch**              ::= IfCondition ':' Expression
+**IfCondition**           ::= IfConditionExpression | 'else'¹
+**IfConditionExpression** ::= 'not'¹? IfGroup
+&#32;                       | IfGroup ('and'¹ IfGroup)+
+&#32;                       | IfGroup ('or'¹ IfGroup)+
+&#32;                       | IfConditionArbitrary²
+**IfConditionArbitrary**  ::= ArbitrarySubstitution IfGroup³
+&#32;                       | ArbitrarySubstitution? IfGroup³ (
+&#32;                             'and'¹ IfGroup³
+&#32;                           | 'and'¹? ArbitrarySubstitution IfGroup³?
+&#32;                         )+
+&#32;                       | ArbitrarySubstitution? IfGroup³ (
+&#32;                             'or'¹ IfGroup³
+&#32;                           | 'or'¹? ArbitrarySubstitution IfGroup³?
+&#32;                         )+
+**IfGroup**               ::= Interpolation
+&#32;                       | [InterpolatedIdentifier]⁴ '(' [InterpolatedAnyValue] ')'
+&#32;                       | '(' IfConditionExpression ')'
+&#32;                       | SassCondition
+**SassCondition**         ::= 'sass(' Expression ')'
 </pre></x>
 
 [InterpolatedIdentifier]: ../spec/syntax.md#interpolatedidentifier
 
 1: This is matched case-insensitively.
 
-2: These `IfGroup`s may not contain `SassCondition`s except within
+2: Parse other `IfConditionExpression` branches preferentially to
+`IfConditionArbitrary`.
+
+3: These `IfGroup`s may not contain `SassCondition`s except within
 interpolation.
 
-3: At least one of these sub-productions must be an `ArbitrarySubstitution`.
+4: No whitespace is allowed between this and the following `(`. This may not be
+case-sensitively equal to `sass`, nor may it be case-insensitively equal to
+`not`, `and`, or `or`.
 
-4: No whitespace is allowed between this and the following `(`.
+Whitespace *must* appear between `and`, `or`, `not`, and `Interpolation` and a
+following `(`.
+
+> We could consider `if(not(): ...)` to be an unknown CSS function call, but
+> it's extremely likely to be a typo and (for the same reason) almost certainly
+> won't be defined to be meaningful by CSS in the future. Throwing an error
+> helps users catch that error early.
+
+> Because every `ArbitrarySubstitution` is also a valid `IfGroup`, there are
+> multiple possible `IfConditionArbitrary` parse trees of certain token streams.
+> But since the condition is evaluated purely as interpolated text, which parse
+> tree is constructed in particular is not relevant.
+
+> Per the CSS spec, arbitrary substitution functions are *only* allowed within
+> `IfCondition`s and `IfBranch`es. Because the colon and semicolon separators
+> are part of `if()`'s [argument grammar], they must appear literally in the
+> stylesheet. The upshot of this is that we don't have to worry about handling
+> those edge cases when parsing.
+
+[argument grammar]: https://drafts.csswg.org/css-values-5/#argument-grammar
 
 ## Procedures
 
@@ -355,22 +415,10 @@ plain-CSS condition.
 
   * Otherwise, return `results` concatenated with `' or '` between each element.
 
-* Otherwise:
+* Otherwise, when `condition` is an `IfConditionArbitrary`, return the string
+  result of evaluating any interpolations in `condition`.
 
-  * Let `results` be an empty list.
-  
-  * For each `IfGroup` `group`:
-
-    * If `group` is preceded by an `ArbitrarySubstition`, or
-      (case-insensitively) by `and` or `or`, add the result of evaluating any
-      interpolation in the preceding value to `results`.
-
-    * Add the result of evaluating `group` to `results`.
-
-      > This is guaranteed to be a string, since `IfGroup` cannot contain any
-      > `SassCondition`s.
-
-  * Return `results` concatenated with a space between each element.
+  > All other tokens are included in the result as plain text.
 
 ### Evaluating an `IfGroup`
 
@@ -387,6 +435,14 @@ plain-CSS condition.
   [evaluating that expression as an `IfCondition`]: #evaluating-an-ifcondition
 
 * Otherwise, return the result of evaluating any interpolation in `group`.
+
+### Parsing Text as CSS
+
+In [parsing text as CSS], add "The [`SassCondition`] production" to the list of
+productions that should produce errors.
+
+[parsing text as CSS]: ../spec/syntax.md#parsing-text-as-css
+[`SassCondition`]: #ifexpression
 
 ## Semantics
 
@@ -428,9 +484,7 @@ plain-CSS condition.
 
 ### `if()`
 
-Remove the [top-level `if()` function].
-
-[top-level `if()` function]: ../spec/functions.md#if
+Remove the top-level `if()` function.
 
 ## Deprecation Process
 
@@ -440,7 +494,7 @@ in two phases to give users plenty of time to upgrade.
 ### Phase 1
 
 In this phase, both the old and the new syntax for `if()` will coexist.
-Specifically, an `IfExpression` can be parsed as a classic `IfExpression` if
+Specifically, an `IfExpression` will be parsed as a classic `IfExpression` if
 possible, and will fall back to being parsed using the new syntax. This is
 guaranteed to be safe because the new `if()` will always either contain a
 top-level `;` which is never legal in the old syntax *or* a single top-level `:`
