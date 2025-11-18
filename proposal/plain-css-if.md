@@ -135,7 +135,7 @@ A much simpler approach that we strongly considered was to treat the plain-CSS
 highly bespoke syntax. If we took this path, existing users of Sass's `if()`
 would have been moved towards a module system solution like `meta.if()`.
 
-[special function]: ../spec/syntax.md#specialfunctionexpression
+[special function]: ../spec/expressions.md#specialfunctionexpression
 
 We ultimately decided to go with the more complex solution because it's much
 nicer from a user's perspective. Authors don't need to track multiple different
@@ -484,9 +484,7 @@ productions that should produce errors.
 
 ### `if()`
 
-Remove the [top-level `if()` function].
-
-[top-level `if()` function]: ../spec/functions.md#if
+Remove the top-level `if()` function.
 
 ## Deprecation Process
 
