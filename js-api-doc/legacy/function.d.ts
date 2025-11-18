@@ -422,7 +422,7 @@ export namespace types {
 
     /**
      * Creates a new Sass color with alpha, red, green, and blue channels taken
-     * from respective two-byte chunks of a hexidecimal number.
+     * from respective two-byte chunks of a hexadecimal number.
      *
      * @example
      *
