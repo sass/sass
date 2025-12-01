@@ -334,7 +334,7 @@ of the `/` operator that can create a [potentially slash-separated number].
 This proposal replaces the definition of [`SpecialFunctionName`] with the
 following:
 
-[`SpecialFunctionName`]: ../spec/syntax.md#specialfunctionexpression
+[`SpecialFunctionName`]: ../spec/expressions.md#specialfunctionexpression
 
 <x><pre>
 **SpecialFunctionName**¹      ::= VendorPrefix? ('element(' | 'expression(')

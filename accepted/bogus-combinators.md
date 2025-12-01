@@ -185,7 +185,7 @@ This proposal modifies the existing `ComplexSelector` and
 This proposal adds the following annotation to [the `SelectorPseudo` and
 `NthSelectorPseudo` productions]:
 
-[the `SelectorPseudo` and `NthSelectorPseudo` productions]: ../spec/syntax.md#pseudoselector
+[the `SelectorPseudo` and `NthSelectorPseudo` productions]: ../spec/selectors.md#pseudoselector
 
 None of the `ComplexSelector`s in the `Selector` production may end with a
 [`<combinator>`]. None of them may begin with a [`<combinator>`] either, except
