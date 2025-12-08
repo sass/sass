@@ -130,13 +130,9 @@ To serialize a `CalculationOperation`:
 
 To serialize a `Number` within a `CalculationExpression`:
 
-* If the number is [degenerate]:
-
-  * If the number has more than one numerator unit, or more than zero denominator
-    units, throw an error.
-
-  * Otherwise, [convert the number to a calculation], then serialize the
-    resulting calculation's sole argument.
+* If the number has more than one numerator unit, more than zero denominator
+  units, of if it's [degenerate], [convert the number to a calculation], then
+  serialize the resulting calculation's sole argument.
 
   [degenerate]: number.md#degenerate-number
   [convert the number to a calculation]: number.md#converting-a-number-to-a-calculation
