@@ -91,7 +91,7 @@ string].
 
 The [`SpecialFunctionName`] production will be changed to the following:
 
-[`SpecialFunctionName`]: ../spec/syntax.md#specialfunctionexpression
+[`SpecialFunctionName`]: ../spec/expressions.md#specialfunctionexpression
 
 <x><pre>
 **SpecialFunctionName**¹ ::= VendorPrefix? ('calc(' | 'element(' | 'expression(')
