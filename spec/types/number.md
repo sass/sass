@@ -347,12 +347,11 @@ units are the same as `number`'s.
 
 To serialize a number to CSS:
 
-* If the number has more than one numerator unit, or more than zero denominator
-  units, throw an error.
+* If the number has more than one numerator unit, more than zero denominator
+  units, or if it's [degenerate], [convert it to a calculation] then serialize
+  that to CSS.
 
-* If the number is degenerate, [convert it to a calculation] then serialize that
-  to CSS.
-
+  [degenerate]: #degenerate-number
   [convert it to a calculation]: #converting-a-number-to-a-calculation
 
 * Otherwise:
