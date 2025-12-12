@@ -30,6 +30,7 @@ export type ChannelNameLch = 'lightness' | 'chroma' | 'hue' | 'alpha';
 export type ColorSpaceRgb =
   | 'a98-rgb'
   | 'display-p3'
+  | 'display-p3-linear'
   | 'prophoto-rgb'
   | 'rec2020'
   | 'rgb'
