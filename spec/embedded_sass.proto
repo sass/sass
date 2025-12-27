@@ -150,8 +150,8 @@ message InboundMessage {
     // (files loaded from a different importer than the input).
     bool quiet_deps = 11;
 
-    // Whether to include sources in the generated sourcemap
-    bool source_map_include_sources = 12;
+    // When to include sources in the generated sourcemap.
+    SourceMapIncludeSources source_map_include_sources = 12;
 
     // Whether to emit a `@charset`/BOM for non-ASCII stylesheets.
     bool charset = 13;
@@ -670,6 +670,18 @@ enum OutputStyle {
   // The entire stylesheet is written on a single line, with as few characters
   // as possible.
   COMPRESSED = 1;
+}
+
+// Possible ways to handle source contents in source map.
+enum SourceMapIncludeSources {
+  // Let the compiler choose when to include each source in the source map.
+  AUTO = 0;
+
+  // All source contents are included in source map.
+  ALWAYS = 1;
+
+  // All source contents are excluded from source map.
+  NEVER = 2;
 }
 
 // Possible syntaxes for a Sass stylesheet.
