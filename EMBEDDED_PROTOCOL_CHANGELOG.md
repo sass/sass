@@ -1,3 +1,11 @@
+## 3.3.0
+
+* Add SourceMapIncludeSources options as an enum.
+
+  Note: although this is a breaking change for protobuf generated code, the
+  encoded protobuf payload is backward compatible, meaning it does not affect
+  previously built host on newly built compiler.
+
 ## 3.2.0
 
 * Explicitly forbid passing `CompilerFunction`s across different compilations.
