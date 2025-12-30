@@ -1,7 +1,7 @@
-# Disallow Private Variables Identifiers In `with` Clauses: Draft 2.0
+# Disallow Private Variables Identifiers In `with` Clauses: Draft 2.1
 
 *([Issue](https://github.com/sass/sass/issues/4034)),
-[Changelog](default-on-private-variables.changes.md)*
+[Changelog](private-configuration.changes.md)*
 
 ## Table of Contents
 
@@ -10,6 +10,8 @@
 * [Semantics](#semantics)
   * [`@use`](#use)
   * [`@forward`](#forward)
+* [Functions](#functions)
+  * [`meta.load-css()`](#metaload-css)
 * [Deprecation Process](#deprecation-process)
   * [Phase 1](#phase-1)
   * [Phase 2](#phase-2)
@@ -64,6 +66,28 @@ Add the following step before evaluating each [`ForwardWithArgument`] in a
 
 [`ForwardWithArgument`]: ../spec/at-rules/forward.md#semantics
 
+## Functions
+
+### `meta.load-css()`
+
+Change the definition of [`meta.load-css()`] by replacing the step that assigns
+`config` with the following:
+
+* If `$with` is not null:
+
+  * If `$with` is not a map, throw an error.
+
+  * If any keys in `$with` are not strings, throw an error.
+
+  * If any keys in `$with` begin with `-` or `_`, throw an error.
+
+  * Let `config` be a configuration whose variable names and values are given by
+    `$with`'s keys and values.
+
+* Otherwise, let `config` be the empty configuration.
+
+[`meta.load-css()`]: ../spec/built-in-modules/meta.md#load-css
+
 ## Deprecation Process
 
 The deprecation process will be divided into two phases:
@@ -75,8 +99,8 @@ The deprecation process will be divided into two phases:
 > future-proof units.
 
 Phase 1 does not change the semantics of `with` clauses. However, we will emit a
-deprecation warning named `with-private` when a `with` clause configures a
-private variable.
+deprecation warning named `with-private` when a `with` clause in `@use`,
+`@forward`, or `meta.load-css()` configures a private variable.
 
 ### Phase 2
 

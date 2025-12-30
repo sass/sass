@@ -7,14 +7,11 @@
   * [Vendor Prefix](#vendor-prefix)
 * [Syntax](#syntax-1)
   * [`ArgumentList`](#argumentlist)
+  * [`InterpolatedAnyValue`](#interpolatedanyvalue)
   * [`InterpolatedIdentifier`](#interpolatedidentifier)
   * [`InterpolatedUrl`](#interpolatedurl)
   * [`Name`](#name)
   * [`ParameterList`](#parameterlist)
-  * [`ProductExpression`](#productexpression)
-  * [`PseudoSelector`](#pseudoselector)
-  * [`SingleExpression`](#singleexpression)
-  * [`SpecialFunctionExpression`](#specialfunctionexpression)
 * [Procedures](#procedures)
   * [Parsing Text](#parsing-text)
   * [Parsing Text as CSS](#parsing-text-as-css)
@@ -22,9 +19,6 @@
   * [Consuming an Interpolated Identifier](#consuming-an-interpolated-identifier)
   * [Consuming a Name](#consuming-a-name)
   * [Consuming an Escaped Code Point](#consuming-an-escaped-code-point)
-  * [Consuming a special function](#consuming-a-special-function)
-* [Semantics](#semantics)
-  * [`Percent`](#percent)
 
 ## Definitions
 
@@ -75,16 +69,26 @@ representation of the intermediate production.
 **RestArgument**  ::= Expression '...'
 </pre></x>
 
+### `InterpolatedAnyValue`
+
+The `InterpolatedAnyValue` production is identical to CSS's [`<any-value>`]
+except that after it parses `"#{"`, it parses an `Expression` which must be
+followed by `"}"`.
+
+[`<any-value>`]: https://drafts.csswg.org/css-syntax-3/#typedef-any-value
+
 ### `InterpolatedIdentifier`
 
 <x><pre>
 **InterpolatedIdentifier** ::= ([\<ident-token>] | '-'? Interpolation) ([Name] | Interpolation)*
+**InterpolatedCustomIdentifier** ::= '--' ([Name] | Interpolation)+
 </pre></x>
 
 [\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
 [Name]: #name
 
-No whitespace is allowed between components of an `InterpolatedIdentifier`.
+No whitespace is allowed between components of an `InterpolatedIdentifier` or
+`InterpolatedCustomIdentifier`.
 
 ### `InterpolatedUrl`
 
@@ -118,117 +122,6 @@ No whitespace is allowed between components of an `InterpolatedUnquotedUrlConten
 </pre></x>
 
 [PlainVariable]: variables.md#syntax
-
-### `ProductExpression`
-
-<x><pre>
-**ProductExpression** ::= (ProductExpression ('*' | '%'))? SingleExpression
-</pre></x>
-
-### `PseudoSelector`
-
-<x><pre>
-**PseudoSelector**          ::= NormalPseudoSelector
-&#32;                         | SelectorPseudo
-&#32;                         | NthSelectorPseudo
-**NormalPseudoSelector**    ::= ':' ':'? VendorPrefix? [\<ident-token>]
-&#32;                           ('(' [\<declaration-value>] ')')?
-**SelectorPseudo**          ::= SelectorPseudoName '(' Selector ')'
-**NthSelectorPseudo**       ::= NthSelectorPseudoName '(' [\<an+b>] 'of'¹ Selector ')'
-**SelectorPseudoPrefix**    ::= ':' SelectorPseudoClassName | '::slotted'
-**SelectorPseudoClassName** ::= 'not' | 'is' | 'matches' | 'where' | 'any'
-&#32;                         | 'current' | 'has' | 'host' | 'host-context'
-**NthSelectorPseudoName**   ::= ':' ('nth-child' | 'nth-last-child')
-</pre></x>
-
-[\<declaration-value>]: https://www.w3.org/TR/css-syntax-3/#typedef-declaration-value
-[\<an+b>]: https://www.w3.org/TR/css-syntax-3/#the-anb-type
-
-1: The string `of` is matched case-insensitively. In addition, it must be parsed
-   as an identifier.
-
-   > In other words, it must have whitespace separating it from other
-   > identifiers, so `:nth-child(2nof a)` and `:nth-child(2n ofa)` are both
-   > invalid. However, `:nth-child(2of.foo)` is valid.
-
-If a `PseudoSelector` begins with`SelectorPseudoName` or `NthSelectorPseudoName`
-followed by a parenthesis, it must be parsed as a `SelectorPseudo` or an
-`NthSelectorPseudo` respectively, not as a `NormalPseudoSelector`.
-
-No whitespace is allowed anywhere in a `PseudoSelector` except within
-parentheses.
-
-### `SingleExpression`
-
-<x><pre>
-**SingleExpression** ::= '(' [ContainedListExpression] ')'
-&#32;                  | Important
-&#32;                  | Boolean
-&#32;                  | [BracketedListExpression]
-&#32;                  | ColorLiteral
-&#32;                  | FunctionExpression
-&#32;                  | IDName¹
-&#32;                  | Null
-&#32;                  | Number
-&#32;                  | ParentExpression
-&#32;                  | String²
-&#32;                  | UnaryExpression
-&#32;                  | UnicodeRange
-&#32;                  | [Variable]
-&#32;                  | Percent³
-**Percent**          ::= '%'
-</pre></x>
-
-[BracketedListExpression]: types/list.md#syntax
-[ContainedListExpression]: types/list.md#syntax
-[Variable]: variables.md#syntax
-
-1: If this is ambiguous with `ColorLiteral`, it should be parsed as
-   `ColorLiteral` preferentially.
-
-2: If this is ambiguous with any other production, parse the other production
-   preferentially.
-
-3: If this is ambiguous with part of `ProductExpression`, parse
-   `ProductExpression` preferentially. If this is followed by a [`Whitespace`]
-   that contains a [`LineBreak`], do not parse that `Whitespace` as part of an
-   [`IndentSame`] or [`IndentMore`] production.
-
-   > This effectively means that the unquoted string `%` is allowed everywhere
-   > *except* in a middle element of a space-separated list, since that would be
-   > ambiguous with a modulo operation. The whitespace clause ensures that a `%`
-   > at the end of a line in the indented syntax always looks at the next token,
-   > for backwards-compatibility with parsing it as an operator and so that
-   > whether the statement ends on that line or not doesn't depend on the first
-   > token of the next line.
-
-[`Whitespace`]: statement.md#whitespace
-[`LineBreak`]: statement.md#whitespace
-[`IndentSame`]: statement.md#indentation
-[`IndentMore`]: statement.md#indentation
-
-### `SpecialFunctionExpression`
-
-> These functions are "special" in the sense that their arguments don't use the
-> normal CSS expression-level syntax, and so have to be parsed more broadly than
-> a normal SassScript expression.
-
-<x><pre>
-**SpecialFunctionExpression** ::= SpecialFunctionName InterpolatedDeclarationValue ')'
-**SpecialFunctionName**¹      ::= VendorPrefix? ('element(' | 'expression(')
-&#32;                           | VendorPrefix 'calc('
-&#32;                           | 'type('
-**VendorPrefix**¹             ::= '-' ([identifier-start code point] | [digit]) '-'
-</pre></x>
-
-> No browser has yet supported `type()` with a vendor prefix, nor are they
-> likely to do so in the future given that vendor prefixes are largely unpopular
-> now.
-
-[digit]: https://drafts.csswg.org/css-syntax-3/#digit
-
-1: Both `SpecialFunctionName` and `VendorPrefix` are matched case-insensitively,
-   and neither may contain whitespace.
 
 ## Procedures
 
@@ -278,7 +171,7 @@ modifications. The following productions should produce errors:
   * `@extend`
   * `@for`
   * `@forward`
-  * `@function`
+  * `@function`¹
   * `@if`
   * `@include`
   * `@mixin`
@@ -286,6 +179,10 @@ modifications. The following productions should produce errors:
   * `@use`
   * `@warn`
   * `@while`
+  
+  1: If this is parsed as an [`UnknownAtRule`], it doesn't produce an error.
+
+  [`UnknownAtRule`]: at-rules/unknown.md
 
 * An `@import` that contains interpolation in the `url()` or any of its
   `ImportModifier`s.
@@ -344,6 +241,10 @@ modifications. The following productions should produce errors:
 * Uses or declarations of Sass variables.
 
 * `//`-style ("silent") comments outside of an expression context.
+
+* The [`SassCondition`] production.
+
+  [`SassCondition`]: expressions.md#ifexpression
 
 In addition, some productions should be parsed differently than they would be in
 SCSS:
@@ -479,6 +380,7 @@ This production has the same grammar as [`escape`][escape] in CSS Syntax Level 3
   *or* if `codepoint` is a [digit] and the `start` flag is set:
 
   [non-printable code point]: https://drafts.csswg.org/css-syntax-3/#non-printable-code-point
+  [digit]: https://drafts.csswg.org/css-syntax-3/#digit
 
   * Let `code` be the lowercase hexadecimal representation of `codepoint`,
     with no leading `0`s.
@@ -491,22 +393,3 @@ This production has the same grammar as [`escape`][escape] in CSS Syntax Level 3
   > it.
 
 * Otherwise, return `"\"` + `character`.
-
-### Consuming a special function
-
-This algorithm consumes input from a stream of [code points] and returns a
-SassScript expression.
-
-* Let `expression` be the result of consuming a [`SpecialFunctionExpression`].
-
-  [`SpecialFunctionExpression`]: #specialfunctionexpression
-
-* Return an unquoted interpolated string expression that would be identical to
-  the source text according to CSS semantics for all possible interpolated
-  strings.
-  
-## Semantics
-
-### `Percent`
-
-To evaluate a `Percent`, return an unquoted string with the value `%`.

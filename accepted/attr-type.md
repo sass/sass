@@ -79,7 +79,7 @@ numbers].
 
 Change [the `SpecialFunctionName` production] to be:
 
-[the `SpecialFunctionName` production]: ../spec/syntax.md#specialfunctionexpression
+[the `SpecialFunctionName` production]: ../spec/expressions.md#specialfunctionexpression
 
 <x><pre>
 **SpecialFunctionName**¹      ::= VendorPrefix? ('element(' | 'expression(')
@@ -96,7 +96,7 @@ Change [the `SpecialFunctionName` production] to be:
 Add `Percent` as a production to [`SingleExpression`] with the following
 annotation:
 
-[`SingleExpression`]: ../spec/syntax.md#singleexpression
+[`SingleExpression`]: ../spec/expressions.md#singleexpression
 
 If this is ambiguous with part of `ProductExpression`, parse `ProductExpression`
 preferentially. If this is followed by a [`Whitespace`] that contains a

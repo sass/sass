@@ -105,8 +105,8 @@ The known color spaces and their channels are:
     * associated unit: `%`
     * range: `[0,100]`
 
-* `srgb`, `srgb-linear`, `display-p3`, `a98-rgb`, `prophoto-rgb`,
-  `rec2020` (RGB):
+* `srgb`, `srgb-linear`, `display-p3`, `display-p3-linear`, `a98-rgb`,
+  `prophoto-rgb`, `rec2020` (RGB):
   * `red`, `green`, `blue`:
     * gamut: bounded
     * range: `[0,1]`
@@ -188,6 +188,7 @@ The *predefined RGB spaces* are:
 * `srgb`
 * `srgb-linear`
 * `display-p3`
+* `display-p3-linear`
 * `a98-rgb`
 * `prophoto-rgb`
 * `rec2020`

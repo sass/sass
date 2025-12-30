@@ -110,6 +110,8 @@ function runLinkCheck(
             {pattern: /^https:\/\/stackoverflow\.com(\/|$)/},
             // W3C links started failing in March 2025
             {pattern: /^https:\/\/(drafts\.)?csswg\.org(\/|$)/},
+            // npm started failing in 2025
+            {pattern: /^https?:\/\/(www\.)?npmjs\.com(\/|$)/},
           ],
         },
         (error, results) => {

@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v5
-    - uses: actions/setup-node@v4
+    - uses: actions/checkout@v6
+    - uses: actions/setup-node@v6
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
     - run: >
@@ -27,8 +27,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v5
-    - uses: actions/setup-node@v4
+    - uses: actions/checkout@v6
+    - uses: actions/setup-node@v6
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
     - run: npm run toc-check
@@ -38,8 +38,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v5
-    - uses: actions/setup-node@v4
+    - uses: actions/checkout@v6
+    - uses: actions/setup-node@v6
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
     - run: npm run link-check
@@ -49,8 +49,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v5
-    - uses: actions/setup-node@v4
+    - uses: actions/checkout@v6
+    - uses: actions/setup-node@v6
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
     - run: npm run js-api-doc-check
@@ -60,8 +60,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v5
-    - uses: actions/setup-node@v4
+    - uses: actions/checkout@v6
+    - uses: actions/setup-node@v6
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
     - run: npm run typedoc
@@ -71,7 +71,7 @@ jobs:
     runs-on: "ubuntu-latest"
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: bufbuild/buf-setup-action@v1.50.0
         with: {github_token: "${{ github.token }}"}
       - name: Generate protobuf code
@@ -82,7 +82,7 @@ jobs:
     runs-on: "ubuntu-latest"
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Check versions match
         run: |
           if ! (grep -q '\-dev$' spec/EMBEDDED_PROTOCOL_VERSION ||
@@ -96,8 +96,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v5
-    - uses: actions/setup-node@v4
+    - uses: actions/checkout@v6
+    - uses: actions/setup-node@v6
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
     - run: npm run deprecations-check
@@ -111,7 +111,7 @@ jobs:
           github.ref == 'refs/heads/main'
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 2
 
@@ -144,12 +144,12 @@ jobs:
       github.ref == 'refs/heads/main'
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with: {fetch-depth: 0}
 
     - name: Find changed files in js-api-doc
       id: changed-files
-      uses: tj-actions/changed-files@3b04099b21072562f07469c10deb182b24236ca9
+      uses: tj-actions/changed-files@6da3c88b60ebf09464ada9b06fba5b6f2d34bb94
       with: {files: js-api-doc}
 
     - name: Deploy
