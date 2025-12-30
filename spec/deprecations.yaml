@@ -103,7 +103,7 @@ fs-importer-cwd:
 css-function-mixin:
   description: Function and mixin names beginning with --.
   dart-sass:
-    status: active
+    status: obsolete
     deprecated: 1.76.0
     obsolete: 1.94.0
 
