@@ -5,6 +5,7 @@
 * [Definitions](#definitions)
   * [Visible Combinator](#visible-combinator)
   * [Complex Selector](#complex-selector)
+  * [`PseudoSelector`](#pseudoselector)
   * [Complex Selector Component](#complex-selector-component)
   * [Trailing Combinator](#trailing-combinator)
   * [Bogus Selector](#bogus-selector)
@@ -32,6 +33,40 @@ combinators.
 
 [visible combinator]: #visible-combinator
 [complex selector components]: #complex-selector-component
+
+### `PseudoSelector`
+
+<x><pre>
+**PseudoSelector**          ::= NormalPseudoSelector
+&#32;                         | SelectorPseudo
+&#32;                         | NthSelectorPseudo
+**NormalPseudoSelector**    ::= ':' ':'? VendorPrefix? [\<ident-token>]
+&#32;                           ('(' [\<declaration-value>] ')')?
+**SelectorPseudo**          ::= SelectorPseudoName '(' Selector ')'
+**NthSelectorPseudo**       ::= NthSelectorPseudoName '(' [\<an+b>] 'of'¹ Selector ')'
+**SelectorPseudoPrefix**    ::= ':' SelectorPseudoClassName | '::slotted'
+**SelectorPseudoClassName** ::= 'not' | 'is' | 'matches' | 'where' | 'any'
+&#32;                         | 'current' | 'has' | 'host' | 'host-context'
+**NthSelectorPseudoName**   ::= ':' ('nth-child' | 'nth-last-child')
+</pre></x>
+
+[\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
+[\<declaration-value>]: https://www.w3.org/TR/css-syntax-3/#typedef-declaration-value
+[\<an+b>]: https://www.w3.org/TR/css-syntax-3/#the-anb-type
+
+1: The string `of` is matched case-insensitively. In addition, it must be parsed
+   as an identifier.
+
+   > In other words, it must have whitespace separating it from other
+   > identifiers, so `:nth-child(2nof a)` and `:nth-child(2n ofa)` are both
+   > invalid. However, `:nth-child(2of.foo)` is valid.
+
+If a `PseudoSelector` begins with`SelectorPseudoName` or `NthSelectorPseudoName`
+followed by a parenthesis, it must be parsed as a `SelectorPseudo` or an
+`NthSelectorPseudo` respectively, not as a `NormalPseudoSelector`.
+
+No whitespace is allowed anywhere in a `PseudoSelector` except within
+parentheses.
 
 ### Complex Selector Component
 

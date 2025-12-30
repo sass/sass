@@ -110,8 +110,9 @@ fs-importer-cwd:
 css-function-mixin:
   description: Function and mixin names beginning with --.
   dart-sass:
-    status: active
+    status: obsolete
     deprecated: 1.76.0
+    obsolete: 1.94.0
 
 mixed-decls:
   description: Declarations after or between nested rules.
@@ -174,6 +175,18 @@ misplaced-rest:
   dart-sass:
     status: active
     deprecated: 1.91.0
+
+with-private:
+  description: Configuring private variables in @use, @forward, or load-css().
+  dart-sass:
+    status: active
+    deprecated: 1.92.0
+
+if-function:
+  description: The Sass if($condition, $if-true, $if-false) function.
+  dart-sass:
+    status: active
+    deprecated: 1.95.0
 
 list-slash:
   description: 'The list.slash() function.'

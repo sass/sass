@@ -7,11 +7,16 @@
 > structures it allows.
 
 <x><pre>
-**UnknownAtRule** ::= '@' [InterpolatedIdentifier] InterpolatedValue? [Block]?
+**UnknownAtRule** ::= '@' [InterpolatedIdentifier]¹ InterpolatedValue? [Block]?
+&#32;               | `@function'² [InterpolatedIdentifier]³ InterpolatedValue? [Block]
 </pre></x>
 
 [InterpolatedIdentifier]: ../syntax.md#interpolatedidentifier
 [Block]: ../statement.md#block
+
+1: This may not share a name with any other at-rules defined by Sass.
+2: This is matched case-insensitively.
+3: This must begin with `--`.
 
 No whitespace is allowed after `@`. As with all statements, an `UnknownAtRule`
 without a block must be separated from other statements with a semicolon.

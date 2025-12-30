@@ -118,6 +118,10 @@ To execute a `@use` rule `rule`:
 
   * For each `KeywordArgument` `argument` in this clause:
 
+    * If `argument`'s identifier begins with `-`, throw an error.
+
+      > Sass treats `_` and `-` as equivalent in identifiers.
+
     * Let `value` be the result of evaluating `argument`'s expression.
 
     * Add a variable to `rule-config` with the same name as `argument`'s identifier
