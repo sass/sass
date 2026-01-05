@@ -98,8 +98,9 @@ null-alpha:
 abs-percent:
   description: Passing percentages to the Sass abs() function.
   dart-sass:
-    status: active
+    status: obsolete
     deprecated: 1.65.0
+    obsolete: 2.0.0
 
 fs-importer-cwd:
   description: Using the current working directory as an implicit load path.
