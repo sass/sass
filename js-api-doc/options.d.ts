@@ -367,6 +367,9 @@ export interface Options<sync extends 'sync' | 'async'> {
    *
    * This option has no effect if {@link sourceMap} is `false`.
    *
+   * **Heads up!** Passing `boolean` value for {@link SourceMapIncludeSources}
+   * is deprecated and will eventually break.
+   *
    * @defaultValue `'auto'`
    * @category Output
    */
