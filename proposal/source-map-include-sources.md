@@ -8,7 +8,7 @@
 * [Summary](#summary)
 * [Semantics](#semantics)
   * [`Options.sourceMapIncludeSources`](#optionssourcemapincludesources)
-  * [`ImporterResult.sourceMapUrl`](#importerresultsourcemapurl)
+  * [`Importer`](#importer)
 * [Deprecation Process](#deprecation-process)
   * [Phase 1](#phase-1)
     * [`Options.sourceMapIncludeSources`](#optionssourcemapincludesources-1)
@@ -63,10 +63,20 @@ sourceMapIncludeSources?: 'auto' | 'never' | 'always';
 * If the value is `'always'`, source contents are included in the source map's
   `sourcesContent` for all stylesheets.
 
-### `ImporterResult.sourceMapUrl`
+### `Importer`
 
-* If the `sourceMapUrl` is not explictly defined in `ImportResult`, the
-  canonical URL is used as fallback.
+Replace the bullet point in the [`Importer` specification] that begins with "If
+`result.sourceMapUrl` is defined..." with:
+
+[`Importer` specification]: ../spec/js-api/importer.d.ts.md
+
+* If the implementation generates a source map:
+
+  * If `result.sourceMapUrl` is defined, the implementation must use this URL in
+    the source map to refer to source spans in `result.contents`.
+
+  * Otherwise, the implementation must use `url` in the source map to refer to
+    source spans in `result.contents`.
 
 ## Deprecation Process
 
