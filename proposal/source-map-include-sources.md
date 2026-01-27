@@ -7,10 +7,11 @@
 * [Background](#background)
 * [Summary](#summary)
 * [Semantics](#semantics)
-  * [`sourceMapIncludeSources`](#sourcemapincludesources)
-  * [`sourceMapUrl`](#sourcemapurl)
+  * [`Options.sourceMapIncludeSources`](#optionssourcemapincludesources)
+  * [`ImporterResult.sourceMapUrl`](#importerresultsourcemapurl)
 * [Deprecation Process](#deprecation-process)
   * [Phase 1](#phase-1)
+    * [`Options.sourceMapIncludeSources`](#optionssourcemapincludesources-1)
   * [Phase 2](#phase-2)
 
 ## Background
@@ -73,11 +74,14 @@ The deprecation process will be divided into two phases:
 
 ### Phase 1
 
-> This phase adds no breaking changes.
+> This phase adds no breaking changes. Its purpose is to notify users of the
+> upcoming changes to behavior and give them a chance to move towards
+> future-proof options.
 
-Phase 1 continues to allow passing boolean values to `sourceMapIncludeSources`.
+Phase 1 continues to allow passing boolean values to `sourceMapIncludeSources`,
+and produces a deprecation warning named `source-map-include-sources-boolean`.
 
-### `Options.sourceMapIncludeSources`
+#### `Options.sourceMapIncludeSources`
 
 ```ts
 sourceMapIncludeSources?: 'auto' | 'never' | 'always' | boolean;
