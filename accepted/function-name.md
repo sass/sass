@@ -1,11 +1,13 @@
-# Function Name: Draft 1.0
+# Function Name: Draft 2.0
 
-*([Issue](https://github.com/sass/sass/issues/4048))*
+*([Issue](https://github.com/sass/sass/issues/4048), [Changelog](function-name.changes.md))*
 
 ## Table of Contents
 
 * [Background](#background)
 * [Summary](#summary)
+* [Syntax](#syntax)
+  * [`SpecialFunctionExpression`](#specialfunctionexpression)
 * [Semantics](#semantics)
   * [`@function`](#function)
 * [Deprecation Process](#deprecation-process)
@@ -52,20 +54,39 @@ prohibition:
 
 This proposal addresses all three of the issues above:
 
-* The function name `calc` is no longer forbidden, nor are any variants.
+* The function name `calc` is no longer forbidden, nor are any case variants.
+  The vendor-prefixed variant is still forbidden.
 
 * Vendor-prefixed equivalents of the function names `and`, `or`, `not`,
   `expression`, and `url` are no longer forbidden.
 
 * The CSS function names `element`, `expression`, and `url` are now matched
-  case-insensitively. For example, `@function URL()` is now an error where it
-  wasn't before.
+  case-insensitively in both function definitions and calls. For example,
+  `@function URL()` is now an error where it wasn't before.
+
+## Syntax
+
+### `SpecialFunctionExpression`
+
+Replace [the definition of `SpecialFunctionName`] with the following:
+
+[the definition of `SpecialFunctionName`]: ../spec/expressions.md#specialfunctionexpression
+
+<x><pre>
+**SpecialFunctionName**¹      ::= VendorPrefix? 'element('
+&#32;                           | VendorPrefix 'calc('
+&#32;                           | 'progid:' \[a-z.]* '('
+&#32;                           | 'expression(' | 'type('
+</pre></x>
+
+1: Both `SpecialFunctionName` and `VendorPrefix` are matched case-insensitively,
+   and neither may contain whitespace.
 
 ## Semantics
 
 ### `@function`
 
-Remove the second bullet point and replace the fourth bullet point of [the
+Remove the second bullet point and replace the third bullet point of [the
 semantics for `@function`] with:
 
 [the semantics for `@function`]: ../spec/at-rules/function.md#semantics
@@ -76,7 +97,7 @@ semantics for `@function`] with:
   `url`, throw an error.
 
 * If `name` has a [vendor prefix] and the unprefixed identifier is
-  case-insensitively equal to `element`, throw an error.
+  case-insensitively equal to `element` or `calc`, throw an error.
 
 [vendor prefix]: ../spec/syntax.md#vendor-prefix
 
@@ -90,9 +111,40 @@ The deprecation process will be divided into two phases:
 > upcoming changes to behavior and give them a chance to move towards
 > future-proof function names.
 
-Phase 1 does not throw an error for function names that match case-insensitively
-*but not* case-sensitively. Instead, it produces a deprecation warning named
-`function-case`. All other changes are implemented as specified.
+Phase 1 does not throw an error for user-defined functions with names that match
+case-insensitively *but not* case-sensitively (other than `type`, which already
+threw an error). Instead, it produces a deprecation warning named
+`function-name`.
+
+In phase 1, calls to vendor-prefixed `expression()`, `url()`, and `progid:...()`
+functions continue to be parsed as
+
+<x><pre>
+**SpecialFunctionName**¹      ::= VendorPrefix? 'element('
+&#32;                           | VendorPrefix 'calc('
+&#32;                           | VendorPrefix? 'progid:' \[a-z.]* '('
+&#32;                           | VendorPrefix? 'expression('
+&#32;                           | 'type('
+**InterpolatedUrl**           ::= VendorPrefix? 'url(' (QuotedString | InterpolatedUnquotedUrlContents) ')'
+</pre></x>
+
+If a vendor-prefixed `expression()` or `url()` isn't also valid when parsed as a
+[`FunctionCall`], or if that `FunctionCall`'s `ArgumentList` would produce an
+error when [parsed as CSS] for anything other than interpolation, produce a
+`function-name` deprecation warning.
+
+[`FunctionCall`]: ../spec/functions.md#syntax
+[parsed as CSS]: ../spec/syntax.md#parsing-text-as-css
+
+> Forbidding SassScript in `expression()` and `url()` calls ensures that they'll
+> work the same both before and after the breaking change. Otherwise,
+> `expression(1 + 1)` would be syntactically valid in both cases, but would
+> produce `expression(1 + 1)` before the change and `expression(2)` afterwards.
+
+When parsing a vendor-prefixed call to `progid:...()`, produce a `function-name`
+deprecation warning.
+
+> This will be invalid syntax entirely in Phase 2.
 
 ### Phase 2
 
