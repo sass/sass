@@ -1,4 +1,4 @@
-# Function Name: Draft 1.0
+# Function Name: Draft 1.1
 
 *([Issue](https://github.com/sass/sass/issues/4048))*
 
@@ -65,7 +65,7 @@ This proposal addresses all three of the issues above:
 
 ### `@function`
 
-Remove the second bullet point and replace the fourth bullet point of [the
+Remove the second bullet point and replace the third bullet point of [the
 semantics for `@function`] with:
 
 [the semantics for `@function`]: ../spec/at-rules/function.md#semantics
