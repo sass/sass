@@ -181,8 +181,9 @@ misplaced-rest:
 with-private:
   description: Configuring private variables in @use, @forward, or load-css().
   dart-sass:
-    status: active
+    status: obsolete
     deprecated: 1.92.0
+    obsolete: 2.0.0
 
 if-function:
   description: The Sass if($condition, $if-true, $if-false) function.
