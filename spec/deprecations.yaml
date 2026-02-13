@@ -93,8 +93,9 @@ duplicate-var-flags:
 null-alpha:
   description: Passing null as alpha in the $PLATFORM API.
   dart-sass:
-    status: active
+    status: obsolete
     deprecated: 1.62.3
+    obsolete: 2.0.0
 
 abs-percent:
   description: Passing percentages to the Sass abs() function.
@@ -132,14 +133,16 @@ feature-exists:
 color-4-api:
   description: Certain uses of built-in sass:color functions.
   dart-sass:
-    status: active
+    status: obsolete
     deprecated: 1.79.0
+    obsolete: 2.0.0
 
 color-functions:
   description: Using global color functions instead of sass:color.
   dart-sass:
-    status: active
+    status: obsolete
     deprecated: 1.79.0
+    obsolete: 2.0.0
 
 legacy-js-api:
   description: Legacy JS API.

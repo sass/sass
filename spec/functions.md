@@ -10,7 +10,6 @@
   * [`EmptyFallbackVar`](#emptyfallbackvar)
   * [`FunctionCall`](#functioncall)
 * [Global Functions](#global-functions)
-  * [`adjust-hue()`](#adjust-hue)
   * [`alpha()`](#alpha)
   * [`color()`](#color)
   * [`hsl()` and `hsla()`](#hsl-and-hsla)
@@ -169,28 +168,6 @@ To evaluate a `FunctionCall` `call`:
 > aliases for backwards-compatibility with stylesheets written before `@use` was
 > introduced. These global aliases should be avoided by stylesheet authors if
 > possible.
-
-### `adjust-hue()`
-
-```
-adjust-hue($color, $degrees)
-```
-
-* If `$color` isn't a color or `$degrees` isn't a number, throw an error.
-
-* Let `degrees` be the result of [converting] `$degrees` to `deg` allowing
-  unitless.
-
-* Let `saturation` and `lightness` be the result of calling
-  [`color.saturation($color)`] and [`color.lightness($color)`], respectively.
-
-* Return the result of calling [`hsl()`] with `degree`, `saturation`,
-  `lightness`, and `$color`'s alpha channel.
-
-[converting]: types/number.md#converting-a-number-to-a-unit
-[`hsl()`]: #hsl-and-hsla
-[`color.saturation($color)`]: built-in-modules/color.md#saturation
-[`color.lightness($color)`]: built-in-modules/color.md#lightness
 
 ### `alpha()`
 

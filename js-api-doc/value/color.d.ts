@@ -111,16 +111,14 @@ export class SassColor extends Value {
   /**
    * Creates an [RGB color].
    *
-   * If `space` is missing, **only** `undefined` should be used to indicate that
-   * `alpha` isn't passed. If `null` is used instead, it will be treated as a
-   * [missing component]. See [breaking changes] for details.
+   * If `null` is passed for any component, it will be treated as a [missing
+   * component].
    *
    * If `space` is defined and `null` is passed for any component, it will be
    * treated as a [missing component].
    *
    * [RGB color]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/rgb
    * [missing component]: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#missing_color_components
-   * [breaking changes]: /documentation/breaking-changes/null-alpha
    *
    * @throws `Error` if `alpha` is set and isn't `null` or a number between `0`
    * and `1`.
@@ -161,9 +159,8 @@ export class SassColor extends Value {
   /**
    * Creates an [HWB color].
    *
-   * If `space` is missing, **only** `undefined` should be used to indicate that
-   * `alpha` isn't passed. If `null` is used instead, it will be treated as a
-   * [missing component]. See [breaking changes] for details.
+   * If `null` is passed for any component, it will be treated as a [missing
+   * component].
    *
    * If `space` is defined and `null` is passed for any component, it will be
    * treated as a [missing component].
@@ -508,60 +505,4 @@ export class SassColor extends Value {
       space?: ColorSpaceXyz;
     }
   ): SassColor;
-
-  /**
-   * This color's red channel in the RGB color space.
-   *
-   * @deprecated Use {@link channel} instead.
-   */
-  get red(): number;
-
-  /**
-   * This color's green channel in the RGB color space.
-   *
-   * @deprecated Use {@link channel} instead.
-   */
-  get green(): number;
-
-  /**
-   * This color's blue channel in the RGB color space.
-   *
-   * @deprecated Use {@link channel} instead.
-   */
-  get blue(): number;
-
-  /**
-   * This color's hue in the HSL color space.
-   *
-   * @deprecated Use {@link channel} instead.
-   */
-  get hue(): number;
-
-  /**
-   * This color's saturation in the HSL color space.
-   *
-   * @deprecated Use {@link channel} instead.
-   */
-  get saturation(): number;
-
-  /**
-   * This color's lightness in the HSL color space.
-   *
-   * @deprecated Use {@link channel} instead.
-   */
-  get lightness(): number;
-
-  /**
-   * This color's whiteness in the HWB color space.
-   *
-   * @deprecated Use {@link channel} instead.
-   */
-  get whiteness(): number;
-
-  /**
-   * This color's blackness in the HWB color space.
-   *
-   * @deprecated Use {@link channel} instead.
-   */
-  get blackness(): number;
 }

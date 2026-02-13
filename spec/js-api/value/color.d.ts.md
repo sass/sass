@@ -50,14 +50,6 @@ import {Value} from './index';
     * [`isChannelPowerless`](#ischannelpowerless)
     * [`interpolate`](#interpolate)
     * [`change`](#change)
-    * [`red`](#red)
-    * [`green`](#green)
-    * [`blue`](#blue)
-    * [`hue`](#hue)
-    * [`saturation`](#saturation)
-    * [`lightness`](#lightness)
-    * [`whiteness`](#whiteness)
-    * [`blackness`](#blackness)
 * [Procedures](#procedures)
   * [Parsing a Channel Value](#parsing-a-channel-value)
   * [Parsing a Clamped Channel Value](#parsing-a-clamped-channel-value)
@@ -264,9 +256,6 @@ The [private `internal` field] refers to a Sass color.
 
 * If `constructionSpace` is "rgb":
 
-  * If `options.alpha` is `null` and `options.space` is not set, emit a
-    deprecation warning named `null-alpha`.
-
   * Let `red` be the result of [parsing a channel value] with value
     `options.red`.
 
@@ -276,8 +265,8 @@ The [private `internal` field] refers to a Sass color.
   * Let `blue` be the result of [parsing a channel value] with value
     `options.blue`.
 
-  * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-    the result of [parsing a clamped channel value] with `value` of
+  * If `options.alpha` is `undefined`, let `alpha` be `1`. Otherwise, let
+    `alpha` be the result of [parsing a clamped channel value] with `value` of
     `options.alpha`, `minimum` of `0`, and `maximum` of `1`.
 
   * Set [`internal`] to the result of [`rgb(red green blue / alpha)`].
@@ -303,9 +292,6 @@ constructor(options: {
 
 * Otherwise, if `constructionSpace` is "hsl":
 
-  * If `options.alpha` is `null` and `options.space` is not set, emit a
-    deprecation warning named `null-alpha`.
-
   * Let `hue` be the result of [parsing a channel value] with value
     `options.hue`.
 
@@ -315,8 +301,8 @@ constructor(options: {
   * Let `lightness` be the result of [parsing a channel value] with `value` of
     `options.lightness`, `minimum` of `0`, and `maximum` of `100`.
 
-  * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-    the result of [parsing a clamped channel value] with `value` of
+  * If `options.alpha` is `undefined`, let `alpha` be `1`. Otherwise, let
+    `alpha` be the result of [parsing a clamped channel value] with `value` of
     `options.alpha`, `minimum` of `0`, and `maximum` of `1`.
 
   * Set [`internal`] to the result of [`hsl(hue saturation lightness / alpha)`].
@@ -339,9 +325,6 @@ constructor(options: {
 
 * Otherwise, if `constructionSpace` is "hwb":
 
-  * If `options.alpha` is `null` and `options.space` is not set, emit a
-    deprecation warning named `null-alpha`.
-
   * Let `hue` be the result of [parsing a channel value] with value
     `options.hue`.
 
@@ -351,8 +334,8 @@ constructor(options: {
   * Let `blackness` be the result of [parsing a channel value] with value
     `options.blackness`.
 
-  * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-    the result of [parsing a clamped channel value] with `value` of
+  * If `options.alpha` is `undefined`, let `alpha` be `1`. Otherwise, let
+    `alpha` be the result of [parsing a clamped channel value] with `value` of
     `options.alpha`, `minimum` of `0`, and `maximum` of `1`.
 
   * Set [`internal`] to the result of [`hwb(hue whiteness blackness / alpha)`].
@@ -385,9 +368,9 @@ constructor(options: {
 
   * Let `b` be the result of [parsing a channel value] with value `options.b`.
 
-  * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-    the result of [parsing a clamped channel value] with value `options.alpha`,
-    `minimum` of 0, and `maximum` of 1.
+  * If `options.alpha` is `undefined`, let `alpha` be `1`. Otherwise, let
+    `alpha` be the result of [parsing a clamped channel value] with value
+    `options.alpha`, `minimum` of 0, and `maximum` of 1.
 
   * If `options.space` equals `lab`, set [`internal`] to the result of
     [`lab(lightness a b / alpha)`].
@@ -424,9 +407,9 @@ constructor(options: {
 
   * Let `h` be the result of [parsing a channel value] with value `options.h`.
 
-  * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-    the result of [parsing a clamped channel value] with value `options.alpha`,
-    `minimum` of 0, and `maximum` of 1.
+  * If `options.alpha` is `undefined`, let `alpha` be `1`. Otherwise, let
+    `alpha` be the result of [parsing a clamped channel value] with value
+    `options.alpha`, `minimum` of 0, and `maximum` of 1.
 
   * If `options.space` equals `lch`, set [`internal`] to the result of
     [`lch(lightness a b / alpha)`].
@@ -463,9 +446,9 @@ constructor(options: {
   * Let `blue` be the result of [parsing a channel value] with value
     `options.blue`.
 
-  * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-    the result of [parsing a clamped channel value] with value `options.alpha`,
-    `minimum` of 0, and `maximum` of 1.
+  * If `options.alpha` is `undefined`, let `alpha` be `1`. Otherwise, let
+    `alpha` be the result of [parsing a clamped channel value] with value
+    `options.alpha`, `minimum` of 0, and `maximum` of 1.
 
   * Let `space` be the unquoted string value of `options.space`.
 
@@ -495,9 +478,9 @@ constructor(options: {
 
   * Let `z` be the result of [parsing a channel value] with value `options.z`.
 
-  * If `options.alpha` is not set, let `alpha` be `1`. Otherwise, let `alpha` be
-    the result of [parsing a clamped channel value] with value `options.alpha`,
-    `minimum` of 0, and `maximum` of 1.
+  * If `options.alpha` is `undefined`, let `alpha` be `1`. Otherwise, let
+    `alpha` be the result of [parsing a clamped channel value] with value
+    `options.alpha`, `minimum` of 0, and `maximum` of 1.
 
   * Let `space` be the unquoted string value of `options.space`.
 
@@ -750,27 +733,7 @@ as the result of changing some of [`internal`]'s components.
 
 * Let `initialSpace` be the value of [`this.space`].
 
-* Let `spaceSetExplicitly` be `true` if `options.space` is defined, and `false`
-  otherwise.
-
-* Let `space` be `options.space` if `spaceSetExplicitly` is true, and the value
-  of `initialSpace` otherwise.
-
-* If `initialSpace` is a [legacy color space] and `spaceSetExplicitly` is false:
-
-  * If `options.whiteness` or `options.blackness` is set, let `space` be `hwb`.
-
-  * Otherwise, if `options.hue` is set and `initialSpace` is `hwb`, let space be
-    `hwb`.
-
-  * Otherwise, if `options.hue`, `options.saturation`, or `options.lightness` is
-    set, let `space` be `hsl`.
-
-  * Otherwise, if `options.red`, `options.green`, or `options.blue` is set, let
-    `space` be `rgb`.
-
-  * If `initialSpace` is not equal to `space`, emit a deprecation warning named
-    `color-4-api`.
+* Let `space` be `options.space ?? initialSpace`.
 
 * Let `changes` be the object `options` without `space` and its value.
 
@@ -790,28 +753,7 @@ as the result of changing some of [`internal`]'s components.
   and calls the procedure [`Changing a Component Value`] with `changes` and
   `color` as `initial`.
 
-* If `space` equals `hsl` and `spaceSetExplicitly` is `false`:
-
-  * If any of `options.hue`, `options.saturation` or `options.lightness` equals
-    `null`, emit a deprecation warning named `color-4-api`.
-
-  * If `options.alpha` equals `null`, emit a deprecation warning named
-    `null-alpha`.
-
-  * Let `changedColor` be the result of:
-
-    ```js
-    new SassColor({
-      hue: options.hue ?? color.channel('hue'),
-      saturation: options.saturation ?? color.channel('saturation'),
-      lightness: options.lightness ?? color.channel('lightness'),
-      alpha: options.alpha ?? color.channel('alpha'),
-      space: space
-    })
-    ```
-
-* If `space` equals `hsl` and `spaceSetExplicitly` is `true`, let `changedColor`
-  be the result of:
+* If `space` equals `hsl`, let `changedColor` be the result of:
 
    ```js
   new SassColor({
@@ -823,67 +765,13 @@ as the result of changing some of [`internal`]'s components.
   })
   ```
 
-* If `space` equals `hwb` and `spaceSetExplicitly` is `false`:
-
-  * If any of `options.hue`, `options.whiteness` or `options.blackness` equals
-    `null`, emit a deprecation warning named `color-4-api`.
-
-  * If `options.alpha` equals `null`, emit a deprecation warning named
-    `null-alpha`.
-
-  * Let `changedColor` be the result of:
-
-    ```js
-    new SassColor({
-      hue: options.hue ?? color.channel('hue'),
-      whiteness: options.whiteness ?? color.channel('whiteness'),
-      blackness: options.blackness ?? color.channel('blackness'),
-      alpha: options.alpha ?? color.channel('alpha'),
-      space: space
-    })
-    ```
-
-* If `space` equals `hwb` and `spaceSetExplicitly` is `true`, let `changedColor`
-  be the result of:
+* If `space` equals `hwb`, let `changedColor` be the result of:
 
    ```js
   new SassColor({
     hue: changedValue('hue'),
     whiteness: changedValue('whiteness'),
     blackness: changedValue('blackness'),
-    alpha: changedValue('alpha'),
-    space: space
-  })
-  ```
-
-* If `space` equals `rgb` and `spaceSetExplicitly` is `false`:
-
-  * If any of `options.red`, `options.green` or `options.blue` equals `null`,
-    emit a deprecation warning named `color-4-api`.
-
-  * If `options.alpha` equals `null`, emit a deprecation warning named
-    `null-alpha`.
-
-  * Let `changedColor` be the result of:
-
-    ```js
-    new SassColor({
-      red: options.red ?? color.channel('red'),
-      green: options.green ?? color.channel('green'),
-      blue: options.blue ?? color.channel('blue'),
-      alpha: options.alpha ?? color.channel('alpha'),
-      space: space
-    })
-    ```
-
-* If `space` equals `rgb` and `spaceSetExplicitly` is `true`, let `changedColor`
-  be the result of:
-
-   ```js
-  new SassColor({
-    red: changedValue('red'),
-    green: changedValue('green'),
-    blue: changedValue('blue'),
     alpha: changedValue('alpha'),
     space: space
   })
@@ -913,7 +801,7 @@ as the result of changing some of [`internal`]'s components.
   })
   ```
 
-* If `space` equals `a98-rgb`, `display-p3`, `display-p3-linear`,
+* If `space` equals `rgb`, `a98-rgb`, `display-p3`, `display-p3-linear`,
   `prophoto-rgb`, `rec2020`, `srgb`, or `srgb-linear`, let `changedColor` be the
   result of:
 
@@ -993,106 +881,6 @@ change(
     space?: ColorSpaceXyz;
   }
 ): SassColor;
-```
-
-#### `red`
-
-> This is deprecated in favor of the new [`channel`] function. This deprecation
-> is called `color-4-api`.
-
-[`channel`]: #channel
-
-Returns [`internal`]'s red channel in the RGB color space.
-
-```ts
-get red(): number;
-```
-
-#### `green`
-
-> This is deprecated in favor of the new [`channel`] function. This deprecation
-> is called `color-4-api`.
-
-Returns [`internal`]'s green channel in the RGB color space.
-
-```ts
-get green(): number;
-```
-
-#### `blue`
-
-> This is deprecated in favor of the new [`channel`] function. This deprecation
-> is called `color-4-api`.
-
-Returns [`internal`]'s blue channel in the RGB color space.
-
-```ts
-get blue(): number;
-```
-
-#### `hue`
-
-> This is deprecated in favor of the new [`channel`] function. This deprecation
-> is called `color-4-api`.
-
-Returns the value of the result of [`hue(internal)`].
-
-[`hue(internal)`]: ../../built-in-modules/color.md#hue
-
-```ts
-get hue(): number;
-```
-
-#### `saturation`
-
-> This is deprecated in favor of the new [`channel`] function. This deprecation
-> is called `color-4-api`.
-
-Returns the value of the result of [`saturation(internal)`].
-
-[`saturation(internal)`]: ../../built-in-modules/color.md#saturation
-
-```ts
-get saturation(): number;
-```
-
-#### `lightness`
-
-> This is deprecated in favor of the new [`channel`] function. This deprecation
-> is called `color-4-api`.
-
-Returns the value of the result of [`lightness(internal)`].
-
-[`lightness(internal)`]: ../../built-in-modules/color.md#lightness
-
-```ts
-get lightness(): number;
-```
-
-#### `whiteness`
-
-> This is deprecated in favor of the new [`channel`] function. This deprecation
-> is called `color-4-api`.
-
-Returns the value of the result of [`whiteness(internal)`].
-
-[`whiteness(internal)`]: ../../built-in-modules/color.md#whiteness
-
-```ts
-get whiteness(): number;
-```
-
-#### `blackness`
-
-> This is deprecated in favor of the new [`channel`] function. This deprecation
-> is called `color-4-api`.
-
-Returns the value of the result of [`blackness(internal)`].
-
-[`blackness(internal)`]: ../../built-in-modules/color.md#blackness
-
-```ts
-get blackness(): number;
 ```
 
 ```ts
