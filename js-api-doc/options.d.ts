@@ -32,6 +32,21 @@ export type Syntax = 'scss' | 'indented' | 'css';
 export type OutputStyle = 'expanded' | 'compressed';
 
 /**
+ * Possible option for including source file contents in the source map.
+ *
+ * - `'auto'` (the default for Dart Sass) includes the Sass source text for
+ *   the selected sources chosen by the compiler.
+ *
+ * - `'always'` includes the Sass source text for all sources in the source map.
+ *
+ * - `'never'` excludes the Sass source text for all sources from the source
+ *   map.
+ *
+ * @category Options
+ */
+export type SourceMapIncludeSources = 'auto' | 'always' | 'never';
+
+/**
  * A callback that implements a custom Sass function. This can be passed to
  * {@link Options.functions}.
  *
@@ -348,14 +363,17 @@ export interface Options<sync extends 'sync' | 'async'> {
   sourceMap?: boolean;
 
   /**
-   * Whether Sass should include the sources in the generated source map.
+   * When Sass should include the sources in the generated source map.
    *
    * This option has no effect if {@link sourceMap} is `false`.
    *
-   * @defaultValue `false`
+   * **Heads up!** Passing `boolean` value for {@link SourceMapIncludeSources}
+   * is deprecated and will eventually break.
+   *
+   * @defaultValue `'auto'`
    * @category Output
    */
-  sourceMapIncludeSources?: boolean;
+  sourceMapIncludeSources?: SourceMapIncludeSources | boolean;
 
   /**
    * The {@link OutputStyle} of the compiled CSS.
