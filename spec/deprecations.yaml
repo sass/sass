@@ -180,3 +180,9 @@ if-function:
   dart-sass:
     status: active
     deprecated: 1.95.0
+
+function-name:
+  description: Uppercase reserved function names.
+  dart-sass:
+    status: active
+    deprecated: 1.98.0
