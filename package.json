@@ -32,7 +32,7 @@
     "diff": "^5.0.0",
     "glob": "^10.0.0",
     "gts": "^3.1.0",
-    "immutable": "^4.0.0",
+    "immutable": "^5.1.5",
     "indent-string": "^4.0.0",
     "markdown-link-check": "3.11.1",
     "markdown-toc": "^1.2.0",
