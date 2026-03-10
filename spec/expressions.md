@@ -159,6 +159,7 @@ following `(`.
 **SpecialFunctionExpression** ::= SpecialFunctionName InterpolatedDeclarationValue ')'
 **SpecialFunctionName**¹      ::= VendorPrefix? 'element('
 &#32;                           | VendorPrefix 'calc('
+&#32;                           | 'progid:' \[a-z.]* '('
 &#32;                           | 'expression(' | 'type('
 **VendorPrefix**¹             ::= '-' ([identifier-start code point] | [digit]) '-'
 </pre></x>
