@@ -180,3 +180,9 @@ if-function:
   dart-sass:
     status: active
     deprecated: 1.95.0
+
+source-map-include-sources-boolean:
+  description: Passing a boolean value to as Options.sourceMapIncludeSources.
+  dart-sass:
+    status: active
+    deprecated: 1.99.0
