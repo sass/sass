@@ -111,5 +111,4 @@ A selector list is *bogus* if any of its complex selectors are bogus.
 
 To serialize a parent selector, emit the character `&`.
 
-> A parent selector can only appear in a serialized selector if it was parsed
-> from plain CSS, which doesn't allow it to have a suffix.
+> Parent selectors with suffixes can't ever appear in serialized selectors.
