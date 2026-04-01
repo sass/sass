@@ -74,8 +74,8 @@ To execute a style rule `rule`:
 * Otherwise, if `selector` contains one or more parent selectors with suffixes,
   throw an error.
 
-  > Suffixes on parent selectors are a Sass extension and so *only* allowed in
-  > Sass nesting contexts.
+  > Suffixes on parent selectors are a Sass extension and so are *only* allowed
+  > in Sass nesting contexts.
 
 * Let `css` be a CSS style rule with selector `selector`.
 
