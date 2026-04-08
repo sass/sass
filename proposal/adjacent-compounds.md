@@ -83,4 +83,3 @@ old syntax. However, two adjacent `ComplexSelectorComponent`s not separated by a
 
 In the next major version after the deprecation goes live, the full changes
 above will be implemented.
-
