@@ -57,7 +57,7 @@ This proposal makes compound selectors that are not separated by a combinator
 
 ### `ComplexSelector`
 
-Replace the definition of `CompoundSelector` with:
+Replace the definition of `ComplexSelector` with:
 
 <x><pre>
 **ComplexSelector** ::= [\<combinator>]¹? (CompoundSelector [\<combinator>])*
