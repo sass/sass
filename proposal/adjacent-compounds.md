@@ -7,11 +7,9 @@
 * [Background](#background)
 * [Summary](#summary)
 * [Syntax](#syntax)
-  * [`Options.sourceMapIncludeSources`](#optionssourcemapincludesources)
-  * [`Importer`](#importer)
+  * [`ComplexSelector`](#complexselector)
 * [Deprecation Process](#deprecation-process)
   * [Phase 1](#phase-1)
-    * [`Options.sourceMapIncludeSources`](#optionssourcemapincludesources-1)
   * [Phase 2](#phase-2)
 
 ## Background
