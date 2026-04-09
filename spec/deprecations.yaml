@@ -19,8 +19,9 @@
 call-string:
   description: Passing a string directly to meta.call().
   dart-sass:
-    status: active
+    status: obsolete
     deprecated: 0.0.0
+    obsolete: 2.0.0
 
 elseif:
   description: "@elseif."
