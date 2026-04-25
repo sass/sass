@@ -98,12 +98,16 @@ A selector list is *bogus* if any of its complex selectors are bogus.
 ### `ComplexSelector`
 
 <x><pre>
-**ComplexSelector**          ::= [\<combinator>]? ComplexSelectorComponent+
-&#32;                          | [\<combinator>]
-**ComplexSelectorComponent** ::= CompoundSelector [\<combinator>]?
+**ComplexSelector** ::= [\<combinator>]¹? (CompoundSelector [\<combinator>])*
+&#32;                   CompoundSelector [\<combinator>]¹?
+&#32;                 | [\<combinator>]¹
 </pre></x>
 
 [\<combinator>]: https://drafts.csswg.org/selectors-4/#typedef-combinator
+
+1: These combinators must be [visible].
+
+[visible]: #visible-combinator
 
 ## Serialization
 
