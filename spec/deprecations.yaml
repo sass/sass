@@ -186,3 +186,9 @@ function-name:
   dart-sass:
     status: active
     deprecated: 1.98.0
+
+adjacent-compounds:
+  description: Adjacent compound selectors like `[class]a`.
+  dart-sass:
+    status: active
+    deprecated: 1.100.0
