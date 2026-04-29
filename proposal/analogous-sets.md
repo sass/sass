@@ -20,12 +20,14 @@
 > This section is non-normative.
 
 When Sass originally implemented support for the expanded color spaces
-introduced by [CSS Color 4], it contained the concept of "analogous components"
-across two color spaces whose missing status would be maintained during (some)
-conversions. At the time, analogous components were limited to individual
-component pairs: `red`/`green`/`blue` across the various RGB-style spaces,
-`lightness` between HSL/Lab/LCH, and so on. Sass implemented these by retaining
-missing channels during all color conversions.
+introduced by [CSS Color 4], it contained the concept of "[analogous
+components]" across two color spaces whose missing status would be maintained
+during (some) conversions. At the time, analogous components were limited to
+individual component pairs: `red`/`green`/`blue` across the various RGB-style
+spaces, `lightness` between HSL/Lab/LCH, and so on. Sass implemented these by
+retaining missing channels during all color conversions.
+
+[analogous components]: https://drafts.csswg.org/css-color-4/#analogous-components
 
 Since then, the CSS spec has expanded the notion of analogous components to
 include "analogous sets" as well, defined as the complement of any subset of
@@ -86,10 +88,12 @@ differences are likely to be improvements rather than regressions.
 
 ### Missing Components
 
-Remove the definition of "analogous components" from [the missing components
-definition] and instead refer to the definition in CSS Color 4.
+Change the definition of [missing components] by removing the section that
+defines "analogous components". Any references to "analogous components"
+elsewhere in the specification should now refer to the definition of that term
+in CSS Color 4.
 
-[the missing components definition]: ../spec/types/color.md#missing-components
+[missing components]: ../spec/types/color.md#missing-components
 
 ### Analogous Mappings
 
@@ -99,7 +103,6 @@ either two [analogous sets] or two single-element sets representing two
 [analogous components].
 
 [analogous sets]: https://drafts.csswg.org/css-color-4/#analogous-set
-[analogous components]: https://drafts.csswg.org/css-color-4/#analogous-components
 
 > Each pair of color spaces has a finite, well-defined set of analogous
 > mappings. Per the CSS spec, the set of all components of each space always
