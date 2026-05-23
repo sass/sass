@@ -18,6 +18,7 @@ import {PromiseOr} from './util/promise_or';
 * [Types](#types)
 * [`Syntax`](#syntax)
 * [`OutputStyle`](#outputstyle)
+* [`SourceMapIncludeSources`](#sourcemapincludesources)
 * [`CustomFunction`](#customfunction)
 * [`Options`](#options)
   * [`alertAscii`](#alertascii)
@@ -61,6 +62,17 @@ for details.
 
 ```ts
 export type OutputStyle = 'expanded' | 'compressed';
+```
+
+### `SourceMapIncludeSources`
+
+The ways in which the compiler can choose to include source contents in the
+source map. See [`Options.sourceMapIncludeSources`] for details.
+
+[`Options.sourceMapIncludeSources`]: #sourcemapincludesources
+
+```ts
+export type SourceMapIncludeSources = 'auto' | 'always' | 'never';
 ```
 
 ### `CustomFunction`
@@ -292,13 +304,19 @@ sourceMap?: boolean;
 
 #### `sourceMapIncludeSources`
 
-If true, the compiler must include the full Sass source text in
-[`CompileResult.sourceMap`].
+If the value is `'auto'`, source contents are included in the source map's
+`sourcesContent` only for stylesheets without explictly defined `sourceMapUrl`s.
 
-Defaults to false.
+If the value is `'never'`, no stylesheets' contents are included in the source
+map's `sourcesContent`.
+
+If the value is `'always'`, source contents are included in the source map's
+`sourcesContent` for all stylesheets.
+
+Defaults to 'auto'.
 
 ```ts
-sourceMapIncludeSources?: boolean;
+sourceMapIncludeSources?: SourceMapIncludeSources | boolean;
 ```
 
 #### `style`
