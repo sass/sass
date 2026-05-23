@@ -4,7 +4,7 @@
 
   Note: although this is a breaking change for protobuf generated code, the
   encoded protobuf payload is backward compatible, meaning it does not affect
-  previously built host on newly built compiler.
+  a previously built host on a newly built compiler.
 
 ## 3.2.0
 

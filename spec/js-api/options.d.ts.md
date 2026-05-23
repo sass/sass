@@ -304,14 +304,14 @@ sourceMap?: boolean;
 
 #### `sourceMapIncludeSources`
 
-If `'auto'` (or false), the compiler may choose to include the full Sass source
-text in [`CompileResult.sourceMap`] for each source.
+If the value is `'auto'`, source contents are included in the source map's
+`sourcesContent` only for stylesheets without explictly defined `sourceMapUrl`s.
 
-If `'always'` (or true), the compiler must include the full Sass source text in
-[`CompileResult.sourceMap`] for all sources.
+If the value is `'never'`, no stylesheets' contents are included in the source
+map's `sourcesContent`.
 
-If `'never'`, the compiler must not include the full Sass source text in
-[`CompileResult.sourceMap`] for any sources.
+If the value is `'always'`, source contents are included in the source map's
+`sourcesContent` for all stylesheets.
 
 Defaults to 'auto'.
 
