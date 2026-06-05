@@ -16,7 +16,7 @@
   * [Node Package Importer](#node-package-importer)
   * [Global Importer List](#global-importer-list)
   * [Underscore-Insensitive](#underscore-insensitive)
-  * [Export Load Paths](#export-load-paths)
+  * [Candidate URLs](#candidate-urls)
   * [Basename](#basename)
   * [Dirname](#dirname)
 * [Syntax](#syntax)
@@ -26,6 +26,7 @@
   * [Resolving a `file:` URL](#resolving-a-file-url)
   * [Resolving a `file:` URL for Extensions](#resolving-a-file-url-for-extensions)
   * [Resolving a `file:` URL for Partials](#resolving-a-file-url-for-partials)
+  * [Resolving a `file:` URL for Imports](#resolving-a-file-url-for-imports)
   * [Resolving a Member](#resolving-a-member)
   * [Node Package Importer Semantics](#node-package-importer-semantics)
     * [Node Algorithm for Resolving a `pkg:` URL](#node-algorithm-for-resolving-a-pkg-url)
@@ -33,7 +34,7 @@
     * [Resolving the root directory for a package](#resolving-the-root-directory-for-a-package)
     * [Resolving package exports](#resolving-package-exports)
     * [Resolving package root values](#resolving-package-root-values)
-    * [Resolving variant exports](#resolving-variant-exports)
+    * [Resolving candidate exports](#resolving-candidate-exports)
 
 ## Definitions
 
@@ -315,27 +316,29 @@ U+002D HYPHEN-MINUS and U+005F LOW LINE to be equal to one another.
 > underscores for backwards-compatibility. This insensitivity is generally only
 > used for Sass member names, not any other identifiers.
 
-### Export Load Paths
+### Candidate URLs
 
-The *export load paths* for a relative URL is the set of paths of equal
-precedence that this URL might be resolved as by Sass.
+The *candidate URLs* for a given URL is the set of URLs of equal precedence that
+this URL might be resolved as by Sass.
 
-> This does *not* include import-only or index files, because those have higher
-> and lower precedence than other files, respectively.
+> This does *not* include import-only or index URLs, because those have higher
+> and lower precedence than other URLs, respectively.
 
-To compute the export load paths for a relative URL `subpath`:
+To compute the candidate URLs for a relative URL `url`:
 
-* Let `paths` be a list.
+* Let `candidates` be a list.
 
-* If `subpath` ends in `".scss"`, `".sass"`, or `".css"`:
+* If `url` ends in `".scss"`, `".sass"`, or `".css"`:
 
-  * Add `subpath` to `paths`.
+  * Add `url` to `candidates`.
 
-* Otherwise, add `subpath`, `subpath` + `.scss`, `subpath` + `.sass`, and
-  `subpath` + `.css` to `paths`.
+* Otherwise, add `url`, `url` + `".scss"`, `url` + `".sass"`, and `url` +
+  `".css"` to `candidates`.
 
-* If `subpath`'s [basename] does not start with `_`, for each `item` in
-  `paths`, prepend `"_"` to the basename, and add to `paths`.
+* If `url`'s [basename] does not start with `_`:
+
+  * For each `item` in `candidates`, add a copy of `item` to `candidates` with
+    its basename prepended with `"_"`.
 
 * Return `paths`.
 
@@ -555,6 +558,26 @@ either another URL that's guaranteed to point to a file on disk or null.
 
 * Return null.
 
+### Resolving a `file:` URL for Imports
+
+> For historical reasons, the standard means of resolving import-only files will
+> load `foo.import.scss` even if the non-import-only file is `_foo.scss` or
+> `_foo.sass`. This means that it can't use this algorithm, which ends up only
+> being used by the Node package importer.
+
+This algorithm takes a `file:` URL, `url`, and returns another (or the same)
+`file:` URL.
+
+* If this algorithm isn't being run for an `@import`, return `url` as-is.
+
+* If `url` doesn't end in `".scss"`, `".sass"`, or `".css"`, return `url` as-is.
+
+* Let `suffix` be the trailing `".scss"`, `".sass"`, or `".css"` in `url`, and
+  `prefix` the portion of `url` before `suffix`.
+
+* If a file exists on disk at `prefix` + `".import"` + `suffix`, return that
+  URL. Otherwise, return `url` as-is.
+
 ### Resolving a Member
 
 This algorithm takes a [member](#member) name `name` and a member type `type`,
@@ -668,7 +691,7 @@ It returns a canonical `file:` URL or null.
   `packageRoot`, `subpath`, and `packageManifest`.
 
 * If `resolved` has the scheme `file:` and an extension of `sass`, `scss` or
-  `css`, return it.
+  `css`, return the result of [resolving it for imports].
 
 * Otherwise, if `resolved` is not null, throw an error.
 
@@ -679,6 +702,7 @@ It returns a canonical `file:` URL or null.
 * Return the result of [resolving a `file:` URL] with `resolved`.
 
 [Resolving package exports]: #resolving-package-exports
+[resolving it for imports]: #resolving-a-file-url-for-imports
 [resolving package root values]: #resolving-package-root-values
 [resolving a package name]: #resolving-a-package-name
 [JSON]: https://datatracker.ietf.org/doc/html/rfc8259
@@ -716,15 +740,15 @@ null.
 
 * If `exports` is undefined, return null.
 
-* If [resolving variant exports] for `subpath` with `packageRoot` and `exports`
-  returns a URL, return it.
+* If [resolving candidate exports] for `subpath` with `packageRoot` and
+  `exports` returns a URL, return it.
 
 * If `subpath` has an extension, return null.
 
-* Return the result of [resolving variant exports] for `subpath` + `"/index"`
+* Return the result of [resolving candidate exports] for `subpath` + `"/index"`
   with `packageRoot` and `exports`.
 
-[resolving variant exports]: #resolving-variant-exports
+[resolving candidate exports]: #resolving-candidate-exports
 
 #### Resolving package root values
 
@@ -737,58 +761,36 @@ package, and `packageManifest`, which is the contents of that package's
 * If `sassValue` is a relative path with an extension of `sass`, `scss` or
   `css`:
 
-  * Return the canonicalized `file:` URL for `${packagePath}/${sassValue}`.
+  * Return the result of resolving the canonicalized `file:` URL for
+    `${packagePath}/${sassValue}` [for imports].
 
 * Let `styleValue` be the value of `style` in `packageManifest`.
 
 * If `styleValue` is a relative path with an extension of `sass`, `scss` or
   `css`:
 
-  * Return the canonicalized `file:` URL for `${packagePath}/${styleValue}`.
+  * Return the result of resolving the canonicalized `file:` URL for
+    `${packagePath}/${styleValue}` [for imports].
 
-* Otherwise return the result of [resolving a `file:` URL for extensions] with
-  `packagePath + "/index"`.
+* Otherwise return the result of resolving `packagePath + "/index"` [for
+  extensions].
 
-[resolving a `file:` URL for extensions]: #resolving-a-file-url-for-extensions
-
+[for imports]: #resolving-a-file-url-for-imports
+[for extensions]: #resolving-a-file-url-for-extensions
 [URL path segments]: https://url.spec.whatwg.org/#url-path-segment
 
-#### Resolving variant exports
+#### Resolving candidate exports
 
 This algorithm takes a JSON-compatible value `exports`, a directory URL
 `packageRoot`, and a relative URL path `subpath`. It returns a `file:` URL or
 null.
 
-* Let `subpathVariants` be the [export load paths] for `subpath`.
-
-* If this algorithm is being run for an `@import`:
-
-  * Let `importVariants` be an empty list.
-
-  * For each `item` in `subpathVariants`:
-
-    * Let `suffix` be the trailing `".scss"`, `".sass"`, or `".css"` in `item`
-      if it has one or `""` otherwise, and `prefix` the portion of `item` before
-      `suffix`.
-
-    * Add `prefix + ".import" + suffix` to `importVariants`.
-
-  * Let `resolvedImportPaths` be a list of the results of calling
-    `PACKAGE_EXPORTS_RESOLVE(packageRoot, importVariant, exports, ["sass",
-    "style"])` as defined in the [Node resolution algorithm specification], with
-    each `importVariants` as `importVariant`.
-
-    > The PACKAGE_EXPORTS_RESOLVE algorithm always includes a `default` condition,
-    > so one does not have to be passed here.
-
-  * If `resolvedImportPaths` contains more than one resolved URL, throw an error.
-
-  * If `resolvedImportPaths` contains exactly one resolved URL, return it.
+* Let `candidates` be the [candidate URLs] for `subpath`.
 
 * Let `resolvedPaths` be a list of the results of calling
-  `PACKAGE_EXPORTS_RESOLVE(packageRoot, subpathVariant, exports, ["sass",
-  "style"])` as defined in the [Node resolution algorithm specification], with
-  each `subpathVariants` as `subpathVariant`.
+  `PACKAGE_EXPORTS_RESOLVE(packageRoot, candidate, exports, ["sass", "style"])`
+  as defined in the [Node resolution algorithm specification] for each
+  `candidate` in `candidates`.
 
 * If `resolvedPaths` contains more than one resolved URL, throw an error.
 
@@ -800,5 +802,5 @@ null.
 > exposes the Node resolution algorithm, allowing for per-path custom
 > conditions, and without needing filesystem access.
 
-[export load paths]: #export-load-paths
+[candidate URLs]: #candidate-urls
 [resolve.exports]: https://github.com/lukeed/resolve.exports
