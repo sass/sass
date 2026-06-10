@@ -560,10 +560,12 @@ either another URL that's guaranteed to point to a file on disk or null.
 
 ### Resolving a `file:` URL for Imports
 
-> For historical reasons, the standard means of resolving import-only files will
-> load `foo.import.scss` even if the non-import-only file is `_foo.scss` or
-> `_foo.sass`. This means that it can't use this algorithm, which ends up only
+> For historical reasons, [resolving a `file:` URL for extensions] will load
+> `foo.import.scss` even if the non-import-only file is `_foo.scss` or
+> `_foo.sass`. This means that algorithm can't use this one, which ends up only
 > being used by the Node package importer.
+
+[resolving a `file:` URL for extensions]: #resolving-a-file-url-for-extensions
 
 This algorithm takes a `file:` URL, `url`, and returns another (or the same)
 `file:` URL.
