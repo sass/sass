@@ -17,22 +17,9 @@ the common JavaScript pattern of avoiding explicit type checks. This must not be
 used as a way of adding custom extensions that aren't shared across all
 implementations.
 
-Certain interfaces in the JS API are defined within the `legacy` directory,
-indicating that they're part of the legacy Node Sass API. This API is deprecated
-and implementations are not required to support it. However, at least partial
-support is recommended for compatibility with older applications and
-particularly build system plugins.
-
-As with other sections of this specification, the specification of the legacy JS
-API is incomplete, and is added to *lazily*. This means that portions of the
-spec—particularly the documentation comments that serve as a behavioral
-specification—are only written when they're necessary as background for new API
-proposals.
-
 ## Table of Contents
 
 * [Modern APIs](#modern-apis)
-* [Legacy APIs](#legacy-apis)
 * [Top-Level Members](#top-level-members)
   * [`info`](#info)
 
@@ -116,38 +103,6 @@ export {
   sassNull,
   sassTrue,
 } from './value';
-```
-
-## Legacy APIs
-
-```ts
-export {LegacyException} from './legacy/exception';
-export {
-  FALSE,
-  LegacyAsyncFunction,
-  LegacyAsyncFunctionDone,
-  LegacyFunction,
-  LegacySyncFunction,
-  LegacyValue,
-  NULL,
-  TRUE,
-  types,
-} from './legacy/function';
-export {
-  LegacyAsyncImporter,
-  LegacyImporter,
-  LegacyImporterResult,
-  LegacyImporterThis,
-  LegacySyncImporter,
-} from './legacy/importer';
-export {
-  LegacySharedOptions,
-  LegacyFileOptions,
-  LegacyStringOptions,
-  LegacyOptions,
-} from './legacy/options';
-export {LegacyPluginThis} from './legacy/plugin_this';
-export {LegacyResult, render, renderSync} from './legacy/render';
 ```
 
 ## Top-Level Members

@@ -148,8 +148,9 @@ color-functions:
 legacy-js-api:
   description: Legacy JS API.
   dart-sass:
-    status: active
+    status: obsolete
     deprecated: 1.79.0
+    obsolete: 2.0.0
 
 import:
   description: "@import rules."
