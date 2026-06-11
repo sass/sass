@@ -16,6 +16,7 @@
   * [Node Package Importer](#node-package-importer)
   * [Global Importer List](#global-importer-list)
   * [Underscore-Insensitive](#underscore-insensitive)
+  * [Candidate URLs](#candidate-urls)
   * [Basename](#basename)
   * [Dirname](#dirname)
 * [Syntax](#syntax)
@@ -25,6 +26,7 @@
   * [Resolving a `file:` URL](#resolving-a-file-url)
   * [Resolving a `file:` URL for Extensions](#resolving-a-file-url-for-extensions)
   * [Resolving a `file:` URL for Partials](#resolving-a-file-url-for-partials)
+  * [Resolving a `file:` URL for Imports](#resolving-a-file-url-for-imports)
   * [Resolving a Member](#resolving-a-member)
   * [Node Package Importer Semantics](#node-package-importer-semantics)
     * [Node Algorithm for Resolving a `pkg:` URL](#node-algorithm-for-resolving-a-pkg-url)
@@ -32,7 +34,7 @@
     * [Resolving the root directory for a package](#resolving-the-root-directory-for-a-package)
     * [Resolving package exports](#resolving-package-exports)
     * [Resolving package root values](#resolving-package-root-values)
-    * [Export Load Paths](#export-load-paths)
+    * [Resolving candidate exports](#resolving-candidate-exports)
 
 ## Definitions
 
@@ -314,6 +316,34 @@ U+002D HYPHEN-MINUS and U+005F LOW LINE to be equal to one another.
 > underscores for backwards-compatibility. This insensitivity is generally only
 > used for Sass member names, not any other identifiers.
 
+### Candidate URLs
+
+The *candidate URLs* for a given URL is the set of URLs of equal precedence that
+this URL might be resolved as by Sass.
+
+> This does *not* include import-only or index URLs, because those have higher
+> and lower precedence than other URLs, respectively.
+
+To compute the candidate URLs for a relative URL `url`:
+
+* Let `candidates` be a list.
+
+* If `url` ends in `".scss"`, `".sass"`, or `".css"`:
+
+  * Add `url` to `candidates`.
+
+* Otherwise, add `url`, `url` + `".scss"`, `url` + `".sass"`, and `url` +
+  `".css"` to `candidates`.
+
+* If `url`'s [basename] does not start with `_`:
+
+  * For each `item` in `candidates`, add a copy of `item` to `candidates` with
+    its basename prepended with `"_"`.
+
+* Return `paths`.
+
+[basename]: #basename
+
 ### Basename
 
 The *basename* of a URL is the final component of that URL's path.
@@ -457,12 +487,12 @@ either another URL that's guaranteed to point to a file on disk or null.
 This algorithm takes a URL, `url`, whose scheme must be `file` and returns
 either another URL that's guaranteed to point to a file on disk or null.
 
-* If `url` ends in `.scss`, `.sass`, or `.css`:
+* If `url` ends in `".scss"`, `".sass"`, or `".css"`:
 
   * If this algorithm is being run for an `@import`:
 
-    * Let `suffix` be the trailing `.scss`, `.sass`, `.css` in `url`, and
-      `prefix` the portion of `url` before `suffix`.
+    * Let `suffix` be the trailing `".scss"`, `".sass"`, or `".css"` in `url`,
+      and `prefix` the portion of `url` before `suffix`.
 
     * If the result of [resolving `prefix` + `".import"` + `suffix` for
       partials][resolving for partials] is not null, return it.
@@ -527,6 +557,28 @@ either another URL that's guaranteed to point to a file on disk or null.
 * If a file exists on disk at `partial`, return `partial`.
 
 * Return null.
+
+### Resolving a `file:` URL for Imports
+
+> For historical reasons, [resolving a `file:` URL for extensions] will load
+> `foo.import.scss` even if the non-import-only file is `_foo.scss` or
+> `_foo.sass`. This means that algorithm can't use this one, which ends up only
+> being used by the Node package importer.
+
+[resolving a `file:` URL for extensions]: #resolving-a-file-url-for-extensions
+
+This algorithm takes a `file:` URL, `url`, and returns another (or the same)
+`file:` URL.
+
+* If this algorithm isn't being run for an `@import`, return `url` as-is.
+
+* If `url` doesn't end in `".scss"`, `".sass"`, or `".css"`, return `url` as-is.
+
+* Let `suffix` be the trailing `".scss"`, `".sass"`, or `".css"` in `url`, and
+  `prefix` the portion of `url` before `suffix`.
+
+* If a file exists on disk at `prefix` + `".import"` + `suffix`, return that
+  URL. Otherwise, return `url` as-is.
 
 ### Resolving a Member
 
@@ -641,7 +693,7 @@ It returns a canonical `file:` URL or null.
   `packageRoot`, `subpath`, and `packageManifest`.
 
 * If `resolved` has the scheme `file:` and an extension of `sass`, `scss` or
-  `css`, return it.
+  `css`, return the result of [resolving it for imports].
 
 * Otherwise, if `resolved` is not null, throw an error.
 
@@ -652,6 +704,7 @@ It returns a canonical `file:` URL or null.
 * Return the result of [resolving a `file:` URL] with `resolved`.
 
 [Resolving package exports]: #resolving-package-exports
+[resolving it for imports]: #resolving-a-file-url-for-imports
 [resolving package root values]: #resolving-package-root-values
 [resolving a package name]: #resolving-a-package-name
 [JSON]: https://datatracker.ietf.org/doc/html/rfc8259
@@ -682,95 +735,74 @@ returns an absolute URL to the root directory for the most proximate installed
 #### Resolving package exports
 
 This algorithm takes a package.json value `packageManifest`, a directory URL
-`packageRoot` and a relative URL path `subpath`. It returns a file URL or null.
+`packageRoot` and a relative URL path `subpath`. It returns a `file:` URL or
+null.
 
 * Let `exports` be the value of `packageManifest.exports`.
 
 * If `exports` is undefined, return null.
 
-* Let `subpathVariants` be the result of [Export load paths] with `subpath`.
-
-* Let `resolvedPaths` be a list of the results of calling
-  `PACKAGE_EXPORTS_RESOLVE(packageRoot, subpathVariant, exports, ["sass",
-  "style"])` as defined in the [Node resolution algorithm specification], with
-  each `subpathVariants` as `subpathVariant`.
-
-  > The PACKAGE_EXPORTS_RESOLVE algorithm always includes a `default` condition,
-  > so one does not have to be passed here.
-
-* If `resolvedPaths` contains more than one resolved URL, throw an error.
-
-* If `resolvedPaths` contains exactly one resolved URL, return it.
+* If [resolving candidate exports] for `subpath` with `packageRoot` and
+  `exports` returns a URL, return it.
 
 * If `subpath` has an extension, return null.
 
-* Let `subpathIndex` be `subpath` + `"/index"`.
+* Return the result of [resolving candidate exports] for `subpath` + `"/index"`
+  with `packageRoot` and `exports`.
 
-* Let `subpathIndexVariants` be the result of [Export load paths] with `subpathIndex`.
-
-* Let `resolvedIndexPaths` be a list of the results of calling
-  `PACKAGE_EXPORTS_RESOLVE(packageRoot, subpathVariant, exports, ["sass",
-  "style"])` as defined in the [Node resolution algorithm specification], with
-  each `subpathIndexVariants` as `subpathVariant`.
-
-* If `resolvedIndexPaths` contains more than one distinct resolved URL (compared
-  using string equality), throw an error.
-
-* If `resolvedIndexPaths` contains exactly one distinct resolved URL, return it.
-
-* Return null.
-
-> Where possible in Node, implementations can use [resolve.exports] which
-> exposes the Node resolution algorithm, allowing for per-path custom
-> conditions, and without needing filesystem access.
-
-[Export load paths]: #export-load-paths
-[resolve.exports]: https://github.com/lukeed/resolve.exports
+[resolving candidate exports]: #resolving-candidate-exports
 
 #### Resolving package root values
 
 This algorithm takes a string `packagePath`, which is the root directory for a
 package, and `packageManifest`, which is the contents of that package's
-`package.json` file, and returns a file URL.
+`package.json` file, and returns a `file:` URL.
 
 * Let `sassValue` be the value of `sass` in `packageManifest`.
 
 * If `sassValue` is a relative path with an extension of `sass`, `scss` or
   `css`:
 
-  * Return the canonicalized `file:` URL for `${packagePath}/${sassValue}`.
+  * Return the result of resolving the canonicalized `file:` URL for
+    `${packagePath}/${sassValue}` [for imports].
 
 * Let `styleValue` be the value of `style` in `packageManifest`.
 
 * If `styleValue` is a relative path with an extension of `sass`, `scss` or
   `css`:
 
-  * Return the canonicalized `file:` URL for `${packagePath}/${styleValue}`.
+  * Return the result of resolving the canonicalized `file:` URL for
+    `${packagePath}/${styleValue}` [for imports].
 
-* Otherwise return the result of [resolving a `file:` URL for extensions] with
-  `packagePath + "/index"`.
+* Otherwise return the result of resolving `packagePath + "/index"` [for
+  extensions].
 
-[resolving a `file:` URL for extensions]: #resolving-a-file-url-for-extensions
-
+[for imports]: #resolving-a-file-url-for-imports
+[for extensions]: #resolving-a-file-url-for-extensions
 [URL path segments]: https://url.spec.whatwg.org/#url-path-segment
 
-#### Export Load Paths
+#### Resolving candidate exports
 
-This algorithm takes a relative URL path `subpath` and returns a list of
-potential subpaths, resolving for partials and file extensions.
+This algorithm takes a JSON-compatible value `exports`, a directory URL
+`packageRoot`, and a relative URL path `subpath`. It returns a `file:` URL or
+null.
 
-* Let `paths` be a list.
+* Let `candidates` be the [candidate URLs] for `subpath`.
 
-* If `subpath` ends in `.scss`, `.sass`, or `.css`:
+* Let `resolvedPaths` be a list of the results of calling
+  `PACKAGE_EXPORTS_RESOLVE(packageRoot, candidate, exports, ["sass", "style"])`
+  as defined in the [Node resolution algorithm specification] for each
+  `candidate` in `candidates`.
 
-  * Add `subpath` to `paths`.
+* If `resolvedPaths` contains more than one resolved URL, throw an error.
 
-* Otherwise, add `subpath`, `subpath` + `.scss`, `subpath` + `.sass`, and
-  `subpath` + `.css` to `paths`.
+* If `resolvedPaths` contains exactly one resolved URL, return it.
 
-* If `subpath`'s [basename] does not start with `_`, for each `item` in
-  `paths`, prepend `"_"` to the basename, and add to `paths`.
+* Otherwise, return null.
 
-* Return `paths`.
+> Where possible in Node, implementations can use [resolve.exports] which
+> exposes the Node resolution algorithm, allowing for per-path custom
+> conditions, and without needing filesystem access.
 
-[basename]: #basename
+[candidate URLs]: #candidate-urls
+[resolve.exports]: https://github.com/lukeed/resolve.exports
