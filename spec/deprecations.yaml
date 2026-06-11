@@ -53,8 +53,9 @@ new-global:
 color-module-compat:
   description: Using color module functions in place of plain CSS functions.
   dart-sass:
-    status: active
+    status: obsolete
     deprecated: 1.23.0
+    obsolete: 2.0.0
 
 slash-div:
   description: / operator for division.
