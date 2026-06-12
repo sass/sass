@@ -10,7 +10,6 @@ This built-in module is available from the URL `sass:meta`.
   * [`calc-args()`](#calc-args)
   * [`call()`](#call)
   * [`content-exists()`](#content-exists)
-  * [`feature-exists()`](#feature-exists)
   * [`function-exists()`](#function-exists)
   * [`get-function()`](#get-function)
   * [`get-mixin()`](#get-mixin)
@@ -90,14 +89,6 @@ content-exists()
 
 This function is also available as a global function named `content-exists()`.
 
-### `feature-exists()`
-
-```
-feature-exists($feature)
-```
-
-This function is also available as a global function named `feature-exists()`.
-
 ### `function-exists()`
 
 ```
@@ -105,8 +96,6 @@ function-exists($name, $module: null)
 ```
 
 This function is also available as a global function named `function-exists()`.
-
-* Emit a deprecation warning named `feature-exists`.
 
 * If `$name` is not a string, throw an error.
 
