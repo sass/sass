@@ -40,8 +40,9 @@ moz-document:
 relative-canonical:
   description: Imports using relative canonical URLs.
   dart-sass:
-    status: active
+    status: obsolete
     deprecated: 1.14.2
+    obsolete: 2.0.0
 
 new-global:
   description: Declaring new variables with !global.
