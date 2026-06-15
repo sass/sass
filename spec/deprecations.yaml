@@ -129,8 +129,9 @@ mixed-decls:
 feature-exists:
   description: meta.feature-exists
   dart-sass:
-    status: active
+    status: obsolete
     deprecated: 1.78.0
+    obsolete: 2.0.0
 
 color-4-api:
   description: Certain uses of built-in sass:color functions.
