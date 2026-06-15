@@ -80,35 +80,6 @@ export {
   sassTrue,
 } from './value';
 
-// Legacy APIs
-export {LegacyException} from './legacy/exception';
-export {
-  FALSE,
-  LegacyAsyncFunction,
-  LegacyAsyncFunctionDone,
-  LegacyFunction,
-  LegacySyncFunction,
-  LegacyValue,
-  NULL,
-  TRUE,
-  types,
-} from './legacy/function';
-export {
-  LegacyAsyncImporter,
-  LegacyImporter,
-  LegacyImporterResult,
-  LegacyImporterThis,
-  LegacySyncImporter,
-} from './legacy/importer';
-export {
-  LegacySharedOptions,
-  LegacyFileOptions,
-  LegacyStringOptions,
-  LegacyOptions,
-} from './legacy/options';
-export {LegacyPluginThis} from './legacy/plugin_this';
-export {LegacyResult, render, renderSync} from './legacy/render';
-
 /**
  * Information about the Sass implementation. This always begins with a unique
  * identifier for the Sass implementation, followed by U+0009 TAB, followed by

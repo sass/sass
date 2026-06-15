@@ -34,8 +34,8 @@ export type LoggerWarnOptions = (
 };
 
 /**
- * An object that can be passed to {@link LegacySharedOptions.logger} to control
- * how Sass emits warnings and debug messages.
+ * An object that can be passed to {@link Options.logger} to control how Sass
+ * emits warnings and debug messages.
  *
  * @example
  *
