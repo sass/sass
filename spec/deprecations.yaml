@@ -177,8 +177,9 @@ type-function:
 compile-string-relative-url:
   description: 'Passing a relative url to compileString().'
   dart-sass:
-    status: active
+    status: obsolete
     deprecated: 1.88.0
+    obsolete: 2.0.0
 
 misplaced-rest:
   description: 'A rest parameter before a positional or named parameter.'
