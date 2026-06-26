@@ -112,6 +112,8 @@ function runLinkCheck(
             {pattern: /^https:\/\/(drafts\.)?csswg\.org(\/|$)/},
             // npm started failing in 2025
             {pattern: /^https?:\/\/(www\.)?npmjs\.com(\/|$)/},
+            // IEEE links started failing in July 2026
+            {pattern: /^https?:\/\/([a-z0-9_-]+\.)*ieee\.org(\/|$)/},
           ],
         },
         (error, results) => {
