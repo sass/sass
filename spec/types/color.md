@@ -3,7 +3,6 @@
 ## Table of Contents
 
 * [Definitions](#definitions)
-  * [Color](#color)
   * [Legacy Color](#legacy-color)
   * [Known Color Space](#known-color-space)
   * [Predefined Color Spaces](#predefined-color-spaces)
@@ -16,8 +15,6 @@
     * [Serialization of Out-of-Gamut RGB Colors](#serialization-of-out-of-gamut-rgb-colors)
 
 ## Definitions
-
-### Color
 
 ### Legacy Color
 
