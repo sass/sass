@@ -7,6 +7,7 @@
   * [Known Color Space](#known-color-space)
   * [Predefined Color Spaces](#predefined-color-spaces)
   * [Missing Components](#missing-components)
+  * [Analogous Mappings](#analogous-mappings)
   * [Powerless Components](#powerless-components)
 * [Types](#types)
   * [Equality](#equality)
@@ -205,21 +206,25 @@ as though they had the value `0`.
 > Some situations where missing components are treated specially include
 > interpolation, the `==` operator, and color space conversion.
 
-For the sake of [interpolating] between colors with missing components, the
-following *analogous components* are defined by [CSS Color Level 4][color-4]:
+### Analogous Mappings
 
-[color-4]: https://www.w3.org/TR/css-color-4/
+An *analogous mapping* is a pair that includes a set of channels from one color
+space and a set of channels from another color space, where those two sets are
+either two [analogous sets] or two single-element sets representing two
+[analogous components].
 
-| Category      | Components          |
-| ------------- | ------------------- |
-| Reds          | red, x              |
-| Greens        | green, y            |
-| Blues         | blue, z             |
-| Lightness     | lightness           |
-| Colorfulness  | chroma, saturation  |
-| Hue           | hue                 |
+[analogous sets]: https://drafts.csswg.org/css-color-4/#analogous-set
+[analogous components]: https://www.w3.org/TR/css-color-4/#analogous-components
 
-[interpolating]: ../built-in-modules/color.md#interpolating-colors
+> Each pair of color spaces has a finite, well-defined set of analogous
+> mappings. Per the CSS spec, the set of all components of each space always
+> represents an analogous mapping.
+>
+> For example, the mappings between Lab and LCH are:
+>
+> * `({lightness}, {lightness})`
+> * `({a, b}, {chroma, hue})`
+> * `({lightness, a, b}, {lightness, chroma, hue})`
 
 ### Powerless Components
 
