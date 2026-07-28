@@ -392,6 +392,9 @@ load-css($url, $with: null)
 
 * If `$url` isn't a string, throw an error.
 
+* If `$with` isn't null or a map, or if it's a map with any keys that aren't
+  strings, throw an error.
+
 * Let `config` be a configuration whose variable names and values are given by
   `$with` if `$with` isn't null, or the empty configuration otherwise.
 
