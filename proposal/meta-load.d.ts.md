@@ -159,11 +159,9 @@ other operations throw an error.
 
 Module values use identity equality.
 
-> This means that there can be two modules with the same canonical URL that are
-> nevertheless unequal, in the case that `meta.load()` was called twice to load
-> the same module. However, statically-loaded Sass modules (such as those
-> returned by `meta.get-module()`) *are* always identical if they have the same
-> canonical URL.
+> In practice, this means that any two module values with the same canonical URL
+> are equal, because Sass's module-loading operation will return an
+> already-loaded module if it exists.
 
 ### Serialization
 
@@ -216,6 +214,8 @@ meta.load($url, $with: null)
 * Return the result of [loading] `$url` with `config`.
 
   [loading]: ../spec/modules.md#loading-a-module
+
+  > Importantly, merely loading a module does not emit its CSS.
 
 ### `meta.get-module()`
 
