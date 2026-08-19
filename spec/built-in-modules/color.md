@@ -127,8 +127,8 @@ color space] or a SassScript value, and returns a color `color` in
 `target-space`.
 
 > Since the individual CSS color conversion algorithms don't explicitly handle
-> the process of "carrying over" missing values on analogous channels, we have
-> to handle that here.
+> the process of "carrying over" missing values on analogous sets, we have to
+> handle that here.
 
 * If `target-space` is a SassScript value, set it to the result of [looking up a
   known color space] named `target-space`.
@@ -137,15 +137,14 @@ color space] or a SassScript value, and returns a color `color` in
 
   > CSS doesn't perform conversions unless they are required.
 
-* Let `missing` be a list of channel names in `origin-color` that are [missing].
-
 * Let `color` be the result of [css-converting] `origin-color` into
   `target-space`.
 
-* For each `channel` in `missing`:
+* For each [analogous mapping] `(origin-channels, target-channels)` between
+  `origin-color`'s space and `target-space`:
 
-  * If `target-space` has an [analogous component][missing] to `channel`, set
-    the analogous component in `color` to `none`.
+  * If each channel in `origin-channels` is missing in `origin-color`, mark each
+    channel in `target-channels` as missing in `color`.
 
 * If `target-space` is not a [legacy color] space and any `channel`s of `color`
   are [powerless] and not already [missing], set those channels to the special
@@ -158,6 +157,7 @@ color space] or a SassScript value, and returns a color `color` in
 * Return `color`.
 
 [legacy color]: ../types/color.md#legacy-color
+[analogous mapping]: ../types/color.md#analogous-mappings
 [missing]: ../types/color.md#missing-components
 [powerless]: ../types/color.md#powerless-components
 
