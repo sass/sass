@@ -71,6 +71,7 @@ export {
   CustomFunction,
   Options,
   OutputStyle,
+  SourceMapIncludeSources,
   StringOptions,
   StringOptionsWithImporter,
   StringOptionsWithoutImporter,
