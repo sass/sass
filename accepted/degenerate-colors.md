@@ -1,4 +1,4 @@
-# Degenerate Colors: Draft 1.0
+# Degenerate Colors: Draft 2.0
 
 *([Issue](https://github.com/sass/sass/issues/4240))*
 
@@ -10,12 +10,15 @@
   * [Design Decisions](#design-decisions)
     * [Polar Infinities](#polar-infinities)
     * [Non-Polar Infinities](#non-polar-infinities)
+    * [Serializing Negative Zero](#serializing-negative-zero)
     * [No Deprecation](#no-deprecation)
 * [Types](#types)
   * [Number](#number)
     * [Serialization](#serialization)
   * [Color](#color)
     * [Invariants](#invariants)
+  * [Calculation](#calculation)
+    * [Serialization](#serialization-1)
 
 ## Background
 
@@ -93,6 +96,21 @@ numbers will result in infinite values anyway).
 Any case where these values will produce `NaN` or negative zero will once again
 be censored upon constructing the resulting color.
 
+#### Serializing Negative Zero
+
+Negative zero, like degenerate values, is only supported by CSS within the
+context of calculations, so at first blush it seems that it would make sense to
+serialize this value as a calculation the same way we do for degenerate values,
+as in `calc(-0)`. However, there's an important difference between the two:
+while the tokens `infinity` and `NaN` are not valid in a numeric context outside
+a calculation, the token `-0` is. In a non-calculation length context, CSS will
+interpret it as positive zero, whereas in a calculation context CSS will
+interpret it as negative zero.
+
+This interpretation is in fact the same as `calc(-0)` (with the caveat that
+`calc()` itself changes some details), so we choose to go with the cleaner and
+simpler output of `-0` directly.
+
 #### No Deprecation
 
 This proposal is technically a breaking change, because it causes a difference
@@ -139,15 +157,19 @@ Add the following non-normative note to [the number type]:
 
 #### Serialization
 
-In the first bullet point of [serializing a number], replace "or if it's
-degenerate" with "if it's degenerate, or if it's negative zero".
+Add the following non-normative note to the first bullet point in
+[Serialization] under "Otherwise":
 
-[serializing a number]: ../spec/types/number.md#serialization
+[Serialization]: ../spec/types/number.md#serialization
+
+> Because a `<number-token>` in CSS *may* be parsed in the context of a
+> calculation where positive and negative zero are different values, ensuring
+> the same value requires preserving the `-` for negative zero.
 
 ### Color
 
-In the second bullet point of [the color type], add "(excluding `NaN` and
-negative zero)" after the word "double".
+In the second and third bullet points of [the color type], add "(excluding `NaN`
+and negative zero)" after the word "double".
 
 [the color type]: ../spec/types/color.md#types
 
@@ -155,7 +177,7 @@ In addition, add the following paragraph:
 
 CSS defines numerous operations on colors in terms of mathematical procedures
 over the colors' channels. Although CSS doesn't allow infinite channel values
-for its color, these procedures are still well-defined using the IEEE 754
+for its colors, these procedures are still well-defined using the IEEE 754
 operations on infinities, so Sass expands their domains to include infinities
 and otherwise handles them as defined by CSS.
 
@@ -172,3 +194,12 @@ conversions:
   are converted to 0.
 
 [Polar angle channels]: ../spec/types/color.md#known-color-space
+
+### Calculation
+
+#### Serialization
+
+Add the following bullet point before the first bullet point:
+
+* If the number's value is negative zero, serialize it as positive zero with an
+  additional leading `-`.

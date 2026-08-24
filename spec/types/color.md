@@ -10,6 +10,7 @@
   * [Analogous Mappings](#analogous-mappings)
   * [Powerless Components](#powerless-components)
 * [Types](#types)
+  * [Invariants](#invariants)
   * [Equality](#equality)
   * [Serialization](#serialization)
     * [Serialization of Non-Legacy Colors](#serialization-of-non-legacy-colors)
@@ -256,17 +257,38 @@ The value type known as a *color* has three components
 
 * A *color space* that is a [known color space].
 
-* An ordered list of *channel*s, each one containing a [double] or the special
-  value `none`.
+* An ordered list of *channel*s, each one containing a [double] (excluding `NaN`
+  and negative zero) or the special value `none`.
 
-* An *alpha* that is either the special value `none` or a [double] between
-  `0-1` (inclusive).
+* An *alpha* that is either the special value `none` or a [double] (excluding
+  `NaN` and negative zero) between `0-1` (inclusive).
 
   > While it's valid to specify numbers outside this range, they are
   > meaningless, and can be clamped by input functions when generating a color.
 
 [known color space]: #known-color-space
 [double]: ../types/number.md#double
+
+CSS defines numerous operations on colors in terms of mathematical procedures
+over the colors' channels. Although CSS doesn't allow infinite channel values
+for its colors, these procedures are still well-defined using the IEEE 754
+operations on infinities, so Sass expands their domains to include infinities
+and otherwise handles them as defined by CSS.
+
+### Invariants
+
+When creating a new color or changing an existing one, implementations must
+ensure the following invariants are maintained by enacting the given
+conversions:
+
+* [Polar angle channels] may not contain [degenerate numbers] or negative zero.
+  These numbers are converted to 0.
+
+* Non-polar-angle channels may not contain `NaN` or negative zero. These numbers
+  are converted to 0.
+
+[Polar angle channels]: #known-color-space
+[degenerate numbers]: number.md#degenerate-number
 
 ### Equality
 
