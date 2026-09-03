@@ -192,3 +192,9 @@ adjacent-compounds:
   dart-sass:
     status: active
     deprecated: 1.100.0
+
+source-map-include-sources-boolean:
+  description: Passing a boolean value to as Options.sourceMapIncludeSources.
+  dart-sass:
+    status: active
+    deprecated: 1.101.0
