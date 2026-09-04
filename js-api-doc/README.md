@@ -4,18 +4,23 @@ how stylesheets are loaded} and {@link Options.functions | define custom
 functions}.
 
 The [`sass` package] on npm is a pure-JavaScript package built from the [Dart
-Sass] implementation, and includes Dart Sass's [command-line interface].
-
-The [`sass-embedded` package] on npm is a JavaScript wrapper around a native
-Dart executable, and in general is faster than `sass`.
-
-Both `sass` and `sass-embedded` provide the same JavaScript API using the same
-underlying [Dart Sass] implementation, but have speed and platform tradeoffs.
+Sass] implementation, and includes Dart Sass's [command-line interface]. The
+[`sass-embedded` package] on npm is a JavaScript wrapper around a native Dart
+executable, and in general is faster than `sass`. Both `sass` and
+`sass-embedded` provide the same JavaScript API using the same underlying [Dart
+Sass] implementation, but have speed and platform tradeoffs.
 
 [`sass` package]: https://www.npmjs.com/package/sass
 [Dart Sass]: https://sass-lang.com/dart-sass
 [command-line interface]: https://sass-lang.com/documentation/cli/dart-sass
 [`sass-embedded` package]: https://www.npmjs.com/package/sass-embedded
+
+**💡 Fun fact:** If you're reading this on the Sass website, you can experiment
+with the JavaScript API directly in your browser. Just open your [browser's
+JavaScript console] and the `sass` module will already be loaded and ready to
+use.
+
+[browser's JavaScript console]: https://developer.mozilla.org/en-US/docs/Learn_web_development/Howto/Tools_and_setup/What_are_browser_developer_tools#the_javascript_console
 
 ## Usage
 

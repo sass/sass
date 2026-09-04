@@ -227,6 +227,18 @@ Several shorthands exist when referring to numbers:
 * A number is *in a given unit* (such as "in `px`") if it has that unit as its
   single numerator unit and has no denominator units.
 
+> Note that while [CSS does not support] [degenerate numbers] outside `calc()`,
+> *any* Sass number may be degenerate. (The same is true for negative zero.)
+> This ensures that Sass can follow floating-point semantics in its own
+> calculations, and that we can emit `calc(infinity)` and other similar forms
+> rather than choosing an arbitrary number. Not only is this output more
+> readable, the behavior of infinite values is UA-specific in most contexts, so
+> there's no number we could choose that would be guaranteed to be equivalent to
+> `calc(infinity)` everywhere.
+
+[CSS does not support]: https://drafts.csswg.org/css-values/#calc-ieee
+[degenerate numbers]: #degenerate-number
+
 ### Operations
 
 #### Equality
@@ -356,8 +368,12 @@ To serialize a number to CSS:
 
 * Otherwise:
 
-  * Emit a string that can be parsed as a [`<number-token>`] with the
-    same value as the number.
+  * Emit a string that can be parsed as a [`<number-token>`] with the same value
+    as the number.
+
+    > Because a `<number-token>` in CSS *may* be parsed in the context of a
+    > calculation where positive and negative zero are different values,
+    > ensuring the same value requires preserving the `-` for negative zero.
 
   * If the number has a numerator unit, emit that unit.
 
@@ -446,8 +462,8 @@ number with simplified units.
 Given a number `number`, this procedure returns a CSS-compatible calculation
 that represents the same numeric value.
 
-* If `number`'s value is `Infinity`, let `value` be an `UnquotedString` whose
-  `value` is `'infinity'`.
+* If `number`'s value is `Infinity`, let `value` be an
+  `UnquotedString` whose `value` is `'infinity'`.
 
 * Otherwise, if `number`'s value is `-Infinity`, let `value` be an
   `UnquotedString` whose `value` is `'-infinity'`.
@@ -455,18 +471,36 @@ that represents the same numeric value.
 * Otherwise, if `number`'s value is `NaN`, let `value` be an `UnquotedString`
   whose `value` is `'NaN'`.
 
+* Otherwise, if `number`'s value is negative zero:
+
+  * If `number` has no units, return `calc(0 * -1)`.
+
+  * Otherwise, let `value` be an `CalculationValue` whose `value` is 0.
+
 * Otherwise, let `value` be a `CalculationValue` whose value is `number` without
   units.
 
 * For each unit `unit` in `number`'s numerator units:
 
   * Set `value` to a `CalculationOperation` with `operator` set to `'*'`, `left`
-    set to `value`, and `right` set to a number with value 1 and unit `unit`.
+    set to `value`, and `right` set to a `CalculationValue` whose `value` is the
+    number 1 with unit `unit`.
 
 * For each unit `unit` in `number`'s denominator units:
 
   * Set `value` to a `CalculationOperation` with `operator` set to `'/'`, `left`
-    set to `value`, and `right` set to a number with value 1 and unit `unit`.
+    set to `value`, and `right` set to a `CalculationValue` whose `value` is the
+    number 1 with unit `unit`.
+
+* If `number`'s value is negative zero:
+
+  * Let `one` be the leftmost `CalculationValue` whose `value` is the number 1
+    (with any unit).
+
+    > This is guaranteed to exist because we return early for negative zero with
+    > no units.
+
+  * Set `one`'s `value`'s value to -1.
 
 * Return a `Calculation` with `name` set to `'calc'` and arguments set to
   `[value]`.
