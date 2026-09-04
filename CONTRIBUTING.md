@@ -335,7 +335,7 @@ The fast-track process works as follows:
 ## Emergency Track
 
 Despite our best efforts, every now and then a new language change will
-unintentionally breaks existing Sass stylesheets. In order to get users unbroken
+unintentionally break existing Sass stylesheets. In order to get users unbroken
 as quickly as possible, we have a special track for changes that's highly
 constrained but requires minimal up-front review.
 

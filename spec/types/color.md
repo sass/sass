@@ -3,21 +3,20 @@
 ## Table of Contents
 
 * [Definitions](#definitions)
-  * [Color](#color)
   * [Legacy Color](#legacy-color)
   * [Known Color Space](#known-color-space)
   * [Predefined Color Spaces](#predefined-color-spaces)
   * [Missing Components](#missing-components)
+  * [Analogous Mappings](#analogous-mappings)
   * [Powerless Components](#powerless-components)
 * [Types](#types)
+  * [Invariants](#invariants)
   * [Equality](#equality)
   * [Serialization](#serialization)
     * [Serialization of Non-Legacy Colors](#serialization-of-non-legacy-colors)
     * [Serialization of Out-of-Gamut RGB Colors](#serialization-of-out-of-gamut-rgb-colors)
 
 ## Definitions
-
-### Color
 
 ### Legacy Color
 
@@ -208,21 +207,25 @@ as though they had the value `0`.
 > Some situations where missing components are treated specially include
 > interpolation, the `==` operator, and color space conversion.
 
-For the sake of [interpolating] between colors with missing components, the
-following *analogous components* are defined by [CSS Color Level 4][color-4]:
+### Analogous Mappings
 
-[color-4]: https://www.w3.org/TR/css-color-4/
+An *analogous mapping* is a pair that includes a set of channels from one color
+space and a set of channels from another color space, where those two sets are
+either two [analogous sets] or two single-element sets representing two
+[analogous components].
 
-| Category      | Components          |
-| ------------- | ------------------- |
-| Reds          | red, x              |
-| Greens        | green, y            |
-| Blues         | blue, z             |
-| Lightness     | lightness           |
-| Colorfulness  | chroma, saturation  |
-| Hue           | hue                 |
+[analogous sets]: https://drafts.csswg.org/css-color-4/#analogous-set
+[analogous components]: https://www.w3.org/TR/css-color-4/#analogous-components
 
-[interpolating]: ../built-in-modules/color.md#interpolating-colors
+> Each pair of color spaces has a finite, well-defined set of analogous
+> mappings. Per the CSS spec, the set of all components of each space always
+> represents an analogous mapping.
+>
+> For example, the mappings between Lab and LCH are:
+>
+> * `({lightness}, {lightness})`
+> * `({a, b}, {chroma, hue})`
+> * `({lightness, a, b}, {lightness, chroma, hue})`
 
 ### Powerless Components
 
@@ -254,17 +257,38 @@ The value type known as a *color* has three components
 
 * A *color space* that is a [known color space].
 
-* An ordered list of *channel*s, each one containing a [double] or the special
-  value `none`.
+* An ordered list of *channel*s, each one containing a [double] (excluding `NaN`
+  and negative zero) or the special value `none`.
 
-* An *alpha* that is either the special value `none` or a [double] between
-  `0-1` (inclusive).
+* An *alpha* that is either the special value `none` or a [double] (excluding
+  `NaN` and negative zero) between `0-1` (inclusive).
 
   > While it's valid to specify numbers outside this range, they are
   > meaningless, and can be clamped by input functions when generating a color.
 
 [known color space]: #known-color-space
 [double]: ../types/number.md#double
+
+CSS defines numerous operations on colors in terms of mathematical procedures
+over the colors' channels. Although CSS doesn't allow infinite channel values
+for its colors, these procedures are still well-defined using the IEEE 754
+operations on infinities, so Sass expands their domains to include infinities
+and otherwise handles them as defined by CSS.
+
+### Invariants
+
+When creating a new color or changing an existing one, implementations must
+ensure the following invariants are maintained by enacting the given
+conversions:
+
+* [Polar angle channels] may not contain [degenerate numbers] or negative zero.
+  These numbers are converted to 0.
+
+* Non-polar-angle channels may not contain `NaN` or negative zero. These numbers
+  are converted to 0.
+
+[Polar angle channels]: #known-color-space
+[degenerate numbers]: number.md#degenerate-number
 
 ### Equality
 
