@@ -71,24 +71,35 @@ To execute a style rule `rule`:
 
   [descendant combinator]: https://www.w3.org/TR/selectors-3/#descendant-combinators
 
-* Otherwise, if `selector` contains one or more parent selectors and `rule`'s
-  stylesheet wasn't [parsed as CSS], throw an error.
+* Otherwise, if `selector` contains one or more parent selectors with suffixes,
+  throw an error.
+
+  > Suffixes on parent selectors are a Sass extension and so are *only* allowed
+  > in Sass nesting contexts.
 
 * Let `css` be a CSS style rule with selector `selector`.
 
-* If `parent` is set and its stylesheet was [parsed as CSS], or if its
-  stylesheet wasn't parsed as CSS but `selector` contains a parent selector,
+* If `parent` is set; and if `parent`'s stylesheet was [parsed as CSS], or if
+  its stylesheet wasn't parsed as CSS but `selector` contains a parent selector,
   append `css` to `parent`.
 
-  > `selector` can only contain a parent selector at this point if it comes from
-  > plain CSS and has a top-level nesting selector. In that case we want to
-  > append it directly as plain CSS nesting.
+  > If `parent` is set, `selector` can only contain a parent selector at this
+  > point if it comes from plain CSS and has a top-level nesting selector. In
+  > that case we want to append it directly as plain CSS nesting.
 
 * Otherwise, if there is a current at-rule, append `css` to its children.
+
+  > Any parent selectors are included as-is, where ([per CSS][top-level &]) they
+  > represent the `:scope` selector.
+  
+  [top-level &]: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Selectors/Nesting_selector#using_outside_nested_rule
 
 * Otherwise, append `css` to [the current module]'s CSS.
 
   [the current module]: spec.md#current-module
+
+  > Any parent selectors are included as-is, where ([per CSS][top-level &]) they
+  > represent the `:scope` selector.
 
 * Execute each child of `rule`.
 

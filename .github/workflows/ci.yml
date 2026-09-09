@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v6
-    - uses: actions/setup-node@v6
+    - uses: actions/checkout@v7
+    - uses: actions/setup-node@v7
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
     - run: >
@@ -27,8 +27,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v6
-    - uses: actions/setup-node@v6
+    - uses: actions/checkout@v7
+    - uses: actions/setup-node@v7
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
     - run: npm run toc-check
@@ -38,8 +38,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v6
-    - uses: actions/setup-node@v6
+    - uses: actions/checkout@v7
+    - uses: actions/setup-node@v7
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
     - run: npm run link-check
@@ -49,8 +49,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v6
-    - uses: actions/setup-node@v6
+    - uses: actions/checkout@v7
+    - uses: actions/setup-node@v7
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
     - run: npm run js-api-doc-check
@@ -60,8 +60,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v6
-    - uses: actions/setup-node@v6
+    - uses: actions/checkout@v7
+    - uses: actions/setup-node@v7
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
     - run: npm run typedoc
@@ -71,9 +71,10 @@ jobs:
     runs-on: "ubuntu-latest"
 
     steps:
-      - uses: actions/checkout@v6
-      - uses: bufbuild/buf-setup-action@v1.50.0
-        with: {github_token: "${{ github.token }}"}
+      - uses: actions/checkout@v7
+      - uses: bufbuild/buf-action@v1
+        with:
+          setup_only: true
       - name: Generate protobuf code
         run: buf generate
 
@@ -82,7 +83,7 @@ jobs:
     runs-on: "ubuntu-latest"
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Check versions match
         run: |
           if ! (grep -q '\-dev$' spec/EMBEDDED_PROTOCOL_VERSION ||
@@ -96,8 +97,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v6
-    - uses: actions/setup-node@v6
+    - uses: actions/checkout@v7
+    - uses: actions/setup-node@v7
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
     - run: npm run deprecations-check
@@ -111,7 +112,7 @@ jobs:
           github.ref == 'refs/heads/main'
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 2
 
@@ -144,12 +145,12 @@ jobs:
       github.ref == 'refs/heads/main'
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       with: {fetch-depth: 0}
 
     - name: Find changed files in js-api-doc
       id: changed-files
-      uses: tj-actions/changed-files@7d5bbf4e8d5c63a42c94e1c1bff2394247117e96
+      uses: tj-actions/changed-files@934b2d2c7e653bb8c968afed5a0428617f09aa24
       with: {files: js-api-doc}
 
     - name: Deploy
