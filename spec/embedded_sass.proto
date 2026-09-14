@@ -910,6 +910,17 @@ message Value {
     uint32 id = 1;
   }
 
+  // A first-class module loaded by the compiler. New `CompilerModule`s may only
+  // be created by the compiler, but the host may pass `CompilerModule`s back to
+  // the compiler as long as their IDs match IDs of modules received by the host
+  // during that same compilation.
+  message CompilerModule {
+    // A unique ID for this module. The compiler is responsible for generating
+    // this ID and ensuring it's unique across all modules passed to the host
+    // for this compilation. Mandatory.
+    uint32 id = 1;
+  }
+
   // A SassScript argument list value. This represents rest arguments passed to
   // a function's `$arg...` parameter. Unlike a normal `List`, an argument list
   // has an associated keywords map which tracks keyword arguments passed in
@@ -1022,6 +1033,7 @@ message Value {
     Calculation calculation = 12;
     CompilerMixin compiler_mixin = 13;
     Color color = 14;
+    CompilerModule compiler_module = 15;
   }
 }
 
