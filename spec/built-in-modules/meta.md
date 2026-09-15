@@ -14,9 +14,11 @@ This built-in module is available from the URL `sass:meta`.
   * [`function-exists()`](#function-exists)
   * [`get-function()`](#get-function)
   * [`get-mixin()`](#get-mixin)
+  * [`get-module()`](#get-module)
   * [`global-variable-exists()`](#global-variable-exists)
   * [`inspect()`](#inspect)
   * [`keywords()`](#keywords)
+  * [`load()`](#load)
   * [`mixin-exists()`](#mixin-exists)
   * [`module-functions()`](#module-functions)
   * [`module-mixins()`](#module-mixins)
@@ -25,6 +27,7 @@ This built-in module is available from the URL `sass:meta`.
   * [`variable-exists()`](#variable-exists)
 * [Mixins](#mixins)
   * [`apply()`](#apply)
+  * [`css()`](#css)
   * [`load-css()`](#load-css)
 
 ## Functions
@@ -120,14 +123,11 @@ This function is also available as a global function named `function-exists()`.
 
   [resolving a function]: ../modules.md#resolving-a-member
 
-* Otherwise, if `$module` isn't a string, throw an error.
+* Let `module` be the result of calling [`get-module($module)`].
 
-* Otherwise, let `use` be the `@use` rule in [the current source file] whose
-  namespace is equal to `$module`. If no such rule exists, throw an error.
+  [`get-module($module)`]: #get-module
 
-  [the current source file]: ../spec.md#current-source-file
-
-* Return whether [`use`'s module] contains a function named `$name`.
+* Return whether `module` contains a function named `$name`.
 
   [`use`'s module]: ../at-rules/use.md#a-use-rules-module
 
@@ -187,15 +187,27 @@ get-mixin($name, $module: null)
 
   [resolving a mixin]: ../modules.md#resolving-a-member
 
-* Otherwise:
+* Otherwise, let `module` be the result of calling [`get-module($module)`].
 
-  * If `$module` is not a string, throw an error.
+* Return `module`'s mixin named `$name`, or throw an error if no such mixin
+  exists.
 
-  * Let `use` be the `@use` rule in [the current source file] whose namespace is
-    equal to `$module`. If no such rule exists, throw an error.
+### `get-module()`
 
-  * Return [`use`'s module]'s mixin named `$name`, or throw an error if no such
-    mixin exists.
+```
+get-module($module)
+```
+
+* If `$module` is a module, return it.
+
+* Otherwise, if `$module` isn't a string, throw an error.
+
+* Otherwise, let `use` be the `@use` rule in [the current source file] whose
+  namespace is equal to `$module`. If no such rule exists, throw an error.
+
+  [the current source file]: ../spec.md#current-source-file
+
+* Return [`use`'s module].
 
 ### `global-variable-exists()`
 
@@ -218,14 +230,9 @@ This function is also available as a global function named `global-variable-exis
 
   [resolving a variable]: ../modules.md#resolving-a-member
 
-* Otherwise, if `$module` isn't a string, throw an error.
+* Let `module` be the result of calling [`get-module($module)`].
 
-* Otherwise, let `use` be the `@use` rule in the [current source file] whose
-  namespace is equal to `$module`. If no such rule exists, throw an error.
-
-  [current source file]: ../spec.md#current-source-file
-
-* Return whether [`use`'s module] contains a function named `$name`.
+* Return whether `module` contains a function named `$name`.
 
 ### `inspect()`
 
@@ -243,6 +250,26 @@ keywords($args)
 
 This function is also available as a global function named `keywords()`.
 
+### `load()`
+
+```
+load($url, $with: null)
+```
+
+* If `$url` isn't a string, throw an error.
+
+* If `$with` isn't null or a map, or if it's a map with any keys that aren't
+  strings, throw an error.
+
+* Let `config` be a configuration whose variable names and values are given by
+  `$with` if `$with` isn't null, or the empty configuration otherwise.
+
+* Return the result of [loading] `$url` with `config`.
+
+  [loading]: ../modules.md#loading-a-module
+
+  > Importantly, merely loading a module does not emit its CSS.
+
 ### `mixin-exists()`
 
 ```
@@ -259,12 +286,9 @@ This function is also available as a global function named `mixin-exists()`.
 
   * Return whether [resolving a mixin] named `$name` returns null.
 
-* Otherwise, if `$module` isn't a string, throw an error.
+* Otherwise, let `module` be the result of calling [`get-module($module)`].
 
-* Otherwise, let `use` be the `@use` rule in [the current source file] whose
-  namespace is equal to `$module`. If no such rule exists, throw an error.
-
-* Return whether [`use`'s module] contains a mixin named `$name`.
+* Return whether `module` contains a mixin named `$name`.
 
 ### `module-functions()`
 
@@ -274,13 +298,10 @@ module-functions($module)
 
 This function is also available as a global function named `module-functions()`.
 
-* If `$module` is not a string, throw an error.
+* Let `module` be the result of calling [`get-module($module)`].
 
-* Let `use` be the `@use` rule in [the current source file] whose namespace is
-  equal to `$module`. If no such rule exists, throw an error.
-
-* Return a map whose keys are the names of functions in [`use`'s module] and
-  whose values are the corresponding functions.
+* Return a map whose keys are the names of functions in `module` and whose
+  values are the corresponding functions.
 
 ### `module-mixins()`
 
@@ -290,13 +311,10 @@ This is a new function in the `sass:meta` module.
 module-mixins($module)
 ```
 
-* If `$module` is not a string, throw an error.
+* Let `module` be the result of calling [`get-module($module)`].
 
-* Let `use` be the `@use` rule in [the current source file] whose namespace is
-  equal to `$module`. If no such rule exists, throw an error.
-
-* Return a map whose keys are the quoted string names of mixins in
-  [`use`'s module] and whose values are the corresponding mixins.
+* Return a map whose keys are the quoted string names of mixins in `module` and
+  whose values are the corresponding mixins.
 
 ### `module-variables()`
 
@@ -306,13 +324,10 @@ module-variables($module)
 
 This function is also available as a global function named `module-variables()`.
 
-* If `$module` is not a string, throw an error.
+* Let `module` be the result of calling [`get-module($module)`].
 
-* Let `use` be the `@use` rule in [the current source file] whose namespace is
-  equal to `$module`. If no such rule exists, throw an error.
-
-* Return a map whose keys are the names (without `$`) of variables in [`use`'s
-  module] and whose values are the corresponding values.
+* Return a map whose keys are the names (without `$`) of variables in `module`
+  and whose values are the corresponding values.
 
 ### `type-of()`
 
@@ -335,6 +350,7 @@ This function is also available as a global function named `type-of()`.
   | List          | `"list"`        |
   | Map           | `"map"`         |
   | Mixin         | `"mixin"`       |
+  | Module        | `"module"`      |
   | Null          | `"null"`        |
   | Number        | `"number"`      |
   | String        | `"string"`      |
@@ -384,29 +400,33 @@ apply($mixin, $args...)
 
 [`ArgumentList`]: ../syntax.md#argumentlist
 
+### `css()`
+
+```
+css($module)
+```
+
+* Let `module` be the result of calling [`get-module($module)`].
+
+* Let `css` be the result of [resolving `module`'s extensions].
+
+  [resolving `module`'s extensions]: ../at-rules/extend.md#resolving-a-modules-extensions
+
+  > This means that, if `module` shares some dependencies with the entrypoint
+  > module, those dependencies' CSS will be included twice.
+
+* Treat `css` as though it were the contents of the mixin.
+
 ### `load-css()`
 
 ```
 load-css($url, $with: null)
 ```
 
-* If `$url` isn't a string, throw an error.
+* Let `module` be the result of calling [`load($url, $with)`].
 
-* If `$with` isn't null or a map, or if it's a map with any keys that aren't
-  strings, throw an error.
+  [`load($url, $with)`]: #load
 
-* Let `config` be a configuration whose variable names and values are given by
-  `$with` if `$with` isn't null, or the empty configuration otherwise.
+* Include [`css(module)`].
 
-* Let `module` be the result of [loading] `$url` with `config`.
-
-  [loading]: ../modules.md#loading-a-module
-
-* Let `css` be the result of [resolving `module`'s extensions].
-
-  [resolving `module`'s extensions]: ../at-rules/extend.md#resolving-a-modules-extensions
-
-  > This means that, if a module loaded by `load-css()` shares some dependencies
-  > with the entrypoint module, those dependencies' CSS will be included twice.
-
-* Treat `css` as though it were the contents of the mixin.
+  [`css(module)`]: #css
