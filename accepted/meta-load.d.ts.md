@@ -1,6 +1,6 @@
-# `meta.load()`: Draft 1.0
+# `meta.load()`: Draft 1.1
 
-*([Issue](https://github.com/sass/sass/issues/739))*
+*([Issue](https://github.com/sass/sass/issues/739), [Changelog](meta-load.changes.md))*
 
 ## Table of Contents
 
@@ -24,8 +24,9 @@
   * [`meta.css()`](#metacss)
 * [JavaScript API](#javascript-api)
   * [Types](#types-1)
-    * [`SassModule`](#sassmodule)
+    * [`Value`](#value)
       * [`assertModule`](#assertmodule)
+    * [`SassModule`](#sassmodule)
       * [`internal`](#internal)
       * [Constructor](#constructor)
 * [Embedded Protocol](#embedded-protocol)
@@ -152,8 +153,8 @@ This proposal promotes the [module value] to a Sass value type.
 
 ### Operations
 
-The only operation permitted for module objects is checking for equality. All
-other operations throw an error.
+The only operations permitted for module objects are `not` and `==`. All other
+operations throw an error.
 
 #### Equality
 
@@ -281,12 +282,11 @@ import {Value} from '../spec/js-api/value';
 
 ### Types
 
-#### `SassModule`
-
-The JS API representation of a Sass module.
+#### `Value`
 
 ```ts
-export class SassModule extends Value {
+declare module '../spec/js-api/value' {
+  interface Value {
 ```
 
 ##### `assertModule`
@@ -299,6 +299,19 @@ Returns `this` if it's a [`SassModule`] and throws an error otherwise.
 
 ```ts
 assertModule(name?: string): SassModule;
+```
+
+```ts
+  } // Value
+}
+```
+
+#### `SassModule`
+
+The JS API representation of a Sass module.
+
+```ts
+export class SassModule extends Value {
 ```
 
 ##### `internal`
@@ -338,5 +351,7 @@ message CompilerModule {
 
 The protocol allows first-class modules loaded by the compiler to be passed to
 the host and vice-versa as `Value.CompilerModule`s.
+
+This proposal also adds `CompilerModule compiler_module = 15` to `Value.value`.
 
 Two first-class modules are equal if they have the same ID.

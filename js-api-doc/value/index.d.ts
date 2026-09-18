@@ -7,6 +7,7 @@ import {SassFunction} from './function';
 import {ListSeparator} from './list';
 import {SassMap} from './map';
 import {SassMixin} from './mixin';
+import {SassModule} from './module';
 import {SassNumber} from './number';
 import {SassString} from './string';
 
@@ -44,6 +45,7 @@ export {SassFunction} from './function';
 export {SassList, ListSeparator} from './list';
 export {SassMap} from './map';
 export {SassMixin} from './mixin';
+export {SassModule} from './module';
 export {SassNumber} from './number';
 export {SassString} from './string';
 
@@ -185,6 +187,14 @@ export abstract class Value implements ValueObject {
    * the `$`) if it came from an argument. Used for error reporting.
    */
   assertMixin(name?: string): SassMixin;
+
+  /**
+   * Throws if `this` isn't a {@link SassModule}.
+   *
+   * @param name - The name of the function argument `this` came from (without
+   * the `$`) if it came from an argument. Used for error reporting.
+   */
+  assertModule(name?: string): SassModule;
 
   /**
    * Throws if `this` isn't a {@link SassNumber}.

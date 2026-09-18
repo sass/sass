@@ -1,3 +1,7 @@
+## 3.3.0
+
+* Add `Module` SassScript value.
+
 ## 3.2.0
 
 * Explicitly forbid passing `CompilerFunction`s across different compilations.

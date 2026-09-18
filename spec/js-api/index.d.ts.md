@@ -109,6 +109,7 @@ export {
   SassList,
   SassMap,
   SassMixin,
+  SassModule,
   SassNumber,
   SassString,
   Value,
