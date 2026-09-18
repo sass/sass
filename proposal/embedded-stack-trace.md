@@ -115,7 +115,8 @@ Add the following fields:
 
 ```proto
 // The 0-based offset in `formatted` of the beginning of the formatted source
-// span. If no span exists, this is the same as `formatted_stack_trace_offset`.
+// span (after the previous newline). If no span exists, this is the same as
+// `formatted_stack_trace_offset`.
 //
 // This is intended to make it possible for hosts to re-order or remove segments
 // of the formatted message without being tightly coupled to its specific
@@ -123,7 +124,7 @@ Add the following fields:
 uint32 formatted_span_offset = 6;
 
 // The 0-based offset in `formatted` of the beginning of the formatted stack
-// trace.
+// trace (after the previous newline).
 //
 // This is intended to make it possible for hosts to re-order or remove segments
 // of the formatted message without being tightly coupled to its specific
@@ -145,7 +146,8 @@ Add the following fields:
 
 ```proto
 // The 0-based offset in `formatted` of the beginning of the formatted source
-// span. If no span exists, this is the same as `formatted_stack_trace_offset`.
+// span (after the previous newline). If no span exists, this is the same as
+// `formatted_stack_trace_offset`.
 //
 // This is intended to make it possible for hosts to re-order or remove segments
 // of the formatted message without being tightly coupled to its specific
@@ -153,7 +155,7 @@ Add the following fields:
 uint32 formatted_span_offset = 9;
 
 // The 0-based offset in `formatted` of the beginning of the formatted stack
-// trace.
+// trace (after the previous newline).
 //
 // This is intended to make it possible for hosts to re-order or remove segments
 // of the formatted message without being tightly coupled to its specific
