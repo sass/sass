@@ -11,7 +11,7 @@
 * [Embedded Protocol](#embedded-protocol)
   * [`StackFrame`](#stackframe)
   * [`CompileFailure`](#compilefailure)
-  * [`CompileFailure`](#compilefailure-1)
+  * [`LogEvent`](#logevent)
 
 ## Background
 
