@@ -22,6 +22,8 @@
     * [`dartSass2`](#dartsass2)
 * [Top-Level Members](#top-level-members)
   * [`deprecations`](#deprecations)
+* [Embedded Protocol](#embedded-protocol)
+  * [`CompileRequest`](#compilerequest)
 * [Deprecation Process](#deprecation-process)
   * [Phase 1](#phase-1)
   * [Phase 2](#phase-2)
@@ -41,7 +43,7 @@ common desirable behaviors.
 Dart Sass 2 will make *most* but not *all* deprecations added prior to Dart Sass
 1.105.0 into errors, with exceptions in place for `@import`- and `if()`-related
 deprecations. While the deprecation API can express "all deprecations up to this
-version", it _can't_ express "all deprecations up to this version except for
+version", it *can't* express "all deprecations up to this version except for
 these specifically".
 
 ## Summary
@@ -99,9 +101,13 @@ which will select the specific deprecations that will be enabled in Dart Sass 2.
 
 ## Types
 
+```ts
+import {Deprecations, DeprecationOrId, Version} from '../spec/js-api';
+```
+
 ### `DeprecationSelector`
 
-A value that can be selects a set of [deprecations].
+A value that selects a set of [deprecations].
 
 [deprecations]: ../spec/deprecations.yaml
 
@@ -125,7 +131,11 @@ A value that can be selects a set of [deprecations].
   element of that list.
 
 ```ts
-type DeprecationSelector = DeprecationOrId | Version | DeprecationSelectorObject | DeprecationSelector[];
+type DeprecationSelector =
+  | DeprecationOrId
+  | Version
+  | DeprecationSelectorObject
+  | DeprecationSelector[];
 ```
 
 ### `DeprecationSelectorObject`
@@ -164,8 +174,7 @@ exclude: DeprecationOrId | DeprecationOrId[];
 ### `Options`
 
 ```ts
-declare module '../spec/js-api' {
-  interface Options<sync extends 'sync' | 'async'> {
+interface Options {
 ```
 
 #### `fatalDeprecations`
@@ -207,13 +216,7 @@ silentDeprecations?: DeprecationOrId | DeprecationOrId[];
 > Make `Deprecations` implement `Record` so that `Object.values()` and related
 > methods become well-typed.
 
-```ts
-interface Deprecations extends Record<string, Deprecation<string>> {}
-```
-
-```ts
-} // module js-api
-```
+Add `Record<string, Deprecation<string>>` as a supertype of `Deprecations`.
 
 ### `DeprecationsUtil`
 
@@ -222,7 +225,7 @@ interface Deprecations extends Record<string, Deprecation<string>> {}
 > because they don't match its `Record` type, and TypeScript doesn't support
 > [non-enumerable properties] which would allow this to work.
 
-[`sass.deprecations`]: ../spec/js-api/deprecations.d.ts.md#deprecations-1
+[`sass.deprecations`]: ../spec/js-api/deprecations.d.ts.md#deprecations
 [`Deprecations`]: ../spec/js-api/deprecations.d.ts.md#deprecations
 [non-enumerable properties]: https://github.com/microsoft/TypeScript/issues/9726
 
@@ -255,6 +258,21 @@ dartSass2: DeprecationSelector;
 
 ```ts
 export const deprecations: Deprecations & DeprecationsUtil;
+```
+
+## Embedded Protocol
+
+### `CompileRequest`
+
+Add the field
+
+```proto
+// Deprecation IDs to treat as normal deprecations, even if they appear in
+// `fatal_deprecations`.
+//
+// The compiler must throw an error if a deprecation appears here and not in
+// `fatal_deprecation` (including deprecations marked fatal via version number).
+repeated string fatal_deprecation_except = 18;
 ```
 
 ## Deprecation Process
