@@ -99,7 +99,8 @@ No whitespace is allowed between components of an `InterpolatedIdentifier` or
 
 [unescaped url contents]: https://www.w3.org/TR/css-syntax-3/#url-token-diagram
 
-No whitespace is allowed between components of an `InterpolatedUnquotedUrlContents`.
+No whitespace is allowed between components of an
+`InterpolatedUnquotedUrlContents`. It is matched case-insensitively.
 
 ### `Name`
 

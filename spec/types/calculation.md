@@ -130,6 +130,9 @@ To serialize a `CalculationOperation`:
 
 To serialize a `Number` within a `CalculationExpression`:
 
+* If the number's value is negative zero, serialize it as positive zero with an
+  additional leading `-`.
+
 * If the number has more than one numerator unit, more than zero denominator
   units, of if it's [degenerate], [convert the number to a calculation], then
   serialize the resulting calculation's sole argument.
