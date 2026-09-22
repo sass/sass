@@ -132,7 +132,7 @@ uint32 formatted_span_offset = 6;
 uint32 formatted_stack_trace_offset = 7;
 ```
 
-### `CompileFailure`
+### `LogEvent`
 
 Replace `string stack_trace = 5;` with
 
