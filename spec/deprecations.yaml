@@ -51,6 +51,7 @@ new-global:
     deprecated: 1.17.2
     obsolete: 2.0.0
 
+# Obsolete in 3.0.0
 color-module-compat:
   description: Using color module functions in place of plain CSS functions.
   dart-sass:
@@ -155,12 +156,14 @@ legacy-js-api:
     deprecated: 1.79.0
     obsolete: 2.0.0
 
+# Obsolete in 3.0.0
 import:
   description: "@import rules."
   dart-sass:
     status: active
     deprecated: 1.80.0
 
+# Obsolete in 3.0.0
 global-builtin:
   description: "Global built-in functions that are available in sass: modules."
   dart-sass:
@@ -194,12 +197,14 @@ with-private:
     deprecated: 1.92.0
     obsolete: 2.0.0
 
+# Obsolete in 3.0.0
 if-function:
   description: The Sass if($condition, $if-true, $if-false) function.
   dart-sass:
     status: active
     deprecated: 1.95.0
 
+# Obsolete in 3.0.0
 list-slash:
   description: 'The list.slash() function.'
   dart-sass:
