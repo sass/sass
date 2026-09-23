@@ -187,8 +187,9 @@ compile-string-relative-url:
 misplaced-rest:
   description: 'A rest parameter before a positional or named parameter.'
   dart-sass:
-    status: active
+    status: obsolete
     deprecated: 1.91.0
+    obsolete: 2.0.0
 
 with-private:
   description: Configuring private variables in @use, @forward, or load-css().
