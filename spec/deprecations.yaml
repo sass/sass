@@ -215,8 +215,9 @@ list-slash:
 function-name:
   description: Uppercase reserved function names.
   dart-sass:
-    status: active
+    status: obsolete
     deprecated: 1.98.0
+    obsolete: 2.0.0
 
 adjacent-compounds:
   description: Adjacent compound selectors like `[class]a`.
