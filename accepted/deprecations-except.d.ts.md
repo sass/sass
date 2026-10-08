@@ -1,6 +1,6 @@
-# Deprecations Except: Draft 1.0
+# Deprecations Except: Draft 1.1x
 
-*([Issue](https://github.com/sass/sass/issues/4252))*
+*([Issue](https://github.com/sass/sass/issues/4252), [Changelog](deprecations-except.changes.md))*
 
 ## Table of Contents
 
@@ -16,7 +16,7 @@
   * [`Options`](#options)
     * [`fatalDeprecations`](#fataldeprecations)
     * [`futureDeprecations`](#futuredeprecations)
-    * [`silentDeprecations`](#silentdeprecations)
+    * [`silenceDeprecations`](#silencedeprecations)
   * [`Deprecations`](#deprecations)
   * [`DeprecationsUtil`](#deprecationsutil)
     * [`dartSass2`](#dartsass2)
@@ -201,10 +201,10 @@ fatalDeprecations?: DeprecationSelector;
 futureDeprecations?: DeprecationOrId | DeprecationOrId[];
 ```
 
-#### `silentDeprecations`
+#### `silenceDeprecations`
 
 ```ts
-silentDeprecations?: DeprecationOrId | DeprecationOrId[];
+silenceDeprecations?: DeprecationOrId | DeprecationOrId[];
 ```
 
 ```ts

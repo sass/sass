@@ -167,6 +167,14 @@ message InboundMessage {
 
     // Deprecation IDs to opt into early.
     repeated string future_deprecation = 17;
+
+    // Deprecation IDs to treat as normal deprecations, even if they appear in
+    // `fatal_deprecations`.
+    //
+    // The compiler must throw an error if a deprecation appears here and not in
+    // `fatal_deprecation` (including deprecations marked fatal via version
+    // number).
+    repeated string fatal_deprecation_except = 18;
   }
 
   // A response indicating the result of canonicalizing an imported URL.
