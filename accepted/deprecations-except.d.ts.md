@@ -10,7 +10,7 @@
   * [Command-Line API](#command-line-api)
 * [Types](#types)
   * [`DeprecationSelector`](#deprecationselector)
-  * [`DeprecationSelectorObject`](#deprecationselectorobject)
+  * [`DeprecationSelectorDifference`](#deprecationselectordifference)
     * [`include`](#include)
     * [`exclude`](#exclude)
   * [`Options`](#options)
@@ -120,12 +120,12 @@ A value that selects a set of [deprecations].
   than the version of the current implementation, this selector is invalid.
 
   > It's important that this even selects obsolete deprecations, because
-  > otherwise the valid `DeprecationSelectorObject` `{include:
+  > otherwise the valid `DeprecationSelectorDifference` `{include:
   > sass.Version.parse("1.2.3"), except: "some-deprecation"}` would become
   > invalid as soon as `some-deprecation` became obsolete. We want it to emit a
   > warning instead.
 
-* If this is a `DeprecationSelectorObject`, it selects that selector's deprecations.
+* If this is a `DeprecationSelectorDifference`, it selects that selector's deprecations.
 
 * If this is a list, it selects the union of all deprecations selected by any
   element of that list.
@@ -134,16 +134,16 @@ A value that selects a set of [deprecations].
 type DeprecationSelector =
   | DeprecationOrId
   | Version
-  | DeprecationSelectorObject
+  | DeprecationSelectorDifference
   | DeprecationSelector[];
 ```
 
-### `DeprecationSelectorObject`
+### `DeprecationSelectorDifference`
 
 An object that selects a set of [deprecations].
 
 ```ts
-interface DeprecationSelectorObject {
+interface DeprecationSelectorDifference {
 ```
 
 #### `include`
@@ -168,7 +168,7 @@ exclude: DeprecationOrId | DeprecationOrId[];
 ```
 
 ```ts
-} // DeprecationSelectorObject
+} // DeprecationSelectorDifference
 ```
 
 ### `Options`
