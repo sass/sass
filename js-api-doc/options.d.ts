@@ -1,4 +1,4 @@
-import {DeprecationOrId, Version} from './deprecations';
+import {DeprecationOrId, DeprecationSelector} from './deprecations';
 import {FileImporter, Importer, NodePackageImporter} from './importer';
 import {Logger} from './logger';
 import {Value} from './value';
@@ -126,16 +126,13 @@ export interface Options<sync extends 'sync' | 'async'> {
   /**
    * A set of deprecations to treat as fatal.
    *
-   * If a deprecation warning of any provided type is encountered during
+   * If a deprecation warning of any selected type is encountered during
    * compilation, the compiler will error instead.
-   *
-   * If a `Version` is provided, then all deprecations that were active in that
-   * compiler version will be treated as fatal.
    *
    * @category Messages
    * @compatiblity dart: "1.74.0", node: false
    */
-  fatalDeprecations?: (DeprecationOrId | Version)[];
+  fatalDeprecations?: DeprecationSelector;
 
   /**
    * Additional built-in Sass functions that are available in all stylesheets.
@@ -221,8 +218,12 @@ export interface Options<sync extends 'sync' | 'async'> {
    *
    * @category Messages
    * @compatiblity dart: "1.74.0", node: false
+   * @compatiblity dart: feature: "single value", "1.106.0", node: false
+   *
+   * Prior to Dart Sass 1.106.0, this field could only take a list, not an
+   * individual {@link DeprecationOrId}.
    */
-  futureDeprecations?: DeprecationOrId[];
+  futureDeprecations?: DeprecationOrId | DeprecationOrId[];
 
   /**
    * Custom importers that control how Sass resolves loads from rules like
@@ -330,8 +331,12 @@ export interface Options<sync extends 'sync' | 'async'> {
    *
    * @category Messages
    * @compatiblity dart: "1.74.0", node: false
+   * @compatiblity dart: feature: "single value", "1.106.0", node: false
+   *
+   * Prior to Dart Sass 1.106.0, this field could only take a list, not an
+   * individual {@link DeprecationOrId}.
    */
-  silenceDeprecations?: DeprecationOrId[];
+  silenceDeprecations?: DeprecationOrId | DeprecationOrId[];
 
   /**
    * Whether or not Sass should generate a source map. If it does, the source
