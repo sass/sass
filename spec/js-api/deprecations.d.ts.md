@@ -98,7 +98,7 @@ A value that selects a set of [deprecations].
   element of that list.
 
 ```ts
-type DeprecationSelector =
+export type DeprecationSelector =
   | DeprecationOrId
   | Version
   | DeprecationSelectorDifference
@@ -118,7 +118,7 @@ export type DeprecationOrId = Deprecation | keyof Deprecations;
 An object that selects a set of [deprecations].
 
 ```ts
-interface DeprecationSelectorDifference {
+export interface DeprecationSelectorDifference {
 ```
 
 #### `include`
@@ -308,7 +308,7 @@ static parse(version: string): Version;
 All properties on this interface are non-enumerable.
 
 ```ts
-interface DeprecationsUtil {
+export interface DeprecationsUtil {
 ```
 
 #### `dartSass2`

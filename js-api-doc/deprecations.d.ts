@@ -1,5 +1,3 @@
-import { DeprecationsUtil } from "../proposal/deprecations-except";
-
 /**
  * All of the deprecation types currently used by Sass.
  *
@@ -358,7 +356,7 @@ export class Version {
  * @category Messages
  * @compatibility dart: "1.106.0", node: false
  */
-interface DeprecationsUtil {
+export interface DeprecationsUtil {
   /** Selects all deprecations that will become errors in Dart Sass 2.0.0. */
   dartSass2: DeprecationSelector;
 }

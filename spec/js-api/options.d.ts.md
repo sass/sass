@@ -6,7 +6,7 @@
 > [compile API]: compile.d.ts.md
 
 ```ts
-import {DeprecationOrId} from './deprecations';
+import {DeprecationOrId, DeprecationSelector} from './deprecations';
 import {FileImporter, Importer, NodePackageImporter} from './importer';
 import {Logger} from './logger';
 import {Value} from './value';
