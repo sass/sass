@@ -17,7 +17,10 @@ export {
   deprecations,
   Deprecation,
   Deprecations,
+  DeprecationsUtil,
   DeprecationOrId,
+  DeprecationSelector,
+  DeprecationSelectorDifference,
   DeprecationStatus,
   Version,
 } from './deprecations';
