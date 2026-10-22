@@ -1,4 +1,4 @@
-# Deprecations Except: Draft 1.1x
+# Deprecations Except: Draft 1.1
 
 *([Issue](https://github.com/sass/sass/issues/4252), [Changelog](deprecations-except.changes.md))*
 
