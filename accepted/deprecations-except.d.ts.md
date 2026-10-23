@@ -268,7 +268,7 @@ Add the field
 
 ```proto
 // Deprecation IDs to treat as normal deprecations, even if they appear in
-// `fatal_deprecations`.
+// `fatal_deprecation`.
 //
 // The compiler must throw an error if a deprecation appears here and not in
 // `fatal_deprecation` (including deprecations marked fatal via version number).
