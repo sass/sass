@@ -17,7 +17,6 @@
     * [`fatalDeprecations`](#fataldeprecations)
     * [`futureDeprecations`](#futuredeprecations)
     * [`silenceDeprecations`](#silencedeprecations)
-  * [`Deprecations`](#deprecations)
   * [`DeprecationsUtil`](#deprecationsutil)
     * [`dartSass2`](#dartsass2)
 * [Top-Level Members](#top-level-members)
@@ -211,19 +210,13 @@ silenceDeprecations?: DeprecationOrId | DeprecationOrId[];
 } // Options
 ```
 
-### `Deprecations`
-
-> Make `Deprecations` implement `Record` so that `Object.values()` and related
-> methods become well-typed.
-
-Add `Record<string, Deprecation<string>>` as a supertype of `Deprecations`.
-
 ### `DeprecationsUtil`
 
 > This interface exists to declare non-enumerable properties on
-> [`sass.deprecations`]. They can't be declared directly on [`Deprecations`]
-> because they don't match its `Record` type, and TypeScript doesn't support
-> [non-enumerable properties] which would allow this to work.
+> [`sass.deprecations`]. We avoid declaring these directly on [`Deprecations`]
+> because we don't want them appearing as part of `keyof Deprecations`, and
+> TypeScript doesn't support [non-enumerable properties] which would allow this
+> to work.
 
 [`sass.deprecations`]: ../spec/js-api/deprecations.d.ts.md#deprecations
 [`Deprecations`]: ../spec/js-api/deprecations.d.ts.md#deprecations
