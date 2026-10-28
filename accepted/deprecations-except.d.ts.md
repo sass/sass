@@ -1,6 +1,6 @@
-# Deprecations Except: Draft 1.0
+# Deprecations Except: Draft 1.1
 
-*([Issue](https://github.com/sass/sass/issues/4252))*
+*([Issue](https://github.com/sass/sass/issues/4252), [Changelog](deprecations-except.changes.md))*
 
 ## Table of Contents
 
@@ -10,14 +10,13 @@
   * [Command-Line API](#command-line-api)
 * [Types](#types)
   * [`DeprecationSelector`](#deprecationselector)
-  * [`DeprecationSelectorObject`](#deprecationselectorobject)
+  * [`DeprecationSelectorDifference`](#deprecationselectordifference)
     * [`include`](#include)
     * [`exclude`](#exclude)
   * [`Options`](#options)
     * [`fatalDeprecations`](#fataldeprecations)
     * [`futureDeprecations`](#futuredeprecations)
-    * [`silentDeprecations`](#silentdeprecations)
-  * [`Deprecations`](#deprecations)
+    * [`silenceDeprecations`](#silencedeprecations)
   * [`DeprecationsUtil`](#deprecationsutil)
     * [`dartSass2`](#dartsass2)
 * [Top-Level Members](#top-level-members)
@@ -120,12 +119,12 @@ A value that selects a set of [deprecations].
   than the version of the current implementation, this selector is invalid.
 
   > It's important that this even selects obsolete deprecations, because
-  > otherwise the valid `DeprecationSelectorObject` `{include:
+  > otherwise the valid `DeprecationSelectorDifference` `{include:
   > sass.Version.parse("1.2.3"), except: "some-deprecation"}` would become
   > invalid as soon as `some-deprecation` became obsolete. We want it to emit a
   > warning instead.
 
-* If this is a `DeprecationSelectorObject`, it selects that selector's deprecations.
+* If this is a `DeprecationSelectorDifference`, it selects that selector's deprecations.
 
 * If this is a list, it selects the union of all deprecations selected by any
   element of that list.
@@ -134,16 +133,16 @@ A value that selects a set of [deprecations].
 type DeprecationSelector =
   | DeprecationOrId
   | Version
-  | DeprecationSelectorObject
+  | DeprecationSelectorDifference
   | DeprecationSelector[];
 ```
 
-### `DeprecationSelectorObject`
+### `DeprecationSelectorDifference`
 
 An object that selects a set of [deprecations].
 
 ```ts
-interface DeprecationSelectorObject {
+interface DeprecationSelectorDifference {
 ```
 
 #### `include`
@@ -168,7 +167,7 @@ exclude: DeprecationOrId | DeprecationOrId[];
 ```
 
 ```ts
-} // DeprecationSelectorObject
+} // DeprecationSelectorDifference
 ```
 
 ### `Options`
@@ -201,29 +200,23 @@ fatalDeprecations?: DeprecationSelector;
 futureDeprecations?: DeprecationOrId | DeprecationOrId[];
 ```
 
-#### `silentDeprecations`
+#### `silenceDeprecations`
 
 ```ts
-silentDeprecations?: DeprecationOrId | DeprecationOrId[];
+silenceDeprecations?: DeprecationOrId | DeprecationOrId[];
 ```
 
 ```ts
 } // Options
 ```
 
-### `Deprecations`
-
-> Make `Deprecations` implement `Record` so that `Object.values()` and related
-> methods become well-typed.
-
-Add `Record<string, Deprecation<string>>` as a supertype of `Deprecations`.
-
 ### `DeprecationsUtil`
 
 > This interface exists to declare non-enumerable properties on
-> [`sass.deprecations`]. They can't be declared directly on [`Deprecations`]
-> because they don't match its `Record` type, and TypeScript doesn't support
-> [non-enumerable properties] which would allow this to work.
+> [`sass.deprecations`]. We avoid declaring these directly on [`Deprecations`]
+> because we don't want them appearing as part of `keyof Deprecations`, and
+> TypeScript doesn't support [non-enumerable properties] which would allow this
+> to work.
 
 [`sass.deprecations`]: ../spec/js-api/deprecations.d.ts.md#deprecations
 [`Deprecations`]: ../spec/js-api/deprecations.d.ts.md#deprecations
@@ -268,7 +261,7 @@ Add the field
 
 ```proto
 // Deprecation IDs to treat as normal deprecations, even if they appear in
-// `fatal_deprecations`.
+// `fatal_deprecation`.
 //
 // The compiler must throw an error if a deprecation appears here and not in
 // `fatal_deprecation` (including deprecations marked fatal via version number).

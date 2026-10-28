@@ -192,3 +192,10 @@ adjacent-compounds:
   dart-sass:
     status: active
     deprecated: 1.100.0
+
+# Obsolete in 3.0.0
+deprecation-version:
+  description: Selecting versions beyond the current one for `fatalDeprecations`.
+  dart-sass:
+    status: active
+    deprecated: 1.107.0
