@@ -1,3 +1,9 @@
+## 4.0.0
+
+* Implement the [embedded stack trace].
+
+[embedded stack trace]: accepted/embedded-stack-trace.md
+
 ## 3.4.0
 
 * Add a `CompilerRequest.fatal_deprecations_except` field which allows the host
