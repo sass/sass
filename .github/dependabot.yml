@@ -7,3 +7,12 @@ updates:
       interval: "weekly"
     cooldown:
       default-days: 7
+  - package-ecosystem: "npm"
+    directories:
+      - "/"
+    ignore:
+      - dependency-name: "sass"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
