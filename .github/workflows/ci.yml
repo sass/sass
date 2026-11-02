@@ -5,7 +5,7 @@ env: {NODE_VERSION: 18}
 on:
   push: {branches: [main, 'feature.*']}
   pull_request:
-
+im alfia new developer
 jobs:
   static_analysis:
     name: Static analysis
