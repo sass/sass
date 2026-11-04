@@ -377,7 +377,7 @@ names [as identifiers].
 ### Phase 1
 
 In the first phase of deprecation, most behaviors that will change will instead
-emit a deprecation warning names `meta-escape`. This will be emitted when:
+emit a deprecation warning named `meta-escape`. This will be emitted when:
 
 * A quoted string whose textual value is not an [`<ident-token>`] is passed to
   `function-exists()`, `global-variable-exists()`, `mixin-exists()`,
