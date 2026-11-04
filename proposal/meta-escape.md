@@ -270,8 +270,8 @@ Replace the bullet point
 
 with
 
-* Return a plain CSS function string whose name is `$name` [as an identifier]
-  and whose arguments are `$args`.
+* Return a plain CSS function string whose name is `name` [as an identifier] and
+  whose arguments are `$args`.
 
 ### `get-mixin()`
 
