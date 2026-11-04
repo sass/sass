@@ -44,8 +44,8 @@
 > This section is non-normative.
 
 Sass has historically been a little loose with the way escape codes have been
-handled in `sass:meta` APIs (as well as keyword rest arguments, which aren't
-don't necessarily involve `sass:meta` but are similar in that they expose Sass
+handled in `sass:meta` APIs (as well as keyword rest arguments, which don't
+necessarily involve `sass:meta` but are similar in that they expose Sass
 constructs to SassScript). Many of these APIs deal with Sass structures that use
 CSS-style identifiers, including variable, mixin, and function names, as well as
 module namespaces.
@@ -72,7 +72,7 @@ For quoted strings, these are identical. For unquoted strings, though, they may
 differ if the string contains escape codes. For example, the unquoted string
 `\$`'s textual value is `[U+005C BACKSLASH, U+0024 DOLLAR SIGN]` but its
 semantic value is just `[U+0024 DOLLAR SIGN]`. Unquoted strings with different
-textual, such as `\$` and `\24`, may have the same semantic value.
+textual values, such as `\$` and `\24`, may have the same semantic value.
 
 It's also important to note that not all unquoted strings even *have* a
 meaningful semantic value. Although Sass only supports unquoted string literals
