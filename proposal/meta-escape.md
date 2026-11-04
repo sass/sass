@@ -16,6 +16,7 @@
   * [Logical String](#logical-string)
 * [Types](#types)
   * [String](#string)
+  * [Argument List](#argument-list)
 * [Procedures](#procedures)
   * [Getting the Semantic Value of a String](#getting-the-semantic-value-of-a-string)
   * [Converting a String to an Identifier](#converting-a-string-to-an-identifier)
@@ -155,6 +156,8 @@ In general:
   on the *semantic value* of those strings rather than their textual value. They
   will throw an error if passed an anti-identifier.
 
+This also makes passing anti-identifiers as keyword rest arguments an error.
+
 ### Design Decisions
 
 #### Throwing Errors
@@ -191,6 +194,16 @@ its *contents* or its *textual value* when necessary to disambiguate with its
 
 [logical string]: #logical-string
 [semantic value]: #getting-the-semantic-value-of-a-string
+
+### Argument List
+
+An argument list's keywords are the [semantic values] of the additional argument
+names.
+
+[semantic values]: #getting-the-semantic-value-of-a-string
+
+> This means that attempting to create an argument list one of whose keys is an
+> anti-identifier will throw an error.
 
 ## Procedures
 
@@ -322,8 +335,6 @@ Replace the third bullet point with:
   [semantic values] of `$with`'s keys and whose values are those keys' values.
   Throw an error if multiple keys have the same semantic value.
 
-[semantic values]: #getting-the-semantic-value-of-a-string
-
 ### `mixin-exists()`
 
 Replace the second bullet point with
@@ -381,16 +392,21 @@ emit a deprecation warning named `meta-escape`. This will be emitted when:
 
 * A quoted string whose textual value is not an [`<ident-token>`] is passed to
   `function-exists()`, `global-variable-exists()`, `mixin-exists()`,
-  `variable-exists()`, `get-function()`, `get-mixin()`, or `get-module()`.
+  `variable-exists()`, `get-function()`, `get-mixin()`, or `get-module()`; or is
+  used as a key in a map passed as a rest argument.
 
-* An anti-identifier is passed to `function-exists()`,
+* An [anti-identifier] is passed to `function-exists()`,
   `global-variable-exists()`, `mixin-exists()`, `variable-exists()`,
-  `get-function()`, `get-mixin()`, or `get-module()`.
+  `get-function()`, `get-mixin()`, or `get-module()`; or is used as a key in a
+  map passed as a rest argument.
 
 * An unquoted string whose textual value is not equal to its [semantic value]
   [as an identifier] is passed to `function-exists()`,
   `global-variable-exists()`, `mixin-exists()`, `variable-exists()`,
-  `get-function()`, `get-mixin()`, or `get-module()`.
+  `get-function()`, `get-mixin()`, or `get-module()`; or is used as a key in a
+  map passed as a rest argument.
+
+[anti-identifier]: #textual-and-semantic-value
 
 The changes to `load()` and to named rest arguments will be implemented as
 described above, since all behaviors that are changing already produced errors
