@@ -232,7 +232,7 @@ This function is also available as a global function named `global-variable-exis
 
 * Let `module` be the result of calling [`get-module($module)`].
 
-* Return whether `module` contains a function named `$name`.
+* Return whether `module` contains a variable named `$name`.
 
 ### `inspect()`
 
