@@ -40,6 +40,30 @@ jobs:
           persona: pedantic
           advanced-security: false # Fail the GitHub action if Zizmor has findings
 
+  dependabot_merge:
+    name: Auto-merge Dependabot PR
+    permissions:
+      contents: write # Needed to merge PR
+      pull-requests: write # Needed to merge PR
+    runs-on: ubuntu-latest
+    needs: [test]
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.repository == 'sass/sass'
+
+    steps:
+      - id: metadata
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - if: steps.metadata.outputs.update-type != 'version-update:semver-major'
+        run: gh pr merge --auto --squash "$PR_URL" -A "sass.bot.beep.boop@gmail.com"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - if: steps.metadata.outputs.update-type == 'version-update:semver-major'
+        run: echo "Major version increment needs manual review."
+
   toc:
     name: Tables of contents
     runs-on: ubuntu-latest
