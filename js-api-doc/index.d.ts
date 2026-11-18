@@ -17,7 +17,10 @@ export {
   deprecations,
   Deprecation,
   Deprecations,
+  DeprecationsUtil,
   DeprecationOrId,
+  DeprecationSelector,
+  DeprecationSelectorDifference,
   DeprecationStatus,
   Version,
 } from './deprecations';
@@ -72,6 +75,7 @@ export {
   SassList,
   SassMap,
   SassMixin,
+  SassModule,
   SassNumber,
   SassString,
   Value,
