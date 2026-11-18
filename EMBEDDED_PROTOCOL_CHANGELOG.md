@@ -1,3 +1,13 @@
+## 3.4.0
+
+* Add a `CompilerRequest.fatal_deprecations_except` field which allows the host
+  to explicitly un-mark deprecations as fatal when they would otherwise be
+  marked fatal via version number.
+
+## 3.3.0
+
+* Add `Module` SassScript value.
+
 ## 3.2.0
 
 * Explicitly forbid passing `CompilerFunction`s across different compilations.

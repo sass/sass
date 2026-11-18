@@ -2,9 +2,15 @@ name: CI
 
 env: {NODE_VERSION: 18}
 
+permissions: {}
+
 on:
   push: {branches: [main, 'feature.*']}
   pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-test-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   static_analysis:
@@ -12,8 +18,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v7
-    - uses: actions/setup-node@v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with: {persist-credentials: false}
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
     - run: >
@@ -22,13 +29,57 @@ jobs:
           npx tsc --noEmit &&
           npx markdownlint-cli2
 
+  static_analysis_ci:
+    name: Static analysis (GitHub Actions)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: {persist-credentials: false}
+      - uses: zizmorcore/zizmor-action@cc914d7f3750a2d13d75c7f184a1060aa0e9d482 # v0.6.4
+        with:
+          persona: pedantic
+          advanced-security: false # Fail the GitHub action if Zizmor has findings
+
+  dependabot_merge:
+    name: Auto-merge Dependabot PR
+    permissions:
+      contents: write # Needed to merge PR
+      pull-requests: write # Needed to merge PR
+    runs-on: ubuntu-latest
+    needs:
+    - static_analysis
+    - static_analysis_ci
+    - toc
+    - link
+    - js_api_mirroring
+    - typedoc
+    - protoc
+    - deprecations
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.repository == 'sass/sass'
+
+    steps:
+      - id: metadata
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - if: steps.metadata.outputs.update-type != 'version-update:semver-major'
+        run: gh pr merge --auto --squash "$PR_URL" -A "sass.bot.beep.boop@gmail.com"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - if: steps.metadata.outputs.update-type == 'version-update:semver-major'
+        run: echo "Major version increment needs manual review."
+
   toc:
     name: Tables of contents
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v7
-    - uses: actions/setup-node@v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with: {persist-credentials: false}
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
     - run: npm run toc-check
@@ -38,8 +89,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v7
-    - uses: actions/setup-node@v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with: {persist-credentials: false}
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
     - run: npm run link-check
@@ -49,8 +101,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v7
-    - uses: actions/setup-node@v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with: {persist-credentials: false}
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
     - run: npm run js-api-doc-check
@@ -60,8 +113,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v7
-    - uses: actions/setup-node@v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with: {persist-credentials: false}
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
     - run: npm run typedoc
@@ -71,8 +125,9 @@ jobs:
     runs-on: "ubuntu-latest"
 
     steps:
-      - uses: actions/checkout@v7
-      - uses: bufbuild/buf-action@v1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: {persist-credentials: false}
+      - uses: bufbuild/buf-action@85aebf73123b5c15fd5528aaecbf9129cddf7fa7 # v1.6.0
         with:
           setup_only: true
       - name: Generate protobuf code
@@ -83,7 +138,8 @@ jobs:
     runs-on: "ubuntu-latest"
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: {persist-credentials: false}
       - name: Check versions match
         run: |
           if ! (grep -q '\-dev$' spec/EMBEDDED_PROTOCOL_VERSION ||
@@ -97,8 +153,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v7
-    - uses: actions/setup-node@v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with: {persist-credentials: false}
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
       with: {node-version: '${{ env.NODE_VERSION }}'}
     - run: npm ci
     - run: npm run deprecations-check
@@ -112,8 +169,9 @@ jobs:
           github.ref == 'refs/heads/main'
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           fetch-depth: 2
 
       - name: Get version information
@@ -130,8 +188,10 @@ jobs:
         run: |
           git config --global user.name 'SassBot'
           git config --global user.email 'sass.bot.beep.boop@gmail.com'
-          git tag "embedded-protocol-${{ steps.version-info.outputs.VERSION }}"
+          git tag "embedded-protocol-$VERSION"
           git push --tags
+        env:
+          VERSION: ${{ steps.version-info.outputs.VERSION }}
 
   # Whenever anything changes in js-api-docs, redeploy the website so it picks
   # up those changes.
@@ -145,12 +205,14 @@ jobs:
       github.ref == 'refs/heads/main'
 
     steps:
-    - uses: actions/checkout@v7
-      with: {fetch-depth: 0}
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+        fetch-depth: 0
 
     - name: Find changed files in js-api-doc
       id: changed-files
-      uses: tj-actions/changed-files@934b2d2c7e653bb8c968afed5a0428617f09aa24
+      uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
       with: {files: js-api-doc}
 
     - name: Deploy

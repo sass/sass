@@ -10,6 +10,7 @@ import {SassFunction} from './function';
 import {ListSeparator} from './list';
 import {SassMap} from './map';
 import {SassMixin} from './mixin';
+import {SassModule} from './module';
 import {SassNumber} from './number';
 import {SassString} from './string';
 
@@ -47,6 +48,7 @@ export {SassFunction} from './function';
 export {SassList, ListSeparator} from './list';
 export {SassMap} from './map';
 export {SassMixin} from './mixin';
+export {SassModule} from './module';
 export {SassNumber} from './number';
 export {SassString} from './string';
 ```
@@ -71,6 +73,7 @@ export {SassString} from './string';
     * [`assertFunction`](#assertfunction)
     * [`assertMap`](#assertmap)
     * [`assertMixin`](#assertmixin)
+    * [`assertModule`](#assertmodule)
     * [`assertNumber`](#assertnumber)
     * [`assertString`](#assertstring)
     * [`tryMap`](#trymap)
@@ -264,6 +267,18 @@ Returns `this` if it's a [`SassMixin`] and throws an error otherwise.
 
 ```ts
 assertMixin(name?: string): SassMixin;
+```
+
+#### `assertModule`
+
+Returns `this` if it's a [`SassModule`] and throws an error otherwise.
+
+[`SassModule`]: module.d.ts.md
+
+> The `name` parameter may be used for error reporting.
+
+```ts
+assertModule(name?: string): SassModule;
 ```
 
 #### `assertNumber`

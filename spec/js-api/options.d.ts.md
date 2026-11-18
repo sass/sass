@@ -6,7 +6,7 @@
 > [compile API]: compile.d.ts.md
 
 ```ts
-import {DeprecationOrId, Version} from './deprecations';
+import {DeprecationOrId, DeprecationSelector} from './deprecations';
 import {FileImporter, Importer, NodePackageImporter} from './importer';
 import {Logger} from './logger';
 import {Value} from './value';
@@ -124,25 +124,19 @@ charset?: boolean;
 
 #### `fatalDeprecations`
 
-A set of deprecations to treat as fatal.
+If a deprecation warning for any of the selected deprecations would be emitted
+during compilation, the compiler must error instead.
 
-If a deprecation warning of any provided type is encountered during compilation,
-the compiler must error instead.
+The compiler must error if this selector is invalid.
 
-The compiler should convert any string passed here to a `Deprecation` by
-indexing `deprecations`. If an invalid deprecation ID is passed here, the
-compiler must emit a warning. If a version is passed here, it should be treated
-equivalently to passing all active deprecations whose `deprecatedIn` version is
-less than or equal to it.
-
-The compiler must emit a warning if a future deprecation that's not also
-included in `futureDeprecations` or any obsolete deprecation is included here.
+The compiler must emit a warning if a future deprecation is selected, unless
+that deprecation is also included in `futureDeprecations`.
 
 If a deprecation is passed both here and to `silenceDeprecations`, a warning
 must be emitted, but making the deprecation fatal must take precedence.
 
 ```ts
-fatalDeprecations?: (DeprecationOrId | Version)[];
+fatalDeprecations?: DeprecationSelector;
 ```
 
 #### `functions`
@@ -207,7 +201,7 @@ compiler must emit a warning.
 The compiler must emit a warning if a non-future deprecation is included here.
 
 ```ts
-futureDeprecations?: DeprecationOrId[];
+futureDeprecations?: DeprecationOrId | DeprecationOrId[];
 ```
 
 #### `importers`
@@ -271,7 +265,7 @@ If a future deprecation is included both here and in `futureDeprecations`, then
 silencing it takes precedence.
 
 ```ts
-silenceDeprecations?: DeprecationOrId[];
+silenceDeprecations?: DeprecationOrId | DeprecationOrId[];
 ```
 
 #### `sourceMap`

@@ -34,6 +34,7 @@ and [`embedded_sass.proto`] for the compiler endpoint.
   * [Calculations](#calculations)
   * [Functions](#functions)
   * [Mixins](#mixins)
+  * [Modules](#modules)
 * [Versioning](#versioning)
 
 ## Overview
@@ -364,6 +365,11 @@ have the same ID and they're either both `CompilerFunction`s or both
 
 The requirements described above for `CompilerFunction` also apply to
 `CompilerMixin`.
+
+### Modules
+
+The requirements described above for `CompilerFunction` also apply to
+`CompilerModule`.
 
 ## Versioning
 
