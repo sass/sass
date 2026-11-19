@@ -365,23 +365,39 @@ message OutboundMessage {
     // A message indicating that the Sass file could not be successfully
     // compiled to CSS.
     message CompileFailure {
+      reserved 3;
+
       // A message describing the reason for the failure.
       string message = 1;
 
       // The span associated with the failure.
       SourceSpan span = 2;
 
-      // The stack trace associated with the failure.
-      //
-      // The empty string indicates that no stack trace is available. Otherwise,
-      // the format of this stack trace is not specified and is likely to be
-      // inconsistent between implementations.
-      string stack_trace = 3;
-
       // A formatted, human-readable string that contains the message, span
       // (if available), and trace (if available). The format of this string is
       // not specified and is likely to be inconsistent between implementations.
       string formatted = 4;
+
+      // The Sass stack trace of this error, ordered from innermost to
+      // outermost stack frames.
+      repeated StackFrame stack_trace = 5;
+
+      // The 0-based offset in `formatted` of the beginning of the formatted source
+      // span (after the previous newline). If no span exists, this is the same as
+      // `formatted_stack_trace_offset`.
+      //
+      // This is intended to make it possible for hosts to re-order or remove segments
+      // of the formatted message without being tightly coupled to its specific
+      // formatting.
+      uint32 formatted_span_offset = 6;
+
+      // The 0-based offset in `formatted` of the beginning of the formatted stack
+      // trace (after the previous newline).
+      //
+      // This is intended to make it possible for hosts to re-order or remove segments
+      // of the formatted message without being tightly coupled to its specific
+      // formatting.
+      uint32 formatted_stack_trace_offset = 7;
     }
 
     // The success or failure result of the compilation. Mandatory.
@@ -405,6 +421,7 @@ message OutboundMessage {
   // An event indicating that a message should be displayed to the user.
   message LogEvent {
     reserved 1;
+    reserved 5;
 
     LogEventType type = 2;
 
@@ -414,13 +431,6 @@ message OutboundMessage {
     // The span associated with this message.
     optional SourceSpan span = 4;
 
-    // The stack trace associated with this message.
-    //
-    // The empty string indicates that no stack trace is available. Otherwise,
-    // the format of this stack trace is not specified and is likely to be
-    // inconsistent between implementations.
-    string stack_trace = 5;
-
     // A formatted, human-readable string that contains the message, span (if
     // available), and trace (if available). The format of this string is not
     // specified and is likely to be inconsistent between implementations.
@@ -428,6 +438,27 @@ message OutboundMessage {
 
     // The deprecation ID for this warning, if type is DEPRECATION_WARNING.
     optional string deprecation_type = 7;
+
+    // The Sass stack trace at the point at which this log was generated, ordered
+    // from innermost to outermost stack frames.
+    repeated StackFrame stack_trace = 8;
+
+    // The 0-based offset in `formatted` of the beginning of the formatted source
+    // span (after the previous newline). If no span exists, this is the same as
+    // `formatted_stack_trace_offset`.
+    //
+    // This is intended to make it possible for hosts to re-order or remove segments
+    // of the formatted message without being tightly coupled to its specific
+    // formatting.
+    uint32 formatted_span_offset = 9;
+
+    // The 0-based offset in `formatted` of the beginning of the formatted stack
+    // trace (after the previous newline).
+    //
+    // This is intended to make it possible for hosts to re-order or remove segments
+    // of the formatted message without being tightly coupled to its specific
+    // formatting.
+    uint32 formatted_stack_trace_offset = 10;
   }
 
   // A request for a custom importer to convert an imported URL to its canonical
@@ -1102,4 +1133,24 @@ message NodePackageImporter {
   //
   // [entryPointDirectory option]: https://sass-lang.com/documentation/js-api/classes/NodePackageImporter.html#constructor
   string entry_point_directory = 1;
+}
+
+// A single frame of a Sass stack trace, indicating a portion of the stylesheet
+// currently being executed.
+message StackFrame {
+  // A human-friendly description of what's being executed. Often, but not
+  // always, a mixin or function name.
+  string description = 1;
+
+  // The 0-based line number of this frame within the source file.
+  uint32 line = 2;
+
+  // The 0-based column number of this frame within its line.
+  uint32 column = 3;
+
+  // The URL of the stylesheet in which this frame appears.
+  //
+  // This may be empty, indicating that the frame appears in a
+  // `CompileRequest.StringInput` file that doesn't specify a URL.
+  string url = 4;
 }
