@@ -199,3 +199,10 @@ deprecation-version:
   dart-sass:
     status: active
     deprecated: 1.107.0
+
+# Obsolete in 3.0.0
+color-opacity:
+  description: The `color.alpha()` and `color.opacity()` functions.
+  dart-sass:
+    status: active
+    deprecated: 1.109.0
