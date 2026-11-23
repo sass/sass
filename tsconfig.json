@@ -6,7 +6,8 @@
     "lib": ["dom"],
     "paths": {
       "*": ["./tool/types/*"]
-    }
+    },
+    "types": ["node"],
   },
   "include": ["accepted/**/*.ts", "proposal/**/*.ts", "spec/**/*.ts", "tool/**/*.ts", "test/**/*.ts", "js-api-doc/**/*.ts"]
 }
