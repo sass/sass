@@ -6,12 +6,10 @@
   * [Source File](#source-file)
   * [Vendor Prefix](#vendor-prefix)
 * [Syntax](#syntax-1)
-  * [`ArgumentList`](#argumentlist)
   * [`InterpolatedAnyValue`](#interpolatedanyvalue)
   * [`InterpolatedIdentifier`](#interpolatedidentifier)
   * [`InterpolatedUrl`](#interpolatedurl)
   * [`Name`](#name)
-  * [`ParameterList`](#parameterlist)
 * [Procedures](#procedures)
   * [Parsing Text](#parsing-text)
   * [Parsing Text as CSS](#parsing-text-as-css)
@@ -56,19 +54,6 @@ representation of the intermediate production.
 > `Foo` wrapper is removed. (The `Bar` wrapper is *not* removed because
 > `<ident-token>` is a CSS production, not a Sass production.)
 
-### `ArgumentList`
-
-<x><pre>
-**ArgumentList**  ::= '(' Expression (',' Expression)\*
-&#32;                 (',' NamedArgument)\* (',' RestArgument){0,2} ','? ')'
-&#32;               | '(' NamedArgument (',' NamedArgument)\*
-&#32;                 (',' RestArgument){0,2} ','? ')'
-&#32;               | '(' RestArgument (',' RestArgument)? ','? ')'
-&#32;               | '(' ')'
-**NamedArgument** ::= [PlainVariable] ':' Expression
-**RestArgument**  ::= Expression '...'
-</pre></x>
-
 ### `InterpolatedAnyValue`
 
 The `InterpolatedAnyValue` production is identical to CSS's [`<any-value>`]
@@ -98,6 +83,7 @@ No whitespace is allowed between components of an `InterpolatedIdentifier` or
 </pre></x>
 
 [unescaped url contents]: https://www.w3.org/TR/css-syntax-3/#url-token-diagram
+[escape]: https://drafts.csswg.org/css-syntax-3/#escape-diagram
 
 No whitespace is allowed between components of an
 `InterpolatedUnquotedUrlContents`. It is matched case-insensitively.
@@ -109,20 +95,6 @@ No whitespace is allowed between components of an
 </pre></x>
 
 [identifier code point]: https://drafts.csswg.org/css-syntax-3/#identifier-code-point
-[escape]: https://drafts.csswg.org/css-syntax-3/#escape-diagram
-
-### `ParameterList`
-
-<x><pre>
-**ParameterList** ::= '(' Parameter (',' Parameter)\* ','? ')'
-&#32;               | '(' Parameter (',' Parameter)\* (',' RestParameter)? ','? ')'
-&#32;               | '(' RestParameter ','? ')'
-&#32;               | '(' ')'
-**Parameter**     ::= [PlainVariable] (':' Expression)?
-**RestParameter** ::= [PlainVariable] '...'
-</pre></x>
-
-[PlainVariable]: variables.md#syntax
 
 ## Procedures
 

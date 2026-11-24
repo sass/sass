@@ -67,7 +67,7 @@ case-insensitive.
 
 [SpecialFunctionExpression]: expressions.md#specialfunctionexpression
 [NamespacedIdentifier]: modules.md#syntax
-[ArgumentList]: syntax.md#argumentlist
+[ArgumentList]: arguments.md#argumentlist
 
 1: Both `CssMinMax` and `EmptyFallbackVar` take precedence over `FunctionCall`
    if either could be consumed.
@@ -155,7 +155,7 @@ To evaluate a `FunctionCall` `call`:
 
 * Evaluate `return`'s `Expression` and return the result.
 
-[`ParameterList`]: syntax.md#parameterlist
+[`ParameterList`]: arguments.md#parameterlist
 
 ## Global Functions
 

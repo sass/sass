@@ -176,7 +176,7 @@ Before beginning compilation:
       contains (including the return value itself if it's a calculation)
       replaced with the result of [simplifying] those calculations.
 
-[`ParameterList`]: ../syntax.md#parameterlist
+[`ParameterList`]: ../arguments.md#parameterlist
 [<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
 [underscore-insensitively]: ../modules.md#underscore-insensitive
 [`SassFunction`]: value/function.d.ts.md

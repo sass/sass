@@ -26,6 +26,8 @@ the `.$` in `NamespacedVariable`. Each of `!global` and `!default` is allowed
 at most once in `VariableDeclaration`. As with all statements, a
 `VariableDeclaration` must be separated from other statements with a semicolon.
 
+The "name" of a `PlainVariable` is the value of its `<ident-token>`.
+
 ## Semantics
 
 ### Executing a Variable Declaration

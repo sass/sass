@@ -1,6 +1,7 @@
-# Meta Escape: Draft 1.0
+# Meta Escape: Draft 1.1
 
-*([Issue](https://github.com/sass/sass/issues/4268))*
+*([Issue](https://github.com/sass/sass/issues/4268),
+[Changelog](meta-escape.changes.md))*
 
 ## Table of Contents
 
@@ -262,7 +263,7 @@ Change the final bullet point to:
 
 ### `function-exists()`
 
-Replace the second bullet point with
+Replace the third bullet point with
 
 * Let `name` be `$name`'s [semantic value].
 
@@ -390,21 +391,22 @@ names [as identifiers].
 In the first phase of deprecation, most behaviors that will change will instead
 emit a deprecation warning named `meta-escape`. This will be emitted when:
 
-* A quoted string whose textual value is not an [`<ident-token>`] is passed to
-  `function-exists()`, `global-variable-exists()`, `mixin-exists()`,
-  `variable-exists()`, `get-function()`, `get-mixin()`, or `get-module()`; or is
-  used as a key in a map passed as a rest argument.
+* A quoted string whose textual value is not an [`<ident-token>`] without
+  escapes is passed to `function-exists()`, `global-variable-exists()`,
+  `mixin-exists()`, `variable-exists()`, `get-function()`, `get-mixin()`, or
+  `get-module()`; or is used as a key in a map passed as a rest argument or a
+  configuration.
 
 * An [anti-identifier] is passed to `function-exists()`,
   `global-variable-exists()`, `mixin-exists()`, `variable-exists()`,
   `get-function()`, `get-mixin()`, or `get-module()`; or is used as a key in a
-  map passed as a rest argument.
+  map passed as a rest argument or a configuration.
 
 * An unquoted string whose textual value is not equal to its [semantic value]
   [as an identifier] is passed to `function-exists()`,
   `global-variable-exists()`, `mixin-exists()`, `variable-exists()`,
   `get-function()`, `get-mixin()`, or `get-module()`; or is used as a key in a
-  map passed as a rest argument.
+  map passed as a rest argument or a configuration.
 
 [anti-identifier]: #textual-and-semantic-value
 

@@ -21,7 +21,7 @@
 </pre></x>
 
 [\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
-[ParameterList]: ../syntax.md#parameterlist
+[ParameterList]: ../arguments.md#parameterlist
 [Block]: ../statement.md#block
 
 No whitespace is allowed between the `Identifier` and the `ParameterList`
@@ -82,7 +82,7 @@ To execute a `@mixin` rule `rule`:
 </pre></x>
 
 [NamespacedIdentifier]: ../modules.md#syntax
-[ArgumentList]: ../syntax.md#argumentlist
+[ArgumentList]: ../arguments.md#argumentlist
 
 No whitespace is allowed between the `NamespacedIdentifier` and the
 `ArgumentList` in `IncludeRule`.
