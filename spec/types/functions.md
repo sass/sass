@@ -13,7 +13,7 @@ The value type known as a "function" is a procedure that takes an
 [`ArgumentList`] `args` and returns a SassScript value. Each function has a
 string name.
 
-[`ArgumentList`]: ../syntax.md#argumentlist
+[`ArgumentList`]: ../arguments.md#argumentlist
 
 > The specific details of executing this procedure differ depending on where and
 > how the function is defined.

@@ -206,3 +206,10 @@ color-opacity:
   dart-sass:
     status: active
     deprecated: 1.109.0
+
+# Obsolete in 3.0.0
+meta-escape:
+  description: Passing escaped strings to `sass:meta` functions.
+  dart-sass:
+    status: active
+    deprecated: 1.109.0

@@ -16,7 +16,7 @@ signature of the form
 </pre></x>
 
 [\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
-[ParameterList]: syntax.md#parameterlist
+[ParameterList]: arguments.md#parameterlist
 
 followed by a procedure. It's available as a member (either function or mixin)
 in the module whose name is the value of the `<ident-token>`. When it's executed

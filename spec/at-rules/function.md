@@ -11,7 +11,7 @@
 **FunctionRule** ::= '@function' [\<ident-token>]¹ [ParameterList] '{' Statements '}'
 </pre></x>
 
-[ParameterList]: ../syntax.md#parameterlist
+[ParameterList]: ../arguments.md#parameterlist
 [\<ident-token>]: https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
 
 1: This may not begin with `--`.
