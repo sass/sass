@@ -42,7 +42,7 @@
     "source-map-js": "^0.6.2",
     "ts-dedent": "^2.2.0",
     "ts-node": "^10.2.1",
-    "typedoc": "^0.24.7",
+    "typedoc": "^0.28.20",
     "typescript": "^5.0.4",
     "yaml": "^2.2.1"
   }
